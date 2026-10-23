@@ -35,8 +35,10 @@ enum GPUImageProcessor {
         filter.setValue(contrast, forKey: kCIInputContrastKey)
         filter.setValue(0.0, forKey: kCIInputSaturationKey)
         filter.setValue(0.01, forKey: kCIInputBrightnessKey)
-        guard let result = filter.outputImage,
-              let rendered = context.createCGImage(result, from: input.extent) else {
+        // OCR receives a defined interleaved 8-bit RGB image rather than a
+        // context-dependent floating-point or extended-range output format.
+        guard let result = filter.outputImage, let outputSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let rendered = context.createCGImage(result, from: input.extent, format: .RGBA8, colorSpace: outputSpace) else {
             throw NSError(domain: "PDF.ImageProcessing", code: 2,
                           userInfo: [NSLocalizedDescriptionKey: "Não foi possível melhorar a digitalização."])
         }

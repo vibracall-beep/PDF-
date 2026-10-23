@@ -620,12 +620,12 @@ enum ReaderAnnotationStyle {
             let target = directory.appendingPathComponent(name)
             var itemOptions = options; itemOptions.removeValue(forKey: "input_passwords")
             if let password = individualPasswords?[index], !password.isEmpty { itemOptions["password"] = password }
-            execute(operation:operation,inputs:[inputs[index]],output:target,options:itemOptions,title:"\(title) · \(index+1)/\(inputs.count)") { result in
+            execute(operation:operation,inputs:[inputs[index]],output:target,options:itemOptions,title:"\(title) · \(index+1)/\(inputs.count)",completion: { result in
                 switch result {
                 case .success: next(index+1)
                 case .failure(let error): self.lastOutput = directory; self.message = "Lote interrompido após \(index) documentos concluídos. \(error.localizedDescription)"
                 }
-            }
+            })
         }
         next(0)
     }

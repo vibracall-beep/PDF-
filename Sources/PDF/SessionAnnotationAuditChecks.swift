@@ -130,23 +130,58 @@ import PDFKit
         let annotation = PDFAnnotation(bounds: CGRect(x: 80, y: 300, width: 100, height: 50), forType: .freeText, withProperties: nil)
         annotation.contents = "Original"; page.addAnnotation(annotation)
         firstSession.history.inserted(annotation, on: page, name: "Inserir texto")
+        try require(firstSession.history.undoManager.groupingLevel == 0 && firstSession.history.undoManager.undoActionName == "Inserir texto", "Inserir não encerrou o próprio grupo com o título correto.")
         firstSession.history.undoManager.undo()
         try require(!page.annotations.contains(where: { $0 === annotation }), "Desfazer não removeu a anotação criada.")
+        try require(firstSession.history.undoManager.redoActionName == "Inserir texto", "Desfazer inserção perdeu o título da ação inversa.")
         firstSession.history.undoManager.redo()
         try require(page.annotations.contains(where: { $0 === annotation }), "Refazer não restaurou a anotação criada.")
+        try require(firstSession.history.undoManager.groupingLevel == 0 && firstSession.history.undoManager.undoActionName == "Inserir texto", "Refazer inserção deixou grupo aberto ou perdeu o título.")
         let before = PDFAnnotationState(annotation)
         EditableAnnotations.resize(annotation, to: CGRect(x: 100, y: 320, width: 140, height: 70))
         annotation.contents = "Editado"; annotation.color = .systemRed
         let border = PDFBorder(); border.lineWidth = 6; annotation.border = border
         firstSession.history.changed(annotation, before: before)
+        try require(firstSession.history.undoManager.groupingLevel == 0 && firstSession.history.undoManager.undoActionName == "Editar anotação", "Editar não encerrou o próprio grupo com o título correto.")
         firstSession.history.undoManager.undo()
         try require(annotation.bounds == before.bounds && annotation.contents == "Original", "Desfazer não restaurou geometria e conteúdo.")
+        try require(firstSession.history.undoManager.redoActionName == "Editar anotação", "Restaurar propriedades perdeu o título de refazer.")
         firstSession.history.undoManager.redo()
         try require(annotation.contents == "Editado" && annotation.bounds.width == 140 && annotation.border?.lineWidth == 6, "Refazer perdeu propriedades editadas.")
+        try require(firstSession.history.undoManager.groupingLevel == 0 && firstSession.history.undoManager.undoActionName == "Editar anotação", "Refazer edição deixou grupo aberto ou perdeu o título.")
         try require(!secondSession.history.undoManager.canUndo, "Uma edição de outra aba contaminou o histórico do documento de referência.")
         firstSession.history.remove(annotation, from: page)
+        try require(firstSession.history.undoManager.groupingLevel == 0 && firstSession.history.undoManager.undoActionName == "Excluir anotação", "Excluir não encerrou o próprio grupo com o título correto.")
         firstSession.history.undoManager.undo()
         try require(page.annotations.contains(where: { $0 === annotation }), "Desfazer exclusão não restaurou a anotação.")
+        try require(firstSession.history.undoManager.redoActionName == "Excluir anotação", "Desfazer exclusão perdeu o título de refazer.")
+        firstSession.history.undoManager.redo()
+        try require(!page.annotations.contains(where: { $0 === annotation }) && firstSession.history.undoManager.undoActionName == "Excluir anotação", "Refazer exclusão não preservou conteúdo e título.")
+        firstSession.history.undoManager.undo()
+        try require(page.annotations.contains(where: { $0 === annotation }) && firstSession.history.undoManager.groupingLevel == 0, "Restaurar a exclusão refeita perdeu a anotação ou deixou um grupo aberto.")
+
+        // Exercise an explicitly grouped selection without a window or a run-loop event.
+        // The inner registrations must leave the caller's group open and undo both marks together.
+        let groupedPage = PDFPage()
+        let groupedHistory = AnnotationHistory()
+        var groupedChanges = 0
+        groupedHistory.onChange = { groupedChanges += 1 }
+        let marks = [CGFloat(220), CGFloat(260)].map { y in
+            PDFAnnotation(bounds: CGRect(x: 50, y: y, width: 100, height: 20), forType: .highlight, withProperties: nil)
+        }
+        groupedHistory.undoManager.beginUndoGrouping()
+        for mark in marks {
+            groupedPage.addAnnotation(mark)
+            groupedHistory.inserted(mark, on: groupedPage, name: "Realçar seleção")
+            try require(groupedHistory.undoManager.groupingLevel == 1, "Uma inserção encerrou o grupo externo da seleção.")
+        }
+        groupedHistory.undoManager.endUndoGrouping()
+        try require(groupedChanges == 2 && groupedHistory.undoManager.undoActionName == "Realçar seleção", "O grupo de realces não concluiu as notificações ou perdeu o título.")
+        groupedHistory.undoManager.undo()
+        try require(groupedPage.annotations.isEmpty && !groupedHistory.undoManager.canUndo && groupedHistory.undoManager.redoActionName == "Realçar seleção", "Desfazer a seleção não removeu os dois realces em uma única ação nomeada.")
+        groupedHistory.undoManager.redo()
+        try require(marks.allSatisfy { mark in groupedPage.annotations.contains { $0 === mark } } && groupedPage.annotations.count == 2, "Refazer a seleção não restaurou exatamente os dois realces.")
+        try require(groupedChanges == 6 && groupedHistory.undoManager.groupingLevel == 0 && groupedHistory.undoManager.undoActionName == "Realçar seleção", "Refazer a seleção perdeu notificações, título ou equilíbrio dos grupos.")
         try require(!EditableAnnotations.accepts(widget), "O editor genérico permitiu transformar campos de formulário como anotações gráficas.")
         try require(rejects { try EditableAnnotations.validate(CGRect(x: -20, y: 0, width: 10, height: 10), on: page) }, "O editor aceitou uma anotação fora da página.")
         let mark = PDFAnnotation(bounds: CGRect(x: 50, y: 200, width: 100, height: 20), forType: .highlight, withProperties: nil)
@@ -164,6 +199,6 @@ import PDFKit
         try require(finalPage.annotations.contains { PDFAnnotationKind.matches($0, .freeText) && $0.contents == "Editado" && $0.bounds.width == 140 }, "Salvar/reabrir perdeu as alterações refeitas.")
         workspace.closeSession(secondSession.id, discardChanges: true)
         try require(workspace.sessions.count == 1 && workspace.comparisonSessionID == nil && !(try store.list()).contains(where: { $0.id == secondSession.id }), "Fechar uma aba deixou recuperação ou referência abandonada.")
-        print("Session audit: independent tabs/page/zoom/forms, safe recovery, encrypted snapshots, annotation edit/undo/redo/persistence passed")
+        print("Session audit: independent tabs/page/zoom/forms, safe recovery, encrypted snapshots, named annotation groups/edit/undo/redo/persistence passed")
     }
 }

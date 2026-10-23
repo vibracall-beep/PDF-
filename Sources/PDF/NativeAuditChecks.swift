@@ -58,6 +58,9 @@ import UniformTypeIdentifiers
         let token = NativeCancellation(); token.cancel()
         try require(rejects { _ = try ScannerPDF.assemble(urls: [tiff], cancellation: token) { _, _ in } }, "A montagem ignorou cancelamento prévio.")
         try require(rejects { _ = try GPUImageProcessor.enhance(image, contrast: .nan) }, "O filtro gráfico aceitou contraste não finito.")
+        let enhanced = try GPUImageProcessor.enhance(image)
+        try require(enhanced.width == image.width && enhanced.height == image.height && enhanced.bitsPerComponent == 8 && enhanced.bitsPerPixel == 32 && enhanced.colorSpace?.model == .rgb,
+                    "O processamento não produziu a imagem RGB de 8 bits e resolução preservada exigida pelo OCR.")
 
         let protected = directory.appendingPathComponent("protected.pdf")
         let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): "audit-reader-123",

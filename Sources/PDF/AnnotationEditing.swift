@@ -85,31 +85,34 @@ enum EditableAnnotations {
     let undoManager = UndoManager()
     var onChange: (() -> Void)?
     override init() { super.init(); undoManager.levelsOfUndo = 100; undoManager.groupsByEvent = false }
-    private func registration(_ body: () -> Void) {
+    private func registration(name: String, _ body: () -> Void) {
         let ownGroup = undoManager.groupingLevel == 0 && !undoManager.isUndoing && !undoManager.isRedoing
         if ownGroup { undoManager.beginUndoGrouping() }
         body()
+        // With groupsByEvent disabled, name the active registration group before closing it.
+        // An enclosing selection operation or UndoManager itself owns all other groups.
+        AnnotationDiagnostics.trace("history.registration: active group action name begin")
+        undoManager.setActionName(name)
+        AnnotationDiagnostics.trace("history.registration: active group action name end")
         if ownGroup { undoManager.endUndoGrouping() }
     }
     func inserted(_ annotation: PDFAnnotation, on page: PDFPage, name: String) {
         AnnotationDiagnostics.trace("history.inserted: undo registration begin")
-        registration { undoManager.registerUndo(withTarget: self) { target in MainActor.assumeIsolated { target.remove(annotation, from: page, name: name) } } }
-        AnnotationDiagnostics.trace("history.inserted: undo registration end; action name begin")
-        undoManager.setActionName(name)
-        AnnotationDiagnostics.trace("history.inserted: action name end; onChange begin")
+        registration(name: name) { undoManager.registerUndo(withTarget: self) { target in MainActor.assumeIsolated { target.remove(annotation, from: page, name: name) } } }
+        AnnotationDiagnostics.trace("history.inserted: undo registration end; onChange begin")
         onChange?()
         AnnotationDiagnostics.trace("history.inserted: onChange end")
     }
     func remove(_ annotation: PDFAnnotation, from page: PDFPage, name: String = "Excluir anotação") {
         page.removeAnnotation(annotation)
-        registration { undoManager.registerUndo(withTarget: self) { target in
+        registration(name: name) { undoManager.registerUndo(withTarget: self) { target in
             MainActor.assumeIsolated { page.addAnnotation(annotation); target.inserted(annotation, on: page, name: name) }
         } }
-        undoManager.setActionName(name); onChange?()
+        onChange?()
     }
     func changed(_ annotation: PDFAnnotation, before: PDFAnnotationState, name: String = "Editar anotação") {
-        registration { undoManager.registerUndo(withTarget: self) { target in MainActor.assumeIsolated { target.restore(annotation, state: before, name: name) } } }
-        undoManager.setActionName(name); onChange?()
+        registration(name: name) { undoManager.registerUndo(withTarget: self) { target in MainActor.assumeIsolated { target.restore(annotation, state: before, name: name) } } }
+        onChange?()
     }
     private func restore(_ annotation: PDFAnnotation, state: PDFAnnotationState, name: String) {
         let current = PDFAnnotationState(annotation); state.apply(to: annotation)

@@ -607,7 +607,7 @@ struct ToolConfigurationView: View {
         do { try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700]) }
         catch { self.error = error.localizedDescription; return }
         let output = directory.appendingPathComponent("fields.json")
-        model.execute(operation:"forms",inputs:[source],output:output,options:["password":password],title:"Lendo campos") { result in
+        model.execute(operation:"forms",inputs:[source],output:output,options:["password":password],title:"Lendo campos",completion: { result in
             defer { try? FileManager.default.removeItem(at:directory); if model.lastOutput == output { model.lastOutput = nil } }
             do {
                 let file = try result.get()
@@ -624,7 +624,7 @@ struct ToolConfigurationView: View {
                     return FormValueDraft(name:name,value:value,checkbox:kind == "CheckBox",checked:checked,choices:item["choices"] as? [String] ?? [],allowsEmpty:true,readOnly:item["readonly"] as? Bool ?? false,originalValue:value,originallyChecked:checked)
                 }
             } catch { values = []; self.error = error.localizedDescription }
-        }
+        })
     }
     func detectFields() {
         guard let source = inputs.first else { return }
@@ -636,7 +636,7 @@ struct ToolConfigurationView: View {
         detectionOptions["password"] = password
         if !pages.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { detectionOptions["pages"] = pages }
         error = ""
-        model.execute(operation:"form-detect",inputs:[source],output:output,options:detectionOptions,title:"Analisando campos e tabelas") { result in
+        model.execute(operation:"form-detect",inputs:[source],output:output,options:detectionOptions,title:"Analisando campos e tabelas",completion: { result in
             defer { try? FileManager.default.removeItem(at:directory); if model.lastOutput == output { model.lastOutput = nil } }
             do {
                 let file = try result.get()
@@ -671,7 +671,7 @@ struct ToolConfigurationView: View {
                 if lowWords > 0 { detectionSummary += " · \(lowWords) palavras para revisão prioritária" }
                 if fields.isEmpty { detectionSummary += ". Nenhum campo sugerido; você pode adicionar campos manualmente." }
             } catch { self.error = error.localizedDescription }
-        }
+        })
     }
     func perform() {
         error = ""

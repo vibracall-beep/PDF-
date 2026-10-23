@@ -103,7 +103,15 @@ enum VisionRecognition {
             let supported = try request.supportedRecognitionLanguages()
             let wanted = language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]
             request.recognitionLanguages = wanted.filter { supported.contains($0) }
-            request.automaticallyDetectsLanguage = true
+            guard request.recognitionLanguages.contains(where: { $0.hasPrefix(language == "pt" ? "pt" : "en") }) else {
+                throw NSError(domain: "PDF.Vision", code: 5, userInfo: [NSLocalizedDescriptionKey: "O Vision não disponibilizou o idioma escolhido neste sistema."])
+            }
+            // The user selects Portuguese or English. Vision's public API
+            // recommends explicit languages when the language is already known.
+            request.automaticallyDetectsLanguage = false
+            if CommandLine.arguments.contains(where: { ["--smoke-test", "--benchmark"].contains($0) }) {
+                print("Vision OCR configuration: revision=\(request.revision); accurate=true; automaticLanguage=false; languages=\(request.recognitionLanguages.joined(separator: ",")); cpuOnly=\(cpuOnly); image=\(image.width)x\(image.height); bitsPerComponent=\(image.bitsPerComponent); bitsPerPixel=\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue)")
+            }
             cancellation.install(request)
             defer { cancellation.install(nil) }
             if cpuOnly {

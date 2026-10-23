@@ -2,6 +2,7 @@
 import json
 import os
 from pathlib import Path
+import shlex
 import signal
 import subprocess
 import sys
@@ -17,13 +18,25 @@ class CancellationTests(unittest.TestCase):
             bin_directory = root / 'bin'
             bin_directory.mkdir()
             pid_file = root / 'converter.pid'
-            executable = bin_directory / 'soffice'
-            executable.write_text(
-                '#!' + sys.executable + '\n'
+            # A real installed runtime can live under 'Application Support'.
+            # Exercise that path shape even on Linux: kernel shebang parsing does
+            # not support a Python interpreter pathname containing spaces.
+            runtime = root / 'runtime with spaces'
+            runtime.mkdir()
+            interpreter = runtime / 'python3'
+            interpreter.symlink_to(sys.executable)
+            child_script = root / 'converter child.py'
+            child_script.write_text(
                 'import os, time\n'
                 'from pathlib import Path\n'
                 'Path(os.environ["PDF_TEST_CHILD_PID"]).write_text(str(os.getpid()))\n'
                 'time.sleep(30)\n',
+                encoding='utf-8',
+            )
+            executable = bin_directory / 'soffice'
+            executable.write_text(
+                '#!/bin/sh\nexec ' + shlex.quote(str(interpreter)) + ' '
+                + shlex.quote(str(child_script)) + ' "$@"\n',
                 encoding='utf-8',
             )
             executable.chmod(0o755)
@@ -41,10 +54,14 @@ class CancellationTests(unittest.TestCase):
             child_pid = None
             try:
                 deadline = time.monotonic() + 5
-                while not pid_file.exists() and parent.poll() is None and time.monotonic() < deadline:
+                while parent.poll() is None and time.monotonic() < deadline:
+                    if pid_file.exists():
+                        ready = pid_file.read_text().strip()
+                        if ready.isdecimal():
+                            child_pid = int(ready)
+                            break
                     time.sleep(0.02)
-                self.assertTrue(pid_file.exists(), 'The fixture converter must actually start before cancellation.')
-                child_pid = int(pid_file.read_text())
+                self.assertIsNotNone(child_pid, 'The fixture converter must actually start before cancellation.')
                 parent.send_signal(signal.SIGINT)
                 stdout, stderr = parent.communicate(timeout=8)
                 self.assertEqual(parent.returncode, 130)
@@ -63,7 +80,9 @@ class CancellationTests(unittest.TestCase):
             finally:
                 if parent.poll() is None:
                     parent.kill()
-                    parent.communicate(timeout=5)
+                # Close both pipes even if startup failed before the first
+                # communicate call; this also prevents ResourceWarning noise.
+                parent.communicate(timeout=5)
                 if child_pid is not None:
                     try:
                         os.kill(child_pid, signal.SIGKILL)

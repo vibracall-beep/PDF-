@@ -115,7 +115,7 @@ struct BenchmarkReport: Codable, Sendable {
                     guard enhanced.width == image.width,enhanced.height == image.height else { throw failure("O processamento alterou as dimensões.") }
                 }
                 if includeOCR {
-                    record("ocr","Reconhecer texto","Vision na primeira página, inglês; seleção automática e tentativa CPU de recuperação quando suportada.") {
+                    record("ocr","Reconhecer texto","Vision preciso na primeira página, inglês; execução automática, tentativa CPU e revisão anterior compatível quando necessário e suportado.") {
                         let observations = try VisionRecognition.recognize(image,language:"en",cancellation:NativeCancellation())
                         if input == nil, !observations.contains(where:{ $0.topCandidates(1).first?.string.localizedCaseInsensitiveContains("benchmark") == true }) {
                             throw failure("O OCR não reconheceu o texto conhecido da amostra.")

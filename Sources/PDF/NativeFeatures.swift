@@ -73,32 +73,62 @@ private enum NativePDFError: LocalizedError {
     }
 }
 
-/// Automatic device selection remains the default. A failed execution may receive
-/// one explicit CPU attempt; input/configuration errors are never treated as hardware faults.
+/// Marks only errors thrown while Vision is executing an already configured request.
+/// Foundation can erase Vision's runtime error into _GenericObjCError; configuration
+/// failures outside perform must never receive the same retry policy.
+struct VisionExecutionFailure: Error {
+    let underlying: Error
+}
+
+/// Automatic device selection and the SDK's default recognition revision come first.
+/// Runtime failures may receive a CPU attempt and one supported older accurate engine.
+/// No retry changes the requested language or switches to fast recognition.
 enum VisionRecognition {
+    private static func chain(_ error: Error) -> [NSError] {
+        var current = (error as? VisionExecutionFailure)?.underlying ?? error
+        var result: [NSError] = []
+        var visited = Set<ObjectIdentifier>()
+        for _ in 0..<8 {
+            let native = current as NSError
+            guard visited.insert(ObjectIdentifier(native)).inserted else { break }
+            result.append(native)
+            guard let underlying = native.userInfo[NSUnderlyingErrorKey] as? Error else { break }
+            current = underlying
+        }
+        return result
+    }
     static func shouldRetryOnCPU(_ error: Error) -> Bool {
         if error is CancellationError { return false }
-        let native = error as NSError
-        if native.domain == VNErrorDomain {
-            let retryable = [VNErrorCode.operationFailed, .internalError, .unknownError, .unsupportedComputeStage, .unsupportedComputeDevice]
-            guard retryable.contains(where: { $0.rawValue == native.code }) else { return false }
-            if let underlying = native.userInfo[NSUnderlyingErrorKey] as? NSError, underlying.domain == VNErrorDomain,
-               !retryable.contains(where: { $0.rawValue == underlying.code }) { return false }
-            return true
+        let execution = error as? VisionExecutionFailure
+        if execution?.underlying is CancellationError { return false }
+        let retryable = [VNErrorCode.operationFailed, .internalError, .unknownError, .unsupportedComputeStage, .unsupportedComputeDevice]
+        let errors = chain(error)
+        return !errors.isEmpty && errors.allSatisfy { native in
+            if native.domain == VNErrorDomain {
+                // A nested cancellation, bad input, missing model or memory failure
+                // vetoes a retry even when wrapped in a generic execution error.
+                return retryable.contains(where: { $0.rawValue == native.code })
+            }
+            if native.domain == "TextRecognition.CRImageReaderError" {
+                return native.code == 9 || native.localizedDescription.localizedCaseInsensitiveContains("unknownError")
+            }
+            // Observed from perform on SDK 27. This permits a bounded compatibility
+            // attempt; it does not establish a hardware cause for the failure.
+            return execution != nil && native.domain == "Foundation._GenericObjCError" && native.code == 0
         }
-        // This runtime error is emitted by the text reader on some virtual Macs.
-        // Its presence permits a retry, but does not establish why recognition failed.
-        return native.domain == "TextRecognition.CRImageReaderError" &&
-            (native.code == 9 || String(describing: error) == "unknownError" || native.localizedDescription.localizedCaseInsensitiveContains("unknownError"))
     }
     static func description(_ error: Error) -> String {
-        let native = error as NSError
-        return "\(native.domain) (\(native.code)): \(native.localizedDescription)"
+        chain(error).map { "\($0.domain) (\($0.code)): \($0.localizedDescription)" }.joined(separator: " → ")
     }
     static func recognize(_ image: CGImage, language: String, cancellation: NativeCancellation) throws -> [VNRecognizedTextObservation] {
-        func perform(cpuOnly: Bool) throws -> [VNRecognizedTextObservation] {
+        let defaultRevision = VNRecognizeTextRequest.defaultRevision
+        // Revision 1 is English-only. Select an older engine only if this runtime
+        // still advertises it; each attempt also validates its accurate languages.
+        let compatibleRevision = VNRecognizeTextRequest.supportedRevisions.filter { $0 >= 2 && $0 < defaultRevision }.max()
+        func perform(revision: Int, cpuOnly: Bool) throws -> [VNRecognizedTextObservation] {
             try cancellation.check()
             let request = VNRecognizeTextRequest()
+            request.revision = revision
             request.recognitionLevel = .accurate; request.usesLanguageCorrection = true
             let supported = try request.supportedRecognitionLanguages()
             let wanted = language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]
@@ -128,11 +158,11 @@ enum VisionRecognition {
             }
             try cancellation.check()
             do { try VNImageRequestHandler(cgImage: image, options: [:]).perform([request]) }
-            catch { try cancellation.check(); throw error }
+            catch { try cancellation.check(); throw VisionExecutionFailure(underlying: error) }
             try cancellation.check()
             return request.results ?? []
         }
-        do { return try perform(cpuOnly: false) }
+        do { return try perform(revision: defaultRevision, cpuOnly: false) }
         catch {
             try cancellation.check()
             if error is CancellationError { throw error }
@@ -142,14 +172,30 @@ enum VisionRecognition {
             }
             print("Vision OCR: automatic execution failed (\(description(first))); retrying once with supported CPU devices")
             do {
-                let observations = try perform(cpuOnly: true)
+                let observations = try perform(revision: defaultRevision, cpuOnly: true)
                 print("Vision OCR: CPU retry completed with \(observations.count) observations")
                 return observations
             } catch {
                 try cancellation.check()
                 if error is CancellationError { throw error }
+                let second = error
+                let cpuConfiguration = second as NSError
+                let cpuUnavailable = cpuConfiguration.domain == "PDF.Vision" && [1, 2].contains(cpuConfiguration.code)
+                if let compatibleRevision, shouldRetryOnCPU(second) || cpuUnavailable {
+                    print("Vision OCR: CPU execution failed (\(description(second))); trying supported accurate revision \(compatibleRevision)")
+                    do {
+                        let observations = try perform(revision: compatibleRevision, cpuOnly: false)
+                        print("Vision OCR: compatible accurate revision \(compatibleRevision) completed with \(observations.count) observations")
+                        return observations
+                    } catch {
+                        try cancellation.check()
+                        if error is CancellationError { throw error }
+                        throw NSError(domain: "PDF.Vision", code: 6,
+                            userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: \(description(first)). CPU: \(description(second)). Revisão compatível \(compatibleRevision): \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error])
+                    }
+                }
                 throw NSError(domain: "PDF.Vision", code: 4,
-                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error])
+                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(second)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: second])
             }
         }
     }

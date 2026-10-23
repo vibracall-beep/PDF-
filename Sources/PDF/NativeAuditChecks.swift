@@ -2,6 +2,7 @@ import AppKit
 import PDFKit
 import ImageIO
 import UniformTypeIdentifiers
+import Vision
 
 /// Regression checks for native file publication, reader preferences and scan assembly.
 /// Invoked by the macOS smoke runner; hardware acquisition and model generation remain manual.
@@ -61,6 +62,21 @@ import UniformTypeIdentifiers
         let enhanced = try GPUImageProcessor.enhance(image)
         try require(enhanced.width == image.width && enhanced.height == image.height && enhanced.bitsPerComponent == 8 && enhanced.bitsPerPixel == 32 && enhanced.colorSpace?.model == .rgb,
                     "O processamento não produziu a imagem RGB de 8 bits e resolução preservada exigida pelo OCR.")
+        // Retry only execution failures. A generic Foundation wrapper must not
+        // hide cancellation, invalid images or exhausted memory and repeat work.
+        let generic = NSError(domain: "Foundation._GenericObjCError", code: 0)
+        try require(!VisionRecognition.shouldRetryOnCPU(generic) && VisionRecognition.shouldRetryOnCPU(VisionExecutionFailure(underlying: generic)),
+                    "O retry de compatibilidade não distinguiu execução de configuração.")
+        for code in [VNErrorCode.requestCancelled, .invalidImage, .invalidArgument, .outOfMemory] {
+            let cause = NSError(domain: VNErrorDomain, code: code.rawValue)
+            let wrapped = NSError(domain: "Foundation._GenericObjCError", code: 0, userInfo: [NSUnderlyingErrorKey: cause])
+            try require(!VisionRecognition.shouldRetryOnCPU(VisionExecutionFailure(underlying: wrapped)),
+                        "O retry de OCR ignorou cancelamento ou erro definitivo na cadeia de causas.")
+        }
+        let executionFailure = NSError(domain: "TextRecognition.CRImageReaderError", code: 9)
+        try require(VisionRecognition.shouldRetryOnCPU(VisionExecutionFailure(underlying: executionFailure)) &&
+                    !VisionRecognition.shouldRetryOnCPU(VisionExecutionFailure(underlying: CancellationError())),
+                    "O retry de OCR não respeitou o erro de execução observado ou o cancelamento.")
 
         let protected = directory.appendingPathComponent("protected.pdf")
         let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): "audit-reader-123",

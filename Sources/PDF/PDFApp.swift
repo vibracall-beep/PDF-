@@ -80,13 +80,25 @@ let tools: [Tool] = [
 ]
 
 @main struct PDFApp: App {
-    @StateObject private var model = Workspace()
-    @StateObject private var appearancePreferences = AppearancePreferences.shared
+    @StateObject private var model:Workspace
+    @StateObject private var appearancePreferences:AppearancePreferences
+    @StateObject private var preview:MacPreviewSession
     @NSApplicationDelegateAdaptor(PDFApplicationDelegate.self) private var applicationDelegate
     init() {
-        if let index = CommandLine.arguments.firstIndex(of:"--render-preview"), CommandLine.arguments.indices.contains(index+1) {
-            do { try MacPreview.render(to:URL(fileURLWithPath:CommandLine.arguments[index+1])); exit(0) }
-            catch { CIDiagnostics.record(String(describing:error),level:"error",title:"PDF preview"); FileHandle.standardError.write(Data("PDF preview failed: \(error)\n".utf8)); exit(1) }
+        do {
+            let args = CommandLine.arguments
+            var destination:URL?
+            if let index = args.firstIndex(of:"--render-preview") {
+                guard args.indices.contains(index+1),!args[index+1].hasPrefix("--") else { throw NSError(domain:"PDF.Preview",code:1,userInfo:[NSLocalizedDescriptionKey:"Informe o caminho PNG da prévia."]) }
+                destination = URL(fileURLWithPath:args[index+1])
+            }
+            let session = try MacPreviewSession(destination:destination)
+            _preview = StateObject(wrappedValue:session)
+            _model = StateObject(wrappedValue:session.model)
+            _appearancePreferences = StateObject(wrappedValue:session.preferences)
+        } catch {
+            CIDiagnostics.record(String(describing:error),level:"error",title:"PDF preview")
+            FileHandle.standardError.write(Data("PDF initialization failed: \(error)\n".utf8)); exit(1)
         }
         if let index = CommandLine.arguments.firstIndex(of:"--benchmark") {
             do {
@@ -112,9 +124,17 @@ let tools: [Tool] = [
     }
     var body: some Scene {
         WindowGroup {
-            ContentView().environmentObject(model).environmentObject(appearancePreferences).frame(minWidth:1050, minHeight:720)
+            Group {
+                if preview.isEnabled { preview.content.id(preview.routeIdentity) }
+                else { ContentView() }
+            }
+                .environmentObject(model).environmentObject(appearancePreferences)
+                .defaultAppStorage(preview.defaults)
+                .tint(appearancePreferences.accent).preferredColorScheme(appearancePreferences.preferredScheme)
+                .frame(minWidth:1050,minHeight:720)
                 .onOpenURL { model.open(url:$0) }
                 .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
+                .background(MacPreviewWindowObserver(session:preview).frame(width:0,height:0))
                 .onAppear { applicationDelegate.model = model }
         }
         .commands { PDFMenuCommands(model:model) }

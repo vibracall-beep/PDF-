@@ -23,6 +23,9 @@ enum PDFAnnotationKind {
     static func matchesAny(_ annotation: PDFAnnotation, _ subtypes: [PDFAnnotationSubtype]) -> Bool {
         subtypes.contains { matches(annotation, $0) }
     }
+    static func hasQuadrilaterals(_ annotation: PDFAnnotation) -> Bool {
+        matchesAny(annotation, [.highlight, .underline, .strikeOut])
+    }
 }
 
 struct PDFAnnotationState {
@@ -37,14 +40,28 @@ struct PDFAnnotationState {
     let fontColor: NSColor?
     init(_ annotation: PDFAnnotation) {
         bounds = annotation.bounds; color = annotation.color; width = annotation.border?.lineWidth ?? 1
-        contents = annotation.contents; paths = (annotation.paths ?? []).compactMap { $0.copy() as? NSBezierPath }
-        quadrilaterals = annotation.quadrilateralPoints; startPoint = annotation.startPoint; endPoint = annotation.endPoint; fontColor = annotation.fontColor
+        contents = annotation.contents
+        // These PDFKit properties belong to specific subtypes. Asking FreeText
+        // or Line for QuadPoints can produce invalid dictionary values on newer
+        // PDFKit versions even when an in-memory state check appears to pass.
+        paths = PDFAnnotationKind.matches(annotation, .ink) ? (annotation.paths ?? []).compactMap { $0.copy() as? NSBezierPath } : []
+        quadrilaterals = PDFAnnotationKind.hasQuadrilaterals(annotation) ? annotation.quadrilateralPoints : nil
+        startPoint = PDFAnnotationKind.matches(annotation, .line) ? annotation.startPoint : .zero
+        endPoint = PDFAnnotationKind.matches(annotation, .line) ? annotation.endPoint : .zero
+        fontColor = PDFAnnotationKind.matches(annotation, .freeText) ? annotation.fontColor : nil
     }
     func apply(to annotation: PDFAnnotation) {
         annotation.bounds = bounds; annotation.color = color; annotation.contents = contents
         let border = annotation.border ?? PDFBorder(); border.lineWidth = width; annotation.border = border
-        annotation.fontColor = fontColor
-        if PDFAnnotationKind.matchesAny(annotation, [.highlight, .underline, .strikeOut]) { annotation.quadrilateralPoints = quadrilaterals }
+        if PDFAnnotationKind.matches(annotation, .freeText) { annotation.fontColor = fontColor }
+        if PDFAnnotationKind.hasQuadrilaterals(annotation) {
+            if let quadrilaterals, !quadrilaterals.isEmpty { annotation.quadrilateralPoints = quadrilaterals }
+            else {
+                // Nil means the annotation uses its bounds, not an empty PDF
+                // array. Remove a stale key instead of asking PDFKit to encode nil.
+                annotation.removeValue(forAnnotationKey: PDFAnnotationKey(rawValue: "/QuadPoints"))
+            }
+        }
         if PDFAnnotationKind.matches(annotation, .line) { annotation.startPoint = startPoint; annotation.endPoint = endPoint }
         if PDFAnnotationKind.matches(annotation, .ink) {
             for existing in annotation.paths ?? [] { annotation.remove(existing) }
@@ -65,18 +82,26 @@ enum EditableAnnotations {
     }
     static func resize(_ annotation: PDFAnnotation, to bounds: CGRect) {
         let previous = annotation.bounds
-        if previous.width > 0, previous.height > 0 {
-            func scaled(_ point: NSPoint) -> NSPoint { NSPoint(x: point.x * bounds.width / previous.width, y: point.y * bounds.height / previous.height) }
-            if let points = annotation.quadrilateralPoints { annotation.quadrilateralPoints = points.map { NSValue(point: scaled($0.pointValue)) } }
-            if PDFAnnotationKind.matches(annotation, .line) { annotation.startPoint = scaled(annotation.startPoint); annotation.endPoint = scaled(annotation.endPoint) }
-        }
-        if PDFAnnotationKind.matches(annotation, .ink), previous.width > 0, previous.height > 0 {
+        let markup = PDFAnnotationKind.hasQuadrilaterals(annotation)
+        let line = PDFAnnotationKind.matches(annotation, .line)
+        let ink = PDFAnnotationKind.matches(annotation, .ink)
+        // Capture relative geometry before changing bounds. Write transformed
+        // points only after the new origin is in place so PDFKit can serialize
+        // them into the correct absolute page-space coordinates.
+        let points = markup ? annotation.quadrilateralPoints : nil
+        let start = line ? annotation.startPoint : .zero
+        let end = line ? annotation.endPoint : .zero
+        let paths = ink ? (annotation.paths ?? []).compactMap { $0.copy() as? NSBezierPath } : []
+        annotation.bounds = bounds
+        guard previous.width > 0, previous.height > 0 else { return }
+        func scaled(_ point: NSPoint) -> NSPoint { NSPoint(x: point.x * bounds.width / previous.width, y: point.y * bounds.height / previous.height) }
+        if let points, !points.isEmpty { annotation.quadrilateralPoints = points.map { NSValue(point: scaled($0.pointValue)) } }
+        if line { annotation.startPoint = scaled(start); annotation.endPoint = scaled(end) }
+        if ink {
             let transform = AffineTransform(scaleByX: bounds.width / previous.width, byY: bounds.height / previous.height)
-            let paths = (annotation.paths ?? []).compactMap { $0.copy() as? NSBezierPath }
             for existing in annotation.paths ?? [] { annotation.remove(existing) }
             for path in paths { path.transform(using: transform); annotation.add(path) }
         }
-        annotation.bounds = bounds
     }
 }
 

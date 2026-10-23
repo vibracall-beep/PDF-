@@ -56,22 +56,10 @@ jobs:
         run: |
           PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
           python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$PDF_BINARY_DIR/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
-      - name: Validate accessibility reports from native previews
+      - name: Validate all 19 native previews and accessibility reports
         id: accessibility
         if: ${{ !cancelled() && steps.preview.outcome == 'success' }}
-        run: |
-          python3 - <<'PYTHON'
-          import os
-          from pathlib import Path
-          import subprocess
-          import sys
-          root = Path(os.environ['RUNNER_TEMP'])
-          reports = sorted(root.glob('PDF-preview*accessibility.json'))
-          expected = {'PDF-preview.accessibility.json', 'PDF-preview.leitor.accessibility.json'}
-          if not expected.issubset({path.name for path in reports}):
-              raise SystemExit('Missing native accessibility reports: home and reader are required.')
-          subprocess.run([sys.executable, 'scripts/check_accessibility_report.py', *map(str, reports)], check=True)
-          PYTHON
+        run: python3 scripts/check_preview_artifacts.py "$RUNNER_TEMP"
       - name: Retain native preview artifact
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

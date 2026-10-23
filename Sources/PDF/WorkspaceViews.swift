@@ -98,9 +98,16 @@ struct ReaderWorkspaceView: View {
         }.frame(minWidth:170,minHeight:190).accessibilityElement(children:.contain).accessibilityLabel("Documento principal")
     }
     var readerToolbar:some View {
-        GeometryReader { geometry in
-            ScrollView(.horizontal,showsIndicators:false) {
-                toolbarContent.frame(minWidth:geometry.size.width,alignment:.leading)
+        HStack(spacing:10) {
+            GeometryReader { geometry in
+                ScrollView(.horizontal,showsIndicators:true) {
+                    toolbarContent.frame(minWidth:geometry.size.width,alignment:.leading)
+                }.help("Role horizontalmente para acessar todos os controles de leitura")
+            }
+            if visible("save",in:hiddenToolbar) {
+                Button("Salvar cópia",systemImage:"square.and.arrow.down") { model.save() }
+                    .fixedSize(horizontal:true,vertical:false).disabled(model.document == nil)
+                    .help("Salvar uma nova cópia do documento · ⇧⌘S")
             }
         }.frame(height:34).padding(.horizontal,12).padding(.vertical,7).background(surface)
             .popover(isPresented:$showReaderSettings) { readerSettingsPanel }
@@ -151,7 +158,6 @@ struct ReaderWorkspaceView: View {
             } label: { Image(systemName:"ellipsis.circle") }.help("Opções do documento").accessibilityLabel("Opções do documento")
             Button { showReaderSettings = true } label: { Image(systemName:"slider.horizontal.3") }
                 .help("Personalizar visualização e barras do leitor").accessibilityLabel("Personalizar leitor")
-            if visible("save",in:hiddenToolbar) { Button("Salvar cópia",systemImage:"square.and.arrow.down") { model.save() }.disabled(model.document == nil) }
         }
     }
     var annotationToolbar:some View {

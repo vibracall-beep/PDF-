@@ -1,5 +1,6 @@
 import AppKit
 import PDFKit
+import CoreGraphics
 
 @MainActor enum SessionAnnotationAuditChecks {
     static func run() throws {
@@ -184,21 +185,97 @@ import PDFKit
         try require(groupedChanges == 6 && groupedHistory.undoManager.groupingLevel == 0 && groupedHistory.undoManager.undoActionName == "Realçar seleção", "Refazer a seleção perdeu notificações, título ou equilíbrio dos grupos.")
         try require(!EditableAnnotations.accepts(widget), "O editor genérico permitiu transformar campos de formulário como anotações gráficas.")
         try require(rejects { try EditableAnnotations.validate(CGRect(x: -20, y: 0, width: 10, height: 10), on: page) }, "O editor aceitou uma anotação fora da página.")
-        let mark = PDFAnnotation(bounds: CGRect(x: 50, y: 200, width: 100, height: 20), forType: .highlight, withProperties: nil)
-        mark.quadrilateralPoints = [NSPoint(x: 0, y: 20), NSPoint(x: 100, y: 20), .zero, NSPoint(x: 100, y: 0)].map(NSValue.init(point:))
-        let markBefore = PDFAnnotationState(mark)
-        EditableAnnotations.resize(mark, to: CGRect(x: 70, y: 220, width: 200, height: 40))
-        try require(mark.quadrilateralPoints?[1].pointValue == NSPoint(x: 200, y: 40), "O redimensionamento não transformou o quadrilátero do realce.")
-        markBefore.apply(to: mark)
-        try require(mark.quadrilateralPoints?[1].pointValue == NSPoint(x: 100, y: 20), "Restaurar o realce não recuperou o quadrilátero original.")
-        let line = PDFAnnotation(bounds: CGRect(x: 0, y: 0, width: 100, height: 100), forType: .line, withProperties: nil)
-        line.startPoint = NSPoint(x: 10, y: 20); line.endPoint = NSPoint(x: 80, y: 90)
-        EditableAnnotations.resize(line, to: CGRect(x: 10, y: 10, width: 200, height: 50))
-        try require(line.startPoint == NSPoint(x: 20, y: 10) && line.endPoint == NSPoint(x: 160, y: 45), "O redimensionamento não transformou os extremos da linha.")
+        try auditQuadrilateralPersistence()
         guard let final = firstSession.document.dataRepresentation(), let finalPage = PDFDocument(data: final)?.page(at: 0) else { throw NSError(domain: "PDF.SessionAudit", code: 9) }
         try require(finalPage.annotations.contains { PDFAnnotationKind.matches($0, .freeText) && $0.contents == "Editado" && $0.bounds.width == 140 }, "Salvar/reabrir perdeu as alterações refeitas.")
         workspace.closeSession(secondSession.id, discardChanges: true)
         try require(workspace.sessions.count == 1 && workspace.comparisonSessionID == nil && !(try store.list()).contains(where: { $0.id == secondSession.id }), "Fechar uma aba deixou recuperação ou referência abandonada.")
         print("Session audit: independent tabs/page/zoom/forms, safe recovery, encrypted snapshots, named annotation groups/edit/undo/redo/persistence passed")
     }
+
+    /// Check the PDF dictionaries actually written, not just PDFKit's cached
+    /// NSValue arrays. The former regression never attached its markup to a page.
+    private static func auditQuadrilateralPersistence() throws {
+        func require(_ condition: @autoclosure () -> Bool, _ message: String) throws {
+            guard condition() else { throw NSError(domain: "PDF.QuadPointsAudit", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
+        }
+        func phase(_ text: String) { FileHandle.standardOutput.write(Data(("QuadPoints audit: " + text + "\n").utf8)) }
+        guard let document = PDFDocument(data: try IntelligenceText.PDF("Annotation geometry persistence")), let page = document.page(at: 0) else {
+            throw NSError(domain: "PDF.QuadPointsAudit", code: 2)
+        }
+        phase("non-markup properties")
+        let note = PDFAnnotation(bounds: CGRect(x: 50, y: 500, width: 100, height: 40), forType: .freeText, withProperties: nil)
+        note.contents = "Keep text geometry"
+        let noteBefore = PDFAnnotationState(note)
+        try require(noteBefore.quadrilaterals == nil, "FreeText foi tratado como anotação com quadriláteros.")
+        EditableAnnotations.resize(note, to: CGRect(x: 60, y: 510, width: 150, height: 60))
+        noteBefore.apply(to: note); page.addAnnotation(note)
+        let line = PDFAnnotation(bounds: CGRect(x: 50, y: 400, width: 100, height: 100), forType: .line, withProperties: nil)
+        line.startPoint = NSPoint(x: 10, y: 20); line.endPoint = NSPoint(x: 80, y: 90)
+        let lineBefore = PDFAnnotationState(line)
+        try require(lineBefore.quadrilaterals == nil, "Line foi tratada como anotação com quadriláteros.")
+        EditableAnnotations.resize(line, to: CGRect(x: 60, y: 400, width: 200, height: 50))
+        try require(line.startPoint == NSPoint(x: 20, y: 10) && line.endPoint == NSPoint(x: 160, y: 45), "O redimensionamento não transformou os extremos da linha.")
+        page.addAnnotation(line)
+        let subtypes: [PDFAnnotationSubtype] = [.highlight, .underline, .strikeOut]
+        var expected: [String: [CGFloat]] = [:]
+        for (index, subtype) in subtypes.enumerated() {
+            phase("markup " + subtype.rawValue)
+            let y = CGFloat(100 + index * 70)
+            let markup = PDFAnnotation(bounds: CGRect(x: 50, y: y, width: 100, height: 20), forType: subtype, withProperties: nil)
+            markup.quadrilateralPoints = [NSPoint(x: 0, y: 20), NSPoint(x: 100, y: 20), .zero, NSPoint(x: 100, y: 0)].map(NSValue.init(point:))
+            page.addAnnotation(markup)
+            let before = PDFAnnotationState(markup)
+            EditableAnnotations.resize(markup, to: CGRect(x: 70, y: y + 20, width: 200, height: 40))
+            try require(markup.quadrilateralPoints?[1].pointValue == NSPoint(x: 200, y: 40), "O redimensionamento não manteve coordenadas relativas da marcação.")
+            let after = PDFAnnotationState(markup)
+            before.apply(to: markup)
+            try require(markup.bounds == before.bounds && markup.quadrilateralPoints?[1].pointValue == NSPoint(x: 100, y: 20), "Restaurar a marcação não recuperou geometria e quadrilátero.")
+            after.apply(to: markup)
+            let type = PDFAnnotationKind.normalizedName(subtype.rawValue)!
+            expected[type] = [70, y + 60, 270, y + 60, 70, y + 20, 270, y + 20]
+        }
+        phase("serialize and inspect PDF dictionaries")
+        guard let bytes = document.dataRepresentation(), let provider = CGDataProvider(data: bytes as CFData),
+              let serialized = CGPDFDocument(provider), let serializedPage = serialized.page(at: 1), let pageDictionary = serializedPage.dictionary else {
+            throw NSError(domain: "PDF.QuadPointsAudit", code: 3)
+        }
+        var annotations: CGPDFArrayRef?
+        try require(CGPDFDictionaryGetArray(pageDictionary, "Annots", &annotations), "O PDF salvo não contém as anotações de geometria.")
+        guard let annotations else { throw NSError(domain: "PDF.QuadPointsAudit", code: 4) }
+        try require(CGPDFArrayGetCount(annotations) == 5, "Salvar perdeu ou duplicou anotações.")
+        var seen = Set<String>()
+        for index in 0..<CGPDFArrayGetCount(annotations) {
+            var entry: CGPDFDictionaryRef?
+            try require(CGPDFArrayGetDictionary(annotations, index, &entry), "Uma anotação não é um dicionário PDF.")
+            guard let entry else { throw NSError(domain: "PDF.QuadPointsAudit", code: 5) }
+            var subtype: UnsafePointer<CChar>?
+            try require(CGPDFDictionaryGetName(entry, "Subtype", &subtype), "A anotação perdeu seu subtipo.")
+            guard let subtype else { throw NSError(domain: "PDF.QuadPointsAudit", code: 6) }
+            let name = String(cString: subtype)
+            if let coordinates = expected[name] {
+                var array: CGPDFArrayRef?
+                try require(CGPDFDictionaryGetArray(entry, "QuadPoints", &array), "A marcação \(name) perdeu QuadPoints na serialização.")
+                guard let array else { throw NSError(domain: "PDF.QuadPointsAudit", code: 7) }
+                try require(CGPDFArrayGetCount(array) == 8, "QuadPoints precisa de oito números por quadrilátero.")
+                for coordinate in 0..<8 {
+                    var value: CGPDFReal = 0
+                    try require(CGPDFArrayGetNumber(array, coordinate, &value), "QuadPoints contém um valor que não é numérico.")
+                    try require(value.isFinite && abs(CGFloat(value) - coordinates[coordinate]) < 0.01, "QuadPoints não preservou a geometria em coordenadas da página.")
+                }
+                seen.insert(name)
+            } else {
+                var unexpected: CGPDFObjectRef?
+                try require(!CGPDFDictionaryGetObject(entry, "QuadPoints", &unexpected), "A edição escreveu QuadPoints em \(name), que não é marcação de texto.")
+            }
+        }
+        try require(seen.count == 3, "Nem todos os subtipos de marcação foram conferidos.")
+        guard let reopenedDocument = PDFDocument(data: bytes), let reopened = reopenedDocument.page(at: 0) else { throw NSError(domain: "PDF.QuadPointsAudit", code: 8) }
+        for subtype in subtypes {
+            guard let markup = reopened.annotations.first(where: { PDFAnnotationKind.matches($0, subtype) }) else { throw NSError(domain: "PDF.QuadPointsAudit", code: 9) }
+            try require(markup.quadrilateralPoints?.count == 4 && markup.quadrilateralPoints?[1].pointValue == NSPoint(x: 200, y: 40), "Reabrir perdeu os pontos relativos da marcação.")
+        }
+        phase("numeric serialization and reopened geometry verified")
+    }
+
 }

@@ -69,7 +69,7 @@ struct ToolConfigurationView: View {
     @State private var fontFile: URL?
     @State private var presetID: UUID?
     @State private var presetMessage = ""
-    @ObservedObject private var presetStore = ToolPresetStore.shared
+    @ObservedObject private var presetStore:ToolPresetStore
     @State private var pages = ""
     @State private var editMode = "text"
     @State private var formMode = "create"
@@ -119,6 +119,10 @@ struct ToolConfigurationView: View {
     @State private var values:[FormValueDraft] = []
     @State private var error = ""
     @State private var readerHasUnsavedChanges = false
+    init(tool:Tool,presetStore:ToolPresetStore? = nil) {
+        self.tool = tool
+        _presetStore = ObservedObject(wrappedValue:presetStore ?? ToolPresetStore.shared)
+    }
     var isFormsTool:Bool { ["forms","fill-forms"].contains(tool.id) }
     var isSourceConversion:Bool { ["images","office","html","odt","txt","rtf","epub","csv"].contains(tool.operation) }
     var operation:String {

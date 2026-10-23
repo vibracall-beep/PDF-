@@ -95,7 +95,7 @@ enum MacPreview {
         print("PDF preview captured from WindowServer via ScreenCaptureKit: \(destination.lastPathComponent); window=\(window.windowNumber); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); pixels=\(image.width)x\(image.height)")
     }
 
-    fileprivate static func sampleDocument() throws -> PDFDocument {
+    fileprivate static func sampleDocument(title:String = "Um espaço para seus documentos.") throws -> PDFDocument {
         let data = NSMutableData()
         var pageBounds = CGRect(x: 0, y: 0, width: 595, height: 842)
         guard let consumer = CGDataConsumer(data: data as CFMutableData),
@@ -106,7 +106,7 @@ enum MacPreview {
             context.beginPDFPage(nil)
             NSGraphicsContext.saveGraphicsState()
             NSGraphicsContext.current = NSGraphicsContext(cgContext: context, flipped: false)
-            ((index == 1 ? "Um espaço para seus documentos." : "Cada detalhe, no seu ritmo.") as NSString)
+            ((index == 1 ? title : "Cada detalhe, no seu ritmo.") as NSString)
                 .draw(at: NSPoint(x: 48, y: 746), withAttributes: [.font: NSFont.systemFont(ofSize: 23, weight: .semibold), .foregroundColor: NSColor.systemBlue])
             let lines = index == 1
                 ? ["Leia com clareza, encontre informações e marque o que importa.",
@@ -142,13 +142,16 @@ enum MacPreview {
     private let suiteName = "PDF-preview-" + UUID().uuidString
     private var defaults: UserDefaults?
     private var preferences: AppearancePreferences?
+    private var scratchDirectory:URL?
+    private var standaloneTitle:String?
+    private var captureTask:Task<Void,Never>?
     init(destination: URL) { self.destination = destination }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
         DispatchQueue.main.async { [weak self] in self?.showWindow() }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 120) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 160) { [weak self] in
             guard let self, self.result == nil else { return }
-            self.finish(.failure(MacPreview.failure(5, "A captura das próprias janelas excedeu 120 segundos. Nenhum fallback de bitmap foi usado.")))
+            self.finish(.failure(MacPreview.failure(5, "A captura das próprias janelas excedeu 160 segundos. Nenhum fallback de bitmap foi usado.")))
         }
     }
 
@@ -157,27 +160,45 @@ enum MacPreview {
             finish(.failure(MacPreview.failure(16, "Não foi possível isolar as preferências da prévia."))); return
         }
         self.defaults = defaults
-        let preferences = AppearancePreferences(defaults:defaults)
-        preferences.state.colorScheme = "light"
-        self.preferences = preferences
-        let model = Workspace()
-        self.model = model
-        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:1050,height:720),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
-        window.title = "PDF"
-        window.isReleasedWhenClosed = false
-        self.window = window
-        display(ContentView(),size:NSSize(width:1050,height:720))
-        NSApplication.shared.activate(ignoringOtherApps:true)
-        window.makeKeyAndOrderFront(nil)
-        window.orderFrontRegardless()
-        Task { @MainActor in
-            do { try await captureSequence(); finish(.success(Void())) }
-            catch { finish(.failure(error)) }
-        }
+        do {
+            let scratch = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-Preview-" + UUID().uuidString,isDirectory:true)
+            try FileManager.default.createDirectory(at:scratch,withIntermediateDirectories:false,attributes:[.posixPermissions:0o700])
+            scratchDirectory = scratch
+            let preferences = AppearancePreferences(defaults:defaults)
+            preferences.state.colorScheme = "light"
+            self.preferences = preferences
+            let recovery = RecoveryStore(directory:scratch.appendingPathComponent("Recovery",isDirectory:true))
+            let model = Workspace(defaults:defaults,recoveryStore:recovery,enableRecoveryPolling:false)
+            self.model = model
+            let window = NSWindow(contentRect:NSRect(x:0,y:0,width:1050,height:720),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
+            window.title = "PDF"
+            window.isReleasedWhenClosed = false
+            self.window = window
+            display(ContentView(),size:NSSize(width:1050,height:720),title:"PDF",applicationNavigation:true)
+            NSApplication.shared.activate(ignoringOtherApps:true)
+            window.makeKeyAndOrderFront(nil)
+            window.orderFrontRegardless()
+            captureTask = Task { @MainActor in
+                do { try await captureSequence(); finish(.success(Void())) }
+                catch { finish(.failure(error)) }
+            }
+        } catch { finish(.failure(error)) }
     }
 
-    private func display<V:View>(_ view:V,size:NSSize) {
+    private func resetWindowChrome(title:String) {
+        guard let window else { return }
+        window.toolbar = nil
+        while !window.titlebarAccessoryViewControllers.isEmpty { window.removeTitlebarAccessoryViewController(at:0) }
+        window.title = title; window.subtitle = ""; window.representedURL = nil
+        window.isDocumentEdited = false; window.titleVisibility = .visible
+        window.titlebarAppearsTransparent = false; window.toolbarStyle = .automatic
+    }
+    private func display<V:View>(_ view:V,size:NSSize,title:String,applicationNavigation:Bool = false) {
         guard let window,let model,let preferences,let defaults else { return }
+        window.makeFirstResponder(nil)
+        window.contentView = nil
+        resetWindowChrome(title:title)
+        standaloneTitle = applicationNavigation ? nil : title
         let root = view.environmentObject(model).environmentObject(preferences).defaultAppStorage(defaults)
             .tint(preferences.accent).preferredColorScheme(preferences.preferredScheme)
         window.contentView = NSHostingView(rootView:root)
@@ -190,30 +211,74 @@ enum MacPreview {
         window.displayIfNeeded()
     }
 
-    private func capture(_ name:String? = nil) async throws {
+    private func capture(_ name:String? = nil,auditRequired:[String]? = nil) async throws {
         guard let window else { throw MacPreview.failure(8, "A janela da prévia foi encerrada.") }
-        // Give AppKit, PDFKit tiles and SwiftUI transitions a full settled frame.
         try await Task.sleep(for:.seconds(1.5))
+        try Task.checkCancellation()
+        // A removed NavigationSplitView may detach its titlebar asynchronously. Standalone
+        // panels get their own real window chrome, instead of the previous document's toolbar.
+        if let standaloneTitle { resetWindowChrome(title:standaloneTitle) }
+        window.contentView?.layoutSubtreeIfNeeded(); window.displayIfNeeded(); CATransaction.flush()
         let path = name.map { destination.deletingPathExtension().appendingPathExtension($0 + ".png") } ?? destination
         try await MacPreview.capture(window,to:path)
+        if let auditRequired {
+            let reportURL = path.deletingPathExtension().appendingPathExtension("accessibility.json")
+            let report = try AccessibilityAudit.write(window:window,to:reportURL,requiredIdentifiers:auditRequired)
+            print("PDF own-window accessibility audit: \(reportURL.lastPathComponent); nodes=\(report.nodes.count); missingRequired=\(report.missingRequiredIdentifiers.count); findings=\(report.findings.count)")
+        }
     }
 
+    private func fixtures(in directory:URL) throws -> (guide:URL,reference:URL) {
+        let guide = directory.appendingPathComponent("Guia do PDF.pdf")
+        let reference = directory.appendingPathComponent("Referência de revisão.pdf")
+        guard let first = try MacPreview.sampleDocument().dataRepresentation(),
+              let second = try MacPreview.sampleDocument(title:"Uma referência para comparar.").dataRepresentation() else {
+            throw MacPreview.failure(17,"Não foi possível criar os documentos locais da demonstração.")
+        }
+        try NativeOutput.write(first,to:guide); try NativeOutput.write(second,to:reference)
+        return (guide,reference)
+    }
     private func captureSequence() async throws {
-        guard let model,let preferences else { throw MacPreview.failure(8, "A prévia não foi iniciada.") }
-        try await capture()
-        model.document = try MacPreview.sampleDocument()
-        model.url = URL(fileURLWithPath:"/Amostras/Guia do PDF.pdf")
-        model.section = "Leitor"
-        try await capture("leitor")
+        guard let model,let preferences,let scratchDirectory else { throw MacPreview.failure(8, "A prévia não foi iniciada.") }
+        let documents = try fixtures(in:scratchDirectory)
+        try await capture(auditRequired:["pdf.catalog.search","pdf.customize.toolbar"])
+
+        // Use the normal open path so tabs, per-document state and file identity are real.
+        model.open(url:documents.guide)
+        guard let guideID = model.activeSessionID else { throw MacPreview.failure(18,"A abertura do documento de demonstração não criou uma sessão.") }
+        try await capture("leitor",auditRequired:["pdf.reader.document","pdf.reader.search","pdf.reader.page"])
+        model.open(url:documents.reference)
+        guard model.sessions.count == 2 else { throw MacPreview.failure(19,"A abertura do segundo documento não preservou a primeira aba.") }
+        try await capture("abas")
+        model.comparisonSessionID = guideID
+        try await capture("lado-a-lado",auditRequired:["pdf.reader.document","pdf.reader.reference"])
+        model.comparisonSessionID = nil
+        model.activateSession(guideID)
+        try await Task.sleep(for:.seconds(0.5))
+        guard model.pdfView?.document === model.document else { throw MacPreview.failure(20,"O leitor ainda não apresentou a aba selecionada.") }
+        model.addNote("Revisar esta passagem antes de concluir o documento.",colorHex:"#FFCC00")
+        guard let note = model.annotationsOnCurrentPage.last(where:{ PDFAnnotationKind.matches($0,.text) }) else {
+            throw MacPreview.failure(21,"A anotação da demonstração não foi criada no documento.")
+        }
+        model.selectAnnotation(note)
+        display(ContentView(initialReaderInspector:true),size:NSSize(width:1050,height:720),title:"PDF",applicationNavigation:true)
+        try await capture("anotacoes",auditRequired:["pdf.reader.document","pdf.reader.inspector"])
+        try model.checkpointRecoveryNow()
+        try model.refreshRecoveryNow()
+        guard model.recoveryItems.count == 2 else { throw MacPreview.failure(22,"A recuperação local não preservou as duas sessões de demonstração.") }
+        display(RecoveryDocumentsView(),size:NSSize(width:720,height:510),title:"Recuperar trabalho — PDF")
+        try await capture("recuperacao")
+
+        // Keep the original personalization captures, now without residual document chrome.
         for (tab,name) in [("Aparência","personalizar"),("Ferramentas","ferramentas"),("Navegação","navegacao"),("Leitor","opcoes-leitura"),("Arquivos","arquivos")] {
-            display(CustomizationView(closable:false,initialTab:tab),size:NSSize(width:850,height:690))
+            display(CustomizationView(closable:false,initialTab:tab),size:NSSize(width:850,height:690),title:"Personalizar — PDF")
             try await capture(name)
         }
         preferences.state.colorScheme = "dark"
         preferences.state.accentHex = "#AF52DE"
         preferences.state.showCategoryLabels = true
         model.section = "Início"
-        display(ContentView(),size:NSSize(width:1050,height:720))
+        display(ContentView(),size:NSSize(width:1050,height:720),title:"PDF",applicationNavigation:true)
         try await capture("escuro")
         preferences.applyPreset("focus")
         preferences.state.colorScheme = "light"
@@ -222,21 +287,32 @@ enum MacPreview {
         preferences.state.toolOrder = ["ocr","merge","word","summary"]
         preferences.state.toolTitles["merge"] = "Reunir meus documentos"
         preferences.state.toolIcons["merge"] = "folder.badge.plus"
-        display(ContentView(),size:NSSize(width:1050,height:720))
+        display(ContentView(),size:NSSize(width:1050,height:720),title:"PDF",applicationNavigation:true)
         try await capture("lista")
-        preferences.reset()
-        preferences.state.colorScheme = "light"
+        preferences.reset(); preferences.state.colorScheme = "light"
         if let watermark = tools.first(where:{$0.id == "watermark"}) {
-            display(ToolConfigurationView(tool:watermark),size:NSSize(width:690,height:730))
+            display(ToolConfigurationView(tool:watermark),size:NSSize(width:690,height:730),title:"Marca d’água — PDF")
             try await capture("configuracao-ferramenta")
+        }
+
+        // A batch and an actual terminal export configured through the editor's initializer.
+        display(WorkflowView(initialInputs:[documents.guide,documents.reference],finalExport:"word",libraryDirectory:scratchDirectory.appendingPathComponent("Workflows",isDirectory:true)),size:NSSize(width:1050,height:720),title:"Fluxos em lote — PDF")
+        try await capture("fluxo-lote")
+        // Verification starts from the clean reference tab, never from the unsaved annotation copy.
+        if let reference = model.sessions.first(where:{$0.id != guideID}) { model.activateSession(reference.id) }
+        for (mode,name,title) in [("sign","assinatura-digital","Assinatura digital — PDF"),("verify","verificar-assinaturas","Verificar assinaturas — PDF"),("pdfa","validar-pdfa","Validar PDF/A — PDF"),("pdfua","auditar-pdfua","Acessibilidade PDF/UA — PDF")] {
+            display(VerificationView(initialMode:mode),size:NSSize(width:760,height:700),title:title)
+            try await capture(name)
         }
     }
 
     private func finish(_ outcome:Result<Void,Error>) {
         guard result == nil else { return }
         result = outcome
-        window?.orderOut(nil)
+        captureTask?.cancel(); model?.cancelSearch()
+        window?.orderOut(nil); window?.contentView = nil
         defaults?.removePersistentDomain(forName:suiteName)
+        if let scratchDirectory { try? FileManager.default.removeItem(at:scratchDirectory) }
         NSApplication.shared.stop(nil)
         if let event = NSEvent.otherEvent(with:.applicationDefined,location:.zero,modifierFlags:[],timestamp:0,windowNumber:0,context:nil,subtype:0,data1:0,data2:0) {
             NSApplication.shared.postEvent(event,atStart:false)

@@ -31,6 +31,8 @@ import fitz
 from playwright.sync_api import sync_playwright
 sys.path.insert(0, sys.argv[1])
 from pdf_engine import run
+from pdf_standards import validator_paths
+import pyhanko.sign.signers
 with tempfile.TemporaryDirectory(prefix='pdf-install-check-') as directory:
     root = pathlib.Path(directory)
     source = root / 'source.pdf'
@@ -39,6 +41,14 @@ with tempfile.TemporaryDirectory(prefix='pdf-install-check-') as directory:
         page = document.new_page()
         page.insert_text((72, 72), 'PDF installation verification')
         document.save(source)
+    validator_paths()  # Hash-check the installed independent validator.
+    run('validate-pdfua', [str(source)], str(root / 'ua-report.json'), {})
+    import json
+    report = json.loads((root / 'ua-report.json').read_text())
+    assert report['compliant'] is False and report['counts']['failedRules'] > 0
+    run('verify-signatures', [str(source)], str(root / 'signature-report.json'), {})
+    signature_report = json.loads((root / 'signature-report.json').read_text())
+    assert signature_report['signature_count'] == 0 and signature_report['all_integrity_ok'] is False
     run('rotate', [str(source)], str(output), {'degrees': 90})
     with fitz.open(output) as document:
         assert document.page_count == 1 and document[0].rotation == 90
@@ -51,7 +61,7 @@ with tempfile.TemporaryDirectory(prefix='pdf-install-check-') as directory:
         browser.close()
     with fitz.open(root / 'browser.pdf') as document:
         assert 'PDF browser verification' in document[0].get_text()
-print('Runtime, motor PDF e Chromium: OK')
+print('Runtime, motor PDF, assinaturas, veraPDF independente e Chromium: OK')
 PY
 "$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/run-with-timeout.py" --seconds 180 -- "$PDF_EXECUTABLE" --smoke-test
 printf '%s\n' 'Bundle arm64, assinatura local, dependências e verificações nativas: OK'

@@ -39,7 +39,7 @@ struct CustomizationView:View {
                 if tab == "Aparência" {
                     VStack(alignment:.leading,spacing:12) {
                         Label("Prévia ao vivo",systemImage:"eye").font(.headline)
-                        CustomizableToolCard(tool:tools[0],favorite:true,row:preferences.state.layout == "list",open:{},toggleFavorite:{}).allowsHitTesting(false)
+                        CustomizableToolCard(tool:tools[0],favorite:true,row:preferences.state.layout == "list",open:{},toggleFavorite:{}).fixedSize(horizontal:false,vertical:true).allowsHitTesting(false)
                         Text("O mesmo cartão usado no menu, com seus ajustes atuais.").font(.caption).foregroundStyle(.secondary)
                         Spacer()
                     }.frame(width:260).padding(16).background(Color(nsColor:.windowBackgroundColor),in:RoundedRectangle(cornerRadius:18))
@@ -116,7 +116,7 @@ struct CustomizationView:View {
                     HStack {
                         Toggle("Mostrar",isOn:Binding(get:{ !preferences.state.hiddenTools.contains(tool.id) },set:{ visible in setMembership(tool.id,in:&preferences.state.hiddenTools,included:!visible) })).labelsHidden().accessibilityLabel("Mostrar " + preferences.title(for:tool))
                         TextField(tool.name,text:Binding(get:{ preferences.title(for:tool) },set:{ value in if value.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || value == tool.name { preferences.state.toolTitles.removeValue(forKey:tool.id) } else { preferences.state.toolTitles[tool.id] = String(value.prefix(60)) } })).textFieldStyle(.roundedBorder)
-                        iconPicker(value:Binding(get:{ preferences.icon(for:tool) },set:{ preferences.state.toolIcons[tool.id] = $0 }),original:tool.icon)
+                        iconPicker(value:Binding(get:{ preferences.icon(for:tool) },set:{ preferences.state.toolIcons[tool.id] = $0 }),original:tool.icon,label:"Ícone de " + preferences.title(for:tool))
                         Button { reorderTool(index,index-1) } label:{ Image(systemName:"arrow.up") }.disabled(index == 0).accessibilityLabel("Mover " + preferences.title(for:tool) + " para cima")
                         Button { reorderTool(index,index+1) } label:{ Image(systemName:"arrow.down") }.disabled(index == ordered.count-1).accessibilityLabel("Mover " + preferences.title(for:tool) + " para baixo")
                     }
@@ -135,7 +135,7 @@ struct CustomizationView:View {
                 HStack {
                     Toggle("Mostrar",isOn:Binding(get:{ preferences.state.sidebar[index].visible },set:{ preferences.state.sidebar[index].visible = $0 })).labelsHidden().disabled(item.id == "Início").accessibilityLabel("Mostrar " + item.label)
                     TextField(item.id,text:Binding(get:{ preferences.state.sidebar[index].label },set:{ preferences.state.sidebar[index].label = $0.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? item.id : String($0.prefix(40)) })).textFieldStyle(.roundedBorder)
-                    iconPicker(value:Binding(get:{ preferences.state.sidebar[index].icon },set:{ preferences.state.sidebar[index].icon = $0 }),original:item.icon)
+                    iconPicker(value:Binding(get:{ preferences.state.sidebar[index].icon },set:{ preferences.state.sidebar[index].icon = $0 }),original:item.icon,label:"Ícone da seção " + item.label)
                     Button { preferences.state.sidebar.swapAt(index,index-1) } label:{ Image(systemName:"arrow.up") }.disabled(index == 0).accessibilityLabel("Mover " + item.label + " para cima")
                     Button { preferences.state.sidebar.swapAt(index,index+1) } label:{ Image(systemName:"arrow.down") }.disabled(index == preferences.state.sidebar.count-1).accessibilityLabel("Mover " + item.label + " para baixo")
                 }.padding(.vertical,5)
@@ -144,11 +144,11 @@ struct CustomizationView:View {
         }
     }
     func range(_ title:String,value:Binding<Double>,in bounds:ClosedRange<Double>,suffix:String,multiplier:Double = 1) -> some View {
-        VStack(alignment:.leading,spacing:5) { HStack { Text(title); Spacer(); Text("\(Int(value.wrappedValue*multiplier)) \(suffix)").font(.caption.monospacedDigit()).foregroundStyle(.secondary) }; Slider(value:value,in:bounds) }
+        VStack(alignment:.leading,spacing:5) { HStack { Text(title); Spacer(); Text("\(Int(value.wrappedValue*multiplier)) \(suffix)").font(.caption.monospacedDigit()).foregroundStyle(.secondary) }; Slider(value:value,in:bounds).accessibilityLabel(title).accessibilityValue("\(Int(value.wrappedValue*multiplier)) \(suffix)") }
     }
-    func iconPicker(value:Binding<String>,original:String) -> some View {
+    func iconPicker(value:Binding<String>,original:String,label:String) -> some View {
         let icons = Array(Set([original,value.wrappedValue,"square.grid.2x2","doc.text","book","star","scanner","sparkles","arrow.triangle.branch","folder","house","pencil","signature","lock.shield","photo","tablecells","globe","list.bullet","tray","gearshape","bookmark","wand.and.stars"])).sorted()
-        return Picker("Ícone",selection:value) { ForEach(icons,id:\.self) { icon in Image(systemName:icon).tag(icon).accessibilityLabel(icon) } }.labelsHidden().frame(width:62).accessibilityLabel("Ícone")
+        return Picker("Ícone",selection:value) { ForEach(icons,id:\.self) { icon in Image(systemName:icon).tag(icon).accessibilityLabel(icon) } }.labelsHidden().frame(width:62).accessibilityLabel(label)
     }
     func setMembership(_ value:String,in list:inout [String],included:Bool) { list.removeAll { $0 == value }; if included { list.append(value) } }
     func reorderTool(_ from:Int,_ to:Int) { var order = preferences.orderedTools().map(\.id); order.swapAt(from,to); preferences.state.toolOrder = order }
@@ -187,6 +187,8 @@ struct ReaderCustomizationControls:View {
     @AppStorage("readerNoteColor") private var noteColor = "#FFCC00"
     @AppStorage("readerInkColor") private var inkColor = "#007AFF"
     @AppStorage("readerInkWidth") private var inkWidth = 2.5
+    @AppStorage("readerShowTabs") private var showTabs = true
+    @AppStorage("readerSplitDirection") private var splitDirection = "horizontal"
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
             Picker("Modo de leitura",selection:$mode) { Text("Contínuo").tag(0); Text("Página única").tag(1); Text("Duas páginas").tag(2) }
@@ -195,7 +197,9 @@ struct ReaderCustomizationControls:View {
             ColorPicker("Fundo da área de leitura",selection:Binding(get:{ AppearanceColor.color(background) },set:{ background = AppearanceColor.hex($0) }),supportsOpacity:false)
             Toggle("Separar visualmente as páginas",isOn:$pageBreaks)
             Toggle("Ajustar zoom à janela",isOn:$autoScale)
-            HStack { Text("Zoom"); Slider(value:$zoom,in:0.1...8); Text("\(Int(zoom*100))%").monospacedDigit() }.disabled(autoScale)
+            HStack { Text("Zoom"); Slider(value:$zoom,in:0.1...8).accessibilityLabel("Zoom de leitura").accessibilityValue("\(Int(zoom*100)) por cento"); Text("\(Int(zoom*100))%").monospacedDigit() }.disabled(autoScale)
+            Toggle("Mostrar abas dos documentos",isOn:$showTabs)
+            Picker("Leitura simultânea",selection:$splitDirection) { Text("Lado a lado").tag("horizontal"); Text("Empilhada").tag("vertical") }
             Toggle("Mostrar miniaturas e sumário",isOn:$sidebar)
             Toggle("Mostrar barra de anotações",isOn:$annotations)
             Divider()
@@ -205,16 +209,16 @@ struct ReaderCustomizationControls:View {
             ColorPicker("Cor do desenho",selection:colorBinding($inkColor),supportsOpacity:false)
             HStack {
                 Text("Espessura do traço")
-                Slider(value:$inkWidth,in:0.5...20,step:0.5)
+                Slider(value:$inkWidth,in:0.5...20,step:0.5).accessibilityLabel("Espessura do desenho em pontos")
                 Text(inkWidth,format:.number.precision(.fractionLength(1))).monospacedDigit()
                 Text("pt").foregroundStyle(.secondary)
             }
             Text("Os ajustes são usados nas próximas anotações. As anotações existentes mantêm o estilo original.").font(.caption).foregroundStyle(.secondary)
             Divider()
             Text("Controles da barra principal").font(.headline)
-            ForEach([("open","Abrir arquivo"),("search","Busca"),("zoom","Botões de zoom"),("fit","Ajustar à janela"),("save","Salvar cópia")],id:\.0) { id,label in Toggle(label,isOn:visibility(id,in:$hiddenToolbar)) }
+            ForEach([("open","Abrir arquivo"),("search","Busca"),("zoom","Botões de zoom"),("fit","Ajustar à janela"),("save","Salvar cópia"),("compare","Leitura de dois documentos")],id:\.0) { id,label in Toggle(label,isOn:visibility(id,in:$hiddenToolbar)) }
             Text("Controles de anotação").font(.headline)
-            ForEach([("highlight","Realçar"),("note","Notas"),("ink","Desenhar"),("bookmark","Marcar página")],id:\.0) { id,label in Toggle(label,isOn:visibility(id,in:$hiddenAnnotations)) }.disabled(!annotations)
+            ForEach([("highlight","Realçar"),("note","Notas"),("ink","Desenhar"),("bookmark","Marcar página"),("editor","Editar anotações"),("history","Desfazer e refazer")],id:\.0) { id,label in Toggle(label,isOn:visibility(id,in:$hiddenAnnotations)) }.disabled(!annotations)
         }
     }
     func colorBinding(_ binding:Binding<String>) -> Binding<Color> { Binding(get:{ AppearanceColor.color(binding.wrappedValue) },set:{ binding.wrappedValue = AppearanceColor.hex($0) }) }
@@ -226,6 +230,7 @@ struct OutputCustomizationControls:View {
     @AppStorage("outputPrefix") private var outputPrefix = "PDF-resultado"
     @AppStorage("outputDirectory") private var outputDirectory = ""
     @AppStorage("outputFilenameTemplate") private var template = ""
+    @AppStorage("recoveryEnabled") private var recoveryEnabled = true
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
             TextField("Modelo do nome dos resultados",text:$template).textFieldStyle(.roundedBorder)
@@ -236,6 +241,9 @@ struct OutputCustomizationControls:View {
                 Spacer(); Button("Escolher pasta…") { let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; if panel.runModal() == .OK { outputDirectory = panel.url?.path ?? "" } }
             }
             if !outputDirectory.isEmpty { Button("Usar a última pasta novamente") { outputDirectory = "" } }
+            Divider()
+            Toggle("Guardar automaticamente cópias locais",isOn:$recoveryEnabled)
+            Text("Cópias de trabalho ficam neste Mac, sem substituir os originais. As cópias existentes podem ser revisadas em Recuperar trabalho.").font(.caption).foregroundStyle(.secondary)
             Button("Limpar documentos recentes") { model.clearRecent() }
             Text("Os originais são preservados e o destino final pode ser ajustado antes de cada operação.").font(.caption).foregroundStyle(.secondary)
             Text(AppleHardware.summary).font(.caption).foregroundStyle(.secondary)

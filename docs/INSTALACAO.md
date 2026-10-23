@@ -12,7 +12,9 @@ O instalador compila o aplicativo no próprio Mac, prepara suas dependências, e
 
 Não é necessária uma assinatura paga de desenvolvedor Apple. O bundle recebe assinatura local ad hoc. Isso não cria assinatura Developer ID nem notarização Apple.
 
-## Comando da versão validada
+## Comando da versão histórica validada
+
+O bloco abaixo é da versão anterior. As dez melhorias da versão 0.5.0 estão em validação na matriz macOS 26/27; o commit de instalação será atualizado após essa execução. Não use a aprovação histórica para atribuir aprovação às mudanças posteriores.
 
 A execução [40019981712](https://github.com/vibracall-beep/PDF-/actions/runs/40019981712) aprovou o commit `9d72a9d75da72437a68d411359906e3e10a4466e`: compilação, 69 testes do motor/integrações, instalação e verificações nativas em macOS 26.6.2 arm64. Com os requisitos acima instalados, cole este bloco no Terminal de cada Mac:
 
@@ -39,7 +41,7 @@ bash scripts/install-mac.sh
 open "$HOME/Applications/PDF.app"
 ```
 
-O comando já inclui OCRmyPDF, Tesseract com português e inglês, Ghostscript pela dependência de OCRmyPDF, LibreOffice, Python e Chromium/Playwright. `install-optional-mac.sh` permanece como entrada de compatibilidade e verifica a instalação completa.
+O comando inclui OCRmyPDF, Tesseract com português e inglês, Ghostscript pela dependência de OCRmyPDF, LibreOffice, Python, Chromium/Playwright, pyHanko e Java 21 com veraPDF 1.30.3 verificado por SHA-256. `install-optional-mac.sh` permanece como entrada de compatibilidade e verifica a instalação completa.
 
 Para outro diretório de aplicativos:
 
@@ -103,6 +105,8 @@ O comando usa conteúdo e metadados determinísticos, exclui caches e padrões d
 | DOC/DOCX, PPT/PPTX, XLS/XLSX, ODT, RTF e CSV para PDF | LibreOffice; CSV é preparado pelo motor antes da conversão |
 | HTML para PDF | Chromium/Playwright local |
 | OCR e PDF/A | OCRmyPDF, Tesseract, idiomas e Ghostscript |
+| Assinaturas digitais e verificação | pyHanko; certificado PKCS#12 do usuário para assinar; raízes públicas explícitas para avaliar confiança |
+| Validação independente PDF/A e PDF/UA | Java 21 e veraPDF oficial com checksum fixado |
 | Pages para PDF | Aplicativo **Pages da Apple**, instalado separadamente pela App Store; automação do macOS autorizada pelo sistema |
 | Resumo, tradução, conversa e perguntas por IA | Modelo local Apple Intelligence disponível; nenhum segredo de API obrigatório |
 | Compartilhar documentos | Serviços de compartilhamento instalados e configurados no macOS |
@@ -111,7 +115,7 @@ Pages é um aplicativo gratuito da Apple e não é redistribuído pelo PDF. Quan
 
 ## Atualizações, verificações e recuperação
 
-A versão 0.3.0 usa um runtime próprio em `~/Library/Application Support/PDF/runtimes/<identificador>`. O bundle contém um launcher para esse runtime e permanece selado por assinatura. Não mova ou copie o `.app` para outro Mac; execute a instalação nesse Mac.
+A versão 0.5.0 usa um runtime próprio em `~/Library/Application Support/PDF/runtimes/<identificador>`. O bundle contém um launcher para esse runtime e permanece selado por assinatura. Não mova ou copie o `.app` para outro Mac; execute a instalação nesse Mac.
 
 Quando existe uma instalação anterior com o identificador `local.pdf.desktop`, o instalador preserva uma cópia `PDF.previous.<data>.<pid>.app`. A atualização é ativada depois dos testes e revertida se a verificação final falhar. Um aplicativo diferente chamado `PDF.app` não é substituído.
 

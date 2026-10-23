@@ -50,12 +50,30 @@ jobs:
         run: |
           PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
           python3 scripts/run-with-timeout.py --seconds 180 -- "$PDF_BINARY_DIR/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
+      - name: Validate accessibility reports from native previews
+        id: accessibility
+        if: ${{ !cancelled() && steps.preview.outcome == 'success' }}
+        run: |
+          python3 - <<'PYTHON'
+          import os
+          from pathlib import Path
+          import subprocess
+          import sys
+          root = Path(os.environ['RUNNER_TEMP'])
+          reports = sorted(root.glob('PDF-preview*accessibility.json'))
+          expected = {'PDF-preview.accessibility.json', 'PDF-preview.leitor.accessibility.json'}
+          if not expected.issubset({path.name for path in reports}):
+              raise SystemExit('Missing native accessibility reports: home and reader are required.')
+          subprocess.run([sys.executable, 'scripts/check_accessibility_report.py', *map(str, reports)], check=True)
+          PYTHON
       - name: Retain native preview artifact
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: PDF-macOS-preview-${{ matrix.runner }}
-          path: ${{ runner.temp }}/PDF-preview*.png
+          path: |
+            ${{ runner.temp }}/PDF-preview*.png
+            ${{ runner.temp }}/PDF-preview*accessibility.json
           if-no-files-found: ignore
       - name: Build, install and validate complete application
         id: install
@@ -63,6 +81,45 @@ jobs:
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
         run: bash scripts/install-mac.sh
+      - name: Benchmark the installed application with OCR
+        id: benchmark
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          python3 scripts/run-with-timeout.py --seconds 600 -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --benchmark "$RUNNER_TEMP/PDF-benchmark.json" --benchmark-pages 100
+          python3 - <<'PYTHON'
+          import json
+          import math
+          import os
+          from pathlib import Path
+          import re
+          from statistics import median
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'PDF-benchmark.json').read_text())
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit('Invalid native benchmark: ' + detail)
+          require(report.get('schemaVersion') == 1, 'unsupported schema')
+          require(report.get('architecture') == 'arm64', 'native Apple Silicon execution required')
+          require(report.get('pageCount') == 100 and report.get('fixture') == 'text-and-vector-v1', '100-page synthetic fixture required')
+          require(report.get('repetitions') == 3, 'three measured repetitions required')
+          require(isinstance(report.get('sourceBytes'), int) and report['sourceBytes'] > 0, 'empty input')
+          require(re.fullmatch('[0-9a-f]{64}', report.get('sourceSHA256', '')) is not None, 'missing input fingerprint')
+          metrics = report.get('metrics', [])
+          required = {'open', 'extract', 'search', 'render', 'contrast', 'ocr'}
+          require(len(metrics) == len(required) and {item.get('id') for item in metrics} == required, 'all six operations, including OCR, must run')
+          for item in metrics:
+              require(item.get('error') is None, item['id'] + ': ' + str(item.get('error')))
+              samples = item.get('samplesMilliseconds', [])
+              require(len(samples) == 3 and all(type(value) in (int, float) and math.isfinite(value) and value >= 0 for value in samples), item['id'] + ': invalid or incomplete timing samples')
+              print(f"{item['id']}: median {median(samples):.3f} ms ({len(samples)} samples)")
+          print('Hardware:', report.get('processor'), '|', report.get('operatingSystem'), '|', report.get('virtualization'))
+          PYTHON
+      - name: Retain native benchmark artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-macOS-benchmark-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-benchmark.json
+          if-no-files-found: ignore
       - name: Create source distribution
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
         run: bash scripts/package-source.sh
@@ -70,7 +127,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && 'PDF-source' || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.benchmark.outcome == 'success' && 'PDF-source' || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256

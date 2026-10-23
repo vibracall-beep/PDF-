@@ -97,27 +97,39 @@ import UniformTypeIdentifiers
         // Exercise the same annotation methods used by toolbar actions and pointer strokes.
         guard let annotationPage = searchModel.document?.page(at: 0) else { throw NSError(domain: "PDF.NativeAudit", code: 7) }
         annotationPage.setBounds(CGRect(x: 10, y: 20, width: 560, height: 800), for: .cropBox)
+        guard let selection = searchModel.document?.findString("Auditoria", withOptions: .caseInsensitive).first else {
+            throw NSError(domain: "PDF.NativeAudit", code: 9, userInfo: [NSLocalizedDescriptionKey: "A amostra não contém texto selecionável para realçar."])
+        }
+        reader.setCurrentSelection(selection, animate: false)
+        try require(reader.currentSelection != nil, "O leitor não reteve a seleção necessária ao realce.")
         searchModel.highlight(colorHex: "#11AA33")
         searchModel.addNote("Nota personalizada", colorHex: "#8844AA")
         let inkView = DrawingPDFView(frame: CGRect(x: 0, y: 0, width: 800, height: 600))
         inkView.document = searchModel.document; inkView.inkColor = ReaderAnnotationStyle.color("#2255CC", fallback: "#007AFF"); inkView.inkWidth = 7.5
         inkView.beginStroke(on: annotationPage, at: NSPoint(x: 40, y: 50))
         inkView.extendStroke(to: NSPoint(x: 100, y: 120)); inkView.finishStroke()
-        guard let annotatedData = searchModel.document?.dataRepresentation(), let reopened = PDFDocument(data: annotatedData)?.page(at: 0) else {
+        let createdTypes = annotationPage.annotations.map { $0.type ?? "nil" }.joined(separator: ", ")
+        try require(annotationPage.annotations.contains { PDFAnnotationKind.matches($0, .highlight) }, "O comando de realce não criou a anotação; tipos presentes: \(createdTypes).")
+        guard let annotatedData = searchModel.document?.dataRepresentation(), let reopenedDocument = PDFDocument(data: annotatedData), let reopened = reopenedDocument.page(at: 0) else {
             throw NSError(domain: "PDF.NativeAudit", code: 8)
         }
         func matches(_ color: NSColor, hex: String) -> Bool {
             guard let actual = color.usingColorSpace(.sRGB), let expected = ReaderAnnotationStyle.color(hex, fallback: hex).usingColorSpace(.sRGB) else { return false }
             return abs(actual.redComponent - expected.redComponent) < 0.015 && abs(actual.greenComponent - expected.greenComponent) < 0.015 && abs(actual.blueComponent - expected.blueComponent) < 0.015
         }
-        let highlight = reopened.annotations.first { $0.type == PDFAnnotationSubtype.highlight.rawValue }
-        let note = reopened.annotations.first { $0.type == PDFAnnotationSubtype.text.rawValue }
-        let ink = reopened.annotations.first { $0.type == PDFAnnotationSubtype.ink.rawValue }
-        try require(highlight.map { matches($0.color, hex: "#11AA33") } == true, "A cor personalizada do realce não persistiu no PDF.")
+        let highlight = reopened.annotations.first { PDFAnnotationKind.matches($0, .highlight) }
+        let note = reopened.annotations.first { PDFAnnotationKind.matches($0, .text) }
+        let ink = reopened.annotations.first { PDFAnnotationKind.matches($0, .ink) }
+        let serializedTypes = reopened.annotations.map { $0.type ?? "nil" }.joined(separator: ", ")
+        try require(highlight != nil && note != nil && ink != nil, "Uma anotação não foi identificada após reabrir; tipos: \(serializedTypes); constante de realce: \(PDFAnnotationSubtype.highlight.rawValue).")
+        try require(highlight.map { matches($0.color, hex: "#11AA33") } == true, "A cor personalizada do realce não persistiu no PDF; cor recebida: \(highlight?.color.description ?? "ausente").")
         try require(note.map { matches($0.color, hex: "#8844AA") && $0.contents == "Nota personalizada" } == true, "A nota perdeu a cor ou o conteúdo personalizados.")
         try require(ink.map { matches($0.color, hex: "#2255CC") && abs(($0.border?.lineWidth ?? 0) - 7.5) < 0.01 && !($0.paths ?? []).isEmpty } == true,
                     "O traço desenhado não preservou a cor, espessura ou caminho no PDF.")
         try require(ReaderAnnotationStyle.width(.nan) == 2.5 && ReaderAnnotationStyle.width(100) == 20 && ReaderAnnotationStyle.width(0) == 0.5, "Espessuras inválidas não receberam limites seguros.")
+        try require(PDFAnnotationKind.normalizedName("/Highlight") == PDFAnnotationKind.normalizedName("Highlight") && PDFAnnotationKind.normalizedName(nil) == nil,
+                    "A identificação dos tipos não normalizou o prefixo de nome PDF.")
+        try require(!PDFAnnotationKind.matches(PDFAnnotation(bounds: .zero, forType: .link, withProperties: nil), .highlight), "A identificação aceitou um tipo diferente.")
         print("Native audit: naming, private atomic publication, TIFF pages/orientation, protected imports, cancellation, reader settings, AI source metadata passed")
     }
 }

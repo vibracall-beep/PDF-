@@ -65,6 +65,12 @@ enum ReaderAnnotationStyle {
     @Published var inkMode = false
     @Published var hasEdits = false
     @Published private(set) var searching = false
+    @Published private(set) var sessions: [PDFDocumentSession] = []
+    @Published private(set) var activeSessionID: UUID?
+    @Published var comparisonSessionID: UUID?
+    @Published var selectedAnnotation: PDFAnnotation?
+    @Published private(set) var recoveryItems: [RecoveryRecord] = []
+    @Published private(set) var recoveryWarnings: [String] = []
     weak var pdfView: PDFView?
     var externalCancellation:(()->Void)?
     private var pendingURL: URL?
@@ -83,19 +89,41 @@ enum ReaderAnnotationStyle {
     private var searchAnchorCharacter = 0
     private var searchLimited = false
     private var searchAnimate = true
+    private var recoveryTimer: Timer?
+    private var pendingRecovery: RecoveryRecord?
+    private let defaults: UserDefaults
+    private let recoveryStore: RecoveryStore
+    private let automaticRecoveryPermitted: Bool
+    private let transientDefaultsSuite: String?
     private let thumbnails = NSCache<NSNumber, NSImage>()
 
-    init() {
-        recentURLs = (UserDefaults.standard.stringArray(forKey:"recentDocuments") ?? []).map { URL(fileURLWithPath:$0) }
+    init(defaults: UserDefaults = .standard, recoveryStore: RecoveryStore = .shared, enableRecoveryPolling: Bool = true) {
+        let automation = CommandLine.arguments.contains { ["--smoke-test", "--render-preview", "--benchmark"].contains($0) }
+        if automation, defaults === UserDefaults.standard {
+            let suite = "PDF.Automation.\(UUID().uuidString)"
+            self.defaults = UserDefaults(suiteName: suite)!; transientDefaultsSuite = suite
+        } else { self.defaults = defaults; transientDefaultsSuite = nil }
+        automaticRecoveryPermitted = !automation
+        self.recoveryStore = automation && recoveryStore === RecoveryStore.shared
+            ? RecoveryStore(directory: FileManager.default.temporaryDirectory.appendingPathComponent("PDF-Automation-Recovery-\(UUID().uuidString)")) : recoveryStore
+        recentURLs = (self.defaults.stringArray(forKey:"recentDocuments") ?? []).map { URL(fileURLWithPath:$0) }
         thumbnails.countLimit = 150
+        if enableRecoveryPolling && !automation { recoveryTimer = Timer.scheduledTimer(withTimeInterval: 2, repeats: true) { [weak self] _ in
+            Task { @MainActor in self?.pollSessions() }
+        } }
+        if !automation { refreshRecovery() }
     }
+    deinit { recoveryTimer?.invalidate(); if let transientDefaultsSuite { defaults.removePersistentDomain(forName: transientDefaultsSuite) } }
     func open() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
         guard panel.runModal() == .OK, let url = panel.url else { return }
         open(url:url)
     }
     func open(url:URL) {
-        guard confirmDiscardEdits() else { return }
+        cancelPendingUnlock()
+        if let existing = sessions.first(where: { ($0.savedURL ?? $0.sourceURL)?.standardizedFileURL == url.standardizedFileURL }) {
+            activateSession(existing.id); return
+        }
         guard let doc = PDFDocument(url:url) else { message = "Não foi possível ler este PDF. Verifique o arquivo e o acesso à pasta."; return }
         if doc.isLocked {
             pendingURL = url; documentPassword = ""; needsPassword = true; return
@@ -104,56 +132,260 @@ enum ReaderAnnotationStyle {
     }
     func unlockPendingDocument() {
         defer { documentPassword = "" }
+        if let recovery = pendingRecovery {
+            do {
+                let data = try recoveryStore.load(recovery)
+                guard let document = PDFDocument(data: data), document.unlock(withPassword: documentPassword) else { message = "Senha incorreta para a recuperação. Tente novamente."; return }
+                restore(document, from: recovery, password: documentPassword)
+                pendingRecovery = nil; needsPassword = false
+            } catch { message = error.localizedDescription }
+            return
+        }
         guard let url = pendingURL, let doc = PDFDocument(url:url), doc.unlock(withPassword:documentPassword) else {
             message = "Senha incorreta ou documento indisponível. Abra o arquivo novamente para tentar outra senha."; return
         }
-        pendingURL = nil; needsPassword = false; installDocument(doc, url:url)
+        let password = documentPassword
+        pendingURL = nil; needsPassword = false; installDocument(doc, url:url, password: password)
     }
-    private func installDocument(_ doc:PDFDocument, url:URL) {
-        cancelSearch(); searchQuery = ""; searchMatches = []; searchCursor = -1
-        document = doc; self.url = url; section = "Leitor"; hasEdits = false; savedDocumentURL = nil
-        needsPassword = false; pendingURL = nil; documentPassword = ""
-        currentPage = min(max(1, UserDefaults.standard.integer(forKey: "readerPage:" + url.standardizedFileURL.path)), max(1, doc.pageCount))
-        originalWidgetState = widgetState()
-        thumbnails.removeAllObjects()
+    func cancelPendingUnlock() {
+        pendingURL = nil; pendingRecovery = nil; documentPassword = ""; needsPassword = false
+    }
+    private func installDocument(_ doc:PDFDocument, url:URL, password: String? = nil) {
+        (pdfView as? DrawingPDFView)?.finishStroke()
+        captureActiveSession()
+        let session = PDFDocumentSession(document: doc, sourceURL: url, password: password)
+        session.page = min(max(1, defaults.integer(forKey: "readerPage:" + url.standardizedFileURL.path)), max(1, doc.pageCount))
+        session.bookmarks = Set((defaults.array(forKey: "bookmarks:" + url.standardizedFileURL.path) as? [Int] ?? []).filter { $0 > 0 && $0 <= doc.pageCount })
+        configure(session); sessions.append(session); loadSession(session)
+        needsPassword = false; pendingURL = nil; pendingRecovery = nil; documentPassword = ""
         recentURLs.removeAll { $0.standardizedFileURL == url.standardizedFileURL }; recentURLs.insert(url, at:0)
         recentURLs = Array(recentURLs.prefix(20))
-        UserDefaults.standard.set(recentURLs.map(\.path), forKey:"recentDocuments")
-        bookmarks = Set((UserDefaults.standard.array(forKey:bookmarkKey) as? [Int] ?? []).filter { $0 > 0 && $0 <= doc.pageCount })
+        defaults.set(recentURLs.map(\.path), forKey:"recentDocuments")
         message = "\(doc.pageCount) páginas · \(url.lastPathComponent)"
+        scheduleRecovery(session)
     }
     private var bookmarkKey:String { "bookmarks:" + (url?.standardizedFileURL.path ?? "") }
-    func clearRecent() { recentURLs = []; UserDefaults.standard.removeObject(forKey:"recentDocuments") }
+    func clearRecent() { recentURLs = []; defaults.removeObject(forKey:"recentDocuments") }
     var hasUnsavedChanges:Bool { hasEdits || widgetState() != originalWidgetState }
     private func widgetState() -> String {
         guard let document else { return "" }
-        var state:[String] = []
-        for index in 0..<document.pageCount {
-            for (position, annotation) in (document.page(at:index)?.annotations ?? []).enumerated() {
-                if annotation.type == PDFAnnotationSubtype.widget.rawValue || annotation.fieldName != nil {
-                    let value = annotation.widgetStringValue ?? ""
-                    state.append("\(index):\(position):\(annotation.fieldName ?? ""): \(value.utf8.count):\(value):\(annotation.buttonWidgetState.rawValue)")
-                }
-            }
-        }
-        return state.joined(separator:"\n")
+        return PDFDocumentSession.widgetState(document)
     }
     func confirmDiscardEdits() -> Bool {
         NSApp.keyWindow?.makeFirstResponder(nil)
         (pdfView as? DrawingPDFView)?.finishStroke()
-        guard hasUnsavedChanges else { return true }
-        let alert = NSAlert(); alert.messageText = "Há alterações no documento aberto"
-        alert.informativeText = "Salve uma cópia para conservar suas anotações antes de abrir outro arquivo."
-        alert.addButton(withTitle:"Voltar"); alert.addButton(withTitle:"Descartar alterações")
-        return alert.runModal() == .alertSecondButtonReturn
+        captureActiveSession()
+        let dirty = sessions.filter { $0.refreshDirty() }
+        if dirty.isEmpty { return checkpointSynchronously() }
+        let alert = NSAlert(); alert.messageText = "Há alterações em \(dirty.count) documento(s)"
+        alert.informativeText = "Você pode manter cópias locais de recuperação para continuar depois. Os arquivos originais permanecem intactos."
+        alert.addButton(withTitle: "Voltar"); alert.addButton(withTitle: "Sair mantendo recuperação"); alert.addButton(withTitle: "Descartar alterações")
+        switch alert.runModal() {
+        case .alertSecondButtonReturn: return checkpointSynchronously(force: true)
+        case .alertThirdButtonReturn:
+            for session in sessions { session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); try? recoveryStore.delete(session.id) }
+            return true
+        default: return false
+        }
     }
+    var activeSession: PDFDocumentSession? { sessions.first { $0.id == activeSessionID } }
+    private func configure(_ session: PDFDocumentSession) {
+        session.history.onChange = { [weak self, weak session] in
+            guard let self, let session else { return }
+            session.hasEdits = true; session.isDirty = true; session.annotationRevision += 1
+            if self.activeSessionID == session.id {
+                self.hasEdits = true; self.annotationRevision = session.annotationRevision; self.thumbnails.removeAllObjects()
+                if let selected = self.selectedAnnotation, selected.page == nil { self.selectedAnnotation = nil }
+                self.pdfView?.needsDisplay = true
+            }
+            self.scheduleRecovery(session)
+        }
+    }
+    func captureActiveSession() {
+        guard let document else { return }
+        let session: PDFDocumentSession
+        if let existing = activeSession { session = existing }
+        else {
+            session = PDFDocumentSession(document: document, sourceURL: url)
+            configure(session); sessions.append(session); activeSessionID = session.id
+        }
+        session.document = document; session.sourceURL = url; session.savedURL = savedDocumentURL
+        session.page = currentPage; session.bookmarks = bookmarks; session.hasEdits = hasEdits
+        session.annotationRevision = annotationRevision; session.originalWidgetState = originalWidgetState
+        if pdfView?.document === document, let view = pdfView {
+            let zoom = Double(view.scaleFactor)
+            if zoom.isFinite, zoom > 0 { session.zoom = min(8, max(0.1, zoom)) }
+            session.autoScale = view.autoScales
+        }
+        session.refreshDirty()
+    }
+    private func loadSession(_ session: PDFDocumentSession) {
+        cancelSearch(); searchMatches = []; searchCursor = -1; selectedAnnotation = nil
+        activeSessionID = session.id; document = session.document; url = session.sourceURL; savedDocumentURL = session.savedURL
+        currentPage = min(max(1, session.page), max(1, session.document.pageCount)); bookmarks = session.bookmarks
+        hasEdits = session.hasEdits; annotationRevision = session.annotationRevision; originalWidgetState = session.originalWidgetState
+        thumbnails.removeAllObjects(); section = "Leitor"
+    }
+    func activateSession(_ id: UUID) {
+        guard id != activeSessionID, let session = sessions.first(where: { $0.id == id }) else { return }
+        NSApp.keyWindow?.makeFirstResponder(nil); (pdfView as? DrawingPDFView)?.finishStroke(); captureActiveSession(); loadSession(session)
+    }
+    func closeSession(_ id: UUID, discardChanges: Bool = false) {
+        NSApp.keyWindow?.makeFirstResponder(nil); (pdfView as? DrawingPDFView)?.finishStroke(); captureActiveSession()
+        guard let session = sessions.first(where: { $0.id == id }) else { return }
+        if session.refreshDirty(), !discardChanges {
+            let alert = NSAlert(); alert.messageText = "Fechar \(session.title)?"
+            alert.informativeText = "Há alterações não salvas nesta aba. Salvar cópia conserva o documento antes de fechar."
+            alert.addButton(withTitle: "Cancelar"); alert.addButton(withTitle: "Salvar cópia"); alert.addButton(withTitle: "Descartar alterações")
+            switch alert.runModal() {
+            case .alertSecondButtonReturn:
+                activateSession(id); save(); guard !hasUnsavedChanges else { return }
+            case .alertThirdButtonReturn: break
+            default: return
+            }
+        }
+        session.recoveryTask?.cancel(); session.recoveryWrite?.cancel()
+        do { try recoveryStore.delete(id) } catch { message = "Não foi possível remover a recuperação da aba: \(error.localizedDescription)"; return }
+        sessions.removeAll { $0.id == id }
+        if comparisonSessionID == id { comparisonSessionID = nil }
+        if activeSessionID == id {
+            activeSessionID = nil; selectedAnnotation = nil; cancelSearch()
+            if let next = sessions.last { loadSession(next) }
+            else { document = nil; url = nil; savedDocumentURL = nil; hasEdits = false; currentPage = 1; bookmarks = []; section = "Início" }
+        }
+        refreshRecovery()
+    }
+    private var recoveryEnabled: Bool { automaticRecoveryPermitted && (defaults.object(forKey: "recoveryEnabled") as? Bool ?? true) }
+    private func pollSessions() {
+        captureActiveSession()
+        for session in sessions { session.refreshDirty(); scheduleRecovery(session) }
+    }
+    private func fingerprint(_ session: PDFDocumentSession) -> String {
+        "\(contentFingerprint(session)):\(session.page):\(session.zoom):\(session.autoScale):\(session.bookmarks.sorted())"
+    }
+    private func contentFingerprint(_ session: PDFDocumentSession) -> String {
+        "\(session.annotationRevision):\(session.hasEdits):\(session.savedURL?.path ?? ""):\(PDFDocumentSession.widgetState(session.document))"
+    }
+    private func recoveryState(_ session: PDFDocumentSession) -> RecoverySessionState {
+        RecoverySessionState(page: session.page, zoom: session.zoom, autoScale: session.autoScale, bookmarks: Array(session.bookmarks).sorted())
+    }
+    private func scheduleRecovery(_ session: PDFDocumentSession) {
+        guard recoveryEnabled else { session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); session.recoveryTask = nil; return }
+        let value = fingerprint(session)
+        guard value != session.recoveryFingerprint else { return }
+        // Navigation alone need not rewrite every page while the user scrolls.
+        if contentFingerprint(session) == session.recoveryContentFingerprint, Date().timeIntervalSince(session.lastRecoveryDate) < 15 { return }
+        // The pending marker prevents the polling timer from perpetually resetting debounce.
+        if session.recoveryTask != nil { return }
+        session.recoveryTask = Task { @MainActor [weak self, weak session] in
+            defer { session?.recoveryTask = nil }
+            do {
+                try await Task.sleep(for: .milliseconds(650)); try Task.checkCancellation()
+                guard let self, let session, self.sessions.contains(where: { $0.id == session.id }), self.recoveryEnabled else { return }
+                let captured = self.fingerprint(session), content = self.contentFingerprint(session), state = self.recoveryState(session)
+                let data = try session.recoveryData(), source = session.savedURL ?? session.sourceURL
+                let id = session.id, encrypted = session.document.isEncrypted, title = session.title
+                let store = self.recoveryStore
+                // Atomic publication stays off the UI thread; capture uses the reader's actor.
+                let write = Task.detached(priority: .utility) {
+                    try Task.checkCancellation()
+                    try store.save(documentData: data, sourceURL: source, sessionID: id, encrypted: encrypted, title: title, state: state)
+                }
+                session.recoveryWrite = write
+                defer { session.recoveryWrite = nil }
+                try await withTaskCancellationHandler { try await write.value } onCancel: { write.cancel() }
+                try Task.checkCancellation()
+                session.recoveryFingerprint = captured
+                session.recoveryContentFingerprint = content; session.lastRecoveryDate = Date()
+                self.refreshRecovery()
+            } catch is CancellationError { }
+            catch { self?.message = "Recuperação: \(error.localizedDescription)" }
+        }
+    }
+    func checkpointRecovery() { captureActiveSession(); for session in sessions { session.recoveryFingerprint = ""; scheduleRecovery(session) } }
+    private func checkpointSynchronously(force: Bool = false) -> Bool {
+        guard recoveryEnabled || force else { return true }
+        do {
+            try checkpointRecoveryNow()
+            return true
+        } catch { message = "Não foi possível preservar a sessão: \(error.localizedDescription)"; return false }
+    }
+    func checkpointRecoveryNow() throws {
+        NSApp.keyWindow?.makeFirstResponder(nil); (pdfView as? DrawingPDFView)?.finishStroke(); captureActiveSession()
+        for session in sessions {
+            session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); session.recoveryTask = nil
+            try recoveryStore.save(documentData: session.recoveryData(), sourceURL: session.savedURL ?? session.sourceURL,
+                sessionID: session.id, encrypted: session.document.isEncrypted, title: session.title, state: recoveryState(session))
+            session.recoveryFingerprint = fingerprint(session)
+            session.recoveryContentFingerprint = contentFingerprint(session); session.lastRecoveryDate = Date()
+        }
+    }
+    func refreshRecovery() {
+        let store = recoveryStore
+        Task { @MainActor [weak self] in
+            do { let records = try await Task.detached(priority: .utility) { try store.list() }.value; self?.recoveryItems = records; self?.recoveryWarnings = store.warnings }
+            catch { self?.message = "Não foi possível listar recuperações: \(error.localizedDescription)" }
+        }
+    }
+    func refreshRecoveryNow() throws { recoveryItems = try recoveryStore.list(); recoveryWarnings = recoveryStore.warnings }
+    func restoreRecovery(id: UUID) {
+        cancelPendingUnlock()
+        if sessions.contains(where: { $0.id == id }) { activateSession(id); return }
+        guard let record = recoveryItems.first(where: { $0.id == id }) else { return }
+        do {
+            let data = try recoveryStore.load(record)
+            guard let document = PDFDocument(data: data) else { throw NSError(domain: "PDF.Recovery", code: 21, userInfo: [NSLocalizedDescriptionKey: "A recuperação não contém um PDF legível."]) }
+            if document.isLocked { pendingRecovery = record; pendingURL = nil; documentPassword = ""; needsPassword = true; return }
+            restore(document, from: record, password: nil)
+        } catch { message = error.localizedDescription }
+    }
+    private func restore(_ document: PDFDocument, from record: RecoveryRecord, password: String?) {
+        captureActiveSession()
+        let session = PDFDocumentSession(id: record.id, document: document, sourceURL: record.sourceURL, password: password)
+        session.page = record.state.page; session.zoom = record.state.zoom; session.autoScale = record.state.autoScale
+        session.bookmarks = Set(record.state.bookmarks); session.hasEdits = true; session.isDirty = true
+        configure(session); sessions.append(session); loadSession(session)
+        message = "Sessão recuperada. Salve uma cópia para conservar esta versão; o original não foi substituído."
+    }
+    func deleteRecovery(id: UUID) {
+        if let session = sessions.first(where: { $0.id == id }) {
+            session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); session.recoveryFingerprint = fingerprint(session)
+        }
+        do { try recoveryStore.delete(id); refreshRecovery() }
+        catch { message = "Não foi possível excluir a recuperação: \(error.localizedDescription)" }
+    }
+    var annotationsOnCurrentPage: [PDFAnnotation] { (pdfView?.currentPage?.annotations ?? []).filter(EditableAnnotations.accepts) }
+    var annotationUndoManager: UndoManager? { activeSession?.history.undoManager }
+    var canUndoAnnotation: Bool { annotationUndoManager?.canUndo ?? false }
+    var canRedoAnnotation: Bool { annotationUndoManager?.canRedo ?? false }
+    func selectAnnotation(_ annotation: PDFAnnotation?) { selectedAnnotation = annotation.flatMap { EditableAnnotations.accepts($0) ? $0 : nil } }
+    func updateSelectedAnnotation(colorHex: String, width: Double, bounds: CGRect, contents: String? = nil) {
+        guard let annotation = selectedAnnotation, let page = annotation.page, EditableAnnotations.accepts(annotation) else { return }
+        do {
+            try EditableAnnotations.validate(bounds, on: page)
+            let before = PDFAnnotationState(annotation)
+            EditableAnnotations.resize(annotation, to: bounds)
+            annotation.color = ReaderAnnotationStyle.color(colorHex, fallback: "#007AFF").withAlphaComponent(annotation.color.alphaComponent)
+            if PDFAnnotationKind.matches(annotation, .freeText) { annotation.fontColor = ReaderAnnotationStyle.color(colorHex, fallback: "#007AFF") }
+            let border = annotation.border ?? PDFBorder(); border.lineWidth = ReaderAnnotationStyle.width(width); annotation.border = border
+            if let contents, PDFAnnotationKind.matchesAny(annotation, [.text, .freeText]) { annotation.contents = contents }
+            ensureSession(); activeSession?.history.changed(annotation, before: before)
+        } catch { message = error.localizedDescription }
+    }
+    func deleteSelectedAnnotation() {
+        guard let annotation = selectedAnnotation, let page = annotation.page, EditableAnnotations.accepts(annotation) else { return }
+        ensureSession(); activeSession?.history.remove(annotation, from: page); selectedAnnotation = nil
+    }
+    func undoAnnotation() { annotationUndoManager?.undo(); selectedAnnotation = nil }
+    func redoAnnotation() { annotationUndoManager?.redo(); selectedAnnotation = nil }
+    private func ensureSession() { if activeSession == nil { captureActiveSession() } }
     func selectOutput(extension suffix:String = "pdf", directory:Bool = false, toolName:String = "PDF", originalURL: URL? = nil) -> URL? {
         let panel = NSSavePanel()
-        let prefix = UserDefaults.standard.string(forKey:"outputPrefix") ?? "PDF-resultado"
-        panel.nameFieldStringValue = OutputFilename.make(template: UserDefaults.standard.string(forKey: "outputFilenameTemplate"),
+        let prefix = defaults.string(forKey:"outputPrefix") ?? "PDF-resultado"
+        panel.nameFieldStringValue = OutputFilename.make(template: defaults.string(forKey: "outputFilenameTemplate"),
             prefix: prefix, original: (originalURL ?? savedDocumentURL ?? url)?.lastPathComponent ?? "Documento.pdf", tool: toolName, suffix: suffix, directory: directory)
         if !directory, let type = UTType(filenameExtension:suffix) { panel.allowedContentTypes = [type] }
-        if let path = UserDefaults.standard.string(forKey:"outputDirectory"), !path.isEmpty { panel.directoryURL = URL(fileURLWithPath:path) }
+        if let path = defaults.string(forKey:"outputDirectory"), !path.isEmpty { panel.directoryURL = URL(fileURLWithPath:path) }
         guard panel.runModal() == .OK, let target = panel.url else { return nil }
         guard !FileManager.default.fileExists(atPath:target.path) else {
             message = "O destino já existe. Escolha um novo nome para preservar os arquivos."; return nil
@@ -165,6 +397,7 @@ enum ReaderAnnotationStyle {
         (pdfView as? DrawingPDFView)?.finishStroke()
         guard let document else { return }
         let bytes:Data?
+        var newPassword: String?
         if document.isEncrypted {
             let alert = NSAlert(); alert.messageText = "Salvar cópia protegida"
             alert.informativeText = "Defina a senha da nova cópia para manter o conteúdo protegido. Use pelo menos 8 caracteres."
@@ -176,6 +409,7 @@ enum ReaderAnnotationStyle {
             let secret = first.stringValue
             guard secret.count >= 8,secret == second.stringValue else { message = "Use senhas iguais, com pelo menos 8 caracteres."; return }
             first.stringValue = ""; second.stringValue = ""
+            newPassword = secret
             let options:[AnyHashable:Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue):secret,AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue):secret]
             bytes = document.dataRepresentation(options:options)
             guard let data = bytes,let verification = PDFDocument(data:data),verification.isEncrypted,verification.isLocked,!verification.unlock(withPassword:""),verification.unlock(withPassword:secret) else {
@@ -185,9 +419,18 @@ enum ReaderAnnotationStyle {
         guard let bytes else { message = "Não foi possível criar uma cópia do documento. Nenhum arquivo foi salvo."; return }
         guard let target = selectOutput(toolName: "Cópia") else { return }
         do {
-            try NativeOutput.write(bytes,to:target)
-            lastOutput = target; savedDocumentURL = target; hasEdits = false; originalWidgetState = widgetState(); message = "Cópia salva: \(target.lastPathComponent)"
+            try publishSavedCopy(bytes, to: target, password: newPassword)
         } catch { message = "Não foi possível salvar: \(error.localizedDescription)" }
+    }
+    /// The destination is committed before the in-memory recovery password or
+    /// saved/dirty state can change. Cancelled panels never reach this method.
+    func publishSavedCopy(_ bytes: Data, to target: URL, password: String?) throws {
+        try NativeOutput.write(bytes, to: target)
+        ensureSession()
+        if let password { activeSession?.password = password }
+        lastOutput = target; savedDocumentURL = target; hasEdits = false; originalWidgetState = widgetState()
+        message = "Cópia salva: \(target.lastPathComponent)"
+        captureActiveSession(); if let activeSession { scheduleRecovery(activeSession) }
     }
     func printDocument() {
         guard let document else { return }
@@ -195,30 +438,36 @@ enum ReaderAnnotationStyle {
     }
     func highlight(colorHex: String? = nil) {
         guard let selection = pdfView?.currentSelection else { message = "Selecione texto no documento para realçar."; return }
-        let color = ReaderAnnotationStyle.color(colorHex ?? UserDefaults.standard.string(forKey: "readerHighlightColor") ?? "#FFE600", fallback: "#FFE600")
+        ensureSession(); let history = activeSession?.history
+        history?.undoManager.beginUndoGrouping(); defer { history?.undoManager.endUndoGrouping() }
+        let color = ReaderAnnotationStyle.color(colorHex ?? defaults.string(forKey: "readerHighlightColor") ?? "#FFE600", fallback: "#FFE600")
         for line in selection.selectionsByLine() {
             for page in line.pages {
                 let annotation = PDFAnnotation(bounds:line.bounds(for:page), forType:.highlight, withProperties:nil)
                 annotation.color = color.withAlphaComponent(0.45); page.addAnnotation(annotation)
+                history?.inserted(annotation, on: page, name: "Realçar texto")
             }
         }
-        didEdit(); message = "Realce adicionado. Salve uma cópia para conservar a alteração."
+        message = "Realce adicionado. Salve uma cópia para conservar a alteração."
     }
     func addNote(_ text:String, colorHex: String? = nil) {
         guard let page = pdfView?.currentPage, !text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else { return }
         let bounds = page.bounds(for:.cropBox)
         let annotation = PDFAnnotation(bounds:CGRect(x:bounds.minX + 30,y:bounds.maxY - 70,width:28,height:28),forType:.text,withProperties:nil)
         annotation.contents = text
-        annotation.color = ReaderAnnotationStyle.color(colorHex ?? UserDefaults.standard.string(forKey: "readerNoteColor") ?? "#FFCC00", fallback: "#FFCC00")
-        page.addAnnotation(annotation); didEdit()
+        annotation.color = ReaderAnnotationStyle.color(colorHex ?? defaults.string(forKey: "readerNoteColor") ?? "#FFCC00", fallback: "#FFCC00")
+        page.addAnnotation(annotation); ensureSession(); activeSession?.history.inserted(annotation, on: page, name: "Adicionar nota")
     }
     func rotatePage() {
         guard let page = pdfView?.currentPage else { return }
         page.rotation = (page.rotation + 90) % 360; didEdit()
     }
-    func didEdit() { cancelSearch(); hasEdits = true; annotationRevision += 1; thumbnails.removeAllObjects() }
+    func didEdit() {
+        cancelSearch(); hasEdits = true; annotationRevision += 1; thumbnails.removeAllObjects()
+        captureActiveSession(); if let activeSession { scheduleRecovery(activeSession) }
+    }
     func goToPage(_ number:Int) {
-        guard let document, let page = document.page(at:number - 1) else { return }
+        guard let document, number > 0, number <= document.pageCount, let page = document.page(at:number - 1) else { return }
         pdfView?.go(to:page); currentPage = number
     }
     func recordPage(_ page: PDFPage, in document: PDFDocument) {
@@ -226,7 +475,9 @@ enum ReaderAnnotationStyle {
         let index = document.index(for: page)
         guard index != NSNotFound, index >= 0, index < document.pageCount else { return }
         currentPage = index + 1
-        if let url { UserDefaults.standard.set(currentPage, forKey: "readerPage:" + url.standardizedFileURL.path) }
+        if selectedAnnotation?.page !== page { selectedAnnotation = nil }
+        activeSession?.page = currentPage
+        if let url { defaults.set(currentPage, forKey: "readerPage:" + url.standardizedFileURL.path) }
     }
     func nextPage() { pdfView?.goToNextPage(nil) }
     func previousPage() { pdfView?.goToPreviousPage(nil) }
@@ -297,7 +548,8 @@ enum ReaderAnnotationStyle {
     }
     func toggleBookmark() {
         if bookmarks.contains(currentPage) { bookmarks.remove(currentPage) } else { bookmarks.insert(currentPage) }
-        UserDefaults.standard.set(Array(bookmarks).sorted(), forKey:bookmarkKey)
+        defaults.set(Array(bookmarks).sorted(), forKey:bookmarkKey)
+        activeSession?.bookmarks = bookmarks
     }
     func thumbnail(_ index:Int) -> NSImage? {
         let key = NSNumber(value:index)
@@ -340,7 +592,7 @@ enum ReaderAnnotationStyle {
         }
         next(0)
     }
-    func execute(operation:String, inputs:[URL], output:URL, options:[String:Any], title:String, completion:((Result<URL,Error>)->Void)? = nil) {
+    func execute(operation:String, inputs:[URL], output:URL, options:[String:Any], title:String, progress:((Int,Int)->Void)? = nil, completion:((Result<URL,Error>)->Void)? = nil) {
         func fail(_ detail:String) { message = detail; completion?(.failure(NSError(domain:"PDF.Engine",code:1,userInfo:[NSLocalizedDescriptionKey:detail]))) }
         guard !busy else { fail("Aguarde a operação atual terminar ou cancele-a."); return }
         guard !inputs.isEmpty else { fail("Selecione ao menos um arquivo de entrada."); return }
@@ -369,19 +621,35 @@ enum ReaderAnnotationStyle {
         // Drain the pipe before waiting; external converters can emit enough logs to fill it.
         DispatchQueue.global(qos:.userInitiated).async { [weak self] in
             input.fileHandleForWriting.write(data); try? input.fileHandleForWriting.close()
-            let bytes = log.fileHandleForReading.readDataToEndOfFile(); task.waitUntilExit()
-            let raw = String(data:bytes,encoding:.utf8) ?? "Falha sem detalhes."
+            var tail = Data(), pending = Data()
+            while let chunk = try? log.fileHandleForReading.read(upToCount: 16_384), !chunk.isEmpty {
+                tail.append(chunk); if tail.count > 131_072 { tail = Data(tail.suffix(131_072)) }
+                pending.append(chunk)
+                while let end = pending.firstIndex(of: 10) {
+                    let line = Data(pending[..<end]); pending.removeSubrange(...end)
+                    guard let event = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any],
+                          event["event"] as? String == "workflow_progress", let completed = event["completed"] as? Int,
+                          let total = event["total"] as? Int, total > 0, completed >= 0, completed <= total else { continue }
+                    DispatchQueue.main.async { [weak self] in
+                        guard self?.activeJob == job, self?.cancelled == false else { return }
+                        progress?(completed, total)
+                    }
+                }
+                if pending.count > 262_144 { pending = Data(pending.suffix(262_144)) }
+            }
+            task.waitUntilExit()
+            let raw = String(data:tail,encoding:.utf8) ?? "Falha sem detalhes."
             DispatchQueue.main.async {
                 guard let self, self.activeJob == job else { return }
                 self.busy = false; self.process = nil
-                if self.cancelled {
-                    self.message = "Operação cancelada. Os arquivos de origem foram preservados."
-                    completion?(.failure(NSError(domain:NSCocoaErrorDomain,code:NSUserCancelledError)))
-                    return
-                }
                 if task.terminationStatus == 0 && FileManager.default.fileExists(atPath:output.path) {
                     self.lastOutput = output; self.message = "Concluído: \(output.lastPathComponent)"
                     completion?(.success(output))
+                } else if self.cancelled {
+                    if FileManager.default.fileExists(atPath: output.path) {
+                        self.lastOutput = output; self.message = "Cancelamento solicitado. Há um resultado no destino; verifique o arquivo antes de continuar."
+                    } else { self.message = "Operação cancelada. Os arquivos de origem foram preservados." }
+                    completion?(.failure(NSError(domain:NSCocoaErrorDomain,code:NSUserCancelledError)))
                 } else {
                     let lastJSON = raw.split(separator:"\n").reversed().compactMap { line -> [String:Any]? in
                         guard let data = String(line).data(using:.utf8) else { return nil }
@@ -409,6 +677,13 @@ struct Reader: NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(model:model) }
     func makeNSView(context:Context) -> PDFView {
         let view = DrawingPDFView(); view.onEdit = { [weak model] in model?.didEdit() }; view.autoScales = true; view.displayMode = .singlePageContinuous
+        view.setAccessibilityLabel("Documento PDF principal"); view.setAccessibilityIdentifier("pdf.reader.document")
+        view.onSelection = { [weak model] in model?.selectAnnotation($0) }
+        view.onInkInserted = { [weak model] annotation, page in
+            model?.captureActiveSession(); model?.activeSession?.history.inserted(annotation, on: page, name: "Desenhar")
+        }
+        view.onAnnotationTransformed = { [weak model] annotation, before in model?.activeSession?.history.changed(annotation, before: before) }
+        view.onDeleteAnnotation = { [weak model] in model?.deleteSelectedAnnotation() }
         model.pdfView = view
         context.coordinator.observers.append(NotificationCenter.default.addObserver(forName:.PDFViewPageChanged,object:view,queue:.main) { [weak view, weak model] _ in
             guard let view, let page = view.currentPage, let document = view.document else { return }
@@ -435,9 +710,22 @@ struct Reader: NSViewRepresentable {
             drawing.inkEnabled = model.inkMode
             drawing.inkColor = ReaderAnnotationStyle.color(inkColor, fallback: "#007AFF")
             drawing.inkWidth = ReaderAnnotationStyle.width(inkWidth)
+            drawing.selectedAnnotation = model.selectedAnnotation
+            drawing.documentUndoManager = model.annotationUndoManager
+        }
+        if let session = model.activeSession {
+            if !changedDocument {
+                if context.coordinator.preferenceZoom != zoom { session.zoom = zoom }
+                if context.coordinator.preferenceAutoScale != autoScale { session.autoScale = autoScale }
+            } else {
+                let zoomBinding = $zoom, scaleBinding = $autoScale
+                let sessionZoom = session.zoom, sessionScale = session.autoScale
+                DispatchQueue.main.async { zoomBinding.wrappedValue = sessionZoom; scaleBinding.wrappedValue = sessionScale }
+            }
         }
         let settings = ReaderSettings(mode: mode, direction: direction, box: box, background: background,
-                                      autoScale: autoScale, zoom: zoom, pageBreaks: pageBreaks)
+                                      autoScale: model.activeSession?.autoScale ?? autoScale, zoom: model.activeSession?.zoom ?? zoom, pageBreaks: pageBreaks)
+        context.coordinator.preferenceZoom = zoom; context.coordinator.preferenceAutoScale = autoScale
         settings.apply(to: view, previous: context.coordinator.settings, changedDocument: changedDocument)
         context.coordinator.settings = settings
         if changedDocument, let page = view.document?.page(at: max(0, previousPage - 1)) { view.go(to: page) }
@@ -446,6 +734,8 @@ struct Reader: NSViewRepresentable {
         weak var model:Workspace?
         var observers:[NSObjectProtocol] = []
         var settings: ReaderSettings?
+        var preferenceZoom: Double?
+        var preferenceAutoScale: Bool?
         init(model:Workspace) { self.model = model }
         deinit { for observer in observers { NotificationCenter.default.removeObserver(observer) } }
     }
@@ -488,13 +778,33 @@ final class DrawingPDFView:PDFView {
     var inkColor = ReaderAnnotationStyle.color("#007AFF", fallback: "#007AFF")
     var inkWidth: CGFloat = 2.5
     var onEdit:(()->Void)?
+    var onSelection: ((PDFAnnotation?) -> Void)?
+    var onInkInserted: ((PDFAnnotation, PDFPage) -> Void)?
+    var onAnnotationTransformed: ((PDFAnnotation, PDFAnnotationState) -> Void)?
+    var onDeleteAnnotation: (() -> Void)?
+    var documentUndoManager: UndoManager?
+    override var undoManager: UndoManager? { documentUndoManager ?? super.undoManager }
+    var selectedAnnotation: PDFAnnotation? { didSet { updateSelectionOverlay() } }
+    private var annotationDrag: (annotation: PDFAnnotation, before: PDFAnnotationState, point: NSPoint, resizing: Bool)?
+    private lazy var selectionOverlay = AnnotationSelectionOverlay(owner: self)
     private var drawingPage:PDFPage?
     private var path:NSBezierPath?
     private var preview:PDFAnnotation?
     override func mouseDown(with event:NSEvent) {
-        guard inkEnabled else { super.mouseDown(with:event); return }
         let point = convert(event.locationInWindow,from:nil)
-        guard let page = page(for:point,nearest:false) else { return }
+        guard let page = page(for:point,nearest:false) else { super.mouseDown(with: event); return }
+        if !inkEnabled {
+            let location = convert(point, to: page)
+            if let annotation = page.annotation(at: location), EditableAnnotations.accepts(annotation) {
+                selectedAnnotation = annotation; onSelection?(annotation); window?.makeFirstResponder(self)
+                let radius = 9 / max(0.1, scaleFactor)
+                let corner = NSPoint(x: annotation.bounds.maxX, y: annotation.bounds.minY)
+                let resizing = abs(location.x - corner.x) <= radius && abs(location.y - corner.y) <= radius
+                annotationDrag = (annotation, PDFAnnotationState(annotation), location, resizing)
+                return
+            }
+            selectedAnnotation = nil; onSelection?(nil); super.mouseDown(with: event); return
+        }
         beginStroke(on: page, at: convert(point, to: page))
     }
     func beginStroke(on page: PDFPage, at pointOnPage: NSPoint) {
@@ -509,6 +819,21 @@ final class DrawingPDFView:PDFView {
         preview = annotation; page.addAnnotation(annotation)
     }
     override func mouseDragged(with event:NSEvent) {
+        if let drag = annotationDrag, let page = drag.annotation.page {
+            let point = convert(convert(event.locationInWindow, from: nil), to: page)
+            let dx = point.x - drag.point.x, dy = point.y - drag.point.y
+            let crop = page.bounds(for: .cropBox), old = drag.before.bounds
+            var rect = old
+            if drag.resizing {
+                rect.size.width = max(2, min(crop.maxX - old.minX, old.width + dx))
+                rect.origin.y = min(old.maxY - 2, max(crop.minY, old.minY + dy)); rect.size.height = old.maxY - rect.minY
+            } else {
+                rect.origin.x = min(crop.maxX - old.width, max(crop.minX, old.minX + dx))
+                rect.origin.y = min(crop.maxY - old.height, max(crop.minY, old.minY + dy))
+            }
+            drag.before.apply(to: drag.annotation); EditableAnnotations.resize(drag.annotation, to: rect)
+            needsDisplay = true; updateSelectionOverlay(); return
+        }
         guard inkEnabled else { super.mouseDragged(with:event); return }
         guard let page = drawingPage else { return }
         let location = convert(convert(event.locationInWindow,from:nil),to:page)
@@ -524,6 +849,11 @@ final class DrawingPDFView:PDFView {
         needsDisplay = true
     }
     override func mouseUp(with event:NSEvent) {
+        if let drag = annotationDrag {
+            annotationDrag = nil
+            if drag.annotation.bounds != drag.before.bounds { onAnnotationTransformed?(drag.annotation, drag.before) }
+            updateSelectionOverlay(); return
+        }
         guard inkEnabled else { super.mouseUp(with:event); return }
         finishStroke()
     }
@@ -532,9 +862,38 @@ final class DrawingPDFView:PDFView {
         super.viewWillMove(toWindow: newWindow)
     }
     func finishStroke() {
-        if let page = drawingPage,let preview {
-            if (path?.elementCount ?? 0) < 2 { page.removeAnnotation(preview) } else { onEdit?() }
-        }
+        let page = drawingPage, annotation = preview, stroke = path, count = path?.elementCount ?? 0
         drawingPage = nil; path = nil; preview = nil
+        if let page, let annotation {
+            if count < 2 { page.removeAnnotation(annotation) }
+            else {
+                // Tight bounds prevent an ink annotation from intercepting every click on the page.
+                if let stroke {
+                    let old = annotation.bounds
+                    let padding = max(2, annotation.border?.lineWidth ?? 2.5)
+                    let local = stroke.bounds.insetBy(dx: -padding, dy: -padding).intersection(CGRect(origin: .zero, size: old.size))
+                    if !local.isNull, local.width > 0, local.height > 0 {
+                        let transform = AffineTransform(translationByX: -local.minX, byY: -local.minY)
+                        let paths = (annotation.paths ?? []).compactMap { $0.copy() as? NSBezierPath }
+                        for existing in annotation.paths ?? [] { annotation.remove(existing) }
+                        for path in paths { path.transform(using: transform); annotation.add(path) }
+                        annotation.bounds = CGRect(x: old.minX + local.minX, y: old.minY + local.minY, width: local.width, height: local.height)
+                    }
+                }
+                if let onInkInserted { onInkInserted(annotation, page) } else { onEdit?() }
+            }
+        }
+    }
+    override func keyDown(with event: NSEvent) {
+        if selectedAnnotation != nil, [51, 117].contains(event.keyCode) { onDeleteAnnotation?(); return }
+        super.keyDown(with: event)
+    }
+    override func cancelOperation(_ sender: Any?) {
+        if let drag = annotationDrag { drag.before.apply(to: drag.annotation); annotationDrag = nil }
+        selectedAnnotation = nil; onSelection?(nil); needsDisplay = true
+    }
+    private func updateSelectionOverlay() {
+        if selectionOverlay.superview == nil { addSubview(selectionOverlay, positioned: .above, relativeTo: nil) }
+        selectionOverlay.frame = bounds; selectionOverlay.autoresizingMask = [.width, .height]; selectionOverlay.needsDisplay = true
     }
 }

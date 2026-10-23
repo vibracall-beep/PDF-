@@ -101,3 +101,22 @@ Escolhas de implementação feitas durante o desenvolvimento — como linguagens
 ## Pedido adicional de auditoria e personalização
 
 O usuário informou que a personalização de ferramentas e das opções de visualização não estava suficiente ou visível. Pediu ampliar esses controles, acrescentar menus animados ao Liquid Glass, verificar todas as ferramentas e orientações, corrigir sistematicamente os problemas e realizar outra auditoria após as correções. Também pediu apresentar melhorias que tornem o aplicativo mais completo e elegante. A matriz de execução, correções e limites fica em [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md); as opções efetivas da interface, em [PERSONALIZACAO.md](PERSONALIZACAO.md).
+
+## Dez melhorias posteriormente autorizadas
+
+Após a apresentação das propostas, o usuário autorizou implementar todas as dez melhorias abaixo, mantendo os requisitos originais e a orientação de entregar somente depois das verificações de desenvolvimento:
+
+51. **Abas e leitura lado a lado:** manter documentos simultâneos com página, zoom e alterações independentes.
+52. **Recuperação automática:** recuperar sessões e alterações após encerramento inesperado, preservando os originais e a proteção dos documentos.
+53. **Assinatura digital e verificação:** assinar com certificado e verificar integridade, cadeia de confiança, revisões e evidências temporais disponíveis.
+54. **Validação independente de PDF/A:** integrar um validador real e conservar relatórios de conformidade por documento/perfil.
+55. **Benchmark em M4 e superiores:** oferecer medições reproduzíveis e identificar o hardware, sem inferir desempenho M4/NPU a partir de outro equipamento.
+56. **Edição visual de anotações existentes:** selecionar, mover, redimensionar e alterar propriedades, com desfazer/refazer e persistência.
+57. **Reconhecimento avançado de tabelas e formulários:** analisar digitalizações, exportar dados editáveis e permitir revisão das sugestões de campos.
+58. **Busca semântica local e referências verificáveis na IA:** recuperar trechos por significado, conferir citações e tratar falta de evidência e instruções maliciosas no documento.
+59. **Fluxos em lote com exportação terminal:** executar etapas em múltiplos PDFs, com senhas individuais, progresso, cancelamento e destino final DOCX/XLSX/PPTX/Markdown/imagens.
+60. **PDF/UA e auditoria com VoiceOver:** verificar acessibilidade dos documentos e do aplicativo, distinguindo regras automáticas de avaliação assistiva humana.
+
+O código correspondente e os testes presentes estão mapeados em [MELHORIAS.md](MELHORIAS.md). As dez melhorias possuem implementação; a nova integração macOS ainda aguarda validação completa. O catálogo atual tem **54 ferramentas**, pois alguns requisitos compartilham uma ferramenta ou ficam diretamente no leitor; a numeração desta especificação não é uma contagem de cartões.
+
+A implementação de auditoria PDF/UA não equivale à criação automática de uma estrutura semântica correta. A inspeção da árvore AX não substitui o uso humano de VoiceOver. Assinaturas criptográficas exigem certificado e decisão de confiança, e o medidor de desempenho precisa ser executado no hardware-alvo. Essas distinções descrevem evidências necessárias; não retiram pedidos do usuário.

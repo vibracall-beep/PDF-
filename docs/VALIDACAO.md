@@ -1,6 +1,14 @@
 # Evidências de validação
 
-## Linux: executado
+## Ampliação 0.5.0 em validação
+
+As dez melhorias de [MELHORIAS.md](MELHORIAS.md) estão implementadas no código e integradas à matriz macOS 26/macOS 27. Os resultados históricos abaixo pertencem ao commit indicado e não aprovam esta ampliação.
+
+A nova suíte inclui assinaturas PAdES reais e certificados temporários, veraPDF 1.30.3 executado sobre documentos conformes e não conformes, OCR de tabelas raster e fluxos em lote. O teste nativo incorpora recuperação criptografada, abas, edição/desfazer de anotações, referências semânticas e benchmark. O CI exige ainda relatórios AX das próprias janelas e seis medições completas de um documento sintético de 100 páginas. Nenhum resultado M1 virtualizado é apresentado como medição física M4 ou Neural Engine.
+
+As execuções intermediárias `40024594172` e `40025626994` compilaram e capturaram a interface, mas **não aprovaram o conjunto**: houve falha do Vision no macOS 27 e falha da auditoria de realce no macOS 26. As correções e o conjunto ampliado exigem uma nova execução integral antes da aprovação da instalação.
+
+## Histórico anterior: Linux
 
 - 61 testes funcionais do motor: aprovados, sem falhas ou testes ignorados.
 - Oito testes com integrações externas: aprovados, sem falhas ou testes ignorados.

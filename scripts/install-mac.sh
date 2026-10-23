@@ -100,7 +100,7 @@ iconutil -c icns "$PDF_STAGE/PDF.iconset" -o "$PDF_BUNDLE/Contents/Resources/PDF
 # Dependencies remain on this Mac. They are not represented as a portable bundle.
 export NONINTERACTIVE=1
 export HOMEBREW_NO_AUTO_UPDATE=1
-brew install python@3.12 ocrmypdf tesseract-lang
+brew install python@3.12 ocrmypdf tesseract-lang openjdk@21
 if [[ ! -x /Applications/LibreOffice.app/Contents/MacOS/soffice ]] && ! command -v soffice >/dev/null 2>&1; then
   brew install --cask libreoffice
 fi
@@ -111,6 +111,10 @@ PDF_RUNTIME="$(mktemp -d "$PDF_RUNTIME_ROOT/install.XXXXXXXX")"
 PDF_RUNTIME_ID="$(stat -f '%d:%i' "$PDF_RUNTIME")"
 "$PDF_PYTHON" -m venv "$PDF_RUNTIME"
 "$PDF_RUNTIME/bin/python3" -m pip install --disable-pip-version-check -r requirements.txt -r requirements-optional.txt
+export PDF_JAVA="$(brew --prefix openjdk@21)/libexec/openjdk.jdk/Contents/Home/bin/java"
+[[ -x "$PDF_JAVA" ]] || fail 'Java 21 do Homebrew não foi encontrado.'
+export PDF_VERAPDF_JAR="$("$PDF_RUNTIME/bin/python3" scripts/install-verapdf.py --directory "$PDF_RUNTIME/share/verapdf")"
+"$PDF_JAVA" -jar "$PDF_VERAPDF_JAR" --version
 export PLAYWRIGHT_BROWSERS_PATH="$PDF_RUNTIME/browsers"
 "$PDF_RUNTIME/bin/python3" -m playwright install chromium
 export PATH="/opt/homebrew/bin:$PATH"
@@ -129,6 +133,8 @@ done
 {
   printf '#!/bin/bash\nset -euo pipefail\n'
   printf 'export PYTHONDONTWRITEBYTECODE=1\n'
+  printf 'export PDF_JAVA=%q\n' "$PDF_JAVA"
+  printf 'export PDF_VERAPDF_JAR=%q\n' "$PDF_VERAPDF_JAR"
   printf 'export PLAYWRIGHT_BROWSERS_PATH=%q\n' "$PDF_RUNTIME/browsers"
   printf 'export PATH=%q:"$PATH"\n' '/opt/homebrew/bin:/usr/local/bin'
   printf 'exec %q "$@"\n' "$PDF_RUNTIME/bin/python3"
@@ -145,8 +151,8 @@ cat > "$PDF_BUNDLE/Contents/Info.plist" <<'PLIST'
 <key>CFBundleExecutable</key><string>PDF</string>
 <key>CFBundleIconFile</key><string>PDF</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.4.0</string>
-<key>CFBundleVersion</key><string>4</string>
+<key>CFBundleShortVersionString</key><string>0.5.0</string>
+<key>CFBundleVersion</key><string>5</string>
 <key>LSMinimumSystemVersion</key><string>26.0</string>
 <key>NSHighResolutionCapable</key><true/>
 <key>NSAppleEventsUsageDescription</key><string>O PDF usa o Pages para converter uma cópia dos seus documentos em PDF.</string>
@@ -168,7 +174,7 @@ codesign --force --sign - --timestamp=none "$PDF_BUNDLE"
 codesign --verify --deep --strict "$PDF_BUNDLE"
 printf '%s\n' 'Validando motor, conversões e componentes nativos…'
 "$PDF_RUNTIME/bin/python3" -m unittest discover -s tests -v
-"$PDF_RUNTIME/bin/python3" tests/integration_optional.py -v
+"$PDF_RUNTIME/bin/python3" -m unittest discover -s tests -p 'integration_*.py' -v
 bash scripts/check-mac.sh "$PDF_BUNDLE"
 PDF_STAGED_ID="$("$PDF_PYTHON" "$PDF_FILE_HELPER" identity "$PDF_BUNDLE")"
 if [[ -n "$PDF_ORIGINAL_ID" ]]; then

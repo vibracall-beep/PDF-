@@ -14,6 +14,11 @@ private struct FormFieldDraft: Identifiable {
     var height = 28.0
     var value = ""
     var choices = "Opção 1,Opção 2"
+    var detectedLabel: String?
+    var detectionSource: String?
+    var confidence: Double?
+    var lowConfidence = false
+    var included = true
     var options:[String:Any] {
         var value:[String:Any] = ["name":name,"type":type,"page":page,"rect":[x,y,x+width,y+height],"value": type == "checkbox" ? (self.value.lowercased() == "true" || self.value.lowercased() == "yes" || self.value == "1") as Any : self.value as Any]
         let labels = choices.split(separator:",").map { $0.trimmingCharacters(in:.whitespaces) }
@@ -35,6 +40,14 @@ private struct FormValueDraft: Identifiable {
     var originallyChecked = false
     var jsonValue:Any { checkbox ? checked as Any : value as Any }
     var changed:Bool { !readOnly && (checkbox ? checked != originallyChecked : value != originalValue) }
+}
+
+private struct DetectedTablePreview: Identifiable {
+    var id: String
+    var page: Int
+    var rows: [[String]]
+    var confidence: Double?
+    var columns: Int { rows.map(\.count).max() ?? 0 }
 }
 
 struct ToolConfigurationView: View {
@@ -86,6 +99,12 @@ struct ToolConfigurationView: View {
     @State private var height = 80.0
     @State private var startNumber = 1
     @State private var language = "por+eng"
+    @State private var structureSource = "auto"
+    @State private var structureDPI = 200
+    @State private var structureMinimumConfidence = 35.0
+    @State private var detectionSummary = ""
+    @State private var detectionSettingsChanged = false
+    @State private var detectedTables: [DetectedTablePreview] = []
     @State private var pageSize = "original"
     @State private var orientation = "portrait"
     @State private var imageExportMode = "pages"
@@ -161,6 +180,11 @@ struct ToolConfigurationView: View {
             if let saved = presetStore.defaultOptions(for:tool.id) { apply(saved); presetID = presetStore.defaultIDs[tool.id] }
         }
         .onChange(of:formMode) { _, mode in if mode == "fill" { loadFormValues() } }
+        .onChange(of:inputs) { _, _ in
+            fields.removeAll { $0.detectionSource != nil }
+            detectionSummary = ""; detectedTables = []; detectionSettingsChanged = false
+        }
+        .onChange(of:structureSettingsIdentity) { _, _ in if !detectionSummary.isEmpty { detectionSettingsChanged = true } }
         .onDisappear { password = ""; newPassword = ""; secondPassword = ""; outputPassword = ""; inputPasswords = [:] }
     }
     var presetsSection: some View {
@@ -218,6 +242,7 @@ struct ToolConfigurationView: View {
         v.x = x; v.y = y; v.width = width; v.height = height; v.recompressImages = recompressImages
         v.fitWidth = fitWidth; v.transparentPNG = transparentPNG; v.flattenAnnotations = flattenAnnotations
         v.flattenWidgets = flattenWidgets; v.textBox = textBox
+        v.structureSource = structureSource; v.structureDPI = structureDPI; v.structureMinimumConfidence = structureMinimumConfidence
         return v
     }
     func apply(_ v:ToolStyleOptions) {
@@ -231,6 +256,8 @@ struct ToolConfigurationView: View {
         x = v.x; y = v.y; width = v.width; height = v.height; recompressImages = v.recompressImages
         fitWidth = v.fitWidth; transparentPNG = v.transparentPNG; flattenAnnotations = v.flattenAnnotations
         flattenWidgets = v.flattenWidgets; textBox = v.textBox
+        structureSource = v.structureSource ?? "auto"; structureDPI = v.structureDPI ?? 200
+        structureMinimumConfidence = v.structureMinimumConfidence ?? 35
     }
     func styleColor(_ hex:String) -> Color {
         let number = UInt64(hex.dropFirst(),radix:16) ?? 0
@@ -387,6 +414,7 @@ struct ToolConfigurationView: View {
             Text("Requer os componentes de OCR e os idiomas instalados. OCR nativo Apple também está disponível em Digitalizar.").font(.caption).foregroundStyle(.secondary)
         }
         if tool.id == "compare" { Picker("Comparação",selection:$compareMode) { Text("Visual (HTML)").tag("visual"); Text("Diferenças de texto").tag("text") }.pickerStyle(.segmented); Text("Selecione exatamente dois documentos.").font(.caption) }
+        if ["word","excel"].contains(operation) { structuredOCRSection }
         if isFormsTool { formsSection }
         if ["txt","epub"].contains(operation) { documentLayoutSection }
         if operation == "csv" { csvOptionsSection }
@@ -397,6 +425,62 @@ struct ToolConfigurationView: View {
         }
         if operation == "delete-pages" { Text("Informe as páginas a excluir. O documento precisa conservar ao menos uma página.").font(.caption).foregroundStyle(.secondary) }
         if operation == "extract-pages" { Text("Informe as páginas que devem aparecer na nova cópia, na ordem desejada.").font(.caption).foregroundStyle(.secondary) }
+    }
+    var structureSettingsIdentity: String { "\(structureSource)|\(language)|\(structureDPI)|\(structureMinimumConfidence)|\(pages)" }
+    var structuredOptions: [String:Any] {
+        ["source":structureSource,"language":language,"ocr_dpi":structureDPI,"min_confidence":structureMinimumConfidence]
+    }
+    var structuredOCRSection: some View {
+        VStack(alignment:.leading,spacing:12) {
+            Label("Leitura da estrutura",systemImage:"text.viewfinder").font(.headline)
+            Picker("Origem do conteúdo",selection:$structureSource) {
+                Text("Automática").tag("auto")
+                Text("Texto e formas existentes").tag("vector")
+                Text("Reconhecer a imagem com OCR").tag("ocr")
+            }
+            if structureSource != "vector" {
+                Picker("Idioma do reconhecimento",selection:$language) {
+                    Text("Português + inglês").tag("por+eng"); Text("Português").tag("por"); Text("Inglês").tag("eng")
+                    Text("Espanhol").tag("spa"); Text("Francês").tag("fra"); Text("Alemão").tag("deu")
+                }
+                Stepper("Resolução do OCR: \(structureDPI) DPI",value:$structureDPI,in:120...400,step:10)
+                HStack {
+                    Text("Sinalizar confiança abaixo de")
+                    Slider(value:$structureMinimumConfidence,in:0...100,step:1)
+                    Text("\(Int(structureMinimumConfidence))%").monospacedDigit().frame(width:45,alignment:.trailing)
+                }
+                Text("O indicador ajuda a priorizar a revisão; não representa uma taxa de acerto. O texto reconhecido é mantido mesmo abaixo do limite.").font(.caption).foregroundStyle(.secondary)
+            }
+            Text("Automática reconhece páginas digitalizadas sem texto pesquisável. Grades retas ajudam a separar tabelas; revise a estrutura e os rótulos. Os idiomas escolhidos precisam estar instalados.").font(.caption).foregroundStyle(.secondary)
+        }.padding(14).background(.quaternary,in:RoundedRectangle(cornerRadius:12))
+    }
+    var detectionReviewSection: some View {
+        VStack(alignment:.leading,spacing:10) {
+            if !detectionSummary.isEmpty {
+                Label(detectionSummary,systemImage:"checklist").font(.callout)
+                if detectionSettingsChanged { Text("Os resultados abaixo pertencem à análise anterior. Use Detectar e revisar campos para aplicar os novos parâmetros.").font(.caption).foregroundStyle(.orange) }
+                Text("Revise o nome, tipo, página e posição de cada sugestão. Desmarque os campos que não deseja criar.").font(.caption).foregroundStyle(.secondary)
+            }
+            ForEach(detectedTables) { table in
+                DisclosureGroup("Tabela da página \(table.page) · \(table.rows.count) linhas × \(table.columns) colunas") {
+                    VStack(alignment:.leading,spacing:8) {
+                        if let confidence = table.confidence { Text("Evidência do OCR: \(Int((confidence*100).rounded()))% · requer revisão").font(.caption).foregroundStyle(.secondary) }
+                        ScrollView(.horizontal) {
+                            VStack(alignment:.leading,spacing:1) {
+                                ForEach(Array(table.rows.prefix(5).enumerated()),id:\.offset) { _, row in
+                                    HStack(alignment:.top,spacing:1) {
+                                        ForEach(Array(row.enumerated()),id:\.offset) { _, value in
+                                            Text(value.isEmpty ? "—" : value).font(.caption).lineLimit(3).frame(width:125,alignment:.leading).padding(6).background(.quaternary)
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        Text("Prévia de até cinco linhas. Use PDF para Excel ou Word para extrair a tabela completa.").font(.caption).foregroundStyle(.secondary)
+                    }.padding(.top,8)
+                }
+            }
+        }
     }
     var documentLayoutSection: some View {
         VStack(alignment:.leading,spacing:12) {
@@ -450,10 +534,21 @@ struct ToolConfigurationView: View {
         VStack(alignment:.leading,spacing:14) {
             Picker("Formulário",selection:$formMode) { Text("Criar campos").tag("create"); Text("Preencher").tag("fill"); Text("Inspecionar JSON").tag("inspect") }.pickerStyle(.segmented)
             if formMode == "create" {
-                Button("Detectar campos sugeridos no documento…") { detectFields() }.disabled(model.busy || inputs.isEmpty)
-                Text("Sugestões de campos exigem revisão de nome, tipo, posição e página antes de criar.").font(.caption).foregroundStyle(.secondary)
+                structuredOCRSection
+                TextField("Páginas a analisar (vazio = todas): 1,3-5",text:$pages).textFieldStyle(.roundedBorder)
+                Button("Detectar e revisar campos…") { detectFields() }.disabled(model.busy || inputs.isEmpty)
+                detectionReviewSection
                 ForEach($fields) { $field in
                     VStack(alignment:.leading,spacing:8) {
+                        if let source = field.detectionSource {
+                            Toggle("Incluir esta sugestão",isOn:$field.included)
+                            if let label = field.detectedLabel, !label.isEmpty { Text("Rótulo reconhecido: " + label).font(.callout).textSelection(.enabled) }
+                            HStack {
+                                Text(source == "vector" ? "Formas existentes no PDF" : "Imagem analisada com OCR")
+                                if source != "vector", let confidence = field.confidence { Text("· evidência \(Int((confidence*100).rounded()))%") }
+                                if field.lowConfidence { Label("Revisão prioritária",systemImage:"exclamationmark.circle").foregroundStyle(.orange) }
+                            }.font(.caption).foregroundStyle(.secondary)
+                        }
                         HStack { TextField("Nome único",text:$field.name); Picker("Tipo",selection:$field.type) { Text("Texto").tag("text"); Text("Caixa de seleção").tag("checkbox"); Text("Menu de opções").tag("choice"); Text("Lista").tag("list"); Text("Escolha única").tag("radio") }.onChange(of:field.type) { _, kind in if kind == "radio" { field.width = 20; field.height = 20 } }; Button { fields.removeAll { $0.id == field.id } } label: { Image(systemName:"trash") }.accessibilityLabel("Excluir campo " + field.name) }
                         Stepper("Página \(field.page)",value:$field.page,in:1...100000)
                         HStack { numberField("Esquerda",value:$field.x); numberField("Topo",value:$field.y) }
@@ -537,17 +632,44 @@ struct ToolConfigurationView: View {
         do { try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700]) }
         catch { self.error = error.localizedDescription; return }
         let output = directory.appendingPathComponent("fields.json")
-        model.execute(operation:"form-detect",inputs:[source],output:output,options:["password":password],title:"Detectando campos") { result in
-            defer { try? FileManager.default.removeItem(at:directory); model.lastOutput = nil }
+        var detectionOptions = structuredOptions
+        detectionOptions["password"] = password
+        if !pages.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { detectionOptions["pages"] = pages }
+        error = ""
+        model.execute(operation:"form-detect",inputs:[source],output:output,options:detectionOptions,title:"Analisando campos e tabelas") { result in
+            defer { try? FileManager.default.removeItem(at:directory); if model.lastOutput == output { model.lastOutput = nil } }
             do {
                 let file = try result.get()
                 guard let json = try JSONSerialization.jsonObject(with:Data(contentsOf:file)) as? [String:Any], let suggestions = json["fields"] as? [[String:Any]] else { throw NSError(domain:"PDF.Forms",code:1,userInfo:[NSLocalizedDescriptionKey:"Resposta de detecção inválida."]) }
-                fields = suggestions.compactMap { item in
-                    guard let name = item["name"] as? String, let rect = item["rect"] as? [Double], rect.count == 4 else { return nil }
+                guard inputs.first == source, formMode == "create" else { return }
+                let reviewed = suggestions.compactMap { item -> FormFieldDraft? in
+                    guard let name = item["name"] as? String, let rect = item["rect"] as? [Double], rect.count == 4,
+                          rect.allSatisfy(\.isFinite), rect[2] > rect[0], rect[3] > rect[1] else { return nil }
                     var field = FormFieldDraft(); field.name = name; field.type = item["type"] as? String ?? "text"; field.page = item["page"] as? Int ?? 1
-                    field.x = rect[0]; field.y = rect[1]; field.width = rect[2]-rect[0]; field.height = rect[3]-rect[1]; return field
+                    field.x = rect[0]; field.y = rect[1]; field.width = rect[2]-rect[0]; field.height = rect[3]-rect[1]
+                    field.detectedLabel = item["label"] as? String; field.detectionSource = item["source"] as? String ?? "vector"
+                    if let confidence = item["confidence"] as? Double, confidence.isFinite, (0...1).contains(confidence) { field.confidence = confidence }
+                    field.lowConfidence = item["low_confidence"] as? Bool ?? false
+                    return field
                 }
-                error = fields.isEmpty ? "Nenhum campo sugerido. Adicione campos manualmente." : "Revise as \(fields.count) sugestões antes de criar o formulário."
+                guard reviewed.count == suggestions.count else { throw NSError(domain:"PDF.Forms",code:3,userInfo:[NSLocalizedDescriptionKey:"A análise retornou coordenadas inválidas. Os campos anteriores foram mantidos."]) }
+                let reports = json["pages"] as? [[String:Any]] ?? []
+                var previews: [DetectedTablePreview] = []
+                for report in reports {
+                    let page = report["page"] as? Int ?? 1
+                    for (index,table) in (report["tables"] as? [[String:Any]] ?? []).enumerated() {
+                        guard let rawRows = table["rows"] as? [[Any]] else { continue }
+                        let rows = rawRows.map { row in row.map { value in value is NSNull ? "" : String(describing:value) } }
+                        let score = table["confidence"] as? Double
+                        previews.append(DetectedTablePreview(id:"\(page)-\(index)",page:page,rows:rows,confidence:score.flatMap { $0.isFinite && (0...1).contains($0) ? $0 : nil }))
+                    }
+                }
+                fields = reviewed; detectedTables = previews; detectionSettingsChanged = false
+                let ocrPages = reports.filter { ($0["source"] as? String) == "ocr" }.count
+                let lowWords = reports.reduce(0) { $0 + ($1["low_confidence_words"] as? Int ?? 0) }
+                detectionSummary = "\(reports.count) páginas analisadas · \(ocrPages) com OCR · \(reviewed.count) campos · \(previews.count) tabelas"
+                if lowWords > 0 { detectionSummary += " · \(lowWords) palavras para revisão prioritária" }
+                if fields.isEmpty { detectionSummary += ". Nenhum campo sugerido; você pode adicionar campos manualmente." }
             } catch { self.error = error.localizedDescription }
         }
     }
@@ -599,6 +721,7 @@ struct ToolConfigurationView: View {
         if operation == "images" && pageSize != "original" { options["paper"] = pageSize; options["margin"] = margin; options["orientation"] = orientation }
         if tool.id == "excel-pdf" { options["fit_width"] = fitWidth; options["orientation"] = orientation }
         if operation == "powerpoint" { options["mode"] = presentationMode }
+        if ["word","excel"].contains(operation) { options.merge(structuredOptions) { _,new in new } }
         if ["txt","epub"].contains(operation) {
             options["paper"] = pageSize; options["font_size"] = fontSize; options["margin"] = margin; options["landscape"] = orientation == "landscape"
             if operation == "txt" { options["encoding"] = encoding }
@@ -612,8 +735,9 @@ struct ToolConfigurationView: View {
         if operation == "ocr" || operation == "pdfa" { options["language"] = language }
         if operation == "protect" { options["new_password"] = newPassword }
         if operation == "form-create" {
-            guard !fields.isEmpty, Set(fields.map(\.name)).count == fields.count, fields.allSatisfy({ !$0.name.isEmpty }) else { error = "Adicione campos com nomes únicos."; return }
-            options["fields"] = fields.map(\.options)
+            let included = fields.filter(\.included)
+            guard !included.isEmpty, Set(included.map(\.name)).count == included.count, included.allSatisfy({ !$0.name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }) else { error = "Inclua ao menos um campo e use nomes únicos."; return }
+            options["fields"] = included.map(\.options)
         }
         if operation == "form-fill" {
             guard !values.isEmpty else { error = "Leia os campos antes de preencher."; return }

@@ -7,6 +7,7 @@ private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
     case rotate, numbers, compress, watermark, organize, crop, text, redact, protect, unlock, repair, ocr, pdfa, flatten
     case deletePages = "delete-pages"
     case extractPages = "extract-pages"
+    case word, excel, powerpoint, markdown, jpg, png
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -26,6 +27,12 @@ private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
         case .flatten: return "Achatar anotações e formulários"
         case .deletePages: return "Excluir páginas"
         case .extractPages: return "Extrair páginas"
+        case .word: return "Exportar para Word"
+        case .excel: return "Exportar para Excel"
+        case .powerpoint: return "Exportar para PowerPoint"
+        case .markdown: return "Exportar para Markdown"
+        case .jpg: return "Exportar páginas JPG"
+        case .png: return "Exportar páginas PNG"
         }
     }
     var symbol: String {
@@ -46,11 +53,28 @@ private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
         case .flatten: return "square.stack.3d.down.right"
         case .deletePages: return "doc.badge.minus"
         case .extractPages: return "doc.on.doc"
+        case .word: return "doc.text"
+        case .excel: return "tablecells"
+        case .powerpoint: return "rectangle.on.rectangle"
+        case .markdown: return "text.badge.checkmark"
+        case .jpg, .png: return "photo.stack"
+        }
+    }
+    var isTerminal: Bool { [.word, .excel, .powerpoint, .markdown, .jpg, .png].contains(self) }
+    var outputDirectory: Bool { self == .jpg || self == .png }
+    var outputSuffix: String {
+        switch self {
+        case .word: return "docx"
+        case .excel: return "xlsx"
+        case .powerpoint: return "pptx"
+        case .markdown: return "md"
+        case .jpg, .png: return ""
+        default: return "pdf"
         }
     }
     var hasText: Bool { [.text, .watermark, .redact].contains(self) }
     var hasTypography: Bool { [.text, .watermark, .numbers].contains(self) }
-    var acceptsPages: Bool { [.rotate, .numbers, .watermark, .organize, .crop, .text, .redact, .deletePages, .extractPages].contains(self) }
+    var acceptsPages: Bool { isTerminal || [.rotate, .numbers, .watermark, .organize, .crop, .text, .redact, .deletePages, .extractPages].contains(self) }
 }
 
 private struct WorkflowStage: Identifiable, Codable {
@@ -64,6 +88,29 @@ private struct WorkflowStage: Identifiable, Codable {
     var opacity = 1.0
     var position = "bottom-center"
     var language = "por+eng"
+    var dpi = 144.0
+    var exportMode = "editable"
+    var transparent = false
+
+    private enum CodingKeys: String, CodingKey {
+        case id, operation, pages, text, degrees, fontSize, margin, opacity, position, language, dpi, exportMode, transparent
+    }
+    init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        self.init(operation: try values.decode(WorkflowOperation.self, forKey: .operation))
+        id = try values.decodeIfPresent(UUID.self, forKey: .id) ?? UUID()
+        pages = try values.decodeIfPresent(String.self, forKey: .pages) ?? ""
+        text = try values.decodeIfPresent(String.self, forKey: .text) ?? ""
+        degrees = try values.decodeIfPresent(Int.self, forKey: .degrees) ?? degrees
+        fontSize = try values.decodeIfPresent(Double.self, forKey: .fontSize) ?? fontSize
+        margin = try values.decodeIfPresent(Double.self, forKey: .margin) ?? margin
+        opacity = try values.decodeIfPresent(Double.self, forKey: .opacity) ?? opacity
+        position = try values.decodeIfPresent(String.self, forKey: .position) ?? position
+        language = try values.decodeIfPresent(String.self, forKey: .language) ?? language
+        dpi = try values.decodeIfPresent(Double.self, forKey: .dpi) ?? dpi
+        exportMode = try values.decodeIfPresent(String.self, forKey: .exportMode) ?? exportMode
+        transparent = try values.decodeIfPresent(Bool.self, forKey: .transparent) ?? false
+    }
 
     init(operation: WorkflowOperation) {
         self.operation = operation
@@ -84,6 +131,9 @@ private struct WorkflowStage: Identifiable, Codable {
         if operation == .rotate { result["degrees"] = degrees }
         if operation == .crop { result["margin"] = margin }
         if operation == .ocr || operation == .pdfa { result["language"] = language }
+        if operation == .jpg || operation == .png { result["dpi"] = dpi; result["mode"] = "pages" }
+        if operation == .png { result["alpha"] = transparent }
+        if operation == .powerpoint { result["mode"] = exportMode }
         return result
     }
 
@@ -103,6 +153,8 @@ private struct WorkflowStage: Identifiable, Codable {
                 }) else { return "Use números de página positivos e intervalos, por exemplo 1,3-5." }
             }
         }
+        if !dpi.isFinite || !(36...600).contains(dpi) { return "A resolução deve ficar entre 36 e 600 DPI." }
+        if !["editable", "image"].contains(exportMode) { return "Escolha uma apresentação editável ou como imagens." }
         if !fontSize.isFinite || !(4...144).contains(fontSize) { return "O tamanho da fonte deve ficar entre 4 e 144 pontos." }
         if !margin.isFinite || !(0...500).contains(margin) { return "A margem deve ficar entre 0 e 500 pontos." }
         if !opacity.isFinite || !(0...1).contains(opacity) { return "A opacidade deve ficar entre 0 e 100%." }
@@ -117,12 +169,12 @@ private struct WorkflowStage: Identifiable, Codable {
 
 private struct WorkflowPreset: Identifiable, Codable {
     var id = UUID()
-    var version = 1
+    var version = 2
     var name = "Meu fluxo"
     var stages: [WorkflowStage] = [WorkflowStage(operation: .rotate), WorkflowStage(operation: .numbers)]
 
     var validation: String? {
-        if version != 1 { return "Esta versão de fluxo não é compatível." }
+        if ![1, 2].contains(version) { return "Esta versão de fluxo não é compatível." }
         if name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { return "Dê um nome ao fluxo." }
         if name.count > 120 { return "Use um nome com até 120 caracteres." }
         if stages.isEmpty { return "Adicione ao menos uma etapa." }
@@ -130,6 +182,7 @@ private struct WorkflowPreset: Identifiable, Codable {
         if Set(stages.map(\.id)).count != stages.count { return "O fluxo contém etapas com identificadores repetidos." }
         for (index, stage) in stages.enumerated() {
             if let error = stage.validation { return "Etapa \(index + 1): \(error)" }
+            if stage.operation.isTerminal && index != stages.count - 1 { return "A exportação deve ser a última etapa: o resultado deixa de ser um PDF." }
             if stage.operation == .protect && index != stages.count - 1 { return "A proteção por senha deve ser a última etapa." }
             if stage.operation == .unlock && index != 0 { return "A remoção da proteção deve ser a primeira etapa." }
             if stage.operation == .pdfa && index != stages.count - 1 { return "A conversão para PDF/A deve ser a última etapa para preservar a conformidade." }
@@ -183,13 +236,24 @@ private struct WorkflowPreset: Identifiable, Codable {
         guard info.st_size >= 0, info.st_size <= 1_048_576 else { throw WorkflowError.invalid("O arquivo excede 1 MB.") }
         let data = try handle.read(upToCount: 1_048_577) ?? Data()
         guard data.count <= 1_048_576 else { throw WorkflowError.invalid("O arquivo excede 1 MB.") }
+        if let object = try JSONSerialization.jsonObject(with: data) as? [String: Any], let stages = object["stages"] as? [[String: Any]] {
+            for stage in stages {
+                if let operation = stage["operation"] as? String, WorkflowOperation(rawValue: operation) == nil {
+                    if operation.hasPrefix("form") {
+                        throw WorkflowError.invalid("Esta etapa de formulários não é compatível com fluxos salvos. Use a ferramenta Formulários para revisar campos e valores antes de executar.")
+                    }
+                    throw WorkflowError.invalid("Etapa não compatível neste editor: \(operation.prefix(80)). Atualize o aplicativo ou revise o fluxo.")
+                }
+            }
+        }
         return try JSONDecoder().decode(WorkflowPreset.self, from: data)
     }
 
     static func encode(_ preset: WorkflowPreset) throws -> Data {
         let encoder = JSONEncoder()
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
-        return try encoder.encode(preset)
+        var current = preset; current.version = 2
+        return try encoder.encode(current)
     }
 
     func delete(_ preset: WorkflowPreset) throws {
@@ -219,7 +283,6 @@ private enum WorkflowRequest {
         if preset.stages.contains(where: { $0.operation == .protect }), !(8...40).contains(destinationPassword.unicodeScalars.count) {
             return "Use uma nova senha com 8 a 40 caracteres Unicode."
         }
-        if preset.stages.first?.operation == .unlock && sourcePassword.isEmpty { return "Informe a senha atual para remover a proteção." }
         return nil
     }
     static func make(preset: WorkflowPreset, sourcePassword: String, destinationPassword: String) throws -> [String: Any] {
@@ -234,6 +297,25 @@ private enum WorkflowRequest {
         if !sourcePassword.isEmpty { options["password"] = sourcePassword }
         return options
     }
+    static func make(preset: WorkflowPreset, sourcePasswords: [String], destinationPassword: String) throws -> [String: Any] {
+        guard !sourcePasswords.isEmpty else { throw WorkflowError.invalid("Selecione ao menos um PDF.") }
+        for password in sourcePasswords {
+            if let error = validation(preset: preset, sourcePassword: password, destinationPassword: destinationPassword) { throw WorkflowError.invalid(error) }
+        }
+        var result = try make(preset: preset, sourcePassword: sourcePasswords[0], destinationPassword: destinationPassword)
+        result["progress"] = true
+        if sourcePasswords.count > 1 {
+            result.removeValue(forKey: "password")
+            var steps = result["steps"] as? [[String: Any]] ?? []
+            if !steps.isEmpty {
+                var options = steps[0]["options"] as? [String: Any] ?? [:]
+                options.removeValue(forKey: "password"); steps[0]["options"] = options
+            }
+            result["steps"] = steps; result["batch"] = true; result["input_passwords"] = sourcePasswords
+        }
+        return result
+    }
+
 }
 
 private enum WorkflowError: LocalizedError {
@@ -243,42 +325,86 @@ private enum WorkflowError: LocalizedError {
 
 struct WorkflowView: View {
     @EnvironmentObject var model: Workspace
-    @StateObject private var library = WorkflowLibrary()
+    @StateObject private var library: WorkflowLibrary
     @State private var preset = WorkflowPreset()
-    @State private var input: URL?
+    @State private var inputs: [URL] = []
     @State private var output: URL?
-    @State private var sourcePassword = ""
+    @State private var sourcePasswords: [String] = []
     @State private var destinationPassword = ""
     @State private var error = ""
     @State private var status = ""
     @State private var confirmDelete = false
+    @State private var completed = 0
+    @State private var total = 0
+    @State private var running = false
+    @State private var checkingDependencies = false
+    @State private var dependencyError = ""
+    @State private var dependencyTask: Task<Void, Never>?
+
+    init(initialInputs: [URL] = [], finalExport: String? = nil, libraryDirectory: URL? = nil) {
+        _library = StateObject(wrappedValue: WorkflowLibrary(directory: libraryDirectory))
+        _inputs = State(initialValue: initialInputs)
+        _sourcePasswords = State(initialValue: Array(repeating: "", count: initialInputs.count))
+        var initial = WorkflowPreset()
+        if let finalExport, let operation = WorkflowOperation(rawValue: finalExport), operation.isTerminal {
+            initial.stages.append(WorkflowStage(operation: operation))
+        }
+        _preset = State(initialValue: initial)
+    }
+
+    private var terminal: WorkflowOperation { preset.stages.last?.operation ?? .rotate }
+    private var outputIsDirectory: Bool { inputs.count > 1 || terminal.outputDirectory }
+    private var outputKind: String { "\(outputIsDirectory)-\(terminal.outputSuffix)" }
 
     private var requiresDestinationPassword: Bool { preset.stages.contains { $0.operation == .protect } }
     private var validation: String? {
-        if let error = WorkflowRequest.validation(preset: preset, sourcePassword: sourcePassword, destinationPassword: destinationPassword) { return error }
-        guard let input else { return "Escolha um PDF de entrada." }
-        if !FileManager.default.isReadableFile(atPath: input.path) { return "O PDF de entrada não está acessível." }
+        if let error = preset.validation { return error }
+        if checkingDependencies { return "Verificando dependências locais do fluxo…" }
+        if !dependencyError.isEmpty { return dependencyError }
+        if inputs.isEmpty { return "Escolha um ou mais PDFs de entrada." }
+        if inputs.count > 1000 { return "Use no máximo 1.000 PDFs por lote." }
+        if sourcePasswords.count != inputs.count { return "Selecione novamente os documentos de entrada." }
+        for (index, input) in inputs.enumerated() {
+            if let error = WorkflowRequest.validation(preset: preset, sourcePassword: sourcePasswords[index], destinationPassword: destinationPassword) { return "Arquivo \(index + 1): \(error)" }
+            if !FileManager.default.isReadableFile(atPath: input.path) { return "O PDF \(input.lastPathComponent) não está acessível." }
+        }
         guard let output else { return "Escolha onde salvar o resultado." }
-        if input.resolvingSymlinksInPath() == output.resolvingSymlinksInPath() { return "Escolha um novo arquivo de saída para preservar o original." }
+        if inputs.contains(where: { $0.resolvingSymlinksInPath() == output.resolvingSymlinksInPath() }) { return "Escolha um novo destino para preservar os originais." }
         if FileManager.default.fileExists(atPath: output.path) { return "Já existe um arquivo no destino. Escolha outro nome." }
+        if !outputIsDirectory && output.pathExtension.lowercased() != terminal.outputSuffix { return "Escolha um destino com extensão .\(terminal.outputSuffix)." }
         return nil
     }
 
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 24) {
-                header
-                documentSelection
-                stagesSection
-                passwordSection
-                footer
+                Group {
+                    header
+                    documentSelection
+                    stagesSection
+                    passwordSection
+                    footer
+                }.disabled(model.busy)
+                if running {
+                    HStack {
+                        ProgressView(value: Double(completed), total: Double(max(total, 1)))
+                        VStack(alignment: .trailing, spacing: 2) {
+                            Text("\(completed)/\(total) etapas")
+                            Text("\(min(inputs.count, completed / max(preset.stages.count, 1)))/\(inputs.count) arquivos processados")
+                        }.font(.caption.monospacedDigit())
+                        Button("Cancelar") { model.cancel() }
+                    }
+                    Text(outputIsDirectory ? "A pasta final será publicada somente quando todos os arquivos terminarem." : "O resultado será publicado somente ao concluir todas as etapas.").font(.caption).foregroundStyle(.secondary)
+                }
             }
             .padding(28)
             .frame(maxWidth: 1100, alignment: .leading)
             .frame(maxWidth: .infinity)
         }
-        .disabled(model.busy)
-        .onDisappear { sourcePassword = ""; destinationPassword = "" }
+        .onAppear { verifyDependencies() }
+        .onChange(of: outputKind) { _, _ in output = nil }
+        .onChange(of: preset.stages.map { $0.operation.rawValue }) { _, _ in verifyDependencies() }
+        .onDisappear { clearPasswords(); dependencyTask?.cancel(); checkingDependencies = false }
         .alert("Excluir este fluxo da biblioteca?", isPresented: $confirmDelete) {
             Button("Cancelar", role: .cancel) { }
             Button("Mover para o Lixo", role: .destructive) {
@@ -298,7 +424,7 @@ struct WorkflowView: View {
         VStack(alignment: .leading, spacing: 14) {
             Label("Seu fluxo, do seu jeito", systemImage: "point.3.connected.trianglepath.dotted")
                 .font(.system(size: 30, weight: .semibold, design: .rounded))
-            Text("Combine ferramentas, organize as etapas e reutilize sua rotina. Cada execução cria um novo PDF.")
+            Text("Combine ferramentas e finalize em PDF, Word, Excel, PowerPoint, Markdown ou imagens. Processe um documento ou um lote privado.")
                 .foregroundStyle(.secondary)
             HStack(spacing: 10) {
                 TextField("Nome do fluxo", text: $preset.name).textFieldStyle(.roundedBorder).frame(maxWidth: 350)
@@ -323,15 +449,21 @@ struct WorkflowView: View {
                         .disabled(!library.presets.contains(where: { $0.id == preset.id }))
                 }
             }
+            Button("Verificar dependências", systemImage: "checkmark.shield") { verifyDependencies() }.font(.caption).disabled(checkingDependencies)
             if !library.error.isEmpty { Text(library.error).font(.caption).foregroundStyle(.red).textSelection(.enabled) }
         }
     }
 
     private var documentSelection: some View {
-        HStack(alignment: .top, spacing: 16) {
-            fileCard(title: "1. Documento de entrada", filename: input?.lastPathComponent ?? "Escolha um PDF", symbol: "doc", action: chooseInput)
-            Image(systemName: "arrow.right").foregroundStyle(.secondary).padding(.top, 42)
-            fileCard(title: "2. Arquivo de saída", filename: output?.lastPathComponent ?? "Escolha um novo destino", symbol: "doc.badge.arrow.up", action: chooseOutput)
+        VStack(alignment: .leading, spacing: 12) {
+            HStack(alignment: .top, spacing: 16) {
+                fileCard(title: "1. Documentos de entrada", filename: inputs.isEmpty ? "Escolha PDFs" : "\(inputs.count) documento(s) selecionado(s)", symbol: "doc.on.doc", action: chooseInput)
+                Image(systemName: "arrow.right").foregroundStyle(.secondary).padding(.top, 42)
+                fileCard(title: outputIsDirectory ? "2. Nova pasta de saída" : "2. Novo arquivo .\(terminal.outputSuffix)", filename: output?.lastPathComponent ?? "Escolha um novo destino", symbol: outputIsDirectory ? "folder" : "doc.badge.arrow.up", action: chooseOutput)
+            }
+            if inputs.count > 1 {
+                Text("Cada PDF recebe a mesma sequência, com sua própria senha. Nomes numerados evitam colisões; uma falha cancela a publicação da pasta inteira.").font(.caption).foregroundStyle(.secondary)
+            }
         }
     }
 
@@ -356,11 +488,12 @@ struct WorkflowView: View {
                 Menu("Adicionar etapa", systemImage: "plus") {
                     ForEach(WorkflowOperation.allCases) { operation in
                         Button(operation.title, systemImage: operation.symbol) {
-                            preset.stages.append(WorkflowStage(operation: operation))
+                            preset.stages.append(WorkflowStage(operation: operation)); preset.version = 2
                         }
                     }
                 }.disabled(preset.stages.count >= 24)
             }
+            Text("Etapas recebem PDF. Exportações Word, Excel, PowerPoint, Markdown, JPG e PNG encerram o fluxo. Criação e preenchimento de formulários continuam nas ferramentas próprias, onde campos podem ser revisados.").font(.caption).foregroundStyle(.secondary)
             if preset.stages.isEmpty {
                 ContentUnavailableView("Crie sua sequência", systemImage: "list.number", description: Text("Adicione uma ferramenta para começar."))
             }
@@ -381,7 +514,13 @@ struct WorkflowView: View {
     private var passwordSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             Text("Proteção do documento").font(.headline)
-            SecureField("Senha do PDF de entrada, se houver", text: $sourcePassword).textFieldStyle(.roundedBorder)
+            ForEach(inputs.indices, id: \.self) { index in
+                HStack {
+                    Text("\(index + 1). \(inputs[index].lastPathComponent)").lineLimit(1).frame(maxWidth: 300, alignment: .leading)
+                    SecureField("Senha deste PDF, se houver", text: Binding(get: { sourcePasswords.indices.contains(index) ? sourcePasswords[index] : "" }, set: { if sourcePasswords.indices.contains(index) { sourcePasswords[index] = $0 } }))
+                        .textFieldStyle(.roundedBorder)
+                }
+            }
             if requiresDestinationPassword {
                 SecureField("Nova senha do resultado, 8 a 40 caracteres", text: $destinationPassword).textFieldStyle(.roundedBorder)
             }
@@ -399,7 +538,7 @@ struct WorkflowView: View {
             HStack {
                 Text("O original permanece intacto. Etapas são executadas na ordem acima.").font(.caption).foregroundStyle(.secondary)
                 Spacer()
-                Button("Executar fluxo", systemImage: "play.fill") { execute() }
+                Button(inputs.count > 1 ? "Executar lote" : "Executar fluxo", systemImage: "play.fill") { execute() }
                     .buttonStyle(.borderedProminent).controlSize(.large).disabled(validation != nil)
             }
         }
@@ -412,17 +551,15 @@ struct WorkflowView: View {
         withAnimation { preset.stages.swapAt(index, destination) }
     }
     private func load(_ item: WorkflowPreset) {
-        preset = item; sourcePassword = ""; destinationPassword = ""; error = ""; status = ""
+        preset = item; clearPasswords(); error = ""; status = ""; dependencyError = ""; verifyDependencies()
     }
+    private func clearPasswords() { sourcePasswords = Array(repeating: "", count: inputs.count); destinationPassword = "" }
     private func chooseInput() {
-        let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]; panel.canChooseDirectories = false; panel.allowsMultipleSelection = false
-        if panel.runModal() == .OK { input = panel.url; error = "" }
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]; panel.canChooseDirectories = false; panel.allowsMultipleSelection = true
+        if panel.runModal() == .OK { inputs = panel.urls; clearPasswords(); error = "" }
     }
     private func chooseOutput() {
-        let panel = NSSavePanel(); panel.allowedContentTypes = [.pdf]; panel.nameFieldStringValue = "PDF-fluxo.pdf"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
-        guard !FileManager.default.fileExists(atPath: url.path) else { error = "Escolha um nome novo: o fluxo não sobrescreve arquivos."; return }
-        output = url; error = ""
+        if let url = model.selectOutput(extension: terminal.outputSuffix, directory: outputIsDirectory, toolName: "Fluxo", originalURL: inputs.first) { output = url; error = "" }
     }
     private func savePreset() {
         do { try library.save(preset); error = ""; status = "Fluxo salvo na sua biblioteca." }
@@ -448,16 +585,42 @@ struct WorkflowView: View {
             error = ""; status = "Fluxo exportado sem senhas ou caminhos de documentos."
         } catch { self.error = "Não foi possível exportar em um arquivo novo: \(error.localizedDescription)" }
     }
+    private func verifyDependencies() {
+        dependencyTask?.cancel()
+        let stages = preset.stages.map { ["operation": $0.operation.rawValue] }
+        guard let data = try? JSONSerialization.data(withJSONObject: stages) else { return }
+        checkingDependencies = true; dependencyError = ""
+        dependencyTask = Task { @MainActor in
+            do {
+                try await Task.detached { try WorkflowDependencies.check(data) }.value
+                guard !Task.isCancelled else { return }
+                checkingDependencies = false
+                status = "Fluxo validado; dependências das etapas disponíveis. Os dados e idiomas OCR serão verificados durante a execução."
+            } catch {
+                guard !Task.isCancelled else { return }
+                checkingDependencies = false; dependencyError = error.localizedDescription
+            }
+        }
+    }
     private func execute() {
         if let validation { error = validation; return }
-        guard let input, let output else { return }
+        guard let output else { return }
         do {
-            let options = try WorkflowRequest.make(preset: preset, sourcePassword: sourcePassword, destinationPassword: destinationPassword)
-            error = ""; status = ""
-            model.execute(operation: "workflow", inputs: [input], output: output, options: options, title: preset.name)
+            let options = try WorkflowRequest.make(preset: preset, sourcePasswords: sourcePasswords, destinationPassword: destinationPassword)
+            error = ""; status = ""; completed = 0; total = inputs.count * preset.stages.count; running = true
+            model.execute(operation: "workflow", inputs: inputs, output: output, options: options, title: preset.name, progress: { done, count in
+                completed = done; total = count
+            }, completion: { result in
+                running = false
+                switch result {
+                case .success: status = "Fluxo concluído: \(output.lastPathComponent)."
+                case .failure(let failure): error = "O fluxo foi interrompido. Nenhum resultado parcial foi publicado. \(failure.localizedDescription)"
+                }
+            })
         } catch { self.error = error.localizedDescription }
-        sourcePassword = ""; destinationPassword = ""
+        clearPasswords()
     }
+
 }
 
 private struct WorkflowStageEditor: View {
@@ -516,9 +679,25 @@ private struct WorkflowStageEditor: View {
             }.frame(maxWidth: 350)
             Text("Requer o mecanismo OCR e os idiomas selecionados instalados no Mac.").font(.caption).foregroundStyle(.secondary)
         }
+        if stage.operation.isTerminal {
+            Text("Saída final: \(stage.operation.outputDirectory ? "pasta de imagens" : "." + stage.operation.outputSuffix). Esta etapa deve encerrar o fluxo.").font(.caption).foregroundStyle(.secondary)
+            if [.word, .excel, .markdown].contains(stage.operation) {
+                Text("A reconstrução de texto, tabelas e layout depende do documento. Para digitalizações, adicione OCR antes desta etapa.").font(.caption).foregroundStyle(.secondary)
+            }
+        }
+        if stage.operation == .powerpoint {
+            Picker("Conteúdo dos slides", selection: $stage.exportMode) { Text("Objetos editáveis").tag("editable"); Text("Imagem de cada página").tag("image") }.frame(maxWidth: 420)
+        }
+        if stage.operation == .jpg || stage.operation == .png {
+            HStack {
+                Text("Resolução DPI")
+                TextField("DPI", value: $stage.dpi, format: .number).frame(width: 90).textFieldStyle(.roundedBorder)
+                if stage.operation == .png { Toggle("Fundo transparente", isOn: $stage.transparent) }
+            }
+        }
         if stage.operation == .redact { Text("A remoção é permanente no resultado. O original será preservado.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .protect { Text("Esta etapa deve ser a última. Informe a nova senha na seção Proteção do documento.").font(.caption).foregroundStyle(.secondary) }
-        if stage.operation == .unlock { Text("Esta etapa exige a senha atual e deve ser a primeira.").font(.caption).foregroundStyle(.secondary) }
+        if stage.operation == .unlock { Text("Esta etapa deve ser a primeira. PDFs protegidos exigem a senha atual; PDFs sem proteção também podem participar do lote.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .compress { Text("O motor reorganiza os dados do documento. A redução depende do conteúdo original.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .repair { Text("Tenta regravar documentos que o mecanismo consegue recuperar.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .flatten { Text("Incorpora anotações e valores dos formulários à página. Os campos deixam de ser editáveis no resultado.").font(.caption).foregroundStyle(.secondary) }
@@ -552,6 +731,38 @@ private struct WorkflowStageEditor: View {
                 Slider(value: $stage.opacity, in: 0...1).frame(maxWidth: 240)
                 Text(stage.opacity, format: .percent.precision(.fractionLength(0))).font(.caption.monospacedDigit()).frame(width: 44)
             }
+        }
+    }
+}
+
+private enum WorkflowDependencies {
+    static func check(_ data: Data) throws {
+        let files = FileManager.default
+        let resources = Bundle.main.resourceURL ?? URL(fileURLWithPath: files.currentDirectoryPath)
+        let project = URL(fileURLWithPath: files.currentDirectoryPath)
+        let bundledPython = resources.appendingPathComponent("runtime/bin/python3")
+        let python = files.isExecutableFile(atPath: bundledPython.path) ? bundledPython : project.appendingPathComponent(".venv/bin/python3")
+        let bundledEngine = resources.appendingPathComponent("engine")
+        let engine = files.fileExists(atPath: bundledEngine.appendingPathComponent("workflow_batch.py").path) ? bundledEngine : project.appendingPathComponent("engine")
+        guard files.isExecutableFile(atPath: python.path) else { throw WorkflowError.invalid("Instale o motor local para verificar as dependências do fluxo.") }
+        let process = Process(); process.executableURL = python
+        process.arguments = ["-c", "import sys,json; sys.path.insert(0,sys.argv[1]); from workflow_batch import check_dependencies; check_dependencies(json.load(sys.stdin))", engine.path]
+        var environment = ProcessInfo.processInfo.environment
+        environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
+        process.environment = environment
+        let input = Pipe(); let log = Pipe(); process.standardInput = input; process.standardOutput = log; process.standardError = log
+        try process.run()
+        input.fileHandleForWriting.write(data); try? input.fileHandleForWriting.close()
+        // Dependency checks only inspect installed modules/executables and produce
+        // a bounded error. A timeout still protects against a broken Python runtime.
+        let deadline = Date().addingTimeInterval(8)
+        while process.isRunning && Date() < deadline { Thread.sleep(forTimeInterval: 0.05) }
+        if process.isRunning { process.terminate(); if process.processIdentifier > 0 { kill(process.processIdentifier, SIGKILL) } }
+        process.waitUntilExit()
+        let output = log.fileHandleForReading.readDataToEndOfFile()
+        guard process.terminationStatus == 0 else {
+            let detail = String(decoding: output, as: UTF8.self).split(separator: "\n").last.map(String.init) ?? "O motor local não respondeu."
+            throw WorkflowError.invalid("Dependências do fluxo: \(detail)")
         }
     }
 }
@@ -599,6 +810,33 @@ private struct WorkflowStageEditor: View {
         }
         extraction.pages = "4-2,1,1"
         try require(extraction.validation == nil, "Um intervalo reverso ou páginas repetidas válidas foram recusados.")
+        // Version 1 documents have none of the terminal-export fields. Defaults
+        // must be migrated without changing their PDF stages or page settings.
+        var legacyObject = try JSONSerialization.jsonObject(with: encoded) as! [String: Any]
+        legacyObject["version"] = 1
+        var legacyStages = legacyObject["stages"] as! [[String: Any]]
+        for index in legacyStages.indices {
+            legacyStages[index].removeValue(forKey: "dpi")
+            legacyStages[index].removeValue(forKey: "exportMode")
+            legacyStages[index].removeValue(forKey: "transparent")
+        }
+        legacyObject["stages"] = legacyStages
+        let legacy = try JSONDecoder().decode(WorkflowPreset.self, from: JSONSerialization.data(withJSONObject: legacyObject))
+        try require(legacy.version == 1 && legacy.validation == nil && legacy.stages[0].dpi == 144, "A migração do fluxo v1 falhou.")
+        let upgraded = try JSONDecoder().decode(WorkflowPreset.self, from: WorkflowLibrary.encode(legacy))
+        try require(upgraded.version == 2, "O fluxo legado não foi salvo como v2.")
+        for terminal in [WorkflowOperation.word, .excel, .powerpoint, .markdown, .jpg, .png] {
+            var typed = WorkflowPreset()
+            typed.stages = [.init(operation: .numbers), .init(operation: terminal)]
+            try require(typed.validation == nil, "Uma exportação terminal válida foi recusada.")
+            typed.stages.reverse()
+            try require(typed.validation != nil, "Uma etapa após exportação foi aceita.")
+        }
+        let batch = try WorkflowRequest.make(preset: restored, sourcePasswords: ["first-private", "second-private"], destinationPassword: "destination-private")
+        try require(batch["batch"] as? Bool == true && batch["input_passwords"] as? [String] == ["first-private", "second-private"], "As senhas individuais do lote foram perdidas.")
+        let batchSteps = batch["steps"] as? [[String: Any]] ?? []
+        try require(batch["password"] == nil && (batchSteps[0]["options"] as? [String: Any])?["password"] == nil, "A senha do primeiro arquivo foi aplicada ao lote inteiro.")
+        try require((batchSteps.last?["options"] as? [String: Any])?["new_password"] as? String == "destination-private", "A proteção final do lote perdeu a senha.")
         let link = directory.appendingPathComponent("linked.json")
         try FileManager.default.createSymbolicLink(at: link, withDestinationURL: file)
         var refusedLink = false

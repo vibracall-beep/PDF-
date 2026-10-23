@@ -71,7 +71,12 @@ let tools: [Tool] = [
     .init(id:"fill-forms", name:"Preencher PDF", icon:"checklist", detail:"Preencha campos existentes e gere uma nova cópia.", category:"Editar"),
     .init(id:"chat", name:"Conversar com PDF", icon:"bubble.left.and.bubble.right", detail:"Faça perguntas sobre o documento com IA local.", category:"Inteligência"),
     .init(id:"quiz", name:"Gerar questionário", icon:"questionmark.bubble", detail:"Crie perguntas de estudo com base no documento.", category:"Inteligência"),
-    .init(id:"sign-service", name:"Sign.com", icon:"signature", detail:"Abra o serviço externo de assinaturas no navegador.", category:"Compartilhar")
+    .init(id:"sign-service", name:"Sign.com", icon:"signature", detail:"Abra o serviço externo de assinaturas no navegador.", category:"Compartilhar"),
+    .init(id:"digital-sign", name:"Assinatura digital certificada", icon:"checkmark.seal", detail:"Assine com seu certificado digital e verifique a integridade.", category:"Proteger"),
+    .init(id:"verify-signatures", name:"Verificar assinaturas", icon:"checkmark.shield", detail:"Examine certificados, integridade e evidências de validação.", category:"Proteger"),
+    .init(id:"validate-pdfa", name:"Validar PDF/A", icon:"archivebox.fill", detail:"Verifique conformidade de arquivamento com validador independente.", category:"Proteger"),
+    .init(id:"validate-pdfua", name:"Auditar PDF/UA", icon:"accessibility", detail:"Analise requisitos de acessibilidade e gere um relatório.", category:"Proteger"),
+    .init(id:"benchmark", name:"Desempenho do Mac", icon:"gauge.with.dots.needle.67percent", detail:"Meça leitura, busca e processamento no hardware deste Mac.", category:"Automatizar")
 ]
 
 @main struct PDFApp: App {
@@ -82,6 +87,23 @@ let tools: [Tool] = [
         if let index = CommandLine.arguments.firstIndex(of:"--render-preview"), CommandLine.arguments.indices.contains(index+1) {
             do { try MacPreview.render(to:URL(fileURLWithPath:CommandLine.arguments[index+1])); exit(0) }
             catch { FileHandle.standardError.write(Data("PDF preview failed: \(error)\n".utf8)); exit(1) }
+        }
+        if let index = CommandLine.arguments.firstIndex(of:"--benchmark") {
+            do {
+                let args = CommandLine.arguments
+                guard args.indices.contains(index+1),!args[index+1].hasPrefix("--") else { throw NSError(domain:"PDF.Benchmark",code:1,userInfo:[NSLocalizedDescriptionKey:"Informe o caminho JSON após --benchmark."]) }
+                var input:URL?
+                if let inputIndex = args.firstIndex(of:"--benchmark-input") {
+                    guard args.indices.contains(inputIndex+1),!args[inputIndex+1].hasPrefix("--") else { throw NSError(domain:"PDF.Benchmark",code:1,userInfo:[NSLocalizedDescriptionKey:"Informe um PDF após --benchmark-input."]) }
+                    input = URL(fileURLWithPath:args[inputIndex+1])
+                }
+                var pages = 100
+                if let pagesIndex = args.firstIndex(of:"--benchmark-pages") {
+                    guard args.indices.contains(pagesIndex+1),let parsed = Int(args[pagesIndex+1]),parsed > 0 else { throw NSError(domain:"PDF.Benchmark",code:1,userInfo:[NSLocalizedDescriptionKey:"Use um número positivo em --benchmark-pages."]) }
+                    pages = parsed
+                }
+                try MacBenchmark.run(input:input,output:URL(fileURLWithPath:args[index+1]),pages:pages); exit(0)
+            } catch { FileHandle.standardError.write(Data("PDF benchmark failed: \(error)\n".utf8)); exit(1) }
         }
         if CommandLine.arguments.contains("--smoke-test") {
             do { try MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
@@ -95,32 +117,10 @@ let tools: [Tool] = [
                 .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
                 .onAppear { applicationDelegate.model = model }
         }
-        .commands {
-            CommandGroup(replacing:.newItem) {
-                Button("Abrir PDF…") { model.open() }.keyboardShortcut("o")
-                Menu("Abrir recente") {
-                    ForEach(model.recentURLs, id:\.path) { url in Button(url.lastPathComponent) { model.open(url:url) } }
-                    Divider()
-                    Button("Limpar recentes") { model.clearRecent() }
-                }
-            }
-            CommandGroup(replacing:.saveItem) {
-                Button("Salvar cópia…") { model.save() }.keyboardShortcut("s", modifiers:[.command,.shift]).disabled(model.document == nil)
-            }
-            CommandGroup(replacing:.printItem) {
-                Button("Imprimir…") { model.printDocument() }.keyboardShortcut("p").disabled(model.document == nil)
-            }
-            CommandMenu("Documento") {
-                Button("Página anterior") { model.previousPage() }.keyboardShortcut(.leftArrow, modifiers:[.command])
-                Button("Próxima página") { model.nextPage() }.keyboardShortcut(.rightArrow, modifiers:[.command])
-                Divider()
-                Button("Realçar seleção") { model.highlight() }.keyboardShortcut("h", modifiers:[.command,.shift])
-                Button("Marcar página") { model.toggleBookmark() }.keyboardShortcut("d", modifiers:[.command,.shift])
-                Button("Girar página atual") { model.rotatePage() }
-            }
-        }
+        .commands { PDFMenuCommands(model:model) }
         Settings { PreferencesView().environmentObject(model).environmentObject(appearancePreferences) }
     }
+
 }
 
 struct ContentView: View {
@@ -132,8 +132,13 @@ struct ContentView: View {
     @State private var category = "Todas"
     @State private var selected:Tool?
     @State private var intelligenceMode = "summary"
+    @State private var verificationMode = "verify"
+    @State private var showRecovery = false
+    @FocusState private var toolSearchFocused:Bool
     @State private var showCustomization = false
     @AppStorage("readerShowAnnotations") private var readerShowAnnotations = true
+    private let initialReaderInspector:Bool
+    init(initialReaderInspector:Bool = false) { self.initialReaderInspector = initialReaderInspector }
     var tint:Color { preferences.accent }
     var hasToolFilters:Bool { !query.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || category != "Todas" }
     var hiddenFavoriteCount:Int { tools.filter { isFavorite($0.id) && (preferences.state.hiddenTools.contains($0.id) || preferences.state.hiddenCategories.contains($0.category)) }.count }
@@ -159,11 +164,15 @@ struct ContentView: View {
         .tint(tint).preferredColorScheme(preferences.preferredScheme)
         .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model).environmentObject(preferences) }
         .sheet(isPresented:$showCustomization) { CustomizationView().environmentObject(model).environmentObject(preferences) }
-        .toolbar { ToolbarItem(placement:.primaryAction) { Button { showCustomization = true } label:{ Label("Personalizar",systemImage:"slider.horizontal.3") }.help("Personalizar aparência, menus e leitura") } }
+        .sheet(isPresented:$showRecovery) { RecoveryDocumentsView().environmentObject(model).environmentObject(preferences) }
+        .focusedSceneValue(\.catalogSearchAction,{ model.section = "Início"; DispatchQueue.main.async { toolSearchFocused = true } })
+        .focusedSceneValue(\.recoveryAction,{ showRecovery = true })
+        .onAppear { model.refreshRecovery() }
+        .toolbar { ToolbarItem(placement:.primaryAction) { Button { showCustomization = true } label:{ Label("Personalizar",systemImage:"slider.horizontal.3") }.help("Personalizar aparência, menus e leitura").accessibilityIdentifier("pdf.customize.toolbar") } }
         .alert("Abrir documento protegido",isPresented:$model.needsPassword) {
             SecureField("Senha",text:$model.documentPassword)
             Button("Abrir") { model.unlockPendingDocument() }
-            Button("Cancelar",role:.cancel) { model.documentPassword = "" }
+            Button("Cancelar",role:.cancel) { model.cancelPendingUnlock() }
         } message: { Text("Digite a senha para abrir este PDF.") }
     }
     var sidebar:some View {
@@ -185,7 +194,7 @@ struct ContentView: View {
                             }.padding(preferences.state.density == "compact" ? 9 : 12)
                                 .frame(maxWidth:.infinity)
                                 .background(model.section == item.id ? tint.opacity(0.15) : .clear,in:RoundedRectangle(cornerRadius:12))
-                        }.buttonStyle(.plain).accessibilityLabel(item.label).help(item.label)
+                        }.buttonStyle(.plain).accessibilityLabel(item.label).help(item.label).accessibilityIdentifier("pdf.sidebar." + item.id)
                             .accessibilityAddTraits(model.section == item.id ? .isSelected : [])
                     }
                 }.padding(.vertical,6)
@@ -201,13 +210,15 @@ struct ContentView: View {
     }
     @ViewBuilder var destination:some View {
         switch model.section {
-        case "Leitor": ReaderWorkspaceView()
+        case "Leitor": ReaderWorkspaceView(initialInspectorPresented:initialReaderInspector)
         case "Inteligência": IntelligenceView(initialMode:intelligenceMode).id(intelligenceMode)
         case "Digitalizar": NativeFeaturesView()
         case "Fluxos": WorkflowView()
         case "Compartilhar": SharePDFView()
         case "Pages para PDF": PagesConversionView()
         case "Sign.com": ExternalSigningView()
+        case "Desempenho": BenchmarkView()
+        case "Verificação": VerificationView(initialMode:verificationMode).id(verificationMode)
         default: home
         }
     }
@@ -220,7 +231,7 @@ struct ContentView: View {
                     Picker("Visualização",selection:$preferences.state.layout) {
                         Label("Grade",systemImage:"square.grid.2x2").tag("grid")
                         Label("Lista",systemImage:"list.bullet").tag("list")
-                    }.pickerStyle(.segmented).frame(width:145)
+                    }.pickerStyle(.segmented).labelsHidden().accessibilityLabel("Visualização das ferramentas").frame(width:145).fixedSize(horizontal:true,vertical:false)
                     Button("Personalizar",systemImage:"slider.horizontal.3") { showCustomization = true }.buttonStyle(.bordered)
                 }
                 if preferences.state.showHero {
@@ -233,9 +244,17 @@ struct ContentView: View {
                         Button("Abrir documento",systemImage:"plus") { model.open() }.buttonStyle(.borderedProminent)
                     }.padding(24).pdfGlass()
                 }
+                if (!model.recoveryItems.isEmpty || !model.recoveryWarnings.isEmpty) && model.section != "Favoritos" {
+                    HStack(spacing:12) {
+                        Image(systemName:"clock.arrow.circlepath").accessibilityHidden(true)
+                        Text(model.recoveryItems.isEmpty ? "Há avisos sobre as cópias de recuperação." : "Há \(model.recoveryItems.count) cópias locais de recuperação.").font(.callout)
+                        Spacer()
+                        Button("Revisar cópias…") { showRecovery = true }.accessibilityIdentifier("pdf.recovery.review")
+                    }.padding(14).pdfGlass()
+                }
                 if preferences.state.showRecent && model.section != "Favoritos" && !model.recentURLs.isEmpty { recentDocuments }
                 HStack {
-                    TextField("Buscar ferramenta",text:$query).textFieldStyle(.roundedBorder)
+                    TextField("Buscar ferramenta",text:$query).textFieldStyle(.roundedBorder).focused($toolSearchFocused).accessibilityIdentifier("pdf.catalog.search")
                     Picker("Categoria",selection:$category) { Text("Todas").tag("Todas"); ForEach(AppearanceState.categories.filter { !preferences.state.hiddenCategories.contains($0) },id:\.self) { Text($0).tag($0) } }.frame(width:220)
                 }
                 if model.section == "Favoritos" && hiddenFavoriteCount > 0 {
@@ -314,6 +333,11 @@ struct ContentView: View {
         case "pages-pdf": model.section = "Pages para PDF"
         case "share": model.section = "Compartilhar"
         case "sign-service": model.section = "Sign.com"
+        case "benchmark": model.section = "Desempenho"
+        case "digital-sign": verificationMode = "sign"; model.section = "Verificação"
+        case "verify-signatures": verificationMode = "verify"; model.section = "Verificação"
+        case "validate-pdfa": verificationMode = "pdfa"; model.section = "Verificação"
+        case "validate-pdfua": verificationMode = "pdfua"; model.section = "Verificação"
         case "converter": category = "Converter"; query = ""; model.section = "Início"
         case "annotate": readerShowAnnotations = true; if model.document == nil { model.open() } else { model.section = "Leitor" }
         default: selected = tool

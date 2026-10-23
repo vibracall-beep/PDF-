@@ -16,6 +16,10 @@ struct ReaderWorkspaceView: View {
     @AppStorage("readerZoom") private var zoom = 1.0
     @AppStorage("readerHighlightColor") private var highlightColor = "#FFE600"
     @AppStorage("readerNoteColor") private var noteColor = "#FFCC00"
+    @AppStorage("readerShowTabs") private var showTabs = true
+    @AppStorage("readerSplitDirection") private var splitDirection = "horizontal"
+    @FocusState private var focusedField:ReaderFocus?
+    private enum ReaderFocus:Hashable { case search, page }
     @State private var sidebarTab = "Páginas"
     @State private var search = ""
     @State private var page = "1"
@@ -23,17 +27,22 @@ struct ReaderWorkspaceView: View {
     @State private var showNote = false
     @State private var showSharing = false
     @State private var showReaderSettings = false
+    @State private var showInspector = false
+    init(initialInspectorPresented:Bool = false) {
+        _showInspector = State(initialValue:initialInspectorPresented)
+    }
     var surface:AnyShapeStyle {
         reduceTransparency || preferences.state.glassStyle == "opaque" ? AnyShapeStyle(Color(nsColor:.controlBackgroundColor)) : AnyShapeStyle(.regularMaterial)
     }
     var body: some View {
         VStack(spacing:0) {
+            if showTabs && !model.sessions.isEmpty { DocumentTabStrip() }
             readerToolbar
             if let document = model.document {
                 if showAnnotations { annotationToolbar }
                 HStack(spacing:0) {
                     if showSidebar { readerSidebar(document); Divider() }
-                    Reader(mode:mode)
+                    readerDocuments
                 }
                 pageNavigation(document)
             } else {
@@ -44,7 +53,16 @@ struct ReaderWorkspaceView: View {
             page = String(model.currentPage)
             if !showAnnotations || !visible("ink",in:hiddenAnnotations) { model.inkMode = false }
         }
-        .onChange(of:model.currentPage) { _,value in page = String(value) }
+        .onChange(of:model.currentPage) { _,value in
+            page = String(value)
+            if let selected = model.selectedAnnotation,let current = model.document?.page(at:value-1),selected.page !== current { model.selectAnnotation(nil) }
+        }
+        .onChange(of:model.activeSessionID) { _,_ in page = String(model.currentPage); search = "" }
+        .focusedSceneValue(\.readerCommandActions,ReaderCommandActions(focusSearch:focusDocumentSearch,findNext:find,focusPage:{ focusedField = .page },toggleSidebar:{ showSidebar.toggle() },toggleInspector:{ model.inkMode = false; showInspector.toggle() },share:{ showSharing = true }))
+        .inspector(isPresented:$showInspector) {
+            AnnotationInspectorView(presented:$showInspector).environmentObject(model)
+                .inspectorColumnWidth(min:250,ideal:290,max:400)
+        }
         .onChange(of:showAnnotations) { _,visible in if !visible { model.inkMode = false } }
         .onChange(of:hiddenAnnotations) { _,hidden in if hidden.split(separator:",").contains("ink") { model.inkMode = false } }
         .onChange(of:hiddenToolbar) { _,hidden in if hidden.split(separator:",").contains("search") { model.cancelSearch() } }
@@ -54,19 +72,37 @@ struct ReaderWorkspaceView: View {
         .sheet(isPresented:$showNote) {
             VStack(alignment:.leading,spacing:16) {
                 Text("Adicionar nota").font(.headline)
-                TextEditor(text:$note).frame(width:360,height:150)
+                TextEditor(text:$note).frame(width:360,height:150).accessibilityLabel("Texto da nova nota")
                 HStack {
-                    Button("Cancelar") { showNote = false }; Spacer()
+                    Button("Cancelar") { showNote = false }.keyboardShortcut(.cancelAction); Spacer()
                     Button("Adicionar") { model.addNote(note,colorHex:noteColor); note = ""; showNote = false }.buttonStyle(.borderedProminent)
                 }
             }.padding(24)
         }
     }
+    @ViewBuilder var readerDocuments:some View {
+        if let comparison = model.sessions.first(where: { $0.id == model.comparisonSessionID && $0.id != model.activeSessionID }) {
+            if splitDirection == "vertical" {
+                VSplitView { primaryDocument; ReferenceDocumentPane(session:comparison,mode:mode) }
+            } else {
+                HSplitView { primaryDocument; ReferenceDocumentPane(session:comparison,mode:mode) }
+            }
+        } else {
+            Reader(mode:mode).accessibilityIdentifier("pdf.reader.document")
+        }
+    }
+    var primaryDocument:some View {
+        VStack(spacing:0) {
+            HStack { Label(model.activeSession?.title ?? model.url?.lastPathComponent ?? "Documento principal",systemImage:"pencil.and.outline").font(.caption.weight(.medium)).lineLimit(1); Spacer(); Text("Principal").font(.caption).foregroundStyle(.secondary) }.padding(10)
+            Reader(mode:mode).accessibilityIdentifier("pdf.reader.document")
+        }.frame(minWidth:170,minHeight:190).accessibilityElement(children:.contain).accessibilityLabel("Documento principal")
+    }
     var readerToolbar:some View {
-        ViewThatFits(in:.horizontal) {
-            toolbarContent
-            ScrollView(.horizontal,showsIndicators:false) { toolbarContent.fixedSize(horizontal:true,vertical:false) }
-        }.padding(12).background(surface)
+        GeometryReader { geometry in
+            ScrollView(.horizontal,showsIndicators:false) {
+                toolbarContent.frame(minWidth:geometry.size.width,alignment:.leading)
+            }
+        }.frame(height:34).padding(.horizontal,12).padding(.vertical,7).background(surface)
             .popover(isPresented:$showReaderSettings) { readerSettingsPanel }
     }
     var readerSettingsPanel:some View {
@@ -83,7 +119,7 @@ struct ReaderWorkspaceView: View {
                 .help("Mostrar páginas e sumário").accessibilityLabel(showSidebar ? "Ocultar páginas e sumário" : "Mostrar páginas e sumário")
             if visible("open",in:hiddenToolbar) { Button("Abrir",systemImage:"folder") { model.open() } }
             if visible("search",in:hiddenToolbar) {
-                TextField("Buscar no documento",text:$search).textFieldStyle(.roundedBorder).frame(minWidth:110,maxWidth:200).onSubmit { find() }
+                TextField("Buscar no documento",text:$search).textFieldStyle(.roundedBorder).frame(minWidth:110,maxWidth:200).focused($focusedField,equals:.search).onSubmit { find() }.accessibilityIdentifier("pdf.reader.search")
                 if model.searching {
                     Button { model.cancelSearch() } label: { Image(systemName:"xmark.circle") }.help("Cancelar busca").accessibilityLabel("Cancelar busca")
                     ProgressView().controlSize(.small).accessibilityLabel("Busca em andamento")
@@ -96,10 +132,15 @@ struct ReaderWorkspaceView: View {
                 Button { changeZoom(increase:false) } label: { Image(systemName:"minus.magnifyingglass") }.help("Reduzir").accessibilityLabel("Reduzir zoom")
                 Button { changeZoom(increase:true) } label: { Image(systemName:"plus.magnifyingglass") }.help("Ampliar").accessibilityLabel("Ampliar zoom")
             }
+            if visible("compare",in:hiddenToolbar) { comparisonMenu }
             if visible("fit",in:hiddenToolbar) { Button("Ajustar") { autoScale = true; model.pdfView?.autoScales = true }.help("Ajustar à janela") }
             Menu {
                 Picker("Leitura",selection:$mode) { Text("Contínua").tag(0); Text("Página única").tag(1); Text("Duas páginas").tag(2) }
                 Toggle("Barra de anotações",isOn:$showAnnotations)
+                Toggle("Mostrar abas",isOn:$showTabs)
+                Menu("Documentos abertos") {
+                    ForEach(model.sessions) { session in Button(session.title) { model.activateSession(session.id) } }
+                }
                 Divider()
                 Button("Girar página") { model.rotatePage() }
                 Button("Imprimir…") { model.printDocument() }
@@ -119,6 +160,14 @@ struct ReaderWorkspaceView: View {
                 if visible("highlight",in:hiddenAnnotations) { Button("Realçar",systemImage:"highlighter") { model.highlight(colorHex:highlightColor) } }
                 if visible("note",in:hiddenAnnotations) { Button("Nota",systemImage:"note.text") { showNote = true } }
                 if visible("ink",in:hiddenAnnotations) { Toggle(isOn:$model.inkMode) { Label("Desenhar",systemImage:"pencil.tip") }.toggleStyle(.button) }
+                if visible("editor",in:hiddenAnnotations) {
+                    Button("Editar anotações",systemImage:"cursorarrow.rays") { model.inkMode = false; showInspector.toggle() }
+                        .accessibilityIdentifier("pdf.annotation.inspector")
+                }
+                if visible("history",in:hiddenAnnotations) {
+                    Button { model.undoAnnotation() } label:{ Image(systemName:"arrow.uturn.backward") }.disabled(!model.canUndoAnnotation).help("Desfazer anotação").accessibilityLabel("Desfazer anotação")
+                    Button { model.redoAnnotation() } label:{ Image(systemName:"arrow.uturn.forward") }.disabled(!model.canRedoAnnotation).help("Refazer anotação").accessibilityLabel("Refazer anotação")
+                }
                 if visible("bookmark",in:hiddenAnnotations) { Button(model.bookmarks.contains(model.currentPage) ? "Desmarcar página" : "Marcar página",systemImage:model.bookmarks.contains(model.currentPage) ? "bookmark.fill" : "bookmark") { model.toggleBookmark() } }
                 Spacer()
                 if model.hasEdits {
@@ -156,12 +205,30 @@ struct ReaderWorkspaceView: View {
     func pageNavigation(_ document:PDFDocument) -> some View {
         HStack {
             Button { model.previousPage() } label: { Image(systemName:"chevron.left") }.disabled(model.currentPage <= 1).accessibilityLabel("Página anterior").help("Página anterior")
-            TextField("Página",text:$page).textFieldStyle(.roundedBorder).frame(width:55).onSubmit { if let number = Int(page) { model.goToPage(number) }; page = String(model.currentPage) }
+            TextField("Página",text:$page).textFieldStyle(.roundedBorder).frame(width:55).focused($focusedField,equals:.page).accessibilityLabel("Número da página principal").accessibilityIdentifier("pdf.reader.page").onSubmit { if let number = Int(page) { model.goToPage(number) }; page = String(model.currentPage) }
             Text("de \(document.pageCount)").font(.caption).foregroundStyle(.secondary)
             Button { model.nextPage() } label: { Image(systemName:"chevron.right") }.disabled(model.currentPage >= document.pageCount).accessibilityLabel("Próxima página").help("Próxima página")
             Spacer()
             Text("Selecione texto para copiar ou realçar. Preencha campos diretamente na página.").font(.caption).foregroundStyle(.secondary).lineLimit(2)
         }.padding(10).background(surface)
+    }
+    var comparisonMenu:some View {
+        Menu {
+            Button("Sem referência") { model.comparisonSessionID = nil }
+            Divider()
+            ForEach(model.sessions.filter { $0.id != model.activeSessionID }) { session in
+                Button { model.comparisonSessionID = session.id } label:{ Label(session.title,systemImage:model.comparisonSessionID == session.id ? "checkmark" : "doc.text") }
+            }
+            Divider()
+            Button("Abrir outro PDF…") { model.open() }
+            Picker("Disposição",selection:$splitDirection) { Text("Lado a lado").tag("horizontal"); Text("Empilhados").tag("vertical") }
+        } label: { Image(systemName:"rectangle.split.2x1") }
+            .help("Ler dois documentos simultaneamente").accessibilityLabel("Escolher documento de referência")
+            .accessibilityIdentifier("pdf.reader.compare")
+    }
+    func focusDocumentSearch() {
+        hiddenToolbar = hiddenToolbar.split(separator:",").filter { $0 != "search" }.joined(separator:",")
+        DispatchQueue.main.async { focusedField = .search }
     }
     func visible(_ id:String,in values:String) -> Bool { !values.split(separator:",").contains(Substring(id)) }
     func changeZoom(increase:Bool) {

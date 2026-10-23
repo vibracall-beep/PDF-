@@ -183,6 +183,10 @@ enum MacSmokeTests {
         try check("Tool presets") { try ToolPresetAuditChecks.run() }
         try check("Native regression audit") { try NativeAuditChecks.run() }
         try check("Appearance and reader preferences") { try AppearanceAuditChecks.run() }
+        try check("Recovery storage and encryption") { try RecoveryAuditChecks.run() }
+        try check("Reader sessions and annotation editing") { try SessionAnnotationAuditChecks.run() }
+        try check("Semantic retrieval and verifiable citations") { try SemanticAuditChecks.run() }
+        try check("Performance measurement harness") { try BenchmarkAuditChecks.run() }
         print("Native checks hardware: \(AppleHardware.summary)")
     }
 }

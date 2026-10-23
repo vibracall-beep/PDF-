@@ -14,8 +14,12 @@ struct ToolStyleOptions: Codable, Equatable {
     var x = 36.0, y = 72.0, width = 220.0, height = 80.0
     var recompressImages = false, fitWidth = true, transparentPNG = false
     var flattenAnnotations = true, flattenWidgets = true, textBox = false
+    // Optional additions keep presets saved before structured OCR decodable.
+    var structureSource: String?
+    var structureDPI: Int?
+    var structureMinimumConfidence: Double?
 
-    static let supportedTools: Set<String> = ["edit","compare","powerpoint","watermark","redact","crop","jpg","png","images","txt-pdf","epub-pdf","csv-pdf","excel-pdf","rotate","compress","numbers","signature","ocr","pdfa","flatten"]
+    static let supportedTools: Set<String> = ["edit","compare","powerpoint","watermark","redact","crop","jpg","png","images","txt-pdf","epub-pdf","csv-pdf","excel-pdf","rotate","compress","numbers","signature","ocr","pdfa","flatten","word","excel","forms","fill-forms"]
 
     func validate(toolID: String) throws {
         func check(_ condition: Bool) throws { if !condition { throw ToolPresetError.invalid } }
@@ -31,6 +35,9 @@ struct ToolStyleOptions: Codable, Equatable {
             (csvDelimiter,["",",",";","\t","|"]),(language,["por+eng","por","eng","spa","fra","deu"])
         ]
         for (value, choices) in enums { try check(choices.contains(value)) }
+        if let structureSource { try check(["auto","vector","ocr"].contains(structureSource)) }
+        if let structureDPI { try check((120...400).contains(structureDPI)) }
+        if let structureMinimumConfidence { try check(structureMinimumConfidence.isFinite && (0...100).contains(structureMinimumConfidence)) }
         for hex in [color,fill] { try check(hex.range(of:"^#[0-9a-fA-F]{6}$",options:.regularExpression) != nil) }
         try check([90,180,270].contains(degrees) && (72...600).contains(dpi) && (20...95).contains(quality) && (1...9999).contains(startNumber))
         try check([fontSize,margin,opacity,lineWidth,x,y,width,height].allSatisfy(\.isFinite))

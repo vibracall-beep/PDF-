@@ -88,7 +88,8 @@ enum VisionRecognition {
         }
         // This runtime error is emitted by the text reader on some virtual Macs.
         // Its presence permits a retry, but does not establish why recognition failed.
-        return native.domain == "TextRecognition.CRImageReaderError" && native.localizedDescription.localizedCaseInsensitiveContains("unknownError")
+        return native.domain == "TextRecognition.CRImageReaderError" &&
+            (native.code == 9 || String(describing: error) == "unknownError" || native.localizedDescription.localizedCaseInsensitiveContains("unknownError"))
     }
     static func description(_ error: Error) -> String {
         let native = error as NSError

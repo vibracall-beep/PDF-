@@ -40,10 +40,11 @@ TOOLS = {
     'redact':'Remover conteúdo', 'crop':'Recortar PDF', 'forms':'Inspecionar formulários',
     'form-create':'Criar formulários', 'form-fill':'Preencher formulários', 'form-detect':'Detectar campos',
     'layout-extract':'Extrair blocos de layout', 'translate-layout':'Aplicar tradução ao layout',
+    'digital-sign':'Assinatura digital', 'verify-signatures':'Verificar assinaturas', 'validate-pdfa':'Validar PDF/A', 'validate-pdfua':'Validar PDF/UA',
     'markdown':'PDF para Markdown', 'workflow':'Executar fluxo'
 }
 ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual','delete_pages':'delete-pages','extract_pages':'extract-pages','delete':'delete-pages','extract':'extract-pages'}
-PDF_OPERATIONS = {'merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
+PDF_OPERATIONS = {'digital-sign','merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
 MULTI_INPUT = {'merge','images','compare','compare-visual','organize'}
 DIRECTORY_OUTPUT = {'split','jpg','png'}
 
@@ -195,7 +196,7 @@ def _publish(payload, output):
         raise OSError(error,os.strerror(error),str(output))
 
 
-def _external(command, timeout=180):
+def _external(command, timeout=180, allowed_returncodes=(0,)):
     """Own a separate process group so cancel never leaves converters running."""
     try:
         process = subprocess.Popen([str(v) for v in command],stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.DEVNULL,text=True,start_new_session=True)
@@ -218,7 +219,7 @@ def _external(command, timeout=180):
             process.communicate()
         raise
     result = subprocess.CompletedProcess(command,process.returncode,stdout,stderr)
-    if result.returncode:
+    if result.returncode not in allowed_returncodes:
         message = (result.stderr or result.stdout).strip()[-2500:]
         raise RuntimeError(f'{Path(command[0]).name} falhou ({result.returncode}): {message}')
     return result
@@ -258,6 +259,14 @@ def run(operation, inputs, output, options=None):
 
 
 def _execute(operation, inputs, output, options):
+    if operation in ('digital-sign','verify-signatures'):
+        from pdf_signatures import sign_pdf, verify_pdf
+        (sign_pdf if operation=='digital-sign' else verify_pdf)(inputs[0],output,options)
+        return
+    if operation in ('validate-pdfa','validate-pdfua'):
+        from pdf_standards import validate_pdf
+        validate_pdf(inputs[0],output,options,standard='pdfa' if operation=='validate-pdfa' else 'pdfua')
+        return
     password = options.get('password','')
     if operation=='organize' and len(inputs)==1 and 'input_passwords' in options:
         credentials=options['input_passwords']
@@ -265,30 +274,8 @@ def _execute(operation, inputs, output, options):
         password=credentials[0]
     if not isinstance(password,str): raise ValueError('A senha deve ser uma string.')
     if operation == 'workflow':
-        steps = options.get('steps',[])
-        if not isinstance(steps,list) or not 1 <= len(steps) <= 64:
-            raise ValueError('O fluxo precisa de 1 a 64 etapas.')
-        for i, step in enumerate(steps):
-            if not isinstance(step,dict) or step.get('operation') not in TOOLS or step['operation'] == 'workflow':
-                raise ValueError(f'Etapa {i+1} inválida; fluxos recursivos não são permitidos.')
-            if not isinstance(step.get('options',{}),dict): raise ValueError(f'As opções da etapa {i+1} devem ser um objeto JSON.')
-            if i < len(steps)-1 and step['operation'] not in PDF_OPERATIONS:
-                raise ValueError('Etapas intermediárias precisam produzir um PDF único.')
-            if i > 0 and step['operation'] in ('merge','images','compare','compare-visual'):
-                raise ValueError('Esta operação só pode ser a primeira etapa do fluxo.')
-        with tempfile.TemporaryDirectory() as tmp:
-            current = inputs
-            for i,step in enumerate(steps):
-                target = output if i == len(steps)-1 else Path(tmp)/f'{i}.pdf'
-                step_options = dict(step.get('options',{}))
-                if password and 'password' not in step_options: step_options['password'] = password
-                run(step['operation'],current,target,step_options)
-                password = step_options.get('output_password',step_options.get('password',password))
-                if step['operation'] in ('merge','organize') and not password:
-                    password=next((value for value in step_options.get('input_passwords',[]) if value),'')
-                if step['operation'] == 'protect': password = step_options.get('new_password','')
-                if step['operation'] == 'unlock': password = ''
-                current = [str(target)]
+        from workflow_batch import execute as execute_workflow
+        execute_workflow(inputs, output, options, run=run, tools=TOOLS, pdf_operations=PDF_OPERATIONS)
         return
     if operation == 'txt':
         _text_file_pdf(inputs[0],output,options); return
@@ -417,7 +404,7 @@ def _execute(operation, inputs, output, options):
         elif operation == 'translate-layout':
             _translate_layout(doc,options); save(doc,output)
         elif operation == 'form-detect':
-            output.write_text(json.dumps(dict(heuristic=True,review_required=True,fields=_detect_forms(doc,pages)),ensure_ascii=False,indent=2),encoding='utf-8')
+            output.write_text(json.dumps(_detect_forms_report(doc,pages,options),ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'forms':
             content = _form_records(doc,pages)
             output.write_text(json.dumps(content,ensure_ascii=False,indent=2),encoding='utf-8')
@@ -431,9 +418,9 @@ def _execute(operation, inputs, output, options):
                     second = ''.join(p.get_text() for p in other).splitlines(True)
                     diff = ''.join(difflib.unified_diff(first,second,fromfile=Path(inputs[0]).name,tofile=Path(inputs[1]).name))
                     output.write_text(diff or 'Nenhuma diferença textual. Imagens e layout não foram comparados.\n',encoding='utf-8')
-        elif operation == 'word': _word(doc,pages,output)
+        elif operation == 'word': _word(doc,pages,output,options)
         elif operation == 'powerpoint': _powerpoint(doc,pages,output,options)
-        elif operation == 'excel': _excel(doc,pages,output)
+        elif operation == 'excel': _excel(doc,pages,output,options)
         elif operation == 'flatten':
             if pages != list(range(len(doc))): raise ValueError('Achatar PDF aplica-se ao documento inteiro; remova a seleção de páginas.')
             annotations=_boolean(options.get('annotations',True)); widgets=_boolean(options.get('widgets',True))
@@ -897,6 +884,21 @@ def _detect_forms(doc,pages):
     return fields
 
 
+def _detect_forms_report(doc,pages,options):
+    from scan_analysis import analyze, source_mode
+    reports=[]; fields=[]
+    for index in pages:
+        page=doc[index]
+        if source_mode(page,options)=='ocr':
+            report=analyze(page,index+1,options,_external)
+        else:
+            detected=_detect_forms(doc,[index])
+            for field in detected: field.update(confidence=0.5,source='vector',review_required=True)
+            report=dict(page=index+1,source='vector',fields=detected,tables=[dict(rect=list(table.bbox),rows=table.extract(),source='vector',review_required=True) for table in page.find_tables().tables])
+        reports.append(report); fields.extend(report['fields'])
+    return dict(heuristic=True,review_required=True,fields=fields,pages=reports)
+
+
 def _pdf_name(value):
     return '/'+''.join(chr(byte) if 33<=byte<=126 and chr(byte) not in '#%()/<>[]{}' else f'#{byte:02X}' for byte in value.encode('utf-8'))
 
@@ -1089,14 +1091,20 @@ def _markdown(doc,pages,output):
                         emit(f'[{label}]({uri.replace("(","%28").replace(")","%29")})')
 
 
-def _word(doc,pages,output):
+def _word(doc,pages,output,options=None):
     from docx import Document
     from docx.shared import Pt, Inches, RGBColor
+    from scan_analysis import analyze, elements, source_mode
+    options=options or {}
     result = Document()
     for count,i in enumerate(pages):
         page = doc[i]
         if count: result.add_page_break()
-        for block in _page_elements(page):
+        if source_mode(page,options)=='ocr':
+            analysis=analyze(page,i+1,options,_external)
+            blocks=elements(analysis) if analysis['words'] else _page_elements(page)
+        else: blocks=_page_elements(page)
+        for block in blocks:
             if block['type']==2:
                 rows=block['rows']
                 if rows:
@@ -1157,13 +1165,20 @@ def _powerpoint(doc,pages,output,options):
     result.save(output)
 
 
-def _excel(doc,pages,output):
+def _excel(doc,pages,output,options=None):
     from openpyxl import Workbook
+    from scan_analysis import analyze, source_mode
+    options=options or {}
     result = Workbook(); result.remove(result.active)
     for i in pages:
         page = doc[i]; sheet = result.create_sheet(f'Página {i+1}'); sheet.freeze_panes='A2'
-        tables = page.find_tables().tables
-        rows = [row for table in tables for row in table.extract()] if tables else [[line] for line in page.get_text(sort=True).splitlines()]
+        if source_mode(page,options)=='ocr':
+            analysis=analyze(page,i+1,options,_external)
+            rows=[row for table in analysis['tables'] for row in table['rows']] if analysis['tables'] else [[line] for line in analysis['lines']]
+            if not rows: raise ValueError('Nenhum texto foi reconhecido na página '+str(i+1)+'. Ajuste idioma/DPI ou forneça uma digitalização mais nítida.')
+        else:
+            tables = page.find_tables().tables
+            rows = [row for table in tables for row in table.extract()] if tables else [[line] for line in page.get_text(sort=True).splitlines()]
         for row in rows:
             sheet.append(["'"+v if isinstance(v,str) and v.startswith(('=','+','-','@')) else v for v in row])
     result.save(output)
@@ -1210,7 +1225,7 @@ def _visual_compare(first,second,output):
 
 def capabilities():
     office=shutil.which('soffice') or ('/Applications/LibreOffice.app/Contents/MacOS/soffice' if Path('/Applications/LibreOffice.app/Contents/MacOS/soffice').exists() else None)
-    return dict(version='0.2.0',operations=list(TOOLS),dependencies=dict(office=bool(office),ocr=bool(shutil.which('ocrmypdf')),tesseract=bool(shutil.which('tesseract')),html=importlib.util.find_spec('playwright') is not None),features=dict(atomic_outputs=True,preserves_pdf_encryption=True,editable_powerpoint=True),limitations=['Layout reconstruction is approximate.','Visual signatures are not cryptographic signatures.','PDF/A requires independent conformance validation.'])
+    return dict(version='0.2.0',operations=list(TOOLS),dependencies=dict(office=bool(office),ocr=bool(shutil.which('ocrmypdf')),tesseract=bool(shutil.which('tesseract')),html=importlib.util.find_spec('playwright') is not None),features=dict(atomic_outputs=True,preserves_pdf_encryption=True,editable_powerpoint=True,structured_scan_ocr=bool(shutil.which('tesseract')),cryptographic_signatures=importlib.util.find_spec('pyhanko') is not None,independent_standards_validation=True),limitations=['Layout reconstruction is approximate.','Visual signatures are not cryptographic signatures.','PDF/A requires independent conformance validation.'])
 
 
 def _cancel_signal(signum, frame):
@@ -1230,6 +1245,9 @@ def main():
             print(json.dumps(capabilities(),ensure_ascii=False)); return
         if not args.operation or not args.output: parser.error('operation e --output são obrigatórios.')
         options=json.load(sys.stdin) if os.getenv('PDF_OPTIONS_STDIN')=='1' else json.loads(args.options)
+        signature_steps=options.get('steps',[]) if isinstance(options,dict) and isinstance(options.get('steps',[]),list) else []
+        private_signing=args.operation=='digital-sign' or any(isinstance(step,dict) and step.get('operation')=='digital-sign' for step in signature_steps)
+        if private_signing and os.getenv('PDF_OPTIONS_STDIN')!='1': raise ValueError('A assinatura digital exige opções por stdin (PDF_OPTIONS_STDIN=1), para manter o PIN fora dos argumentos do processo.')
         run(args.operation,args.inputs,args.output,options)
         print(json.dumps(dict(ok=True,output=args.output),ensure_ascii=False))
     except KeyboardInterrupt:

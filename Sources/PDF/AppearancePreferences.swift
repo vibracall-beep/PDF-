@@ -120,7 +120,7 @@ enum PreferenceError:LocalizedError {
     }
     func reset() { state = AppearanceState() }
     func resetReader() {
-        for key in ["readerMode","readerDirection","readerDisplayBox","readerPageBackground","readerAutoScale","readerZoom","readerDisplayPageBreaks","readerSidebar","readerShowAnnotations","readerHiddenToolbar","readerHiddenAnnotations","readerHighlightColor","readerNoteColor","readerInkColor","readerInkWidth"] { defaults.removeObject(forKey:key) }
+        for key in ["readerMode","readerDirection","readerDisplayBox","readerPageBackground","readerAutoScale","readerZoom","readerDisplayPageBreaks","readerSidebar","readerShowAnnotations","readerHiddenToolbar","readerHiddenAnnotations","readerHighlightColor","readerNoteColor","readerInkColor","readerInkWidth","readerShowTabs","readerSplitDirection"] { defaults.removeObject(forKey:key) }
     }
     func exportData() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
@@ -184,23 +184,26 @@ struct CustomizableToolCard:View {
     @State private var hovered = false
     var body:some View {
         let state = preferences.state
-        Button(action:open) {
-            Group {
-                if row {
-                    HStack(spacing:state.spacing+6) { symbol; copy; Spacer(minLength:35) }.padding(state.padding)
-                } else {
-                    VStack(alignment:.leading,spacing:12) { symbol; copy; Spacer(minLength:0) }
-                        .padding(state.padding).frame(maxWidth:.infinity,alignment:.leading).frame(minHeight:state.cardMinHeight,alignment:.top)
-                }
-            }.contentShape(RoundedRectangle(cornerRadius:20)).modifier(AdaptiveSurface())
-                .overlay(RoundedRectangle(cornerRadius:20).strokeBorder(hovered ? preferences.accent.opacity(0.4) : Color.primary.opacity(0.08),lineWidth:hovered ? 1.25 : 0.75))
-        }.buttonStyle(.plain)
-        .overlay(alignment:row ? .trailing : .topTrailing) {
+        ZStack(alignment:row ? .trailing : .topTrailing) {
+            Button(action:open) {
+                Group {
+                    if row {
+                        HStack(spacing:state.spacing+6) { symbol; copy; Spacer(minLength:35) }.padding(state.padding)
+                    } else {
+                        VStack(alignment:.leading,spacing:12) { symbol; copy; Spacer(minLength:0) }
+                            .padding(state.padding).frame(maxWidth:.infinity,alignment:.leading).frame(minHeight:state.cardMinHeight,alignment:.top)
+                    }
+                }.contentShape(RoundedRectangle(cornerRadius:20)).modifier(AdaptiveSurface())
+                    .overlay(RoundedRectangle(cornerRadius:20).strokeBorder(hovered ? preferences.accent.opacity(0.4) : Color.primary.opacity(0.08),lineWidth:hovered ? 1.25 : 0.75))
+            }.buttonStyle(.plain)
+                .accessibilityLabel(preferences.title(for:tool)).accessibilityHint(tool.detail)
+                .accessibilityIdentifier("pdf.tool." + tool.id)
             Button(action:toggleFavorite) { Image(systemName:favorite ? "star.fill" : "star").foregroundStyle(favorite ? preferences.accent : Color.secondary).frame(width:30,height:30).contentShape(Rectangle()) }
                 .buttonStyle(.plain).padding(12)
                 .accessibilityLabel((favorite ? "Remover " : "Adicionar ") + preferences.title(for:tool) + (favorite ? " dos favoritos" : " aos favoritos"))
+                .accessibilityIdentifier("pdf.favorite." + tool.id)
                 .help(favorite ? "Remover dos favoritos" : "Adicionar aos favoritos")
-        }
+        }.accessibilityElement(children:.contain)
         .scaleEffect(hovered && state.animationsEnabled && !reduceMotion ? state.hoverScale : 1)
         .onHover { hovered = $0 }
         .animation(preferences.animation(reduceMotion:reduceMotion),value:hovered)
@@ -241,6 +244,8 @@ struct ReaderSettingsSnapshot:Codable {
     var noteColor:String?
     var inkColor:String?
     var inkWidth:Double?
+    var showTabs:Bool?
+    var splitDirection:String?
     init(defaults:UserDefaults = .standard) {
         mode = defaults.integer(forKey:"readerMode")
         direction = defaults.string(forKey:"readerDirection") ?? "vertical"
@@ -257,11 +262,14 @@ struct ReaderSettingsSnapshot:Codable {
         noteColor = defaults.string(forKey:"readerNoteColor") ?? "#FFCC00"
         inkColor = defaults.string(forKey:"readerInkColor") ?? "#007AFF"
         inkWidth = defaults.object(forKey:"readerInkWidth") as? Double ?? 2.5
+        showTabs = defaults.object(forKey:"readerShowTabs") as? Bool ?? true
+        splitDirection = defaults.string(forKey:"readerSplitDirection") ?? "horizontal"
     }
     func validate() throws {
         try validateAnnotationStyle()
+        guard ["horizontal","vertical"].contains(splitDirection ?? "horizontal") else { throw PreferenceError.invalid("A disposição dos documentos é inválida.") }
         guard (0...2).contains(mode),["vertical","horizontal"].contains(direction),["crop","media"].contains(displayBox),AppearanceColor.isValid(background),zoom.isFinite,(0.1...8).contains(zoom) else { throw PreferenceError.invalid("Há uma opção de leitura inválida.") }
-        guard Set(hiddenToolbar.split(separator:",").map(String.init)).isSubset(of:["open","search","zoom","fit","save"]),Set(hiddenAnnotations.split(separator:",").map(String.init)).isSubset(of:["highlight","note","ink","bookmark"]) else { throw PreferenceError.invalid("A barra de ferramentas contém uma ação desconhecida.") }
+        guard Set(hiddenToolbar.split(separator:",").map(String.init)).isSubset(of:["open","search","zoom","fit","save","compare"]),Set(hiddenAnnotations.split(separator:",").map(String.init)).isSubset(of:["highlight","note","ink","bookmark","editor","history"]) else { throw PreferenceError.invalid("A barra de ferramentas contém uma ação desconhecida.") }
     }
     func validateAnnotationStyle() throws {
         let colors = [highlightColor ?? "#FFE600",noteColor ?? "#FFCC00",inkColor ?? "#007AFF"]
@@ -269,7 +277,7 @@ struct ReaderSettingsSnapshot:Codable {
         guard colors.allSatisfy(AppearanceColor.isValid),width.isFinite,(0.5...20).contains(width) else { throw PreferenceError.invalid("A cor ou espessura da anotação é inválida.") }
     }
     func apply(to defaults:UserDefaults = .standard) {
-        let values:[String:Any] = ["readerMode":mode,"readerDirection":direction,"readerDisplayBox":displayBox,"readerPageBackground":background,"readerAutoScale":autoScale,"readerZoom":zoom,"readerDisplayPageBreaks":pageBreaks,"readerSidebar":sidebar,"readerShowAnnotations":annotations,"readerHiddenToolbar":hiddenToolbar,"readerHiddenAnnotations":hiddenAnnotations,"readerHighlightColor":highlightColor ?? "#FFE600","readerNoteColor":noteColor ?? "#FFCC00","readerInkColor":inkColor ?? "#007AFF","readerInkWidth":inkWidth ?? 2.5]
+        let values:[String:Any] = ["readerMode":mode,"readerDirection":direction,"readerDisplayBox":displayBox,"readerPageBackground":background,"readerAutoScale":autoScale,"readerZoom":zoom,"readerDisplayPageBreaks":pageBreaks,"readerSidebar":sidebar,"readerShowAnnotations":annotations,"readerHiddenToolbar":hiddenToolbar,"readerHiddenAnnotations":hiddenAnnotations,"readerHighlightColor":highlightColor ?? "#FFE600","readerNoteColor":noteColor ?? "#FFCC00","readerInkColor":inkColor ?? "#007AFF","readerInkWidth":inkWidth ?? 2.5,"readerShowTabs":showTabs ?? true,"readerSplitDirection":splitDirection ?? "horizontal"]
         for (key,value) in values { defaults.set(value,forKey:key) }
     }
 }

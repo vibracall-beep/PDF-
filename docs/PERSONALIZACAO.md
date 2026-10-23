@@ -24,13 +24,15 @@ As seções da barra lateral permitem renomear, escolher ícones, reordenar, ocu
 
 Modos de uma ou duas páginas, apresentação contínua, direção horizontal/vertical, área recortada ou folha completa, fundo, ajuste automático, zoom e separação entre páginas. É possível mostrar/ocultar navegação lateral, barra de anotações e controles individuais das barras.
 
-Realce, notas e desenho têm cores próprias; a espessura do desenho vai de 0,5 a 20 pontos. Os ajustes afetam novas anotações. As anotações existentes conservam seu estilo. A busca é assíncrona, cancelável e percorre as ocorrências encontradas.
+Realce, notas e desenho têm cores próprias; a espessura do desenho vai de 0,5 a 20 pontos. Esses padrões afetam novas anotações. Para modificar uma anotação existente, selecione-a na página ou no inspector e ajuste conteúdo, cor, traço e geometria. O histórico de desfazer/refazer pertence a cada documento. A busca é assíncrona, cancelável e percorre as ocorrências encontradas.
+
+Abas mantêm páginas, zoom e marcadores independentes. É possível escolher uma aba de referência e apresentar os dois documentos lado a lado ou empilhados. A recuperação automática é configurável; a lista de recuperações permite restaurar, excluir ou localizar os arquivos preservados. PDFs protegidos exigem novamente a senha para restauração.
 
 ## Arquivos e configurações por ferramenta
 
 O nome sugerido de saída aceita `{original}`, `{ferramenta}`, `{data}` e `{hora}`. Componentes de caminho inválidos são removidos e a extensão é aplicada uma vez. A escolha final do destino continua explícita, e arquivos existentes não são sobrescritos pelo motor.
 
-Nas 20 ferramentas com parâmetros de apresentação, **Suas configurações desta ferramenta** permite salvar opções, escolher uma configuração padrão, importar, exportar e excluir. Inclui resolução, papel, orientação, fonte, cores, posições e demais parâmetros pertinentes à ferramenta. Operações sem esses parâmetros não apresentam uma configuração vazia.
+Nas 24 ferramentas com parâmetros reutilizáveis, **Suas configurações desta ferramenta** permite salvar opções, escolher uma configuração padrão, importar, exportar e excluir. Inclui resolução, papel, orientação, fonte, cores, posições e demais parâmetros pertinentes à ferramenta. Word, Excel e detecção de formulários permitem escolher origem automática/vetorial/OCR, idioma, resolução e limiar de confiança. Operações sem esses parâmetros não apresentam uma configuração vazia.
 
 Senhas, textos dos documentos, preenchimentos, páginas selecionadas e caminhos de arquivos não são gravados nos presets. Uma biblioteca inválida pode ser exportada para recuperação antes de uma restauração explícita.
 
@@ -39,3 +41,5 @@ Senhas, textos dos documentos, preenchimentos, páginas selecionadas e caminhos 
 **Exportar** em Personalizar grava aparência, menus, ferramentas, leitor e estilos de anotação em JSON. **Importar** verifica conteúdo, tamanhos e limites antes de aplicar qualquer alteração. Configurações por ferramenta e fluxos possuem exportações próprias. Destinos locais de arquivos permanecem específicos de cada Mac.
 
 As verificações nativas exercitam persistência, ida e volta do JSON, compatibilidade com configurações anteriores, rejeição sem alteração parcial, restauração e preferências de acessibilidade. As capturas reais e o resultado do CI estão em [VALIDACAO.md](VALIDACAO.md).
+
+A relação de ampliações solicitada pelo usuário, com prioridades e critérios de verificação, está em [MELHORIAS.md](MELHORIAS.md).

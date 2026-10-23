@@ -35,6 +35,34 @@ import Foundation
         try restored.remove(id)
         let removed = ToolPresetStore(defaults:defaults)
         try require(removed.entries(for:"png").isEmpty && removed.defaultOptions(for:"png") == nil,"Excluir configuração deixou referência padrão inválida.")
+        var structured = ToolStyleOptions()
+        structured.structureSource = "ocr"; structured.structureDPI = 240; structured.structureMinimumConfidence = 52
+        let scanID = try restored.save(name:"Digitalizações",toolID:"word",options:structured)
+        let scanData = try restored.exported(scanID)
+        let roundTrip = try JSONDecoder().decode(ToolPreset.self,from:scanData)
+        try require(roundTrip.options == structured,"Os parâmetros de OCR não sobreviveram à exportação e leitura do preset.")
+        var legacyObject = try JSONSerialization.jsonObject(with:scanData) as! [String:Any]
+        var legacyOptions = legacyObject["options"] as! [String:Any]
+        for key in ["structureSource","structureDPI","structureMinimumConfidence"] { legacyOptions.removeValue(forKey:key) }
+        legacyObject["options"] = legacyOptions
+        legacyObject["toolID"] = "png" // A tool that already supported presets before this change.
+        let legacy = try JSONDecoder().decode(ToolPreset.self,from:JSONSerialization.data(withJSONObject:legacyObject))
+        try legacy.validate()
+        try require(legacy.options.structureSource == nil && legacy.options.structureDPI == nil && legacy.options.structureMinimumConfidence == nil,"Um preset anterior ao OCR estruturado deixou de ser compatível.")
+        for toolID in ["word","excel","forms","fill-forms"] { try structured.validate(toolID:toolID) }
+        for invalidCase in 0..<4 {
+            var invalid = structured
+            if invalidCase == 0 { invalid.structureSource = "unsupported" }
+            if invalidCase == 1 { invalid.structureDPI = 119 }
+            if invalidCase == 2 { invalid.structureMinimumConfidence = 101 }
+            if invalidCase == 3 { invalid.structureMinimumConfidence = .nan }
+            var rejected = false
+            do { try invalid.validate(toolID:"forms") } catch { rejected = true }
+            try require(rejected,"Um parâmetro OCR inválido foi aceito no preset.")
+        }
+        let structuredJSON = try JSONSerialization.jsonObject(with:scanData) as! [String:Any]
+        let structuredKeys = Set((structuredJSON["options"] as! [String:Any]).keys)
+        try require(Set(["fields","label","detectedLabel","detectionSummary","rows","words","certificate_password"]).isDisjoint(with:structuredKeys),"O preset de OCR persistiu conteúdo extraído ou credenciais.")
         defaults.set(Data("configuração danificada".utf8),forKey:"PDF.toolPresets.v1")
         let corrupted = ToolPresetStore(defaults:defaults)
         var refusedCorruptOverwrite = false
@@ -43,6 +71,6 @@ import Foundation
         corrupted.resetLibrary()
         _ = try corrupted.save(name:"Recuperada",toolID:"png",options:options)
         try require(!corrupted.loadFailed && corrupted.entries(for:"png").count == 1,"Restauração explícita não recuperou a biblioteca.")
-        print("Tool preset audit passed: persistence, defaults, update, privacy, import validation, removal and recovery")
+        print("Tool preset audit passed: persistence, defaults, update, privacy, import validation, legacy OCR compatibility, OCR bounds, removal and recovery")
     }
 }

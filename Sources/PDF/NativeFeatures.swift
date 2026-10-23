@@ -84,6 +84,25 @@ struct VisionExecutionFailure: Error {
 /// Runtime failures may receive a CPU attempt and one supported older accurate engine.
 /// No retry changes the requested language or switches to fast recognition.
 enum VisionRecognition {
+    /// Materialize all inputs in a CPU bitmap with a fixed, explicit pixel layout.
+    /// In particular, a Core Image RGBA8 request can still return noneSkipLast or
+    /// a deferred image; the recognizer should not depend on that representation.
+    static func canonicalImage(_ image: CGImage) throws -> CGImage {
+        guard image.width > 0, image.height > 0, image.width <= 30_000, image.height <= 30_000,
+              image.width <= 100_000_000 / image.height,
+              let space = CGColorSpace(name: CGColorSpace.sRGB),
+              let context = CGContext(data: nil, width: image.width, height: image.height, bitsPerComponent: 8,
+                                      bytesPerRow: image.width * 4, space: space,
+                                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue) else {
+            throw NSError(domain: "PDF.Vision", code: 7, userInfo: [NSLocalizedDescriptionKey: "Não foi possível preparar os pixels da página para reconhecimento."])
+        }
+        context.setBlendMode(.copy)
+        context.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        guard let output = context.makeImage() else {
+            throw NSError(domain: "PDF.Vision", code: 7, userInfo: [NSLocalizedDescriptionKey: "Não foi possível materializar a imagem para reconhecimento."])
+        }
+        return output
+    }
     private static func chain(_ error: Error) -> [NSError] {
         var current = (error as? VisionExecutionFailure)?.underlying ?? error
         var result: [NSError] = []
@@ -120,7 +139,18 @@ enum VisionRecognition {
     static func description(_ error: Error) -> String {
         chain(error).map { "\($0.domain) (\($0.code)): \($0.localizedDescription)" }.joined(separator: " → ")
     }
-    static func recognize(_ image: CGImage, language: String, cancellation: NativeCancellation) throws -> [VNRecognizedTextObservation] {
+    static func recognize(_ input: CGImage, language: String, cancellation: NativeCancellation) throws -> [VNRecognizedTextObservation] {
+        try cancellation.check()
+        let image = try canonicalImage(input)
+        try cancellation.check()
+        func terminal(_ error: NSError) -> NSError {
+            if CommandLine.arguments.contains("--smoke-test") {
+                VisionFailureDiagnostics.run(image: image, language: language, expectedText: "verification", cancellation: cancellation)
+            }
+            // Diagnostic probes never replace the product result or suppress a
+            // failing assertion. The original request still fails its audit.
+            return error
+        }
         let defaultRevision = VNRecognizeTextRequest.defaultRevision
         // Revision 1 is English-only. Select an older engine only if this runtime
         // still advertises it; each attempt also validates its accurate languages.
@@ -140,7 +170,7 @@ enum VisionRecognition {
             // recommends explicit languages when the language is already known.
             request.automaticallyDetectsLanguage = false
             if CommandLine.arguments.contains(where: { ["--smoke-test", "--benchmark"].contains($0) }) {
-                print("Vision OCR configuration: revision=\(request.revision); accurate=true; automaticLanguage=false; languages=\(request.recognitionLanguages.joined(separator: ",")); cpuOnly=\(cpuOnly); image=\(image.width)x\(image.height); bitsPerComponent=\(image.bitsPerComponent); bitsPerPixel=\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue)")
+                print("Vision OCR configuration: revision=\(request.revision); accurate=true; automaticLanguage=false; languages=\(request.recognitionLanguages.joined(separator: ",")); cpuOnly=\(cpuOnly); image=\(image.width)x\(image.height); bitsPerComponent=\(image.bitsPerComponent); bitsPerPixel=\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue); colorSpace=\(image.colorSpace?.name as String? ?? "unnamed"); alpha=\(image.alphaInfo.rawValue); orientation=up")
             }
             cancellation.install(request)
             defer { cancellation.install(nil) }
@@ -157,7 +187,7 @@ enum VisionRecognition {
                 }
             }
             try cancellation.check()
-            do { try VNImageRequestHandler(cgImage: image, options: [:]).perform([request]) }
+            do { try VNImageRequestHandler(cgImage: image, orientation: .up, options: [:]).perform([request]) }
             catch { try cancellation.check(); throw VisionExecutionFailure(underlying: error) }
             try cancellation.check()
             return request.results ?? []
@@ -168,7 +198,7 @@ enum VisionRecognition {
             if error is CancellationError { throw error }
             let first = error
             guard shouldRetryOnCPU(first) else {
-                throw NSError(domain: "PDF.Vision", code: 3, userInfo: [NSLocalizedDescriptionKey: "O reconhecimento de texto falhou: \(description(first))", NSUnderlyingErrorKey: first])
+                throw terminal(NSError(domain: "PDF.Vision", code: 3, userInfo: [NSLocalizedDescriptionKey: "O reconhecimento de texto falhou: \(description(first))", NSUnderlyingErrorKey: first]))
             }
             print("Vision OCR: automatic execution failed (\(description(first))); retrying once with supported CPU devices")
             do {
@@ -190,12 +220,12 @@ enum VisionRecognition {
                     } catch {
                         try cancellation.check()
                         if error is CancellationError { throw error }
-                        throw NSError(domain: "PDF.Vision", code: 6,
-                            userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: \(description(first)). CPU: \(description(second)). Revisão compatível \(compatibleRevision): \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error])
+                        throw terminal(NSError(domain: "PDF.Vision", code: 6,
+                            userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: \(description(first)). CPU: \(description(second)). Revisão compatível \(compatibleRevision): \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error]))
                     }
                 }
-                throw NSError(domain: "PDF.Vision", code: 4,
-                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(second)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: second])
+                throw terminal(NSError(domain: "PDF.Vision", code: 4,
+                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(second)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: second]))
             }
         }
     }

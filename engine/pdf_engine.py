@@ -300,6 +300,13 @@ def _execute(operation, inputs, output, options):
             if operation == 'csv' or Path(source).suffix.lower() == '.csv':
                 source = str(_csv_workbook(source,Path(tmp)/'source.xlsx',options))
                 options = dict(options); options.setdefault('fit_width',True)
+            if Path(source).suffix.lower()=='.xls' and (options.get('fit_width') or options.get('landscape') or options.get('orientation')):
+                # Legacy XLS cannot be edited by openpyxl. Convert a private copy
+                # first, then use the same page-setup path as modern workbooks.
+                _external([executable,'-env:UserInstallation='+(Path(tmp)/'profile').as_uri(),'--headless','--convert-to','xlsx','--outdir',tmp,source])
+                converted=Path(tmp)/(Path(source).stem+'.xlsx')
+                if not converted.is_file(): raise RuntimeError('LibreOffice não conseguiu preparar a planilha XLS para ajustar a página.')
+                source=str(converted)
             if Path(source).suffix.lower() == '.xlsx' and (options.get('fit_width') or options.get('landscape') or options.get('orientation')):
                 from openpyxl import load_workbook
                 book = load_workbook(source)
@@ -912,11 +919,24 @@ def _radio_value(widget):
     except (UnicodeError,ValueError): return data
 
 
+def _choice_options(widget):
+    """Normalize PDF /Opt strings and [export value, display label] pairs."""
+    result=[]
+    for option in widget.choice_values or []:
+        if isinstance(option,str): value,label=option,option
+        elif isinstance(option,(list,tuple)) and len(option)==2 and all(isinstance(item,str) for item in option):
+            value,label=option
+        else: raise ValueError('O campo contém uma opção de seleção inválida: '+widget.field_name)
+        result.append((value,label))
+    return result
+
+
 def _form_records(doc,pages):
     records=[]; groups={}
     for index in pages:
         for widget in doc[index].widgets() or []:
-            record=dict(page=index+1,name=widget.field_name,value=widget.field_value,type=widget.field_type_string,rect=list(widget.rect),choices=widget.choice_values,readonly=bool(widget.field_flags & 1))
+            choices=_choice_options(widget) if widget.field_type in (fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX) else []
+            record=dict(page=index+1,name=widget.field_name,value=widget.field_value,type=widget.field_type_string,rect=list(widget.rect),choices=[value for value,label in choices],choice_labels={value:label for value,label in choices},readonly=bool(widget.field_flags & 1))
             if widget.field_type!=fitz.PDF_WIDGET_TYPE_RADIOBUTTON:
                 records.append(record); continue
             key=widget.rb_parent or widget.field_name
@@ -1011,14 +1031,23 @@ def _fill_forms(doc,options):
             if widget.field_type==fitz.PDF_WIDGET_TYPE_CHECKBOX: widget.field_value=widget.on_state() if _boolean(value) else 'Off'
             elif widget.field_type in (fitz.PDF_WIDGET_TYPE_TEXT,fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX):
                 value=_checked_text(value)
-                if widget.field_type!=fitz.PDF_WIDGET_TYPE_TEXT and value and value not in (widget.choice_values or []): raise ValueError('Escolha inválida para '+widget.field_name)
-                if not _font_has_text(value,'helv',None): raise ValueError('A aparência de formulário exige caracteres Latin-1; nenhuma cópia foi criada.')
-                widget.field_value=value
+                choices=_choice_options(widget) if widget.field_type!=fitz.PDF_WIDGET_TYPE_TEXT else []
+                if choices and value and value not in [item[0] for item in choices]: raise ValueError('Escolha inválida para '+widget.field_name)
+                if widget.field_type!=fitz.PDF_WIDGET_TYPE_TEXT and value and not choices: raise ValueError('Escolha inválida para '+widget.field_name)
+                label=next((label for export,label in choices if export==value),value) if value else ''
+                if not _font_has_text(label,'helv',None): raise ValueError('A aparência de formulário exige caracteres Latin-1; nenhuma cópia foi criada.')
+                # MuPDF generates /AP from field_value rather than the /Opt label.
+                # Draw the label, then restore the canonical exported value in /V.
+                widget.field_value=label
                 if value=='':
                     doc.xref_set_key(widget.xref,'V','()')
                     if widget.field_type!=fitz.PDF_WIDGET_TYPE_TEXT: doc.xref_set_key(widget.xref,'I','[]')
             else: raise ValueError('Este tipo de campo não pode ser preenchido como texto: '+widget.field_name)
             widget.update()
+            if widget.field_type in (fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX):
+                doc.xref_set_key(widget.xref,'V',fitz.get_pdf_str(value))
+                selected=next((index for index,item in enumerate(choices) if item[0]==value),None) if value else None
+                doc.xref_set_key(widget.xref,'I',f'[{selected}]' if selected is not None else '[]')
     for name,buttons in radio.items():
         value=values[name]
         if not isinstance(value,str) or value not in ['',*[item[2] for item in buttons]]: raise ValueError('Escolha inválida para '+name)

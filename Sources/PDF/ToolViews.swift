@@ -34,6 +34,7 @@ private struct FormFieldDraft: Identifiable {
 private struct FormValueDraft: Identifiable {
     var id:String { name }; var name:String; var value:String; var checkbox = false; var checked = false
     var choices:[String] = []
+    var choiceLabels:[String:String] = [:]
     var allowsEmpty = false
     var readOnly = false
     var originalValue = ""
@@ -135,6 +136,7 @@ struct ToolConfigurationView: View {
     var typography:Bool { ["text","watermark","numbers","edit"].contains(operation) && !(operation == "watermark" && watermarkMode == "image") }
     var needsRectangle:Bool { ["image","shape","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image") || (operation == "redact" && redactMode == "area") || (operation == "crop" && cropMode == "area") || (["text","watermark"].contains(operation) && textBox) }
     var hasPageSelection:Bool { ["split","jpg","png","word","powerpoint","excel","markdown","rotate","organize","delete-pages","extract-pages","text","image","shape","signature","watermark","numbers","crop","redact","edit"].contains(operation) }
+    var splitUsesGroups:Bool { operation == "split" && !splitGroups.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }
     var pageSelectionPrompt:String {
         switch operation {
         case "organize": return "Ordem das páginas: 3,1,4-6"
@@ -155,7 +157,10 @@ struct ToolConfigurationView: View {
                     if !isSourceConversion && readerHasUnsavedChanges { unsavedReaderBanner }
                     inputSection
                     optionsSection
-                    if hasPageSelection { TextField(pageSelectionPrompt,text:$pages).textFieldStyle(.roundedBorder) }
+                    if hasPageSelection {
+                        TextField(pageSelectionPrompt,text:$pages).textFieldStyle(.roundedBorder).disabled(splitUsesGroups)
+                        if splitUsesGroups { Text("Os grupos acima definem as páginas de cada arquivo. Apague os grupos para usar a seleção geral de páginas.").font(.caption).foregroundStyle(.secondary) }
+                    }
                     if typography { typographySection }
                     if needsRectangle { rectangleSection }
                     if !isSourceConversion { SecureField("Senha do PDF de origem, se houver",text:$password).textFieldStyle(.roundedBorder) }
@@ -574,7 +579,7 @@ struct ToolConfigurationView: View {
                         else if !field.choices.isEmpty {
                             Picker(field.name,selection:$field.value) {
                                 if field.allowsEmpty || field.value.isEmpty { Text("Sem seleção").tag("") }
-                                ForEach(field.choices,id:\.self) { Text($0).tag($0) }
+                                ForEach(field.choices,id:\.self) { Text(field.choiceLabels[$0] ?? $0).tag($0) }
                             }
                         }
                         else { TextField(field.name,text:$field.value).textFieldStyle(.roundedBorder) }
@@ -625,7 +630,7 @@ struct ToolConfigurationView: View {
                     guard ["Text","CheckBox","ComboBox","ListBox","RadioButton"].contains(kind) else { return nil }
                     let value = item["value"] as? String ?? ""
                     let checked = !value.isEmpty && value != "Off"
-                    return FormValueDraft(name:name,value:value,checkbox:kind == "CheckBox",checked:checked,choices:item["choices"] as? [String] ?? [],allowsEmpty:true,readOnly:item["readonly"] as? Bool ?? false,originalValue:value,originallyChecked:checked)
+                    return FormValueDraft(name:name,value:value,checkbox:kind == "CheckBox",checked:checked,choices:item["choices"] as? [String] ?? [],choiceLabels:item["choice_labels"] as? [String:String] ?? [:],allowsEmpty:true,readOnly:item["readonly"] as? Bool ?? false,originalValue:value,originallyChecked:checked)
                 }
             } catch { values = []; self.error = error.localizedDescription }
         })
@@ -692,7 +697,7 @@ struct ToolConfigurationView: View {
         if ["organize","delete-pages","extract-pages"].contains(operation) && pages.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { error = "Informe as páginas da operação."; return }
         if (["image","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image")) && imageURL == nil { error = "Escolha a imagem."; return }
         var options:[String:Any] = ["password":password]
-        if hasPageSelection && !pages.isEmpty { options["pages"] = pages }
+        if hasPageSelection && !splitUsesGroups && !pages.isEmpty { options["pages"] = pages }
         if tool.id == "compare" && !secondPassword.isEmpty { options["second_password"] = secondPassword }
         if ["merge","rotate","organize"].contains(operation) { options["input_passwords"] = selectedInputs.map { inputPasswords[$0.path].flatMap { $0.isEmpty ? nil : $0 } ?? password } }
         if operation == "rotate", selectedInputs.count == 1, let source = selectedInputs.first {

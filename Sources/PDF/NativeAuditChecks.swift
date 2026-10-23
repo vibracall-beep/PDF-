@@ -62,6 +62,19 @@ import Vision
         let enhanced = try GPUImageProcessor.enhance(image)
         try require(enhanced.width == image.width && enhanced.height == image.height && enhanced.bitsPerComponent == 8 && enhanced.bitsPerPixel == 32 && enhanced.colorSpace?.model == .rgb,
                     "O processamento não produziu a imagem RGB de 8 bits e resolução preservada exigida pelo OCR.")
+        let rgba = Data([255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 255, 255])
+        guard let rgbaProvider = CGDataProvider(data: rgba as CFData), let rgbSpace = CGColorSpace(name: CGColorSpace.sRGB),
+              let sample = CGImage(width: 2, height: 2, bitsPerComponent: 8, bitsPerPixel: 32, bytesPerRow: 8,
+                                   space: rgbSpace, bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.noneSkipLast.rawValue | CGBitmapInfo.byteOrder32Big.rawValue),
+                                   provider: rgbaProvider, decode: nil, shouldInterpolate: false, intent: .defaultIntent) else {
+            throw NSError(domain: "PDF.NativeAudit", code: 10)
+        }
+        let canonical = try VisionRecognition.canonicalImage(sample)
+        guard let materialized = canonical.dataProvider?.data else { throw NSError(domain: "PDF.NativeAudit", code: 11) }
+        try require(canonical.width == 2 && canonical.height == 2 && canonical.bitsPerComponent == 8 && canonical.bitsPerPixel == 32 &&
+                    canonical.alphaInfo == .premultipliedLast && canonical.bitmapInfo.contains(.byteOrder32Big),
+                    "A normalização de OCR não produziu o formato RGBA explícito.")
+        try require((materialized as Data) == rgba, "A preparação de pixels alterou as cores ou orientação da amostra de OCR.")
         // Retry only execution failures. A generic Foundation wrapper must not
         // hide cancellation, invalid images or exhausted memory and repeat work.
         let generic = NSError(domain: "Foundation._GenericObjCError", code: 0)

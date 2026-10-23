@@ -96,6 +96,9 @@ struct VerificationView: View {
             report = nil; reportURL = nil; error = ""
             if value != "sign" { certificatePIN = "" }
         }
+        .onChange(of: source) { _, _ in
+            report = nil; reportURL = nil; signedURL = nil; error = ""
+        }
         .onDisappear { certificatePIN = "" }
     }
 

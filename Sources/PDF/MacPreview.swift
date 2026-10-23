@@ -201,6 +201,8 @@ enum MacPreview {
         // The same minimum as PDFApp's normal WindowGroup, without replacing its host.
         window.setContentSize(NSSize(width:1050,height:720))
         if let screen = window.screen ?? NSScreen.main { window.setFrameTopLeftPoint(NSPoint(x:screen.frame.minX+20,y:screen.frame.maxY-30)) }
+        let regular = NSApplication.shared.setActivationPolicy(.regular)
+        MacPreview.trace("preview regular activation policy accepted=\(regular)")
         NSApplication.shared.activate(ignoringOtherApps:true)
         window.makeKeyAndOrderFront(nil)
         watchdog = Task { @MainActor [weak self] in
@@ -226,6 +228,8 @@ enum MacPreview {
         let stage = name ?? "home"
         CIDiagnostics.record("Capture starting: " + stage,title:"PDF preview")
         MacPreview.trace("\(stage): settle begin")
+        NSApplication.shared.activate(ignoringOtherApps:true)
+        window.makeKeyAndOrderFront(nil)
         try await Task.sleep(for:.seconds(1.5))
         try Task.checkCancellation()
         // SwiftUI has now committed the real route. Standalone tool views share this
@@ -233,6 +237,7 @@ enum MacPreview {
         if let title = route.title { window.title = title }
         MacPreview.trace("\(stage): layout begin")
         window.contentView?.layoutSubtreeIfNeeded(); window.displayIfNeeded(); CATransaction.flush()
+        MacPreview.trace("\(stage): active=\(NSApplication.shared.isActive); key=\(window.isKeyWindow); main=\(window.isMainWindow); activationPolicy=\(NSApplication.shared.activationPolicy().rawValue)")
         MacPreview.trace("\(stage): window frame \(window.frame); content layout \(window.contentLayoutRect); host \(String(describing:window.contentView?.bounds))")
         let path = name.map { destination.deletingPathExtension().appendingPathExtension($0 + ".png") } ?? destination
         MacPreview.trace("\(stage): ScreenCaptureKit begin")
@@ -242,8 +247,9 @@ enum MacPreview {
             let reportURL = path.deletingPathExtension().appendingPathExtension("accessibility.json")
             MacPreview.trace("\(stage): accessibility traversal begin")
             CIDiagnostics.record("Accessibility starting: " + stage,title:"PDF preview")
-            let report = try AccessibilityAudit.write(window:window,to:reportURL,requiredIdentifiers:auditRequired)
+            let report = try await AccessibilityAudit.write(window:window,to:reportURL,requiredIdentifiers:auditRequired)
             MacPreview.trace("\(stage): accessibility JSON written (\(report.nodes.count) nodes)")
+            if let client = report.client { MacPreview.trace("\(stage): public own-process AX status=\(client.status); trusted=\(client.processTrusted); code=\(String(describing:client.errorCode)); windows=\(client.ownWindowCount); matches=\(client.matchingWindowCount)") }
             print("PDF own-window accessibility audit: \(reportURL.lastPathComponent); nodes=\(report.nodes.count); missingRequired=\(report.missingRequiredIdentifiers.count); findings=\(report.findings.count)")
         }
         CIDiagnostics.record("Capture completed: " + stage,title:"PDF preview")

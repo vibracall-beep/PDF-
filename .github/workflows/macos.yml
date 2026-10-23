@@ -48,8 +48,16 @@ jobs:
       - name: Validate native document operations
         id: native
         run: |
+          set -o pipefail
           PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
-          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$PDF_BINARY_DIR/PDF" --smoke-test
+          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$PDF_BINARY_DIR/PDF" --smoke-test 2>&1 | tee "$RUNNER_TEMP/PDF-native-checks.log"
+      - name: Retain native diagnostic log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-native-checks-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-native-checks.log
+          if-no-files-found: ignore
       - name: Capture native window preview
         id: preview
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}

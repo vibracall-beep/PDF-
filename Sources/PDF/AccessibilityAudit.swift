@@ -1,8 +1,9 @@
 import AppKit
+import ApplicationServices
 import Foundation
 
-/// Reads the current process's own accessibility objects. This never uses AXUIElement,
-/// requests Accessibility permission, enables VoiceOver, or inspects another application.
+/// Reads providers and the public accessibility client API for this process's own window.
+/// It never requests permission, enables VoiceOver, or inspects another application.
 @MainActor enum AccessibilityAudit {
     struct Node:Codable {
         var index:Int
@@ -29,6 +30,7 @@ import Foundation
         var keyboardViewOrder:[String]
         var traversalLimited:Bool
         var traversal = "accessibility-children-and-own-window-native-view-providers"
+        var client:AccessibilityClientDiagnostics?
         var manualChecks = ["VoiceOver spoken output and interaction", "Contrast in all user-selected colors", "Semantic correctness and reading order of the PDF", "Keyboard traversal through all lazy and off-screen content"]
         var passedRequiredIdentifiers:Bool { missingRequiredIdentifiers.isEmpty && !nodes.isEmpty && !traversalLimited }
     }
@@ -73,8 +75,34 @@ import Foundation
         if limited { findings.append(Finding(code:"traversal-limit",node:nil,detail:"Only the first 10,000 nodes and 60 levels were inspected.")) }
         return Report(windowTitle:window.title,nodes:nodes,findings:findings,missingRequiredIdentifiers:missing,keyboardViewOrder:keyViewOrder(window),traversalLimited:limited)
     }
-    @discardableResult static func write(window:NSWindow,to destination:URL,requiredIdentifiers:[String] = []) throws -> Report {
-        let report = inspect(window:window,requiredIdentifiers:requiredIdentifiers)
+    @discardableResult static func write(window:NSWindow,to destination:URL,requiredIdentifiers:[String] = []) async throws -> Report {
+        // AX client requests can synchronously message this process's main run loop.
+        // Keep all AXUIElement objects inside the worker and await only plain values.
+        let title = window.title
+        let width = Double(window.frame.width),height = Double(window.frame.height)
+        let client = await Task.detached(priority:.utility) {
+            OwnProcessAccessibilityClient.inspect(title:title,width:width,height:height)
+        }.value
+        try Task.checkCancellation()
+        // A real client request can materialize SwiftUI's virtual providers. Inspect
+        // providers afterwards as well, without private activation flags or fake IDs.
+        var report = inspect(window:window,requiredIdentifiers:[])
+        report.client = client.diagnostics
+        report.traversal = "own-process-public-ax-client-and-own-window-native-view-providers"
+        let offset = report.nodes.count
+        for node in client.nodes.prefix(max(0,10_000-offset)) {
+            report.nodes.append(Node(index:offset+node.index,parent:node.parent.map { offset+$0 },role:node.role,identifier:node.identifier,name:node.name,nativeClass:"AXUIElement",origin:"public-ax-client-own-process"))
+            if node.identifier?.hasPrefix("pdf.") == true,OwnProcessAccessibilityClient.actionable.contains(node.role),node.name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty {
+                report.findings.append(Finding(code:"unnamed-app-control",node:offset+node.index,detail:"Public AX client returned an interactive app element without an accessible name."))
+            }
+        }
+        if client.nodes.count > max(0,10_000-offset) || client.diagnostics.traversalLimited {
+            report.traversalLimited = true
+            report.findings.append(Finding(code:"traversal-limit",node:nil,detail:"The public AX client or combined audit exceeded its bounded traversal."))
+        }
+        let identifiers = Set(report.nodes.compactMap(\.identifier))
+        report.missingRequiredIdentifiers = requiredIdentifiers.filter { !identifiers.contains($0) }
+        for value in report.missingRequiredIdentifiers { report.findings.append(Finding(code:"missing-required-identifier",node:nil,detail:value)) }
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]; encoder.dateEncodingStrategy = .iso8601
         try NativeOutput.write(encoder.encode(report),to:destination)
         return report
@@ -129,5 +157,136 @@ import Foundation
             next = view.nextKeyView
         }
         return result
+    }
+}
+
+struct AccessibilityClientDiagnostics:Codable,Sendable {
+    var status:String
+    var processTrusted:Bool
+    var processID:Int32
+    var errorCode:Int32?
+    var ownWindowCount = 0
+    var matchingWindowCount = 0
+    var traversalLimited = false
+    var durationSeconds:Double = 0
+    var attributeErrors:[String:Int] = [:]
+}
+
+private struct OwnAXSnapshot:Sendable {
+    struct Node:Sendable {
+        var index:Int
+        var parent:Int?
+        var role:String
+        var identifier:String?
+        var name:String
+    }
+    var diagnostics:AccessibilityClientDiagnostics
+    var nodes:[Node] = []
+}
+
+/// Public API only. Runs away from MainActor so the app can service its own AX IPC.
+private enum OwnProcessAccessibilityClient {
+    static let actionable:Set<String> = ["AXButton","AXCheckBox","AXRadioButton","AXPopUpButton","AXComboBox","AXTextField","AXSlider","AXMenuButton"]
+    static func inspect(title:String,width:Double,height:Double) -> OwnAXSnapshot {
+        let started = ProcessInfo.processInfo.systemUptime
+        let pid = getpid()
+        var result = OwnAXSnapshot(diagnostics:AccessibilityClientDiagnostics(status:"starting",processTrusted:AXIsProcessTrusted(),processID:pid))
+        let application = AXUIElementCreateApplication(pid)
+        let deadline = started+12
+        var seen:[CFHashCode:[AXUIElement]] = [:]
+        func finish(_ status:String,error:AXError? = nil) -> OwnAXSnapshot {
+            result.diagnostics.status = status
+            result.diagnostics.errorCode = error?.rawValue
+            result.diagnostics.durationSeconds = ProcessInfo.processInfo.systemUptime-started
+            return result
+        }
+        func bounded() -> Bool {
+            if result.diagnostics.traversalLimited || Task.isCancelled || ProcessInfo.processInfo.systemUptime >= deadline || result.nodes.count >= 6_000 {
+                result.diagnostics.traversalLimited = true
+                return false
+            }
+            return true
+        }
+        func attribute(_ element:AXUIElement,_ name:String) -> CFTypeRef? {
+            guard bounded() else { return nil }
+            // Messaging timeouts belong to each AXUIElement instance. A child's
+            // label may be read before visit(child); never rely on inheritance.
+            let timeoutStatus = AXUIElementSetMessagingTimeout(element,0.5)
+            guard timeoutStatus == .success else {
+                result.diagnostics.attributeErrors[String(timeoutStatus.rawValue),default:0] += 1
+                result.diagnostics.traversalLimited = true
+                return nil
+            }
+            var value:CFTypeRef?
+            let status = AXUIElementCopyAttributeValue(element,name as CFString,&value)
+            guard status == .success else {
+                result.diagnostics.attributeErrors[String(status.rawValue),default:0] += 1
+                if status == .cannotComplete { result.diagnostics.traversalLimited = true }
+                return nil
+            }
+            return value
+        }
+        func string(_ element:AXUIElement,_ name:String) -> String? { attribute(element,name) as? String }
+        func own(_ element:AXUIElement) -> Bool {
+            var elementPID:pid_t = 0
+            return AXUIElementGetPid(element,&elementPID) == .success && elementPID == pid
+        }
+        func elements(_ value:CFTypeRef?) -> [AXUIElement] {
+            guard let array = value as? [AnyObject] else { return [] }
+            return array.compactMap { object in
+                guard CFGetTypeID(object) == AXUIElementGetTypeID() else { return nil }
+                return object as! AXUIElement
+            }.filter { own($0) }
+        }
+        func children(_ element:AXUIElement) -> [AXUIElement] { elements(attribute(element,kAXChildrenAttribute)) }
+        func name(_ element:AXUIElement,depth:Int = 0) -> String {
+            for key in [kAXDescriptionAttribute,kAXTitleAttribute,kAXPlaceholderValueAttribute,kAXHelpAttribute] {
+                if let value = string(element,key),!value.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { return String(value.prefix(256)) }
+            }
+            guard depth < 2 else { return "" }
+            for child in children(element).prefix(12) {
+                if string(child,kAXRoleAttribute) == "AXStaticText",let text = string(child,kAXValueAttribute),!text.isEmpty { return String(text.prefix(256)) }
+            }
+            return ""
+        }
+        func visit(_ element:AXUIElement,parent:Int?,depth:Int) {
+            guard bounded() else { return }
+            guard depth <= 60 else { result.diagnostics.traversalLimited = true; return }
+            guard own(element) else { return }
+            let hash = CFHash(element)
+            if seen[hash,default:[]].contains(where: { CFEqual($0,element) }) { return }
+            seen[hash,default:[]].append(element)
+            let index = result.nodes.count
+            let role = string(element,kAXRoleAttribute) ?? "unknown"
+            let identifier = string(element,kAXIdentifierAttribute)
+            let label = name(element)
+            result.nodes.append(OwnAXSnapshot.Node(index:index,parent:parent,role:role,identifier:identifier,name:label))
+            for child in children(element) { visit(child,parent:index,depth:depth+1) }
+        }
+        var rawWindows:CFTypeRef?
+        let applicationTimeout = AXUIElementSetMessagingTimeout(application,0.5)
+        guard applicationTimeout == .success else {
+            result.diagnostics.traversalLimited = true
+            return finish("own-process-timeout-unavailable",error:applicationTimeout)
+        }
+        let windowsStatus = AXUIElementCopyAttributeValue(application,kAXWindowsAttribute as CFString,&rawWindows)
+        guard windowsStatus == .success else {
+            if windowsStatus == .cannotComplete { result.diagnostics.traversalLimited = true }
+            return finish("own-windows-unavailable",error:windowsStatus)
+        }
+        let windows = elements(rawWindows)
+        result.diagnostics.ownWindowCount = windows.count
+        let matches = windows.filter { window in
+            guard string(window,kAXTitleAttribute) == title,
+                  let rawSize = attribute(window,kAXSizeAttribute),CFGetTypeID(rawSize) == AXValueGetTypeID() else { return false }
+            let value = rawSize as! AXValue
+            guard AXValueGetType(value) == .cgSize else { return false }
+            var size = CGSize.zero
+            return AXValueGetValue(value,.cgSize,&size) && abs(Double(size.width)-width) < 2 && abs(Double(size.height)-height) < 2
+        }
+        result.diagnostics.matchingWindowCount = matches.count
+        guard matches.count == 1,let selected = matches.first else { return finish(matches.isEmpty ? "own-window-not-matched" : "ambiguous-own-window") }
+        visit(selected,parent:nil,depth:0)
+        return finish(result.diagnostics.traversalLimited ? "own-window-traversal-limited" : "own-window-read")
     }
 }

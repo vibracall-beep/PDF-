@@ -7,7 +7,7 @@ import unittest
 import zipfile
 import fitz
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'engine'))
-from pdf_engine import run
+from pdf_engine import run, _external
 class IntegrationTests(unittest.TestCase):
     def setUp(self):
         self.tmp = tempfile.TemporaryDirectory(); self.root = Path(self.tmp.name)
@@ -53,6 +53,30 @@ class IntegrationTests(unittest.TestCase):
         with fitz.open(out) as doc:
             self.assertEqual(len(doc), 1)
             self.assertIn('Presentation integration', doc[0].get_text())
+
+    def test_legacy_xls_applies_requested_orientation_and_fits_columns(self):
+        from openpyxl import Workbook
+        from openpyxl.utils import get_column_letter
+        import shutil
+        modern=self.root/'legacy-source.xlsx';book=Workbook();sheet=book.active
+        sheet.page_setup.orientation='portrait'
+        sheet.append([f'Column{index}' for index in range(1,31)])
+        sheet.append(['Legacy value']+['42']*28+['LAST_XLS_COLUMN'])
+        for index in range(1,31): sheet.column_dimensions[get_column_letter(index)].width=21
+        book.save(modern);book.close()
+        executable=shutil.which('soffice') or '/Applications/LibreOffice.app/Contents/MacOS/soffice'
+        _external([executable,'-env:UserInstallation='+(self.root/'fixture-profile').as_uri(),
+                   '--headless','--convert-to','xls','--outdir',self.root,modern])
+        source=self.root/'legacy-source.xls';self.assertTrue(source.is_file())
+        original=source.read_bytes();target=self.root/'legacy-landscape.pdf'
+        run('office',[source],target,{'fit_width':True,'orientation':'landscape'})
+        self.assertEqual(source.read_bytes(),original)
+        with fitz.open(target) as doc:
+            self.assertEqual(len(doc),1)
+            self.assertGreater(doc[0].rect.width,doc[0].rect.height)
+            text=doc[0].get_text()
+            self.assertIn('Legacy value',text)
+            self.assertIn('LAST_XLS_COLUMN',text)
 
     def test_odt_to_pdf_preserves_text(self):
         source = self.root / 'source.odt'

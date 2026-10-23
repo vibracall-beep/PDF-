@@ -12,6 +12,11 @@ struct Tool: Identifiable, Hashable {
     var operation: String {
         switch id {
         case "word-pdf", "powerpoint-pdf", "excel-pdf": return "office"
+        case "odt-pdf": return "odt"
+        case "txt-pdf": return "txt"
+        case "rtf-pdf": return "rtf"
+        case "epub-pdf": return "epub"
+        case "csv-pdf": return "csv"
         default: return id
         }
     }
@@ -49,7 +54,24 @@ let tools: [Tool] = [
     .init(id:"summary", name:"Resumir com IA", icon:"sparkles", detail:"Explore o conteúdo com inteligência local.", category:"Inteligência"),
     .init(id:"translate", name:"Traduzir PDF", icon:"character.bubble", detail:"Traduza o texto com o modelo disponível no Mac.", category:"Inteligência"),
     .init(id:"markdown", name:"PDF para Markdown", icon:"text.alignleft", detail:"Exporte conteúdo para notas e documentos Markdown.", category:"Converter"),
-    .init(id:"workflow", name:"Criar fluxo de trabalho", icon:"arrow.triangle.branch", detail:"Combine etapas, salve e reutilize suas rotinas.", category:"Automatizar")
+    .init(id:"workflow", name:"Criar fluxo de trabalho", icon:"arrow.triangle.branch", detail:"Combine etapas, salve e reutilize suas rotinas.", category:"Automatizar"),
+    .init(id:"png", name:"PDF para PNG", icon:"photo.stack", detail:"Exporte páginas ou imagens incorporadas no formato PNG.", category:"Converter"),
+    .init(id:"odt-pdf", name:"ODT para PDF", icon:"doc.text", detail:"Converta documentos OpenDocument com LibreOffice.", category:"Converter"),
+    .init(id:"txt-pdf", name:"TXT para PDF", icon:"text.page", detail:"Transforme texto em páginas com fonte e margens ajustáveis.", category:"Converter"),
+    .init(id:"rtf-pdf", name:"RTF para PDF", icon:"doc.richtext", detail:"Converta texto formatado em um documento PDF.", category:"Converter"),
+    .init(id:"epub-pdf", name:"EPUB para PDF", icon:"books.vertical", detail:"Organize o conteúdo do livro em páginas PDF.", category:"Converter"),
+    .init(id:"csv-pdf", name:"CSV para PDF", icon:"tablecells", detail:"Escolha separador, codificação e orientação da tabela.", category:"Converter"),
+    .init(id:"pages-pdf", name:"Pages para PDF", icon:"doc.badge.gearshape", detail:"Exporte usando o aplicativo Pages instalado no Mac.", category:"Converter"),
+    .init(id:"flatten", name:"Achatar PDF", icon:"square.3.layers.3d.down.right", detail:"Incorpore anotações e campos preenchidos ao conteúdo das páginas.", category:"Editar"),
+    .init(id:"delete-pages", name:"Excluir páginas", icon:"doc.badge.minus", detail:"Remova páginas selecionadas e salve uma nova cópia.", category:"Organizar"),
+    .init(id:"extract-pages", name:"Extrair páginas", icon:"doc.on.doc", detail:"Crie um PDF com as páginas e intervalos que escolher.", category:"Organizar"),
+    .init(id:"converter", name:"Conversor de PDF", icon:"arrow.left.arrow.right", detail:"Encontre os formatos de entrada e saída disponíveis.", category:"Converter"),
+    .init(id:"share", name:"Compartilhar PDF", icon:"square.and.arrow.up", detail:"Escolha um arquivo e compartilhe pelos serviços do macOS.", category:"Compartilhar"),
+    .init(id:"annotate", name:"Anotar PDF", icon:"pencil.tip.crop.circle", detail:"Abra o leitor para realçar, desenhar e adicionar notas.", category:"Editar"),
+    .init(id:"fill-forms", name:"Preencher PDF", icon:"checklist", detail:"Preencha campos existentes e gere uma nova cópia.", category:"Editar"),
+    .init(id:"chat", name:"Conversar com PDF", icon:"bubble.left.and.bubble.right", detail:"Faça perguntas sobre o documento com IA local.", category:"Inteligência"),
+    .init(id:"quiz", name:"Gerar questionário", icon:"questionmark.bubble", detail:"Crie perguntas de estudo com base no documento.", category:"Inteligência"),
+    .init(id:"sign-service", name:"Sign.com", icon:"signature", detail:"Abra o serviço externo de assinaturas no navegador.", category:"Compartilhar")
 ]
 
 @main struct PDFApp: App {
@@ -112,6 +134,7 @@ struct ContentView: View {
     @State private var query = ""
     @State private var category = "Todas"
     @State private var selected: Tool?
+    @State private var intelligenceMode = "summary"
     var tint: Color { accent == "Violeta" ? .purple : accent == "Verde" ? .green : accent == "Laranja" ? .orange : .blue }
     var orderedTools: [Tool] {
         let order = toolOrder.split(separator:",").map(String.init)
@@ -139,9 +162,12 @@ struct ContentView: View {
             VStack(spacing:0) {
                 switch model.section {
                 case "Leitor": ReaderWorkspaceView()
-                case "Inteligência": IntelligenceView()
+                case "Inteligência": IntelligenceView(initialMode:intelligenceMode).id(intelligenceMode)
                 case "Digitalizar": NativeFeaturesView()
                 case "Fluxos": WorkflowView()
+                case "Compartilhar": SharePDFView()
+                case "Pages para PDF": PagesConversionView()
+                case "Sign.com": ExternalSigningView()
                 default: home
                 }
                 statusBar
@@ -183,7 +209,7 @@ struct ContentView: View {
                 }
                 HStack {
                     TextField("Buscar ferramenta", text:$query).textFieldStyle(.roundedBorder)
-                    Picker("Categoria", selection:$category) { ForEach(["Todas","Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar"], id:\.self) { Text($0) } }.frame(width:220)
+                    Picker("Categoria", selection:$category) { ForEach(["Todas","Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar","Compartilhar"], id:\.self) { Text($0) } }.frame(width:220)
                 }
                 if orderedTools.isEmpty { ContentUnavailableView("Nenhuma ferramenta encontrada", systemImage:"magnifyingglass", description:Text("Ajuste a busca, os favoritos ou as ferramentas visíveis em Personalizar.")) }
                 LazyVGrid(columns:[GridItem(.adaptive(minimum:compact ? 190 : 240), spacing:16)], spacing:16) {
@@ -226,9 +252,16 @@ struct ContentView: View {
     }
     func activate(_ tool:Tool) {
         switch tool.id {
-        case "summary", "translate": model.section = "Inteligência"
+        case "summary", "translate", "chat", "quiz": intelligenceMode = tool.id; model.section = "Inteligência"
         case "workflow": model.section = "Fluxos"
         case "scan": model.section = "Digitalizar"
+        case "pages-pdf": model.section = "Pages para PDF"
+        case "share": model.section = "Compartilhar"
+        case "sign-service": model.section = "Sign.com"
+        case "converter": category = "Converter"; query = ""; model.section = "Início"
+        case "annotate":
+            UserDefaults.standard.set(true,forKey:"readerShowAnnotations")
+            if model.document == nil { model.open() } else { model.section = "Leitor" }
         default: selected = tool
         }
     }

@@ -96,6 +96,18 @@ enum MacSmokeTests {
         let chunks = IntelligenceText.chunks("Primeiro parágrafo\nSegundo parágrafo", limit: 20)
         try require(chunks.count == 2 && chunks.allSatisfy { $0.count <= 20 },
                     "Divisão do documento para IA inválida.")
+        let excerpts = ["[Página 1]\nAs receitas anuais foram de 120 mil reais.",
+                        "[Página 2]\nO prazo contratual termina em dezembro de 2028."]
+        let context = IntelligenceText.retrieve(question: "Qual o prazo contratual?", chunks: excerpts)
+        try require(context.pages.contains(2) && context.text.contains("dezembro de 2028"),
+                    "A busca de contexto não preservou a página da evidência.")
+        let bounded = IntelligenceText.context(from: ["[Página 8]\n" + String(repeating: "conteúdo ", count: 400)], budget: 300)
+        try require(bounded.text.count <= 300 && bounded.pages == [8],
+                    "O contexto da IA excedeu o limite ou perdeu a referência de página.")
+        let unrelated = IntelligenceText.retrieve(question: "Qual a órbita de Netuno?",
+            chunks: ["[Página 1]\n" + String(repeating: "Receitas e despesas anuais. ", count: 400)])
+        try require(unrelated.text.isEmpty && unrelated.pages.isEmpty,
+                    "A busca atribuiu evidência a um documento sem contexto correspondente.")
         let exported = try IntelligenceText.PDF("Resumo de teste com ação e conteúdo em português.")
         try require((PDFDocument(data: exported)?.string ?? "").contains("Resumo de teste"),
                     "Exportação do resultado de IA para PDF falhou.")
@@ -134,5 +146,6 @@ enum MacSmokeTests {
         }
         let retained = try String(contentsOf: atomic, encoding: .utf8)
         try require(refusedOverwrite && retained == "original", "A publicação não preservou o arquivo existente.")
+        print("Native checks hardware: \(AppleHardware.summary)")
     }
 }

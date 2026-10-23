@@ -7,9 +7,11 @@ python3 - "$PDF_SOURCE_ROOT" "$PDF_ARCHIVE" <<'PY'
 import gzip
 import hashlib
 import io
+import json
 import os
 from pathlib import Path
 import tarfile
+import subprocess
 import sys
 
 root = Path(sys.argv[1]).resolve()
@@ -41,7 +43,15 @@ for name in allowed:
                 files.append(path)
 files.sort(key=lambda path: path.relative_to(root).as_posix())
 contents = {path: path.read_bytes() for path in files}
-manifest = ''.join(f'{hashlib.sha256(contents[path]).hexdigest()}  {path.relative_to(root).as_posix()}\n' for path in files).encode()
+try:
+    commit_result = subprocess.run(['git', '-C', str(root), 'rev-parse', '--verify', 'HEAD^{commit}'], capture_output=True, text=True, check=True)
+    status_result = subprocess.run(['git', '-C', str(root), 'status', '--porcelain', '--untracked-files=normal'], capture_output=True, text=True, check=True)
+    commit = commit_result.stdout.strip()
+    dirty = bool(status_result.stdout.strip())
+except (subprocess.CalledProcessError, FileNotFoundError):
+    commit, dirty = None, None
+build_info = (json.dumps({'source_archive_format': 1, 'commit': commit, 'working_tree_dirty': dirty}, sort_keys=True, indent=2) + '\n').encode()
+manifest = (''.join(f'{hashlib.sha256(contents[path]).hexdigest()}  {path.relative_to(root).as_posix()}\n' for path in files) + f'{hashlib.sha256(build_info).hexdigest()}  BUILD-INFO.json\n').encode()
 output.parent.mkdir(parents=True, exist_ok=True)
 created = False
 try:
@@ -57,6 +67,10 @@ try:
                     info.mode = 0o755 if path.suffix == '.sh' else 0o644
                     info.mtime = 0
                     archive.addfile(info, io.BytesIO(content))
+                info = tarfile.TarInfo('PDF/BUILD-INFO.json')
+                info.size = len(build_info)
+                info.mode = 0o644
+                archive.addfile(info, io.BytesIO(build_info))
                 info = tarfile.TarInfo('PDF/SHA256SUMS')
                 info.size = len(manifest)
                 info.mode = 0o644

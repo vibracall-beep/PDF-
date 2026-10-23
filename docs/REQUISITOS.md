@@ -1,6 +1,6 @@
 # Orientações do usuário para o aplicativo PDF
 
-Este documento registra os pedidos do usuário e as funções descritas nas duas imagens anexadas. É uma especificação do que foi solicitado, não uma declaração de que tudo já esteja implementado, validado ou entregue.
+Este documento registra os pedidos do usuário e as funções descritas nas três imagens anexadas. É uma especificação do que foi solicitado, não uma declaração de que tudo já esteja implementado, validado ou entregue.
 
 ## Produto, plataforma e qualidade
 
@@ -68,6 +68,31 @@ Este documento registra os pedidos do usuário e as funções descritas nas duas
 30. **Traduzir PDF:** traduzir com IA preservando fontes, layout e formatação conforme a descrição da imagem.
 31. **PDF para Markdown:** preservar automaticamente títulos, tabelas, listas e links.
 32. **Criar fluxos de trabalho:** combinar ferramentas, automatizar tarefas, personalizar, salvar e reutilizar os fluxos.
+
+## Ampliação solicitada na terceira imagem
+
+O usuário pediu para analisar todos os itens da imagem adicional e acrescentar os que ainda não existissem, mantendo os requisitos anteriores.
+
+33. **Conversor de PDF:** acesso unificado aos formatos de conversão disponíveis.
+34. **PDF para PNG:** exportar páginas em PNG, além do JPG existente.
+35. **ODT para PDF:** converter documentos OpenDocument.
+36. **TXT para PDF:** converter arquivos de texto.
+37. **RTF para PDF:** converter documentos Rich Text.
+38. **EPUB para PDF:** converter livros eletrônicos EPUB.
+39. **CSV para PDF:** converter dados separados por delimitadores em páginas PDF.
+40. **Pages para PDF:** converter documentos do Apple Pages.
+41. **Excluir páginas do PDF:** acesso explícito à remoção de páginas.
+42. **Extrair páginas de PDF:** acesso explícito à extração das páginas selecionadas.
+43. **Anotador de PDF:** acesso explícito às anotações do leitor.
+44. **Leitor de PDF:** acesso explícito ao leitor nativo.
+45. **Preenchimento de formulários em PDF:** acesso explícito ao preenchimento de campos existentes.
+46. **Compartilhar PDFs:** compartilhar pelo sistema macOS.
+47. **Solicitar assinaturas (Sign.com):** acesso ao serviço indicado na imagem; uso de serviço externo, conta e eventual contratação devem ser identificados.
+48. **Achatar PDF:** incorporar a aparência de anotações e campos ao conteúdo da página.
+49. **Chat com PDF:** fazer perguntas sobre o documento usando IA.
+50. **Gerador de questões por IA:** gerar questões com base no documento.
+
+Os demais itens da terceira imagem correspondem aos requisitos anteriores: compressão; OCR; PDF/A; JPG; Word, Excel e PowerPoint nos dois sentidos; HTML; juntar, dividir, girar e organizar; edição, numeração, recorte, remoção permanente de informações, marca d’água e assinatura; proteção e desbloqueio; resumo, tradução e scanner. A expressão “Redigir PDF” da imagem é tratada como remoção permanente de conteúdo sensível (redaction).
 
 ## Limite desta transcrição
 

@@ -26,6 +26,9 @@ jobs:
       - name: Verify Apple toolchain
         run: |
           uname -m
+          sw_vers -productVersion
+          sysctl -n machdep.cpu.brand_string
+          sysctl -n hw.ncpu
           xcodebuild -version
           xcrun --sdk macosx --show-sdk-version
       - name: Compile native application
@@ -41,7 +44,7 @@ jobs:
       - name: Render native application preview
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
-        run: '"$PDF_INSTALL_DIR/PDF.app/Contents/MacOS/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"'
+        run: 'python3 scripts/run-with-timeout.py --seconds 180 -- "$PDF_INSTALL_DIR/PDF.app/Contents/MacOS/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"'
       - name: Retain native preview artifact
         if: always()
         uses: actions/upload-artifact@v4

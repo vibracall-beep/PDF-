@@ -27,12 +27,15 @@ External converters run in a dedicated process group. Interrupting or terminatin
 | `word` | DOCX with styled text, images and detected tables. Reading order/layout are approximate. |
 | `powerpoint` | `mode:"editable"` creates text/image objects; `mode:"image"` renders page images. Editable mode does not reconstruct every vector effect. |
 | `excel` | Detected tables or extracted lines in XLSX. Formula-like PDF text is escaped. |
-| `office` | LibreOffice PDF conversion. XLSX supports `fit_width:true` and `orientation:"portrait"|"landscape"`; source workbook is copied before page setup changes. |
+| `office`, `odt`, `rtf` | LibreOffice PDF conversion, including ODT and RTF sources. XLSX supports `fit_width:true` and `orientation:"portrait"|"landscape"`; source workbook is copied before page setup changes. |
 | `text` | New text overlay. Fails if text does not fit. |
 | `edit` | `search,replacement,font_size,min_font_size`; replaces matched text, preserves overlapping graphics/images. Fails atomically if replacement cannot fit, rather than silently deleting text. |
 | `image`, `signature` | `image` file path and placement rectangle; `opacity`, `overlay`. Signature is visual, not cryptographic. |
 | `shape` | `shape:"rectangle"|"ellipse"|"line"`, rectangle, `color`, optional `fill`, `line_width`, `opacity`. |
-| `jpg` | Directory; default renders pages with `dpi` 36–600. `mode:"embedded"` extracts unique embedded images as JPEG. |
+| `jpg`, `png` | Directory; default renders selected pages with `dpi` 36–600. `png` supports `alpha:true` for a transparent background. `mode:"embedded"` extracts unique embedded images; PNG retains image transparency masks. `jpg` with `format:"png"` is an alias. |
+| `txt` | Strictly decoded text (`encoding:"utf-8-sig"` default) to Unicode PDF with automatic pagination. Supports `paper`, `margin`, `font_size`, `landscape`/`orientation`; source markup is escaped. Over-wide ASCII tokens receive invisible wrapping opportunities; content that still exceeds page bounds is refused instead of cropped. Limit 10,000 pages. |
+| `epub` | Reflows an unencrypted EPUB with MuPDF into paginated PDF. Supports `paper`, `margin`, `font_size`, `landscape`/`orientation`; does not remove DRM. |
+| `csv` | CSV to PDF through a temporary safe-string XLSX and LibreOffice. Auto-detects comma/semicolon/tab/pipe separators or accepts `delimiter`; strict `encoding` defaults UTF-8 with optional BOM. Supports `fit_width` (true default), `orientation`/`landscape`. Source values never become spreadsheet formulas. Column widths and wrapped row heights are set to preserve cell contents. `max_column_width` defaults 60 (12–120 allowed); rows needing more than 400 points are refused with guidance instead of clipped. |
 | `images` | Multiple images → PDF. Optional `paper:"a4"`, `margin`, `orientation` or `landscape`. Without page settings, preserves image page dimensions. |
 | `watermark` | Text settings or `image` path/rectangle. |
 | `numbers` | `start`, `format` with `{n}` and `{total}`, standard text placement. |
@@ -40,6 +43,9 @@ External converters run in a dedicated process group. Interrupting or terminatin
 | `html` | Self-contained local HTML or HTTP(S) URL; Chromium. Local relative file resources are not resolved. Optional `paper`, `landscape`. |
 | `protect` | `new_password` 8–40 characters, AES-256. |
 | `unlock` | Known `password`, produces explicitly unencrypted PDF. |
+| `flatten` | Bakes annotation and widget appearances into regular PDF page content; fields and annotations become noninteractive. `annotations` and `widgets` booleans both default true. Whole-document operation; preserves encryption. |
+| `delete-pages` | Deletes selected `pages` ranges while preserving the remaining order. Refuses deletion of all pages and retains encryption. |
+| `extract-pages` | Creates a PDF containing selected `pages` in the requested order, including explicit duplicates. Retains encryption. |
 | `organize` | `pages` required; ranges, reverse ranges, duplicates and omissions. |
 | `repair` | Rewrites documents the parser can recover; does not promise recovery of arbitrary corruption. |
 | `ocr`, `pdfa` | OCRmyPDF; `language` defaults `por+eng`. External language data required. PDF/A still needs independent validation for conformance claims. |
@@ -56,6 +62,6 @@ External converters run in a dedicated process group. Interrupting or terminatin
 | `translate-layout` | `edits` same shape as extracted blocks, with translated `text`. Optional `source_text` rejects stale blocks; `min_font_size` default min(8, original size). Removes block text only, preserves images/vectors, Unicode layout with bounded shrinking. Overlapping blocks and text that cannot fit cause atomic failure. Translation itself occurs in native Apple Foundation Models, not this engine. |
 | `workflow` | `steps:[{operation,options}]`, 1–64 stages; intermediate stages must output one PDF. Input `password` propagates; protect changes it; unlock clears it. |
 
-Aliases: `edit_text`, `form_create`, `form_fill`, `compare_visual`.
+Aliases: `edit_text`, `form_create`, `form_fill`, `compare_visual`, `delete`/`delete_pages`, `extract`/`extract_pages`.
 
 This engine does not claim PDF reconstruction fidelity, certified signatures, AI correctness, scanner hardware support or GPU/Neural Engine acceleration. Those capabilities require separate native integrations and validation.

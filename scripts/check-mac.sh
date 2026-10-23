@@ -1,6 +1,7 @@
 #!/bin/bash
 # Automated installed-bundle readiness checks. Does not open a GUI window.
 set -euo pipefail
+PDF_SOURCE_ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 [[ "$(uname -s)" == Darwin && "$(uname -m)" == arm64 ]] || { printf '%s\n' 'A verificação nativa requer macOS Apple Silicon.' >&2; exit 1; }
 PDF_APP="${1:-${PDF_INSTALL_DIR:-$HOME/Applications}/PDF.app}"
 [[ -d "$PDF_APP" ]] || { printf 'Bundle inexistente: %s\n' "$PDF_APP" >&2; exit 1; }
@@ -10,7 +11,7 @@ PDF_INTERPRETER="$PDF_APP/Contents/Resources/runtime/bin/python3"
 PDF_ENGINE_DIRECTORY="$PDF_APP/Contents/Resources/engine"
 [[ -x "$PDF_EXECUTABLE" && -x "$PDF_INTERPRETER" ]] || { printf '%s\n' 'Executável ou runtime ausente.' >&2; exit 1; }
 plutil -lint "$PDF_APP/Contents/Info.plist"
-lipo -verify_arch arm64 "$PDF_EXECUTABLE"
+lipo "$PDF_EXECUTABLE" -verify_arch arm64
 codesign --verify --deep --strict "$PDF_APP"
 export PATH="/opt/homebrew/bin:$PATH"
 command -v ocrmypdf >/dev/null
@@ -52,5 +53,5 @@ with tempfile.TemporaryDirectory(prefix='pdf-install-check-') as directory:
         assert 'PDF browser verification' in document[0].get_text()
 print('Runtime, motor PDF e Chromium: OK')
 PY
-"$PDF_EXECUTABLE" --smoke-test
+"$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/run-with-timeout.py" --seconds 180 -- "$PDF_EXECUTABLE" --smoke-test
 printf '%s\n' 'Bundle arm64, assinatura local, dependências e verificações nativas: OK'

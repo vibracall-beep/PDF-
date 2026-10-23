@@ -12,6 +12,7 @@ struct ReaderWorkspaceView: View {
     @State private var page = "1"
     @State private var note = ""
     @State private var showNote = false
+    @State private var showSharing = false
     var body: some View {
         VStack(spacing:0) {
             HStack(spacing:10) {
@@ -27,6 +28,7 @@ struct ReaderWorkspaceView: View {
                     Picker("Leitura",selection:$mode) { Text("Contínua").tag(0); Text("Página única").tag(1); Text("Duas páginas").tag(2) }
                     Button("Girar página") { model.rotatePage() }
                     Button("Imprimir…") { model.printDocument() }
+                    Button("Compartilhar…") { showSharing = true }
                 } label: { Image(systemName:"ellipsis.circle") }
                 Button("Salvar cópia",systemImage:"square.and.arrow.down") { model.save() }.disabled(model.document == nil)
             }.padding(12).background(.bar)
@@ -82,6 +84,7 @@ struct ReaderWorkspaceView: View {
                 ContentUnavailableView("Abra um PDF",systemImage:"book.closed",description:Text("Leitura, busca, anotações e formulários em um espaço organizado.")).frame(maxWidth:.infinity,maxHeight:.infinity)
             }
         }.onChange(of:model.currentPage) { _,value in page = String(value) }
+        .sheet(isPresented:$showSharing) { SharePDFView().environmentObject(model).frame(width:620,height:460) }
         .sheet(isPresented:$showNote) {
             VStack(alignment:.leading,spacing:16) { Text("Adicionar nota").font(.headline); TextEditor(text:$note).frame(width:360,height:150); HStack { Button("Cancelar") { showNote = false }; Spacer(); Button("Adicionar") { model.addNote(note); note = ""; showNote = false }.buttonStyle(.borderedProminent) } }.padding(24)
         }
@@ -155,4 +158,51 @@ struct PreferencesView: View {
         }.padding(24).frame(width:560,height:480)
     }
     func reorder(_ from:Int,_ to:Int) { var ids = ordered.map(\.id); ids.swapAt(from,to); toolOrder = ids.joined(separator:",") }
+}
+
+
+struct SharePDFView: View {
+    @EnvironmentObject var model:Workspace
+    @State private var selected:URL?
+    var body:some View {
+        VStack(alignment:.leading,spacing:22) {
+            Label("Compartilhar PDF",systemImage:"square.and.arrow.up").font(.largeTitle.bold())
+            Text("Escolha o arquivo e o serviço do macOS. O compartilhamento só ocorre após sua escolha no menu do sistema.").foregroundStyle(.secondary)
+            if model.hasUnsavedChanges {
+                Text("O documento aberto tem alterações. Salve uma cópia para compartilhar a versão atual.").font(.callout)
+                Button("Salvar cópia atual…") {
+                    model.save()
+                    if !model.hasUnsavedChanges { selected = model.savedDocumentURL ?? model.url }
+                }
+            }
+            HStack { Button("Escolher PDF…") { choose() }; Spacer() }
+            if let selected {
+                Label(selected.lastPathComponent,systemImage:"doc.richtext").font(.headline)
+                Text(selected.deletingLastPathComponent().path).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+                ShareLink(item:selected) { Label("Compartilhar arquivo…",systemImage:"square.and.arrow.up") }.buttonStyle(.borderedProminent).controlSize(.large)
+            } else { Text("Nenhum arquivo selecionado.").foregroundStyle(.secondary) }
+            Spacer()
+        }.padding(32).frame(maxWidth:.infinity,maxHeight:.infinity,alignment:.topLeading)
+        .onAppear {
+            NSApp.keyWindow?.makeFirstResponder(nil)
+            if !model.hasUnsavedChanges { selected = model.savedDocumentURL ?? model.url }
+        }
+    }
+    private func choose() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
+        if panel.runModal() == .OK { selected = panel.url }
+    }
+}
+
+struct ExternalSigningView:View {
+    var body:some View {
+        VStack(alignment:.leading,spacing:22) {
+            Label("Sign.com",systemImage:"signature").font(.largeTitle.bold())
+            Text("Serviço externo de assinatura eletrônica").font(.title3).foregroundStyle(.secondary)
+            Text("A conta, o envio dos documentos, os pedidos de assinatura e o acompanhamento são administrados pelo Sign.com no navegador. O serviço pode exigir cadastro ou pagamento.")
+            Text("O envio de documentos acontece somente após sua ação no site.").font(.callout).foregroundStyle(.secondary)
+            Link(destination:URL(string:"https://www.sign.com/")!) { Label("Abrir Sign.com no navegador",systemImage:"arrow.up.right.square") }.buttonStyle(.borderedProminent).controlSize(.large)
+            Spacer()
+        }.padding(32).frame(maxWidth:720,maxHeight:.infinity,alignment:.topLeading)
+    }
 }

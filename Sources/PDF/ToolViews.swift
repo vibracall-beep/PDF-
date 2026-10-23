@@ -68,19 +68,35 @@ struct ToolConfigurationView: View {
     @State private var imageExportMode = "pages"
     @State private var splitGroups = ""
     @State private var fitWidth = true
+    @State private var encoding = "utf-8-sig"
+    @State private var csvDelimiter = ""
+    @State private var transparentPNG = false
+    @State private var flattenAnnotations = true
+    @State private var flattenWidgets = true
     @State private var fields:[FormFieldDraft] = [FormFieldDraft()]
     @State private var values:[FormValueDraft] = []
     @State private var error = ""
+    @State private var readerHasUnsavedChanges = false
+    var isFormsTool:Bool { ["forms","fill-forms"].contains(tool.id) }
+    var isSourceConversion:Bool { ["images","office","html","odt","txt","rtf","epub","csv"].contains(tool.operation) }
     var operation:String {
         if tool.id == "edit" { return editMode }
-        if tool.id == "forms" { return formMode == "create" ? "form-create" : formMode == "fill" ? "form-fill" : "forms" }
+        if isFormsTool { return formMode == "create" ? "form-create" : formMode == "fill" ? "form-fill" : "forms" }
         if tool.id == "compare" { return compareMode == "visual" ? "compare-visual" : "compare" }
         return tool.operation
     }
     var multipleInputs:Bool { ["merge","images","compare","rotate"].contains(tool.id) }
     var typography:Bool { ["text","watermark","numbers","edit"].contains(operation) && !(operation == "watermark" && watermarkMode == "image") }
     var needsRectangle:Bool { ["image","shape","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image") || (operation == "redact" && redactMode == "area") }
-    var hasPageSelection:Bool { !["merge","images","office","html","compare","compare-visual","forms","form-create","form-fill"].contains(operation) }
+    var hasPageSelection:Bool { !["merge","images","office","html","odt","txt","rtf","epub","csv","compare","compare-visual","forms","form-create","form-fill","flatten"].contains(operation) }
+    var pageSelectionPrompt:String {
+        switch operation {
+        case "organize": return "Ordem das páginas: 3,1,4-6"
+        case "delete-pages": return "Páginas a excluir: 2,5-7"
+        case "extract-pages": return "Páginas a extrair: 1,3-5"
+        default: return "Páginas (vazio = todas): 1,3-5"
+        }
+    }
     var outputSuffix:String { ["word":"docx","powerpoint":"pptx","excel":"xlsx","markdown":"md","compare":"txt","compare-visual":"html","forms":"json"][operation] ?? "pdf" }
     var body: some View {
         VStack(alignment:.leading,spacing:0) {
@@ -89,12 +105,13 @@ struct ToolConfigurationView: View {
             ScrollView {
                 VStack(alignment:.leading,spacing:20) {
                     Text(tool.detail).foregroundStyle(.secondary)
+                    if !isSourceConversion && readerHasUnsavedChanges { unsavedReaderBanner }
                     inputSection
                     optionsSection
-                    if hasPageSelection { TextField(operation == "organize" ? "Ordem das páginas: 3,1,4-6" : "Páginas (vazio = todas): 1,3-5",text:$pages).textFieldStyle(.roundedBorder) }
+                    if hasPageSelection { TextField(pageSelectionPrompt,text:$pages).textFieldStyle(.roundedBorder) }
                     if typography { typographySection }
                     if needsRectangle { rectangleSection }
-                    if operation != "images" && operation != "html" && operation != "office" { SecureField("Senha do PDF de origem, se houver",text:$password).textFieldStyle(.roundedBorder) }
+                    if !isSourceConversion { SecureField("Senha do PDF de origem, se houver",text:$password).textFieldStyle(.roundedBorder) }
                     if operation == "protect" { SecureField("Nova senha (mínimo 8 caracteres)",text:$newPassword).textFieldStyle(.roundedBorder) }
                     if !error.isEmpty { Text(error).foregroundStyle(.red).font(.callout) }
                     Text("O resultado será salvo em um novo destino. As coordenadas estão em pontos, a partir do canto superior esquerdo da página.").font(.caption).foregroundStyle(.secondary)
@@ -104,10 +121,36 @@ struct ToolConfigurationView: View {
             HStack { Button("Cancelar") { dismiss() }; Spacer(); Button("Escolher destino e executar…") { perform() }.buttonStyle(.borderedProminent).disabled(model.busy) }.padding(20)
         }.frame(width:690,height:730)
         .onAppear {
-            if let url = model.url, tool.id != "images", tool.operation != "office", tool.id != "html" { inputs = [url]; loadFormValues() }
+            if tool.id == "fill-forms" { formMode = "fill" }
+            if ["txt","epub"].contains(operation) { pageSize = "a4" }
+            NSApp.keyWindow?.makeFirstResponder(nil)
+            readerHasUnsavedChanges = model.hasUnsavedChanges
+            if let url = model.savedDocumentURL ?? model.url, !isSourceConversion && !readerHasUnsavedChanges {
+                inputs = [url]; loadFormValues()
+            }
             if tool.id == "watermark" { opacity = 0.35; position = "center"; fontSize = 32 }
             if tool.id == "numbers" { position = "bottom-center" }
         }
+    }
+    var unsavedReaderBanner: some View {
+        VStack(alignment:.leading,spacing:10) {
+            Label("O PDF aberto tem alterações não salvas",systemImage:"pencil.circle").font(.headline)
+            Text("Salve uma cópia para usar a versão atual nesta ferramenta. Você também pode escolher outro arquivo de entrada.").font(.callout)
+            Button("Salvar e usar a cópia atual…") { saveReaderCopy() }
+        }.padding(14).frame(maxWidth:.infinity,alignment:.leading)
+            .background(Color.orange.opacity(0.12),in:RoundedRectangle(cornerRadius:12))
+    }
+    private func saveReaderCopy() {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+        let previousSource = model.savedDocumentURL ?? model.url
+        model.save()
+        readerHasUnsavedChanges = model.hasUnsavedChanges
+        guard !readerHasUnsavedChanges,let source = model.savedDocumentURL ?? model.url else { return }
+        if multipleInputs {
+            if let index = inputs.firstIndex(where:{ $0 == previousSource }) { inputs[index] = source }
+            else if !inputs.contains(source) { inputs.append(source) }
+        } else { inputs = [source] }
+        loadFormValues()
     }
     var inputSection: some View {
         VStack(alignment:.leading,spacing:10) {
@@ -160,9 +203,10 @@ struct ToolConfigurationView: View {
             if recompressImages { Stepper("Resolução: \(dpi) DPI",value:$dpi,in:72...300,step:12); Stepper("Qualidade JPEG: \(quality)%",value:$quality,in:20...95,step:5) }
             Text("Sem redução de imagens, a otimização preserva a qualidade. O tamanho final depende do conteúdo.").font(.caption).foregroundStyle(.secondary)
         }
-        if operation == "jpg" {
+        if ["jpg","png"].contains(operation) {
             Picker("Exportar",selection:$imageExportMode) { Text("Páginas completas").tag("pages"); Text("Imagens incorporadas").tag("embedded") }
             if imageExportMode == "pages" { Stepper("Resolução: \(dpi) DPI",value:$dpi,in:72...600,step:12) }
+            if operation == "png" && imageExportMode == "pages" { Toggle("Fundo transparente",isOn:$transparentPNG) }
         }
         if operation == "split" { TextField("Grupos opcionais separados por ponto e vírgula: 1-3;4,6",text:$splitGroups).textFieldStyle(.roundedBorder); Text("Sem grupos, cada página selecionada gera um arquivo.").font(.caption).foregroundStyle(.secondary) }
         if operation == "images" {
@@ -186,7 +230,36 @@ struct ToolConfigurationView: View {
             Text("Requer os componentes de OCR e os idiomas instalados. OCR nativo Apple também está disponível em Digitalizar.").font(.caption).foregroundStyle(.secondary)
         }
         if tool.id == "compare" { Picker("Comparação",selection:$compareMode) { Text("Visual (HTML)").tag("visual"); Text("Diferenças de texto").tag("text") }.pickerStyle(.segmented); Text("Selecione exatamente dois documentos.").font(.caption) }
-        if tool.id == "forms" { formsSection }
+        if isFormsTool { formsSection }
+        if ["txt","epub"].contains(operation) { documentLayoutSection }
+        if operation == "csv" { csvOptionsSection }
+        if operation == "flatten" {
+            Toggle("Incorporar anotações",isOn:$flattenAnnotations)
+            Toggle("Incorporar campos de formulário",isOn:$flattenWidgets)
+            Text("A operação se aplica ao documento inteiro. Os campos incorporados deixam de ser preenchíveis na cópia resultante.").font(.caption).foregroundStyle(.secondary)
+        }
+        if operation == "delete-pages" { Text("Informe as páginas a excluir. O documento precisa conservar ao menos uma página.").font(.caption).foregroundStyle(.secondary) }
+        if operation == "extract-pages" { Text("Informe as páginas que devem aparecer na nova cópia, na ordem desejada.").font(.caption).foregroundStyle(.secondary) }
+    }
+    var documentLayoutSection: some View {
+        VStack(alignment:.leading,spacing:12) {
+            Picker("Papel",selection:$pageSize) { Text("A4").tag("a4"); Text("Carta").tag("letter") }
+            Picker("Orientação",selection:$orientation) { Text("Retrato").tag("portrait"); Text("Paisagem").tag("landscape") }
+            numberField("Tamanho da fonte",value:$fontSize)
+            numberField("Margem",value:$margin)
+            if operation == "txt" {
+                Picker("Codificação",selection:$encoding) { Text("UTF-8").tag("utf-8-sig"); Text("UTF-16").tag("utf-16"); Text("Windows-1252").tag("cp1252"); Text("ISO-8859-1").tag("latin-1") }
+            }
+            Text("O conteúdo é reorganizado para o tamanho de página escolhido.").font(.caption).foregroundStyle(.secondary)
+        }
+    }
+    var csvOptionsSection: some View {
+        VStack(alignment:.leading,spacing:12) {
+            Picker("Separador",selection:$csvDelimiter) { Text("Automático").tag(""); Text("Vírgula").tag(","); Text("Ponto e vírgula").tag(";"); Text("Tabulação").tag("\t"); Text("Barra vertical").tag("|") }
+            Picker("Codificação",selection:$encoding) { Text("UTF-8").tag("utf-8-sig"); Text("Windows-1252").tag("cp1252"); Text("ISO-8859-1").tag("latin-1") }
+            Toggle("Ajustar colunas à largura da página",isOn:$fitWidth)
+            Picker("Orientação",selection:$orientation) { Text("Retrato").tag("portrait"); Text("Paisagem").tag("landscape") }
+        }
     }
     var typographySection: some View {
         VStack(alignment:.leading,spacing:12) {
@@ -241,14 +314,18 @@ struct ToolConfigurationView: View {
         let panel = NSOpenPanel(); panel.allowsMultipleSelection = multipleInputs
         if tool.id == "images" { panel.allowedContentTypes = [.image] }
         else if tool.id == "html" { panel.allowedContentTypes = [.html] }
-        else if tool.operation != "office" { panel.allowedContentTypes = [.pdf] }
+        else if isSourceConversion {
+            let extensions:[String] = ["word-pdf":["doc","docx"],"powerpoint-pdf":["ppt","pptx"],"excel-pdf":["xls","xlsx"],"odt-pdf":["odt"],"txt-pdf":["txt"],"rtf-pdf":["rtf"],"epub-pdf":["epub"],"csv-pdf":["csv","tsv"]][tool.id] ?? []
+            let contentTypes = extensions.compactMap { UTType(filenameExtension:$0) }
+            if !contentTypes.isEmpty { panel.allowedContentTypes = contentTypes }
+        } else { panel.allowedContentTypes = [.pdf] }
         guard panel.runModal() == .OK else { return }
         if multipleInputs { inputs.append(contentsOf:panel.urls) } else { inputs = panel.urls }
         loadFormValues()
     }
     func chooseImage() { let panel = NSOpenPanel(); panel.allowedContentTypes = [.png,.jpeg,.tiff]; if panel.runModal() == .OK { imageURL = panel.url } }
     func loadFormValues() {
-        guard tool.id == "forms", let source = inputs.first, let document = PDFDocument(url:source) else { return }
+        guard isFormsTool, let source = inputs.first, let document = PDFDocument(url:source) else { return }
         if document.isLocked && !document.unlock(withPassword:password) { error = "Informe a senha para ler os campos deste PDF."; return }
         var seen = Set<String>(); var loaded:[FormValueDraft] = []
         for index in 0..<document.pageCount {
@@ -293,7 +370,7 @@ struct ToolConfigurationView: View {
         if tool.id == "compare" && selectedInputs.count != 2 { error = "Selecione exatamente dois PDFs."; return }
         if operation == "protect" && newPassword.count < 8 { error = "A nova senha precisa ter ao menos 8 caracteres."; return }
         if (["text","edit"].contains(operation) || (operation == "redact" && redactMode == "text")) && text.isEmpty { error = "Informe o texto da operação."; return }
-        if operation == "organize" && pages.isEmpty { error = "Informe a ordem das páginas."; return }
+        if ["organize","delete-pages","extract-pages"].contains(operation) && pages.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { error = "Informe as páginas da operação."; return }
         if (["image","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image")) && imageURL == nil { error = "Escolha a imagem."; return }
         var options:[String:Any] = ["password":password]
         if !pages.isEmpty { options["pages"] = pages }
@@ -306,11 +383,24 @@ struct ToolConfigurationView: View {
         if operation == "shape" { options["shape"] = shape; options["color"] = color.hexRGB; options["fill"] = fill.hexRGB }
         if operation == "rotate" { options["degrees"] = degrees }
         if operation == "compress" && recompressImages { options["image_dpi"] = dpi; options["quality"] = quality }
-        if operation == "jpg" { options["dpi"] = dpi; options["mode"] = imageExportMode }
+        if ["jpg","png"].contains(operation) { options["dpi"] = dpi; options["mode"] = imageExportMode }
+        if operation == "png" { options["alpha"] = transparentPNG }
+        if operation == "flatten" {
+            guard flattenAnnotations || flattenWidgets else { error = "Selecione anotações ou campos para incorporar."; return }
+            options["annotations"] = flattenAnnotations; options["widgets"] = flattenWidgets
+        }
         if operation == "split" && !splitGroups.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { options["groups"] = splitGroups.split(separator:";").map { $0.trimmingCharacters(in:.whitespaces) } }
         if operation == "images" && pageSize != "original" { options["paper"] = pageSize; options["margin"] = margin; options["orientation"] = orientation }
         if tool.id == "excel-pdf" { options["fit_width"] = fitWidth; options["orientation"] = orientation }
         if operation == "powerpoint" { options["mode"] = presentationMode }
+        if ["txt","epub"].contains(operation) {
+            options["paper"] = pageSize; options["font_size"] = fontSize; options["margin"] = margin; options["landscape"] = orientation == "landscape"
+            if operation == "txt" { options["encoding"] = encoding }
+        }
+        if operation == "csv" {
+            if !csvDelimiter.isEmpty { options["delimiter"] = csvDelimiter }
+            options["encoding"] = encoding; options["fit_width"] = fitWidth; options["orientation"] = orientation
+        }
         if operation == "crop" { options["margin"] = margin }
         if operation == "numbers" { options["start"] = startNumber; options["format"] = numberFormat }
         if operation == "ocr" || operation == "pdfa" { options["language"] = language }
@@ -321,7 +411,7 @@ struct ToolConfigurationView: View {
         }
         if operation == "form-fill" { guard !values.isEmpty else { error = "Leia os campos antes de preencher."; return }; options["values"] = Dictionary(uniqueKeysWithValues:values.map { ($0.name,$0.jsonValue) }) }
         let batch = operation == "rotate" && selectedInputs.count > 1
-        guard let output = model.selectOutput(extension:outputSuffix,directory:batch || ["split","jpg"].contains(operation)) else { return }
+        guard let output = model.selectOutput(extension:outputSuffix,directory:batch || ["split","jpg","png"].contains(operation)) else { return }
         if batch { model.executeBatch(operation:operation,inputs:selectedInputs,directory:output,options:options,title:tool.name) }
         else { model.execute(operation:operation,inputs:selectedInputs,output:output,options:options,title:tool.name) }
         password = ""; newPassword = ""; dismiss()

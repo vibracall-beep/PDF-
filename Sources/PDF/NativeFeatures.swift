@@ -3,8 +3,8 @@ import AppKit
 import PDFKit
 import Vision
 import CoreText
-import ImageCaptureCore
-import Quartz
+@preconcurrency import ImageCaptureCore
+@preconcurrency import Quartz
 import UniformTypeIdentifiers
 
 /// Publishes a fully generated file without replacing an existing destination.
@@ -165,18 +165,28 @@ enum VisionPDF {
         browser.start()
     }
     func stop() { browser.stop() }
-    func deviceBrowser(_ browser: ICDeviceBrowser, didAdd device: ICDevice, moreComing: Bool) {
+    nonisolated func deviceBrowser(_ browser: ICDeviceBrowser, didAdd device: ICDevice, moreComing: Bool) {
+        DispatchQueue.main.async { [weak self] in self?.addDevice(device) }
+    }
+    private func addDevice(_ device: ICDevice) {
         guard let scanner = device as? ICScannerDevice else { return }
         if !devices.contains(where: { $0 === scanner }) { devices.append(scanner) }
         if selectedID.isEmpty { selectedID = identity(scanner) }
     }
-    func deviceBrowser(_ browser: ICDeviceBrowser, didRemove device: ICDevice, moreGoing: Bool) {
+    nonisolated func deviceBrowser(_ browser: ICDeviceBrowser, didRemove device: ICDevice, moreGoing: Bool) {
+        DispatchQueue.main.async { [weak self] in self?.removeDevice(device) }
+    }
+    private func removeDevice(_ device: ICDevice) {
         devices.removeAll { $0 === device }
         if selected == nil { selectedID = devices.first.map(identity) ?? "" }
     }
     @objc(scannerDeviceView:didScanToURL:fileData:error:)
-    func scannerDeviceView(_ scannerDeviceView: IKScannerDeviceView!, didScanTo url: URL!, fileData data: Data!, error: Error!) {
-        if let error { self.error = error.localizedDescription; return }
+    nonisolated func scannerDeviceView(_ scannerDeviceView: IKScannerDeviceView!, didScanTo url: URL!, fileData data: Data!, error: Error!) {
+        let message = error?.localizedDescription
+        DispatchQueue.main.async { [weak self] in self?.receiveCapture(url: url, data: data, error: message) }
+    }
+    private func receiveCapture(url: URL?, data: Data?, error message: String?) {
+        if let message { self.error = message; return }
         guard let folder else { self.error = "A pasta de capturas não está disponível."; return }
         do {
             let payload: Data
@@ -189,8 +199,9 @@ enum VisionPDF {
         } catch { self.error = error.localizedDescription }
     }
     @objc(scannerDeviceView:didEncounterError:)
-    func scannerDeviceView(_ scannerDeviceView: IKScannerDeviceView!, didEncounterError error: Error!) {
-        self.error = error?.localizedDescription ?? "O scanner encontrou um erro."
+    nonisolated func scannerDeviceView(_ scannerDeviceView: IKScannerDeviceView!, didEncounterError error: Error!) {
+        let message = error?.localizedDescription ?? "O scanner encontrou um erro."
+        DispatchQueue.main.async { [weak self] in self?.error = message }
     }
     func importImages() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.image, .pdf]; panel.allowsMultipleSelection = true

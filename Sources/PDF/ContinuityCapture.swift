@@ -22,7 +22,7 @@ struct ContinuityCaptureView: NSViewRepresentable {
     }
 }
 
-@MainActor final class ContinuityCaptureNSView: NSView, NSServicesMenuRequestor {
+@MainActor final class ContinuityCaptureNSView: NSView, @MainActor NSServicesMenuRequestor {
     var directory: URL
     var onCapture: (URL) -> Void
     var onError: (String) -> Void
@@ -93,7 +93,10 @@ struct ContinuityCaptureView: NSViewRepresentable {
     }
 
     /// This exact selector is declared by NSServicesMenuRequestor in AppKit.
+    /// Services dispatches to this first-responder NSView on AppKit's UI thread.
+    /// The explicitly MainActor-isolated conformance preserves that contract.
     func readSelection(from pasteboard: NSPasteboard) -> Bool {
+        dispatchPrecondition(condition: .onQueue(.main))
         let items = pasteboard.pasteboardItems ?? []
         guard items.count <= 32 else {
             onError("Importe no máximo 32 capturas por vez.")

@@ -1,20 +1,19 @@
 # PDF
 
-Aplicativo nativo macOS para leitura, organização, edição e conversão de documentos. Interface em português com SwiftUI/PDFKit, Liquid Glass, ferramentas locais, OCR Vision, scanner ImageCaptureCore, IA local e fluxos visuais.
+Aplicativo nativo macOS para leitura, organização, edição e conversão de documentos. Interface em português com SwiftUI/PDFKit, Liquid Glass, ferramentas locais, OCR Vision, scanner ImageCaptureCore, IA local e fluxos visuais. O catálogo inclui as adições da terceira imagem: PNG, ODT/TXT/RTF/EPUB/CSV/Pages, achatamento, compartilhamento, chat e questões.
 
-A especificação original está em [docs/REQUISITOS.md](docs/REQUISITOS.md). **O produto ainda não está validado como versão definitiva.** Testes Linux do motor passaram; compilação e execução dos recursos Apple precisam de macOS e SDK Apple. Não há resultado demonstrado de superioridade sobre outros produtos ou de ausência de erros.
+A especificação está em [docs/REQUISITOS.md](docs/REQUISITOS.md), a correspondência de todos os itens da nova imagem em [docs/FERRAMENTAS.md](docs/FERRAMENTAS.md) e as evidências em [docs/VALIDACAO.md](docs/VALIDACAO.md). **A conclusão da validação nativa está em andamento.** Não há resultado demonstrado de superioridade sobre outros produtos ou de ausência absoluta de erros.
 
 ## Estado verificável
 
-- Motor Python: 45 testes funcionais aprovados, incluindo saídas atômicas, cancelamento, preservação dos originais e de criptografia, formulários, edição, comparação visual e conversões.
-- Cinco testes de integração Linux aprovados: DOCX/XLSX/PPTX para PDF, HTML, OCR inglês e geração de PDF/A com metadados identificados.
-- Código nativo escrito: leitor com miniaturas/busca/anotações, personalização, scanner, OCR Vision, melhoria de imagem com Core Image/Metal, IA e fluxos visuais.
-- Verificação nativa preparada: `PDF --smoke-test` exercita PDFKit, formulários, renderização, Vision, processamento gráfico, exportação de texto e preservação de destinos. **Não executada nesta máquina Linux.**
-- CI macOS definido em `.github/workflows/macos.yml`; definição não implica execução nem aprovação do build.
+- Motor Python ampliado: 61 testes funcionais aprovados em Linux, incluindo saídas atômicas, cancelamento, preservação dos originais e de criptografia, formulários, conversões novas, achatamento, texto longo e comparação visual.
+- A execução macOS [40013215157](https://github.com/vibracall-beep/PDF-/actions/runs/40013215157) compilou o aplicativo anterior e aprovou 45 testes do motor e cinco integrações. Detectou um erro na chamada de `lipo` do instalador, corrigido nos fontes seguintes; não aprovou a instalação completa.
+- Verificação nativa: `PDF --smoke-test` exercita PDFKit, formulários, renderização, Vision, processamento gráfico, seleção de fontes para IA, exportação e preservação de destinos.
+- CI macOS instala e verifica a aplicação, produz uma imagem nativa para revisão e um pacote de fontes com manifesto e checksum. O resultado efetivo de cada versão está no registro de validação.
 
 ## Instalação completa por comando
 
-Pré-requisitos: Apple Silicon (alvo M4 ou superior), macOS 26 ou posterior, Xcode 26 ou posterior selecionado e Homebrew arm64 em `/opt/homebrew`. O código mantém fallback visual para versões anteriores quando compilado separadamente; o instalador completo exige o SDK moderno para incluir Liquid Glass/IA.
+Pré-requisitos: Apple Silicon (alvo M4 ou superior), macOS 26 ou posterior, Xcode 26 com Swift 6.2 ou posterior selecionado e Homebrew arm64 em `/opt/homebrew`. Os procedimentos por commit imutável ou pacote com checksum estão em [docs/INSTALACAO.md](docs/INSTALACAO.md).
 
 Na pasta do código-fonte:
 
@@ -37,18 +36,22 @@ A validação deve ocorrer no ambiente de desenvolvimento macOS antes de entrega
 
 | Área | Implementação e limites |
 |---|---|
-| Leitor | PDFKit, pesquisa, navegação, miniaturas, marcadores, anotações, impressão e cópia; execução nativa pendente |
+| Leitor | PDFKit, pesquisa, navegação, miniaturas, marcadores, anotações, impressão e cópia |
 | Interface | Favoritos, ordem/visibilidade das ferramentas, aparência, densidade, opções do leitor e destinos; não equivale à personalização arbitrária de qualquer aspecto do macOS |
 | Edição | Texto novo e substituição por busca, imagem, formas, assinatura visual, marca d'água, numeração, recorte e rotação |
 | Formulários | Criação e preenchimento de widgets, exportação de campos e sugestões automáticas por caixas/linhas; a detecção é heurística e precisa de revisão |
 | Office | Word com reconstrução básica de estilos; PPTX com texto editável ou páginas rasterizadas; Excel por tabelas. Fidelidade exige revisão em documentos reais |
+| Outros formatos | PNG com transparência; TXT Unicode paginado; EPUB sem DRM; ODT/RTF/CSV com LibreOffice. Textos que não possam ser acomodados são recusados em vez de cortados silenciosamente |
+| Pages | Exporta uma cópia privada pelo aplicativo Pages, com autorização de Automação do macOS, cancelamento e limite de tempo; requer Pages instalado |
+| Achatamento | Incorpora a aparência de anotações e/ou widgets ao conteúdo, preservando a proteção do arquivo; não substitui remoção de informações sensíveis |
 | Assinatura | Imagem visual e preparação de solicitação no compositor de e-mail do macOS; sem assinatura digital certificada ou rastreamento remoto de assinaturas |
+| Compartilhamento e Sign.com | Compartilhamento pelos serviços nativos; Sign.com abre o serviço externo, que administra conta, envio e acompanhamento no navegador |
 | Segurança | AES-256, desbloqueio com senha conhecida, preservação de proteção nas operações PDF; redaction remove texto/áreas e limpa metadados/anexos |
 | OCR | OCRmyPDF ou Vision nativo; Vision recria páginas e pode perder widgets, links e assinaturas. OCR nativo recusa documento criptografado |
 | Scanner | Captura com scanner via ImageCaptureCore/ImageKit, importação, ordenação e Câmera de Continuidade do iPhone/iPad pelos menus públicos do macOS; depende de dispositivos/configurações compatíveis |
 | PDF/A | OCRmyPDF; metadados verificados em Linux, conformidade não certificada por veraPDF |
 | Comparação | Diferenças textuais ou relatório HTML lado a lado com diferenças gráficas |
-| IA | Foundation Models local, documentos em trechos, cancelamento e exportação TXT/Markdown/PDF; Apple Intelligence precisa estar disponível. Respostas exigem revisão |
+| IA | Foundation Models local; resumo, tradução, chat com histórico e páginas citadas, questões abertas/múltipla escolha com gabarito. Busca de contexto local limitada, cancelamento e exportação TXT/Markdown/PDF; exige Apple Intelligence disponível. Referências validadas estruturalmente não garantem correção factual |
 | Tradução | Tradução de texto ou de blocos posicionados no PDF original, preservando imagens/vetores e recusando texto que não caiba; fontes e fidelidade tipográfica exata não são garantidas |
 | Markdown | Reconstrução heurística de títulos, tabelas, estilos, imagens e links; sem garantia de preservação semântica perfeita |
 | Fluxos | Editor visual, etapas ordenáveis, biblioteca local e importação/exportação de presets; senhas não são gravadas nos presets |

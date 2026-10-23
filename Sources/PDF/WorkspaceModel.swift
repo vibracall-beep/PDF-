@@ -11,6 +11,7 @@ import UniformTypeIdentifiers
     @Published var section = "Início"
     @Published var recentURLs: [URL] = []
     @Published var lastOutput: URL?
+    @Published var savedDocumentURL:URL?
     @Published var currentPage = 1
     @Published var bookmarks: Set<Int> = []
     @Published var needsPassword = false
@@ -19,6 +20,7 @@ import UniformTypeIdentifiers
     @Published var inkMode = false
     @Published var hasEdits = false
     weak var pdfView: PDFView?
+    var externalCancellation:(()->Void)?
     private var pendingURL: URL?
     private var process: Process?
     private var cancelled = false
@@ -51,7 +53,7 @@ import UniformTypeIdentifiers
         pendingURL = nil; installDocument(doc, url:url)
     }
     private func installDocument(_ doc:PDFDocument, url:URL) {
-        document = doc; self.url = url; section = "Leitor"; currentPage = 1; hasEdits = false
+        document = doc; self.url = url; section = "Leitor"; currentPage = 1; hasEdits = false; savedDocumentURL = nil
         originalWidgetState = widgetState()
         thumbnails.removeAllObjects()
         recentURLs.removeAll { $0.standardizedFileURL == url.standardizedFileURL }; recentURLs.insert(url, at:0)
@@ -118,8 +120,8 @@ import UniformTypeIdentifiers
         } else { bytes = document.dataRepresentation() }
         guard let target = selectOutput(),let bytes else { return }
         do {
-            try bytes.write(to:target, options:.withoutOverwriting)
-            lastOutput = target; hasEdits = false; originalWidgetState = widgetState(); message = "Cópia salva: \(target.lastPathComponent)"
+            try NativeOutput.write(bytes,to:target)
+            lastOutput = target; savedDocumentURL = target; hasEdits = false; originalWidgetState = widgetState(); message = "Cópia salva: \(target.lastPathComponent)"
         } catch { message = "Não foi possível salvar: \(error.localizedDescription)" }
     }
     func printDocument() {
@@ -168,6 +170,7 @@ import UniformTypeIdentifiers
         if url.pathExtension.lowercased() == "pdf" { open(url:url) } else { NSWorkspace.shared.open(url) }
     }
     func cancel() {
+        if let externalCancellation { message = "Cancelando…"; externalCancellation(); return }
         guard let process, process.isRunning else { return }
         cancelled = true; message = "Cancelando…"; process.interrupt()
     }

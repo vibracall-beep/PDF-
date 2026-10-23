@@ -3,7 +3,9 @@ import AppKit
 import UniformTypeIdentifiers
 
 private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
-    case rotate, numbers, compress, watermark, organize, crop, text, redact, protect, unlock, repair, ocr, pdfa
+    case rotate, numbers, compress, watermark, organize, crop, text, redact, protect, unlock, repair, ocr, pdfa, flatten
+    case deletePages = "delete-pages"
+    case extractPages = "extract-pages"
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -20,6 +22,9 @@ private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
         case .repair: return "Reparar documento"
         case .ocr: return "Reconhecer texto (OCR)"
         case .pdfa: return "Converter para PDF/A"
+        case .flatten: return "Achatar anotações e formulários"
+        case .deletePages: return "Excluir páginas"
+        case .extractPages: return "Extrair páginas"
         }
     }
     var symbol: String {
@@ -37,11 +42,14 @@ private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
         case .repair: return "wrench"
         case .ocr: return "text.viewfinder"
         case .pdfa: return "archivebox"
+        case .flatten: return "square.stack.3d.down.right"
+        case .deletePages: return "doc.badge.minus"
+        case .extractPages: return "doc.on.doc"
         }
     }
     var hasText: Bool { [.text, .watermark, .redact].contains(self) }
     var hasTypography: Bool { [.text, .watermark, .numbers].contains(self) }
-    var acceptsPages: Bool { [.rotate, .numbers, .watermark, .organize, .crop, .text, .redact].contains(self) }
+    var acceptsPages: Bool { [.rotate, .numbers, .watermark, .organize, .crop, .text, .redact, .deletePages, .extractPages].contains(self) }
 }
 
 private struct WorkflowStage: Identifiable, Codable {
@@ -82,8 +90,8 @@ private struct WorkflowStage: Identifiable, Codable {
         if operation.hasText && text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             return "Informe o texto da etapa \(operation.title)."
         }
-        if operation == .organize && pages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
-            return "Informe a sequência de páginas da organização."
+        if [.organize, .deletePages, .extractPages].contains(operation) && pages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return "Informe as páginas da etapa \(operation.title)."
         }
         if !pages.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
             for component in pages.split(separator: ",", omittingEmptySubsequences: false) {
@@ -450,7 +458,7 @@ private struct WorkflowStageEditor: View {
 
     @ViewBuilder private var options: some View {
         if stage.operation.acceptsPages {
-            TextField(stage.operation == .organize ? "Nova ordem: 3,1,2 ou 3-5,1" : "Páginas: vazio para todas, ou 1,3-5", text: $stage.pages)
+            TextField(pagePlaceholder, text: $stage.pages)
                 .textFieldStyle(.roundedBorder)
         }
         if stage.operation.hasText {
@@ -483,6 +491,17 @@ private struct WorkflowStageEditor: View {
         if stage.operation == .unlock { Text("Esta etapa exige a senha atual e deve ser a primeira.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .compress { Text("O motor reorganiza os dados do documento. A redução depende do conteúdo original.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .repair { Text("Tenta regravar documentos que o mecanismo consegue recuperar.").font(.caption).foregroundStyle(.secondary) }
+        if stage.operation == .flatten { Text("Incorpora anotações e valores dos formulários à página. Os campos deixam de ser editáveis no resultado.").font(.caption).foregroundStyle(.secondary) }
+        if stage.operation == .deletePages { Text("Exclui as páginas indicadas da cópia de saída. O documento precisa manter ao menos uma página.").font(.caption).foregroundStyle(.secondary) }
+        if stage.operation == .extractPages { Text("Mantém apenas as páginas indicadas, na ordem escolhida. Páginas podem ser repetidas.").font(.caption).foregroundStyle(.secondary) }
+    }
+
+    private var pagePlaceholder: String {
+        switch stage.operation {
+        case .organize, .extractPages: return "Páginas na nova ordem: 3,1,2 ou 3-5,1"
+        case .deletePages: return "Páginas a excluir: 1,3-5"
+        default: return "Páginas: vazio para todas, ou 1,3-5"
+        }
     }
 
     private var typography: some View {

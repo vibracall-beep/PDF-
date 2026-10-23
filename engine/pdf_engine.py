@@ -29,7 +29,9 @@ TOOLS = {
     'merge':'Juntar PDF', 'split':'Dividir PDF', 'compress':'Comprimir PDF',
     'word':'PDF para Word', 'powerpoint':'PDF para PowerPoint', 'excel':'PDF para Excel',
     'office':'Office para PDF', 'text':'Adicionar texto', 'edit':'Editar texto',
-    'image':'Inserir imagem', 'shape':'Desenhar forma', 'jpg':'PDF para JPG',
+    'image':'Inserir imagem', 'shape':'Desenhar forma', 'jpg':'PDF para JPG', 'png':'PDF para PNG',
+    'odt':'ODT para PDF', 'txt':'TXT para PDF', 'rtf':'RTF para PDF', 'epub':'EPUB para PDF', 'csv':'CSV para PDF',
+    'flatten':'Achatar PDF', 'delete-pages':'Excluir páginas', 'extract-pages':'Extrair páginas',
     'images':'Imagens para PDF', 'signature':'Assinatura visual', 'watermark':'Marca d’água',
     'rotate':'Rodar PDF', 'html':'HTML para PDF', 'unlock':'Desbloquear PDF',
     'protect':'Proteger PDF', 'organize':'Organizar PDF', 'pdfa':'PDF para PDF/A',
@@ -40,10 +42,10 @@ TOOLS = {
     'layout-extract':'Extrair blocos de layout', 'translate-layout':'Aplicar tradução ao layout',
     'markdown':'PDF para Markdown', 'workflow':'Executar fluxo'
 }
-ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual'}
-PDF_OPERATIONS = {'merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout'}
+ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual','delete_pages':'delete-pages','extract_pages':'extract-pages','delete':'delete-pages','extract':'extract-pages'}
+PDF_OPERATIONS = {'merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
 MULTI_INPUT = {'merge','images','compare','compare-visual'}
-DIRECTORY_OUTPUT = {'split','jpg'}
+DIRECTORY_OUTPUT = {'split','jpg','png'}
 
 
 def open_pdf(path, password=''):
@@ -201,6 +203,7 @@ def run(operation, inputs, output, options=None):
         raise ValueError('As opções devem ser um objeto JSON.')
     operation = ALIASES.get(operation,operation)
     if operation == 'compare' and options.get('mode') == 'visual': operation = 'compare-visual'
+    if operation == 'jpg' and options.get('format') == 'png': operation = 'png'
     if operation not in TOOLS: raise ValueError('Operação desconhecida: '+str(operation))
     inputs = [str(path) for path in inputs]
     if not inputs: raise ValueError('Selecione ao menos um arquivo.')
@@ -249,10 +252,28 @@ def _execute(operation, inputs, output, options):
                 if step['operation'] == 'unlock': password = ''
                 current = [str(target)]
         return
-    if operation == 'office':
+    if operation == 'txt':
+        _text_file_pdf(inputs[0],output,options); return
+    if operation == 'epub':
+        width,height,margin = _paper_geometry(options)
+        fontsize = number(options.get('font_size',11),'Tamanho da fonte',4,72)
+        with fitz.open(inputs[0],filetype='epub') as book:
+            if not book.is_reflowable: raise ValueError('Selecione um EPUB válido e sem DRM.')
+            book.layout(width=width-2*margin,height=height-2*margin,fontsize=fontsize)
+            with fitz.open('pdf',book.convert_to_pdf()) as converted, fitz.open() as result:
+                for i in range(len(converted)):
+                    page=result.new_page(width=width,height=height)
+                    page.show_pdf_page(page.rect+(margin,margin,-margin,-margin),converted,i)
+                if not len(result): raise ValueError('O EPUB não contém páginas convertíveis.')
+                save(result,output)
+        return
+    if operation in ('office','odt','rtf','csv'):
         executable = shutil.which('soffice') or '/Applications/LibreOffice.app/Contents/MacOS/soffice'
         with tempfile.TemporaryDirectory() as tmp:
             source = inputs[0]
+            if operation == 'csv' or Path(source).suffix.lower() == '.csv':
+                source = str(_csv_workbook(source,Path(tmp)/'source.xlsx',options))
+                options = dict(options); options.setdefault('fit_width',True)
             if Path(source).suffix.lower() == '.xlsx' and (options.get('fit_width') or options.get('landscape') or options.get('orientation')):
                 from openpyxl import load_workbook
                 book = load_workbook(source)
@@ -322,7 +343,7 @@ def _execute(operation, inputs, output, options):
         return
     with open_pdf(inputs[0],password) as doc:
         if not doc.is_pdf or not len(doc): raise ValueError('Selecione um PDF com ao menos uma página.')
-        pages = parse_pages(options.get('pages'),len(doc),allow_duplicates=operation=='organize')
+        pages = parse_pages(options.get('pages'),len(doc),allow_duplicates=operation in ('organize','extract-pages'))
         if operation == 'split':
             output.mkdir()
             groups = options.get('groups')
@@ -331,20 +352,8 @@ def _execute(operation, inputs, output, options):
                 with fitz.open() as part:
                     for p in group: part.insert_pdf(doc,from_page=p,to_page=p)
                     save(part,output/f'parte-{i+1:04}.pdf',**_encrypted_output(doc,password))
-        elif operation == 'jpg':
-            output.mkdir(); dpi = int(number(options.get('dpi',150),'DPI',36,600))
-            if options.get('mode') == 'embedded':
-                from PIL import Image
-                seen = set(); count = 0
-                for i in pages:
-                    for item in doc[i].get_images(full=True):
-                        if item[0] in seen: continue
-                        seen.add(item[0]); data = doc.extract_image(item[0])
-                        with Image.open(io.BytesIO(data['image'])) as image:
-                            count += 1; image.convert('RGB').save(output/f'imagem-{count:04}.jpg',quality=95)
-                if count == 0: raise ValueError('Nenhuma imagem incorporada foi encontrada.')
-            else:
-                for i in pages: doc[i].get_pixmap(dpi=dpi,alpha=False).save(str(output/f'pagina-{i+1:04}.jpg'))
+        elif operation in ('jpg','png'):
+            _raster_export(doc,pages,output,operation,options)
         elif operation == 'layout-extract':
             output.write_text(json.dumps(_layout(doc,pages),ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'translate-layout':
@@ -355,7 +364,7 @@ def _execute(operation, inputs, output, options):
             content = [dict(page=i+1,name=w.field_name,value=w.field_value,type=w.field_type_string,rect=list(w.rect),choices=w.choice_values) for i in pages for w in (doc[i].widgets() or [])]
             output.write_text(json.dumps(content,ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'markdown':
-            output.write_text(_markdown(doc,pages),encoding='utf-8')
+            _markdown(doc,pages,output)
         elif operation in ('compare','compare-visual'):
             with open_pdf(inputs[1],options.get('second_password',password)) as other:
                 if operation == 'compare-visual': _visual_compare(doc,other,output)
@@ -367,6 +376,17 @@ def _execute(operation, inputs, output, options):
         elif operation == 'word': _word(doc,pages,output)
         elif operation == 'powerpoint': _powerpoint(doc,pages,output,options)
         elif operation == 'excel': _excel(doc,pages,output)
+        elif operation == 'flatten':
+            if pages != list(range(len(doc))): raise ValueError('Achatar PDF aplica-se ao documento inteiro; remova a seleção de páginas.')
+            annotations=_boolean(options.get('annotations',True)); widgets=_boolean(options.get('widgets',True))
+            if not annotations and not widgets: raise ValueError('Selecione anotações ou formulários para achatar.')
+            doc.bake(annots=annotations,widgets=widgets); save(doc,output)
+        elif operation in ('delete-pages','extract-pages'):
+            if not options.get('pages'): raise ValueError('Informe as páginas que deseja excluir ou extrair.')
+            omitted=set(pages)
+            selected=[p for p in range(len(doc)) if p not in omitted] if operation=='delete-pages' else pages
+            if not selected: raise ValueError('Não é possível excluir todas as páginas.')
+            doc.select(selected); save(doc,output)
         elif operation == 'organize':
             if not options.get('pages'): raise ValueError('Informe a nova ordem das páginas.')
             doc.select(pages); save(doc,output)
@@ -384,6 +404,130 @@ def _execute(operation, inputs, output, options):
             elif operation == 'unlock': kwargs['encryption'] = fitz.PDF_ENCRYPT_NONE
             save(doc,output,**kwargs)
         else: raise ValueError('Operação não implementada: '+operation)
+
+
+def _paper_geometry(options):
+    width,height=fitz.paper_size(str(options.get('paper','a4')).lower())
+    if width<=0 or height<=0: raise ValueError('Tamanho de papel desconhecido.')
+    if options.get('landscape') or options.get('orientation')=='landscape': width,height=height,width
+    margin=number(options.get('margin',36),'Margem',0,min(width,height)/3)
+    return width,height,margin
+
+
+def _text_file_pdf(source,output,options):
+    encoding=str(options.get('encoding','utf-8-sig'))
+    try: text=Path(source).read_text(encoding=encoding,errors='strict')
+    except (UnicodeError,LookupError) as exc:
+        raise ValueError(f'Não foi possível ler o texto como {encoding}. Selecione a codificação correta.') from exc
+    width,height,margin=_paper_geometry(options)
+    fontsize=number(options.get('font_size',11),'Tamanho da fonte',4,72)
+    # Story ignores overflow-wrap for unbroken tokens. Invisible break opportunities
+    # preserve ASCII token content while preventing URLs/identifiers from clipping.
+    measure=fitz.Font(fontname='helv'); available=width-2*margin
+    def soft_break(match):
+        token=match.group()
+        if token.isascii() and measure.text_length(token,fontsize=fontsize)>available*0.85:
+            return '\u200b'.join(token)
+        return token
+    flow_text=re.sub(r'\S+',soft_break,text)
+    # Escape source HTML and preserve line boundaries while allowing long lines to wrap.
+    content='<html><body>'+''.join('<p>'+html.escape(line).replace('\t','&nbsp;&nbsp;&nbsp;&nbsp;')+'</p>' if line else '<p>&nbsp;</p>' for line in flow_text.splitlines())+'</body></html>'
+    if not text.strip(): content='<html><body><p>&nbsp;</p></body></html>'
+    story=fitz.Story(content,user_css=f'body {{font-family:sans-serif;font-size:{fontsize}pt}} p {{margin:0 0 0.3em 0;white-space:pre-wrap;overflow-wrap:anywhere}}')
+    bounds=fitz.Rect(0,0,width,height); area=bounds+(margin,margin,-margin,-margin)
+    def layout(rect_number,filled):
+        if rect_number>=10000: raise ValueError('O texto excede o limite de 10.000 páginas.')
+        return bounds,area,None
+    writer=fitz.DocumentWriter(str(output))
+    try: story.write(writer,layout)
+    finally: writer.close()
+    # Refuse unsupported over-wide Unicode runs instead of publishing cropped text.
+    with fitz.open(output) as rendered:
+        for page in rendered:
+            bounds=page.rect+(-2,-2,2,2)
+            for block in page.get_text('dict',clip=fitz.INFINITE_RECT())['blocks']:
+                if block['type']==0 and not bounds.contains(fitz.Rect(block['bbox'])):
+                    raise ValueError('Um trecho de texto não cabe na página. Insira quebras de linha, diminua a fonte ou use papel maior; nenhuma cópia foi criada.')
+
+
+def _csv_workbook(source,output,options):
+    import csv
+    from openpyxl import Workbook
+    from openpyxl.styles import Alignment
+    from openpyxl.utils import get_column_letter
+    import textwrap
+    import unicodedata
+    encoding=str(options.get('encoding','utf-8-sig'))
+    delimiter=options.get('delimiter')
+    if delimiter is not None and (not isinstance(delimiter,str) or len(delimiter)!=1 or delimiter in ('\n','\r','"')):
+        raise ValueError('O separador CSV deve ser um único caractere válido.')
+    workbook=Workbook(); sheet=workbook.active; sheet.title='Dados'
+    widths={}
+    maximum_width=number(options.get('max_column_width',60),'Largura máxima de coluna',12,120)
+    def display_width(value):
+        return sum(2 if unicodedata.east_asian_width(character) in ('W','F') else 1 for character in value)
+    try:
+        with Path(source).open('r',encoding=encoding,errors='strict',newline='') as handle:
+            sample=handle.read(8192); handle.seek(0)
+            if delimiter is None:
+                try: dialect=csv.Sniffer().sniff(sample,delimiters=',;\t|')
+                except csv.Error: dialect=csv.excel
+                reader=csv.reader(handle,dialect)
+            else: reader=csv.reader(handle,delimiter=delimiter)
+            for row_number,row in enumerate(reader,1):
+                if row_number>1048576 or len(row)>16384: raise ValueError('O CSV excede os limites de linhas ou colunas da planilha.')
+                sheet.append(row)
+                for cell in sheet[row_number]:
+                    cell.data_type='s'  # Content never becomes a spreadsheet formula.
+                    cell.alignment=Alignment(wrap_text=True,vertical='top')
+                    longest=max((display_width(line) for line in str(cell.value or '').splitlines()),default=0)
+                    widths[cell.column]=max(widths.get(cell.column,12),min(maximum_width,longest+3))
+    except (UnicodeError,LookupError) as exc:
+        raise ValueError(f'Não foi possível ler o CSV como {encoding}. Selecione a codificação correta.') from exc
+    for column,width in widths.items(): sheet.column_dimensions[get_column_letter(column)].width=width
+    for row in sheet.iter_rows():
+        lines=1
+        for cell in row:
+            available=max(1,int(widths.get(cell.column,12))-3)
+            required=0
+            for line in str(cell.value or '').split('\n'):
+                # Keep generous height for wrapped words and double-width Unicode glyphs.
+                wrapped=textwrap.wrap(line,width=available,replace_whitespace=False,drop_whitespace=False) or ['']
+                required+=sum(max(1,math.ceil(display_width(part)/available)) for part in wrapped)
+            lines=max(lines,required)
+        height=lines*18+8
+        if height>400:
+            workbook.close()
+            raise ValueError('Uma célula CSV exige mais altura do que a planilha pode exibir. Divida o conteúdo da célula ou aumente max_column_width; nenhuma cópia foi criada.')
+        sheet.row_dimensions[row[0].row].height=height
+    try: workbook.save(output)
+    finally: workbook.close()
+    return output
+
+
+def _raster_export(doc,pages,output,format_name,options):
+    output.mkdir(); dpi=int(number(options.get('dpi',150),'DPI',36,600))
+    if options.get('mode')=='embedded':
+        seen=set(); count=0
+        for i in pages:
+            for item in doc[i].get_images(full=True):
+                if item[0] in seen: continue
+                seen.add(item[0]); count+=1
+                if format_name=='png':
+                    pix=fitz.Pixmap(doc,item[0])
+                    if pix.colorspace and pix.colorspace.n>3: pix=fitz.Pixmap(fitz.csRGB,pix)
+                    if item[1] and not pix.alpha: pix=fitz.Pixmap(pix,fitz.Pixmap(doc,item[1]))
+                    pix.save(str(output/f'imagem-{count:04}.png'))
+                else:
+                    from PIL import Image
+                    data=doc.extract_image(item[0])
+                    with Image.open(io.BytesIO(data['image'])) as image:
+                        image.convert('RGB').save(output/f'imagem-{count:04}.jpg',quality=95)
+        if count==0: raise ValueError('Nenhuma imagem incorporada foi encontrada.')
+    else:
+        alpha=_boolean(options.get('alpha',False)) if format_name=='png' else False
+        for i in pages:
+            doc[i].get_pixmap(dpi=dpi,alpha=alpha).save(str(output/f'pagina-{i+1:04}.{format_name}'))
 
 
 def _font(options):
@@ -648,44 +792,57 @@ def _page_elements(page):
     return sorted(entries,key=lambda b:(round(b['bbox'][1]/8),b['bbox'][0]))
 
 
-def _markdown(doc,pages):
-    chunks = []
+def _write_base64(stream, data):
+    # A multiple of three preserves the encoding across chunks without padding.
+    with memoryview(data) as view:
+        for offset in range(0,len(view),49152):
+            stream.write(base64.b64encode(view[offset:offset+49152]).decode('ascii'))
+
+
+def _markdown(doc,pages,output):
     def escaped(value):
         return str(value or '').replace('\\','\\\\').replace('<','&lt;').replace('>','&gt;')
-    for i in pages:
-        page = doc[i]; elements = _page_elements(page)
-        sizes = [s['size'] for b in elements if b['type']==0 for line in b['lines'] for s in line['spans'] if s['text'].strip()]
-        body = sorted(sizes)[len(sizes)//2] if sizes else 11
-        chunks.append(f'<!-- Página {i+1} -->')
-        for block in elements:
-            if block['type']==2:
-                rows = block['rows']
-                if not rows: continue
-                width = max(map(len,rows))
-                for n,row in enumerate(rows):
-                    chunks.append('| '+' | '.join(escaped(value).replace('|','\\|').replace('\n','<br>') for value in [*row,*['']*(width-len(row))])+' |')
-                    if n==0: chunks.append('| '+' | '.join(['---']*width)+' |')
-                chunks.append('')
-                continue
-            if block['type']!=0:
-                # Inline image data keeps Markdown export self-contained.
-                encoded = base64.b64encode(block['image']).decode()
-                chunks.append(f'![Imagem da página {i+1}](data:image/{block.get("ext","png")};base64,{encoded})')
-                continue
-            for line in block['lines']:
-                text = ''.join(s['text'] for s in line['spans']).strip()
-                if not text: continue
-                size = max(s['size'] for s in line['spans'])
-                prefix = '# ' if size >= body*1.7 else '## ' if size >= body*1.3 else ''
-                chunks.append(prefix+escaped(text))
-            chunks.append('')
-        for link in page.get_links():
-            if link.get('uri'):
-                uri = str(link['uri'])
-                if uri.startswith(('https://','http://','mailto:')):
-                    label = escaped(page.get_textbox(link['from']).strip() or 'Link').replace('[','\\[').replace(']','\\]')
-                    chunks.append(f'[{label}]({uri.replace("(","%28").replace(")","%29")})')
-    return '\n'.join(chunks)
+    with output.open('w',encoding='utf-8') as stream:
+        first=True
+        def begin_line():
+            nonlocal first
+            if not first: stream.write('\n')
+            first=False
+        def emit(text):
+            begin_line(); stream.write(text)
+        for i in pages:
+            page=doc[i]; elements=_page_elements(page)
+            sizes=[s['size'] for b in elements if b['type']==0 for line in b['lines'] for s in line['spans'] if s['text'].strip()]
+            body=sorted(sizes)[len(sizes)//2] if sizes else 11
+            emit(f'<!-- Página {i+1} -->')
+            for block in elements:
+                if block['type']==2:
+                    rows=block['rows']
+                    if not rows: continue
+                    width=max(map(len,rows))
+                    for n,row in enumerate(rows):
+                        emit('| '+' | '.join(escaped(value).replace('|','\\|').replace('\n','<br>') for value in [*row,*['']*(width-len(row))])+' |')
+                        if n==0: emit('| '+' | '.join(['---']*width)+' |')
+                    emit('')
+                    continue
+                if block['type']!=0:
+                    # Stream image encoding instead of retaining every page's data URI.
+                    begin_line(); stream.write(f'![Imagem da página {i+1}](data:image/{block.get("ext","png")};base64,')
+                    _write_base64(stream,block['image']); stream.write(')')
+                    continue
+                for line in block['lines']:
+                    text=''.join(span['text'] for span in line['spans']).strip()
+                    if not text: continue
+                    size=max(span['size'] for span in line['spans'])
+                    prefix='# ' if size>=body*1.7 else '## ' if size>=body*1.3 else ''
+                    emit(prefix+escaped(text))
+                emit('')
+            for link in page.get_links():
+                if link.get('uri'):
+                    uri=str(link['uri'])
+                    if uri.startswith(('https://','http://','mailto:')):
+                        label=escaped(page.get_textbox(link['from']).strip() or 'Link').replace('[','\\[').replace(']','\\]')
+                        emit(f'[{label}]({uri.replace("(","%28").replace(")","%29")})')
 
 
 def _word(doc,pages,output):
@@ -763,24 +920,40 @@ def _excel(doc,pages,output):
 
 def _visual_compare(first,second,output):
     from PIL import Image, ImageChops, ImageEnhance
-    rows=[]
-    for i in range(max(len(first),len(second))):
-        images=[]
-        for document in (first,second):
-            if i < len(document):
-                pix=document[i].get_pixmap(dpi=96,alpha=False)
-                images.append(Image.frombytes('RGB',(pix.width,pix.height),pix.samples))
-            else: images.append(Image.new('RGB',(1,1),'white'))
-        size=(max(im.width for im in images),max(im.height for im in images))
-        canvases=[]
-        for im in images:
-            canvas=Image.new('RGB',size,'white'); canvas.paste(im,(0,0)); canvases.append(canvas)
-        diff=ImageChops.difference(*canvases); changed=diff.getbbox() is not None
-        previews=[]
-        for im in [*canvases,ImageEnhance.Contrast(diff).enhance(3)]:
-            data=io.BytesIO(); im.save(data,format='PNG'); previews.append('data:image/png;base64,'+base64.b64encode(data.getvalue()).decode())
-        rows.append(f'<section><h2>Página {i+1}: {"alterada" if changed else "igual"}</h2><div class="row">'+''.join(f'<figure><img alt="{label}" src="{source}"><figcaption>{label}</figcaption></figure>' for label,source in zip(('Original','Comparação','Diferenças'),previews))+'</div></section>')
-    output.write_text('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Comparação PDF</title><style>body{font-family:system-ui;margin:24px;background:#f4f5fa;color:#202533}.row{display:flex;gap:16px}figure{margin:0;width:33%}img{width:100%;border:1px solid #ccd}section{margin-bottom:32px}figcaption{padding:8px}</style><h1>Comparação visual de PDFs</h1><p>Renderização a 96 DPI. Diferenças pequenas devem ser revisadas no documento original.</p>'+''.join(rows)+'</html>',encoding='utf-8')
+    # The transaction layer owns the staging file; streaming is still atomic to callers.
+    with output.open('w',encoding='utf-8') as stream:
+        stream.write('<!doctype html><html lang="pt-BR"><meta charset="utf-8"><title>Comparação PDF</title><style>body{font-family:system-ui;margin:24px;background:#f4f5fa;color:#202533}.row{display:flex;gap:16px}figure{margin:0;width:33%}img{width:100%;border:1px solid #ccd}section{margin-bottom:32px}figcaption{padding:8px}</style><h1>Comparação visual de PDFs</h1><p>Renderização a 96 DPI. Diferenças pequenas devem ser revisadas no documento original.</p>')
+        for i in range(max(len(first),len(second))):
+            images=[]; canvases=[]; diff=None; enhanced=None
+            try:
+                for document in (first,second):
+                    if i<len(document):
+                        pix=document[i].get_pixmap(dpi=96,alpha=False)
+                        images.append(Image.frombytes('RGB',(pix.width,pix.height),pix.samples))
+                        del pix
+                    else: images.append(Image.new('RGB',(1,1),'white'))
+                size=(max(image.width for image in images),max(image.height for image in images))
+                for image in images:
+                    if image.size==size: canvases.append(image)
+                    else:
+                        canvas=Image.new('RGB',size,'white'); canvas.paste(image,(0,0)); canvases.append(canvas)
+                diff=ImageChops.difference(*canvases); changed=diff.getbbox() is not None
+                enhanced=ImageEnhance.Contrast(diff).enhance(3)
+                stream.write(f'<section><h2>Página {i+1}: {"alterada" if changed else "igual"}</h2><div class="row">')
+                for label,image in zip(('Original','Comparação','Diferenças'),[*canvases,enhanced]):
+                    stream.write(f'<figure><img alt="{label}" src="data:image/png;base64,')
+                    with io.BytesIO() as data:
+                        image.save(data,format='PNG')
+                        with data.getbuffer() as buffer: _write_base64(stream,buffer)
+                    stream.write(f'"><figcaption>{label}</figcaption></figure>')
+                stream.write('</div></section>')
+            finally:
+                # Release native image allocations before rendering the next page.
+                released=set()
+                for image in [*images,*canvases,diff,enhanced]:
+                    if image is not None and id(image) not in released:
+                        released.add(id(image)); image.close()
+        stream.write('</html>')
 
 
 def capabilities():

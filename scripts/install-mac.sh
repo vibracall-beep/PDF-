@@ -9,8 +9,11 @@ PDF_OS_MAJOR="$(sw_vers -productVersion | cut -d. -f1)"
 xcrun --find swift >/dev/null 2>&1 || fail 'Instale Xcode 26 ou posterior e selecione-o com xcode-select.'
 PDF_SDK_MAJOR="$(xcrun --sdk macosx --show-sdk-version | cut -d. -f1)"
 [[ "$PDF_SDK_MAJOR" -ge 26 ]] || fail 'Selecione um Xcode com SDK macOS 26 ou posterior: sudo xcode-select -s /Applications/Xcode.app/Contents/Developer'
-PDF_SWIFT_MAJOR="$(xcrun swift --version | sed -nE 's/.*Swift version ([0-9]+).*/\1/p' | head -1)"
-[[ -n "$PDF_SWIFT_MAJOR" && "$PDF_SWIFT_MAJOR" -ge 6 ]] || fail 'Swift 6 ou posterior é necessário.'
+PDF_SWIFT_VERSION="$(xcrun swift --version | sed -nE 's/.*Swift version ([0-9]+\.[0-9]+).*/\1/p' | head -1)"
+[[ "$PDF_SWIFT_VERSION" =~ ^[0-9]+\.[0-9]+$ ]] || fail 'Não foi possível identificar a versão do Swift.'
+PDF_SWIFT_MAJOR="${PDF_SWIFT_VERSION%%.*}"
+PDF_SWIFT_MINOR="${PDF_SWIFT_VERSION#*.}"
+(( PDF_SWIFT_MAJOR > 6 || (PDF_SWIFT_MAJOR == 6 && PDF_SWIFT_MINOR >= 2) )) || fail 'Swift 6.2 ou posterior é necessário.'
 if ! command -v brew >/dev/null 2>&1 && [[ -x /opt/homebrew/bin/brew ]]; then
   export PATH="/opt/homebrew/bin:$PATH"
 fi
@@ -110,10 +113,11 @@ cat > "$PDF_BUNDLE/Contents/Info.plist" <<'PLIST'
 <key>CFBundleExecutable</key><string>PDF</string>
 <key>CFBundleIconFile</key><string>PDF</string>
 <key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.2.0</string>
-<key>CFBundleVersion</key><string>2</string>
+<key>CFBundleShortVersionString</key><string>0.3.0</string>
+<key>CFBundleVersion</key><string>3</string>
 <key>LSMinimumSystemVersion</key><string>26.0</string>
 <key>NSHighResolutionCapable</key><true/>
+<key>NSAppleEventsUsageDescription</key><string>O PDF usa o Pages para converter uma cópia dos seus documentos em PDF.</string>
 <key>NSCameraUsageDescription</key><string>Digitalizar documentos para os arquivos PDF que você escolher.</string>
 <key>NSLocalNetworkUsageDescription</key><string>Encontrar e usar scanners compartilhados na sua rede local.</string>
 <key>NSBonjourServices</key><array><string>_scanner._tcp</string><string>_uscan._tcp</string><string>_uscans._tcp</string><string>_ica-networking._tcp</string></array>
@@ -147,3 +151,6 @@ printf 'Instalado e verificado: %s\n' "$PDF_DESTINATION"
 if [[ -n "$PDF_BACKUP" ]]; then printf 'Versão anterior preservada: %s\n' "$PDF_BACKUP"; fi
 printf 'Abra com: open %q\n' "$PDF_DESTINATION"
 printf '%s\n' 'Assinatura local ad hoc, sem notarização Apple. Para outro Mac, execute novamente este instalador no próprio computador.'
+if [[ ! -d /Applications/Pages.app && ! -d "$HOME/Applications/Pages.app" ]]; then
+  printf '%s\n' 'Pages → PDF requer o aplicativo Pages da Apple, disponível gratuitamente na App Store. As demais conversões estão instaladas.'
+fi

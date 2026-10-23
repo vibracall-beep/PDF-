@@ -1,0 +1,38 @@
+name: PDFKit structural diagnostics
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pdfkit-diagnostics-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  synthetic-fixture-measurement:
+    runs-on: xcode-27
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Record actual Apple toolchain
+        run: |
+          uname -m
+          sw_vers -productVersion
+          sysctl -n machdep.cpu.brand_string
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
+      - name: Install independent structural checker
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          brew list --versions qpdf || brew install qpdf
+          /opt/homebrew/bin/qpdf --version
+      - name: Compile isolated PDFKit reproduction
+        run: xcrun swiftc -parse-as-library diagnostics/PDFKitDiagnosis.swift -o "$RUNNER_TEMP/PDFKitDiagnosis" -framework AppKit -framework PDFKit
+      - name: Measure originals and independent normalization
+        run: python3 diagnostics/run_pdfkit_diagnostics.py --executable "$RUNNER_TEMP/PDFKitDiagnosis" --qpdf /opt/homebrew/bin/qpdf --output "$RUNNER_TEMP/PDFKit-diagnostics"
+      - name: Retain synthetic fixtures and measurement report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDFKit-structural-diagnostics-xcode-27
+          path: ${{ runner.temp }}/PDFKit-diagnostics/
+          if-no-files-found: warn

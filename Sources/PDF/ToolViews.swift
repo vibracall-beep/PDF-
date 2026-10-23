@@ -15,12 +15,15 @@ private struct FormFieldDraft: Identifiable {
     var value = ""
     var choices = "Opção 1,Opção 2"
     var options:[String:Any] {
-        var value:[String:Any] = ["name":name,"type":type,"page":page,"rect":[x,y,x+width,y+height],"value":self.value]
+        var value:[String:Any] = ["name":name,"type":type,"page":page,"rect":[x,y,x+width,y+height],"value": type == "checkbox" ? (self.value.lowercased() == "true" || self.value.lowercased() == "yes" || self.value == "1") as Any : self.value as Any]
         if type == "choice" { value["choices"] = choices.split(separator:",").map { $0.trimmingCharacters(in:.whitespaces) } }
         return value
     }
 }
-private struct FormValueDraft: Identifiable { var id:String { name }; var name:String; var value:String }
+private struct FormValueDraft: Identifiable {
+    var id:String { name }; var name:String; var value:String; var checkbox = false; var checked = false
+    var jsonValue:Any { checkbox ? checked as Any : value as Any }
+}
 
 struct ToolConfigurationView: View {
     let tool: Tool
@@ -58,6 +61,10 @@ struct ToolConfigurationView: View {
     @State private var startNumber = 1
     @State private var language = "por+eng"
     @State private var pageSize = "original"
+    @State private var orientation = "portrait"
+    @State private var imageExportMode = "pages"
+    @State private var splitGroups = ""
+    @State private var fitWidth = true
     @State private var fields:[FormFieldDraft] = [FormFieldDraft()]
     @State private var values:[FormValueDraft] = []
     @State private var error = ""
@@ -149,8 +156,20 @@ struct ToolConfigurationView: View {
             if recompressImages { Stepper("Resolução: \(dpi) DPI",value:$dpi,in:72...300,step:12); Stepper("Qualidade JPEG: \(quality)%",value:$quality,in:20...95,step:5) }
             Text("Sem redução de imagens, a otimização preserva a qualidade. O tamanho final depende do conteúdo.").font(.caption).foregroundStyle(.secondary)
         }
-        if operation == "jpg" { Stepper("Resolução: \(dpi) DPI",value:$dpi,in:72...600,step:12) }
-        if operation == "images" { Picker("Página",selection:$pageSize) { Text("Tamanho da imagem").tag("original"); Text("A4").tag("A4"); Text("Carta").tag("letter") }; numberField("Margem",value:$margin) }
+        if operation == "jpg" {
+            Picker("Exportar",selection:$imageExportMode) { Text("Páginas completas").tag("pages"); Text("Imagens incorporadas").tag("embedded") }
+            if imageExportMode == "pages" { Stepper("Resolução: \(dpi) DPI",value:$dpi,in:72...600,step:12) }
+        }
+        if operation == "split" { TextField("Grupos opcionais separados por ponto e vírgula: 1-3;4,6",text:$splitGroups).textFieldStyle(.roundedBorder); Text("Sem grupos, cada página selecionada gera um arquivo.").font(.caption).foregroundStyle(.secondary) }
+        if operation == "images" {
+            Picker("Página",selection:$pageSize) { Text("Tamanho da imagem").tag("original"); Text("A4").tag("a4"); Text("Carta").tag("letter") }
+            Picker("Orientação",selection:$orientation) { Text("Retrato").tag("portrait"); Text("Paisagem").tag("landscape") }
+            numberField("Margem",value:$margin)
+        }
+        if tool.id == "excel-pdf" {
+            Toggle("Ajustar colunas à largura da página",isOn:$fitWidth)
+            Picker("Orientação",selection:$orientation) { Text("Retrato").tag("portrait"); Text("Paisagem").tag("landscape") }
+        }
         if operation == "powerpoint" { Picker("Conteúdo",selection:$presentationMode) { Text("Texto e imagens editáveis").tag("editable"); Text("Página como imagem").tag("image") }; Text("A conversão editável exige revisão da diagramação.").font(.caption).foregroundStyle(.secondary) }
         if operation == "crop" { numberField("Margem a recortar (pontos)",value:$margin); Text("O recorte altera a área visível; não remove dados ocultos.").font(.caption).foregroundStyle(.secondary) }
         if operation == "numbers" { Stepper("Começar em \(startNumber)",value:$startNumber,in:1...9999) }
@@ -183,6 +202,8 @@ struct ToolConfigurationView: View {
         VStack(alignment:.leading,spacing:14) {
             Picker("Formulário",selection:$formMode) { Text("Criar campos").tag("create"); Text("Preencher").tag("fill"); Text("Inspecionar JSON").tag("inspect") }.pickerStyle(.segmented)
             if formMode == "create" {
+                Button("Detectar campos sugeridos no documento…") { detectFields() }.disabled(model.busy || inputs.isEmpty)
+                Text("Sugestões de campos exigem revisão de nome, tipo, posição e página antes de criar.").font(.caption).foregroundStyle(.secondary)
                 ForEach($fields) { $field in
                     VStack(alignment:.leading,spacing:8) {
                         HStack { TextField("Nome único",text:$field.name); Picker("Tipo",selection:$field.type) { Text("Texto").tag("text"); Text("Caixa").tag("checkbox"); Text("Lista").tag("choice") }; Button { fields.removeAll { $0.id == field.id } } label: { Image(systemName:"trash") } }
@@ -190,14 +211,19 @@ struct ToolConfigurationView: View {
                         HStack { numberField("Esquerda",value:$field.x); numberField("Topo",value:$field.y) }
                         HStack { numberField("Largura",value:$field.width); numberField("Altura",value:$field.height) }
                         if field.type == "choice" { TextField("Opções separadas por vírgulas",text:$field.choices) }
-                        TextField(field.type == "checkbox" ? "Valor: true ou false" : "Valor inicial",text:$field.value)
+                        if field.type == "checkbox" {
+                            Toggle("Marcado inicialmente",isOn:Binding(get:{ field.value == "true" },set:{ field.value = $0 ? "true" : "false" }))
+                        } else { TextField("Valor inicial",text:$field.value) }
                     }.padding(12).background(.quaternary,in:RoundedRectangle(cornerRadius:10))
                 }
                 Button("Adicionar campo",systemImage:"plus") { var field = FormFieldDraft(); field.name = "campo\(fields.count+1)"; field.y += Double(fields.count)*40; fields.append(field) }
             } else if formMode == "fill" {
                 Button("Ler campos do documento") { loadFormValues() }
                 if values.isEmpty { Text("Escolha um PDF com campos existentes. Para documentos protegidos, preencha primeiro a senha de origem.").font(.caption).foregroundStyle(.secondary) }
-                ForEach($values) { $field in TextField(field.name,text:$field.value).textFieldStyle(.roundedBorder) }
+                ForEach($values) { $field in
+                    if field.checkbox { Toggle(field.name,isOn:$field.checked) }
+                    else { TextField(field.name,text:$field.value).textFieldStyle(.roundedBorder) }
+                }
             }
         }
     }
@@ -218,10 +244,34 @@ struct ToolConfigurationView: View {
         var seen = Set<String>(); var loaded:[FormValueDraft] = []
         for index in 0..<document.pageCount {
             for annotation in document.page(at:index)?.annotations ?? [] {
-                if let name = annotation.fieldName, !seen.contains(name) { seen.insert(name); loaded.append(FormValueDraft(name:name,value:annotation.widgetStringValue ?? "")) }
+                if let name = annotation.fieldName, !seen.contains(name) {
+                    seen.insert(name)
+                    let checkbox = annotation.widgetFieldType == .button && annotation.widgetControlType == .checkBoxControl
+                    loaded.append(FormValueDraft(name:name,value:annotation.widgetStringValue ?? "",checkbox:checkbox,checked:checkbox && annotation.buttonWidgetState.rawValue == 1))
+                }
             }
         }
         values = loaded
+    }
+    func detectFields() {
+        guard let source = inputs.first else { return }
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-fields-" + UUID().uuidString,isDirectory:true)
+        do { try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700]) }
+        catch { self.error = error.localizedDescription; return }
+        let output = directory.appendingPathComponent("fields.json")
+        model.execute(operation:"form-detect",inputs:[source],output:output,options:["password":password],title:"Detectando campos") { result in
+            defer { try? FileManager.default.removeItem(at:directory); model.lastOutput = nil }
+            do {
+                let file = try result.get()
+                guard let json = try JSONSerialization.jsonObject(with:Data(contentsOf:file)) as? [String:Any], let suggestions = json["fields"] as? [[String:Any]] else { throw NSError(domain:"PDF.Forms",code:1,userInfo:[NSLocalizedDescriptionKey:"Resposta de detecção inválida."]) }
+                fields = suggestions.compactMap { item in
+                    guard let name = item["name"] as? String, let rect = item["rect"] as? [Double], rect.count == 4 else { return nil }
+                    var field = FormFieldDraft(); field.name = name; field.type = item["type"] as? String ?? "text"; field.page = item["page"] as? Int ?? 1
+                    field.x = rect[0]; field.y = rect[1]; field.width = rect[2]-rect[0]; field.height = rect[3]-rect[1]; return field
+                }
+                error = fields.isEmpty ? "Nenhum campo sugerido. Adicione campos manualmente." : "Revise as \(fields.count) sugestões antes de criar o formulário."
+            } catch { self.error = error.localizedDescription }
+        }
     }
     func perform() {
         error = ""
@@ -246,8 +296,10 @@ struct ToolConfigurationView: View {
         if operation == "shape" { options["shape"] = shape; options["color"] = color.hexRGB; options["fill"] = fill.hexRGB }
         if operation == "rotate" { options["degrees"] = degrees }
         if operation == "compress" && recompressImages { options["image_dpi"] = dpi; options["quality"] = quality }
-        if operation == "jpg" { options["dpi"] = dpi }
-        if operation == "images" && pageSize != "original" { options["page_size"] = pageSize; options["margin"] = margin }
+        if operation == "jpg" { options["dpi"] = dpi; options["mode"] = imageExportMode }
+        if operation == "split" && !splitGroups.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty { options["groups"] = splitGroups.split(separator:";").map { $0.trimmingCharacters(in:.whitespaces) } }
+        if operation == "images" && pageSize != "original" { options["paper"] = pageSize; options["margin"] = margin; options["orientation"] = orientation }
+        if tool.id == "excel-pdf" { options["fit_width"] = fitWidth; options["orientation"] = orientation }
         if operation == "powerpoint" { options["mode"] = presentationMode }
         if operation == "crop" { options["margin"] = margin }
         if operation == "numbers" { options["start"] = startNumber }
@@ -257,7 +309,7 @@ struct ToolConfigurationView: View {
             guard !fields.isEmpty, Set(fields.map(\.name)).count == fields.count, fields.allSatisfy({ !$0.name.isEmpty }) else { error = "Adicione campos com nomes únicos."; return }
             options["fields"] = fields.map(\.options)
         }
-        if operation == "form-fill" { guard !values.isEmpty else { error = "Leia os campos antes de preencher."; return }; options["values"] = Dictionary(uniqueKeysWithValues:values.map { ($0.name,$0.value) }) }
+        if operation == "form-fill" { guard !values.isEmpty else { error = "Leia os campos antes de preencher."; return }; options["values"] = Dictionary(uniqueKeysWithValues:values.map { ($0.name,$0.jsonValue) }) }
         guard let output = model.selectOutput(extension:outputSuffix,directory:["split","jpg"].contains(operation)) else { return }
         model.execute(operation:operation,inputs:selectedInputs,output:output,options:options,title:tool.name)
         password = ""; newPassword = ""; dismiss()

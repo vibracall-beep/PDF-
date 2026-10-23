@@ -177,11 +177,15 @@ enum VisionPDF {
     @objc(scannerDeviceView:didScanToURL:fileData:error:)
     func scannerDeviceView(_ scannerDeviceView: IKScannerDeviceView!, didScanTo url: URL!, fileData data: Data!, error: Error!) {
         if let error { self.error = error.localizedDescription; return }
-        if let url, FileManager.default.fileExists(atPath: url.path) { captures.append(url); return }
-        guard let data, let folder else { self.error = "O scanner não devolveu uma imagem."; return }
+        guard let folder else { self.error = "A pasta de capturas não está disponível."; return }
         do {
-            let path = folder.appendingPathComponent("captura-\(UUID().uuidString).tiff")
-            try NativeOutput.write(data, to: path); captures.append(path)
+            let payload: Data
+            if let data, !data.isEmpty { payload = data }
+            else if let url { payload = try Data(contentsOf: url) }
+            else { throw NativePDFError.noImage }
+            let suffix = payload.starts(with: Data("%PDF".utf8)) ? "pdf" : "tiff"
+            let path = folder.appendingPathComponent("captura-\(UUID().uuidString).\(suffix)")
+            try NativeOutput.write(payload, to: path); captures.append(path)
         } catch { self.error = error.localizedDescription }
     }
     @objc(scannerDeviceView:didEncounterError:)
@@ -222,7 +226,7 @@ struct ScannerDevicePanel: NSViewRepresentable {
         let view = IKScannerDeviceView(frame: .zero)
         view.delegate = controller
         view.hasDisplayModeSimple = true; view.hasDisplayModeAdvanced = true
-        view.mode = .advanced; view.transferMode = .fileBased
+        view.mode = .advanced; view.transferMode = .memoryBased
         view.displaysDownloadsDirectoryControl = false; view.displaysPostProcessApplicationControl = false
         view.scanControlLabel = "Digitalizar"; view.overviewControlLabel = "Pré-visualizar"
         return view
@@ -252,7 +256,7 @@ struct NativeFeaturesView: View {
         VStack(alignment: .leading, spacing: 18) {
             Label("Digitalização e OCR", systemImage: "scanner").font(.largeTitle.bold())
             Picker("Modo", selection: $tab) { Text("Scanner").tag(0); Text("OCR no Mac").tag(1) }.pickerStyle(.segmented)
-            if tab == 0 { scannerContent } else { ocrContent }
+            if tab == 0 { ScrollView { scannerContent } } else { ocrContent }
             if !status.isEmpty { Text(status).font(.callout).textSelection(.enabled) }
             if let result {
                 HStack {
@@ -273,7 +277,7 @@ struct NativeFeaturesView: View {
             }
             if let folder = scanner.folder {
                 ContinuityCaptureView(directory: folder, onCapture: { scanner.captures.append($0) }, onError: { scanner.error = $0 })
-                    .frame(height: 86)
+                    .frame(height: 160)
                     .accessibilityLabel("Capturar com iPhone, iPad ou área de transferência")
             }
             if scanner.selected != nil { ScannerDevicePanel(controller: scanner).frame(minHeight: 280) }

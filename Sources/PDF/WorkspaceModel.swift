@@ -16,12 +16,14 @@ import UniformTypeIdentifiers
     @Published var needsPassword = false
     @Published var documentPassword = ""
     @Published var annotationRevision = 0
+    @Published var inkMode = false
     @Published var hasEdits = false
     weak var pdfView: PDFView?
     private var pendingURL: URL?
     private var process: Process?
     private var cancelled = false
     private var activeJob: UUID?
+    private var originalWidgetState = ""
     private let thumbnails = NSCache<NSNumber, NSImage>()
 
     init() {
@@ -50,6 +52,7 @@ import UniformTypeIdentifiers
     }
     private func installDocument(_ doc:PDFDocument, url:URL) {
         document = doc; self.url = url; section = "Leitor"; currentPage = 1; hasEdits = false
+        originalWidgetState = widgetState()
         thumbnails.removeAllObjects()
         recentURLs.removeAll { $0.standardizedFileURL == url.standardizedFileURL }; recentURLs.insert(url, at:0)
         recentURLs = Array(recentURLs.prefix(20))
@@ -59,8 +62,21 @@ import UniformTypeIdentifiers
     }
     private var bookmarkKey:String { "bookmarks:" + (url?.standardizedFileURL.path ?? "") }
     func clearRecent() { recentURLs = []; UserDefaults.standard.removeObject(forKey:"recentDocuments") }
+    var hasUnsavedChanges:Bool { hasEdits || widgetState() != originalWidgetState }
+    private func widgetState() -> String {
+        guard let document else { return "" }
+        var state:[String] = []
+        for index in 0..<document.pageCount {
+            for annotation in document.page(at:index)?.annotations ?? [] {
+                if let name = annotation.fieldName {
+                    state.append("\(index):\(name):\(annotation.widgetStringValue ?? ""): \(annotation.buttonWidgetState.rawValue)")
+                }
+            }
+        }
+        return state.joined(separator:"\n")
+    }
     func confirmDiscardEdits() -> Bool {
-        guard hasEdits else { return true }
+        guard hasUnsavedChanges else { return true }
         let alert = NSAlert(); alert.messageText = "Há alterações no documento aberto"
         alert.informativeText = "Salve uma cópia para conservar suas anotações antes de abrir outro arquivo."
         alert.addButton(withTitle:"Continuar sem salvar"); alert.addButton(withTitle:"Voltar")
@@ -88,7 +104,7 @@ import UniformTypeIdentifiers
         guard let target = selectOutput(), let bytes = document.dataRepresentation() else { return }
         do {
             try bytes.write(to:target, options:.withoutOverwriting)
-            lastOutput = target; hasEdits = false; message = "Cópia salva: \(target.lastPathComponent)"
+            lastOutput = target; hasEdits = false; originalWidgetState = widgetState(); message = "Cópia salva: \(target.lastPathComponent)"
         } catch { message = "Não foi possível salvar: \(error.localizedDescription)" }
     }
     func printDocument() {
@@ -140,7 +156,7 @@ import UniformTypeIdentifiers
         guard let process, process.isRunning else { return }
         cancelled = true; message = "Cancelando…"; process.interrupt()
     }
-    func execute(operation:String, inputs:[URL], output:URL, options:[String:Any], title:String) {
+    func execute(operation:String, inputs:[URL], output:URL, options:[String:Any], title:String, completion:((Result<URL,Error>)->Void)? = nil) {
         guard !busy else { message = "Aguarde a operação atual terminar ou cancele-a."; return }
         guard !inputs.isEmpty else { message = "Selecione ao menos um arquivo de entrada."; return }
         guard !FileManager.default.fileExists(atPath:output.path) else { message = "O destino já existe. Escolha um novo nome."; return }
@@ -173,15 +189,21 @@ import UniformTypeIdentifiers
             DispatchQueue.main.async {
                 guard let self, self.activeJob == job else { return }
                 self.busy = false; self.process = nil
-                if self.cancelled { self.message = "Operação cancelada. Os arquivos de origem foram preservados."; return }
+                if self.cancelled {
+                    self.message = "Operação cancelada. Os arquivos de origem foram preservados."
+                    completion?(.failure(NSError(domain:NSCocoaErrorDomain,code:NSUserCancelledError)))
+                    return
+                }
                 if task.terminationStatus == 0 && FileManager.default.fileExists(atPath:output.path) {
                     self.lastOutput = output; self.message = "Concluído: \(output.lastPathComponent)"
+                    completion?(.success(output))
                 } else {
                     let lastJSON = raw.split(separator:"\n").reversed().compactMap { line -> [String:Any]? in
                         guard let data = String(line).data(using:.utf8) else { return nil }
                         return (try? JSONSerialization.jsonObject(with:data)) as? [String:Any]
                     }.first
                     self.message = lastJSON?["error"] as? String ?? String(raw.suffix(2000))
+                    completion?(.failure(NSError(domain:"PDF.Engine",code:Int(task.terminationStatus),userInfo:[NSLocalizedDescriptionKey:self.message])))
                 }
             }
         }
@@ -193,7 +215,7 @@ struct Reader: NSViewRepresentable {
     var mode: Int
     func makeCoordinator() -> Coordinator { Coordinator(model:model) }
     func makeNSView(context:Context) -> PDFView {
-        let view = PDFView(); view.autoScales = true; view.displayMode = .singlePageContinuous
+        let view = DrawingPDFView(); view.onEdit = { [weak model] in model?.didEdit() }; view.autoScales = true; view.displayMode = .singlePageContinuous
         view.backgroundColor = .clear; model.pdfView = view
         context.coordinator.observer = NotificationCenter.default.addObserver(forName:.PDFViewPageChanged,object:view,queue:.main) { [weak view, weak model] _ in
             guard let view, let page = view.currentPage, let document = view.document else { return }
@@ -203,6 +225,7 @@ struct Reader: NSViewRepresentable {
     }
     func updateNSView(_ view:PDFView, context:Context) {
         if view.document !== model.document { view.document = model.document }
+        (view as? DrawingPDFView)?.inkEnabled = model.inkMode
         let display: PDFDisplayMode = mode == 1 ? .singlePage : mode == 2 ? .twoUpContinuous : .singlePageContinuous
         if view.displayMode != display { view.displayMode = display; view.autoScales = true }
     }
@@ -211,5 +234,46 @@ struct Reader: NSViewRepresentable {
         var observer:NSObjectProtocol?
         init(model:Workspace) { self.model = model }
         deinit { if let observer { NotificationCenter.default.removeObserver(observer) } }
+    }
+}
+
+
+/// Ink is drawn in PDF page coordinates so it remains aligned at any zoom level.
+final class DrawingPDFView:PDFView {
+    var inkEnabled = false
+    var onEdit:(()->Void)?
+    private var drawingPage:PDFPage?
+    private var path:NSBezierPath?
+    private var preview:PDFAnnotation?
+    override func mouseDown(with event:NSEvent) {
+        guard inkEnabled else { super.mouseDown(with:event); return }
+        let point = convert(event.locationInWindow,from:nil)
+        guard let page = page(for:point,nearest:false) else { return }
+        drawingPage = page
+        let bounds = page.bounds(for:.cropBox)
+        let pointOnPage = convert(point,to:page)
+        let stroke = NSBezierPath(); stroke.move(to:NSPoint(x:pointOnPage.x-bounds.minX,y:pointOnPage.y-bounds.minY)); path = stroke
+        let annotation = PDFAnnotation(bounds:bounds,forType:.ink,withProperties:nil)
+        annotation.color = .systemBlue
+        let border = PDFBorder(); border.lineWidth = 2; annotation.border = border
+        preview = annotation; page.addAnnotation(annotation)
+    }
+    override func mouseDragged(with event:NSEvent) {
+        guard inkEnabled else { super.mouseDragged(with:event); return }
+        guard let page = drawingPage,let path,let preview else { return }
+        let location = convert(convert(event.locationInWindow,from:nil),to:page)
+        let bounds = page.bounds(for:.cropBox)
+        path.line(to:NSPoint(x:location.x-bounds.minX,y:location.y-bounds.minY))
+        // A single path avoids adding a new segment to the document on every event.
+        for existing in preview.paths ?? [] { preview.remove(existing) }
+        preview.add(path)
+        needsDisplay = true
+    }
+    override func mouseUp(with event:NSEvent) {
+        guard inkEnabled else { super.mouseUp(with:event); return }
+        if let page = drawingPage,let preview {
+            if (path?.elementCount ?? 0) < 2 { page.removeAnnotation(preview) } else { onEdit?() }
+        }
+        drawingPage = nil; path = nil; preview = nil
     }
 }

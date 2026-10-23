@@ -35,6 +35,7 @@ struct ReaderWorkspaceView: View {
                     HStack {
                         Button("Realçar",systemImage:"highlighter") { model.highlight() }
                         Button("Nota",systemImage:"note.text") { showNote = true }
+                        Toggle(isOn:$model.inkMode) { Label("Desenhar",systemImage:"pencil.tip") }.toggleStyle(.button)
                         Button(model.bookmarks.contains(model.currentPage) ? "Desmarcar página" : "Marcar página",systemImage:model.bookmarks.contains(model.currentPage) ? "bookmark.fill" : "bookmark") { model.toggleBookmark() }
                         Spacer()
                         if model.hasEdits { Label("Cópia ainda não salva",systemImage:"pencil").font(.caption).foregroundStyle(.secondary) }

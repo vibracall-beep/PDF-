@@ -104,6 +104,20 @@ def parse_pages(selector, count, allow_duplicates=False):
     return result
 
 
+def _area(rect):
+    return max(0,rect.width)*max(0,rect.height)
+
+
+def _boolean(value):
+    if isinstance(value,bool): return value
+    if value in (0,1): return bool(value)
+    if isinstance(value,str):
+        normalized=value.strip().lower()
+        if normalized in ('true','yes','on','1'): return True
+        if normalized in ('false','no','off','0',''): return False
+    raise ValueError('Valor de caixa de seleção inválido; use true ou false.')
+
+
 def _page_bounds(page):
     return page.rect * page.derotation_matrix
 
@@ -535,7 +549,7 @@ def _translate_layout(doc,options):
         if not text.strip(): raise ValueError('O texto traduzido não pode estar vazio.')
         if edit.get('source_text') and page.get_textbox(rect).strip()!=edit['source_text'].strip():
             raise ValueError('O bloco original mudou. Extraia o layout novamente.')
-        if any((rect & previous[1]).get_area() > 0.5 for previous in grouped.get(page_number,[])):
+        if any(_area(rect & previous[1]) > 0.5 for previous in grouped.get(page_number,[])):
             raise ValueError('Blocos de tradução sobrepostos. Selecione blocos sem sobreposição.')
         grouped.setdefault(page_number,[]).append((edit,rect,text))
     for index,items in grouped.items():
@@ -567,7 +581,7 @@ def _detect_forms(doc,pages):
                         rectangles.append(fitz.Rect(min(start.x,end.x),max(0,start.y-18),max(start.x,end.x),start.y+2))
         seen=[]
         for rect in rectangles:
-            if not page.rect.contains(rect) or any((rect & previous).get_area()>rect.get_area()*0.8 for previous in seen): continue
+            if not page.rect.contains(rect) or any(_area(rect & previous)>_area(rect)*0.8 for previous in seen): continue
             # Occupied cells are labels/content, not blank input fields.
             if page.get_textbox(rect).strip(): continue
             seen.append(rect)
@@ -598,7 +612,7 @@ def _create_forms(doc,options):
             if not choices: raise ValueError('Defina as opções do campo de escolha.')
             widget.choice_values = [str(v) for v in choices]
         value = field.get('value','')
-        widget.field_value = ('Yes' if value else 'Off') if kind=='checkbox' else str(value)
+        widget.field_value = ('Yes' if _boolean(value) else 'Off') if kind=='checkbox' else str(value)
         if field.get('multiline') and kind=='text': widget.field_flags = fitz.PDF_TX_FIELD_IS_MULTILINE
         page.add_widget(widget)
 
@@ -614,7 +628,7 @@ def _fill_forms(doc,options):
             if widget.field_name not in values: continue
             value = values[widget.field_name]
             if widget.field_type == fitz.PDF_WIDGET_TYPE_CHECKBOX:
-                widget.field_value = widget.on_state() if bool(value) else 'Off'
+                widget.field_value = widget.on_state() if _boolean(value) else 'Off'
             elif widget.field_type in (fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX):
                 if str(value) not in (widget.choice_values or []): raise ValueError('Escolha inválida para '+widget.field_name)
                 widget.field_value = str(value)
@@ -628,7 +642,7 @@ def _page_elements(page):
     entries = [dict(type=2,bbox=table.bbox,rows=table.extract()) for table in tables]
     for block in page.get_text('dict',sort=True)['blocks']:
         bounds = fitz.Rect(block['bbox'])
-        if block['type']==0 and any((bounds & fitz.Rect(table.bbox)).get_area() > bounds.get_area()*0.65 for table in tables):
+        if block['type']==0 and any(_area(bounds & fitz.Rect(table.bbox)) > _area(bounds)*0.65 for table in tables):
             continue
         entries.append(block)
     return sorted(entries,key=lambda b:(round(b['bbox'][1]/8),b['bbox'][0]))

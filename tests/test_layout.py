@@ -89,6 +89,33 @@ class LayoutTests(unittest.TestCase):
             self.assertEqual(len(widgets), 1)
             self.assertEqual(widgets[0].field_name, field['name'])
 
+    def test_detected_table_exports_to_word_and_markdown(self):
+        from docx import Document
+        source = self.root / 'table.pdf'
+        with fitz.open() as doc:
+            page = doc.new_page(width=400, height=500)
+            for x in (40, 160, 280):
+                page.draw_line((x, 40), (x, 160))
+            for y in (40, 80, 120, 160):
+                page.draw_line((40, y), (280, y))
+            for row, cells in enumerate([['Item', 'Value'], ['Apple', '10'], ['Orange', '20']]):
+                for column, text in enumerate(cells):
+                    page.insert_text((48 + column * 120, 65 + row * 40), text, fontsize=12)
+            doc.save(source)
+        word = self.root / 'table.docx'
+        markdown = self.root / 'table.md'
+        run('word', [source], word)
+        run('markdown', [source], markdown)
+        document = Document(word)
+        self.assertEqual(len(document.tables), 1)
+        table = document.tables[0]
+        self.assertEqual([[cell.text for cell in row.cells] for row in table.rows], [['Item', 'Value'], ['Apple', '10'], ['Orange', '20']])
+        content = markdown.read_text()
+        self.assertIn('| Item | Value |', content)
+        self.assertIn('| Apple | 10 |', content)
+        self.assertIn('| Orange | 20 |', content)
+        self.assertIn('| --- | --- |', content)
+
     def extract_blocks(self):
         report = self.root / 'layout.json'
         run('layout-extract', [self.source], report, {'pages': '1'})

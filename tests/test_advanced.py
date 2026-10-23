@@ -109,6 +109,20 @@ class AdvancedEngineTests(unittest.TestCase):
         rows = json.loads(report.read_text())
         self.assertEqual({row['name'] for row in rows}, {'customer', 'approved', 'region'})
 
+    def test_checkbox_string_states_are_not_interpreted_by_truthiness(self):
+        form = self.output('unchecked-form.pdf')
+        run('form-create', [self.source], form, {'fields': [{'page': 1, 'name': 'approved', 'type': 'checkbox', 'rect': [40, 230, 60, 250], 'value': 'false'}]})
+        with fitz.open(form) as doc:
+            self.assertEqual(next(doc[0].widgets()).field_value, 'Off')
+        checked = self.output('checked.pdf')
+        run('form-fill', [form], checked, {'values': {'approved': 'true'}})
+        with fitz.open(checked) as doc:
+            self.assertNotEqual(next(doc[0].widgets()).field_value, 'Off')
+        unchecked = self.output('unchecked.pdf')
+        run('form-fill', [checked], unchecked, {'values': {'approved': 'Off'}})
+        with fitz.open(unchecked) as doc:
+            self.assertEqual(next(doc[0].widgets()).field_value, 'Off')
+
     def test_editable_powerpoint_has_text_objects(self):
         from pptx import Presentation
         target = self.output('editable.pptx')

@@ -54,7 +54,12 @@ let tools: [Tool] = [
 
 @main struct PDFApp: App {
     @StateObject private var model = Workspace()
+    @NSApplicationDelegateAdaptor(PDFApplicationDelegate.self) private var applicationDelegate
     init() {
+        if let index = CommandLine.arguments.firstIndex(of:"--render-preview"), CommandLine.arguments.indices.contains(index+1) {
+            do { try MacPreview.render(to:URL(fileURLWithPath:CommandLine.arguments[index+1])); exit(0) }
+            catch { FileHandle.standardError.write(Data("PDF preview failed: \(error)\n".utf8)); exit(1) }
+        }
         if CommandLine.arguments.contains("--smoke-test") {
             do { try MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
             catch { fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
@@ -64,6 +69,8 @@ let tools: [Tool] = [
         WindowGroup {
             ContentView().environmentObject(model).frame(minWidth:1050, minHeight:720)
                 .onOpenURL { model.open(url:$0) }
+                .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
+                .onAppear { applicationDelegate.model = model }
         }
         .commands {
             CommandGroup(replacing:.newItem) {

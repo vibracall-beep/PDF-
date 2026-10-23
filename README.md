@@ -6,8 +6,8 @@ A especificação original está em [docs/REQUISITOS.md](docs/REQUISITOS.md). **
 
 ## Estado verificável
 
-- Motor Python: testes de operações, saídas atômicas, preservação dos originais e de criptografia, formulários, edição, comparação visual e conversões.
-- Integrações Linux verificadas: DOCX/XLSX/PPTX para PDF, HTML, OCR inglês e geração de PDF/A com metadados identificados.
+- Motor Python: 45 testes funcionais aprovados, incluindo saídas atômicas, cancelamento, preservação dos originais e de criptografia, formulários, edição, comparação visual e conversões.
+- Cinco testes de integração Linux aprovados: DOCX/XLSX/PPTX para PDF, HTML, OCR inglês e geração de PDF/A com metadados identificados.
 - Código nativo escrito: leitor com miniaturas/busca/anotações, personalização, scanner, OCR Vision, melhoria de imagem com Core Image/Metal, IA e fluxos visuais.
 - Verificação nativa preparada: `PDF --smoke-test` exercita PDFKit, formulários, renderização, Vision, processamento gráfico, exportação de texto e preservação de destinos. **Não executada nesta máquina Linux.**
 - CI macOS definido em `.github/workflows/macos.yml`; definição não implica execução nem aprovação do build.
@@ -40,17 +40,17 @@ A validação deve ocorrer no ambiente de desenvolvimento macOS antes de entrega
 | Leitor | PDFKit, pesquisa, navegação, miniaturas, marcadores, anotações, impressão e cópia; execução nativa pendente |
 | Interface | Favoritos, ordem/visibilidade das ferramentas, aparência, densidade, opções do leitor e destinos; não equivale à personalização arbitrária de qualquer aspecto do macOS |
 | Edição | Texto novo e substituição por busca, imagem, formas, assinatura visual, marca d'água, numeração, recorte e rotação |
-| Formulários | Criação e preenchimento de widgets, exportação de campos; detecção automática de campos não implementada |
+| Formulários | Criação e preenchimento de widgets, exportação de campos e sugestões automáticas por caixas/linhas; a detecção é heurística e precisa de revisão |
 | Office | Word com reconstrução básica de estilos; PPTX com texto editável ou páginas rasterizadas; Excel por tabelas. Fidelidade exige revisão em documentos reais |
-| Assinatura | Imagem visual; sem assinatura digital certificada ou fluxo remoto de solicitação de assinaturas |
+| Assinatura | Imagem visual e preparação de solicitação no compositor de e-mail do macOS; sem assinatura digital certificada ou rastreamento remoto de assinaturas |
 | Segurança | AES-256, desbloqueio com senha conhecida, preservação de proteção nas operações PDF; redaction remove texto/áreas e limpa metadados/anexos |
 | OCR | OCRmyPDF ou Vision nativo; Vision recria páginas e pode perder widgets, links e assinaturas. OCR nativo recusa documento criptografado |
 | Scanner | Captura com scanner compatível através de ImageCaptureCore/ImageKit; importação e ordenação de capturas; não inclui fluxo de envio pelo celular/browser |
 | PDF/A | OCRmyPDF; metadados verificados em Linux, conformidade não certificada por veraPDF |
 | Comparação | Diferenças textuais ou relatório HTML lado a lado com diferenças gráficas |
 | IA | Foundation Models local, documentos em trechos, cancelamento e exportação TXT/Markdown/PDF; Apple Intelligence precisa estar disponível. Respostas exigem revisão |
-| Tradução | Tradução de texto e novo PDF; não preserva integralmente fontes/layout original |
-| Markdown | Reconstrução básica por blocos; não garante preservação semântica perfeita de títulos, tabelas, listas e links |
+| Tradução | Tradução de texto ou de blocos posicionados no PDF original, preservando imagens/vetores e recusando texto que não caiba; fontes e fidelidade tipográfica exata não são garantidas |
+| Markdown | Reconstrução heurística de títulos, tabelas, estilos, imagens e links; sem garantia de preservação semântica perfeita |
 | Fluxos | Editor visual, etapas ordenáveis, biblioteca local e importação/exportação de presets; senhas não são gravadas nos presets |
 | Desempenho Apple | Motor usa CPU; Core Image usa contexto Metal para melhoria de contraste; Vision/IA escolhem dispositivos conforme o sistema. Uso do Neural Engine e ganhos M4 não foram medidos |
 

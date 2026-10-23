@@ -7,9 +7,17 @@ A especificação está em [docs/REQUISITOS.md](docs/REQUISITOS.md), a correspon
 ## Estado verificável
 
 - Motor Python ampliado: 61 testes funcionais aprovados em Linux, incluindo saídas atômicas, cancelamento, preservação dos originais e de criptografia, formulários, conversões novas, achatamento, texto longo e comparação visual.
-- A execução macOS [40015439670](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670) aprovou compilação, 61 testes do motor, oito integrações e instalação completa do commit `9884ed1` em macOS 26.6.2, Apple M1 virtualizado.
+- A execução macOS [40019981712](https://github.com/vibracall-beep/PDF-/actions/runs/40019981712) aprovou compilação, 61 testes do motor, oito integrações e instalação completa do commit `9d72a9d` em macOS 26.6.2, Apple M1 virtualizado.
 - Verificação nativa aprovada antes e depois da ativação: PDFKit, formulários, renderização, Vision OCR, processamento gráfico, seleção de fontes para IA, validação estrutural de questões, criptografia, exportação e preservação de destinos.
-- O CI também gerou as capturas nativas da tela inicial e do leitor e o pacote de fontes com manifesto e checksum. Os artefatos estão na execução; o resultado efetivo de cada versão está no registro de validação.
+- As capturas reais do menu e do leitor, obtidas pelo ScreenCaptureKit, foram abertas e revisadas visualmente. O CI também gerou o pacote de fontes com manifesto e checksum. A revisão cobre esses dois estados estáticos, sem substituir testes de interação ou acessibilidade assistiva.
+
+## Menu principal
+
+![Menu principal do PDF](docs/imagens/menu-principal.png)
+
+Captura real da janela em macOS 26.6.2, 1050 × 772 pixels. A barra lateral reúne Início, Leitor, Favoritos, Digitalizar, Inteligência e Fluxos. O catálogo tem 49 opções, busca, categorias e estrelas de favoritos. Personalizar permite escolher aparência, cor, densidade, ordem e visibilidade das ferramentas, além das preferências de arquivos. A navegação entre Início e Favoritos limpa os filtros; resultados vazios oferecem uma ação para limpá-los.
+
+O [leitor também foi capturado](docs/imagens/leitor.png), com miniaturas e conteúdo do documento de exemplo visíveis.
 
 ## Instalação completa por comando
 

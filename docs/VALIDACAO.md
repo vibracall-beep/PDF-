@@ -14,11 +14,11 @@
 
 ## macOS: execução real pelo GitHub Actions
 
-O usuário autorizou GitHub Actions. `.github/workflows/macos.yml` usa runner Apple Silicon `macos-26`, compila o aplicativo, instala as dependências, executa os testes e valida o bundle assinado localmente. O fluxo também gera uma imagem da interface nativa para revisão. O instalador requer macOS 26 e Swift 6.2 ou posteriores.
+O usuário autorizou GitHub Actions. `.github/workflows/macos.yml` usa runner Apple Silicon `macos-26`, compila o aplicativo, instala as dependências, executa os testes e valida o bundle assinado localmente. Após compilar, o fluxo captura as janelas reais do binário nativo pelo ScreenCaptureKit, restrito ao próprio processo. Depois executa a instalação e seus testes. Uma falha na captura permanece como falha do job, mas não impede as verificações independentes da instalação. O instalador requer macOS 26 e Swift 6.2 ou posteriores.
 
 `PDF --smoke-test` contém verificações de PDFKit, busca, formulários, persistência de anotações, renderização, Vision OCR a partir de página sem texto, melhoria de imagem Core Image/Metal, divisão e recuperação de contexto para IA, validação estrutural de questões, exportação PDF, criptografia, importação de capturas e publicação atômica.
 
-A versão ampliada do commit `9884ed14006ba76546dbca4966f3daf7cd08acbb` foi aprovada integralmente na execução [40015439670](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670), em 23/10/2026:
+A versão ampliada do commit `9d72a9d75da72437a68d411359906e3e10a4466e` foi aprovada integralmente na execução [40019981712](https://github.com/vibracall-beep/PDF-/actions/runs/40019981712), em 23/10/2026:
 
 | Verificação | Resultado |
 |---|---|
@@ -29,12 +29,16 @@ A versão ampliada do commit `9884ed14006ba76546dbca4966f3daf7cd08acbb` foi apro
 | Runtime instalado e Chromium | Aprovados |
 | Testes nativos antes/depois da ativação | Aprovados nas duas execuções |
 | Ativação do aplicativo | Aprovada |
-| Capturas nativas da tela inicial e do leitor | Geradas |
+| Capturas reais da tela inicial e do leitor | Geradas e revisadas visualmente |
 | Pacote de fontes e checksum | Gerados |
 
 Ambiente real: macOS **26.6.2**, Xcode **26.6**, SDK **26.5**, processador **Apple M1 (Virtual)** com três CPUs. O contexto gráfico identificado foi **Apple Paravirtual device**. Esse ambiente confirma execução nativa arm64 e dos frameworks testados; não é uma medição em M4 físico nem comprova utilização do Neural Engine.
 
-Artefatos da execução: [preview nativo](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670/artifacts/12527928020) e [fontes](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670/artifacts/12528422243). SHA-256 do pacote dessa execução: `9139827c73c170a235e8d5744ec9928e05b74478f05e06238c5247aa4d475441`. A revisão visual do preview depende do acesso ao host de download dos artefatos; gerar o arquivo não equivale a inspecioná-lo.
+Artefatos da execução: [preview nativo](https://github.com/vibracall-beep/PDF-/actions/runs/40019981712/artifacts/12529953197) e [fontes](https://github.com/vibracall-beep/PDF-/actions/runs/40019981712/artifacts/12530890738). SHA-256 do pacote dessa execução: `7ff9635c786dfaa3d096ad39c3ff406006ba8faa0ff24e1622c068a6fb55e449`.
+
+As duas imagens de 1050 × 772 pixels foram baixadas e abertas para inspeção: [menu principal](imagens/menu-principal.png) e [leitor](imagens/leitor.png). Foram conferidos barra lateral, rótulos, busca, categorias, três colunas de cartões, favoritos, controles do leitor, miniaturas e texto do PDF de exemplo. Os arquivos preservam os bytes do artefato original, sem montagem ou retoque. As capturas anteriores por cache de NSView apresentavam áreas vazias e foram substituídas; não eram evidência adequada da aparência real.
+
+Esta revisão abrange somente os dois estados capturados, no modo claro. Não comprova todos os tamanhos de janela, temas, interações ou uso com VoiceOver. O preflight global de captura foi registrado como disponível no runner; a implementação usa somente a lista de janelas do próprio processo e não altera permissões do sistema.
 
 Scanner físico, iPhone/Continuity Camera, respostas Foundation Models, exportação real pelo Pages e desempenho no hardware do usuário requerem dispositivos/aplicativos/capacidades disponíveis no ambiente de validação; um teste de disponibilidade não comprova a execução dessas funções. O acesso ao Sign.com é uma abertura de serviço externo, sem simulação de integração com conta ou API.
 

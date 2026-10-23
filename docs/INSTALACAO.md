@@ -14,14 +14,14 @@ Não é necessária uma assinatura paga de desenvolvedor Apple. O bundle recebe 
 
 ## Comando da versão validada
 
-A execução [40015439670](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670) aprovou o commit `9884ed14006ba76546dbca4966f3daf7cd08acbb`: compilação, 69 testes do motor/integrações, instalação e verificações nativas em macOS 26.6.2 arm64. Com os requisitos acima instalados, cole este bloco no Terminal de cada Mac:
+A execução [40019981712](https://github.com/vibracall-beep/PDF-/actions/runs/40019981712) aprovou o commit `9d72a9d75da72437a68d411359906e3e10a4466e`: compilação, 69 testes do motor/integrações, instalação e verificações nativas em macOS 26.6.2 arm64. Com os requisitos acima instalados, cole este bloco no Terminal de cada Mac:
 
 ```bash
 bash <<'PDF_INSTALL'
 set -euo pipefail
 PDF_SOURCE_DIR="$(mktemp -d "$HOME/PDF-fontes.XXXXXX")"
 git clone --quiet https://github.com/vibracall-beep/PDF-.git "$PDF_SOURCE_DIR"
-git -C "$PDF_SOURCE_DIR" checkout --quiet --detach 9884ed14006ba76546dbca4966f3daf7cd08acbb
+git -C "$PDF_SOURCE_DIR" checkout --quiet --detach 9d72a9d75da72437a68d411359906e3e10a4466e
 printf 'Fontes preservados em: %s\n' "$PDF_SOURCE_DIR"
 bash "$PDF_SOURCE_DIR/scripts/install-mac.sh"
 open "$HOME/Applications/PDF.app"
@@ -117,4 +117,4 @@ Quando existe uma instalação anterior com o identificador `local.pdf.desktop`,
 
 O comando `bash scripts/check-mac.sh CAMINHO/PDF.app` verifica arquitetura, assinatura, runtime, idiomas, motores e o teste nativo. O teste nativo e a renderização usada no CI têm limite de 180 segundos; exceder o limite provoca falha explícita e encerramento do grupo de processos. Testes aprovados não equivalem a provar ausência absoluta de erros, fidelidade de todos os documentos ou comportamento de todo scanner.
 
-A execução de CI registra versão do macOS, nome do processador e número de CPUs, sem números de série. O artefato `PDF-macOS-preview` contém a renderização nativa produzida para inspeção visual. Uma imagem renderizada não substitui testes de interação, acessibilidade, Apple Intelligence ou equipamentos físicos.
+A execução de CI registra versão do macOS, nome do processador e número de CPUs, sem números de série. O artefato `PDF-macOS-preview` contém capturas reais do menu e do leitor, pelo ScreenCaptureKit, restritas ao próprio processo. As imagens da execução validada foram abertas e revisadas; cópias estão em `docs/imagens`. Uma imagem renderizada não substitui testes de interação, acessibilidade, Apple Intelligence ou equipamentos físicos.

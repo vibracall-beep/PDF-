@@ -48,6 +48,9 @@ struct ToolConfigurationView: View {
     @State private var quality = 80
     @State private var recompressImages = false
     @State private var fontSize = 14.0
+    @State private var fontName = "helv"
+    @State private var numberFormat = "{n} / {total}"
+    @State private var redactMode = "text"
     @State private var margin = 24.0
     @State private var opacity = 1.0
     @State private var position = "top-left"
@@ -74,9 +77,9 @@ struct ToolConfigurationView: View {
         if tool.id == "compare" { return compareMode == "visual" ? "compare-visual" : "compare" }
         return tool.operation
     }
-    var multipleInputs:Bool { ["merge","images","compare"].contains(tool.id) }
+    var multipleInputs:Bool { ["merge","images","compare","rotate"].contains(tool.id) }
     var typography:Bool { ["text","watermark","numbers","edit"].contains(operation) && !(operation == "watermark" && watermarkMode == "image") }
-    var needsRectangle:Bool { ["image","shape","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image") }
+    var needsRectangle:Bool { ["image","shape","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image") || (operation == "redact" && redactMode == "area") }
     var hasPageSelection:Bool { !["merge","images","office","html","compare","compare-visual","forms","form-create","form-fill"].contains(operation) }
     var outputSuffix:String { ["word":"docx","powerpoint":"pptx","excel":"xlsx","markdown":"md","compare":"txt","compare-visual":"html","forms":"json"][operation] ?? "pdf" }
     var body: some View {
@@ -133,8 +136,9 @@ struct ToolConfigurationView: View {
             Picker("Editar",selection:$editMode) { Text("Adicionar texto").tag("text"); Text("Substituir texto").tag("edit"); Text("Inserir imagem").tag("image"); Text("Desenhar forma").tag("shape") }
         }
         if ["text","watermark","redact","edit"].contains(operation) {
+            if operation == "redact" { Picker("Remover",selection:$redactMode) { Text("Ocorrências de texto").tag("text"); Text("Área com texto e gráficos").tag("area") }.pickerStyle(.segmented) }
             if operation == "watermark" { Picker("Marca",selection:$watermarkMode) { Text("Texto").tag("text"); Text("Imagem").tag("image") }.pickerStyle(.segmented) }
-            if operation != "watermark" || watermarkMode == "text" { TextField(operation == "edit" || operation == "redact" ? "Texto a localizar" : "Texto",text:$text).textFieldStyle(.roundedBorder) }
+            if (operation != "watermark" || watermarkMode == "text") && (operation != "redact" || redactMode == "text") { TextField(operation == "edit" || operation == "redact" ? "Texto a localizar" : "Texto",text:$text).textFieldStyle(.roundedBorder) }
             if operation == "edit" { TextField("Substituir por",text:$replacement).textFieldStyle(.roundedBorder); Text("A substituição pode alterar a diagramação. Revise a cópia gerada.").font(.caption).foregroundStyle(.secondary) }
             if operation == "redact" { Text("As ocorrências encontradas serão removidas permanentemente da cópia. Revise também imagens e outros dados antes de compartilhá-la.").font(.caption).foregroundStyle(.secondary) }
         }
@@ -172,7 +176,11 @@ struct ToolConfigurationView: View {
         }
         if operation == "powerpoint" { Picker("Conteúdo",selection:$presentationMode) { Text("Texto e imagens editáveis").tag("editable"); Text("Página como imagem").tag("image") }; Text("A conversão editável exige revisão da diagramação.").font(.caption).foregroundStyle(.secondary) }
         if operation == "crop" { numberField("Margem a recortar (pontos)",value:$margin); Text("O recorte altera a área visível; não remove dados ocultos.").font(.caption).foregroundStyle(.secondary) }
-        if operation == "numbers" { Stepper("Começar em \(startNumber)",value:$startNumber,in:1...9999) }
+        if operation == "numbers" {
+            Stepper("Começar em \(startNumber)",value:$startNumber,in:1...9999)
+            TextField("Formato: {n} / {total}",text:$numberFormat).textFieldStyle(.roundedBorder)
+            Text("Use {n} para o número e {total} para o total de páginas.").font(.caption).foregroundStyle(.secondary)
+        }
         if operation == "ocr" || operation == "pdfa" {
             Picker("Idiomas",selection:$language) { Text("Português + inglês").tag("por+eng"); Text("Português").tag("por"); Text("Inglês").tag("eng"); Text("Espanhol").tag("spa"); Text("Francês").tag("fra"); Text("Alemão").tag("deu") }
             Text("Requer os componentes de OCR e os idiomas instalados. OCR nativo Apple também está disponível em Digitalizar.").font(.caption).foregroundStyle(.secondary)
@@ -182,6 +190,7 @@ struct ToolConfigurationView: View {
     }
     var typographySection: some View {
         VStack(alignment:.leading,spacing:12) {
+            Picker("Fonte",selection:$fontName) { Text("Helvetica").tag("helv"); Text("Helvetica negrito").tag("hebo"); Text("Helvetica itálico").tag("heit"); Text("Times").tag("tiro"); Text("Courier").tag("cour") }
             HStack { numberField("Tamanho da fonte",value:$fontSize); ColorPicker("Cor",selection:$color,supportsOpacity:false) }
             Picker("Posição",selection:$position) {
                 Text("Superior esquerda").tag("top-left"); Text("Superior central").tag("top-center"); Text("Superior direita").tag("top-right")
@@ -283,13 +292,14 @@ struct ToolConfigurationView: View {
         guard !selectedInputs.isEmpty else { error = "Escolha os arquivos de entrada."; return }
         if tool.id == "compare" && selectedInputs.count != 2 { error = "Selecione exatamente dois PDFs."; return }
         if operation == "protect" && newPassword.count < 8 { error = "A nova senha precisa ter ao menos 8 caracteres."; return }
-        if ["text","edit","redact"].contains(operation) && text.isEmpty { error = "Informe o texto da operação."; return }
+        if (["text","edit"].contains(operation) || (operation == "redact" && redactMode == "text")) && text.isEmpty { error = "Informe o texto da operação."; return }
         if operation == "organize" && pages.isEmpty { error = "Informe a ordem das páginas."; return }
         if (["image","signature"].contains(operation) || (operation == "watermark" && watermarkMode == "image")) && imageURL == nil { error = "Escolha a imagem."; return }
         var options:[String:Any] = ["password":password]
         if !pages.isEmpty { options["pages"] = pages }
-        if typography { options.merge(["font_size":fontSize,"color":color.hexRGB,"position":position,"margin":margin,"opacity":opacity]) { _,new in new } }
-        if ["text","watermark","redact"].contains(operation) { options["text"] = text }
+        if typography { options.merge(["font_size":fontSize,"font":fontName,"color":color.hexRGB,"position":position,"margin":margin,"opacity":opacity]) { _,new in new } }
+        if ["text","watermark","redact"].contains(operation) { options["text"] = operation == "redact" && redactMode == "area" ? "" : text }
+        if operation == "redact" && redactMode == "area" { options["rects"] = [[x,y,x+width,y+height]] }
         if operation == "edit" { options["search"] = text; options["replacement"] = replacement }
         if let imageURL { options["image"] = imageURL.path; options["opacity"] = opacity }
         if needsRectangle { options["rect"] = [x,y,x+width,y+height] }
@@ -302,7 +312,7 @@ struct ToolConfigurationView: View {
         if tool.id == "excel-pdf" { options["fit_width"] = fitWidth; options["orientation"] = orientation }
         if operation == "powerpoint" { options["mode"] = presentationMode }
         if operation == "crop" { options["margin"] = margin }
-        if operation == "numbers" { options["start"] = startNumber }
+        if operation == "numbers" { options["start"] = startNumber; options["format"] = numberFormat }
         if operation == "ocr" || operation == "pdfa" { options["language"] = language }
         if operation == "protect" { options["new_password"] = newPassword }
         if operation == "form-create" {
@@ -310,8 +320,10 @@ struct ToolConfigurationView: View {
             options["fields"] = fields.map(\.options)
         }
         if operation == "form-fill" { guard !values.isEmpty else { error = "Leia os campos antes de preencher."; return }; options["values"] = Dictionary(uniqueKeysWithValues:values.map { ($0.name,$0.jsonValue) }) }
-        guard let output = model.selectOutput(extension:outputSuffix,directory:["split","jpg"].contains(operation)) else { return }
-        model.execute(operation:operation,inputs:selectedInputs,output:output,options:options,title:tool.name)
+        let batch = operation == "rotate" && selectedInputs.count > 1
+        guard let output = model.selectOutput(extension:outputSuffix,directory:batch || ["split","jpg"].contains(operation)) else { return }
+        if batch { model.executeBatch(operation:operation,inputs:selectedInputs,directory:output,options:options,title:tool.name) }
+        else { model.execute(operation:operation,inputs:selectedInputs,output:output,options:options,title:tool.name) }
         password = ""; newPassword = ""; dismiss()
     }
 }

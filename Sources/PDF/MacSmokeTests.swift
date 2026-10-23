@@ -99,6 +99,31 @@ enum MacSmokeTests {
         let exported = try IntelligenceText.PDF("Resumo de teste com ação e conteúdo em português.")
         try require((PDFDocument(data: exported)?.string ?? "").contains("Resumo de teste"),
                     "Exportação do resultado de IA para PDF falhou.")
+        let importedPDF = try ContinuityCaptureFile.save(exported, isPDF: true, directory: directory)
+        try require(PDFDocument(url: importedPDF)?.pageCount == 1, "Importação de captura PDF falhou.")
+        guard let imageData = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else {
+            throw NSError(domain: "PDF.NativeChecks", code: 7,
+                          userInfo: [NSLocalizedDescriptionKey: "Não foi possível codificar a captura de teste."])
+        }
+        let importedImage = try ContinuityCaptureFile.save(imageData, isPDF: false, directory: directory)
+        try require(NSImage(contentsOf: importedImage) != nil, "Importação de captura de imagem falhou.")
+        var refusedInvalidCapture = false
+        do { _ = try ContinuityCaptureFile.save(Data("not a PDF".utf8), isPDF: true, directory: directory) }
+        catch { refusedInvalidCapture = true }
+        try require(refusedInvalidCapture, "Uma captura PDF inválida foi aceita.")
+
+        let protectedOptions: [AnyHashable: Any] = [
+            AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): "native-check-owner-123",
+            AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): "native-check-reader-123"
+        ]
+        guard let protectedData = restored.dataRepresentation(options: protectedOptions),
+              let protectedCopy = PDFDocument(data: protectedData) else {
+            throw NSError(domain: "PDF.NativeChecks", code: 8,
+                          userInfo: [NSLocalizedDescriptionKey: "A exportação PDFKit protegida falhou."])
+        }
+        try require(protectedCopy.isEncrypted && protectedCopy.isLocked, "A cópia nativa perdeu a proteção.")
+        try require(!protectedCopy.unlock(withPassword: ""), "A cópia nativa aceitou senha vazia.")
+        try require(protectedCopy.unlock(withPassword: "native-check-reader-123"), "A senha da cópia nativa não funciona.")
         let atomic = directory.appendingPathComponent("atomic.txt")
         try NativeOutput.write(Data("original".utf8), to: atomic)
         var refusedOverwrite = false

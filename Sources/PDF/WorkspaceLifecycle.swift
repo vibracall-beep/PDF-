@@ -14,6 +14,10 @@ struct WorkspaceWindowGuard:NSViewRepresentable {
     func makeCoordinator() -> Coordinator { Coordinator(model:model) }
     func makeNSView(context:Context) -> GuardView { let view = GuardView(); view.coordinator = context.coordinator; return view }
     func updateNSView(_ nsView:GuardView,context:Context) { context.coordinator.model = model; context.coordinator.install(on:nsView.window) }
+    static func dismantleNSView(_ nsView:GuardView,coordinator:Coordinator) {
+        if let window = coordinator.installedWindow, window.delegate === coordinator { window.delegate = coordinator.previous }
+        coordinator.installedWindow = nil
+    }
     final class GuardView:NSView {
         weak var coordinator:Coordinator?
         override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); coordinator?.install(on:window) }

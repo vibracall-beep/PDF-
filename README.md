@@ -45,7 +45,7 @@ A validação deve ocorrer no ambiente de desenvolvimento macOS antes de entrega
 | Assinatura | Imagem visual e preparação de solicitação no compositor de e-mail do macOS; sem assinatura digital certificada ou rastreamento remoto de assinaturas |
 | Segurança | AES-256, desbloqueio com senha conhecida, preservação de proteção nas operações PDF; redaction remove texto/áreas e limpa metadados/anexos |
 | OCR | OCRmyPDF ou Vision nativo; Vision recria páginas e pode perder widgets, links e assinaturas. OCR nativo recusa documento criptografado |
-| Scanner | Captura com scanner compatível através de ImageCaptureCore/ImageKit; importação e ordenação de capturas; não inclui fluxo de envio pelo celular/browser |
+| Scanner | Captura com scanner via ImageCaptureCore/ImageKit, importação, ordenação e Câmera de Continuidade do iPhone/iPad pelos menus públicos do macOS; depende de dispositivos/configurações compatíveis |
 | PDF/A | OCRmyPDF; metadados verificados em Linux, conformidade não certificada por veraPDF |
 | Comparação | Diferenças textuais ou relatório HTML lado a lado com diferenças gráficas |
 | IA | Foundation Models local, documentos em trechos, cancelamento e exportação TXT/Markdown/PDF; Apple Intelligence precisa estar disponível. Respostas exigem revisão |

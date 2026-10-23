@@ -76,11 +76,12 @@ import UniformTypeIdentifiers
         return state.joined(separator:"\n")
     }
     func confirmDiscardEdits() -> Bool {
+        NSApp.keyWindow?.makeFirstResponder(nil)
         guard hasUnsavedChanges else { return true }
         let alert = NSAlert(); alert.messageText = "Há alterações no documento aberto"
         alert.informativeText = "Salve uma cópia para conservar suas anotações antes de abrir outro arquivo."
-        alert.addButton(withTitle:"Continuar sem salvar"); alert.addButton(withTitle:"Voltar")
-        return alert.runModal() == .alertFirstButtonReturn
+        alert.addButton(withTitle:"Voltar"); alert.addButton(withTitle:"Descartar alterações")
+        return alert.runModal() == .alertSecondButtonReturn
     }
     func selectOutput(extension suffix:String = "pdf", directory:Bool = false) -> URL? {
         let panel = NSSavePanel()
@@ -95,13 +96,27 @@ import UniformTypeIdentifiers
         return target
     }
     func save() {
+        NSApp.keyWindow?.makeFirstResponder(nil)
         guard let document else { return }
-        // PDFKit may drop encryption when reserializing. An encrypted document must be
-        // exported through an explicit password-aware path instead of silently weakening it.
-        guard !document.isEncrypted else {
-            message = "Para salvar alterações em um PDF protegido, crie primeiro uma cópia desbloqueada pela ferramenta Desbloquear PDF e proteja o resultado depois."; return
-        }
-        guard let target = selectOutput(), let bytes = document.dataRepresentation() else { return }
+        let bytes:Data?
+        if document.isEncrypted {
+            let alert = NSAlert(); alert.messageText = "Salvar cópia protegida"
+            alert.informativeText = "Defina a senha da nova cópia para manter o conteúdo protegido. Use pelo menos 8 caracteres."
+            let first = NSSecureTextField(frame:NSRect(x:0,y:0,width:320,height:24)); first.placeholderString = "Nova senha"
+            let second = NSSecureTextField(frame:NSRect(x:0,y:0,width:320,height:24)); second.placeholderString = "Confirmar nova senha"
+            let stack = NSStackView(views:[first,second]); stack.orientation = .vertical; stack.spacing = 8; stack.frame = NSRect(x:0,y:0,width:320,height:56)
+            alert.accessoryView = stack; alert.addButton(withTitle:"Salvar protegida"); alert.addButton(withTitle:"Cancelar")
+            guard alert.runModal() == .alertFirstButtonReturn else { return }
+            let secret = first.stringValue
+            guard secret.count >= 8,secret == second.stringValue else { message = "Use senhas iguais, com pelo menos 8 caracteres."; return }
+            first.stringValue = ""; second.stringValue = ""
+            let options:[AnyHashable:Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue):secret,AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue):secret]
+            bytes = document.dataRepresentation(options:options)
+            guard let data = bytes,let verification = PDFDocument(data:data),verification.isEncrypted,verification.isLocked,!verification.unlock(withPassword:""),verification.unlock(withPassword:secret) else {
+                message = "Não foi possível confirmar a proteção da cópia. Nenhum arquivo foi salvo."; return
+            }
+        } else { bytes = document.dataRepresentation() }
+        guard let target = selectOutput(),let bytes else { return }
         do {
             try bytes.write(to:target, options:.withoutOverwriting)
             lastOutput = target; hasEdits = false; originalWidgetState = widgetState(); message = "Cópia salva: \(target.lastPathComponent)"
@@ -156,11 +171,29 @@ import UniformTypeIdentifiers
         guard let process, process.isRunning else { return }
         cancelled = true; message = "Cancelando…"; process.interrupt()
     }
+    func executeBatch(operation:String, inputs:[URL], directory:URL, options:[String:Any], title:String) {
+        guard !busy, !inputs.isEmpty else { return }
+        do { try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:false) }
+        catch { message = "Não foi possível criar a pasta de resultados: \(error.localizedDescription)"; return }
+        func next(_ index:Int) {
+            guard index < inputs.count else { lastOutput = directory; message = "Concluído: \(inputs.count) documentos em \(directory.lastPathComponent)"; return }
+            let name = String(format:"%03d-",index+1) + inputs[index].deletingPathExtension().lastPathComponent + ".pdf"
+            let target = directory.appendingPathComponent(name)
+            execute(operation:operation,inputs:[inputs[index]],output:target,options:options,title:"\(title) · \(index+1)/\(inputs.count)") { result in
+                switch result {
+                case .success: next(index+1)
+                case .failure(let error): self.lastOutput = directory; self.message = "Lote interrompido após \(index) documentos concluídos. \(error.localizedDescription)"
+                }
+            }
+        }
+        next(0)
+    }
     func execute(operation:String, inputs:[URL], output:URL, options:[String:Any], title:String, completion:((Result<URL,Error>)->Void)? = nil) {
-        guard !busy else { message = "Aguarde a operação atual terminar ou cancele-a."; return }
-        guard !inputs.isEmpty else { message = "Selecione ao menos um arquivo de entrada."; return }
-        guard !FileManager.default.fileExists(atPath:output.path) else { message = "O destino já existe. Escolha um novo nome."; return }
-        guard let data = try? JSONSerialization.data(withJSONObject:options) else { message = "As opções da operação são inválidas."; return }
+        func fail(_ detail:String) { message = detail; completion?(.failure(NSError(domain:"PDF.Engine",code:1,userInfo:[NSLocalizedDescriptionKey:detail]))) }
+        guard !busy else { fail("Aguarde a operação atual terminar ou cancele-a."); return }
+        guard !inputs.isEmpty else { fail("Selecione ao menos um arquivo de entrada."); return }
+        guard !FileManager.default.fileExists(atPath:output.path) else { fail("O destino já existe. Escolha um novo nome."); return }
+        guard let data = try? JSONSerialization.data(withJSONObject:options) else { fail("As opções da operação são inválidas."); return }
         let resources = Bundle.main.resourceURL ?? URL(fileURLWithPath:FileManager.default.currentDirectoryPath)
         let bundledPython = resources.appendingPathComponent("runtime/bin/python3")
         let project = URL(fileURLWithPath:FileManager.default.currentDirectoryPath)
@@ -168,7 +201,7 @@ import UniformTypeIdentifiers
         let bundledEngine = resources.appendingPathComponent("engine/pdf_engine.py")
         let engine = FileManager.default.fileExists(atPath:bundledEngine.path) ? bundledEngine : project.appendingPathComponent("engine/pdf_engine.py")
         guard FileManager.default.isExecutableFile(atPath:python.path), FileManager.default.fileExists(atPath:engine.path) else {
-            message = "O motor local não foi instalado. Execute o instalador completo do PDF."; return
+            fail("O motor local não foi instalado. Execute o instalador completo do PDF."); return
         }
         let job = UUID(); activeJob = job; busy = true; cancelled = false; lastOutput = nil; message = "\(title)…"
         let task = Process(); task.executableURL = python
@@ -180,7 +213,7 @@ import UniformTypeIdentifiers
         let input = Pipe(); let log = Pipe(); task.standardInput = input; task.standardError = log; task.standardOutput = log
         process = task
         do { try task.run() }
-        catch { busy = false; process = nil; message = "Não foi possível iniciar o motor: \(error.localizedDescription)"; return }
+        catch { busy = false; process = nil; fail("Não foi possível iniciar o motor: \(error.localizedDescription)"); return }
         // Drain the pipe before waiting; external converters can emit enough logs to fill it.
         DispatchQueue.global(qos:.userInitiated).async { [weak self] in
             input.fileHandleForWriting.write(data); try? input.fileHandleForWriting.close()

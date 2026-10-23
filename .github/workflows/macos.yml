@@ -28,6 +28,10 @@ jobs:
           uname -m
           xcodebuild -version
           xcrun --sdk macosx --show-sdk-version
+      - name: Compile native application
+        run: |
+          echo "::add-matcher::.github/swift-problem-matcher.json"
+          xcrun swift build -c release --arch arm64 --jobs 3
       - name: Build, install and validate complete application
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed

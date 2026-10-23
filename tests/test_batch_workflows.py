@@ -179,23 +179,74 @@ class BatchWorkflowTests(unittest.TestCase):
                 run('workflow', [self.source], output, {'steps': self.steps('word')})
         self.assert_clean(output)
 
+    def assert_racing_destination_preserved(self, requested, kind):
+        # run() canonicalizes the parent before staging. On macOS /var is an
+        # alias of /private/var; compare the same canonical parent without ever
+        # following the destination leaf (which may itself become a symlink).
+        canonical = requested.parent.resolve() / requested.name
+        actual_publish = pdf_engine._publish
+        hooks = []
+        before = None
+        victim = requested.parent / (requested.name + '-link-target')
+        victim.write_text('symlink target stays intact')
+
+        def racing_publish(payload, destination):
+            nonlocal before
+            if Path(destination) == canonical:
+                hooks.append(destination)
+                if kind == 'empty-directory':
+                    requested.mkdir()
+                elif kind == 'nonempty-directory':
+                    requested.mkdir(); (requested / 'winner').write_text('other process')
+                elif kind == 'file':
+                    requested.write_text('other process')
+                elif kind == 'symlink':
+                    requested.symlink_to(victim)
+                else:
+                    self.fail('Unknown race fixture kind')
+                before = requested.lstat()
+            actual_publish(payload, destination)
+
+        with patch.object(pdf_engine, '_publish', side_effect=racing_publish):
+            try:
+                with self.assertRaisesRegex(ValueError, 'Outro processo criou o destino'):
+                    run('workflow', [self.source], requested, {'batch': True, 'steps': self.steps()})
+            finally:
+                self.assertEqual(len(hooks), 1, 'The competing destination must actually be created before publication.')
+        after = requested.lstat()
+        self.assertEqual((after.st_dev, after.st_ino, after.st_mode), (before.st_dev, before.st_ino, before.st_mode))
+        if kind == 'empty-directory':
+            self.assertEqual(list(requested.iterdir()), [])
+        elif kind == 'nonempty-directory':
+            self.assertEqual([p.name for p in requested.iterdir()], ['winner'])
+            self.assertEqual((requested / 'winner').read_text(), 'other process')
+        elif kind == 'file':
+            self.assertEqual(requested.read_text(), 'other process')
+        else:
+            self.assertTrue(requested.is_symlink())
+            self.assertEqual(requested.readlink(), victim)
+        self.assertEqual(victim.read_text(), 'symlink target stays intact')
+        self.assertEqual(list(requested.parent.glob('.pdf-output-*')), [])
+        self.assertEqual(list(requested.parent.glob('.workflow-*')), [])
+
     def test_existing_and_racing_destinations_never_overwritten(self):
         output = self.root / 'already'
         output.mkdir(); marker = output / 'keep'; marker.write_text('original')
         with self.assertRaises(ValueError):
             run('workflow', [self.source], output, {'batch': True, 'steps': self.steps()})
         self.assertEqual(marker.read_text(), 'original')
-        race = self.root / 'race'
-        actual_publish = pdf_engine._publish
-        def racing_publish(payload, destination):
-            if Path(destination) == race:
-                race.mkdir(); (race / 'winner').write_text('other process')
-            actual_publish(payload, destination)
-        with patch.object(pdf_engine, '_publish', side_effect=racing_publish):
-            with self.assertRaises(ValueError):
-                run('workflow', [self.source], race, {'batch': True, 'steps': self.steps()})
-        self.assertEqual([p.name for p in race.iterdir()], ['winner'])
-        self.assertEqual(list(self.root.glob('.pdf-output-*')), [])
+        for kind in ('empty-directory', 'nonempty-directory', 'file', 'symlink'):
+            with self.subTest(kind=kind):
+                self.assert_racing_destination_preserved(self.root / ('race-' + kind), kind)
+
+    def test_racing_destination_with_symlinked_parent_is_really_injected(self):
+        # Exercise the macOS /var -> /private/var path shape on every platform,
+        # so the test cannot silently omit the race when paths are normalized.
+        actual = self.root / 'canonical-parent'; actual.mkdir()
+        alias = self.root / 'parent-alias'; alias.symlink_to(actual, target_is_directory=True)
+        for kind in ('empty-directory', 'nonempty-directory', 'file', 'symlink'):
+            with self.subTest(kind=kind):
+                self.assert_racing_destination_preserved(alias / ('race-' + kind), kind)
 
     def test_safe_names_and_digital_signature_must_be_terminal(self):
         name = result_name('/tmp/.. odd:\nname.pdf', 0, 'word')

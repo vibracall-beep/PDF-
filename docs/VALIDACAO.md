@@ -8,6 +8,8 @@ A nova suíte inclui assinaturas PAdES reais e certificados temporários, veraPD
 
 As execuções intermediárias `40024594172` e `40025626994` compilaram e capturaram a interface, mas **não aprovaram o conjunto**: houve falha do Vision no macOS 27 e falha da auditoria de realce no macOS 26. As correções e o conjunto ampliado exigem uma nova execução integral antes da aprovação da instalação.
 
+A execução [40028618566](https://github.com/vibracall-beep/PDF-/actions/runs/40028618566), do commit `7cf1b14fae2267750d1dea3813e82a829f365efd`, compilou o conjunto ampliado em ambos os sistemas. Entretanto, a captura parou depois da comparação lado a lado e o teste de concorrência de destinos não provocou a corrida esperada: a comparação do hook ignorava a canonicalização de `/var` para `/private/var` no macOS. O instalador encerrou nessa falha do teste Python, antes das verificações nativas. Não houve aprovação da instalação nem do benchmark. As capturas parciais também revelaram abas ocultas e relatórios AX incompletos; esses achados exigem correção e nova evidência visual.
+
 ## Histórico anterior: Linux
 
 - 61 testes funcionais do motor: aprovados, sem falhas ou testes ignorados.

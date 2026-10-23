@@ -213,7 +213,11 @@ enum MacPreview {
         standaloneTitle = applicationNavigation ? nil : title
         let root = view.environmentObject(model).environmentObject(preferences).defaultAppStorage(defaults)
             .tint(preferences.accent).preferredColorScheme(preferences.preferredScheme)
+            .frame(minWidth:applicationNavigation ? 1050 : nil,minHeight:applicationNavigation ? 720 : nil)
         window.contentView = NSHostingView(rootView:root)
+        // Match WindowGroup's actual minimum. Without it, AppKit shrinks the preview
+        // to the CI desktop, testing a size the production window does not permit.
+        window.contentMinSize = applicationNavigation ? NSSize(width:1050,height:720) : NSSize(width:0,height:0)
         window.appearance = NSAppearance(named:preferences.state.colorScheme == "dark" ? .darkAqua : .aqua)
         window.setContentSize(size)
         if let screen = NSScreen.main {
@@ -236,6 +240,7 @@ enum MacPreview {
         if let standaloneTitle { resetWindowChrome(title:standaloneTitle) }
         MacPreview.trace("\(stage): layout begin")
         window.contentView?.layoutSubtreeIfNeeded(); window.displayIfNeeded(); CATransaction.flush()
+        MacPreview.trace("\(stage): window frame \(window.frame); content layout \(window.contentLayoutRect); host \(String(describing:window.contentView?.bounds))")
         let path = name.map { destination.deletingPathExtension().appendingPathExtension($0 + ".png") } ?? destination
         MacPreview.trace("\(stage): ScreenCaptureKit begin")
         try await MacPreview.capture(window,to:path)
@@ -288,9 +293,11 @@ enum MacPreview {
         guard model.pdfView?.document === model.document else { throw MacPreview.failure(20,"O leitor ainda não apresentou a aba selecionada.") }
         MacPreview.trace("create and select note begin")
         model.addNote("Revisar esta passagem antes de concluir o documento.",colorHex:"#FFCC00")
+        MacPreview.trace("note added; read annotation list begin")
         guard let note = model.annotationsOnCurrentPage.last(where:{ PDFAnnotationKind.matches($0,.text) }) else {
             throw MacPreview.failure(21,"A anotação da demonstração não foi criada no documento.")
         }
+        MacPreview.trace("note located; select annotation begin")
         model.selectAnnotation(note)
         MacPreview.trace("create and select note end")
         display(ContentView(initialReaderInspector:true),size:NSSize(width:1050,height:720),title:"PDF",applicationNavigation:true)

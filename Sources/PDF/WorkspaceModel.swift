@@ -192,13 +192,17 @@ enum ReaderAnnotationStyle {
     private func configure(_ session: PDFDocumentSession) {
         session.history.onChange = { [weak self, weak session] in
             guard let self, let session else { return }
+            AnnotationDiagnostics.trace("history.onChange: session state begin")
             session.hasEdits = true; session.isDirty = true; session.annotationRevision += 1
+            AnnotationDiagnostics.trace("history.onChange: session state end; workspace state begin")
             if self.activeSessionID == session.id {
                 self.hasEdits = true; self.annotationRevision = session.annotationRevision; self.thumbnails.removeAllObjects()
                 if let selected = self.selectedAnnotation, selected.page == nil { self.selectedAnnotation = nil }
                 self.pdfView?.needsDisplay = true
             }
+            AnnotationDiagnostics.trace("history.onChange: workspace state end; recovery schedule begin")
             self.scheduleRecovery(session)
+            AnnotationDiagnostics.trace("history.onChange: recovery schedule end")
         }
     }
     func captureActiveSession() {
@@ -473,12 +477,23 @@ enum ReaderAnnotationStyle {
         message = "Realce adicionado. Salve uma cópia para conservar a alteração."
     }
     func addNote(_ text:String, colorHex: String? = nil) {
+        AnnotationDiagnostics.trace("addNote: currentPage begin")
         guard let page = pdfView?.currentPage, !text.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty else { return }
+        AnnotationDiagnostics.trace("addNote: currentPage end; bounds begin")
         let bounds = page.bounds(for:.cropBox)
+        AnnotationDiagnostics.trace("addNote: bounds end; annotation init begin")
         let annotation = PDFAnnotation(bounds:CGRect(x:bounds.minX + 30,y:bounds.maxY - 70,width:28,height:28),forType:.text,withProperties:nil)
+        AnnotationDiagnostics.trace("addNote: annotation init end; contents begin")
         annotation.contents = text
+        AnnotationDiagnostics.trace("addNote: contents end; color begin")
         annotation.color = ReaderAnnotationStyle.color(colorHex ?? defaults.string(forKey: "readerNoteColor") ?? "#FFCC00", fallback: "#FFCC00")
-        page.addAnnotation(annotation); ensureSession(); activeSession?.history.inserted(annotation, on: page, name: "Adicionar nota")
+        AnnotationDiagnostics.trace("addNote: color end; page.addAnnotation begin")
+        page.addAnnotation(annotation)
+        AnnotationDiagnostics.trace("addNote: page.addAnnotation end; ensureSession begin")
+        ensureSession()
+        AnnotationDiagnostics.trace("addNote: ensureSession end; history.inserted begin")
+        activeSession?.history.inserted(annotation, on: page, name: "Adicionar nota")
+        AnnotationDiagnostics.trace("addNote: history.inserted end")
     }
     func rotatePage() {
         guard let page = pdfView?.currentPage else { return }

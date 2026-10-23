@@ -1,6 +1,13 @@
 import AppKit
 import PDFKit
 
+enum AnnotationDiagnostics {
+    static func trace(_ phase: String) {
+        guard CommandLine.arguments.contains("--render-preview") else { return }
+        CIDiagnostics.record(phase, title: "PDF annotation preview")
+    }
+}
+
 /// `PDFAnnotation.type` exposes names such as "Text"; subtype constants can
 /// carry the PDF name prefix ("/Text"). Compare their names, not raw strings.
 enum PDFAnnotationKind {
@@ -85,8 +92,13 @@ enum EditableAnnotations {
         if ownGroup { undoManager.endUndoGrouping() }
     }
     func inserted(_ annotation: PDFAnnotation, on page: PDFPage, name: String) {
+        AnnotationDiagnostics.trace("history.inserted: undo registration begin")
         registration { undoManager.registerUndo(withTarget: self) { target in MainActor.assumeIsolated { target.remove(annotation, from: page, name: name) } } }
-        undoManager.setActionName(name); onChange?()
+        AnnotationDiagnostics.trace("history.inserted: undo registration end; action name begin")
+        undoManager.setActionName(name)
+        AnnotationDiagnostics.trace("history.inserted: action name end; onChange begin")
+        onChange?()
+        AnnotationDiagnostics.trace("history.inserted: onChange end")
     }
     func remove(_ annotation: PDFAnnotation, from page: PDFPage, name: String = "Excluir anotação") {
         page.removeAnnotation(annotation)

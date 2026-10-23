@@ -2,6 +2,7 @@ import AppKit
 import SwiftUI
 import PDFKit
 import QuartzCore
+import ScreenCaptureKit
 
 /// Captures the real WindowServer-composited application surface in the native CI session.
 /// NSView.cacheDisplay cannot capture all SwiftUI material or PDFKit tiled layers.
@@ -30,7 +31,7 @@ enum MacPreview {
         NSError(domain: "PDF.Preview", code: code, userInfo: [NSLocalizedDescriptionKey: message])
     }
 
-    fileprivate static func capture(_ window: NSWindow, to destination: URL) throws {
+    fileprivate static func capture(_ window: NSWindow, to destination: URL) async throws {
         guard window.isVisible, window.windowNumber > 0 else {
             throw failure(3, "A janela da prévia não foi registrada no WindowServer.")
         }
@@ -41,41 +42,57 @@ enum MacPreview {
             throw failure(4, "A janela da prévia ainda não possui uma área de conteúdo válida.")
         }
         let logicalFrame = window.frame
-        print("PDF preview window: frame=\(Int(logicalFrame.width))x\(Int(logicalFrame.height)); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); backingScale=\(window.backingScaleFactor)")
         let folder = destination.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
-        let temporary = folder.appendingPathComponent(".PDF-window-\(UUID().uuidString).png")
-        defer { try? FileManager.default.removeItem(at: temporary) }
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
-        process.arguments = ["-x", "-o", "-l", String(window.windowNumber), "-t", "png", temporary.path]
-        let errors = Pipe(); process.standardError = errors; process.standardOutput = errors
-        try process.run()
-        let deadline = Date().addingTimeInterval(20)
-        // Keep AppKit and the compositor responsive while the screenshot process works.
-        while process.isRunning && Date() < deadline {
-            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        let probe = folder.appendingPathComponent("PDF-write-probe-\(UUID().uuidString).tmp")
+        do {
+            defer { try? FileManager.default.removeItem(at: probe) }
+            try Data("PDF preview write check".utf8).write(to: probe, options: .withoutOverwriting)
+        } catch {
+            throw failure(10, "O diretório de saída não aceitou uma gravação de diagnóstico: \(error.localizedDescription)")
         }
-        if process.isRunning {
-            process.terminate()
-            throw failure(5, "A captura da janela excedeu 20 segundos. Verifique o acesso à sessão gráfica e a permissão de Gravação de Tela.")
+        let globalAccess = CGPreflightScreenCaptureAccess()
+        print("PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=\(globalAccess); captureScope=currentProcess; frame=\(Int(logicalFrame.width))x\(Int(logicalFrame.height)); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); backingScale=\(window.backingScaleFactor)")
+        // This public API exposes only content the current process may capture
+        // under the operating system's own-process rules. It neither asks for
+        // global capture access nor changes TCC settings or enumerates other apps.
+        let available: SCShareableContent
+        do { available = try await SCShareableContent.currentProcess }
+        catch {
+            let error = error as NSError
+            throw failure(11, "O sistema não disponibilizou as janelas capturáveis deste processo. ScreenCaptureKit \(error.domain) código \(error.code): \(error.localizedDescription)")
         }
-        process.waitUntilExit()
-        let diagnostics = String(data: errors.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
-        guard process.terminationStatus == 0, FileManager.default.fileExists(atPath: temporary.path) else {
-            throw failure(6, "O WindowServer não permitiu capturar a janela. A sessão gráfica deve estar ativa e autorizar a captura de tela. " + diagnostics.trimmingCharacters(in: .whitespacesAndNewlines))
+        guard let ownWindow = available.windows.first(where: { $0.windowID == CGWindowID(window.windowNumber) }) else {
+            throw failure(12, "A própria janela PDF não consta no conteúdo que o sistema autoriza este processo a capturar. Não foi realizada captura de outra janela.")
         }
-        let data = try Data(contentsOf: temporary)
-        guard let bitmap = NSBitmapImageRep(data: data), bitmap.pixelsWide > 0, bitmap.pixelsHigh > 0 else {
-            throw failure(7, "A captura devolvida pelo WindowServer está vazia ou não é um PNG válido.")
+        if let owner = ownWindow.owningApplication, owner.processID != ProcessInfo.processInfo.processIdentifier {
+            throw failure(15, "O WindowServer associou o ID selecionado a outro processo. A captura foi recusada.")
         }
-        let scaleX = Double(bitmap.pixelsWide) / logicalFrame.width
-        let scaleY = Double(bitmap.pixelsHigh) / logicalFrame.height
-        guard scaleX >= 0.9, scaleY >= 0.9, abs(scaleX - scaleY) < 0.05 else {
-            throw failure(9, "A captura não corresponde às dimensões efetivas da janela: \(bitmap.pixelsWide)x\(bitmap.pixelsHigh) pixels para \(Int(logicalFrame.width))x\(Int(logicalFrame.height)) pontos.")
+        let filter = SCContentFilter(desktopIndependentWindow: ownWindow)
+        let configuration = SCStreamConfiguration()
+        let scale = CGFloat(filter.pointPixelScale)
+        configuration.width = max(1, Int(ceil(filter.contentRect.width * scale)))
+        configuration.height = max(1, Int(ceil(filter.contentRect.height * scale)))
+        configuration.showsCursor = false
+        configuration.includeChildWindows = false
+        configuration.ignoreShadowsSingleWindow = true
+        configuration.scalesToFit = false
+        print("PDF preview own-window filter: window=\(ownWindow.windowID); onScreen=\(ownWindow.isOnScreen); points=\(Int(filter.contentRect.width))x\(Int(filter.contentRect.height)); requestedPixels=\(configuration.width)x\(configuration.height)")
+        let image: CGImage
+        do { image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration) }
+        catch {
+            let error = error as NSError
+            throw failure(13, "A captura da própria janela falhou. ScreenCaptureKit \(error.domain) código \(error.code): \(error.localizedDescription)")
+        }
+        guard image.width == configuration.width, image.height == configuration.height, image.width > 100, image.height > 100 else {
+            throw failure(14, "O WindowServer retornou dimensões incompatíveis com o filtro da própria janela: \(image.width)x\(image.height).")
+        }
+        let bitmap = NSBitmapImageRep(cgImage: image)
+        guard let data = bitmap.representation(using: .png, properties: [:]) else {
+            throw failure(7, "A captura real da janela não pôde ser codificada como PNG.")
         }
         try NativeOutput.write(data, to: destination)
-        print("PDF preview captured from WindowServer: \(destination.lastPathComponent); window=\(window.windowNumber); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); pixels=\(bitmap.pixelsWide)x\(bitmap.pixelsHigh)")
+        print("PDF preview captured from WindowServer via ScreenCaptureKit: \(destination.lastPathComponent); window=\(window.windowNumber); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); pixels=\(image.width)x\(image.height)")
     }
 
     fileprivate static func sampleDocument() throws -> PDFDocument {
@@ -127,6 +144,10 @@ enum MacPreview {
     func applicationDidFinishLaunching(_ notification: Notification) {
         // Return from the launch notification before constructing and activating views.
         DispatchQueue.main.async { [weak self] in self?.showWindow() }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 60) { [weak self] in
+            guard let self, self.result == nil else { return }
+            self.finish(.failure(MacPreview.failure(5, "A captura da própria janela excedeu 60 segundos. A sessão gráfica não concluiu a operação autorizada; nenhum fallback de bitmap foi usado.")))
+        }
     }
 
     private func showWindow() {
@@ -152,25 +173,29 @@ enum MacPreview {
 
     private func captureHome() {
         guard let window, let model else { finish(.failure(MacPreview.failure(8, "A janela de prévia foi encerrada."))); return }
-        do {
-            try MacPreview.capture(window, to: destination)
-            model.document = try MacPreview.sampleDocument()
-            model.url = URL(fileURLWithPath: "/Amostras/Guia do PDF.pdf")
-            model.section = "Leitor"
-            window.contentView?.layoutSubtreeIfNeeded()
-            window.displayIfNeeded()
-            CATransaction.flush()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.captureReader() }
-        } catch { finish(.failure(error)) }
+        Task { @MainActor in
+            do {
+                try await MacPreview.capture(window, to: destination)
+                model.document = try MacPreview.sampleDocument()
+                model.url = URL(fileURLWithPath: "/Amostras/Guia do PDF.pdf")
+                model.section = "Leitor"
+                window.contentView?.layoutSubtreeIfNeeded()
+                window.displayIfNeeded()
+                CATransaction.flush()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.captureReader() }
+            } catch { finish(.failure(error)) }
+        }
     }
 
     private func captureReader() {
         guard let window else { finish(.failure(MacPreview.failure(8, "A janela de prévia foi encerrada."))); return }
-        do {
-            let readerDestination = destination.deletingPathExtension().appendingPathExtension("leitor.png")
-            try MacPreview.capture(window, to: readerDestination)
-            finish(.success(Void()))
-        } catch { finish(.failure(error)) }
+        Task { @MainActor in
+            do {
+                let readerDestination = destination.deletingPathExtension().appendingPathExtension("leitor.png")
+                try await MacPreview.capture(window, to: readerDestination)
+                finish(.success(Void()))
+            } catch { finish(.failure(error)) }
+        }
     }
 
     private func finish(_ outcome: Result<Void, Error>) {

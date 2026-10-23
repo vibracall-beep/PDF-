@@ -32,19 +32,14 @@ jobs:
           xcodebuild -version
           xcrun --sdk macosx --show-sdk-version
       - name: Compile native application
+        id: compile
         run: |
           echo "::add-matcher::.github/swift-problem-matcher.json"
           xcrun swift build -c release --arch arm64 --jobs 3
-      - name: Build, install and validate complete application
-        env:
-          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
-        run: bash scripts/install-mac.sh
-      - name: Create source distribution
-        run: bash scripts/package-source.sh
-      - name: Render native application preview
-        env:
-          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
-        run: 'python3 scripts/run-with-timeout.py --seconds 180 -- "$PDF_INSTALL_DIR/PDF.app/Contents/MacOS/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"'
+      - name: Capture native window preview
+        run: |
+          PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
+          python3 scripts/run-with-timeout.py --seconds 180 -- "$PDF_BINARY_DIR/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
       - name: Retain native preview artifact
         if: always()
         uses: actions/upload-artifact@v4
@@ -52,6 +47,14 @@ jobs:
           name: PDF-macOS-preview
           path: ${{ runner.temp }}/PDF-preview*.png
           if-no-files-found: ignore
+      - name: Build, install and validate complete application
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        env:
+          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
+        run: bash scripts/install-mac.sh
+      - name: Create source distribution
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        run: bash scripts/package-source.sh
       - name: Retain reviewed source artifact
         if: always()
         uses: actions/upload-artifact@v4

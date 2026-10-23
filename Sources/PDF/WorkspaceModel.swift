@@ -130,7 +130,7 @@ enum ReaderAnnotationStyle {
         var state:[String] = []
         for index in 0..<document.pageCount {
             for (position, annotation) in (document.page(at:index)?.annotations ?? []).enumerated() {
-                if annotation.widgetFieldType != nil || annotation.fieldName != nil {
+                if annotation.type == PDFAnnotationSubtype.widget.rawValue || annotation.fieldName != nil {
                     let value = annotation.widgetStringValue ?? ""
                     state.append("\(index):\(position):\(annotation.fieldName ?? ""): \(value.utf8.count):\(value):\(annotation.buttonWidgetState.rawValue)")
                 }

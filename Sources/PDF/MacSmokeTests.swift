@@ -13,14 +13,25 @@ enum MacSmokeTests {
                               userInfo: [NSLocalizedDescriptionKey: message])
             }
         }
+        func check<T>(_ phase:String, _ operation:() throws -> T) throws -> T {
+            FileHandle.standardOutput.write(Data(("Native check starting: " + phase + "\n").utf8))
+            do {
+                let value = try operation()
+                FileHandle.standardOutput.write(Data(("Native check passed: " + phase + "\n").utf8))
+                return value
+            } catch {
+                let detail = error as NSError
+                throw NSError(domain:"PDF.NativeChecks.Phase",code:detail.code,userInfo:[NSLocalizedDescriptionKey:phase + ": " + detail.localizedDescription + " (" + detail.domain + ", " + String(detail.code) + ")",NSUnderlyingErrorKey:detail])
+            }
+        }
 
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("PDF-native-check-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
-        try WorkflowAuditChecks.run(in: directory)
-        try PagesPrivateCopyAuditChecks.run(in: directory)
-        try CaptureImportAuditChecks.run(in: directory)
+        try check("Workflow presets and credentials") { try WorkflowAuditChecks.run(in: directory) }
+        try check("Pages isolated copy") { try PagesPrivateCopyAuditChecks.run(in: directory) }
+        try check("Capture import and orientation") { try CaptureImportAuditChecks.run(in: directory) }
 
         let source = directory.appendingPathComponent("source.pdf")
         var bounds = CGRect(x: 0, y: 0, width: 595, height: 842)
@@ -79,7 +90,7 @@ enum MacSmokeTests {
             throw NSError(domain: "PDF.NativeChecks", code: 5,
                           userInfo: [NSLocalizedDescriptionKey: "Não foi possível criar uma página digitalizada de teste."])
         }
-        let enhanced = try GPUImageProcessor.enhance(image)
+        let enhanced = try check("Core Image processing") { try GPUImageProcessor.enhance(image) }
         try require(enhanced.width == image.width && enhanced.height == image.height,
                     "O processamento gráfico alterou as dimensões da imagem.")
         let scanned = PDFDocument()
@@ -90,8 +101,10 @@ enum MacSmokeTests {
             throw NSError(domain: "PDF.NativeChecks", code: 6,
                           userInfo: [NSLocalizedDescriptionKey: "Amostra de OCR inválida."])
         }
-        let recognizedData = try VisionPDF.create(data: scannedData, language: "en", enhanceContrast: true,
-                                                  cancellation: NativeCancellation()) { _, _ in }
+        let recognizedData = try check("Vision searchable PDF") {
+            try VisionPDF.create(data: scannedData, language: "en", enhanceContrast: true,
+                                 cancellation: NativeCancellation()) { _, _ in }
+        }
         let recognized = PDFDocument(data: recognizedData)
         try require((recognized?.string ?? "").localizedCaseInsensitiveContains("verification"),
                     "Vision não criou texto pesquisável na página digitalizada.")
@@ -167,9 +180,9 @@ enum MacSmokeTests {
         }
         let retained = try String(contentsOf: atomic, encoding: .utf8)
         try require(refusedOverwrite && retained == "original", "A publicação não preservou o arquivo existente.")
-        try ToolPresetAuditChecks.run()
-        try NativeAuditChecks.run()
-        try AppearanceAuditChecks.run()
+        try check("Tool presets") { try ToolPresetAuditChecks.run() }
+        try check("Native regression audit") { try NativeAuditChecks.run() }
+        try check("Appearance and reader preferences") { try AppearanceAuditChecks.run() }
         print("Native checks hardware: \(AppleHardware.summary)")
     }
 }

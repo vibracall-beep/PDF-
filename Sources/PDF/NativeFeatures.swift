@@ -2,6 +2,7 @@ import SwiftUI
 import AppKit
 import PDFKit
 import Vision
+import CoreML
 import CoreText
 import ImageIO
 import Darwin
@@ -72,6 +73,79 @@ private enum NativePDFError: LocalizedError {
     }
 }
 
+/// Automatic device selection remains the default. A failed execution may receive
+/// one explicit CPU attempt; input/configuration errors are never treated as hardware faults.
+enum VisionRecognition {
+    static func shouldRetryOnCPU(_ error: Error) -> Bool {
+        if error is CancellationError { return false }
+        let native = error as NSError
+        if native.domain == VNErrorDomain {
+            let retryable = [VNErrorCode.operationFailed, .internalError, .unknownError, .unsupportedComputeStage, .unsupportedComputeDevice]
+            guard retryable.contains(where: { $0.rawValue == native.code }) else { return false }
+            if let underlying = native.userInfo[NSUnderlyingErrorKey] as? NSError, underlying.domain == VNErrorDomain,
+               !retryable.contains(where: { $0.rawValue == underlying.code }) { return false }
+            return true
+        }
+        // This runtime error is emitted by the text reader on some virtual Macs.
+        // Its presence permits a retry, but does not establish why recognition failed.
+        return native.domain == "TextRecognition.CRImageReaderError" && native.localizedDescription.localizedCaseInsensitiveContains("unknownError")
+    }
+    static func description(_ error: Error) -> String {
+        let native = error as NSError
+        return "\(native.domain) (\(native.code)): \(native.localizedDescription)"
+    }
+    static func recognize(_ image: CGImage, language: String, cancellation: NativeCancellation) throws -> [VNRecognizedTextObservation] {
+        func perform(cpuOnly: Bool) throws -> [VNRecognizedTextObservation] {
+            try cancellation.check()
+            let request = VNRecognizeTextRequest()
+            request.recognitionLevel = .accurate; request.usesLanguageCorrection = true
+            let supported = try request.supportedRecognitionLanguages()
+            let wanted = language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]
+            request.recognitionLanguages = wanted.filter { supported.contains($0) }
+            request.automaticallyDetectsLanguage = true
+            cancellation.install(request)
+            defer { cancellation.install(nil) }
+            if cpuOnly {
+                let stages = try request.supportedComputeStageDevices
+                guard !stages.isEmpty else {
+                    throw NSError(domain: "PDF.Vision", code: 1, userInfo: [NSLocalizedDescriptionKey: "O Vision não declarou estágios de execução compatíveis com CPU."])
+                }
+                for (stage, devices) in stages {
+                    guard let cpu = devices.first(where: { if case .cpu = $0 { return true }; return false }) else {
+                        throw NSError(domain: "PDF.Vision", code: 2, userInfo: [NSLocalizedDescriptionKey: "O estágio \(stage) não oferece execução em CPU neste sistema."])
+                    }
+                    request.setComputeDevice(cpu, for: stage)
+                }
+            }
+            try cancellation.check()
+            do { try VNImageRequestHandler(cgImage: image, options: [:]).perform([request]) }
+            catch { try cancellation.check(); throw error }
+            try cancellation.check()
+            return request.results ?? []
+        }
+        do { return try perform(cpuOnly: false) }
+        catch {
+            try cancellation.check()
+            if error is CancellationError { throw error }
+            let first = error
+            guard shouldRetryOnCPU(first) else {
+                throw NSError(domain: "PDF.Vision", code: 3, userInfo: [NSLocalizedDescriptionKey: "O reconhecimento de texto falhou: \(description(first))", NSUnderlyingErrorKey: first])
+            }
+            print("Vision OCR: automatic execution failed (\(description(first))); retrying once with supported CPU devices")
+            do {
+                let observations = try perform(cpuOnly: true)
+                print("Vision OCR: CPU retry completed with \(observations.count) observations")
+                return observations
+            } catch {
+                try cancellation.check()
+                if error is CancellationError { throw error }
+                throw NSError(domain: "PDF.Vision", code: 4,
+                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error])
+            }
+        }
+    }
+}
+
 enum VisionPDF {
     static func create(data: Data, language: String, enhanceContrast: Bool = false, cancellation: NativeCancellation,
                        progress: @escaping @Sendable (Int, Int) -> Void) throws -> Data {
@@ -106,23 +180,13 @@ enum VisionPDF {
                 try cancellation.check()
                 let recognitionImage = enhanceContrast ? try GPUImageProcessor.enhance(image) : image
                 try cancellation.check()
-                let request = VNRecognizeTextRequest()
-                request.recognitionLevel = .accurate
-                request.usesLanguageCorrection = true
-                let supported = try request.supportedRecognitionLanguages()
-                let wanted = language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]
-                request.recognitionLanguages = wanted.filter { supported.contains($0) }
-                request.automaticallyDetectsLanguage = true
-                cancellation.install(request)
-                defer { cancellation.install(nil) }
-                do { try VNImageRequestHandler(cgImage: recognitionImage, options: [:]).perform([request]) }
-                catch { try cancellation.check(); throw error }
+                let observations = try VisionRecognition.recognize(recognitionImage, language: language, cancellation: cancellation)
                 try cancellation.check()
                 var media = bounds
                 let mediaData = Data(bytes: &media, count: MemoryLayout<CGRect>.size)
                 context.beginPDFPage([kCGPDFContextMediaBox as String: mediaData] as CFDictionary)
                 context.saveGState(); context.concatenate(transform); context.drawPDFPage(page); context.restoreGState()
-                for observation in request.results ?? [] {
+                for observation in observations {
                     guard let text = observation.topCandidates(1).first?.string, !text.isEmpty else { continue }
                     let box = observation.boundingBox
                     let rect = CGRect(x: box.minX * size.width, y: box.minY * size.height, width: box.width * size.width, height: box.height * size.height)

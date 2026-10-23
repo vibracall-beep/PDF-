@@ -212,26 +212,45 @@ struct ContentView: View {
                     Picker("Categoria", selection:$category) { ForEach(["Todas","Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar","Compartilhar"], id:\.self) { Text($0) } }.frame(width:220)
                 }
                 if orderedTools.isEmpty { ContentUnavailableView("Nenhuma ferramenta encontrada", systemImage:"magnifyingglass", description:Text("Ajuste a busca, os favoritos ou as ferramentas visíveis em Personalizar.")) }
-                LazyVGrid(columns:[GridItem(.adaptive(minimum:compact ? 190 : 240), spacing:16)], spacing:16) {
-                    ForEach(orderedTools) { tool in
-                        VStack(alignment:.leading, spacing:12) {
-                            HStack {
-                                Image(systemName:tool.icon).font(.title2).foregroundStyle(tint).frame(width:42, height:42).background(tint.opacity(0.1), in:RoundedRectangle(cornerRadius:12))
-                                Spacer()
-                                Button { toggleFavorite(tool.id) } label: { Image(systemName:isFavorite(tool.id) ? "star.fill" : "star") }.buttonStyle(.plain).foregroundStyle(.secondary).help(isFavorite(tool.id) ? "Remover dos favoritos" : "Adicionar aos favoritos")
-                            }
-                            Button { activate(tool) } label: {
-                                VStack(alignment:.leading, spacing:8) {
-                                    Text(tool.name).font(.headline)
-                                    Text(tool.detail).font(.caption).foregroundStyle(.secondary).frame(maxWidth:.infinity, alignment:.leading)
-                                }.frame(maxWidth:.infinity, alignment:.leading).contentShape(Rectangle())
-                            }.buttonStyle(.plain)
-                            Spacer(minLength:0)
-                        }.padding(20).frame(height:compact ? 170 : 190).pdfGlass()
-                    }
+                HStack(alignment:.firstTextBaseline) {
+                    Text(model.section == "Favoritos" ? "Suas ferramentas favoritas" : category == "Todas" ? "Todas as ferramentas" : category).font(.title3.weight(.semibold))
+                    Spacer()
+                    Text("\(orderedTools.count) disponíveis").font(.caption).foregroundStyle(.secondary)
+                }
+                LazyVGrid(columns:[GridItem(.adaptive(minimum:compact ? 185 : 220), spacing:14)], spacing:14) {
+                    ForEach(orderedTools) { tool in toolCard(tool) }
                 }
             }.padding(28)
         }.background(LinearGradient(colors:[tint.opacity(0.1),Color(nsColor:.windowBackgroundColor),.purple.opacity(0.07)], startPoint:.topLeading, endPoint:.bottomTrailing))
+    }
+    func toolCard(_ tool:Tool) -> some View {
+        Button { activate(tool) } label: {
+            VStack(alignment:.leading,spacing:12) {
+                Image(systemName:tool.icon)
+                    .font(.system(size:21,weight:.medium)).foregroundStyle(tint)
+                    .frame(width:40,height:40)
+                    .background(tint.opacity(0.12),in:RoundedRectangle(cornerRadius:12))
+                VStack(alignment:.leading,spacing:7) {
+                    Text(tool.name).font(.headline).foregroundStyle(.primary).lineLimit(2)
+                    Text(tool.detail).font(.caption).foregroundStyle(.secondary).lineLimit(compact ? 2 : 3)
+                }.frame(maxWidth:.infinity,alignment:.leading)
+                Spacer(minLength:0)
+            }
+            .padding(18).frame(maxWidth:.infinity,alignment:.leading).frame(minHeight:compact ? 150 : 168,alignment:.top)
+            .contentShape(RoundedRectangle(cornerRadius:20))
+            .pdfGlass()
+            .overlay(RoundedRectangle(cornerRadius:20).strokeBorder(Color.primary.opacity(0.07),lineWidth:0.75))
+        }
+        .buttonStyle(.plain)
+        .overlay(alignment:.topTrailing) {
+            Button { toggleFavorite(tool.id) } label: {
+                Image(systemName:isFavorite(tool.id) ? "star.fill" : "star")
+                    .foregroundStyle(isFavorite(tool.id) ? tint : Color.secondary)
+                    .frame(width:28,height:28).contentShape(Rectangle())
+            }.buttonStyle(.plain).padding(14)
+                .help(isFavorite(tool.id) ? "Remover dos favoritos" : "Adicionar aos favoritos")
+                .accessibilityLabel((isFavorite(tool.id) ? "Remover " : "Adicionar ") + tool.name + (isFavorite(tool.id) ? " dos favoritos" : " aos favoritos"))
+        }
     }
     var statusBar: some View {
         HStack(spacing:12) {

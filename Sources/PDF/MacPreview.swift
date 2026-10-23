@@ -1,53 +1,77 @@
 import AppKit
 import SwiftUI
 import PDFKit
+import QuartzCore
 
-/// A deterministic native rendering artifact for reviewing the macOS build in CI.
+/// Captures the real WindowServer-composited application surface in the native CI session.
+/// NSView.cacheDisplay cannot capture all SwiftUI material or PDFKit tiled layers.
 @MainActor
 enum MacPreview {
     static func render(to destination: URL) throws {
-        _ = NSApplication.shared
-        NSApplication.shared.setActivationPolicy(.accessory)
-        let model = Workspace()
-        let view = ContentView().environmentObject(model)
-        let host = NSHostingView(rootView: view)
-        let rectangle = NSRect(x: 0, y: 0, width: 1280, height: 860)
-        let window = NSWindow(contentRect: rectangle, styleMask: [.titled, .resizable],
-                              backing: .buffered, defer: false)
-        window.title = "PDF"
-        window.contentView = host
-        window.setContentSize(rectangle.size)
-        window.orderFrontRegardless()
-        defer { window.orderOut(nil) }
-        try capture(host, to: destination)
-
-        // Review the actual reader layout as well as the tool catalogue, using
-        // generated sample content and without modifying the recent-file list.
-        model.document = try sampleDocument()
-        model.url = URL(fileURLWithPath: "/Amostras/Guia do PDF.pdf")
-        model.section = "Leitor"
-        let readerDestination = destination.deletingPathExtension()
-            .appendingPathExtension("leitor.png")
-        try capture(host, to: readerDestination)
+        let application = NSApplication.shared
+        guard !application.isRunning else {
+            throw failure(1, "A prévia precisa iniciar em um processo dedicado, antes do loop principal do aplicativo.")
+        }
+        let previousDelegate = application.delegate
+        let delegate = PreviewApplicationDelegate(destination: destination)
+        application.delegate = delegate
+        application.setActivationPolicy(.regular)
+        // run() owns the full AppKit launch lifecycle. Building the window inside
+        // applicationDidFinishLaunching avoids rendering from SwiftUI App.init.
+        application.run()
+        application.delegate = previousDelegate
+        guard let result = delegate.result else {
+            throw failure(2, "O ciclo de captura terminou sem produzir um resultado.")
+        }
+        try result.get()
     }
 
-    private static func capture(_ host: NSView, to destination: URL) throws {
-        host.layoutSubtreeIfNeeded()
-        RunLoop.current.run(until: Date().addingTimeInterval(2))
-        host.layoutSubtreeIfNeeded()
-        guard let bitmap = host.bitmapImageRepForCachingDisplay(in: host.bounds) else {
-            throw NSError(domain: "PDF.Preview", code: 1,
-                          userInfo: [NSLocalizedDescriptionKey: "A interface não pôde ser renderizada."])
+    fileprivate static func failure(_ code: Int, _ message: String) -> NSError {
+        NSError(domain: "PDF.Preview", code: code, userInfo: [NSLocalizedDescriptionKey: message])
+    }
+
+    fileprivate static func capture(_ window: NSWindow, to destination: URL) throws {
+        guard window.isVisible, window.windowNumber > 0 else {
+            throw failure(3, "A janela da prévia não foi registrada no WindowServer.")
         }
-        host.cacheDisplay(in: host.bounds, to: bitmap)
-        guard let data = bitmap.representation(using: .png, properties: [:]) else {
-            throw NSError(domain: "PDF.Preview", code: 2,
-                          userInfo: [NSLocalizedDescriptionKey: "Não foi possível exportar a renderização."])
+        window.contentView?.layoutSubtreeIfNeeded()
+        window.displayIfNeeded()
+        CATransaction.flush()
+        guard let content = window.contentView, content.bounds.width >= 1279, content.bounds.height >= 859 else {
+            throw failure(4, "O macOS restringiu o tamanho da janela de prévia; a captura solicitada não pode ser realizada.")
+        }
+        let folder = destination.deletingLastPathComponent()
+        try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
+        let temporary = folder.appendingPathComponent(".PDF-window-\(UUID().uuidString).png")
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        let process = Process()
+        process.executableURL = URL(fileURLWithPath: "/usr/sbin/screencapture")
+        process.arguments = ["-x", "-o", "-l", String(window.windowNumber), "-t", "png", temporary.path]
+        let errors = Pipe(); process.standardError = errors; process.standardOutput = errors
+        try process.run()
+        let deadline = Date().addingTimeInterval(20)
+        // Keep AppKit and the compositor responsive while the screenshot process works.
+        while process.isRunning && Date() < deadline {
+            RunLoop.current.run(until: Date().addingTimeInterval(0.05))
+        }
+        if process.isRunning {
+            process.terminate()
+            throw failure(5, "A captura da janela excedeu 20 segundos. Verifique o acesso à sessão gráfica e a permissão de Gravação de Tela.")
+        }
+        process.waitUntilExit()
+        let diagnostics = String(data: errors.fileHandleForReading.readDataToEndOfFile(), encoding: .utf8) ?? ""
+        guard process.terminationStatus == 0, FileManager.default.fileExists(atPath: temporary.path) else {
+            throw failure(6, "O WindowServer não permitiu capturar a janela. A sessão gráfica deve estar ativa e autorizar a captura de tela. " + diagnostics.trimmingCharacters(in: .whitespacesAndNewlines))
+        }
+        let data = try Data(contentsOf: temporary)
+        guard let bitmap = NSBitmapImageRep(data: data), bitmap.pixelsWide >= 1280, bitmap.pixelsHigh >= 860 else {
+            throw failure(7, "A captura devolvida pelo WindowServer está vazia ou tem dimensões menores que a janela solicitada.")
         }
         try NativeOutput.write(data, to: destination)
+        print("PDF preview captured from WindowServer: \(destination.lastPathComponent); window=\(window.windowNumber); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); pixels=\(bitmap.pixelsWide)x\(bitmap.pixelsHigh)")
     }
 
-    private static func sampleDocument() throws -> PDFDocument {
+    fileprivate static func sampleDocument() throws -> PDFDocument {
         let data = NSMutableData()
         var pageBounds = CGRect(x: 0, y: 0, width: 595, height: 842)
         guard let consumer = CGDataConsumer(data: data as CFMutableData),
@@ -83,5 +107,79 @@ enum MacPreview {
             throw NSError(domain: "PDF.Preview", code: 4)
         }
         return document
+    }
+}
+
+/// A preview window can be larger than a small hosted runner display. Capturing its
+/// WindowServer surface by window ID retains the complete backing surface.
+@MainActor private final class PreviewWindow: NSWindow {
+    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect { frameRect }
+}
+
+@MainActor private final class PreviewApplicationDelegate: NSObject, NSApplicationDelegate {
+    let destination: URL
+    var result: Result<Void, Error>?
+    private var model: Workspace?
+    private var window: NSWindow?
+    init(destination: URL) { self.destination = destination }
+
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        // Return from the launch notification before constructing and activating views.
+        DispatchQueue.main.async { [weak self] in self?.showWindow() }
+    }
+
+    private func showWindow() {
+        let model = Workspace()
+        let view = ContentView().environmentObject(model).frame(minWidth: 1050, minHeight: 720)
+        let host = NSHostingView(rootView: view)
+        let rectangle = NSRect(x: 0, y: 0, width: 1280, height: 860)
+        let window = PreviewWindow(contentRect: rectangle, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        window.title = "PDF"
+        window.isReleasedWhenClosed = false
+        window.contentView = host
+        window.setContentSize(rectangle.size)
+        if let screen = NSScreen.main {
+            window.setFrameTopLeftPoint(NSPoint(x: screen.frame.minX + 20, y: screen.frame.maxY - 30))
+        }
+        self.model = model; self.window = window
+        NSApplication.shared.activate(ignoringOtherApps: true)
+        window.makeKeyAndOrderFront(nil)
+        window.orderFrontRegardless()
+        host.layoutSubtreeIfNeeded()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.captureHome() }
+    }
+
+    private func captureHome() {
+        guard let window, let model else { finish(.failure(MacPreview.failure(8, "A janela de prévia foi encerrada."))); return }
+        do {
+            try MacPreview.capture(window, to: destination)
+            model.document = try MacPreview.sampleDocument()
+            model.url = URL(fileURLWithPath: "/Amostras/Guia do PDF.pdf")
+            model.section = "Leitor"
+            window.contentView?.layoutSubtreeIfNeeded()
+            window.displayIfNeeded()
+            CATransaction.flush()
+            DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.captureReader() }
+        } catch { finish(.failure(error)) }
+    }
+
+    private func captureReader() {
+        guard let window else { finish(.failure(MacPreview.failure(8, "A janela de prévia foi encerrada."))); return }
+        do {
+            let readerDestination = destination.deletingPathExtension().appendingPathExtension("leitor.png")
+            try MacPreview.capture(window, to: readerDestination)
+            finish(.success(Void()))
+        } catch { finish(.failure(error)) }
+    }
+
+    private func finish(_ outcome: Result<Void, Error>) {
+        guard result == nil else { return }
+        result = outcome
+        window?.orderOut(nil)
+        NSApplication.shared.stop(nil)
+        // Wake the event loop so run() returns even when a runner receives no UI events.
+        if let event = NSEvent.otherEvent(with: .applicationDefined, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, subtype: 0, data1: 0, data2: 0) {
+            NSApplication.shared.postEvent(event, atStart: false)
+        }
     }
 }

@@ -227,6 +227,10 @@ enum ContinuityCaptureFile {
         let payload: Data
         let ext: String
         if isPDF {
+            // Refuse obvious non-PDF pasteboard data before invoking CoreGraphics.
+            // Permit a header within the first 1 KB, as PDF readers commonly do;
+            // PDFKit still validates the complete document and its protection.
+            guard data.prefix(1024).range(of: Data("%PDF-".utf8)) != nil else { throw CaptureError.pdf }
             guard let document = PDFDocument(data: data), document.pageCount > 0, !document.isEncrypted else { throw CaptureError.pdf }
             payload = data
             ext = "pdf"

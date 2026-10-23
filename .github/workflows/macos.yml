@@ -50,7 +50,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: PDF-macOS-preview
-          path: ${{ runner.temp }}/PDF-preview.png
+          path: ${{ runner.temp }}/PDF-preview*.png
           if-no-files-found: ignore
       - name: Retain reviewed source artifact
         if: always()

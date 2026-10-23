@@ -12,6 +12,24 @@ O instalador compila o aplicativo no próprio Mac, prepara suas dependências, e
 
 Não é necessária uma assinatura paga de desenvolvedor Apple. O bundle recebe assinatura local ad hoc. Isso não cria assinatura Developer ID nem notarização Apple.
 
+## Comando da versão validada
+
+A execução [40015439670](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670) aprovou o commit `9884ed14006ba76546dbca4966f3daf7cd08acbb`: compilação, 69 testes do motor/integrações, instalação e verificações nativas em macOS 26.6.2 arm64. Com os requisitos acima instalados, cole este bloco no Terminal de cada Mac:
+
+```bash
+bash <<'PDF_INSTALL'
+set -euo pipefail
+PDF_SOURCE_DIR="$(mktemp -d "$HOME/PDF-fontes.XXXXXX")"
+git clone --quiet https://github.com/vibracall-beep/PDF-.git "$PDF_SOURCE_DIR"
+git -C "$PDF_SOURCE_DIR" checkout --quiet --detach 9884ed14006ba76546dbca4966f3daf7cd08acbb
+printf 'Fontes preservados em: %s\n' "$PDF_SOURCE_DIR"
+bash "$PDF_SOURCE_DIR/scripts/install-mac.sh"
+open "$HOME/Applications/PDF.app"
+PDF_INSTALL
+```
+
+O diretório de fontes recebe um nome novo; cópias existentes não são alteradas. O instalador verifica o próprio computador antes de ativar `PDF.app`. Os limites da evidência — incluindo ausência de teste em macOS 27.0.1, M4 físico, Pages, scanner/iPhone e geração por Apple Intelligence — estão em [VALIDACAO.md](VALIDACAO.md).
+
 ## Instalar fontes já baixados
 
 Na pasta de fontes do PDF:

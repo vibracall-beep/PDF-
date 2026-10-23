@@ -2,14 +2,14 @@
 
 Aplicativo nativo macOS para leitura, organização, edição e conversão de documentos. Interface em português com SwiftUI/PDFKit, Liquid Glass, ferramentas locais, OCR Vision, scanner ImageCaptureCore, IA local e fluxos visuais. O catálogo inclui as adições da terceira imagem: PNG, ODT/TXT/RTF/EPUB/CSV/Pages, achatamento, compartilhamento, chat e questões.
 
-A especificação está em [docs/REQUISITOS.md](docs/REQUISITOS.md), a correspondência de todos os itens da nova imagem em [docs/FERRAMENTAS.md](docs/FERRAMENTAS.md) e as evidências em [docs/VALIDACAO.md](docs/VALIDACAO.md). **A conclusão da validação nativa está em andamento.** Não há resultado demonstrado de superioridade sobre outros produtos ou de ausência absoluta de erros.
+A especificação está em [docs/REQUISITOS.md](docs/REQUISITOS.md), a correspondência de todos os itens da nova imagem em [docs/FERRAMENTAS.md](docs/FERRAMENTAS.md) e as evidências em [docs/VALIDACAO.md](docs/VALIDACAO.md). **Compilação, instalação e verificações automatizadas passaram no macOS Apple Silicon.** Isso não demonstra ausência absoluta de erros ou superioridade sobre outros produtos; os recursos dependentes de dispositivos, Pages e modelos Apple têm limites de validação descritos abaixo.
 
 ## Estado verificável
 
 - Motor Python ampliado: 61 testes funcionais aprovados em Linux, incluindo saídas atômicas, cancelamento, preservação dos originais e de criptografia, formulários, conversões novas, achatamento, texto longo e comparação visual.
-- A execução macOS [40013215157](https://github.com/vibracall-beep/PDF-/actions/runs/40013215157) compilou o aplicativo anterior e aprovou 45 testes do motor e cinco integrações. Detectou um erro na chamada de `lipo` do instalador, corrigido nos fontes seguintes; não aprovou a instalação completa.
-- Verificação nativa: `PDF --smoke-test` exercita PDFKit, formulários, renderização, Vision, processamento gráfico, seleção de fontes para IA, exportação e preservação de destinos.
-- CI macOS instala e verifica a aplicação, produz uma imagem nativa para revisão e um pacote de fontes com manifesto e checksum. O resultado efetivo de cada versão está no registro de validação.
+- A execução macOS [40015439670](https://github.com/vibracall-beep/PDF-/actions/runs/40015439670) aprovou compilação, 61 testes do motor, oito integrações e instalação completa do commit `9884ed1` em macOS 26.6.2, Apple M1 virtualizado.
+- Verificação nativa aprovada antes e depois da ativação: PDFKit, formulários, renderização, Vision OCR, processamento gráfico, seleção de fontes para IA, validação estrutural de questões, criptografia, exportação e preservação de destinos.
+- O CI também gerou as capturas nativas da tela inicial e do leitor e o pacote de fontes com manifesto e checksum. Os artefatos estão na execução; o resultado efetivo de cada versão está no registro de validação.
 
 ## Instalação completa por comando
 

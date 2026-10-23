@@ -63,5 +63,8 @@ with tempfile.TemporaryDirectory(prefix='pdf-install-check-') as directory:
         assert 'PDF browser verification' in document[0].get_text()
 print('Runtime, motor PDF, assinaturas, veraPDF independente e Chromium: OK')
 PY
+# The product must recover real text through its local OCR pipeline. A failed
+# Apple-only capability audit is reported separately by CI, never substituted
+# for this mandatory product smoke check or for the installer's rollback.
 "$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/run-with-timeout.py" --seconds 180 -- "$PDF_EXECUTABLE" --smoke-test
-printf '%s\n' 'Bundle arm64, assinatura local, dependências e verificações nativas: OK'
+printf '%s\n' 'Bundle arm64, assinatura local, dependências, OCR local e verificações do aplicativo: OK'

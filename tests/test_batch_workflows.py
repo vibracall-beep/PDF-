@@ -14,7 +14,7 @@ from PIL import Image
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'engine'))
 import pdf_engine
 from pdf_engine import run
-from workflow_batch import result_name
+from workflow_batch import output_type, result_name, validate_steps
 
 
 class BatchWorkflowTests(unittest.TestCase):
@@ -130,6 +130,19 @@ class BatchWorkflowTests(unittest.TestCase):
         run('workflow', [self.source, self.source], output, {'batch': True, 'steps': self.steps('png')})
         self.assertEqual(len(list((output / '0001-source').glob('*.png'))), 2)
         self.assertEqual(len(list((output / '0002-source').glob('*.png'))), 2)
+
+    def test_page_ocr_is_a_standalone_image_to_json_terminal(self):
+        tools = set(pdf_engine.TOOLS) | {'ocr-page'}
+        self.assertEqual(output_type('ocr-page'), ('json', False))
+        self.assertEqual(result_name(Path('scan.png'), 0, 'ocr-page'), '0001-scan.json')
+        validate_steps([{'operation': 'ocr-page'}], tools, pdf_engine.PDF_OPERATIONS)
+        for steps, batch in [
+            ([{'operation': 'rotate'}, {'operation': 'ocr-page'}], False),
+            ([{'operation': 'ocr-page'}, {'operation': 'rotate'}], False),
+            ([{'operation': 'ocr-page'}], True),
+        ]:
+            with self.subTest(steps=steps, batch=batch), self.assertRaises(ValueError):
+                validate_steps(steps, tools, pdf_engine.PDF_OPERATIONS, batch=batch)
 
     def test_second_file_failure_publishes_nothing(self):
         encrypted = self.root / 'locked.pdf'

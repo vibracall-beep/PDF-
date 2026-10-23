@@ -235,7 +235,7 @@ private enum OwnProcessAccessibilityClient {
             guard let array = value as? [AnyObject] else { return [] }
             return array.compactMap { object in
                 guard CFGetTypeID(object) == AXUIElementGetTypeID() else { return nil }
-                return object as! AXUIElement
+                return Optional(object as! AXUIElement)
             }.filter { own($0) }
         }
         func children(_ element:AXUIElement) -> [AXUIElement] { elements(attribute(element,kAXChildrenAttribute)) }

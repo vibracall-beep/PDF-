@@ -5,8 +5,8 @@ import UniformTypeIdentifiers
 import Vision
 import Darwin
 
-/// The only OCR values consumed by PDF rendering and benchmarks. They are real
-/// Vision results, validated again when crossing the private worker boundary.
+/// Validated OCR values consumed by PDF rendering and benchmarks. The enclosing
+/// PageOCRResult records the engine; this worker itself returns only Vision data.
 struct VisionTextObservation: Codable, Sendable {
     let string: String
     let boundingBox: CGRect
@@ -51,6 +51,14 @@ enum VisionWorker {
         let height: Int
         let observations: [VisionTextObservation]?
         let error: String?
+        // Set only when the configured Vision request itself threw a known
+        // runtime failure. Configuration, decoding and DTO failures are false.
+        var runtimeFailure: Bool? = nil
+    }
+
+    struct RuntimeFailure: LocalizedError {
+        let detail: String
+        var errorDescription: String? { detail }
     }
 
     static func failure(_ code: Int, _ message: String) -> NSError {
@@ -84,7 +92,9 @@ enum VisionWorker {
             } catch {
                 // Keep failure separate from an empty but successful recognition.
                 let detail = String((VisionRecognition.description(error) + "; Swift=" + String(reflecting: error)).prefix(8_000))
-                try write(Response(language: language, width: width, height: height, observations: nil, error: detail), to: output)
+                let runtimeFailure = error is VisionExecutionFailure && VisionRecognition.shouldRetryOnCPU(error)
+                try write(Response(language: language, width: width, height: height, observations: nil,
+                                   error: detail, runtimeFailure: runtimeFailure), to: output)
                 exit(1)
             }
         } catch {
@@ -105,7 +115,8 @@ enum VisionWorker {
         guard request.recognitionLanguages.contains(where: { $0.hasPrefix(language) }) else {
             throw failure(5, "O Vision não oferece o idioma solicitado neste processo.")
         }
-        try VNImageRequestHandler(data: data, orientation: .up, options: [:]).perform([request])
+        do { try VNImageRequestHandler(data: data, orientation: .up, options: [:]).perform([request]) }
+        catch { throw VisionExecutionFailure(underlying: error) }
         return try VisionTextObservation.from(request.results ?? [])
     }
 
@@ -150,16 +161,23 @@ enum VisionWorker {
         do { response = try JSONDecoder().decode(Response.self, from: readRegularFile(output, limit: outputLimit)) }
         catch { throw failure(12, "O processo isolado do Vision terminou sem um resultado válido (status \(process.terminationStatus)).") }
         let values = try validateResponse(response, language: language, width: image.width, height: image.height,
-                                          successfulExit: process.terminationReason == .exit && process.terminationStatus == 0)
+                                          successfulExit: process.terminationReason == .exit && process.terminationStatus == 0,
+                                          runtimeFailureExit: process.terminationReason == .exit && process.terminationStatus == 1)
         try cancellation.check()
         return values
     }
 
-    static func validateResponse(_ response: Response, language: String, width: Int, height: Int, successfulExit: Bool) throws -> [VisionTextObservation] {
+    static func validateResponse(_ response: Response, language: String, width: Int, height: Int, successfulExit: Bool,
+                                 runtimeFailureExit: Bool = false) throws -> [VisionTextObservation] {
         guard response.version == 1, response.language == language, response.width == width, response.height == height else {
             throw failure(13, "O resultado isolado não corresponde à página e ao idioma solicitados.")
         }
-        guard successfulExit, response.error == nil, let values = response.observations else {
+        if !successfulExit, runtimeFailureExit, response.runtimeFailure == true,
+           response.observations == nil, let detail = response.error,
+           !detail.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty, detail.utf8.count <= 32_000 {
+            throw RuntimeFailure(detail: "O processo isolado do Vision falhou durante o reconhecimento: " + detail)
+        }
+        guard successfulExit, response.runtimeFailure != true, response.error == nil, let values = response.observations else {
             throw failure(14, "O processo isolado do Vision falhou: \(response.error ?? "sem detalhes do framework").")
         }
         try VisionTextObservation.validate(values)

@@ -3,12 +3,39 @@ import PDFKit
 import CryptoKit
 import Darwin
 
+/// The CLI remains alive long enough to cancel and reap OCR subprocesses before
+/// the UI removes its private job directory. Signal handlers run off the main actor.
+private final class BenchmarkSignalCancellation {
+    private var sources: [DispatchSourceSignal] = []
+    private var previous: [(Int32, sig_t?)] = []
+    init(cancellation: NativeCancellation) {
+        for number in [SIGINT, SIGTERM] {
+            previous.append((number, Darwin.signal(number, SIG_IGN)))
+            let source = DispatchSource.makeSignalSource(signal: number, queue: .global(qos: .utility))
+            source.setEventHandler { cancellation.cancel() }
+            source.resume()
+            sources.append(source)
+        }
+    }
+    deinit {
+        for source in sources { source.cancel() }
+        for (number, handler) in previous { Darwin.signal(number, handler) }
+    }
+}
+
+struct OCRBenchmarkEvidence: Codable, Sendable {
+    let backend: String
+    let fallbackReason: String?
+}
+
 struct BenchmarkMetric: Codable, Identifiable, Sendable {
     let id:String
     let name:String
     let samplesMilliseconds:[Double]
     let detail:String
     let error:String?
+    var ocrWarmup: OCRBenchmarkEvidence? = nil
+    var ocrSamples: [OCRBenchmarkEvidence]? = nil
     var medianMilliseconds:Double? {
         let sorted = samplesMilliseconds.sorted()
         guard !sorted.isEmpty else { return nil }
@@ -47,13 +74,19 @@ struct BenchmarkReport: Codable, Sendable {
     static func run(input:URL?,output:URL,pages:Int = 100) throws {
         // In-app runs place the report inside a parent-managed private job
         // directory. Its parent process can remove all copies even after SIGTERM.
-        let report = try measure(input:input,pages:pages,workDirectory:output.deletingLastPathComponent())
+        let cancellation = NativeCancellation()
+        let signals = BenchmarkSignalCancellation(cancellation: cancellation)
+        let report = try withExtendedLifetime(signals) {
+            try measure(input:input,pages:pages,workDirectory:output.deletingLastPathComponent(),cancellation:cancellation)
+        }
+        try cancellation.check()
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]; encoder.dateEncodingStrategy = .iso8601
         try NativeOutput.write(encoder.encode(report),to:output)
         print("PDF benchmark saved: \(report.pageCount) pages; \(report.processor); processor identifies M4+=\(report.processorIdentifiesM4OrLater); \(report.virtualization)")
     }
 
-    static func measure(input:URL?,pages:Int = 100,repetitions:Int = 3,includeOCR:Bool = true,workDirectory:URL? = nil) throws -> BenchmarkReport {
+    static func measure(input:URL?,pages:Int = 100,repetitions:Int = 3,includeOCR:Bool = true,workDirectory:URL? = nil,cancellation:NativeCancellation = NativeCancellation()) throws -> BenchmarkReport {
+        try cancellation.check()
         guard (1...2000).contains(pages),(1...10).contains(repetitions) else { throw failure("Escolha entre 1 e 2.000 páginas e entre 1 e 10 repetições.") }
         let folder = (workDirectory ?? FileManager.default.temporaryDirectory).appendingPathComponent("PDF-benchmark-" + UUID().uuidString,isDirectory:true)
         try FileManager.default.createDirectory(at:folder,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700])
@@ -70,37 +103,42 @@ struct BenchmarkReport: Codable, Sendable {
         let data = try Data(contentsOf:source,options:.mappedIfSafe)
         let hash = SHA256.hash(data:data).map { String(format:"%02x",$0) }.joined()
         var metrics:[BenchmarkMetric] = []
-        func record(_ id:String,_ name:String,_ detail:String,_ body:() throws -> Void) {
+        func record(_ id:String,_ name:String,_ detail:String,_ body:() throws -> Void) throws {
             var durations:[Double] = []
             do {
                 // Warm the requested operation once; the report does not call
                 // these results cold-cache or compare them to another machine.
+                try cancellation.check()
                 try autoreleasepool(invoking:body)
+                try cancellation.check()
                 for _ in 0..<repetitions {
+                    try cancellation.check()
                     let start = DispatchTime.now().uptimeNanoseconds
                     try autoreleasepool(invoking:body)
+                    try cancellation.check()
                     durations.append(Double(DispatchTime.now().uptimeNanoseconds-start)/1_000_000)
                 }
                 metrics.append(BenchmarkMetric(id:id,name:name,samplesMilliseconds:durations,detail:detail,error:nil))
             } catch {
+                if error is CancellationError { throw error }
                 metrics.append(BenchmarkMetric(id:id,name:name,samplesMilliseconds:durations,detail:detail,error:error.localizedDescription))
             }
         }
-        record("open","Abrir documento","Abrir o arquivo e resolver primeira e última página; cache do sistema preservado.") {
+        try record("open","Abrir documento","Abrir o arquivo e resolver primeira e última página; cache do sistema preservado.") {
             guard let opened = PDFDocument(url:source),opened.pageCount == document.pageCount,
                   opened.page(at:0) != nil,opened.page(at:opened.pageCount-1) != nil else { throw failure("Abertura ou acesso às páginas falhou.") }
         }
-        record("extract","Extrair texto","Percorrer o texto de todas as páginas.") {
+        try record("extract","Extrair texto","Percorrer o texto de todas as páginas.") {
             let text = document.string ?? ""
             if input == nil, !text.contains("página \(pages)") { throw failure("A extração não recuperou o conteúdo conhecido da última página da amostra.") }
         }
         let matches = document.findString("benchmark",withOptions:.caseInsensitive).count
-        record("search","Buscar no documento","Termo fixo: benchmark; \(matches) ocorrências na amostra selecionada.") {
+        try record("search","Buscar no documento","Termo fixo: benchmark; \(matches) ocorrências na amostra selecionada.") {
             let count = document.findString("benchmark",withOptions:.caseInsensitive).count
             if input == nil, count != pages { throw failure("A busca não encontrou o termo conhecido em todas as páginas da amostra.") }
         }
         let indexes = Array(Set([0,document.pageCount/2,document.pageCount-1])).sorted()
-        record("render","Renderizar páginas","Primeira, central e última página; miniatura de até 1.200 × 1.600 pontos.") {
+        try record("render","Renderizar páginas","Primeira, central e última página; miniatura de até 1.200 × 1.600 pontos.") {
             for index in indexes {
                 guard let page = document.page(at:index) else { throw failure("Página indisponível.") }
                 let thumbnail = page.thumbnail(of:NSSize(width:1200,height:1600),for:.cropBox)
@@ -110,20 +148,27 @@ struct BenchmarkReport: Codable, Sendable {
         if let first = document.page(at:0) {
             let raster = first.thumbnail(of:NSSize(width:1200,height:1600),for:.cropBox)
             if let image = raster.cgImage(forProposedRect:nil,context:nil,hints:nil) {
-                record("contrast","Processar imagem","Core Image com contexto Metal quando disponível; mesma primeira página.") {
+                try record("contrast","Processar imagem","Core Image com contexto Metal quando disponível; mesma primeira página.") {
                     let enhanced = try GPUImageProcessor.enhance(image)
                     guard enhanced.width == image.width,enhanced.height == image.height else { throw failure("O processamento alterou as dimensões.") }
                 }
                 if includeOCR {
-                    record("ocr","Reconhecer texto","Vision preciso na primeira página, inglês. O tempo inclui tentativas, lançamento e comunicação com processo isolado quando necessário. A memória medida é do processo principal; não soma o pico do filho.") {
-                        let observations = try VisionRecognition.recognize(image,language:"en",cancellation:NativeCancellation())
-                        if input == nil, !observations.contains(where:{ $0.string.localizedCaseInsensitiveContains("benchmark") }) {
+                    var evidence: [OCRBenchmarkEvidence] = []
+                    try record("ocr","Reconhecer texto","OCR local na primeira página, inglês. Cada amostra identifica o motor usado. O tempo inclui tentativas e processos auxiliares; a memória é somente do processo principal, sem somar os filhos. Não mede utilização da NPU.") {
+                        let result = try LocalOCR.recognize(image,language:"en",cancellation:cancellation)
+                        if input == nil, !result.observations.contains(where:{ $0.string.localizedCaseInsensitiveContains("benchmark") }) {
                             throw failure("O OCR não reconheceu o texto conhecido da amostra.")
                         }
+                        evidence.append(OCRBenchmarkEvidence(backend:result.backend,fallbackReason:result.fallbackReason))
+                    }
+                    if let index = metrics.lastIndex(where: { $0.id == "ocr" }) {
+                        metrics[index].ocrWarmup = evidence.first
+                        metrics[index].ocrSamples = Array(evidence.dropFirst())
                     }
                 }
             }
         }
+        try cancellation.check()
         var usage = rusage()
         let peak = getrusage(RUSAGE_SELF,&usage) == 0 ? UInt64(max(0,usage.ru_maxrss)) : 0
         #if arch(arm64)

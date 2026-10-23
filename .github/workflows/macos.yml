@@ -45,21 +45,6 @@ jobs:
         run: |
           echo "::add-matcher::.github/swift-problem-matcher.json"
           xcrun swift build -c release --arch arm64 --jobs 3
-      - name: Validate native document operations
-        id: native
-        env:
-          CG_PDF_VERBOSE: '1'
-        run: |
-          set -o pipefail
-          PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
-          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$PDF_BINARY_DIR/PDF" --smoke-test 2>&1 | tee "$RUNNER_TEMP/PDF-native-checks.log"
-      - name: Retain native diagnostic log
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: PDF-native-checks-${{ matrix.runner }}
-          path: ${{ runner.temp }}/PDF-native-checks.log
-          if-no-files-found: ignore
       - name: Capture native window preview
         id: preview
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
@@ -81,15 +66,84 @@ jobs:
           if-no-files-found: ignore
       - name: Build, install and validate complete application
         id: install
-        # A failed native prerequisite cannot produce a validated installation.
-        # Avoid rebuilding dependencies only to repeat that same failure.
-        if: ${{ !cancelled() && steps.compile.outcome == 'success' && steps.native.outcome == 'success' }}
+        # Product OCR requires the installed local runtime. Both pre-activation
+        # and post-activation checks remain mandatory inside the installer.
+        if: ${{ !cancelled() && steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' }}
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
+          CG_PDF_VERBOSE: '1'
         run: bash scripts/install-mac.sh
+      - name: Validate installed application and local OCR
+        id: native
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        env:
+          CG_PDF_VERBOSE: '1'
+        run: |
+          set -o pipefail
+          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --smoke-test 2>&1 | tee "$RUNNER_TEMP/PDF-native-checks.log"
+      - name: Retain native diagnostic log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-native-checks-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-native-checks.log
+          if-no-files-found: ignore
+      - name: Record Apple Vision capability independently
+        id: vision
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        env:
+          CG_PDF_VERBOSE: '1'
+        run: |
+          set -o pipefail
+          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --vision-audit "$RUNNER_TEMP/PDF-vision-audit.json" 2>&1 | tee "$RUNNER_TEMP/PDF-vision-audit.log"
+          python3 - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'PDF-vision-audit.json').read_text())
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit('Invalid Apple Vision capability report: ' + detail)
+          require(isinstance(report, dict), 'object required')
+          require(type(report.get('schemaVersion')) is int and report['schemaVersion'] == 1, 'unsupported schema')
+          require(report.get('fixture') == 'image-only-verification-v1', 'real image-only fixture required')
+          checks = report.get('checks')
+          require(isinstance(checks, list) and len(checks) == 2 and all(isinstance(item, dict) for item in checks), 'exactly two checks required')
+          require({item.get('id') for item in checks} == {'searchable-pdf', 'isolated-process'}, 'missing or duplicate Apple-only checks')
+          for item in checks:
+              require(item.get('status') in ('passed', 'failed'), item['id'] + ': invalid status')
+              require(isinstance(item.get('message'), str) and bool(item['message'].strip()), item['id'] + ': missing assertion or failure detail')
+              if item['status'] == 'failed':
+                  require(isinstance(item.get('errorDomain'), str) and bool(item['errorDomain'].strip()) and type(item.get('errorCode')) is int, item['id'] + ': missing framework failure identity')
+              else:
+                  require(item.get('errorDomain') is None and item.get('errorCode') is None, item['id'] + ': contradictory success')
+              print('Apple Vision', item['id'] + ':', item['status'])
+          summary = report.get('summary')
+          require(isinstance(summary, dict) and type(summary.get('appleVisionPassed')) is bool, 'missing boolean capability result')
+          passed = all(item['status'] == 'passed' for item in checks)
+          require(summary['appleVisionPassed'] == passed, 'capability summary contradicts individual checks')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('apple_vision_passed=' + str(passed).lower() + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('### Apple Vision capability\n\n')
+              for item in checks:
+                  output.write('- ' + item['id'] + ': **' + item['status'] + '**\n')
+              output.write('\nThe mandatory installed-application smoke test already verified real local OCR. This separate report records Apple Vision availability; a failed capability result is retained explicitly.\n\n')
+          PYTHON
+      - name: Retain Apple Vision capability report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-Apple-Vision-capability-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-vision-audit.json
+            ${{ runner.temp }}/PDF-vision-audit.log
+          if-no-files-found: ignore
       - name: Benchmark the installed application with OCR
         id: benchmark
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        env:
+          CG_PDF_VERBOSE: '1'
         run: |
           python3 scripts/run-with-timeout.py --seconds 600 -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --benchmark "$RUNNER_TEMP/PDF-benchmark.json" --benchmark-pages 100
           python3 - <<'PYTHON'
@@ -103,7 +157,7 @@ jobs:
           def require(condition, detail):
               if not condition:
                   raise SystemExit('Invalid native benchmark: ' + detail)
-          require(report.get('schemaVersion') == 1, 'unsupported schema')
+          require(isinstance(report, dict) and type(report.get('schemaVersion')) is int and report['schemaVersion'] == 1, 'unsupported schema')
           require(report.get('architecture') == 'arm64', 'native Apple Silicon execution required')
           require(report.get('pageCount') == 100 and report.get('fixture') == 'text-and-vector-v1', '100-page synthetic fixture required')
           require(report.get('repetitions') == 3, 'three measured repetitions required')
@@ -117,6 +171,32 @@ jobs:
               samples = item.get('samplesMilliseconds', [])
               require(len(samples) == 3 and all(type(value) in (int, float) and math.isfinite(value) and value >= 0 for value in samples), item['id'] + ': invalid or incomplete timing samples')
               print(f"{item['id']}: median {median(samples):.3f} ms ({len(samples)} samples)")
+          ocr_metric = next(item for item in metrics if item['id'] == 'ocr')
+          warmup = ocr_metric.get('ocrWarmup')
+          ocr_samples = ocr_metric.get('ocrSamples')
+          require(isinstance(warmup, dict), 'OCR warmup must identify its actual backend')
+          require(isinstance(ocr_samples, list) and len(ocr_samples) == 3 and all(isinstance(item, dict) for item in ocr_samples), 'three actual OCR backend records required')
+          records = [('warmup', warmup)] + [(f'sample {index + 1}', item) for index, item in enumerate(ocr_samples)]
+          for label, item in records:
+              require(item.get('backend') in ('apple-vision', 'tesseract'), label + ': unsupported or missing OCR backend')
+              reason = item.get('fallbackReason')
+              require(reason is None or isinstance(reason, str) and bool(reason.strip()), label + ': invalid fallback reason')
+              if item['backend'] == 'tesseract':
+                  require(isinstance(reason, str) and bool(reason.strip()), label + ': Tesseract requires the Apple Vision failure reason')
+              else:
+                  require(reason is None, label + ': Apple Vision must not claim a Tesseract fallback reason')
+              print('OCR', label + ':', item['backend'])
+          uses_tesseract = any(item['backend'] == 'tesseract' for _, item in records)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('uses_tesseract=' + str(uses_tesseract).lower() + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('### Installed application benchmark\n\n')
+              output.write('All six operations passed on the 100-page synthetic corpus. OCR and contrast measure the first page; rendering measures first, middle and last pages. Hardware: ' + str(report.get('processor')) + '.\n\n')
+              for label, item in records:
+                  output.write('- OCR ' + label + ': **' + item['backend'] + '**\n')
+              if uses_tesseract:
+                  output.write('\nCompatibility OCR used the installed local Tesseract engine. Apple Vision capability results remain in the separate report; these timings include the actual fallback path.\n')
+              output.write('\n')
           print('Hardware:', report.get('processor'), '|', report.get('operatingSystem'), '|', report.get('virtualization'))
           PYTHON
       - name: Retain native benchmark artifact
@@ -127,14 +207,29 @@ jobs:
           path: ${{ runner.temp }}/PDF-benchmark.json
           if-no-files-found: ignore
       - name: Create source distribution
+        id: package
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
-        run: bash scripts/package-source.sh
+        run: |
+          bash scripts/package-source.sh
+          # Keep the source archive and its evidence at the artifact root.
+          # The reports are separate from the reproducible source tarball.
+          python3 - <<'PYTHON'
+          import os
+          from pathlib import Path
+          for name in ('PDF-vision-audit.json', 'PDF-benchmark.json'):
+              source = Path(os.environ['RUNNER_TEMP']) / name
+              if source.is_file():
+                  with (Path('dist') / name).open('xb') as destination:
+                      destination.write(source.read_bytes())
+          PYTHON
       - name: Retain source artifact with validation status
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.benchmark.outcome == 'success' && 'PDF-source' || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256
+            dist/PDF-vision-audit.json
+            dist/PDF-benchmark.json
           if-no-files-found: ignore

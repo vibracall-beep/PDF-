@@ -14,7 +14,7 @@ private final class BenchmarkJob: @unchecked Sendable {
             current.terminate()
             // A stuck framework must not keep a private input copy and the
             // parent worker alive indefinitely after cancellation.
-            DispatchQueue.global(qos:.utility).asyncAfter(deadline:.now()+2) { [weak self] in
+            DispatchQueue.global(qos:.utility).asyncAfter(deadline:.now()+10) { [weak self] in
                 guard let self else { return }
                 self.lock.lock(); defer { self.lock.unlock() }
                 if self.process === current, current.isRunning {
@@ -42,7 +42,12 @@ private final class BenchmarkJob: @unchecked Sendable {
         defer {
             // A pipe/read/decoding failure must also stop the worker before its
             // private directory is removed by the outer cleanup.
-            if child.isRunning { Darwin.kill(child.processIdentifier,SIGKILL) }
+            if child.isRunning {
+                child.terminate()
+                let deadline = ProcessInfo.processInfo.systemUptime + 10
+                while child.isRunning && ProcessInfo.processInfo.systemUptime < deadline { Thread.sleep(forTimeInterval: 0.03) }
+                if child.isRunning { Darwin.kill(child.processIdentifier,SIGKILL) }
+            }
             child.waitUntilExit()
             try? pipe.fileHandleForReading.close()
             lock.lock(); process = nil; lock.unlock()
@@ -157,6 +162,14 @@ struct BenchmarkView: View {
                 VStack(alignment:.leading,spacing:6) {
                     HStack { Text(metric.name).font(.headline); Spacer(); Text(metric.error == nil ? metric.medianMilliseconds.map { String(format:"%.2f ms",$0) } ?? "Sem medição" : "Indisponível").monospacedDigit() }
                     Text(metric.error ?? metric.detail).font(.caption).foregroundStyle(metric.error == nil ? Color.secondary : Color.orange).textSelection(.enabled)
+                    if let samples = metric.ocrSamples, !samples.isEmpty {
+                        let apple = samples.filter { $0.backend == "apple-vision" }.count
+                        let compatibility = samples.filter { $0.backend == "tesseract" }.count
+                        Text("OCR medido: \(apple) amostras com Apple Vision · \(compatibility) com Tesseract local.").font(.caption)
+                        if let cause = samples.compactMap(\.fallbackReason).first {
+                            Text("Compatibilidade local: \(cause)").font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+                        }
+                    }
                 }.padding(14).background(Color(nsColor:.controlBackgroundColor),in:RoundedRectangle(cornerRadius:12))
             }
             Text("\(report.pageCount) páginas · \(report.repetitions) medições por operação após aquecimento · mediana em milissegundos.").font(.caption)

@@ -124,6 +124,18 @@ struct PDFApp: App {
                 try MacBenchmark.run(input:input,output:URL(fileURLWithPath:args[index+1]),pages:pages); exit(0)
             } catch { FileHandle.standardError.write(Data("PDF benchmark failed: \(error)\n".utf8)); exit(1) }
         }
+        if let index = CommandLine.arguments.firstIndex(of: "--vision-audit") {
+            do {
+                let args = CommandLine.arguments
+                guard args.indices.contains(index + 1), !args[index + 1].hasPrefix("--") else {
+                    throw NSError(domain: "PDF.VisionAudit", code: 1, userInfo: [NSLocalizedDescriptionKey: "Informe o caminho JSON após --vision-audit."])
+                }
+                try VisionCapabilityAudit.run(output: URL(fileURLWithPath: args[index + 1]))
+                // A written capability report is not an assertion that Apple
+                // OCR passed. Its individual checks retain their actual status.
+                exit(0)
+            } catch { fputs("PDF Vision capability report failed: \(error)\n", stderr); exit(1) }
+        }
         if CommandLine.arguments.contains("--smoke-test") {
             do { try MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
             catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }

@@ -98,7 +98,7 @@ enum ReaderAnnotationStyle {
     private let thumbnails = NSCache<NSNumber, NSImage>()
 
     init(defaults: UserDefaults = .standard, recoveryStore: RecoveryStore = .shared, enableRecoveryPolling: Bool = true) {
-        let automation = CommandLine.arguments.contains { ["--smoke-test", "--render-preview", "--benchmark"].contains($0) }
+        let automation = CommandLine.arguments.contains { ["--smoke-test", "--render-preview", "--benchmark", "--vision-audit"].contains($0) }
         if automation, defaults === UserDefaults.standard {
             let suite = "PDF.Automation.\(UUID().uuidString)"
             self.defaults = UserDefaults(suiteName: suite)!; transientDefaultsSuite = suite

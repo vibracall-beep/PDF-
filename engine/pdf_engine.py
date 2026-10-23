@@ -42,7 +42,7 @@ TOOLS = {
     'form-create':'Criar formulários', 'form-fill':'Preencher formulários', 'form-detect':'Detectar campos',
     'layout-extract':'Extrair blocos de layout', 'translate-layout':'Aplicar tradução ao layout',
     'digital-sign':'Assinatura digital', 'verify-signatures':'Verificar assinaturas', 'validate-pdfa':'Validar PDF/A', 'validate-pdfua':'Validar PDF/UA',
-    'markdown':'PDF para Markdown', 'workflow':'Executar fluxo'
+    'markdown':'PDF para Markdown', 'workflow':'Executar fluxo', 'ocr-page':'Reconhecer imagem de página'
 }
 ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual','delete_pages':'delete-pages','extract_pages':'extract-pages','delete':'delete-pages','extract':'extract-pages'}
 PDF_OPERATIONS = {'digital-sign','merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
@@ -260,6 +260,10 @@ def run(operation, inputs, output, options=None):
 
 
 def _execute(operation, inputs, output, options):
+    if operation == 'ocr-page':
+        from ocr_page import recognize
+        recognize(inputs[0],output,options,_external)
+        return
     if operation in ('digital-sign','verify-signatures'):
         from pdf_signatures import sign_pdf, verify_pdf
         (sign_pdf if operation=='digital-sign' else verify_pdf)(inputs[0],output,options)

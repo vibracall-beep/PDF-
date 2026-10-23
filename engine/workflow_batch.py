@@ -21,9 +21,9 @@ TERMINAL_OUTPUTS = {
     "layout-extract": ("json", False), "compare": ("txt", False),
     "compare-visual": ("html", False),
     "verify-signatures": ("json", False), "validate-pdfa": ("json", False),
-    "validate-pdfua": ("json", False),
+    "validate-pdfua": ("json", False), "ocr-page": ("json", False),
 }
-SOURCE_CONVERTERS = {"office", "odt", "rtf", "txt", "epub", "csv", "html", "images"}
+SOURCE_CONVERTERS = {"office", "odt", "rtf", "txt", "epub", "csv", "html", "images", "ocr-page"}
 MULTI_SOURCE = {"merge", "images", "compare", "compare-visual"}
 
 

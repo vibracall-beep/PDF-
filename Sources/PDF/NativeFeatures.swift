@@ -80,6 +80,13 @@ struct VisionExecutionFailure: Error {
     let underlying: Error
 }
 
+/// A runtime failure confirmed by the configured in-process attempts and the
+/// private child. It alone permits the product's alternate local OCR engine.
+struct VisionRuntimeUnavailable: LocalizedError {
+    let detail: String
+    var errorDescription: String? { detail }
+}
+
 /// Automatic device selection and the SDK's default recognition revision come first.
 /// Runtime failures may receive a CPU attempt and one supported older accurate engine.
 /// No retry changes the requested language or switches to fast recognition.
@@ -141,10 +148,14 @@ enum VisionRecognition {
     }
     static func recognize(_ input: CGImage, language: String, cancellation: NativeCancellation) throws -> [VisionTextObservation] {
         try cancellation.check()
+        guard ["pt", "en"].contains(language) else {
+            throw NSError(domain: "PDF.Vision", code: 5, userInfo: [NSLocalizedDescriptionKey: "Escolha português ou inglês para o reconhecimento."])
+        }
         let image = try canonicalImage(input)
         try cancellation.check()
         func terminal(_ error: NSError, canIsolate: Bool) throws -> [VisionTextObservation] {
             var reported = error
+            var runtimeUnavailable = false
             if canIsolate {
                 print("Vision OCR: in-process runtime failed; trying one isolated native process in accurate mode")
                 do {
@@ -154,17 +165,19 @@ enum VisionRecognition {
                 } catch {
                     try cancellation.check()
                     if error is CancellationError { throw error }
+                    runtimeUnavailable = error is VisionWorker.RuntimeFailure
                     reported = NSError(domain: "PDF.Vision", code: 8, userInfo: [
                         NSLocalizedDescriptionKey: reported.localizedDescription + " Processo nativo isolado: " + description(error),
                         NSUnderlyingErrorKey: error
                     ])
                 }
             }
-            if CommandLine.arguments.contains("--smoke-test") {
+            if CommandLine.arguments.contains("--vision-audit") {
                 VisionFailureDiagnostics.run(image: image, language: language, expectedText: "verification", cancellation: cancellation)
             }
             // Diagnostic probes never replace the product result or suppress a
             // failing assertion. The original request still fails its audit.
+            if runtimeUnavailable { throw VisionRuntimeUnavailable(detail: reported.localizedDescription) }
             throw reported
         }
         let defaultRevision = VNRecognizeTextRequest.defaultRevision
@@ -185,7 +198,7 @@ enum VisionRecognition {
             // The user selects Portuguese or English. Vision's public API
             // recommends explicit languages when the language is already known.
             request.automaticallyDetectsLanguage = false
-            if CommandLine.arguments.contains(where: { ["--smoke-test", "--benchmark"].contains($0) }) {
+            if CommandLine.arguments.contains(where: { ["--smoke-test", "--vision-audit", "--benchmark"].contains($0) }) {
                 print("Vision OCR configuration: revision=\(request.revision); accurate=true; automaticLanguage=false; languages=\(request.recognitionLanguages.joined(separator: ",")); cpuOnly=\(cpuOnly); image=\(image.width)x\(image.height); bitsPerComponent=\(image.bitsPerComponent); bitsPerPixel=\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue); colorSpace=\(image.colorSpace?.name as String? ?? "unnamed"); alpha=\(image.alphaInfo.rawValue); orientation=up")
             }
             cancellation.install(request)
@@ -250,6 +263,20 @@ enum VisionRecognition {
 enum VisionPDF {
     static func create(data: Data, language: String, enhanceContrast: Bool = false, cancellation: NativeCancellation,
                        progress: @escaping @Sendable (Int, Int) -> Void) throws -> Data {
+        try SearchablePDFRenderer.create(data: data, enhanceContrast: enhanceContrast, cancellation: cancellation,
+                                         progress: progress) { image in
+            PageOCRResult(observations: try VisionRecognition.recognize(image, language: language, cancellation: cancellation),
+                          backend: "apple-vision", fallbackReason: nil)
+        }.data
+    }
+}
+
+/// Shared page rendering and invisible text placement. The recognizer decides
+/// the engine; both strict Vision and the product path preserve the source page.
+enum SearchablePDFRenderer {
+    static func create(data: Data, enhanceContrast: Bool, cancellation: NativeCancellation,
+                       progress: @escaping @Sendable (Int, Int) -> Void,
+                       recognize: (CGImage) throws -> PageOCRResult) throws -> OCRPDFResult {
         guard let provider = CGDataProvider(data: data as CFData),
               let document = CGPDFDocument(provider) else { throw NativePDFError.unreadable }
         guard !document.isEncrypted else { throw NativePDFError.encrypted }
@@ -257,6 +284,9 @@ enum VisionPDF {
         let buffer = NSMutableData()
         guard let consumer = CGDataConsumer(data: buffer as CFMutableData),
               let context = CGContext(consumer: consumer, mediaBox: nil, nil) else { throw NativePDFError.output }
+        var closed = false
+        defer { if !closed { context.closePDF() } }
+        var evidence: [OCRPageEvidence] = []
         for index in 1...document.numberOfPages {
             try cancellation.check()
             try autoreleasepool {
@@ -281,13 +311,14 @@ enum VisionPDF {
                 try cancellation.check()
                 let recognitionImage = enhanceContrast ? try GPUImageProcessor.enhance(image) : image
                 try cancellation.check()
-                let observations = try VisionRecognition.recognize(recognitionImage, language: language, cancellation: cancellation)
+                let result = try recognize(recognitionImage)
+                try VisionTextObservation.validate(result.observations)
                 try cancellation.check()
                 var media = bounds
                 let mediaData = Data(bytes: &media, count: MemoryLayout<CGRect>.size)
                 context.beginPDFPage([kCGPDFContextMediaBox as String: mediaData] as CFDictionary)
                 context.saveGState(); context.concatenate(transform); context.drawPDFPage(page); context.restoreGState()
-                for observation in observations {
+                for observation in result.observations {
                     let text = observation.string
                     let box = observation.boundingBox
                     let rect = CGRect(x: box.minX * size.width, y: box.minY * size.height, width: box.width * size.width, height: box.height * size.height)
@@ -305,12 +336,14 @@ enum VisionPDF {
                     context.restoreGState()
                 }
                 context.endPDFPage()
+                evidence.append(OCRPageEvidence(page: index, backend: result.backend, fallbackReason: result.fallbackReason))
             }
             progress(index, document.numberOfPages)
         }
         context.closePDF()
+        closed = true
         try cancellation.check()
-        return buffer as Data
+        return OCRPDFResult(data: buffer as Data, pages: evidence)
     }
 }
 
@@ -515,7 +548,7 @@ struct NativeFeaturesView: View {
     }
     private var ocrContent: some View {
         VStack(alignment: .leading, spacing: 18) {
-            Text("Reconheça o texto do PDF aberto usando o Vision da Apple. O resultado mantém a aparência das páginas e acrescenta uma camada de texto selecionável.")
+            Text("Reconheça o texto do PDF aberto com processamento local. O aplicativo usa Apple Vision e, se esse motor falhar durante o reconhecimento, tenta o Tesseract instalado. O resultado informa qual motor foi usado.")
             Text("Use em documentos digitalizados. A reconstrução não conserva formulários, links, anotações ou assinaturas digitais. Páginas que já contêm texto podem ganhar texto duplicado; use OCRmyPDF para ignorá-las automaticamente.").font(.caption).foregroundStyle(.secondary)
             Text((model.savedDocumentURL ?? model.url)?.lastPathComponent ?? "Abra primeiro um documento no leitor.").font(.headline)
             Picker("Idioma principal", selection: $language) { Text("Português e inglês").tag("pt"); Text("Inglês").tag("en") }
@@ -523,7 +556,7 @@ struct NativeFeaturesView: View {
             Text("O ajuste atua na imagem usada pelo OCR, preservando a aparência das páginas de saída.").font(.caption).foregroundStyle(.secondary)
             HStack {
                 Button("Criar PDF pesquisável…") { startOCR() }.buttonStyle(.borderedProminent).disabled(running || model.document == nil)
-                if running { Button("Cancelar") { cancellation?.cancel() } }
+                if running { Button("Cancelar") { status = "Cancelando o reconhecimento…"; cancellation?.cancel() } }
             }
             if running { ProgressView(value: progress).accessibilityLabel("Progresso do OCR") }
             Spacer()
@@ -563,17 +596,22 @@ struct NativeFeaturesView: View {
         running = true; progress = 0; status = "Reconhecendo texto…"; result = nil
         DispatchQueue.global(qos: .userInitiated).async {
             do {
-                let output = try VisionPDF.create(data: data, language: selectedLanguage, enhanceContrast: enhance, cancellation: token) { completed, total in
+                let output = try LocalOCRPDF.create(data: data, language: selectedLanguage, enhanceContrast: enhance, cancellation: token) { completed, total in
                     DispatchQueue.main.async { progress = Double(completed) / Double(total); status = "Página \(completed) de \(total)" }
                 }
                 try token.check()
-                try NativeOutput.write(output, to: destination)
-                DispatchQueue.main.async { running = false; result = destination; status = "PDF pesquisável salvo. Revise o reconhecimento antes de compartilhar." }
+                try NativeOutput.write(output.data, to: destination)
+                let applePages = output.pages.filter { $0.backend == "apple-vision" }.count
+                let compatibilityPages = output.pages.filter { $0.backend == "tesseract" }.count
+                let detail = compatibilityPages == 0
+                    ? "PDF pesquisável salvo com Apple Vision."
+                    : "PDF pesquisável salvo. Apple Vision: \(applePages) páginas; Tesseract local: \(compatibilityPages) páginas. O Tesseract foi usado nas páginas em que o reconhecimento Apple falhou."
+                DispatchQueue.main.async { running = false; cancellation = nil; result = destination; status = detail + " Revise o reconhecimento antes de compartilhar." }
             } catch is CancellationError {
-                DispatchQueue.main.async { running = false; status = "OCR cancelado. Nenhum resultado foi publicado." }
+                DispatchQueue.main.async { running = false; cancellation = nil; status = "OCR cancelado. Nenhum resultado foi publicado." }
             } catch {
                 let message = error.localizedDescription
-                DispatchQueue.main.async { running = false; status = "Falha no OCR: \(message)" }
+                DispatchQueue.main.async { running = false; cancellation = nil; status = "Falha no OCR: \(message)" }
             }
         }
     }

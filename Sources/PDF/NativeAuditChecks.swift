@@ -106,6 +106,40 @@ import Darwin
         try require(rejects { _ = try VisionWorker.validateResponse(incompatibleWorker, language: "pt", width: 64, height: 96, successfulExit: true) }, "O transporte aceitou uma versão desconhecida.")
         let errorWorker = VisionWorker.Response(language: "pt", width: 64, height: 96, observations: [], error: "Falha real")
         try require(rejects { _ = try VisionWorker.validateResponse(errorWorker, language: "pt", width: 64, height: 96, successfulExit: true) }, "Uma falha do OCR foi tratada como página vazia.")
+        // Only a matching, normally exited child can attest a runtime failure.
+        // Neither a malformed envelope nor the wording of an error permits the
+        // product to silently change OCR engines.
+        func attestsRuntime(_ response: VisionWorker.Response, successfulExit: Bool = false,
+                            runtimeFailureExit: Bool = true) -> Bool {
+            do {
+                _ = try VisionWorker.validateResponse(response, language: "pt", width: 64, height: 96,
+                    successfulExit: successfulExit, runtimeFailureExit: runtimeFailureExit)
+                return false
+            } catch is VisionWorker.RuntimeFailure { return true }
+            catch { return false }
+        }
+        let runtimeResponse = VisionWorker.Response(language: "pt", width: 64, height: 96, observations: nil,
+            error: "Foundation._GenericObjCError (0)", runtimeFailure: true)
+        let runtimeBytes = try JSONEncoder().encode(runtimeResponse)
+        let decodedRuntime = try JSONDecoder().decode(VisionWorker.Response.self, from: runtimeBytes)
+        try require(attestsRuntime(decodedRuntime), "O transporte perdeu a classificação de falha real do runtime.")
+        try require(!attestsRuntime(decodedRuntime, successfulExit: true) &&
+                    !attestsRuntime(decodedRuntime, runtimeFailureExit: false),
+                    "Um status de sucesso, sinal ou término inválido autorizou outro motor OCR.")
+        var runtimeVersionMismatch = decodedRuntime; runtimeVersionMismatch.version = 2
+        let falseRuntimeResponses = [
+            VisionWorker.Response(language: "pt", width: 64, height: 96, observations: nil, error: "Foundation._GenericObjCError (0)"),
+            VisionWorker.Response(language: "pt", width: 64, height: 96, observations: nil, error: "Falha", runtimeFailure: false),
+            VisionWorker.Response(language: "pt", width: 64, height: 96, observations: [], error: "Falha", runtimeFailure: true),
+            VisionWorker.Response(language: "pt", width: 64, height: 96, observations: nil, error: nil, runtimeFailure: true),
+            VisionWorker.Response(language: "pt", width: 64, height: 96, observations: nil, error: " \n", runtimeFailure: true),
+            VisionWorker.Response(language: "en", width: 64, height: 96, observations: nil, error: "Falha", runtimeFailure: true),
+            VisionWorker.Response(language: "pt", width: 65, height: 96, observations: nil, error: "Falha", runtimeFailure: true),
+            VisionWorker.Response(language: "pt", width: 64, height: 96, observations: nil, error: String(repeating: "a", count: 32_001), runtimeFailure: true),
+            runtimeVersionMismatch
+        ]
+        try require(falseRuntimeResponses.allSatisfy { !attestsRuntime($0) },
+                    "Um resultado incompatível ou sem proveniência de execução autorizou outro motor OCR.")
         let invalidBoxes = [CGRect(x: 0.8, y: 0.4, width: -0.2, height: 0.1), CGRect(x: 0.2, y: 0.8, width: 0.1, height: -0.2),
                             CGRect(x: -0.1, y: 0.2, width: 0.3, height: 0.4), CGRect(x: 0.9, y: 0.2, width: 0.2, height: 0.4),
                             CGRect(x: 0.1, y: 0.2, width: 0, height: 0.4), CGRect(x: CGFloat.infinity, y: 0.2, width: 0.3, height: 0.4)]

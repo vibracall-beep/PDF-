@@ -28,7 +28,7 @@ enum VisionFailureDiagnostics {
     }
 
     static func run(image: CGImage, language: String, expectedText: String, cancellation: NativeCancellation) {
-        guard CommandLine.arguments.contains("--smoke-test"), (try? cancellation.check()) != nil else { return }
+        guard CommandLine.arguments.contains("--vision-audit"), (try? cancellation.check()) != nil else { return }
         let state = State(), input = Input(image: image)
         log("begin; same normalized image=\(image.width)x\(image.height); bits=\(image.bitsPerComponent)/\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue); colorSpace=\(image.colorSpace?.name as String? ?? "unnamed"); alpha=\(image.alphaInfo.rawValue); language=\(language); accurate=true; totalLimitSeconds=90")
         let task = Task.detached(priority: .utility) {

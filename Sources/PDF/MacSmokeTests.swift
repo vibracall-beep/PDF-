@@ -49,6 +49,9 @@ enum MacSmokeTests {
                 FileHandle.standardError.write(Data(("Native check failed: " + detail + "\n").utf8))
             }
         }
+        func trace(_ phase: String) {
+            FileHandle.standardError.write(Data(("Native PDF fixture: " + phase + "\n").utf8))
+        }
 
         let directory = FileManager.default.temporaryDirectory
             .appendingPathComponent("PDF-native-check-\(UUID().uuidString)", isDirectory: true)
@@ -129,18 +132,61 @@ enum MacSmokeTests {
                 throw NSError(domain: "PDF.NativeChecks", code: 6,
                               userInfo: [NSLocalizedDescriptionKey: "Amostra de OCR inválida."])
             }
-            audit("Vision searchable PDF") {
-                let recognizedData = try VisionPDF.create(data: scannedData, language: "en", enhanceContrast: true,
-                                                         cancellation: NativeCancellation()) { _, _ in }
-                let recognized = PDFDocument(data: recognizedData)
+            let serializedSample = PDFDocument(data: scannedData)
+            try require(serializedSample?.pageCount == 1 &&
+                        (serializedSample?.string ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                        "A amostra serializada de OCR não pode conter uma camada de texto anterior.")
+            audit("Product searchable PDF") {
+                let result = try LocalOCRPDF.create(data: scannedData, language: "en", enhanceContrast: true,
+                                                    cancellation: NativeCancellation()) { _, _ in }
+                let recognized = PDFDocument(data: result.data)
                 try require((recognized?.string ?? "").localizedCaseInsensitiveContains("verification"),
-                            "Vision não criou texto pesquisável na página digitalizada.")
+                            "O aplicativo não criou texto pesquisável na página digitalizada.")
+                try require(recognized?.pageCount == 1 && result.pages.count == 1 && result.pages[0].page == 1,
+                            "O OCR alterou a contagem de páginas ou perdeu a identificação da página processada.")
+                let evidence = result.pages[0]
+                try require(["apple-vision", "tesseract"].contains(evidence.backend),
+                            "O OCR não identificou o motor real usado na página.")
+                if evidence.backend == "tesseract" {
+                    try require(!(evidence.fallbackReason ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+                                "O OCR alternativo omitiu a falha do Vision que motivou a substituição.")
+                } else {
+                    try require(evidence.fallbackReason == nil, "O resultado nativo contém uma justificativa de substituição inconsistente.")
+                }
+                let expected = scannedPage.bounds(for: .cropBox)
+                let actual = recognized?.page(at: 0)?.bounds(for: .mediaBox) ?? .zero
+                try require(abs(actual.width - expected.width) < 0.01 && abs(actual.height - expected.height) < 0.01,
+                            "O OCR modificou as dimensões visíveis da página.")
+                guard let outputPage = recognized?.page(at: 0),
+                      let selection = recognized?.findString("verification", withOptions: .caseInsensitive).first else {
+                    throw NSError(domain: "PDF.NativeChecks", code: 9,
+                                  userInfo: [NSLocalizedDescriptionKey: "O texto reconhecido não pôde ser localizado na página de saída."])
+                }
+                let selectionBounds = selection.bounds(for: outputPage)
+                try require(selectionBounds.minY > actual.height / 2 &&
+                            actual.insetBy(dx: -1, dy: -1).contains(selectionBounds),
+                            "A camada de texto pesquisável foi posicionada fora do texto visível da amostra.")
+                FileHandle.standardOutput.write(Data(("Product OCR page 1 backend: \(evidence.backend)\n").utf8))
             }
-            audit("Vision isolated process") {
+            audit("Tesseract installed runtime and transport") {
+                try TesseractPageAuditChecks.run()
                 let normalized = try VisionRecognition.canonicalImage(image)
-                let observations = try VisionWorker.recognize(normalized, language: "en", cancellation: NativeCancellation())
-                try require(observations.contains { $0.string.localizedCaseInsensitiveContains("verification") },
-                            "O processo isolado do Vision não reconheceu o texto real da amostra.")
+                // The helper exercises English; this original fixture also
+                // contains Portuguese and exercises the UI's primary language.
+                let result = try TesseractPageRecognizer.recognizePage(normalized, language: "pt", cancellation: NativeCancellation())
+                try require(result.backend == "tesseract" && result.language == "pt" &&
+                            result.width == normalized.width && result.height == normalized.height,
+                            "O Tesseract instalado perdeu os metadados da página, idioma ou motor.")
+                try require(result.observations.contains { $0.string.localizedCaseInsensitiveContains("verification") },
+                            "O Tesseract instalado não reconheceu o texto real da amostra.")
+                try VisionTextObservation.validate(result.observations)
+                // The fixture puts the known text near the top, at y=720/842.
+                // This independent check catches a top-left/bottom-left mixup
+                // even when a syntactically valid normalized box is returned.
+                try require(result.observations.contains {
+                    $0.string.localizedCaseInsensitiveContains("verification") && $0.boundingBox.minY > 0.5
+                }, "As coordenadas do texto reconhecido não correspondem à posição real na página.")
+                FileHandle.standardOutput.write(Data("Direct OCR backend: tesseract; language: pt\n".utf8))
             }
 
             let chunks = IntelligenceText.chunks("Primeiro parágrafo\nSegundo parágrafo", limit: 20)
@@ -176,34 +222,63 @@ enum MacSmokeTests {
                 catch { rejected = true }
                 try require(rejected, "Uma questão com conteúdo ou referências inválidas foi aceita.")
             }
+            trace("AI PDF export begin")
             let exported = try IntelligenceText.PDF("Resumo de teste com ação e conteúdo em português.")
             try require((PDFDocument(data: exported)?.string ?? "").contains("Resumo de teste"),
                         "Exportação do resultado de IA para PDF falhou.")
+            trace("AI PDF export and reopen end")
+            trace("capture PDF import begin")
             let importedPDF = try ContinuityCaptureFile.save(exported, isPDF: true, directory: directory)
             try require(PDFDocument(url: importedPDF)?.pageCount == 1, "Importação de captura PDF falhou.")
+            trace("capture PDF import and reopen end")
             guard let imageData = NSBitmapImageRep(cgImage: image).representation(using: .png, properties: [:]) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 7,
                               userInfo: [NSLocalizedDescriptionKey: "Não foi possível codificar a captura de teste."])
             }
+            trace("capture image import begin")
             let importedImage = try ContinuityCaptureFile.save(imageData, isPDF: false, directory: directory)
             try require(NSImage(contentsOf: importedImage) != nil, "Importação de captura de imagem falhou.")
+            trace("capture image import and reopen end")
             var refusedInvalidCapture = false
+            trace("invalid capture rejection begin")
             do { _ = try ContinuityCaptureFile.save(Data("not a PDF".utf8), isPDF: true, directory: directory) }
             catch { refusedInvalidCapture = true }
             try require(refusedInvalidCapture, "Uma captura PDF inválida foi aceita.")
+            trace("invalid capture rejection end")
 
             let protectedOptions: [AnyHashable: Any] = [
                 AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): "native-check-owner-123",
                 AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): "native-check-reader-123"
             ]
-            guard let protectedData = restored.dataRepresentation(options: protectedOptions),
-                  let protectedCopy = PDFDocument(data: protectedData) else {
+            trace("protected serialize begin")
+            guard let protectedData = restored.dataRepresentation(options: protectedOptions) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 8,
                               userInfo: [NSLocalizedDescriptionKey: "A exportação PDFKit protegida falhou."])
             }
+            trace("protected serialize end")
+            trace("protected open begin")
+            guard let protectedCopy = PDFDocument(data: protectedData) else {
+                throw NSError(domain: "PDF.NativeChecks", code: 8,
+                              userInfo: [NSLocalizedDescriptionKey: "A cópia PDFKit protegida não pôde ser aberta."])
+            }
+            trace("protected open end")
             try require(protectedCopy.isEncrypted && protectedCopy.isLocked, "A cópia nativa perdeu a proteção.")
+            trace("protected empty-password rejection begin")
             try require(!protectedCopy.unlock(withPassword: ""), "A cópia nativa aceitou senha vazia.")
+            trace("protected empty-password rejection end")
+            trace("protected unlock begin")
             try require(protectedCopy.unlock(withPassword: "native-check-reader-123"), "A senha da cópia nativa não funciona.")
+            trace("protected unlock end")
+            trace("protected content integrity begin")
+            try require(!protectedCopy.isLocked && protectedCopy.pageCount == 1 &&
+                        (protectedCopy.string ?? "").contains("PDF native verification"),
+                        "A cópia protegida perdeu páginas ou texto após desbloquear.")
+            try require(protectedCopy.page(at: 0)?.annotations.count == 2,
+                        "A cópia protegida perdeu anotações após desbloquear.")
+            try require(protectedCopy.page(at: 0)?.annotations.contains {
+                $0.fieldName == "native-test" && $0.widgetStringValue == "PDF"
+            } == true, "A cópia protegida perdeu o campo preenchido após desbloquear.")
+            trace("protected content integrity end")
             let atomic = directory.appendingPathComponent("atomic.txt")
             try NativeOutput.write(Data("original".utf8), to: atomic)
             var refusedOverwrite = false

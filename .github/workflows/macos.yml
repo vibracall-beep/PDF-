@@ -1,0 +1,56 @@
+name: macOS application validation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Sources/**'
+      - 'engine/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'requirements*.txt'
+      - 'Package.swift'
+      - '.github/workflows/macos.yml'
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-application:
+    # A macOS 26 Apple Silicon runner with Xcode 26+ is required.
+    runs-on: macos-26
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Apple toolchain
+        run: |
+          uname -m
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
+      - name: Build, install and validate complete application
+        env:
+          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
+        run: bash scripts/install-mac.sh
+      - name: Create source distribution
+        run: bash scripts/package-source.sh
+      - name: Render native application preview
+        env:
+          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
+        run: '"$PDF_INSTALL_DIR/PDF.app/Contents/MacOS/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"'
+      - name: Retain native preview artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-macOS-preview
+          path: ${{ runner.temp }}/PDF-preview.png
+          if-no-files-found: ignore
+      - name: Retain reviewed source artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: PDF-source
+          path: |
+            dist/PDF-source.tar.gz
+            dist/PDF-source.tar.gz.sha256
+          if-no-files-found: ignore

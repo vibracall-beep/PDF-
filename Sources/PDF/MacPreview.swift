@@ -37,9 +37,11 @@ enum MacPreview {
         window.contentView?.layoutSubtreeIfNeeded()
         window.displayIfNeeded()
         CATransaction.flush()
-        guard let content = window.contentView, content.bounds.width >= 1279, content.bounds.height >= 859 else {
-            throw failure(4, "O macOS restringiu o tamanho da janela de prévia; a captura solicitada não pode ser realizada.")
+        guard let content = window.contentView, content.bounds.width > 100, content.bounds.height > 100 else {
+            throw failure(4, "A janela da prévia ainda não possui uma área de conteúdo válida.")
         }
+        let logicalFrame = window.frame
+        print("PDF preview window: frame=\(Int(logicalFrame.width))x\(Int(logicalFrame.height)); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); backingScale=\(window.backingScaleFactor)")
         let folder = destination.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let temporary = folder.appendingPathComponent(".PDF-window-\(UUID().uuidString).png")
@@ -64,8 +66,13 @@ enum MacPreview {
             throw failure(6, "O WindowServer não permitiu capturar a janela. A sessão gráfica deve estar ativa e autorizar a captura de tela. " + diagnostics.trimmingCharacters(in: .whitespacesAndNewlines))
         }
         let data = try Data(contentsOf: temporary)
-        guard let bitmap = NSBitmapImageRep(data: data), bitmap.pixelsWide >= 1280, bitmap.pixelsHigh >= 860 else {
-            throw failure(7, "A captura devolvida pelo WindowServer está vazia ou tem dimensões menores que a janela solicitada.")
+        guard let bitmap = NSBitmapImageRep(data: data), bitmap.pixelsWide > 0, bitmap.pixelsHigh > 0 else {
+            throw failure(7, "A captura devolvida pelo WindowServer está vazia ou não é um PNG válido.")
+        }
+        let scaleX = Double(bitmap.pixelsWide) / logicalFrame.width
+        let scaleY = Double(bitmap.pixelsHigh) / logicalFrame.height
+        guard scaleX >= 0.9, scaleY >= 0.9, abs(scaleX - scaleY) < 0.05 else {
+            throw failure(9, "A captura não corresponde às dimensões efetivas da janela: \(bitmap.pixelsWide)x\(bitmap.pixelsHigh) pixels para \(Int(logicalFrame.width))x\(Int(logicalFrame.height)) pontos.")
         }
         try NativeOutput.write(data, to: destination)
         print("PDF preview captured from WindowServer: \(destination.lastPathComponent); window=\(window.windowNumber); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); pixels=\(bitmap.pixelsWide)x\(bitmap.pixelsHigh)")
@@ -110,12 +117,6 @@ enum MacPreview {
     }
 }
 
-/// A preview window can be larger than a small hosted runner display. Capturing its
-/// WindowServer surface by window ID retains the complete backing surface.
-@MainActor private final class PreviewWindow: NSWindow {
-    override func constrainFrameRect(_ frameRect: NSRect, to screen: NSScreen?) -> NSRect { frameRect }
-}
-
 @MainActor private final class PreviewApplicationDelegate: NSObject, NSApplicationDelegate {
     let destination: URL
     var result: Result<Void, Error>?
@@ -133,7 +134,7 @@ enum MacPreview {
         let view = ContentView().environmentObject(model).frame(minWidth: 1050, minHeight: 720)
         let host = NSHostingView(rootView: view)
         let rectangle = NSRect(x: 0, y: 0, width: 1280, height: 860)
-        let window = PreviewWindow(contentRect: rectangle, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        let window = NSWindow(contentRect: rectangle, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "PDF"
         window.isReleasedWhenClosed = false
         window.contentView = host

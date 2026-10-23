@@ -136,6 +136,11 @@ struct ContentView: View {
     @State private var selected: Tool?
     @State private var intelligenceMode = "summary"
     var tint: Color { accent == "Violeta" ? .purple : accent == "Verde" ? .green : accent == "Laranja" ? .orange : .blue }
+    var hasToolFilters:Bool { !query.isEmpty || category != "Todas" }
+    var hiddenFavoriteCount:Int {
+        let hidden = Set(hiddenTools.split(separator:",").map(String.init))
+        return tools.filter { isFavorite($0.id) && hidden.contains($0.id) }.count
+    }
     var orderedTools: [Tool] {
         let order = toolOrder.split(separator:",").map(String.init)
         let hidden = hiddenTools.split(separator:",").map(String.init)
@@ -149,7 +154,7 @@ struct ContentView: View {
                 Label("PDF", systemImage:"doc.richtext").font(.system(size:32, weight:.bold, design:.rounded)).padding(.top,22)
                 Text("SEU ESPAÇO DE DOCUMENTOS").font(.caption2).foregroundStyle(.secondary)
                 ForEach(["Início","Leitor","Favoritos","Digitalizar","Inteligência","Fluxos"], id:\.self) { item in
-                    Button { model.section = item } label: {
+                    Button { navigate(to:item) } label: {
                         Label(item, systemImage:sidebarIcon(item)).frame(maxWidth:.infinity, alignment:.leading).padding(12)
                             .background(model.section == item ? tint.opacity(0.15) : .clear, in:RoundedRectangle(cornerRadius:12))
                     }.buttonStyle(.plain).accessibilityAddTraits(model.section == item ? .isSelected : [])
@@ -211,17 +216,54 @@ struct ContentView: View {
                     TextField("Buscar ferramenta", text:$query).textFieldStyle(.roundedBorder)
                     Picker("Categoria", selection:$category) { ForEach(["Todas","Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar","Compartilhar"], id:\.self) { Text($0) } }.frame(width:220)
                 }
-                if orderedTools.isEmpty { ContentUnavailableView("Nenhuma ferramenta encontrada", systemImage:"magnifyingglass", description:Text("Ajuste a busca, os favoritos ou as ferramentas visíveis em Personalizar.")) }
+                if model.section == "Favoritos" && hiddenFavoriteCount > 0 {
+                    HStack(spacing:8) {
+                        Image(systemName:"eye.slash")
+                        Text(hiddenFavoriteCount == 1 ? "1 favorito está oculto nas preferências." : "\(hiddenFavoriteCount) favoritos estão ocultos nas preferências.")
+                        SettingsLink { Text("Personalizar") }
+                    }.font(.caption).foregroundStyle(.secondary)
+                }
+                if orderedTools.isEmpty { emptyToolsState }
                 HStack(alignment:.firstTextBaseline) {
                     Text(model.section == "Favoritos" ? "Suas ferramentas favoritas" : category == "Todas" ? "Todas as ferramentas" : category).font(.title3.weight(.semibold))
                     Spacer()
-                    Text("\(orderedTools.count) disponíveis").font(.caption).foregroundStyle(.secondary)
+                    Text("\(orderedTools.count) \(hasToolFilters ? "resultados" : "ferramentas")").font(.caption).foregroundStyle(.secondary)
                 }
                 LazyVGrid(columns:[GridItem(.adaptive(minimum:compact ? 185 : 220), spacing:14)], spacing:14) {
                     ForEach(orderedTools) { tool in toolCard(tool) }
                 }
             }.padding(28)
         }.background(LinearGradient(colors:[tint.opacity(0.1),Color(nsColor:.windowBackgroundColor),.purple.opacity(0.07)], startPoint:.topLeading, endPoint:.bottomTrailing))
+    }
+    @ViewBuilder var emptyToolsState: some View {
+        if hasToolFilters {
+            ContentUnavailableView {
+                Label("Nenhum resultado para os filtros",systemImage:"magnifyingglass")
+            } description: {
+                Text("A busca e a categoria selecionadas não correspondem às ferramentas visíveis nesta seção.")
+            } actions: {
+                Button("Limpar filtros") { clearToolFilters() }
+            }
+        } else if model.section == "Favoritos" {
+            ContentUnavailableView(
+                hiddenFavoriteCount > 0 ? "Seus favoritos estão ocultos" : "Você ainda não tem favoritos",
+                systemImage:hiddenFavoriteCount > 0 ? "eye.slash" : "star",
+                description:Text(hiddenFavoriteCount > 0 ? "Abra Personalizar para escolher quais ferramentas aparecem." : "Use a estrela nos cartões do Início para adicionar suas ferramentas favoritas.")
+            )
+        } else {
+            ContentUnavailableView {
+                Label("Nenhuma ferramenta visível",systemImage:"eye.slash")
+            } description: {
+                Text("Abra Personalizar para escolher as ferramentas que aparecem no menu.")
+            } actions: {
+                SettingsLink { Text("Personalizar") }
+            }
+        }
+    }
+    func clearToolFilters() { query = ""; category = "Todas" }
+    func navigate(to section:String) {
+        if section == "Início" || section == "Favoritos" { clearToolFilters() }
+        model.section = section
     }
     func toolCard(_ tool:Tool) -> some View {
         Button { activate(tool) } label: {

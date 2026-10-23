@@ -142,8 +142,14 @@ struct PreferencesView: View {
                         HStack {
                             Toggle(tool.name,isOn:Binding(get:{ !hiddenTools.split(separator:",").contains(Substring(tool.id)) },set:{ visible in var ids = hiddenTools.split(separator:",").map(String.init); ids.removeAll { $0 == tool.id }; if !visible { ids.append(tool.id) }; hiddenTools = ids.joined(separator:",") }))
                             Spacer()
-                            Button { reorder(index,index-1) } label: { Image(systemName:"arrow.up") }.disabled(index == 0)
-                            Button { reorder(index,index+1) } label: { Image(systemName:"arrow.down") }.disabled(index == ordered.count-1)
+                            Button { reorder(index,index-1) } label: { Image(systemName:"arrow.up") }
+                                .disabled(index == 0)
+                                .accessibilityLabel("Mover " + tool.name + " para cima")
+                                .help("Mover " + tool.name + " para cima")
+                            Button { reorder(index,index+1) } label: { Image(systemName:"arrow.down") }
+                                .disabled(index == ordered.count-1)
+                                .accessibilityLabel("Mover " + tool.name + " para baixo")
+                                .help("Mover " + tool.name + " para baixo")
                         }.padding(.vertical,4)
                     }
                 }

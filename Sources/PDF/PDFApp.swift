@@ -79,7 +79,14 @@ let tools: [Tool] = [
     .init(id:"benchmark", name:"Desempenho do Mac", icon:"gauge.with.dots.needle.67percent", detail:"Meça leitura, busca e processamento no hardware deste Mac.", category:"Automatizar")
 ]
 
-@main struct PDFApp: App {
+@main enum PDFEntryPoint {
+    @MainActor static func main() {
+        VisionWorker.handleCommandLineIfNeeded()
+        PDFApp.main()
+    }
+}
+
+struct PDFApp: App {
     @StateObject private var model:Workspace
     @StateObject private var appearancePreferences:AppearancePreferences
     @StateObject private var preview:MacPreviewSession
@@ -276,6 +283,7 @@ struct ContentView: View {
                 HStack {
                     TextField("Buscar ferramenta",text:$query).textFieldStyle(.roundedBorder).focused($toolSearchFocused).accessibilityIdentifier("pdf.catalog.search")
                     Picker("Categoria",selection:$category) { Text("Todas").tag("Todas"); ForEach(AppearanceState.categories.filter { !preferences.state.hiddenCategories.contains($0) },id:\.self) { Text($0).tag($0) } }.frame(width:220)
+                        .accessibilityLabel("Categoria de ferramentas").accessibilityIdentifier("pdf.catalog.category")
                 }
                 if model.section == "Favoritos" && hiddenFavoriteCount > 0 {
                     HStack(spacing:8) { Image(systemName:"eye.slash"); Text("\(hiddenFavoriteCount) favoritos estão ocultos nas preferências."); Button("Personalizar") { showCustomization = true } }.font(.caption).foregroundStyle(.secondary)

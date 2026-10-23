@@ -139,23 +139,39 @@ enum VisionRecognition {
     static func description(_ error: Error) -> String {
         chain(error).map { "\($0.domain) (\($0.code)): \($0.localizedDescription)" }.joined(separator: " → ")
     }
-    static func recognize(_ input: CGImage, language: String, cancellation: NativeCancellation) throws -> [VNRecognizedTextObservation] {
+    static func recognize(_ input: CGImage, language: String, cancellation: NativeCancellation) throws -> [VisionTextObservation] {
         try cancellation.check()
         let image = try canonicalImage(input)
         try cancellation.check()
-        func terminal(_ error: NSError) -> NSError {
+        func terminal(_ error: NSError, canIsolate: Bool) throws -> [VisionTextObservation] {
+            var reported = error
+            if canIsolate {
+                print("Vision OCR: in-process runtime failed; trying one isolated native process in accurate mode")
+                do {
+                    let observations = try VisionWorker.recognize(image, language: language, cancellation: cancellation)
+                    print("Vision OCR: isolated native process completed with \(observations.count) observations; previous in-process failure: \(error.localizedDescription)")
+                    return observations
+                } catch {
+                    try cancellation.check()
+                    if error is CancellationError { throw error }
+                    reported = NSError(domain: "PDF.Vision", code: 8, userInfo: [
+                        NSLocalizedDescriptionKey: reported.localizedDescription + " Processo nativo isolado: " + description(error),
+                        NSUnderlyingErrorKey: error
+                    ])
+                }
+            }
             if CommandLine.arguments.contains("--smoke-test") {
                 VisionFailureDiagnostics.run(image: image, language: language, expectedText: "verification", cancellation: cancellation)
             }
             // Diagnostic probes never replace the product result or suppress a
             // failing assertion. The original request still fails its audit.
-            return error
+            throw reported
         }
         let defaultRevision = VNRecognizeTextRequest.defaultRevision
         // Revision 1 is English-only. Select an older engine only if this runtime
         // still advertises it; each attempt also validates its accurate languages.
         let compatibleRevision = VNRecognizeTextRequest.supportedRevisions.filter { $0 >= 2 && $0 < defaultRevision }.max()
-        func perform(revision: Int, cpuOnly: Bool) throws -> [VNRecognizedTextObservation] {
+        func perform(revision: Int, cpuOnly: Bool) throws -> [VisionTextObservation] {
             try cancellation.check()
             let request = VNRecognizeTextRequest()
             request.revision = revision
@@ -190,7 +206,7 @@ enum VisionRecognition {
             do { try VNImageRequestHandler(cgImage: image, orientation: .up, options: [:]).perform([request]) }
             catch { try cancellation.check(); throw VisionExecutionFailure(underlying: error) }
             try cancellation.check()
-            return request.results ?? []
+            return try VisionTextObservation.from(request.results ?? [])
         }
         do { return try perform(revision: defaultRevision, cpuOnly: false) }
         catch {
@@ -198,7 +214,7 @@ enum VisionRecognition {
             if error is CancellationError { throw error }
             let first = error
             guard shouldRetryOnCPU(first) else {
-                throw terminal(NSError(domain: "PDF.Vision", code: 3, userInfo: [NSLocalizedDescriptionKey: "O reconhecimento de texto falhou: \(description(first))", NSUnderlyingErrorKey: first]))
+                return try terminal(NSError(domain: "PDF.Vision", code: 3, userInfo: [NSLocalizedDescriptionKey: "O reconhecimento de texto falhou: \(description(first))", NSUnderlyingErrorKey: first]), canIsolate: false)
             }
             print("Vision OCR: automatic execution failed (\(description(first))); retrying once with supported CPU devices")
             do {
@@ -220,12 +236,12 @@ enum VisionRecognition {
                     } catch {
                         try cancellation.check()
                         if error is CancellationError { throw error }
-                        throw terminal(NSError(domain: "PDF.Vision", code: 6,
-                            userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: \(description(first)). CPU: \(description(second)). Revisão compatível \(compatibleRevision): \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error]))
+                        return try terminal(NSError(domain: "PDF.Vision", code: 6,
+                            userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: \(description(first)). CPU: \(description(second)). Revisão compatível \(compatibleRevision): \(description(error)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: error]), canIsolate: shouldRetryOnCPU(error))
                     }
                 }
-                throw terminal(NSError(domain: "PDF.Vision", code: 4,
-                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(second)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: second]))
+                return try terminal(NSError(domain: "PDF.Vision", code: 4,
+                    userInfo: [NSLocalizedDescriptionKey: "O reconhecimento falhou nas duas tentativas. Automática: \(description(first)). CPU: \(description(second)). Nenhum resultado foi publicado.", NSUnderlyingErrorKey: second]), canIsolate: shouldRetryOnCPU(second) || cpuUnavailable)
             }
         }
     }
@@ -272,7 +288,7 @@ enum VisionPDF {
                 context.beginPDFPage([kCGPDFContextMediaBox as String: mediaData] as CFDictionary)
                 context.saveGState(); context.concatenate(transform); context.drawPDFPage(page); context.restoreGState()
                 for observation in observations {
-                    guard let text = observation.topCandidates(1).first?.string, !text.isEmpty else { continue }
+                    let text = observation.string
                     let box = observation.boundingBox
                     let rect = CGRect(x: box.minX * size.width, y: box.minY * size.height, width: box.width * size.width, height: box.height * size.height)
                     let attributed = NSAttributedString(string: text, attributes: [.font: NSFont.systemFont(ofSize: 12)])

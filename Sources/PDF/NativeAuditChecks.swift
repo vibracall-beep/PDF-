@@ -3,6 +3,7 @@ import PDFKit
 import ImageIO
 import UniformTypeIdentifiers
 import Vision
+import Darwin
 
 /// Regression checks for native file publication, reader preferences and scan assembly.
 /// Invoked by the macOS smoke runner; hardware acquisition and model generation remain manual.
@@ -90,6 +91,43 @@ import Vision
         try require(VisionRecognition.shouldRetryOnCPU(VisionExecutionFailure(underlying: executionFailure)) &&
                     !VisionRecognition.shouldRetryOnCPU(VisionExecutionFailure(underlying: CancellationError())),
                     "O retry de OCR não respeitou o erro de execução observado ou o cancelamento.")
+        let textObservation = VisionTextObservation(string: "Ação 中文\nlinha 2", boundingBox: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4), confidence: 0.91)
+        let workerResponse = VisionWorker.Response(language: "pt", width: 64, height: 96, observations: [textObservation], error: nil)
+        let workerBytes = try JSONEncoder().encode(workerResponse)
+        let decodedWorker = try JSONDecoder().decode(VisionWorker.Response.self, from: workerBytes)
+        let restoredWorker = try VisionWorker.validateResponse(decodedWorker, language: "pt", width: 64, height: 96, successfulExit: true)
+        try require(restoredWorker.count == 1 && restoredWorker[0].string == textObservation.string && restoredWorker[0].boundingBox == textObservation.boundingBox && restoredWorker[0].confidence == textObservation.confidence,
+                    "O transporte privado de OCR perdeu Unicode, ordem do texto, geometria ou confiança.")
+        try require(rejects { _ = try VisionWorker.validateResponse(decodedWorker, language: "en", width: 64, height: 96, successfulExit: true) } &&
+                    rejects { _ = try VisionWorker.validateResponse(decodedWorker, language: "pt", width: 65, height: 96, successfulExit: true) } &&
+                    rejects { _ = try VisionWorker.validateResponse(decodedWorker, language: "pt", width: 64, height: 96, successfulExit: false) },
+                    "O transporte aceitou idioma, dimensões ou término do processo incorretos.")
+        var incompatibleWorker = decodedWorker; incompatibleWorker.version = 2
+        try require(rejects { _ = try VisionWorker.validateResponse(incompatibleWorker, language: "pt", width: 64, height: 96, successfulExit: true) }, "O transporte aceitou uma versão desconhecida.")
+        let errorWorker = VisionWorker.Response(language: "pt", width: 64, height: 96, observations: [], error: "Falha real")
+        try require(rejects { _ = try VisionWorker.validateResponse(errorWorker, language: "pt", width: 64, height: 96, successfulExit: true) }, "Uma falha do OCR foi tratada como página vazia.")
+        let invalidBoxes = [CGRect(x: 0.8, y: 0.4, width: -0.2, height: 0.1), CGRect(x: 0.2, y: 0.8, width: 0.1, height: -0.2),
+                            CGRect(x: -0.1, y: 0.2, width: 0.3, height: 0.4), CGRect(x: 0.9, y: 0.2, width: 0.2, height: 0.4),
+                            CGRect(x: 0.1, y: 0.2, width: 0, height: 0.4), CGRect(x: CGFloat.infinity, y: 0.2, width: 0.3, height: 0.4)]
+        for box in invalidBoxes {
+            try require(rejects { try VisionTextObservation.validate([VisionTextObservation(string: "Texto", boundingBox: box, confidence: 0.9)]) },
+                        "O transporte aceitou uma caixa de texto inválida.")
+        }
+        let invalidConfidences: [Float] = [.nan, .infinity, -0.1, 1.1]
+        for confidence in invalidConfidences {
+            try require(rejects { try VisionTextObservation.validate([VisionTextObservation(string: "Texto", boundingBox: textObservation.boundingBox, confidence: confidence)]) },
+                        "O transporte aceitou confiança inválida.")
+        }
+        try require(rejects { _ = try VisionWorker.readRegularFile(atomic, limit: 3) }, "O transporte ignorou limite de leitura.")
+        let workerLink = directory.appendingPathComponent("worker-link")
+        try FileManager.default.createSymbolicLink(at: workerLink, withDestinationURL: atomic)
+        try require(rejects { _ = try VisionWorker.readRegularFile(workerLink, limit: 100) }, "O transporte seguiu um link simbólico.")
+        let workerFIFO = directory.appendingPathComponent("worker-fifo")
+        guard mkfifo(workerFIFO.path, mode_t(0o600)) == 0 else { throw NSError(domain: "PDF.NativeAudit", code: 12) }
+        let fifoStart = ProcessInfo.processInfo.systemUptime
+        try require(rejects { _ = try VisionWorker.readRegularFile(workerFIFO, limit: 100) } && ProcessInfo.processInfo.systemUptime - fifoStart < 1,
+                    "A leitura privada não recusou FIFO sem bloquear.")
+        try require(rejects { _ = try VisionWorker.recognize(canonical, language: "en", cancellation: token) }, "O processo OCR ignorou cancelamento anterior à criação do filho.")
 
         let protected = directory.appendingPathComponent("protected.pdf")
         let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): "audit-reader-123",

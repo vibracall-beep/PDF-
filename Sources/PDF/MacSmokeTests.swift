@@ -136,6 +136,12 @@ enum MacSmokeTests {
                 try require((recognized?.string ?? "").localizedCaseInsensitiveContains("verification"),
                             "Vision não criou texto pesquisável na página digitalizada.")
             }
+            audit("Vision isolated process") {
+                let normalized = try VisionRecognition.canonicalImage(image)
+                let observations = try VisionWorker.recognize(normalized, language: "en", cancellation: NativeCancellation())
+                try require(observations.contains { $0.string.localizedCaseInsensitiveContains("verification") },
+                            "O processo isolado do Vision não reconheceu o texto real da amostra.")
+            }
 
             let chunks = IntelligenceText.chunks("Primeiro parágrafo\nSegundo parágrafo", limit: 20)
             try require(chunks.count == 2 && chunks.allSatisfy { $0.count <= 20 },

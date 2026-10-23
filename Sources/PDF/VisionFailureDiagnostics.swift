@@ -17,6 +17,11 @@ enum VisionFailureDiagnostics {
     private static func log(_ message: String) {
         FileHandle.standardError.write(Data(("Vision diagnostic: " + message + "\n").utf8))
     }
+    private static func failure(_ name: String, error: Error) {
+        // NSError bridging can hide a Swift enum's case and associated runtime
+        // code. Preserve both representations for this known CLI fixture only.
+        log(name + " failed: " + VisionRecognition.description(error) + "; Swift=" + String(reflecting: error))
+    }
     private static func result(_ name: String, texts: [String], expected: String) {
         let recovered = texts.joined(separator: "\n")
         log("\(name): observations=\(texts.count); recoveredExpectedText=\(recovered.localizedCaseInsensitiveContains(expected)); characters=\(recovered.count). Diagnostic only; original audit remains failed.")
@@ -25,7 +30,7 @@ enum VisionFailureDiagnostics {
     static func run(image: CGImage, language: String, expectedText: String, cancellation: NativeCancellation) {
         guard CommandLine.arguments.contains("--smoke-test"), (try? cancellation.check()) != nil else { return }
         let state = State(), input = Input(image: image)
-        log("begin; same normalized image=\(image.width)x\(image.height); bits=\(image.bitsPerComponent)/\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue); colorSpace=\(image.colorSpace?.name as String? ?? "unnamed"); alpha=\(image.alphaInfo.rawValue); language=\(language); accurate=true; totalLimitSeconds=150")
+        log("begin; same normalized image=\(image.width)x\(image.height); bits=\(image.bitsPerComponent)/\(image.bitsPerPixel); bitmapInfo=\(image.bitmapInfo.rawValue); colorSpace=\(image.colorSpace?.name as String? ?? "unnamed"); alpha=\(image.alphaInfo.rawValue); language=\(language); accurate=true; totalLimitSeconds=90")
         let task = Task.detached(priority: .utility) {
             defer { state.done.signal() }
             do {
@@ -53,7 +58,7 @@ enum VisionFailureDiagnostics {
                     do {
                         let texts = try legacy(encoded, image: input.image, language: language, correction: correction, cancellation: state.cancellation)
                         result(name, texts: texts, expected: expectedText)
-                    } catch { log(name + " failed: " + VisionRecognition.description(error)) }
+                    } catch { failure(name, error: error) }
                 }
 
                 for encoded in [false, true] {
@@ -76,15 +81,15 @@ enum VisionFailureDiagnostics {
                         else { observations = try await request.perform(on: input.image, orientation: .up) }
                         try cancellation.check(); try state.cancellation.check(); try Task.checkCancellation()
                         result(name, texts: observations.compactMap { $0.topCandidates(1).first?.string }, expected: expectedText)
-                    } catch { log(name + " failed: " + VisionRecognition.description(error)) }
+                    } catch { failure(name, error: error) }
                 }
-            } catch { log("probes stopped: " + VisionRecognition.description(error)) }
+            } catch { failure("probes stopped", error: error) }
         }
         // The request runs outside the main actor. This diagnostic entry point
         // exists only in a failing CLI run, never in the reader's user actions.
-        if state.done.wait(timeout: .now() + 150) == .timedOut {
+        if state.done.wait(timeout: .now() + 90) == .timedOut {
             state.cancellation.cancel(); task.cancel()
-            log("150-second limit reached; probes cancelled. Original audit remains failed.")
+            log("90-second limit reached; probes cancelled. Original audit remains failed.")
         } else { log("end; original audit remains failed") }
     }
 

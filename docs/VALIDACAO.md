@@ -2,15 +2,68 @@
 
 ## Ampliação 0.5.0 em validação
 
-As dez melhorias de [MELHORIAS.md](MELHORIAS.md) estão implementadas no código e integradas à matriz macOS 26/macOS 27. Os resultados históricos abaixo pertencem ao commit indicado e não aprovam esta ampliação.
+As dez melhorias de [MELHORIAS.md](MELHORIAS.md) estão implementadas. A última execução concluída, [40035676483](https://github.com/vibracall-beep/PDF-/actions/runs/40035676483), aprovou integralmente o job macOS 26 do commit `dec17f819ed00a836d4408433fba2f4db11a33d1`. No macOS 27.0.1, **Vision continua reprovado e impede a ativação da instalação**; os demais grupos nativos, 19 capturas e quatro relatórios AX passaram. A ampliação não tem aprovação integral nos dois sistemas.
+
+O conjunto portátil soma **201 testes distintos: 145 do núcleo, 17 integrações e 39 scripts**, todos executados com sucesso nos dois jobs desse commit. As verificações internas Swift não entram nessa soma. A rodada local anterior passou 145/145 em 19,092 s (`/tmp/pdf-final-145.log`), 17/17 em 57,671 s (`/tmp/pdf-final-17.log`) e 39/39 em 0,997 s na revisão dos scripts. Os quatro casos de opções de formulário `/Opt` e a integração de orientação/ajuste de XLS legado agora também têm execução macOS aprovada.
+
+Um processo isolado do Vision está sendo implementado e revisado depois de `dec17f8`. **Ainda não tem evidência de compilação ou execução aprovada** e não é apresentado como solução confirmada para a falha do macOS 27.
 
 A nova suíte inclui assinaturas PAdES reais e certificados temporários, veraPDF 1.30.3 executado sobre documentos conformes e não conformes, OCR de tabelas raster e fluxos em lote. O teste nativo incorpora recuperação criptografada, abas, edição/desfazer de anotações, referências semânticas e benchmark. O CI exige ainda relatórios AX das próprias janelas e seis operações medidas sobre um documento sintético de 100 páginas, com o alcance por operação descrito abaixo. Nenhum resultado M1 virtualizado é apresentado como medição física M4 ou Neural Engine.
 
-As execuções intermediárias `40024594172` e `40025626994` compilaram e capturaram a interface, mas **não aprovaram o conjunto**: houve falha do Vision no macOS 27 e falha da auditoria de realce no macOS 26. A execução mais recente abaixo superou as verificações nativas no macOS 26; a aprovação integral continua pendente.
+### Última execução concluída: 40035676483
 
-A execução [40028618566](https://github.com/vibracall-beep/PDF-/actions/runs/40028618566), do commit `7cf1b14fae2267750d1dea3813e82a829f365efd`, compilou o conjunto ampliado em ambos os sistemas. Entretanto, a captura parou depois da comparação lado a lado e o teste de concorrência de destinos não provocou a corrida esperada: a comparação do hook ignorava a canonicalização de `/var` para `/private/var` no macOS. O instalador encerrou nessa falha do teste Python, antes das verificações nativas. Não houve aprovação da instalação nem do benchmark. As capturas parciais também revelaram abas ocultas e relatórios AX incompletos; esses achados exigem correção e nova evidência visual.
+Ambientes: Apple M1 virtualizado, macOS **26.6.2** / Xcode **26.6** / SDK **26.5**, e macOS **27.0.1** / Xcode **27.1** / SDK **27.0**. Logs locais: `/tmp/pdf-dec17-26.log` e `/tmp/pdf-dec17-27.log`.
 
-### Execução 40032691474: resultados parciais da ampliação
+| Verificação | macOS 26 | macOS 27 |
+|---|---|---|
+| Compilação arm64 | Aprovada | Aprovada |
+| Núcleo | 145/145 em 26,709 s | 145/145 em 24,966 s |
+| Integrações reais | 17/17 em 22,416 s | 17/17 em 18,309 s |
+| Scripts | 39/39 em 1,136 s | 39/39 em 1,378 s |
+| Smoke nativo | Três execuções aprovadas | Duas reprovadas somente no grupo Vision |
+| Instalação | Ativada e verificada | Interrompida antes da ativação |
+| Capturas e AX | 19 PNGs e quatro relatórios aprovados | 19 PNGs e quatro relatórios aprovados |
+| Benchmark completo, incluindo OCR | Seis operações aprovadas | Não executado após falha da instalação |
+
+Os cinco identificadores AX antes ausentes foram encontrados nos relatórios atuais; nenhum dos quatro relatórios apresentou falhas nos critérios automatizados. Isso encerra aquelas regressões de identificação na árvore, mas não comprova uso com VoiceOver, qualidade visual de todos os controles ou cobertura de todas as interações.
+
+No macOS 27, Vision falhou nas três tentativas precisas de produção. Os cinco diagnósticos adicionais também falharam: API legada fora da thread principal, sem correção linguística, com entrada PNG e API Swift com CGImage/PNG. Os diagnósticos preservaram a reprovação original, sem fabricar texto reconhecido. Os demais grupos, incluindo `QuadPoints`, passaram; a causa do erro no runtime ainda está em investigação.
+
+O benchmark macOS 26 usou 100 páginas sintéticas e três amostras após aquecimento. Medianas: abertura **0,141 ms**, extração **5,041 ms**, busca **1,272 ms**, renderização **5,190 ms**, contraste **15,635 ms** e OCR **1.698,927 ms**. OCR/contraste medem somente a primeira página; renderização cobre primeira, intermediária e última. Não são medições em M4 físico nem de NPU.
+
+Artefatos: [capturas macOS 26](https://github.com/vibracall-beep/PDF-/actions/runs/40035676483/artifacts/12536299487), [capturas macOS 27](https://github.com/vibracall-beep/PDF-/actions/runs/40035676483/artifacts/12537116774), [benchmark macOS 26](https://github.com/vibracall-beep/PDF-/actions/runs/40035676483/artifacts/12537326278) e [fontes aprovadas para esse job macOS 26](https://github.com/vibracall-beep/PDF-/actions/runs/40035676483/artifacts/12537022283). O pacote do ambiente 27 permanece [não validado](https://github.com/vibracall-beep/PDF-/actions/runs/40035676483/artifacts/12537460882). Nenhuma aprovação deste commit se estende ao worker em desenvolvimento.
+
+### Histórico: execução 40034287285
+
+A [execução 40034287285](https://github.com/vibracall-beep/PDF-/actions/runs/40034287285), do commit `a4e6efd858e0d845e48a9420467b660ebc64d7bf`, terminou com falhas nos dois jobs. Os ambientes continuaram Apple M1 virtualizado: macOS **26.6.2**, Xcode **26.6**, SDK **26.5**; e macOS **27.0.1**, Xcode **27.1**, SDK **27.0**. Os logs locais são `/tmp/pdf-a4e6-26.log` e `/tmp/pdf-a4e6-27.log`.
+
+| Verificação | macOS 26 | macOS 27 |
+|---|---|---|
+| Compilação arm64 | Aprovada | Aprovada |
+| Núcleo presente nesse commit | 141/141 em 26,250 s | 141/141 em 24,647 s |
+| Integrações presentes nesse commit | 16/16 em 21,786 s | 16/16 em 17,412 s |
+| Scripts | 39/39 em 1,292 s | 39/39 em 1,142 s |
+| Smoke nativo | Três execuções aprovadas | Duas execuções reprovadas somente no grupo Vision |
+| Instalação | Ativada e verificada | Interrompida antes da ativação |
+| Capturas e verificador PNG | 19 PNGs aprovados, quatro relatórios AX | 19 PNGs aprovados, quatro relatórios AX |
+| Auditoria AX | Reprovada: cinco identificadores únicos ausentes | Reprovada: os mesmos cinco identificadores |
+| Benchmark completo, incluindo OCR | Seis operações aprovadas | Não executado após falha da instalação |
+
+No macOS 27, Vision tentou reconhecimento preciso em inglês por três caminhos: revisão 3 automática, revisão 3 com CPU e revisão 2 automática. Todos retornaram `Foundation._GenericObjCError (0)`. A tentativa CPU ocorreu nesta rodada, mas **não resolveu a falha**. Os outros grupos nativos passaram, incluindo a nova auditoria de `QuadPoints`, que conferiu números serializados e geometria após reabrir o PDF; os avisos de serialização anteriores não reapareceram.
+
+Naquela rodada, os identificadores AX ausentes eram `pdf.catalog.search`, `pdf.customize.toolbar`, `pdf.reader.search`, `pdf.reader.page` e `pdf.reader.inspector`; o relatório lado a lado passou. O verificador fortalecido registra também a falha agregada dos identificadores, por isso o número de mensagens não equivale à quantidade de identificadores únicos. Os dois pacotes de fontes daquela rodada foram identificados como **não validados**.
+
+No benchmark do macOS 26, com o mesmo corpus de 100 páginas e três amostras após aquecimento, as medianas foram: abertura **0,143 ms**, extração **5,891 ms**, busca **1,341 ms**, renderização **6,500 ms**, contraste **13,504 ms** e OCR **1.793,403 ms**. OCR/contraste continuam limitados à primeira página; renderização cobre primeira, intermediária e última. Esses resultados não medem M4 físico nem NPU.
+
+Artefatos desta rodada: [capturas macOS 26](https://github.com/vibracall-beep/PDF-/actions/runs/40034287285/artifacts/12536581842), [capturas macOS 27](https://github.com/vibracall-beep/PDF-/actions/runs/40034287285/artifacts/12535839552) e [benchmark macOS 26](https://github.com/vibracall-beep/PDF-/actions/runs/40034287285/artifacts/12537270045). Esses eram os resultados de `a4e6efd`; a rodada `dec17f8` acima encerrou as falhas AX, mas manteve Vision reprovado no macOS 27.
+
+### Rodadas anteriores da ampliação
+
+As execuções intermediárias `40024594172` e `40025626994` compilaram e capturaram a interface, mas **não aprovaram o conjunto**: houve falha do Vision no macOS 27 e falha da auditoria de realce no macOS 26. As execuções posteriores superaram as verificações nativas no macOS 26; o estado atual está na seção de `dec17f8` acima.
+
+A execução [40028618566](https://github.com/vibracall-beep/PDF-/actions/runs/40028618566), do commit `7cf1b14fae2267750d1dea3813e82a829f365efd`, compilou o conjunto ampliado em ambos os sistemas. Entretanto, a captura parou depois da comparação lado a lado e o teste de concorrência de destinos não provocou a corrida esperada: a comparação do hook ignorava a canonicalização de `/var` para `/private/var` no macOS. O instalador encerrou nessa falha do teste Python, antes das verificações nativas. Não houve aprovação da instalação nem do benchmark. As capturas parciais também revelaram abas ocultas e relatórios AX incompletos; esses achados motivaram as correções e verificações das rodadas posteriores.
+
+### Histórico: execução 40032691474
 
 O [job macOS 26](https://github.com/vibracall-beep/PDF-/actions/runs/40032691474/job/120684555727), do commit `7407bf3a81c2417c82cd9ed460438930d2fa2df5`, executou em macOS **26.6.2**, Xcode **26.6**, SDK **26.5**, **Apple M1 (Virtual)** com três CPUs e dispositivo gráfico **Apple Paravirtual device**. O log foi preservado no ambiente de desenvolvimento em `/tmp/pdf-7407-26.log`.
 
@@ -38,9 +91,9 @@ Artefatos: [capturas e relatórios AX](https://github.com/vibracall-beep/PDF-/ac
 
 O outro job executou em **macOS 27.0.1**, Xcode **27.1**, SDK **27.0** e Apple M1 virtualizado. Compilação, **141/141 testes do motor em 24,189 s**, **16/16 integrações em 16,497 s** e **23/23 testes dos scripts em 1,179 s** passaram. Os dois smokes executados reprovaram somente o grupo Vision: reconhecimento preciso em inglês, revisão 3, retornou `Foundation._GenericObjCError (0)`; nenhuma tentativa CPU foi registrada. Os demais grupos nativos, incluindo recuperação, sessões e histórico, passaram. A instalação parou nesse smoke antes da ativação, e o benchmark completo de 100 páginas não foi executado. As 19 capturas e quatro relatórios AX foram gerados, com os mesmos cinco identificadores ausentes. [Artefato visual do macOS 27](https://github.com/vibracall-beep/PDF-/actions/runs/40032691474/artifacts/12534514638); log local `/tmp/pdf-7407-27.log`.
 
-Portanto, o macOS 27.0.1 já tem evidência de compilação e execução parcial, mas **Vision, instalação completa e AX permanecem reprovados nessa versão**. As correções posteriores da interface, do OCR e dos verificadores de artefatos precisam de uma nova execução do commit integrado. Os resultados de `7407bf3` não aprovam automaticamente essas alterações.
+Nesse commit `7407bf3`, macOS 27.0.1 tinha compilação e execução parcial, mas Vision, instalação e AX reprovaram. A rodada posterior `dec17f8` encerrou as falhas AX, mantendo Vision pendente. Os resultados históricos não aprovam automaticamente alterações posteriores.
 
-Após esse commit, as regressões dos verificadores de PNG/AX ampliaram a suíte de scripts para **39/39 aprovados localmente em 0,997 s**. O inventário portátil ao concluir essa revisão era de **196 casos distintos (141 do núcleo + 16 integrações + 39 scripts)**, com execuções de datas/etapas identificadas em [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md). O CI acima executou os 23 testes de scripts presentes em `7407bf3`; não executou os 39 atuais. As verificações internas Swift não são somadas aos 196 casos.
+Após esse commit, a suíte de scripts cresceu de 23 para 39 testes e foi executada na rodada `a4e6efd` descrita acima. Os resultados de `7407bf3` continuam restritos aos testes e fontes daquele commit.
 
 ## Histórico anterior: Linux
 
@@ -101,4 +154,4 @@ Os arquivos antes/depois foram novamente comparados por SHA-256: HTML de 68.608.
 
 O instalador de fontes foi executado com sucesso no runner macOS. A instalação recompila e prepara o runtime no próprio computador; não existe uma alegação de bundle portátil ou notarizado. Os comandos estão em `INSTALACAO.md`. O usuário pediu para testar somente após a conclusão: as verificações de desenvolvimento foram realizadas pelo processo de implementação, sem transferi-las ao usuário.
 
-Validação integral de execução e interface em **macOS 27.0.1**, equipamentos físicos, geração por Apple Intelligence e exportação pelo Pages permanecem pendentes. A ampliação também tem falhas AX documentadas no macOS 26. Portanto, não se declara validação total de todos os requisitos originais nem uma versão universalmente livre de erros.
+Validação integral de execução e interface em **macOS 27.0.1**, equipamentos físicos, geração por Apple Intelligence e exportação pelo Pages permanecem pendentes. Os critérios AX automatizados passaram em `dec17f8`, com o alcance limitado indicado acima. Portanto, não se declara validação total de todos os requisitos originais nem uma versão universalmente livre de erros.

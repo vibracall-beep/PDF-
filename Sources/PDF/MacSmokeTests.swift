@@ -98,8 +98,8 @@ enum MacSmokeTests {
                     "Divisão do documento para IA inválida.")
         let excerpts = ["[Página 1]\nAs receitas anuais foram de 120 mil reais.",
                         "[Página 2]\nO prazo contratual termina em dezembro de 2028."]
-        let context = IntelligenceText.retrieve(question: "Qual o prazo contratual?", chunks: excerpts)
-        try require(context.pages.contains(2) && context.text.contains("dezembro de 2028"),
+        let retrievedContext = IntelligenceText.retrieve(question: "Qual o prazo contratual?", chunks: excerpts)
+        try require(retrievedContext.pages.contains(2) && retrievedContext.text.contains("dezembro de 2028"),
                     "A busca de contexto não preservou a página da evidência.")
         let bounded = IntelligenceText.context(from: ["[Página 8]\n" + String(repeating: "conteúdo ", count: 400)], budget: 300)
         try require(bounded.text.count <= 300 && bounded.pages == [8],
@@ -108,6 +108,24 @@ enum MacSmokeTests {
             chunks: ["[Página 1]\n" + String(repeating: "Receitas e despesas anuais. ", count: 400)])
         try require(unrelated.text.isEmpty && unrelated.pages.isEmpty,
                     "A busca atribuiu evidência a um documento sem contexto correspondente.")
+        let quiz = PDFQuizQuestion(question: "Em que mês termina o prazo?",
+                                   options: ["Março", "Junho", "Setembro", "Dezembro"],
+                                   answer: "D", explanation: "A página 2 informa dezembro de 2028.", pages: [2])
+        try quiz.validate(allowedPages: [2], multipleChoice: true)
+        let invalidQuizzes = [
+            PDFQuizQuestion(question: quiz.question, options: ["Ação", " acao ", "Terceira", "Quarta"],
+                            answer: "A", explanation: quiz.explanation, pages: [2]),
+            PDFQuizQuestion(question: quiz.question, options: quiz.options,
+                            answer: "D", explanation: quiz.explanation, pages: [99]),
+            PDFQuizQuestion(question: "   ", options: quiz.options,
+                            answer: "D", explanation: quiz.explanation, pages: [2])
+        ]
+        for invalidQuiz in invalidQuizzes {
+            var rejected = false
+            do { try invalidQuiz.validate(allowedPages: [2], multipleChoice: true) }
+            catch { rejected = true }
+            try require(rejected, "Uma questão com conteúdo ou referências inválidas foi aceita.")
+        }
         let exported = try IntelligenceText.PDF("Resumo de teste com ação e conteúdo em português.")
         try require((PDFDocument(data: exported)?.string ?? "").contains("Resumo de teste"),
                     "Exportação do resultado de IA para PDF falhou.")

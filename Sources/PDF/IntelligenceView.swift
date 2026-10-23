@@ -192,6 +192,34 @@ struct PDFQuizQuestion: Codable, Identifiable {
     let answer: String
     let explanation: String
     let pages: [Int]
+
+    /// Structural validation independent of Foundation Models availability.
+    func validate(allowedPages: [Int], multipleChoice: Bool) throws {
+        func trimmed(_ value: String) -> String { value.trimmingCharacters(in: .whitespacesAndNewlines) }
+        func reject(_ message: String) -> NSError {
+            NSError(domain: "PDF.Quiz", code: 25, userInfo: [NSLocalizedDescriptionKey: message])
+        }
+        guard !trimmed(question).isEmpty, !trimmed(answer).isEmpty, !trimmed(explanation).isEmpty else {
+            throw reject("A questão precisa de enunciado, resposta e explicação não vazios.")
+        }
+        guard !pages.isEmpty, pages.allSatisfy({ $0 > 0 }), Set(pages).isSubset(of: Set(allowedPages)) else {
+            throw reject("A questão cita páginas que não pertencem às fontes consultadas.")
+        }
+        if multipleChoice {
+            let normalized = options.map { value in
+                value.split(whereSeparator: { $0.isWhitespace }).joined(separator: " ")
+                    .folding(options: [.caseInsensitive, .diacriticInsensitive], locale: Locale(identifier: "pt_BR"))
+            }
+            guard options.count == 4, normalized.allSatisfy({ !$0.isEmpty }), Set(normalized).count == 4 else {
+                throw reject("Uma questão de múltipla escolha precisa de quatro alternativas distintas e não vazias.")
+            }
+            guard ["A", "B", "C", "D"].contains(trimmed(answer)) else {
+                throw reject("O gabarito de múltipla escolha precisa indicar A, B, C ou D.")
+            }
+        } else if !options.isEmpty {
+            throw reject("Uma questão aberta não pode conter alternativas de múltipla escolha.")
+        }
+    }
 }
 
 @MainActor final class IntelligenceMemory: ObservableObject {
@@ -469,10 +497,8 @@ struct LocalIntelligenceView: View {
                     let response = try await session.respond(to: prompt)
                     try Task.checkCancellation()
                     let item = try IntelligenceText.decodeJSON(response.content, as: PDFQuizQuestion.self)
-                    let validOptions = style == "Múltipla escolha" ? item.options.count == 4 && ["A", "B", "C", "D"].contains(item.answer) : item.options.isEmpty
-                    guard !item.question.isEmpty, !item.answer.isEmpty, !item.explanation.isEmpty, validOptions,
-                          !item.pages.isEmpty, Set(item.pages).isSubset(of: Set(context.pages)),
-                          !memory.quiz.contains(where: { $0.question.caseInsensitiveCompare(item.question) == .orderedSame }) else {
+                    try item.validate(allowedPages: context.pages, multipleChoice: style == "Múltipla escolha")
+                    guard !memory.quiz.contains(where: { $0.question.caseInsensitiveCompare(item.question) == .orderedSame }) else {
                         throw NSError(domain: "PDF", code: 25, userInfo: [NSLocalizedDescriptionKey: "A IA retornou uma questão sem estrutura ou referências válidas. As questões anteriores foram preservadas; gere novamente para tentar outra seleção."])
                     }
                     memory.quiz.append(item)

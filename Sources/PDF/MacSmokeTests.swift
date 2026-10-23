@@ -18,6 +18,9 @@ enum MacSmokeTests {
             .appendingPathComponent("PDF-native-check-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
         defer { try? FileManager.default.removeItem(at: directory) }
+        try WorkflowAuditChecks.run(in: directory)
+        try PagesPrivateCopyAuditChecks.run(in: directory)
+        try CaptureImportAuditChecks.run(in: directory)
 
         let source = directory.appendingPathComponent("source.pdf")
         var bounds = CGRect(x: 0, y: 0, width: 595, height: 842)
@@ -164,6 +167,9 @@ enum MacSmokeTests {
         }
         let retained = try String(contentsOf: atomic, encoding: .utf8)
         try require(refusedOverwrite && retained == "original", "A publicação não preservou o arquivo existente.")
+        try ToolPresetAuditChecks.run()
+        try NativeAuditChecks.run()
+        try AppearanceAuditChecks.run()
         print("Native checks hardware: \(AppleHardware.summary)")
     }
 }

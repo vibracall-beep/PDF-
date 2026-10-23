@@ -3,6 +3,8 @@ import AppKit
 import PDFKit
 import Vision
 import CoreText
+import ImageIO
+import Darwin
 @preconcurrency import ImageCaptureCore
 @preconcurrency import Quartz
 import UniformTypeIdentifiers
@@ -12,8 +14,13 @@ import UniformTypeIdentifiers
 enum NativeOutput {
     static func write(_ data: Data, to destination: URL) throws {
         let temporary = destination.deletingLastPathComponent().appendingPathComponent(".pdf-\(UUID().uuidString).tmp")
+        let descriptor = Darwin.open(temporary.path, O_WRONLY | O_CREAT | O_EXCL, mode_t(0o600))
+        guard descriptor >= 0 else { throw NSError(domain: NSPOSIXErrorDomain, code: Int(errno), userInfo: [NSFilePathErrorKey: temporary.path]) }
         defer { try? FileManager.default.removeItem(at: temporary) }
-        try data.write(to: temporary, options: .withoutOverwriting)
+        let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
+        defer { try? handle.close() }
+        try handle.write(contentsOf: data)
+        try handle.synchronize()
         try FileManager.default.linkItem(at: temporary, to: destination)
     }
     @MainActor static func destination(name: String, type: UTType) -> URL? {
@@ -83,7 +90,8 @@ enum VisionPDF {
                 let rotated = abs(page.rotationAngle) % 180 == 90
                 let size = rotated ? CGSize(width: crop.height, height: crop.width) : crop.size
                 let bounds = CGRect(origin: .zero, size: size)
-                guard size.width > 0, size.height > 0 else { throw NativePDFError.render }
+                guard size.width.isFinite, size.height.isFinite, size.width > 0, size.height > 0,
+                      size.width <= 100_000, size.height <= 100_000 else { throw NativePDFError.render }
                 let scale = min(2.5, 3200 / max(size.width, size.height))
                 let width = max(1, Int(ceil(size.width * scale)))
                 let height = max(1, Int(ceil(size.height * scale)))
@@ -95,7 +103,9 @@ enum VisionPDF {
                 let transform = page.getDrawingTransform(.cropBox, rect: bounds, rotate: 0, preserveAspectRatio: true)
                 bitmap.concatenate(transform); bitmap.drawPDFPage(page)
                 guard let image = bitmap.makeImage() else { throw NativePDFError.render }
+                try cancellation.check()
                 let recognitionImage = enhanceContrast ? try GPUImageProcessor.enhance(image) : image
+                try cancellation.check()
                 let request = VNRecognizeTextRequest()
                 request.recognitionLevel = .accurate
                 request.usesLanguageCorrection = true
@@ -105,7 +115,8 @@ enum VisionPDF {
                 request.automaticallyDetectsLanguage = true
                 cancellation.install(request)
                 defer { cancellation.install(nil) }
-                try VNImageRequestHandler(cgImage: recognitionImage, options: [:]).perform([request])
+                do { try VNImageRequestHandler(cgImage: recognitionImage, options: [:]).perform([request]) }
+                catch { try cancellation.check(); throw error }
                 try cancellation.check()
                 var media = bounds
                 let mediaData = Data(bytes: &media, count: MemoryLayout<CGRect>.size)
@@ -138,12 +149,53 @@ enum VisionPDF {
     }
 }
 
+/// Every frame of an imported TIFF becomes a page; orientation uses ImageIO metadata.
+enum ScannerPDF {
+    static func assemble(urls: [URL], cancellation: NativeCancellation,
+                         progress: @escaping @Sendable (Int, Int) -> Void) throws -> Data {
+        guard !urls.isEmpty else { throw NativePDFError.emptyScan }
+        let document = PDFDocument()
+        for (fileIndex, url) in urls.enumerated() {
+            try cancellation.check()
+            try autoreleasepool {
+                if url.pathExtension.lowercased() == "pdf" {
+                    guard let source = PDFDocument(url: url) else { throw NativePDFError.unreadable }
+                    guard !source.isEncrypted, !source.isLocked else { throw NativePDFError.encrypted }
+                    guard source.pageCount > 0 else { throw NativePDFError.unreadable }
+                    for index in 0..<source.pageCount {
+                        try cancellation.check()
+                        guard let page = source.page(at: index)?.copy() as? PDFPage else { throw NativePDFError.unreadable }
+                        document.insert(page, at: document.pageCount)
+                    }
+                } else {
+                    guard let source = CGImageSourceCreateWithURL(url as CFURL, nil) else { throw NativePDFError.noImage }
+                    let count = try CaptureImageDecoder.frameCount(source)
+                    for index in 0..<count {
+                        try cancellation.check()
+                        let image = try CaptureImageDecoder.frame(source, index: index)
+                        let native = NSImage(cgImage: image, size: CaptureImageDecoder.pageSize(source, index: index, image: image))
+                        guard let page = PDFPage(image: native) else { throw NativePDFError.noImage }
+                        document.insert(page, at: document.pageCount)
+                    }
+                }
+            }
+            progress(fileIndex + 1, urls.count)
+        }
+        try cancellation.check()
+        guard document.pageCount > 0, let data = document.dataRepresentation() else { throw NativePDFError.output }
+        try cancellation.check()
+        return data
+    }
+}
+
 @MainActor final class ScannerController: NSObject, ObservableObject, ICDeviceBrowserDelegate, IKScannerDeviceViewDelegate {
     @Published var devices: [ICScannerDevice] = []
     @Published var selectedID: String = ""
     @Published var captures: [URL] = []
     @Published var error = ""
+    @Published var importingContinuity = false
     private let browser = ICDeviceBrowser()
+    private var started = false
     @Published private(set) var folder: URL?
     var selected: ICScannerDevice? { devices.first { identity($0) == selectedID } }
     override init() {
@@ -154,6 +206,7 @@ enum VisionPDF {
     }
     func identity(_ device: ICScannerDevice) -> String { device.uuidString ?? String(describing: ObjectIdentifier(device)) }
     func start() {
+        guard !started else { return }
         if folder == nil {
             do {
                 let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
@@ -162,13 +215,15 @@ enum VisionPDF {
                 folder = path
             } catch { self.error = error.localizedDescription }
         }
-        browser.start()
+        guard folder != nil else { return }
+        started = true; browser.start()
     }
-    func stop() { browser.stop() }
+    func stop() { guard started else { return }; started = false; browser.stop(); devices = []; selectedID = "" }
     nonisolated func deviceBrowser(_ browser: ICDeviceBrowser, didAdd device: ICDevice, moreComing: Bool) {
         DispatchQueue.main.async { [weak self] in self?.addDevice(device) }
     }
     private func addDevice(_ device: ICDevice) {
+        guard started else { return }
         guard let scanner = device as? ICScannerDevice else { return }
         if !devices.contains(where: { $0 === scanner }) { devices.append(scanner) }
         if selectedID.isEmpty { selectedID = identity(scanner) }
@@ -207,28 +262,6 @@ enum VisionPDF {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.image, .pdf]; panel.allowsMultipleSelection = true
         if panel.runModal() == .OK { captures.append(contentsOf: panel.urls) }
     }
-    func savePDF() throws -> URL? {
-        guard !captures.isEmpty else { throw NativePDFError.emptyScan }
-        guard let destination = NativeOutput.destination(name: "Digitalizacao.pdf", type: .pdf) else { return nil }
-        let document = PDFDocument()
-        for url in captures {
-            if url.pathExtension.lowercased() == "pdf" {
-                guard let source = PDFDocument(url: url) else { throw NativePDFError.unreadable }
-                guard !source.isEncrypted, !source.isLocked else { throw NativePDFError.encrypted }
-                guard source.pageCount > 0 else { throw NativePDFError.unreadable }
-                for index in 0..<source.pageCount {
-                    guard let page = source.page(at: index)?.copy() as? PDFPage else { throw NativePDFError.unreadable }
-                    document.insert(page, at: document.pageCount)
-                }
-            } else {
-                guard let image = NSImage(contentsOf: url), let page = PDFPage(image: image) else { throw NativePDFError.noImage }
-                document.insert(page, at: document.pageCount)
-            }
-        }
-        guard let data = document.dataRepresentation() else { throw NativePDFError.output }
-        try NativeOutput.write(data, to: destination)
-        return destination
-    }
 }
 
 struct ScannerDevicePanel: NSViewRepresentable {
@@ -266,8 +299,9 @@ struct NativeFeaturesView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 18) {
             Label("Digitalização e OCR", systemImage: "scanner").font(.largeTitle.bold())
-            Picker("Modo", selection: $tab) { Text("Scanner").tag(0); Text("OCR no Mac").tag(1) }.pickerStyle(.segmented)
+            Picker("Modo", selection: $tab) { Text("Scanner").tag(0); Text("OCR no Mac").tag(1) }.pickerStyle(.segmented).disabled(running)
             if tab == 0 { ScrollView { scannerContent } } else { ocrContent }
+            if running, tab == 0 { HStack { ProgressView(value: progress); Button("Cancelar") { cancellation?.cancel() } } }
             if !status.isEmpty { Text(status).font(.callout).textSelection(.enabled) }
             if let result {
                 HStack {
@@ -287,7 +321,7 @@ struct NativeFeaturesView: View {
                 Button("Importar imagens…") { scanner.importImages() }
             }
             if let folder = scanner.folder {
-                ContinuityCaptureView(directory: folder, onCapture: { scanner.captures.append($0) }, onError: { scanner.error = $0 })
+                ContinuityCaptureView(directory: folder, onCapture: { scanner.captures.append($0) }, onError: { scanner.error = $0 }, onBusyChanged: { scanner.importingContinuity = $0 })
                     .frame(height: 160)
                     .accessibilityLabel("Capturar com iPhone, iPad ou área de transferência")
             }
@@ -309,19 +343,16 @@ struct NativeFeaturesView: View {
             HStack {
                 Text("\(scanner.captures.count) arquivos selecionados").foregroundStyle(.secondary)
                 Spacer()
-                Button("Criar PDF…") {
-                    do { if let url = try scanner.savePDF() { result = url; status = "PDF criado. As capturas originais foram preservadas." } }
-                    catch { status = error.localizedDescription }
-                }.buttonStyle(.borderedProminent).disabled(scanner.captures.isEmpty)
+                Button("Criar PDF…") { assembleScans() }.buttonStyle(.borderedProminent).disabled(scanner.captures.isEmpty || scanner.importingContinuity)
             }
             if !scanner.error.isEmpty { Text(scanner.error).foregroundStyle(.red) }
-        }
+        }.disabled(running)
     }
     private var ocrContent: some View {
         VStack(alignment: .leading, spacing: 18) {
             Text("Reconheça o texto do PDF aberto usando o Vision da Apple. O resultado mantém a aparência das páginas e acrescenta uma camada de texto selecionável.")
             Text("Use em documentos digitalizados. A reconstrução não conserva formulários, links, anotações ou assinaturas digitais. Páginas que já contêm texto podem ganhar texto duplicado; use OCRmyPDF para ignorá-las automaticamente.").font(.caption).foregroundStyle(.secondary)
-            Text(model.url?.lastPathComponent ?? "Abra primeiro um documento no leitor.").font(.headline)
+            Text((model.savedDocumentURL ?? model.url)?.lastPathComponent ?? "Abra primeiro um documento no leitor.").font(.headline)
             Picker("Idioma principal", selection: $language) { Text("Português e inglês").tag("pt"); Text("Inglês").tag("en") }
             Toggle("Melhorar contraste para reconhecimento com Metal", isOn: $enhanceContrast)
             Text("O ajuste atua na imagem usada pelo OCR, preservando a aparência das páginas de saída.").font(.caption).foregroundStyle(.secondary)
@@ -333,7 +364,30 @@ struct NativeFeaturesView: View {
             Spacer()
         }
     }
+    private func assembleScans() {
+        guard !running, !scanner.importingContinuity, !scanner.captures.isEmpty else { return }
+        guard let destination = NativeOutput.destination(name: "Digitalizacao.pdf", type: .pdf) else { return }
+        let captures = scanner.captures
+        let token = NativeCancellation(); cancellation = token
+        running = true; progress = 0; status = "Montando páginas digitalizadas…"; result = nil
+        DispatchQueue.global(qos: .userInitiated).async {
+            do {
+                let output = try ScannerPDF.assemble(urls: captures, cancellation: token) { completed, total in
+                    DispatchQueue.main.async { progress = Double(completed) / Double(total); status = "Arquivo \(completed) de \(total)" }
+                }
+                try token.check(); try NativeOutput.write(output, to: destination)
+                DispatchQueue.main.async { running = false; cancellation = nil; result = destination; status = "PDF criado com todas as páginas. As capturas originais foram preservadas." }
+            } catch is CancellationError {
+                DispatchQueue.main.async { running = false; cancellation = nil; status = "Montagem cancelada. As capturas foram preservadas." }
+            } catch {
+                let detail = error.localizedDescription
+                DispatchQueue.main.async { running = false; cancellation = nil; status = "Não foi possível montar o PDF: \(detail)" }
+            }
+        }
+    }
     private func startOCR() {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+        guard !running else { return }
         guard let document = model.document else { return }
         guard !document.isEncrypted else { status = "Desbloqueie uma cópia explicitamente antes de usar OCR nativo em um documento protegido."; return }
         guard document.pageCount > 0, let data = document.dataRepresentation() else { status = "Não foi possível obter as páginas."; return }

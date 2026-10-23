@@ -97,3 +97,7 @@ Os demais itens da terceira imagem correspondem aos requisitos anteriores: compr
 ## Limite desta transcrição
 
 Escolhas de implementação feitas durante o desenvolvimento — como linguagens, bibliotecas, versões mínimas alternativas ou recursos reduzidos — não alteram estes requisitos originais. Promessas de ausência absoluta de erros ou superioridade sobre todo o mercado são objetivos solicitados, não resultados demonstrados por testes.
+
+## Pedido adicional de auditoria e personalização
+
+O usuário informou que a personalização de ferramentas e das opções de visualização não estava suficiente ou visível. Pediu ampliar esses controles, acrescentar menus animados ao Liquid Glass, verificar todas as ferramentas e orientações, corrigir sistematicamente os problemas e realizar outra auditoria após as correções. Também pediu apresentar melhorias que tornem o aplicativo mais completo e elegante. A matriz de execução, correções e limites fica em [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md); as opções efetivas da interface, em [PERSONALIZACAO.md](PERSONALIZACAO.md).

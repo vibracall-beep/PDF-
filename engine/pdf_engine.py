@@ -44,7 +44,7 @@ TOOLS = {
 }
 ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual','delete_pages':'delete-pages','extract_pages':'extract-pages','delete':'delete-pages','extract':'extract-pages'}
 PDF_OPERATIONS = {'merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
-MULTI_INPUT = {'merge','images','compare','compare-visual'}
+MULTI_INPUT = {'merge','images','compare','compare-visual','organize'}
 DIRECTORY_OUTPUT = {'split','jpg','png'}
 
 
@@ -57,12 +57,14 @@ def open_pdf(path, password=''):
 
 
 def save(doc, output, **kwargs):
+    _separate_page_aliases(doc)
     options = dict(garbage=4, deflate=True, encryption=fitz.PDF_ENCRYPT_KEEP)
     options.update(kwargs)
     doc.save(str(output), **options)
 
 
 def number(value, name, minimum=None, maximum=None):
+    if isinstance(value,bool): raise ValueError(f'{name}: informe um número, não um booleano.')
     try:
         result = float(value)
     except (TypeError, ValueError):
@@ -70,6 +72,26 @@ def number(value, name, minimum=None, maximum=None):
     if not math.isfinite(result) or (minimum is not None and result < minimum) or (maximum is not None and result > maximum):
         raise ValueError(f'{name}: valor fora do intervalo permitido.')
     return result
+
+
+def integer(value,name,minimum=None,maximum=None):
+    result=number(value,name,minimum,maximum)
+    if not result.is_integer(): raise ValueError(f'{name}: informe um número inteiro.')
+    return int(result)
+
+
+def _separate_page_aliases(doc):
+    """Duplicated page-tree references must not share later mutations."""
+    indices=[]; seen=set(); initial=len(doc)
+    for index in range(initial):
+        xref=doc[index].xref
+        if xref not in seen:
+            indices.append(index); seen.add(xref); continue
+        with fitz.open() as copy:
+            copy.insert_pdf(doc,from_page=index,to_page=index)
+            doc.insert_pdf(copy)
+        indices.append(len(doc)-1)
+    if len(doc)!=initial: doc.select(indices)
 
 
 def color(value, default=(0.2, 0.2, 0.25)):
@@ -184,8 +206,13 @@ def _external(command, timeout=180):
     except BaseException:
         try: os.killpg(process.pid,signal.SIGTERM)
         except ProcessLookupError: pass
-        try: process.communicate(timeout=3)
+        try:
+            process.communicate(timeout=3)
         except subprocess.TimeoutExpired:
+            pass
+        finally:
+            # The leader can exit while a descendant ignores TERM and closes its
+            # pipes. Always finish the owned group, even after communicate returns.
             try: os.killpg(process.pid,signal.SIGKILL)
             except ProcessLookupError: pass
             process.communicate()
@@ -198,13 +225,15 @@ def _external(command, timeout=180):
 
 
 def run(operation, inputs, output, options=None):
-    options = options or {}
+    options = {} if options is None else options
     if not isinstance(options,dict):
         raise ValueError('As opções devem ser um objeto JSON.')
+    if not isinstance(operation,str): raise ValueError('Informe uma operação válida.')
     operation = ALIASES.get(operation,operation)
     if operation == 'compare' and options.get('mode') == 'visual': operation = 'compare-visual'
     if operation == 'jpg' and options.get('format') == 'png': operation = 'png'
     if operation not in TOOLS: raise ValueError('Operação desconhecida: '+str(operation))
+    if inputs is None or isinstance(inputs,(str,Path)): raise ValueError('As entradas devem ser uma lista de arquivos.')
     inputs = [str(path) for path in inputs]
     if not inputs: raise ValueError('Selecione ao menos um arquivo.')
     if operation not in MULTI_INPUT | {'workflow'} and len(inputs) != 1:
@@ -230,6 +259,11 @@ def run(operation, inputs, output, options=None):
 
 def _execute(operation, inputs, output, options):
     password = options.get('password','')
+    if operation=='organize' and len(inputs)==1 and 'input_passwords' in options:
+        credentials=options['input_passwords']
+        if not isinstance(credentials,list) or len(credentials)!=1 or not isinstance(credentials[0],str): raise ValueError('input_passwords deve conter uma senha por arquivo de entrada.')
+        password=credentials[0]
+    if not isinstance(password,str): raise ValueError('A senha deve ser uma string.')
     if operation == 'workflow':
         steps = options.get('steps',[])
         if not isinstance(steps,list) or not 1 <= len(steps) <= 64:
@@ -237,6 +271,7 @@ def _execute(operation, inputs, output, options):
         for i, step in enumerate(steps):
             if not isinstance(step,dict) or step.get('operation') not in TOOLS or step['operation'] == 'workflow':
                 raise ValueError(f'Etapa {i+1} inválida; fluxos recursivos não são permitidos.')
+            if not isinstance(step.get('options',{}),dict): raise ValueError(f'As opções da etapa {i+1} devem ser um objeto JSON.')
             if i < len(steps)-1 and step['operation'] not in PDF_OPERATIONS:
                 raise ValueError('Etapas intermediárias precisam produzir um PDF único.')
             if i > 0 and step['operation'] in ('merge','images','compare','compare-visual'):
@@ -245,9 +280,12 @@ def _execute(operation, inputs, output, options):
             current = inputs
             for i,step in enumerate(steps):
                 target = output if i == len(steps)-1 else Path(tmp)/f'{i}.pdf'
-                step_options = dict(step.get('options') or {})
+                step_options = dict(step.get('options',{}))
                 if password and 'password' not in step_options: step_options['password'] = password
                 run(step['operation'],current,target,step_options)
+                password = step_options.get('output_password',step_options.get('password',password))
+                if step['operation'] in ('merge','organize') and not password:
+                    password=next((value for value in step_options.get('input_passwords',[]) if value),'')
                 if step['operation'] == 'protect': password = step_options.get('new_password','')
                 if step['operation'] == 'unlock': password = ''
                 current = [str(target)]
@@ -317,12 +355,24 @@ def _execute(operation, inputs, output, options):
                 page.pdf(path=str(output),format=options.get('paper','A4'),print_background=True,landscape=bool(options.get('landscape',False)))
             finally: browser.close()
         return
-    if operation in ('merge','images'):
+    if operation in ('merge','images') or (operation=='organize' and len(inputs)>1):
         protection = {}
+        input_passwords=options.get('input_passwords',[password]*len(inputs))
+        if not isinstance(input_passwords,list) or len(input_passwords)!=len(inputs) or any(not isinstance(value,str) for value in input_passwords):
+            raise ValueError('input_passwords deve conter uma senha por arquivo de entrada, na mesma ordem.')
+        output_password=options.get('output_password'); protected_passwords=set()
+        if output_password is not None and (not isinstance(output_password,str) or not 8<=len(output_password)<=40):
+            raise ValueError('A senha do resultado deve conter de 8 a 40 caracteres.')
         with fitz.open() as result:
-            for path in inputs:
-                with open_pdf(path,password) as source:
-                    source_protection = _encrypted_output(source,password) if source.is_pdf else {}
+            for index,path in enumerate(inputs):
+                source_password=input_passwords[index]
+                with open_pdf(path,source_password) as source:
+                    source_protection = _encrypted_output(source,source_password) if source.is_pdf else {}
+                    if source_protection:
+                        protected_passwords.add(source_password)
+                        if len(protected_passwords)>1 and output_password is None:
+                            raise ValueError('Os PDFs usam senhas diferentes. Defina output_password para proteger o resultado.')
+                        if output_password is not None: source_protection['user_pw']=output_password
                     if source_protection:
                         if protection: source_protection['permissions'] &= protection['permissions']
                         protection = source_protection
@@ -339,15 +389,23 @@ def _execute(operation, inputs, output, options):
                                 else: result.insert_pdf(converted,from_page=i,to_page=i)
                     else: result.insert_pdf(source)
             if not len(result): raise ValueError('Nenhuma página encontrada.')
+            if operation=='organize':
+                if not options.get('pages'): raise ValueError('Informe a nova ordem das páginas concatenadas.')
+                result.select(parse_pages(options['pages'],len(result),allow_duplicates=True))
+            if output_password and not protection:
+                protection=dict(encryption=fitz.PDF_ENCRYPT_AES_256,user_pw=output_password,owner_pw=secrets.token_urlsafe(24))
             save(result,output,**protection)
         return
     with open_pdf(inputs[0],password) as doc:
         if not doc.is_pdf or not len(doc): raise ValueError('Selecione um PDF com ao menos uma página.')
+        if operation in PDF_OPERATIONS: _separate_page_aliases(doc)
         pages = parse_pages(options.get('pages'),len(doc),allow_duplicates=operation in ('organize','extract-pages'))
         if operation == 'split':
             output.mkdir()
             groups = options.get('groups')
-            selected_groups = [parse_pages(group,len(doc)) for group in groups] if groups else [[p] for p in pages]
+            if groups is not None and (not isinstance(groups,list) or not groups or any(not str(group).strip() for group in groups)):
+                raise ValueError('Os grupos devem ser uma lista não vazia de intervalos de páginas.')
+            selected_groups = [parse_pages(group,len(doc),allow_duplicates=True) for group in groups] if groups else [[p] for p in pages]
             for i, group in enumerate(selected_groups):
                 with fitz.open() as part:
                     for p in group: part.insert_pdf(doc,from_page=p,to_page=p)
@@ -361,7 +419,7 @@ def _execute(operation, inputs, output, options):
         elif operation == 'form-detect':
             output.write_text(json.dumps(dict(heuristic=True,review_required=True,fields=_detect_forms(doc,pages)),ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'forms':
-            content = [dict(page=i+1,name=w.field_name,value=w.field_value,type=w.field_type_string,rect=list(w.rect),choices=w.choice_values) for i in pages for w in (doc[i].widgets() or [])]
+            content = _form_records(doc,pages)
             output.write_text(json.dumps(content,ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'markdown':
             _markdown(doc,pages,output)
@@ -389,7 +447,12 @@ def _execute(operation, inputs, output, options):
             doc.select(selected); save(doc,output)
         elif operation == 'organize':
             if not options.get('pages'): raise ValueError('Informe a nova ordem das páginas.')
-            doc.select(pages); save(doc,output)
+            doc.select(pages)
+            secret=options.get('output_password')
+            if secret is not None:
+                if not isinstance(secret,str) or not 8<=len(secret)<=40: raise ValueError('A senha do resultado deve conter de 8 a 40 caracteres.')
+                save(doc,output,encryption=fitz.PDF_ENCRYPT_AES_256,user_pw=secret,owner_pw=secrets.token_urlsafe(24),permissions=doc.permissions)
+            else: save(doc,output)
         elif operation == 'form-create':
             _create_forms(doc,options); save(doc,output)
         elif operation == 'form-fill':
@@ -506,7 +569,7 @@ def _csv_workbook(source,output,options):
 
 
 def _raster_export(doc,pages,output,format_name,options):
-    output.mkdir(); dpi=int(number(options.get('dpi',150),'DPI',36,600))
+    output.mkdir(); dpi=integer(options.get('dpi',150),'DPI',36,600)
     if options.get('mode')=='embedded':
         seen=set(); count=0
         for i in pages:
@@ -542,16 +605,67 @@ def _font(options):
     return font,None
 
 
+def _checked_text(value):
+    if not isinstance(value,str): raise ValueError('O texto deve ser uma string.')
+    if any(ord(character)<32 and character not in '\n\r\t' for character in value):
+        raise ValueError('O texto contém caracteres de controle não suportados.')
+    return value
+
+
+def _font_has_text(text,font,fontfile):
+    # Standard PDF insertion uses a single-byte encoding even when its Font
+    # object has extra glyphs. HTML shaping provides Unicode fallback instead.
+    if not fontfile: return all(ord(character)<=255 for character in text)
+    measure=fitz.Font(fontfile=fontfile)
+    if any(not measure.has_glyph(ord(character)) for character in text if not character.isspace()):
+        raise ValueError('A fonte escolhida não contém todos os caracteres. Escolha outra fonte; nenhuma cópia foi criada.')
+    return True
+
+
+def _html_text(page,rect,text,fontsize,ink,minimum=None,opacity=1,align=0,font='helv'):
+    """Shape on a disposable page and verify bounds before importing the text."""
+    minimum=fontsize if minimum is None else minimum
+    family='monospace' if font.startswith('co') else 'serif' if font.startswith('ti') else 'sans-serif'
+    weight='bold' if font in ('hebo','hebi','tibo','tibi','cobo','cobi') else 'normal'
+    style='italic' if font in ('heit','hebi','tiit','tibi','coit','cobi') else 'normal'
+    css_color='#'+''.join(f'{round(component*255):02x}' for component in ink)
+    content='<div>'+html.escape(text).replace('\n','<br>').replace('\t','&nbsp;&nbsp;&nbsp;&nbsp;')+'</div>'
+    css=f'* {{font-family:{family};font-size:{fontsize}pt;color:{css_color};font-weight:{weight};font-style:{style};margin:0;padding:0;line-height:1.5;text-align:{("left","center","right","justify")[align]}}}'
+    with fitz.open() as shaped:
+        scratch=shaped.new_page(width=max(1,rect.x1+2),height=max(1,rect.y1+2))
+        spare,scale=scratch.insert_htmlbox(rect,content,css=css,scale_low=minimum/fontsize,opacity=opacity)
+        if spare<0: raise ValueError('O texto não cabe na área escolhida. Reduza o texto ou a fonte; nenhuma cópia foi criada.')
+        for trace in scratch.get_texttrace():
+            if any(glyph==0 and not chr(codepoint).isspace() for codepoint,glyph,*_ in trace['chars']):
+                raise ValueError('As fontes disponíveis não contêm todos os caracteres; nenhuma cópia foi criada.')
+        visible=[]
+        for block in scratch.get_text('dict',clip=fitz.INFINITE_RECT())['blocks']:
+            if block['type']!=0: continue
+            for line in block['lines']:
+                for span in line['spans']:
+                    if span['text'].strip(): visible.append(fitz.Rect(span['bbox']))
+        # MuPDF may report a fit for over-wide unbroken words; reject clipping.
+        tolerance=rect+(-1,-1,1,1)
+        if text.strip() and (not visible or any(not tolerance.contains(bounds) for bounds in visible)):
+            raise ValueError('O texto excede a área disponível; nenhuma cópia foi criada.')
+        if text.strip(): page.show_pdf_page(rect,shaped,0,clip=rect,keep_proportion=False)
+
+
 def _text(page,text,options,operation):
+    text=_checked_text(text)
     bounds = _page_bounds(page)
     fontsize = number(options.get('font_size',14),'Tamanho da fonte',4,300)
     opacity = number(options.get('opacity',0.5 if operation=='watermark' else 1),'Opacidade',0,1)
     ink = color(options.get('color'))
     font,fontfile = _font(options)
+    standard=_font_has_text(text,font,fontfile)
     margin = number(options.get('margin',36),'Margem',0,min(bounds.width,bounds.height)/2)
     if 'rect' in options or 'width' in options or 'height' in options:
         rect = rectangle(options,page)
-        remaining = page.insert_textbox(rect,text,fontname=font,fontfile=fontfile,fontsize=fontsize,color=ink,fill_opacity=opacity,align=int(number(options.get('align',0),'Alinhamento',0,3)))
+        alignment=integer(options.get('align',0),'Alinhamento',0,3)
+        if not standard:
+            _html_text(page,rect,text,fontsize,ink,opacity=opacity,align=alignment,font=font); return
+        remaining = page.insert_textbox(rect,text,fontname=font,fontfile=fontfile,fontsize=fontsize,color=ink,fill_opacity=opacity,align=alignment)
         if remaining < 0: raise ValueError('O texto não cabe na área escolhida. Aumente a área ou diminua a fonte.')
     else:
         measure = fitz.Font(fontfile=fontfile) if fontfile else fitz.Font(fontname=font)
@@ -564,7 +678,38 @@ def _text(page,text,options,operation):
         x = number(options.get('x',x),'x'); y = number(options.get('y',y),'y')
         if x < 0 or y-fontsize < 0 or x+width > bounds.width or y > bounds.height:
             raise ValueError('O texto não cabe na página. Ajuste posição ou tamanho.')
-        page.insert_text((x,y),text,fontname=font,fontfile=fontfile,fontsize=fontsize,color=ink,fill_opacity=opacity)
+        if not standard:
+            rect=fitz.Rect(x,y-fontsize,min(bounds.width,x+max(width+fontsize,fontsize)),min(bounds.height,y+fontsize*max(1,len(text.splitlines()))*1.6))
+            _html_text(page,rect,text,fontsize,ink,opacity=opacity,font=font)
+        else:
+            # Measure the actual rendered spans, including descenders and multiline
+            # baselines. insert_text silently drops lines that cross page bounds.
+            with fitz.open() as measured:
+                scratch=measured.new_page(width=bounds.width,height=max(bounds.height,y+fontsize*max(2,len(text.splitlines()))*3))
+                scratch.insert_text((x,y),text,fontname=font,fontfile=fontfile,fontsize=fontsize,color=ink,fill_opacity=opacity)
+                for block in scratch.get_text('dict',clip=fitz.INFINITE_RECT())['blocks']:
+                    if block['type']==0 and not bounds.contains(fitz.Rect(block['bbox'])):
+                        raise ValueError('O texto não cabe na página. Ajuste posição ou tamanho; nenhuma cópia foi criada.')
+            page.insert_text((x,y),text,fontname=font,fontfile=fontfile,fontsize=fontsize,color=ink,fill_opacity=opacity)
+
+
+def _reject_pending_redactions(page):
+    if any(annotation.type[0]==fitz.PDF_ANNOT_REDACT for annotation in (page.annots() or [])):
+        raise ValueError('Esta página contém marcações de redação pendentes. Resolva essas marcações antes de editar; nenhuma cópia foi criada.')
+
+
+def _remove_redacted_interactive(page,rects,term):
+    def overlaps(bounds): return any(_area(fitz.Rect(bounds)&rect)>0 for rect in rects)
+    def sensitive(value): return bool(term) and str(term).casefold() in str(value or '').casefold()
+    for widget in list(page.widgets() or []):
+        if overlaps(widget.rect) or sensitive(widget.field_value) or sensitive(widget.field_label):
+            page.delete_widget(widget)
+    for annotation in list(page.annots() or []):
+        if overlaps(annotation.rect) or any(sensitive(value) for value in annotation.info.values()):
+            page.delete_annot(annotation)
+    for link in page.get_links():
+        if overlaps(link['from']) or any(sensitive(link.get(key)) for key in ('uri','file','name')):
+            page.delete_link(link)
 
 
 def _modify(doc,pages,operation,options):
@@ -573,24 +718,29 @@ def _modify(doc,pages,operation,options):
         from PIL import Image
         dpi = number(options['image_dpi'],'DPI',36,600)
         quality = int(number(options.get('quality',80),'Qualidade JPEG',20,95))
-        visited = set()
-        for page in doc:
+        placements={}; selected=set(pages)
+        for index,page in enumerate(doc):
             for item in page.get_images(full=True):
-                xref = item[0]
-                if xref in visited or item[1]: continue  # preserve alpha masks
-                visited.add(xref)
-                rects = page.get_image_rects(xref)
-                if not rects: continue
-                target_w = max(1,int(max(r.width for r in rects)*dpi/72))
-                target_h = max(1,int(max(r.height for r in rects)*dpi/72))
-                try:
-                    source = doc.extract_image(xref)
-                    with Image.open(io.BytesIO(source['image'])) as image:
-                        if image.width <= target_w and image.height <= target_h: continue
-                        image.thumbnail((target_w,target_h))
-                        buffer = io.BytesIO(); image.convert('RGB').save(buffer,format='JPEG',quality=quality,optimize=True)
-                        page.replace_image(xref,stream=buffer.getvalue())
-                except (OSError,ValueError): continue
+                xref=item[0]
+                record=placements.setdefault(xref,dict(page=index,width=0,height=0,masked=False,eligible=True))
+                record['masked'] |= bool(item[1])
+                record['eligible'] &= index in selected
+                for rect in page.get_image_rects(xref):
+                    record['width']=max(record['width'],rect.width)
+                    record['height']=max(record['height'],rect.height)
+        for xref,record in placements.items():
+            if record['masked'] or not record['eligible'] or not record['width'] or not record['height']: continue
+            target_w=max(1,math.ceil(record['width']*dpi/72)); target_h=max(1,math.ceil(record['height']*dpi/72))
+            try:
+                source=doc.extract_image(xref)
+                with Image.open(io.BytesIO(source['image'])) as image:
+                    # A shared image must retain enough pixels for its largest placement.
+                    ratio=max(target_w/image.width,target_h/image.height)
+                    if ratio>=1: continue
+                    image.thumbnail((math.ceil(image.width*ratio),math.ceil(image.height*ratio)))
+                    buffer=io.BytesIO(); image.convert('RGB').save(buffer,format='JPEG',quality=quality,optimize=True)
+                    doc[record['page']].replace_image(xref,stream=buffer.getvalue())
+            except (OSError,ValueError): continue
     matches = 0
     for i in pages:
         page = doc[i]
@@ -604,7 +754,7 @@ def _modify(doc,pages,operation,options):
             else:
                 value = options.get('text','PDF')
                 if operation == 'numbers':
-                    start = int(number(options.get('start',1),'Número inicial',0))
+                    start = integer(options.get('start',1),'Número inicial',0)
                     value = options.get('format','{n}').replace('{n}',str(start+pages.index(i))).replace('{total}',str(len(pages)))
                 _text(page,str(value),options,operation)
         elif operation in ('image','signature'): _insert_image(page,options)
@@ -621,9 +771,12 @@ def _modify(doc,pages,operation,options):
             term = options.get('search',options.get('text',''))
             rects = [rectangle({'rect':r},page) for r in options.get('rects',[])] if operation=='redact' and options.get('rects') else page.search_for(term) if term else []
             if not term and not rects: raise ValueError('Informe o texto ou as áreas a remover.')
-            replacement = options.get('replacement','')
+            replacement = _checked_text(options.get('replacement',''))
             font,_ = _font(options)
             if operation=='edit' and options.get('font_file'): raise ValueError('Substituição direta usa fontes PDF padrão; use sobreposição para fontes externas.')
+            if rects:
+                _reject_pending_redactions(page)
+                if operation=='redact': _remove_redacted_interactive(page,rects,term)
             for rect in rects:
                 matches += 1
                 page.add_redact_annot(rect,fill=color(options.get('fill'),(1,1,1) if operation=='edit' else (0,0,0)))
@@ -634,6 +787,9 @@ def _modify(doc,pages,operation,options):
                 for rect in rects:
                     size=number(options.get('font_size',11),'Fonte',4,300)
                     minimum=number(options.get('min_font_size',min(8,size)),'Fonte mínima',4,size)
+                    if not _font_has_text(replacement,font,None):
+                        _html_text(page,rect,replacement,size,color(options.get('color')),minimum=minimum,font=font)
+                        continue
                     fitted=False
                     while size >= minimum:
                         spare=page.insert_textbox(rect,str(replacement),fontname=font,fontsize=size,color=color(options.get('color')))
@@ -642,7 +798,7 @@ def _modify(doc,pages,operation,options):
                     if not fitted: raise ValueError('O texto substituto não cabe na área original. Reduza o texto ou ajuste a fonte mínima; nenhuma cópia foi criada.')
         elif operation == 'crop':
             margin = number(options.get('margin',20),'Margem',0)
-            rect = rectangle(options,page) if 'rect' in options else page.cropbox+(margin,margin,-margin,-margin)
+            rect = rectangle(options,page)+tuple(page.cropbox.tl)*2 if 'rect' in options else page.cropbox+(margin,margin,-margin,-margin)
             if rect.is_empty: raise ValueError('Margem inválida.')
             page.set_cropbox(rect)
     if operation in ('redact','edit') and matches == 0:
@@ -652,6 +808,14 @@ def _modify(doc,pages,operation,options):
         doc.set_metadata({})
         doc.del_xml_metadata()
         for name in list(doc.embfile_names()): doc.embfile_del(name)
+        doc.scrub(attached_files=False,clean_pages=False,embedded_files=False,hidden_text=False,javascript=True,metadata=False,redactions=False,remove_links=False,reset_fields=False,reset_responses=False,thumbnails=True,xml_metadata=False)
+        term=options.get('search',options.get('text',''))
+        if term:
+            outline=doc.get_toc()
+            for item in outline:
+                if str(term).casefold() in item[1].casefold(): item[1]='[Removido]'
+            if outline: doc.set_toc(outline)
+
 
 
 def _insert_image(page,options,watermark=False):
@@ -687,7 +851,7 @@ def _translate_layout(doc,options):
     if not isinstance(edits,list) or not edits: raise ValueError('Informe os blocos traduzidos.')
     grouped={}
     for edit in edits:
-        page_number=int(number(edit.get('page',1),'Página',1,len(doc)))-1
+        page_number=integer(edit.get('page',1),'Página',1,len(doc))-1
         page=doc[page_number]; rect=rectangle(edit,page)
         text=str(edit.get('text',''))
         if not text.strip(): raise ValueError('O texto traduzido não pode estar vazio.')
@@ -698,15 +862,13 @@ def _translate_layout(doc,options):
         grouped.setdefault(page_number,[]).append((edit,rect,text))
     for index,items in grouped.items():
         page=doc[index]
+        _reject_pending_redactions(page)
         for edit,rect,text in items: page.add_redact_annot(rect,fill=False)
         page.apply_redactions(images=0,graphics=0,text=0)
         for edit,rect,text in items:
             size=number(edit.get('font_size',11),'Fonte',4,300)
             minimum=number(edit.get('min_font_size',options.get('min_font_size',min(8,size))),'Fonte mínima',4,size)
-            ink=color(edit.get('color'),(0,0,0)); css_color='#'+''.join(f'{round(v*255):02x}' for v in ink)
-            content='<div>'+html.escape(text).replace('\n','<br>')+'</div>'
-            spare,scale=page.insert_htmlbox(rect,content,css=f'* {{font-family: sans-serif;font-size:{size}pt;color:{css_color};margin:0;padding:0;line-height:1.0}}',scale_low=minimum/size)
-            if spare < 0: raise ValueError(f'A tradução não cabe no bloco da página {index+1}. Reduza o texto ou o tamanho mínimo da fonte.')
+            _html_text(page,rect,_checked_text(text),size,color(edit.get('color'),(0,0,0)),minimum=minimum)
 
 
 def _detect_forms(doc,pages):
@@ -725,7 +887,7 @@ def _detect_forms(doc,pages):
                         rectangles.append(fitz.Rect(min(start.x,end.x),max(0,start.y-18),max(start.x,end.x),start.y+2))
         seen=[]
         for rect in rectangles:
-            if not page.rect.contains(rect) or any(_area(rect & previous)>_area(rect)*0.8 for previous in seen): continue
+            if not _page_bounds(page).contains(rect) or any(_area(rect & previous)>_area(rect)*0.8 for previous in seen): continue
             # Occupied cells are labels/content, not blank input fields.
             if page.get_textbox(rect).strip(): continue
             seen.append(rect)
@@ -735,49 +897,131 @@ def _detect_forms(doc,pages):
     return fields
 
 
+def _pdf_name(value):
+    return '/'+''.join(chr(byte) if 33<=byte<=126 and chr(byte) not in '#%()/<>[]{}' else f'#{byte:02X}' for byte in value.encode('utf-8'))
+
+
+def _radio_value(widget):
+    value=widget.on_state()
+    if not isinstance(value,str): raise ValueError('O botão de escolha não possui um estado válido.')
+    data=re.sub(r'#([0-9a-fA-F]{2})',lambda match:chr(int(match[1],16)),value)
+    try: return data.encode('latin1').decode('utf-8')
+    except (UnicodeError,ValueError): return data
+
+
+def _form_records(doc,pages):
+    records=[]; groups={}
+    for index in pages:
+        for widget in doc[index].widgets() or []:
+            record=dict(page=index+1,name=widget.field_name,value=widget.field_value,type=widget.field_type_string,rect=list(widget.rect),choices=widget.choice_values,readonly=bool(widget.field_flags & 1))
+            if widget.field_type!=fitz.PDF_WIDGET_TYPE_RADIOBUTTON:
+                records.append(record); continue
+            key=widget.rb_parent or widget.field_name
+            if key not in groups:
+                record.update(value='',choices=[],buttons=[]); groups[key]=record; records.append(record)
+            group=groups[key]; group['readonly'] |= bool(widget.field_flags & 1); value=_radio_value(widget)
+            group['choices'].append(value); group['buttons'].append(dict(page=index+1,rect=list(widget.rect),value=value))
+            if widget.field_value!='Off': group['value']=value
+    return records
+
+
+def _create_radio(doc,field,name):
+    choices=field.get('choices',[])
+    if not isinstance(choices,list) or len(choices)<2: raise ValueError('Um grupo de escolha precisa de pelo menos duas opções com value e rect.')
+    values=[]; widgets=[]
+    for choice in choices:
+        if not isinstance(choice,dict): raise ValueError('Cada opção precisa de value, rect e, opcionalmente, page.')
+        value=choice.get('value')
+        if not isinstance(value,str) or not value or value=='Off' or value in values: raise ValueError('As opções devem ter valores únicos, não vazios e diferentes de Off.')
+        values.append(value)
+        index=integer(choice.get('page',field.get('page',1)),'Página',1,len(doc))-1
+        page=doc[index]; widget=fitz.Widget(); widget.field_name=name+'_'+str(len(values)); widget.field_type=fitz.PDF_WIDGET_TYPE_CHECKBOX
+        widget.rect=rectangle(choice,page); widget.field_value='Off'; widget.border_width=1; widget.border_color=color(field.get('border_color'),(.5,.5,.5))
+        widgets.append(page.add_widget(widget).xref)
+        if choice.get('label') is not None:
+            label=_checked_text(choice['label']); rect=widget.rect
+            label_rect=choice.get('label_rect',[rect.x1+6,rect.y0,_page_bounds(page).x1-12,max(rect.y1,rect.y0+24)])
+            _text(page,label,dict(rect=label_rect,font_size=field.get('font_size',12),color=field.get('color')),'text')
+    selected=field.get('value','')
+    if selected not in ['',*values]: raise ValueError('O valor inicial não pertence às opções do grupo.')
+    parent=doc.get_new_xref()
+    doc.update_object(parent,'<</FT/Btn/Ff 32768/T '+fitz.get_pdf_str(name)+'/V '+(_pdf_name(selected) if selected else '/Off')+'/Kids['+' '.join(f'{xref} 0 R' for xref in widgets)+']>>')
+    for xref,value in zip(widgets,values):
+        off=doc.xref_get_key(xref,'AP/N/Off')[1]; on=doc.xref_get_key(xref,'AP/N/Yes')[1]
+        doc.xref_set_key(xref,'AP/N',f'<</Off {off} {_pdf_name(value)} {on}>>')
+        for key in ('FT','Ff','T','V'): doc.xref_set_key(xref,key,'null')
+        doc.xref_set_key(xref,'Parent',f'{parent} 0 R'); doc.xref_set_key(xref,'AS',_pdf_name(value) if value==selected else '/Off')
+    # Each group is one terminal field; its widget annotations remain on their pages.
+    catalog=doc.pdf_catalog(); roots=doc.xref_get_key(catalog,'AcroForm/Fields')[1]
+    references=[int(match[1]) for match in re.finditer(r'(\d+)\s+0\s+R',roots)]
+    references=[xref for xref in references if xref not in widgets]+[parent]
+    doc.xref_set_key(catalog,'AcroForm/Fields','['+' '.join(f'{xref} 0 R' for xref in references)+']')
+
+
 def _create_forms(doc,options):
-    fields = options.get('fields',[])
+    fields=options.get('fields',[])
     if not isinstance(fields,list) or not fields: raise ValueError('Defina ao menos um campo.')
-    names = {w.field_name for p in doc for w in (p.widgets() or [])}
-    types = {'text':fitz.PDF_WIDGET_TYPE_TEXT,'checkbox':fitz.PDF_WIDGET_TYPE_CHECKBOX,'choice':fitz.PDF_WIDGET_TYPE_COMBOBOX,'list':fitz.PDF_WIDGET_TYPE_LISTBOX}
+    names={widget.field_name for page in doc for widget in (page.widgets() or [])}
+    types={'text':fitz.PDF_WIDGET_TYPE_TEXT,'checkbox':fitz.PDF_WIDGET_TYPE_CHECKBOX,'choice':fitz.PDF_WIDGET_TYPE_COMBOBOX,'list':fitz.PDF_WIDGET_TYPE_LISTBOX}
     for field in fields:
-        name = str(field.get('name','')).strip()
-        if not name or name in names: raise ValueError('Os campos precisam de nomes únicos e não vazios.')
-        names.add(name)
-        index = int(number(field.get('page',1),'Página',1,len(doc)))-1
-        page = doc[index]
-        kind = field.get('type','text')
+        if not isinstance(field,dict): raise ValueError('Cada campo deve ser um objeto JSON.')
+        name=field.get('name','')
+        if not isinstance(name,str) or not name.strip() or name in names: raise ValueError('Os campos precisam de nomes únicos e não vazios.')
+        names.add(name); kind=field.get('type','text')
+        if kind=='radio': _create_radio(doc,field,name); continue
         if kind not in types: raise ValueError('Tipo de campo inválido.')
-        widget = fitz.Widget(); widget.field_name = name; widget.field_type = types[kind]
-        widget.rect = rectangle(field,page); widget.text_fontsize = number(field.get('font_size',12),'Fonte',4,100)
-        widget.text_color = color(field.get('color'),(0,0,0)); widget.border_color = color(field.get('border_color'),(.5,.5,.5)); widget.border_width = 1
+        index=integer(field.get('page',1),'Página',1,len(doc))-1
+        page=doc[index]; widget=fitz.Widget(); widget.field_name=name; widget.field_type=types[kind]
+        widget.rect=rectangle(field,page); widget.text_fontsize=number(field.get('font_size',12),'Fonte',4,100)
+        widget.text_color=color(field.get('color'),(0,0,0)); widget.border_color=color(field.get('border_color'),(.5,.5,.5)); widget.border_width=1
         if kind in ('choice','list'):
-            choices = field.get('choices',field.get('options',[]))
-            if not choices: raise ValueError('Defina as opções do campo de escolha.')
-            widget.choice_values = [str(v) for v in choices]
-        value = field.get('value','')
-        widget.field_value = ('Yes' if _boolean(value) else 'Off') if kind=='checkbox' else str(value)
-        if field.get('multiline') and kind=='text': widget.field_flags = fitz.PDF_TX_FIELD_IS_MULTILINE
+            choices=field.get('choices',field.get('options',[]))
+            if not isinstance(choices,list) or not choices or any(not isinstance(value,str) or not value for value in choices) or len(set(choices))!=len(choices):
+                raise ValueError('Defina uma lista de opções únicas e não vazias.')
+            if any(not _font_has_text(value,'helv',None) for value in choices): raise ValueError('A aparência de formulário exige caracteres Latin-1; use uma fonte de formulário compatível em outro editor para outros alfabetos.')
+            widget.choice_values=choices
+        value=field.get('value','')
+        if kind=='checkbox': widget.field_value='Yes' if _boolean(value) else 'Off'
+        else:
+            value=_checked_text(value)
+            if kind in ('choice','list') and value and value not in choices: raise ValueError('O valor inicial não pertence às opções do campo.')
+            if not _font_has_text(value,'helv',None): raise ValueError('A aparência de formulário exige caracteres Latin-1; nenhuma cópia foi criada.')
+            widget.field_value=value
+        if _boolean(field.get('multiline',False)) and kind=='text': widget.field_flags=fitz.PDF_TX_FIELD_IS_MULTILINE
         page.add_widget(widget)
 
 
 def _fill_forms(doc,options):
-    values = options.get('values',{})
-    if not isinstance(values,dict) or not values: raise ValueError('Informe os valores dos campos.')
-    existing = {w.field_name for page in doc for w in (page.widgets() or [])}
-    missing = set(values)-existing
+    values=options.get('values',{})
+    if not isinstance(values,dict) or not values or any(not isinstance(name,str) for name in values): raise ValueError('Informe os valores dos campos por nome.')
+    existing={widget.field_name for page in doc for widget in (page.widgets() or [])}
+    missing=set(values)-existing
     if missing: raise ValueError('Campos inexistentes: '+', '.join(sorted(missing)))
+    radio={}
     for page in doc:
         for widget in page.widgets() or []:
             if widget.field_name not in values: continue
-            value = values[widget.field_name]
-            if widget.field_type == fitz.PDF_WIDGET_TYPE_CHECKBOX:
-                widget.field_value = widget.on_state() if _boolean(value) else 'Off'
-            elif widget.field_type in (fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX):
-                if str(value) not in (widget.choice_values or []): raise ValueError('Escolha inválida para '+widget.field_name)
-                widget.field_value = str(value)
-            else: widget.field_value = str(value)
+            if widget.field_flags & 1: raise ValueError('O campo é somente leitura: '+widget.field_name)
+            value=values[widget.field_name]
+            if widget.field_type==fitz.PDF_WIDGET_TYPE_RADIOBUTTON:
+                radio.setdefault(widget.field_name,[]).append((widget.xref,widget.rb_parent,_radio_value(widget))); continue
+            if widget.field_type==fitz.PDF_WIDGET_TYPE_CHECKBOX: widget.field_value=widget.on_state() if _boolean(value) else 'Off'
+            elif widget.field_type in (fitz.PDF_WIDGET_TYPE_TEXT,fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX):
+                value=_checked_text(value)
+                if widget.field_type!=fitz.PDF_WIDGET_TYPE_TEXT and value and value not in (widget.choice_values or []): raise ValueError('Escolha inválida para '+widget.field_name)
+                if not _font_has_text(value,'helv',None): raise ValueError('A aparência de formulário exige caracteres Latin-1; nenhuma cópia foi criada.')
+                widget.field_value=value
+                if value=='':
+                    doc.xref_set_key(widget.xref,'V','()')
+                    if widget.field_type!=fitz.PDF_WIDGET_TYPE_TEXT: doc.xref_set_key(widget.xref,'I','[]')
+            else: raise ValueError('Este tipo de campo não pode ser preenchido como texto: '+widget.field_name)
             widget.update()
+    for name,buttons in radio.items():
+        value=values[name]
+        if not isinstance(value,str) or value not in ['',*[item[2] for item in buttons]]: raise ValueError('Escolha inválida para '+name)
+        for xref,parent,choice in buttons:
+            doc.xref_set_key(xref,'AS',_pdf_name(choice) if choice==value else '/Off')
+            doc.xref_set_key(parent or xref,'V',_pdf_name(value) if value else '/Off')
 
 
 def _page_elements(page):
@@ -885,22 +1129,29 @@ def _powerpoint(doc,pages,output,options):
     if mode not in ('editable','image'): raise ValueError('Modo inválido: editable ou image.')
     for i in pages:
         page = doc[i]; slide = result.slides.add_slide(result.slide_layouts[6])
-        sx = result.slide_width/page.rect.width; sy = result.slide_height/page.rect.height
+        scale=min(result.slide_width/page.rect.width,result.slide_height/page.rect.height)
+        left=(result.slide_width-page.rect.width*scale)/2; top=(result.slide_height-page.rect.height*scale)/2
         if mode == 'image':
-            slide.shapes.add_picture(io.BytesIO(page.get_pixmap(dpi=150).tobytes('png')),0,0,width=result.slide_width,height=result.slide_height)
+            slide.shapes.add_picture(io.BytesIO(page.get_pixmap(dpi=150).tobytes('png')),int(left),int(top),width=int(page.rect.width*scale),height=int(page.rect.height*scale))
             continue
         for block in page.get_text('dict')['blocks']:
             x0,y0,x1,y1 = block['bbox']
+            transformed=fitz.Rect(block['bbox'])*page.rotation_matrix
+            width=max(1,int((x1-x0)*scale)); height=max(1,int((y1-y0)*scale))
+            x=int(left+(transformed.x0+transformed.x1)*scale/2-width/2)
+            y=int(top+(transformed.y0+transformed.y1)*scale/2-height/2)
             if block['type']==1:
-                slide.shapes.add_picture(io.BytesIO(block['image']),int(x0*sx),int(y0*sy),width=max(1,int((x1-x0)*sx)),height=max(1,int((y1-y0)*sy)))
+                picture=slide.shapes.add_picture(io.BytesIO(block['image']),x,y,width=width,height=height)
+                picture.rotation=page.rotation
             else:
-                box = slide.shapes.add_textbox(int(x0*sx),int(y0*sy),max(1,int((x1-x0)*sx)),max(1,int((y1-y0)*sy)))
+                box = slide.shapes.add_textbox(x,y,width,height)
+                box.rotation=page.rotation
                 frame = box.text_frame; frame.word_wrap=False
                 frame.margin_left=frame.margin_right=frame.margin_top=frame.margin_bottom=0
                 for n,line in enumerate(block['lines']):
                     paragraph = frame.paragraphs[0] if n==0 else frame.add_paragraph()
                     for span in line['spans']:
-                        run = paragraph.add_run(); run.text=span['text']; run.font.size=Pt(span['size']*sx/12700)
+                        run = paragraph.add_run(); run.text=span['text']; run.font.size=Pt(span['size']*scale/12700)
                         run.font.bold=bool(span['flags']&16); run.font.italic=bool(span['flags']&2)
                         ink=span.get('color',0); run.font.color.rgb=RGBColor((ink>>16)&255,(ink>>8)&255,ink&255)
     result.save(output)
@@ -937,7 +1188,8 @@ def _visual_compare(first,second,output):
                     if image.size==size: canvases.append(image)
                     else:
                         canvas=Image.new('RGB',size,'white'); canvas.paste(image,(0,0)); canvases.append(canvas)
-                diff=ImageChops.difference(*canvases); changed=diff.getbbox() is not None
+                diff=ImageChops.difference(*canvases)
+                changed=(i>=len(first) or i>=len(second) or first[i].rect!=second[i].rect or diff.getbbox() is not None)
                 enhanced=ImageEnhance.Contrast(diff).enhance(3)
                 stream.write(f'<section><h2>Página {i+1}: {"alterada" if changed else "igual"}</h2><div class="row">')
                 for label,image in zip(('Original','Comparação','Diferenças'),[*canvases,enhanced]):

@@ -139,73 +139,107 @@ enum MacPreview {
     var result: Result<Void, Error>?
     private var model: Workspace?
     private var window: NSWindow?
+    private let suiteName = "PDF-preview-" + UUID().uuidString
+    private var defaults: UserDefaults?
+    private var preferences: AppearancePreferences?
     init(destination: URL) { self.destination = destination }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Return from the launch notification before constructing and activating views.
         DispatchQueue.main.async { [weak self] in self?.showWindow() }
-        DispatchQueue.main.asyncAfter(deadline: .now() + 60) { [weak self] in
+        DispatchQueue.main.asyncAfter(deadline: .now() + 120) { [weak self] in
             guard let self, self.result == nil else { return }
-            self.finish(.failure(MacPreview.failure(5, "A captura da própria janela excedeu 60 segundos. A sessão gráfica não concluiu a operação autorizada; nenhum fallback de bitmap foi usado.")))
+            self.finish(.failure(MacPreview.failure(5, "A captura das próprias janelas excedeu 120 segundos. Nenhum fallback de bitmap foi usado.")))
         }
     }
 
     private func showWindow() {
+        guard let defaults = UserDefaults(suiteName:suiteName) else {
+            finish(.failure(MacPreview.failure(16, "Não foi possível isolar as preferências da prévia."))); return
+        }
+        self.defaults = defaults
+        let preferences = AppearancePreferences(defaults:defaults)
+        preferences.state.colorScheme = "light"
+        self.preferences = preferences
         let model = Workspace()
-        let view = ContentView().environmentObject(model).frame(minWidth: 1050, minHeight: 720)
-        let host = NSHostingView(rootView: view)
-        let rectangle = NSRect(x: 0, y: 0, width: 1280, height: 860)
-        let window = NSWindow(contentRect: rectangle, styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
+        self.model = model
+        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:1050,height:720),styleMask:[.titled,.closable,.miniaturizable,.resizable],backing:.buffered,defer:false)
         window.title = "PDF"
         window.isReleasedWhenClosed = false
-        window.contentView = host
-        window.setContentSize(rectangle.size)
-        if let screen = NSScreen.main {
-            window.setFrameTopLeftPoint(NSPoint(x: screen.frame.minX + 20, y: screen.frame.maxY - 30))
-        }
-        self.model = model; self.window = window
-        NSApplication.shared.activate(ignoringOtherApps: true)
+        self.window = window
+        display(ContentView(),size:NSSize(width:1050,height:720))
+        NSApplication.shared.activate(ignoringOtherApps:true)
         window.makeKeyAndOrderFront(nil)
         window.orderFrontRegardless()
-        host.layoutSubtreeIfNeeded()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.captureHome() }
-    }
-
-    private func captureHome() {
-        guard let window, let model else { finish(.failure(MacPreview.failure(8, "A janela de prévia foi encerrada."))); return }
         Task { @MainActor in
-            do {
-                try await MacPreview.capture(window, to: destination)
-                model.document = try MacPreview.sampleDocument()
-                model.url = URL(fileURLWithPath: "/Amostras/Guia do PDF.pdf")
-                model.section = "Leitor"
-                window.contentView?.layoutSubtreeIfNeeded()
-                window.displayIfNeeded()
-                CATransaction.flush()
-                DispatchQueue.main.asyncAfter(deadline: .now() + 3) { [weak self] in self?.captureReader() }
-            } catch { finish(.failure(error)) }
+            do { try await captureSequence(); finish(.success(Void())) }
+            catch { finish(.failure(error)) }
         }
     }
 
-    private func captureReader() {
-        guard let window else { finish(.failure(MacPreview.failure(8, "A janela de prévia foi encerrada."))); return }
-        Task { @MainActor in
-            do {
-                let readerDestination = destination.deletingPathExtension().appendingPathExtension("leitor.png")
-                try await MacPreview.capture(window, to: readerDestination)
-                finish(.success(Void()))
-            } catch { finish(.failure(error)) }
+    private func display<V:View>(_ view:V,size:NSSize) {
+        guard let window,let model,let preferences,let defaults else { return }
+        let root = view.environmentObject(model).environmentObject(preferences).defaultAppStorage(defaults)
+            .tint(preferences.accent).preferredColorScheme(preferences.preferredScheme)
+        window.contentView = NSHostingView(rootView:root)
+        window.appearance = NSAppearance(named:preferences.state.colorScheme == "dark" ? .darkAqua : .aqua)
+        window.setContentSize(size)
+        if let screen = NSScreen.main {
+            window.setFrameTopLeftPoint(NSPoint(x:screen.frame.minX+20,y:screen.frame.maxY-30))
+        }
+        window.contentView?.layoutSubtreeIfNeeded()
+        window.displayIfNeeded()
+    }
+
+    private func capture(_ name:String? = nil) async throws {
+        guard let window else { throw MacPreview.failure(8, "A janela da prévia foi encerrada.") }
+        // Give AppKit, PDFKit tiles and SwiftUI transitions a full settled frame.
+        try await Task.sleep(for:.seconds(1.5))
+        let path = name.map { destination.deletingPathExtension().appendingPathExtension($0 + ".png") } ?? destination
+        try await MacPreview.capture(window,to:path)
+    }
+
+    private func captureSequence() async throws {
+        guard let model,let preferences else { throw MacPreview.failure(8, "A prévia não foi iniciada.") }
+        try await capture()
+        model.document = try MacPreview.sampleDocument()
+        model.url = URL(fileURLWithPath:"/Amostras/Guia do PDF.pdf")
+        model.section = "Leitor"
+        try await capture("leitor")
+        for (tab,name) in [("Aparência","personalizar"),("Ferramentas","ferramentas"),("Navegação","navegacao"),("Leitor","opcoes-leitura"),("Arquivos","arquivos")] {
+            display(CustomizationView(closable:false,initialTab:tab),size:NSSize(width:850,height:690))
+            try await capture(name)
+        }
+        preferences.state.colorScheme = "dark"
+        preferences.state.accentHex = "#AF52DE"
+        preferences.state.showCategoryLabels = true
+        model.section = "Início"
+        display(ContentView(),size:NSSize(width:1050,height:720))
+        try await capture("escuro")
+        preferences.applyPreset("focus")
+        preferences.state.colorScheme = "light"
+        preferences.state.accentHex = "#248A3D"
+        preferences.state.sidebarStyle = "icons"
+        preferences.state.toolOrder = ["ocr","merge","word","summary"]
+        preferences.state.toolTitles["merge"] = "Reunir meus documentos"
+        preferences.state.toolIcons["merge"] = "folder.badge.plus"
+        display(ContentView(),size:NSSize(width:1050,height:720))
+        try await capture("lista")
+        preferences.reset()
+        preferences.state.colorScheme = "light"
+        if let watermark = tools.first(where:{$0.id == "watermark"}) {
+            display(ToolConfigurationView(tool:watermark),size:NSSize(width:690,height:730))
+            try await capture("configuracao-ferramenta")
         }
     }
 
-    private func finish(_ outcome: Result<Void, Error>) {
+    private func finish(_ outcome:Result<Void,Error>) {
         guard result == nil else { return }
         result = outcome
         window?.orderOut(nil)
+        defaults?.removePersistentDomain(forName:suiteName)
         NSApplication.shared.stop(nil)
-        // Wake the event loop so run() returns even when a runner receives no UI events.
-        if let event = NSEvent.otherEvent(with: .applicationDefined, location: .zero, modifierFlags: [], timestamp: 0, windowNumber: 0, context: nil, subtype: 0, data1: 0, data2: 0) {
-            NSApplication.shared.postEvent(event, atStart: false)
+        if let event = NSEvent.otherEvent(with:.applicationDefined,location:.zero,modifierFlags:[],timestamp:0,windowNumber:0,context:nil,subtype:0,data1:0,data2:0) {
+            NSApplication.shared.postEvent(event,atStart:false)
         }
     }
 }

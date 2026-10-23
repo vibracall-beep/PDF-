@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
+import Darwin
 
 private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
     case rotate, numbers, compress, watermark, organize, crop, text, redact, protect, unlock, repair, ocr, pdfa, flatten
@@ -142,11 +143,16 @@ private struct WorkflowPreset: Identifiable, Codable {
     @Published var error = ""
     private var directory: URL?
 
-    init() {
+    init(directory suppliedDirectory: URL? = nil) {
         do {
-            let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-            let path = base.appendingPathComponent("PDF/Workflows", isDirectory: true)
-            try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true)
+            let path: URL
+            if let suppliedDirectory { path = suppliedDirectory }
+            else {
+                let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
+                path = base.appendingPathComponent("PDF/Workflows", isDirectory: true)
+            }
+            try FileManager.default.createDirectory(at: path, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
+            try FileManager.default.setAttributes([.posixPermissions: 0o700], ofItemAtPath: path.path)
             directory = path
             let urls = try FileManager.default.contentsOfDirectory(at: path, includingPropertiesForKeys: [.fileSizeKey]).filter { $0.pathExtension == "json" }
             for url in urls {
@@ -164,10 +170,17 @@ private struct WorkflowPreset: Identifiable, Codable {
     }
 
     static func read(_ url: URL) throws -> WorkflowPreset {
-        let size = try url.resourceValues(forKeys: [.fileSizeKey]).fileSize ?? 0
-        guard size <= 1_048_576 else { throw WorkflowError.invalid("O arquivo excede 1 MB.") }
-        let handle = try FileHandle(forReadingFrom: url)
+        // Open without following a final symlink and verify the descriptor before
+        // reading. A .json-named FIFO/device must never block the UI or leak data.
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK)
+        guard descriptor >= 0 else { throw WorkflowError.invalid("Selecione um arquivo JSON comum e acessível, sem link simbólico.") }
+        let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
         defer { try? handle.close() }
+        var info = stat()
+        guard fstat(descriptor, &info) == 0, info.st_mode & mode_t(S_IFMT) == mode_t(S_IFREG) else {
+            throw WorkflowError.invalid("O fluxo precisa ser um arquivo JSON comum.")
+        }
+        guard info.st_size >= 0, info.st_size <= 1_048_576 else { throw WorkflowError.invalid("O arquivo excede 1 MB.") }
         let data = try handle.read(upToCount: 1_048_577) ?? Data()
         guard data.count <= 1_048_576 else { throw WorkflowError.invalid("O arquivo excede 1 MB.") }
         return try JSONDecoder().decode(WorkflowPreset.self, from: data)
@@ -192,10 +205,34 @@ private struct WorkflowPreset: Identifiable, Codable {
         guard let directory else { throw WorkflowError.invalid("A biblioteca de fluxos não está disponível.") }
         let target = directory.appendingPathComponent(preset.id.uuidString).appendingPathExtension("json")
         try Self.encode(preset).write(to: target, options: .atomic)
+        try FileManager.default.setAttributes([.posixPermissions: 0o600], ofItemAtPath: target.path)
         if let index = presets.firstIndex(where: { $0.id == preset.id }) { presets[index] = preset }
         else { presets.append(preset) }
         presets.sort { $0.name.localizedStandardCompare($1.name) == .orderedAscending }
         error = ""
+    }
+}
+
+private enum WorkflowRequest {
+    static func validation(preset: WorkflowPreset, sourcePassword: String, destinationPassword: String) -> String? {
+        if let error = preset.validation { return error }
+        if preset.stages.contains(where: { $0.operation == .protect }), !(8...40).contains(destinationPassword.unicodeScalars.count) {
+            return "Use uma nova senha com 8 a 40 caracteres Unicode."
+        }
+        if preset.stages.first?.operation == .unlock && sourcePassword.isEmpty { return "Informe a senha atual para remover a proteção." }
+        return nil
+    }
+    static func make(preset: WorkflowPreset, sourcePassword: String, destinationPassword: String) throws -> [String: Any] {
+        if let error = validation(preset: preset, sourcePassword: sourcePassword, destinationPassword: destinationPassword) { throw WorkflowError.invalid(error) }
+        let steps: [[String: Any]] = preset.stages.enumerated().map { index, stage in
+            var options = stage.options
+            if index == 0 && !sourcePassword.isEmpty { options["password"] = sourcePassword }
+            if stage.operation == .protect { options["new_password"] = destinationPassword }
+            return ["operation": stage.operation.rawValue, "options": options]
+        }
+        var options: [String: Any] = ["steps": steps]
+        if !sourcePassword.isEmpty { options["password"] = sourcePassword }
+        return options
     }
 }
 
@@ -218,14 +255,12 @@ struct WorkflowView: View {
 
     private var requiresDestinationPassword: Bool { preset.stages.contains { $0.operation == .protect } }
     private var validation: String? {
-        if let error = preset.validation { return error }
+        if let error = WorkflowRequest.validation(preset: preset, sourcePassword: sourcePassword, destinationPassword: destinationPassword) { return error }
         guard let input else { return "Escolha um PDF de entrada." }
         if !FileManager.default.isReadableFile(atPath: input.path) { return "O PDF de entrada não está acessível." }
         guard let output else { return "Escolha onde salvar o resultado." }
         if input.resolvingSymlinksInPath() == output.resolvingSymlinksInPath() { return "Escolha um novo arquivo de saída para preservar o original." }
         if FileManager.default.fileExists(atPath: output.path) { return "Já existe um arquivo no destino. Escolha outro nome." }
-        if requiresDestinationPassword && destinationPassword.count < 8 { return "Use uma nova senha de pelo menos 8 caracteres." }
-        if preset.stages.first?.operation == .unlock && sourcePassword.isEmpty { return "Informe a senha atual para remover a proteção." }
         return nil
     }
 
@@ -348,7 +383,7 @@ struct WorkflowView: View {
             Text("Proteção do documento").font(.headline)
             SecureField("Senha do PDF de entrada, se houver", text: $sourcePassword).textFieldStyle(.roundedBorder)
             if requiresDestinationPassword {
-                SecureField("Nova senha do resultado, mínimo 8 caracteres", text: $destinationPassword).textFieldStyle(.roundedBorder)
+                SecureField("Nova senha do resultado, 8 a 40 caracteres", text: $destinationPassword).textFieldStyle(.roundedBorder)
             }
             Text("Senhas são usadas apenas nesta execução e nunca são salvas nos fluxos.").font(.caption).foregroundStyle(.secondary)
         }
@@ -409,23 +444,18 @@ struct WorkflowView: View {
         let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "PDF-fluxo.json"
         guard panel.runModal() == .OK, let url = panel.url else { return }
         do {
-            try WorkflowLibrary.encode(preset).write(to: url, options: .withoutOverwriting)
+            try NativeOutput.write(WorkflowLibrary.encode(preset), to: url)
             error = ""; status = "Fluxo exportado sem senhas ou caminhos de documentos."
         } catch { self.error = "Não foi possível exportar em um arquivo novo: \(error.localizedDescription)" }
     }
     private func execute() {
         if let validation { error = validation; return }
         guard let input, let output else { return }
-        let steps: [[String: Any]] = preset.stages.enumerated().map { index, stage in
-            var options = stage.options
-            if index == 0 && !sourcePassword.isEmpty { options["password"] = sourcePassword }
-            if stage.operation == .protect { options["new_password"] = destinationPassword }
-            return ["operation": stage.operation.rawValue, "options": options]
-        }
-        var options: [String: Any] = ["steps": steps]
-        if !sourcePassword.isEmpty { options["password"] = sourcePassword }
-        error = ""; status = ""
-        model.execute(operation: "workflow", inputs: [input], output: output, options: options, title: preset.name)
+        do {
+            let options = try WorkflowRequest.make(preset: preset, sourcePassword: sourcePassword, destinationPassword: destinationPassword)
+            error = ""; status = ""
+            model.execute(operation: "workflow", inputs: [input], output: output, options: options, title: preset.name)
+        } catch { self.error = error.localizedDescription }
         sourcePassword = ""; destinationPassword = ""
     }
 }
@@ -523,5 +553,61 @@ private struct WorkflowStageEditor: View {
                 Text(stage.opacity, format: .percent.precision(.fractionLength(0))).font(.caption.monospacedDigit()).frame(width: 44)
             }
         }
+    }
+}
+
+/// Exercises the same typed configuration, storage and request builder used by
+/// the editor. These checks do not execute user workflows or use real secrets.
+@MainActor enum WorkflowAuditChecks {
+    static func run(in root: URL) throws {
+        func require(_ condition: @autoclosure () -> Bool, _ message: String) throws {
+            guard condition() else { throw NSError(domain: "PDF.WorkflowAudit", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
+        }
+        let directory = root.appendingPathComponent("workflow-audit", isDirectory: true)
+        let library = WorkflowLibrary(directory: directory)
+        var preset = WorkflowPreset()
+        preset.name = "Auditoria de fluxo"
+        preset.stages = [.init(operation: .unlock), .init(operation: .numbers), .init(operation: .protect)]
+        try library.save(preset)
+        let file = directory.appendingPathComponent(preset.id.uuidString).appendingPathExtension("json")
+        let restored = try WorkflowLibrary.read(file)
+        try require(restored.stages.map(\.operation) == [.unlock, .numbers, .protect], "A ordem das etapas não persistiu.")
+        let folderPermissions = try FileManager.default.attributesOfItem(atPath: directory.path)[.posixPermissions] as? NSNumber
+        let filePermissions = try FileManager.default.attributesOfItem(atPath: file.path)[.posixPermissions] as? NSNumber
+        try require(folderPermissions?.intValue == 0o700 && filePermissions?.intValue == 0o600, "A biblioteca não preservou permissões privadas.")
+        let request = try WorkflowRequest.make(preset: restored, sourcePassword: "input-audit-123", destinationPassword: "output-audit-123")
+        let steps = request["steps"] as? [[String: Any]] ?? []
+        try require(steps.count == 3 && request["password"] as? String == "input-audit-123", "A senha de origem não foi enviada ao motor.")
+        try require((steps[0]["options"] as? [String: Any])?["password"] as? String == "input-audit-123", "A primeira etapa não recebeu a senha de origem.")
+        try require((steps[1]["options"] as? [String: Any])?["password"] == nil, "Uma etapa intermediária substituiu a propagação da senha.")
+        try require((steps[2]["options"] as? [String: Any])?["new_password"] as? String == "output-audit-123", "A etapa de proteção perdeu a senha do resultado.")
+        let encoded = try WorkflowLibrary.encode(restored)
+        let serialized = String(decoding: encoded, as: UTF8.self)
+        try require(!serialized.contains("input-audit-123") && !serialized.contains("output-audit-123") && !serialized.contains("password"), "Uma senha foi persistida no fluxo.")
+        try require(WorkflowRequest.validation(preset: preset, sourcePassword: "input-audit-123", destinationPassword: String(repeating: "😀", count: 41)) != nil, "A senha acima do limite foi aceita.")
+        try require(WorkflowRequest.validation(preset: preset, sourcePassword: "input-audit-123", destinationPassword: String(repeating: "a\u{301}", count: 21)) != nil, "O limite Unicode da senha diverge do motor.")
+        var invalid = preset
+        invalid.stages[1].id = invalid.stages[0].id
+        try require(invalid.validation != nil, "Identificadores duplicados foram aceitos.")
+        invalid = preset
+        invalid.stages = [.init(operation: .redact)]
+        try require(invalid.validation != nil, "A remoção de texto sem alvo foi aceita.")
+        var extraction = WorkflowStage(operation: .extractPages)
+        for selector in ["0", "1,,2", "3-", "-1", "1.5"] {
+            extraction.pages = selector
+            try require(extraction.validation != nil, "Um seletor de páginas inválido foi aceito.")
+        }
+        extraction.pages = "4-2,1,1"
+        try require(extraction.validation == nil, "Um intervalo reverso ou páginas repetidas válidas foram recusados.")
+        let link = directory.appendingPathComponent("linked.json")
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: file)
+        var refusedLink = false
+        do { _ = try WorkflowLibrary.read(link) } catch { refusedLink = true }
+        try require(refusedLink, "A importação seguiu um link simbólico.")
+        let fifo = directory.appendingPathComponent("pipe.json")
+        try require(mkfifo(fifo.path, 0o600) == 0, "Não foi possível preparar a verificação de arquivo especial.")
+        var refusedFIFO = false
+        do { _ = try WorkflowLibrary.read(fifo) } catch { refusedFIFO = true }
+        try require(refusedFIFO, "A importação aceitou um arquivo especial.")
     }
 }

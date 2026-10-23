@@ -11,9 +11,11 @@ private final class PagesProcessControl: @unchecked Sendable {
     private var process: Process?
     private var cancelled = false
     private var exceededTime = false
+    private var launched = false
+    var didLaunch: Bool { lock.lock(); defer { lock.unlock() }; return launched }
 
     func attach(_ value: Process) {
-        lock.lock(); process = value; let stop = cancelled || exceededTime; lock.unlock()
+        lock.lock(); process = value; launched = true; let stop = cancelled || exceededTime; lock.unlock()
         if stop { terminate(value) }
     }
     func detach() { lock.lock(); process = nil; lock.unlock() }
@@ -39,17 +41,60 @@ private final class PagesProcessControl: @unchecked Sendable {
 }
 
 private enum PagesConversionError: LocalizedError {
-    case source, destination, pagesMissing, timeout, automation, export(String), invalidPDF
+    case source, unsafeSource, destination, pagesMissing, timeout, automation, export(String), invalidPDF
+    case cleanup(String, String)
     var errorDescription: String? {
         switch self {
         case .source: return "Escolha um documento .pages acessível."
+        case .unsafeSource: return "O documento contém links ou entradas especiais. Exporte uma cópia normal do Pages antes de converter."
         case .destination: return "Escolha um nome novo para o PDF. Arquivos existentes serão preservados."
         case .pagesMissing: return "Instale o Pages pela App Store para usar esta conversão."
         case .timeout: return "O Pages não concluiu a exportação em 3 minutos. O arquivo original foi preservado."
         case .automation: return "Autorize PDF a controlar Pages em Ajustes do Sistema › Privacidade e Segurança › Automação, e repita a conversão."
         case .export(let reason): return "O Pages não concluiu a exportação: \(reason)"
         case .invalidPDF: return "O Pages não produziu um PDF legível dentro do limite de 512 MB."
+        case .cleanup(let reason, let directory): return "\(reason) Não foi possível confirmar o fechamento da cópia privada no Pages. Ela foi preservada em \(directory). Seu original não foi alterado."
         }
+    }
+}
+
+/// Resolves a selected alias-like symlink before copying, then verifies the
+/// complete copy. Pages must never receive a symlink back to the user's source.
+enum PagesPrivateCopy {
+    static func create(source: URL, in directory: URL) throws -> URL {
+        let resolved = source.resolvingSymlinksInPath()
+        try validateTree(resolved)
+        let copied = directory.appendingPathComponent("PDF-conversao-\(UUID().uuidString).pages")
+        try FileManager.default.copyItem(at: resolved, to: copied)
+        do {
+            try validateTree(copied)
+            return copied.resolvingSymlinksInPath()
+        } catch {
+            try? FileManager.default.removeItem(at: copied)
+            throw error
+        }
+    }
+    private static func validateTree(_ root: URL) throws {
+        let keys: Set<URLResourceKey> = [.isRegularFileKey, .isDirectoryKey, .isSymbolicLinkKey, .isAliasFileKey]
+        func validate(_ url: URL) throws -> Bool {
+            let values = try url.resourceValues(forKeys: keys)
+            guard values.isSymbolicLink != true, values.isAliasFile != true,
+                  values.isRegularFile == true || values.isDirectory == true else { throw PagesConversionError.unsafeSource }
+            return values.isDirectory == true
+        }
+        guard try validate(root) else { return }
+        var traversalError: Error?
+        guard let entries = FileManager.default.enumerator(at: root, includingPropertiesForKeys: Array(keys), options: [], errorHandler: { _, error in
+            traversalError = error
+            return false
+        }) else { throw PagesConversionError.source }
+        var count = 0
+        for case let child as URL in entries {
+            count += 1
+            guard count <= 100_000 else { throw PagesConversionError.unsafeSource }
+            _ = try validate(child)
+        }
+        if let traversalError { throw traversalError }
     }
 }
 
@@ -80,11 +125,14 @@ private enum PagesExporter {
         with timeout of 4 seconds
             tell application id "com.apple.iWork.Pages"
                 repeat with candidate in documents
+                    set matchesPrivateCopy to false
                     try
-                        if (POSIX path of (file of candidate as alias)) is privatePath then
-                            close candidate saving no
-                        end if
+                        set matchesPrivateCopy to ((POSIX path of (file of candidate as alias)) is privatePath)
                     end try
+                    if matchesPrivateCopy then
+                        close candidate saving no
+                        return
+                    end if
                 end repeat
             end tell
         end timeout
@@ -97,17 +145,26 @@ private enum PagesExporter {
         guard !FileManager.default.fileExists(atPath: destination.path), source.resolvingSymlinksInPath() != destination.resolvingSymlinksInPath() else { throw PagesConversionError.destination }
         let temporary = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-Pages-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: temporary, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
-        defer { try? FileManager.default.removeItem(at: temporary) }
-        let copied = temporary.appendingPathComponent("PDF-conversao-\(UUID().uuidString).pages")
+        var preserveTemporary = false
+        defer { if !preserveTemporary { try? FileManager.default.removeItem(at: temporary) } }
+        let copied = try PagesPrivateCopy.create(source: source, in: temporary)
         let exported = temporary.appendingPathComponent("resultado.pdf")
-        try FileManager.default.copyItem(at: source, to: copied)
         try control.check()
         do {
             try script(exportScript, arguments: [copied.path, exported.path], directory: temporary, timeout: 180, control: control)
         } catch {
             // Only the uniquely named private copy can be closed. This never
             // sends quit to Pages or closes another document belonging to it.
-            try? script(cleanupScript, arguments: [copied.path], directory: temporary, timeout: 6, control: PagesProcessControl())
+            guard control.didLaunch else { throw error }
+            if let failure = error as? PagesConversionError, case .automation = failure { throw error }
+            do {
+                try script(cleanupScript, arguments: [copied.path], directory: temporary, timeout: 6, control: PagesProcessControl())
+            } catch {
+                // Pages can still own an in-flight AppleEvent after its sender
+                // exits. Keep its backing copy when closure cannot be confirmed.
+                preserveTemporary = true
+                throw PagesConversionError.cleanup("A exportação foi interrompida.", temporary.path)
+            }
             throw error
         }
         try control.check()
@@ -259,5 +316,34 @@ struct PagesConversionView: View {
             case .failure(let error): model.message = error is CancellationError ? "Conversão cancelada." : error.localizedDescription
             }
         }
+    }
+}
+
+/// Validates copy isolation without launching Pages or asserting that an export
+/// was performed. A real Pages export remains a separate integration check.
+enum PagesPrivateCopyAuditChecks {
+    static func run(in root: URL) throws {
+        func require(_ condition: @autoclosure () -> Bool, _ message: String) throws {
+            guard condition() else { throw NSError(domain: "PDF.PagesCopyAudit", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
+        }
+        let directory = root.appendingPathComponent("pages-copy-audit", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        let original = directory.appendingPathComponent("original.pages")
+        let bytes = Data("original-private-copy-check".utf8)
+        try bytes.write(to: original, options: .withoutOverwriting)
+        let link = directory.appendingPathComponent("alias.pages")
+        try FileManager.default.createSymbolicLink(at: link, withDestinationURL: original)
+        let copied = try PagesPrivateCopy.create(source: link, in: directory)
+        let properties = try copied.resourceValues(forKeys: [.isSymbolicLinkKey, .isRegularFileKey])
+        try require(properties.isSymbolicLink != true && properties.isRegularFile == true, "A cópia privada ainda aponta para a origem.")
+        try Data("changed-copy".utf8).write(to: copied)
+        let retained = try Data(contentsOf: original)
+        try require(retained == bytes, "Editar a cópia privada alterou o arquivo original.")
+        let package = directory.appendingPathComponent("linked-package.pages", isDirectory: true)
+        try FileManager.default.createDirectory(at: package, withIntermediateDirectories: false)
+        try FileManager.default.createSymbolicLink(at: package.appendingPathComponent("outside"), withDestinationURL: original)
+        var refused = false
+        do { _ = try PagesPrivateCopy.create(source: package, in: directory) } catch { refused = true }
+        try require(refused, "Um pacote com link externo foi entregue para conversão.")
     }
 }

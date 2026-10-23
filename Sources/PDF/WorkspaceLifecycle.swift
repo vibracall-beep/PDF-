@@ -29,6 +29,7 @@ struct WorkspaceWindowGuard:NSViewRepresentable {
         init(model:Workspace) { self.model = model }
         func install(on window:NSWindow?) {
             guard let window, installedWindow !== window else { return }
+            if let installedWindow, installedWindow.delegate === self { installedWindow.delegate = previous }
             previous = window.delegate; installedWindow = window; window.delegate = self
         }
         func windowShouldClose(_ sender:NSWindow) -> Bool {

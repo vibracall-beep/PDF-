@@ -2,6 +2,7 @@
 # Download reviewed, immutable sources; then compile and install on this Mac.
 # This script never executes an unverified download or follows a mutable branch.
 set -euo pipefail
+umask 077
 usage() {
   cat <<'USAGE'
 Uso:
@@ -74,43 +75,88 @@ if [[ -n "$PDF_COMMIT" ]]; then
   PDF_ACTUAL_COMMIT="$(git -C "$PDF_DOWNLOAD_STAGE/source" rev-parse --verify 'HEAD^{commit}')"
   [[ "$PDF_ACTUAL_COMMIT" == "$PDF_COMMIT" ]] || fail 'O commit recebido não corresponde ao commit solicitado.'
   git -C "$PDF_DOWNLOAD_STAGE/source" fsck --no-reflogs --no-dangling >/dev/null
+  [[ -z "$(find "$PDF_DOWNLOAD_STAGE/source" -type l -print -quit)" ]] || fail 'Os fontes contêm links simbólicos e não serão executados.'
 else
   command -v python3 >/dev/null 2>&1 || fail 'Python 3 é necessário para verificar o pacote. Instale Xcode ou Python pelo Homebrew.'
-  curl --proto '=https' --proto-redir '=https' --tlsv1.2 --fail --location --retry 2 --connect-timeout 20 --max-time 300 \
+  curl --proto '=https' --proto-redir '=https' --tlsv1.2 --fail --location --retry 2 --connect-timeout 20 --max-time 300 --max-filesize 134217728 \
     --output "$PDF_DOWNLOAD_STAGE/source.tar.gz" "$PDF_ARCHIVE_URL"
   PDF_ACTUAL_SHA="$(shasum -a 256 "$PDF_DOWNLOAD_STAGE/source.tar.gz" | awk '{print $1}')"
   [[ "$PDF_ACTUAL_SHA" == "$PDF_EXPECTED_SHA" ]] || fail 'Checksum divergente. O pacote não foi extraído nem executado.'
   python3 - "$PDF_DOWNLOAD_STAGE/source.tar.gz" "$PDF_DOWNLOAD_STAGE/source" <<'PY'
+import gzip
 import hashlib
 from pathlib import Path, PurePosixPath
+import re
 import sys
 import tarfile
+import unicodedata
 archive_path, destination = Path(sys.argv[1]), Path(sys.argv[2])
-with tarfile.open(archive_path, mode='r:gz') as archive:
-    members = archive.getmembers()
-    if len(members) > 30000 or sum(member.size for member in members) > 1024 ** 3:
-        raise SystemExit('Pacote excede os limites de tamanho esperados.')
+class BoundedReader:
+    def __init__(self, stream):
+        self.stream = stream
+        self.remaining = 160 * 1024 ** 2
+    def read(self, size=-1):
+        amount = self.remaining + 1 if size < 0 else min(size, self.remaining + 1)
+        data = self.stream.read(amount)
+        self.remaining -= len(data)
+        if self.remaining < 0:
+            raise SystemExit('O pacote descompactado excede o limite permitido.')
+        return data
+
+with gzip.open(archive_path, 'rb') as compressed, tarfile.open(fileobj=BoundedReader(compressed), mode='r|') as archive:
     files = {}
-    for member in members:
+    canonical_names = {}
+    file_names = set()
+    directory_names = set()
+    total_size = 0
+    member_count = 0
+    for member in archive:
+        member_count += 1
+        total_size += member.size
+        if member_count > 10000 or member.size < 0 or member.size > 32 * 1024 ** 2 or total_size > 128 * 1024 ** 2:
+            raise SystemExit('Pacote excede os limites de tamanho esperados.')
         path = PurePosixPath(member.name)
-        if path.is_absolute() or '..' in path.parts or len(path.parts) < 2 or path.parts[0] != 'PDF':
+        if (path.is_absolute() or '..' in path.parts or len(path.parts) < 2 or path.parts[0] != 'PDF'
+                or str(path) != member.name.rstrip('/') or any(ord(char) < 32 for char in member.name)):
             raise SystemExit('Caminho inválido no pacote.')
+        # APFS/HFS installations commonly ignore case and normalize Unicode.
+        # Reject aliases and file/directory collisions before creating files.
+        for length in range(1, len(path.parts) + 1):
+            prefix = '/'.join(path.parts[:length])
+            canonical = unicodedata.normalize('NFD', prefix).casefold()
+            if canonical in canonical_names and canonical_names[canonical] != prefix:
+                raise SystemExit('Nomes de arquivos incompatíveis com o sistema de arquivos do Mac.')
+            canonical_names[canonical] = prefix
+            if length < len(path.parts):
+                if canonical in file_names:
+                    raise SystemExit('Um arquivo foi usado como diretório no pacote.')
+                directory_names.add(canonical)
+        canonical = unicodedata.normalize('NFD', str(path)).casefold()
         if member.isdir():
+            if canonical in file_names:
+                raise SystemExit('Conflito entre arquivo e diretório no pacote.')
+            directory_names.add(canonical)
             continue
-        if not member.isfile() or str(path) in files:
-            raise SystemExit('Pacote contém link, tipo especial ou nome duplicado.')
+        if not member.isfile() or canonical in file_names or canonical in directory_names:
+            raise SystemExit('Pacote contém link, tipo especial, nome duplicado ou conflito de diretórios.')
+        file_names.add(canonical)
         stream = archive.extractfile(member)
         if stream is None:
             raise SystemExit('Arquivo inacessível no pacote.')
-        files[str(path)] = stream.read()
+        content = stream.read()
+        if len(content) != member.size:
+            raise SystemExit('Arquivo truncado no pacote.')
+        files[str(path)] = content
     manifest = files.get('PDF/SHA256SUMS')
     if manifest is None:
         raise SystemExit('Manifesto SHA256SUMS ausente.')
     expected = {}
     for line in manifest.decode('utf-8').splitlines():
+        if '  ' not in line:
+            raise SystemExit('Manifesto inválido.')
         digest, name = line.split('  ', 1)
         key = 'PDF/' + name
-        if key in expected or len(digest) != 64:
+        if key in expected or re.fullmatch('[0-9a-f]{64}', digest) is None:
             raise SystemExit('Manifesto inválido.')
         expected[key] = digest
     if set(expected) != set(files) - {'PDF/SHA256SUMS'}:
@@ -120,7 +166,7 @@ with tarfile.open(archive_path, mode='r:gz') as archive:
             raise SystemExit('Checksum interno divergente: ' + name)
     if not {'PDF/Package.swift', 'PDF/scripts/install-mac.sh'}.issubset(files):
         raise SystemExit('O pacote não contém o instalador do PDF.')
-    destination.mkdir()
+    destination.mkdir(mode=0o700)
     for name, content in files.items():
         path = destination.joinpath(*PurePosixPath(name).parts[1:])
         path.parent.mkdir(parents=True, exist_ok=True)

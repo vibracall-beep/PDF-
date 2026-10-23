@@ -298,5 +298,120 @@ class AdvancedEngineTests(unittest.TestCase):
             book.close()
 
 
+    def test_unicode_overlay_watermark_and_replacement_preserve_characters(self):
+        for operation in ('text','watermark'):
+            target=self.output(operation+'-unicode.pdf')
+            run(operation,[self.source],target,{'text':'ação Ω 世界','pages':'1'})
+            with fitz.open(target) as doc: self.assertIn('ação Ω 世界',doc[0].get_text())
+        target=self.output('edit-unicode.pdf')
+        run('edit',[self.source],target,{'search':'confidential','replacement':'你好','pages':'1'})
+        with fitz.open(target) as doc:
+            self.assertIn('你好',doc[0].get_text()); self.assertNotIn('confidential',doc[0].get_text())
+
+    def test_multiline_overlay_outside_page_is_refused_atomically(self):
+        target=self.output('clipped.pdf')
+        with self.assertRaisesRegex(ValueError,'não cabe'):
+            run('text',[self.source],target,{'text':'first\nsecond\nthird','x':40,'y':490,'font_size':14})
+        self.assertFalse(target.exists())
+
+    def test_custom_font_without_required_glyph_is_refused(self):
+        font=self.output('latin-only.ttf'); font.write_bytes(fitz.Font('helv').buffer)
+        target=self.output('missing-glyph.pdf')
+        with self.assertRaisesRegex(ValueError,'caracteres'):
+            run('text',[self.source],target,{'text':'世界','font_file':str(font)})
+        self.assertFalse(target.exists())
+
+    def test_merge_distinct_passwords_requires_explicit_output_protection(self):
+        first=self.output('protected-one.pdf'); second=self.output('protected-two.pdf')
+        run('protect',[self.source],first,{'new_password':'first-secret'})
+        run('protect',[self.source],second,{'new_password':'second-secret'})
+        target=self.output('different-passwords.pdf')
+        options={'input_passwords':['first-secret','second-secret']}
+        with self.assertRaisesRegex(ValueError,'output_password'): run('merge',[first,second],target,options)
+        self.assertFalse(target.exists())
+        run('merge',[first,second],target,{**options,'output_password':'result-secret'})
+        with fitz.open(target) as doc:
+            self.assertTrue(doc.needs_pass); self.assertFalse(doc.authenticate('first-secret'))
+            self.assertTrue(doc.authenticate('result-secret')); self.assertEqual(len(doc),8)
+
+    def test_workflow_carries_first_stage_password_without_top_level_password(self):
+        protected=self.output('workflow-protected.pdf')
+        run('protect',[self.source],protected,{'new_password':'first-secret'})
+        target=self.output('workflow-carried.pdf')
+        run('workflow',[protected],target,{'steps':[{'operation':'rotate','options':{'password':'first-secret'}},{'operation':'numbers','options':{}}]})
+        with fitz.open(target) as doc:
+            self.assertTrue(doc.needs_pass); self.assertTrue(doc.authenticate('first-secret'))
+            self.assertEqual(doc[0].rotation,90); self.assertIn('1',doc[0].get_text())
+
+    def test_workflow_rejects_non_object_stage_options(self):
+        for index,value in enumerate(([],False,0,'')):
+            target=self.output(f'invalid-workflow-{index}.pdf')
+            with self.assertRaises(ValueError): run('workflow',[self.source],target,{'steps':[{'operation':'rotate','options':value}]})
+            self.assertFalse(target.exists())
+
+    def test_compression_uses_largest_shared_image_placement(self):
+        source=self.output('shared-image.pdf'); image=self.output('shared.png')
+        Image.new('RGB',(1200,1200),'orange').save(image)
+        with fitz.open() as doc:
+            page=doc.new_page(width=600,height=700); xref=page.insert_image(fitz.Rect(20,20,92,92),filename=str(image))
+            page=doc.new_page(width=600,height=700); page.insert_image(fitz.Rect(20,20,452,452),xref=xref)
+            doc.save(source)
+        target=self.output('shared-compressed.pdf')
+        run('compress',[source],target,{'image_dpi':72})
+        with fitz.open(target) as doc:
+            for page in doc:
+                item=page.get_images()[0]; self.assertGreaterEqual(item[2],432); self.assertGreaterEqual(item[3],432)
+        selected=self.output('shared-selected.pdf')
+        run('compress',[source],selected,{'image_dpi':72,'pages':'1'})
+        with fitz.open(selected) as doc: self.assertEqual(doc[1].get_images()[0][2:4],(1200,1200))
+
+    def test_organize_combines_inputs_in_global_page_order_with_protection(self):
+        protected=self.output('organize-protected.pdf')
+        run('protect',[self.source],protected,{'new_password':'first-secret'})
+        target=self.output('organize-multiple.pdf')
+        run('organize',[self.source,protected],target,{'input_passwords':['','first-secret'],'pages':'5,2,5','output_password':'result-secret'})
+        with fitz.open(target) as doc:
+            self.assertTrue(doc.needs_pass); self.assertTrue(doc.authenticate('result-secret'))
+            self.assertEqual(len(doc),3)
+            self.assertEqual([page.get_text().splitlines()[0] for page in doc],['Page 1 unique content','Page 2 unique content','Page 1 unique content'])
+            self.assertNotEqual(doc[0].xref,doc[2].xref)
+
+    def test_list_widget_remains_distinct_from_combo_and_rejects_invalid_initial_value(self):
+        target=self.output('list.pdf')
+        fields=[{'name':'list','type':'list','rect':[40,150,250,220],'choices':['Apple','Orange'],'value':'Apple'}, {'name':'combo','type':'choice','rect':[40,240,250,270],'choices':['Apple','Orange'],'value':'Orange'}]
+        run('form-create',[self.source],target,{'fields':fields})
+        with fitz.open(target) as doc: self.assertEqual([widget.field_type for widget in doc[0].widgets()],[fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX])
+        invalid=self.output('invalid-list.pdf')
+        with self.assertRaises(ValueError): run('form-create',[self.source],invalid,{'fields':[{**fields[0],'value':'Banana'}]})
+        self.assertFalse(invalid.exists())
+
+    def test_repair_recovers_missing_cross_reference_table(self):
+        broken=self.output('broken.pdf'); data=self.source.read_bytes()
+        broken.write_bytes(data[:data.rindex(b'\nxref')]+b'\n%%EOF\n')
+        target=self.output('repaired.pdf');run('repair',[broken],target)
+        with fitz.open(target) as doc:
+            self.assertEqual(len(doc),4); self.assertFalse(doc.is_repaired)
+            self.assertIn('Page 4 unique content',doc[3].get_text())
+
+
+    def test_single_input_organize_honors_individual_password_and_new_password(self):
+        protected=self.output('single-organize-input.pdf');target=self.output('single-organize-output.pdf')
+        run('protect',[self.source],protected,{'new_password':'first-secret'})
+        run('organize',[protected],target,{'input_passwords':['first-secret'],'output_password':'second-secret','pages':'4,1'})
+        with fitz.open(target) as doc:
+            self.assertTrue(doc.needs_pass); self.assertFalse(doc.authenticate('first-secret')); self.assertTrue(doc.authenticate('second-secret'))
+            self.assertEqual(doc.metadata['title'],'Original title'); self.assertIn('Page 4 unique content',doc[0].get_text())
+
+    def test_choice_fields_can_be_cleared(self):
+        created=self.output('choices.pdf');target=self.output('choices-cleared.pdf')
+        fields=[{'name':kind,'type':kind,'rect':[40,150+index*80,250,210+index*80],'choices':['Apple','Orange'],'value':'Apple'} for index,kind in enumerate(('list','choice'))]
+        fields.append({'name':'text','type':'text','rect':[40,330,250,370],'value':'Secret original'})
+        run('form-create',[self.source],created,{'fields':fields})
+        run('form-fill',[created],target,{'values':{'list':'','choice':'','text':''}})
+        with fitz.open(target) as doc:
+            self.assertEqual([widget.field_value for widget in doc[0].widgets()],['','',''])
+            self.assertNotIn('Secret original',doc[0].get_text())
+
+
 if __name__ == '__main__':
     unittest.main()

@@ -18,11 +18,17 @@ concurrency:
   cancel-in-progress: true
 jobs:
   native-application:
-    # A macOS 26 Apple Silicon runner with Xcode 26+ is required.
-    runs-on: macos-26
+    # Official xcode-27 preview image currently runs macOS 27.0.1 arm64.
+    # Keep the established macOS 26 image as a compatibility check.
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        runner: [macos-26, xcode-27]
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Verify Apple toolchain
         run: |
           uname -m
@@ -31,23 +37,28 @@ jobs:
           sysctl -n hw.ncpu
           xcodebuild -version
           xcrun --sdk macosx --show-sdk-version
+      - name: Verify installer integrity
+        id: integrity
+        run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
       - name: Compile native application
         id: compile
         run: |
           echo "::add-matcher::.github/swift-problem-matcher.json"
           xcrun swift build -c release --arch arm64 --jobs 3
       - name: Capture native window preview
+        id: preview
         run: |
           PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
           python3 scripts/run-with-timeout.py --seconds 180 -- "$PDF_BINARY_DIR/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
       - name: Retain native preview artifact
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: PDF-macOS-preview
+          name: PDF-macOS-preview-${{ matrix.runner }}
           path: ${{ runner.temp }}/PDF-preview*.png
           if-no-files-found: ignore
       - name: Build, install and validate complete application
+        id: install
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
@@ -55,11 +66,11 @@ jobs:
       - name: Create source distribution
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
         run: bash scripts/package-source.sh
-      - name: Retain reviewed source artifact
+      - name: Retain source artifact with validation status
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: PDF-source
+          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && 'PDF-source' || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256

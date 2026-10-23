@@ -22,6 +22,10 @@ enum GPUImageProcessor {
     }()
 
     static func enhance(_ image: CGImage, contrast: Double = 1.12) throws -> CGImage {
+        guard contrast.isFinite, (0...4).contains(contrast) else {
+            throw NSError(domain: "PDF.ImageProcessing", code: 3,
+                          userInfo: [NSLocalizedDescriptionKey: "O contraste precisa estar entre 0 e 4."])
+        }
         let input = CIImage(cgImage: image)
         guard let filter = CIFilter(name: "CIColorControls") else {
             throw NSError(domain: "PDF.ImageProcessing", code: 1,

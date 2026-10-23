@@ -76,6 +76,7 @@ let tools: [Tool] = [
 
 @main struct PDFApp: App {
     @StateObject private var model = Workspace()
+    @StateObject private var appearancePreferences = AppearancePreferences.shared
     @NSApplicationDelegateAdaptor(PDFApplicationDelegate.self) private var applicationDelegate
     init() {
         if let index = CommandLine.arguments.firstIndex(of:"--render-preview"), CommandLine.arguments.indices.contains(index+1) {
@@ -89,7 +90,7 @@ let tools: [Tool] = [
     }
     var body: some Scene {
         WindowGroup {
-            ContentView().environmentObject(model).frame(minWidth:1050, minHeight:720)
+            ContentView().environmentObject(model).environmentObject(appearancePreferences).frame(minWidth:1050, minHeight:720)
                 .onOpenURL { model.open(url:$0) }
                 .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
                 .onAppear { applicationDelegate.model = model }
@@ -118,183 +119,175 @@ let tools: [Tool] = [
                 Button("Girar página atual") { model.rotatePage() }
             }
         }
-        Settings { PreferencesView().environmentObject(model) }
+        Settings { PreferencesView().environmentObject(model).environmentObject(appearancePreferences) }
     }
 }
 
 struct ContentView: View {
-    @EnvironmentObject var model: Workspace
-    @AppStorage("accent") private var accent = "Azul"
-    @AppStorage("appearance") private var appearance = "Sistema"
-    @AppStorage("compact") private var compact = false
-    @AppStorage("favorites") private var favorites = "merge,ocr,word"
-    @AppStorage("toolOrder") private var toolOrder = ""
-    @AppStorage("hiddenTools") private var hiddenTools = ""
-    @AppStorage("showRecent") private var showRecent = true
+    @EnvironmentObject var model:Workspace
+    @EnvironmentObject var preferences:AppearancePreferences
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var query = ""
     @State private var category = "Todas"
-    @State private var selected: Tool?
+    @State private var selected:Tool?
     @State private var intelligenceMode = "summary"
-    var tint: Color { accent == "Violeta" ? .purple : accent == "Verde" ? .green : accent == "Laranja" ? .orange : .blue }
-    var hasToolFilters:Bool { !query.isEmpty || category != "Todas" }
-    var hiddenFavoriteCount:Int {
-        let hidden = Set(hiddenTools.split(separator:",").map(String.init))
-        return tools.filter { isFavorite($0.id) && hidden.contains($0.id) }.count
-    }
-    var orderedTools: [Tool] {
-        let order = toolOrder.split(separator:",").map(String.init)
-        let hidden = hiddenTools.split(separator:",").map(String.init)
-        return tools.filter { !hidden.contains($0.id) && (query.isEmpty || $0.name.localizedCaseInsensitiveContains(query)) && (category == "Todas" || $0.category == category) && (model.section != "Favoritos" || favorites.split(separator:",").contains(Substring($0.id))) }.sorted {
-            (order.firstIndex(of:$0.id) ?? tools.firstIndex(of:$0) ?? 0) < (order.firstIndex(of:$1.id) ?? tools.firstIndex(of:$1) ?? 0)
+    @State private var showCustomization = false
+    @AppStorage("readerShowAnnotations") private var readerShowAnnotations = true
+    var tint:Color { preferences.accent }
+    var hasToolFilters:Bool { !query.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || category != "Todas" }
+    var hiddenFavoriteCount:Int { tools.filter { isFavorite($0.id) && (preferences.state.hiddenTools.contains($0.id) || preferences.state.hiddenCategories.contains($0.category)) }.count }
+    var orderedTools:[Tool] {
+        let search = query.trimmingCharacters(in:.whitespacesAndNewlines)
+        return preferences.orderedTools().filter {
+            !preferences.state.hiddenTools.contains($0.id) && !preferences.state.hiddenCategories.contains($0.category) &&
+            (search.isEmpty || preferences.title(for:$0).localizedStandardContains(search) || $0.name.localizedStandardContains(search)) &&
+            (category == "Todas" || $0.category == category) && (model.section != "Favoritos" || isFavorite($0.id))
         }
     }
-    var body: some View {
+    var sidebarWidth:Double { preferences.state.sidebarStyle == "icons" ? 84 : preferences.state.sidebarWidth }
+    var body:some View {
         NavigationSplitView {
-            VStack(alignment:.leading, spacing:18) {
-                Label("PDF", systemImage:"doc.richtext").font(.system(size:32, weight:.bold, design:.rounded)).padding(.top,22)
-                Text("SEU ESPAÇO DE DOCUMENTOS").font(.caption2).foregroundStyle(.secondary)
-                ForEach(["Início","Leitor","Favoritos","Digitalizar","Inteligência","Fluxos"], id:\.self) { item in
-                    Button { navigate(to:item) } label: {
-                        Label(item, systemImage:sidebarIcon(item)).frame(maxWidth:.infinity, alignment:.leading).padding(12)
-                            .background(model.section == item ? tint.opacity(0.15) : .clear, in:RoundedRectangle(cornerRadius:12))
-                    }.buttonStyle(.plain).accessibilityAddTraits(model.section == item ? .isSelected : [])
-                }
-                Spacer()
-                Label("Seus arquivos no seu Mac", systemImage:"lock.shield").font(.caption).foregroundStyle(.secondary)
-                SettingsLink { Label("Personalizar", systemImage:"slider.horizontal.3") }
-            }.padding(20).frame(minWidth:210).background(.ultraThinMaterial)
+            sidebar.navigationSplitViewColumnWidth(min:sidebarWidth,ideal:sidebarWidth,max:sidebarWidth)
         } detail: {
             VStack(spacing:0) {
-                switch model.section {
-                case "Leitor": ReaderWorkspaceView()
-                case "Inteligência": IntelligenceView(initialMode:intelligenceMode).id(intelligenceMode)
-                case "Digitalizar": NativeFeaturesView()
-                case "Fluxos": WorkflowView()
-                case "Compartilhar": SharePDFView()
-                case "Pages para PDF": PagesConversionView()
-                case "Sign.com": ExternalSigningView()
-                default: home
-                }
+                destination.id(model.section).transition(!preferences.state.animationsEnabled || reduceMotion ? .identity : .opacity)
                 statusBar
-            }.navigationTitle(model.section == "Leitor" ? model.url?.lastPathComponent ?? "Leitor" : model.section)
+            }.navigationTitle(model.section == "Leitor" ? model.url?.lastPathComponent ?? "Leitor" : preferences.state.sidebar.first(where:{$0.id == model.section})?.label ?? model.section)
+                .animation(preferences.animation(reduceMotion:reduceMotion),value:model.section)
         }
-        .tint(tint)
-        .preferredColorScheme(appearance == "Escuro" ? .dark : appearance == "Claro" ? .light : nil)
-        .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model) }
-        .alert("Abrir documento protegido", isPresented:$model.needsPassword) {
-            SecureField("Senha", text:$model.documentPassword)
+        .tint(tint).preferredColorScheme(preferences.preferredScheme)
+        .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model).environmentObject(preferences) }
+        .sheet(isPresented:$showCustomization) { CustomizationView().environmentObject(model).environmentObject(preferences) }
+        .toolbar { ToolbarItem(placement:.primaryAction) { Button { showCustomization = true } label:{ Label("Personalizar",systemImage:"slider.horizontal.3") }.help("Personalizar aparência, menus e leitura") } }
+        .alert("Abrir documento protegido",isPresented:$model.needsPassword) {
+            SecureField("Senha",text:$model.documentPassword)
             Button("Abrir") { model.unlockPendingDocument() }
-            Button("Cancelar", role:.cancel) { model.documentPassword = "" }
+            Button("Cancelar",role:.cancel) { model.documentPassword = "" }
         } message: { Text("Digite a senha para abrir este PDF.") }
     }
-    var home: some View {
-        ScrollView {
-            VStack(alignment:.leading, spacing:24) {
-                HStack {
-                    VStack(alignment:.leading, spacing:10) {
-                        Text("Clareza em cada página.").font(.system(size:36, weight:.semibold, design:.rounded))
-                        Text("Leia, transforme e organize seus documentos.").foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                    Button("Abrir documento", systemImage:"plus") { model.open() }.buttonStyle(.borderedProminent).controlSize(.large)
-                }.padding(28).pdfGlass()
-                if showRecent && model.section != "Favoritos" && !model.recentURLs.isEmpty {
-                    VStack(alignment:.leading, spacing:12) {
-                        HStack { Text("Continue de onde parou").font(.headline); Spacer(); Button("Limpar") { model.clearRecent() }.font(.caption) }
-                        ScrollView(.horizontal, showsIndicators:false) {
-                            HStack(spacing:12) {
-                                ForEach(model.recentURLs.prefix(6), id:\.path) { url in
-                                    Button { model.open(url:url) } label: {
-                                        Label(url.lastPathComponent, systemImage:"doc.text").lineLimit(1).padding(12).frame(maxWidth:220).background(.regularMaterial, in:RoundedRectangle(cornerRadius:12))
-                                    }.buttonStyle(.plain).help(url.path)
-                                }
-                            }
-                        }
-                    }
+    var sidebar:some View {
+        VStack(alignment:preferences.state.sidebarStyle == "icons" ? .center : .leading,spacing:14) {
+            Button { navigate(to:"Início") } label: {
+                HStack(spacing:10) {
+                    Image(systemName:"doc.richtext").font(.system(size:28,weight:.semibold))
+                    if preferences.state.sidebarStyle != "icons" { Text("PDF").font(.system(size:30,weight:.bold,design:.rounded)) }
                 }
+            }.buttonStyle(.plain).accessibilityLabel("PDF — Início").padding(.top,18)
+            if preferences.state.sidebarStyle != "icons" { Text("SEU ESPAÇO DE DOCUMENTOS").font(.system(size:10)).foregroundStyle(.secondary) }
+            ScrollView {
+                VStack(spacing:preferences.state.spacing) {
+                    ForEach(preferences.state.sidebar.filter(\.visible)) { item in
+                        Button { navigate(to:item.id) } label: {
+                            HStack(spacing:10) {
+                                if preferences.state.sidebarStyle != "labels" { Image(systemName:item.icon).frame(width:20) }
+                                if preferences.state.sidebarStyle != "icons" { Text(item.label).font(.system(size:preferences.state.fontSize)).frame(maxWidth:.infinity,alignment:.leading) }
+                            }.padding(preferences.state.density == "compact" ? 9 : 12)
+                                .frame(maxWidth:.infinity)
+                                .background(model.section == item.id ? tint.opacity(0.15) : .clear,in:RoundedRectangle(cornerRadius:12))
+                        }.buttonStyle(.plain).accessibilityLabel(item.label).help(item.label)
+                            .accessibilityAddTraits(model.section == item.id ? .isSelected : [])
+                    }
+                }.padding(.vertical,6)
+            }
+            if preferences.state.sidebarStyle != "icons" { Label("Seus arquivos no seu Mac",systemImage:"lock.shield").font(.caption).foregroundStyle(.secondary) }
+            Button { showCustomization = true } label: {
+                if preferences.state.sidebarStyle == "icons" { Image(systemName:"slider.horizontal.3") }
+                else { Label("Personalizar",systemImage:"slider.horizontal.3") }
+            }.accessibilityLabel("Personalizar o PDF").help("Personalizar o PDF")
+        }.padding(preferences.state.sidebarStyle == "icons" ? 12 : 20)
+            .background(reduceTransparency || preferences.state.glassStyle == "opaque" ? AnyShapeStyle(Color(nsColor:.controlBackgroundColor)) : AnyShapeStyle(.ultraThinMaterial))
+            .animation(preferences.animation(reduceMotion:reduceMotion),value:preferences.state.sidebar)
+    }
+    @ViewBuilder var destination:some View {
+        switch model.section {
+        case "Leitor": ReaderWorkspaceView()
+        case "Inteligência": IntelligenceView(initialMode:intelligenceMode).id(intelligenceMode)
+        case "Digitalizar": NativeFeaturesView()
+        case "Fluxos": WorkflowView()
+        case "Compartilhar": SharePDFView()
+        case "Pages para PDF": PagesConversionView()
+        case "Sign.com": ExternalSigningView()
+        default: home
+        }
+    }
+    var home:some View {
+        ScrollView {
+            VStack(alignment:.leading,spacing:preferences.state.spacing+10) {
                 HStack {
-                    TextField("Buscar ferramenta", text:$query).textFieldStyle(.roundedBorder)
-                    Picker("Categoria", selection:$category) { ForEach(["Todas","Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar","Compartilhar"], id:\.self) { Text($0) } }.frame(width:220)
+                    Text(model.section == "Favoritos" ? "Favoritos" : "Seu espaço de trabalho").font(.title3.weight(.semibold))
+                    Spacer()
+                    Picker("Visualização",selection:$preferences.state.layout) {
+                        Label("Grade",systemImage:"square.grid.2x2").tag("grid")
+                        Label("Lista",systemImage:"list.bullet").tag("list")
+                    }.pickerStyle(.segmented).frame(width:145)
+                    Button("Personalizar",systemImage:"slider.horizontal.3") { showCustomization = true }.buttonStyle(.bordered)
+                }
+                if preferences.state.showHero {
+                    HStack {
+                        VStack(alignment:.leading,spacing:10) {
+                            Text("Clareza em cada página.").font(.system(size:32,weight:.semibold,design:.rounded))
+                            Text("Leia, transforme e organize seus documentos.").foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Button("Abrir documento",systemImage:"plus") { model.open() }.buttonStyle(.borderedProminent)
+                    }.padding(24).pdfGlass()
+                }
+                if preferences.state.showRecent && model.section != "Favoritos" && !model.recentURLs.isEmpty { recentDocuments }
+                HStack {
+                    TextField("Buscar ferramenta",text:$query).textFieldStyle(.roundedBorder)
+                    Picker("Categoria",selection:$category) { Text("Todas").tag("Todas"); ForEach(AppearanceState.categories.filter { !preferences.state.hiddenCategories.contains($0) },id:\.self) { Text($0).tag($0) } }.frame(width:220)
                 }
                 if model.section == "Favoritos" && hiddenFavoriteCount > 0 {
-                    HStack(spacing:8) {
-                        Image(systemName:"eye.slash")
-                        Text(hiddenFavoriteCount == 1 ? "1 favorito está oculto nas preferências." : "\(hiddenFavoriteCount) favoritos estão ocultos nas preferências.")
-                        SettingsLink { Text("Personalizar") }
-                    }.font(.caption).foregroundStyle(.secondary)
+                    HStack(spacing:8) { Image(systemName:"eye.slash"); Text("\(hiddenFavoriteCount) favoritos estão ocultos nas preferências."); Button("Personalizar") { showCustomization = true } }.font(.caption).foregroundStyle(.secondary)
                 }
                 if orderedTools.isEmpty { emptyToolsState }
                 HStack(alignment:.firstTextBaseline) {
                     Text(model.section == "Favoritos" ? "Suas ferramentas favoritas" : category == "Todas" ? "Todas as ferramentas" : category).font(.title3.weight(.semibold))
-                    Spacer()
-                    Text("\(orderedTools.count) \(hasToolFilters ? "resultados" : "ferramentas")").font(.caption).foregroundStyle(.secondary)
+                    Spacer(); Text("\(orderedTools.count) \(hasToolFilters ? "resultados" : "ferramentas")").font(.caption).foregroundStyle(.secondary)
                 }
-                LazyVGrid(columns:[GridItem(.adaptive(minimum:compact ? 185 : 220), spacing:14)], spacing:14) {
-                    ForEach(orderedTools) { tool in toolCard(tool) }
-                }
-            }.padding(28)
-        }.background(LinearGradient(colors:[tint.opacity(0.1),Color(nsColor:.windowBackgroundColor),.purple.opacity(0.07)], startPoint:.topLeading, endPoint:.bottomTrailing))
+                if preferences.state.groupByCategory && category == "Todas" {
+                    ForEach(AppearanceState.categories,id:\.self) { group in
+                        let items = orderedTools.filter { $0.category == group }
+                        if !items.isEmpty { VStack(alignment:.leading,spacing:12) { Text(group).font(.headline).foregroundStyle(.secondary); catalogue(items) } }
+                    }
+                } else { catalogue(orderedTools) }
+            }.padding(preferences.state.padding+10)
+        }
+        .background(homeBackground)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:preferences.state.layout)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:orderedTools.map(\.id))
+        .onChange(of:preferences.state.hiddenCategories) { _,hidden in if hidden.contains(category) { category = "Todas" } }
     }
-    @ViewBuilder var emptyToolsState: some View {
-        if hasToolFilters {
-            ContentUnavailableView {
-                Label("Nenhum resultado para os filtros",systemImage:"magnifyingglass")
-            } description: {
-                Text("A busca e a categoria selecionadas não correspondem às ferramentas visíveis nesta seção.")
-            } actions: {
-                Button("Limpar filtros") { clearToolFilters() }
+    @ViewBuilder var homeBackground:some View {
+        if preferences.state.backgroundStyle == "plain" { Color(nsColor:.windowBackgroundColor) }
+        else { LinearGradient(colors:[tint.opacity(0.1),Color(nsColor:.windowBackgroundColor),tint.opacity(0.06)],startPoint:.topLeading,endPoint:.bottomTrailing) }
+    }
+    var recentDocuments:some View {
+        VStack(alignment:.leading,spacing:12) {
+            HStack { Text("Continue de onde parou").font(.headline); Spacer(); Button("Limpar recentes") { model.clearRecent() }.font(.caption) }
+            ScrollView(.horizontal,showsIndicators:false) {
+                HStack(spacing:12) { ForEach(model.recentURLs.prefix(6),id:\.path) { url in Button { model.open(url:url) } label:{ Label(url.lastPathComponent,systemImage:"doc.text").lineLimit(1).padding(12).frame(maxWidth:220).pdfGlass() }.buttonStyle(.plain).help(url.path) } }
             }
-        } else if model.section == "Favoritos" {
-            ContentUnavailableView(
-                hiddenFavoriteCount > 0 ? "Seus favoritos estão ocultos" : "Você ainda não tem favoritos",
-                systemImage:hiddenFavoriteCount > 0 ? "eye.slash" : "star",
-                description:Text(hiddenFavoriteCount > 0 ? "Abra Personalizar para escolher quais ferramentas aparecem." : "Use a estrela nos cartões do Início para adicionar suas ferramentas favoritas.")
-            )
+        }
+    }
+    @ViewBuilder func catalogue(_ items:[Tool]) -> some View {
+        if preferences.state.layout == "list" {
+            LazyVStack(spacing:preferences.state.spacing) { ForEach(items) { tool in CustomizableToolCard(tool:tool,favorite:isFavorite(tool.id),row:true,open:{ activate(tool) },toggleFavorite:{ toggleFavorite(tool.id) }) } }
         } else {
-            ContentUnavailableView {
-                Label("Nenhuma ferramenta visível",systemImage:"eye.slash")
-            } description: {
-                Text("Abra Personalizar para escolher as ferramentas que aparecem no menu.")
-            } actions: {
-                SettingsLink { Text("Personalizar") }
-            }
+            LazyVGrid(columns:[GridItem(.adaptive(minimum:preferences.state.cardWidth),spacing:preferences.state.spacing)],spacing:preferences.state.spacing) { ForEach(items) { tool in CustomizableToolCard(tool:tool,favorite:isFavorite(tool.id),open:{ activate(tool) },toggleFavorite:{ toggleFavorite(tool.id) }) } }
         }
     }
-    func clearToolFilters() { query = ""; category = "Todas" }
-    func navigate(to section:String) {
-        if section == "Início" || section == "Favoritos" { clearToolFilters() }
-        model.section = section
-    }
-    func toolCard(_ tool:Tool) -> some View {
-        Button { activate(tool) } label: {
-            VStack(alignment:.leading,spacing:12) {
-                Image(systemName:tool.icon)
-                    .font(.system(size:21,weight:.medium)).foregroundStyle(tint)
-                    .frame(width:40,height:40)
-                    .background(tint.opacity(0.12),in:RoundedRectangle(cornerRadius:12))
-                VStack(alignment:.leading,spacing:7) {
-                    Text(tool.name).font(.headline).foregroundStyle(.primary).lineLimit(2)
-                    Text(tool.detail).font(.caption).foregroundStyle(.secondary).lineLimit(compact ? 2 : 3)
-                }.frame(maxWidth:.infinity,alignment:.leading)
-                Spacer(minLength:0)
-            }
-            .padding(18).frame(maxWidth:.infinity,alignment:.leading).frame(minHeight:compact ? 150 : 168,alignment:.top)
-            .contentShape(RoundedRectangle(cornerRadius:20))
-            .pdfGlass()
-            .overlay(RoundedRectangle(cornerRadius:20).strokeBorder(Color.primary.opacity(0.07),lineWidth:0.75))
-        }
-        .buttonStyle(.plain)
-        .overlay(alignment:.topTrailing) {
-            Button { toggleFavorite(tool.id) } label: {
-                Image(systemName:isFavorite(tool.id) ? "star.fill" : "star")
-                    .foregroundStyle(isFavorite(tool.id) ? tint : Color.secondary)
-                    .frame(width:28,height:28).contentShape(Rectangle())
-            }.buttonStyle(.plain).padding(14)
-                .help(isFavorite(tool.id) ? "Remover dos favoritos" : "Adicionar aos favoritos")
-                .accessibilityLabel((isFavorite(tool.id) ? "Remover " : "Adicionar ") + tool.name + (isFavorite(tool.id) ? " dos favoritos" : " aos favoritos"))
+    @ViewBuilder var emptyToolsState:some View {
+        if hasToolFilters {
+            ContentUnavailableView { Label("Nenhum resultado para os filtros",systemImage:"magnifyingglass") } description:{ Text("A busca e a categoria não correspondem às ferramentas visíveis nesta seção.") } actions:{ Button("Limpar filtros") { clearToolFilters() } }
+        } else if model.section == "Favoritos" && hiddenFavoriteCount == 0 {
+            ContentUnavailableView("Você ainda não tem favoritos",systemImage:"star",description:Text("Use a estrela nos cartões do Início para adicionar ferramentas."))
+        } else {
+            ContentUnavailableView { Label("Nenhuma ferramenta visível",systemImage:"eye.slash") } description:{ Text("As ferramentas ou categorias desta seção estão ocultas. Ajuste a visibilidade em Personalizar.") } actions:{ Button("Personalizar") { showCustomization = true } }
         }
     }
-    var statusBar: some View {
+    var statusBar:some View {
         HStack(spacing:12) {
             if model.busy {
                 ProgressView().controlSize(.small)
@@ -309,41 +302,27 @@ struct ContentView: View {
                     Button("Mostrar no Finder") { NSWorkspace.shared.activateFileViewerSelecting([output]) }
                 }
             }
-        }.padding(12).background(.bar)
+        }.padding(12).background(reduceTransparency || preferences.state.glassStyle == "opaque" ? AnyShapeStyle(Color(nsColor:.controlBackgroundColor)) : AnyShapeStyle(.bar))
     }
+    func clearToolFilters() { query = ""; category = "Todas" }
+    func navigate(to section:String) { if section == "Início" || section == "Favoritos" { clearToolFilters() }; model.section = section }
     func activate(_ tool:Tool) {
         switch tool.id {
-        case "summary", "translate", "chat", "quiz": intelligenceMode = tool.id; model.section = "Inteligência"
+        case "summary","translate","chat","quiz": intelligenceMode = tool.id; model.section = "Inteligência"
         case "workflow": model.section = "Fluxos"
         case "scan": model.section = "Digitalizar"
         case "pages-pdf": model.section = "Pages para PDF"
         case "share": model.section = "Compartilhar"
         case "sign-service": model.section = "Sign.com"
         case "converter": category = "Converter"; query = ""; model.section = "Início"
-        case "annotate":
-            UserDefaults.standard.set(true,forKey:"readerShowAnnotations")
-            if model.document == nil { model.open() } else { model.section = "Leitor" }
+        case "annotate": readerShowAnnotations = true; if model.document == nil { model.open() } else { model.section = "Leitor" }
         default: selected = tool
         }
     }
-    func isFavorite(_ id:String) -> Bool { favorites.split(separator:",").contains(Substring(id)) }
-    func toggleFavorite(_ id:String) {
-        var ids = favorites.split(separator:",").map(String.init)
-        if ids.contains(id) { ids.removeAll { $0 == id } } else { ids.append(id) }
-        favorites = ids.joined(separator:",")
-    }
-    func sidebarIcon(_ item:String) -> String {
-        ["Início":"square.grid.2x2","Leitor":"book","Favoritos":"star","Digitalizar":"scanner","Inteligência":"sparkles","Fluxos":"arrow.triangle.branch"][item] ?? "folder"
-    }
+    func isFavorite(_ id:String) -> Bool { preferences.state.favorites.contains(id) }
+    func toggleFavorite(_ id:String) { if isFavorite(id) { preferences.state.favorites.removeAll { $0 == id } } else { preferences.state.favorites.append(id) } }
 }
 
 extension View {
-    @ViewBuilder func pdfGlass() -> some View {
-        #if compiler(>=6.2)
-        if #available(macOS 26.0, *) { self.glassEffect(.regular, in:.rect(cornerRadius:20)) }
-        else { self.background(.regularMaterial, in:RoundedRectangle(cornerRadius:20)) }
-        #else
-        self.background(.regularMaterial, in:RoundedRectangle(cornerRadius:20))
-        #endif
-    }
+    func pdfGlass() -> some View { modifier(AdaptiveSurface()) }
 }

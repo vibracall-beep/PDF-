@@ -86,7 +86,7 @@ let tools: [Tool] = [
     init() {
         if let index = CommandLine.arguments.firstIndex(of:"--render-preview"), CommandLine.arguments.indices.contains(index+1) {
             do { try MacPreview.render(to:URL(fileURLWithPath:CommandLine.arguments[index+1])); exit(0) }
-            catch { FileHandle.standardError.write(Data("PDF preview failed: \(error)\n".utf8)); exit(1) }
+            catch { CIDiagnostics.record(String(describing:error),level:"error",title:"PDF preview"); FileHandle.standardError.write(Data("PDF preview failed: \(error)\n".utf8)); exit(1) }
         }
         if let index = CommandLine.arguments.firstIndex(of:"--benchmark") {
             do {
@@ -107,7 +107,7 @@ let tools: [Tool] = [
         }
         if CommandLine.arguments.contains("--smoke-test") {
             do { try MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
-            catch { fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
+            catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
         }
     }
     var body: some Scene {

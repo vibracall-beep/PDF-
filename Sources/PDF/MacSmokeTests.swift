@@ -2,6 +2,20 @@ import AppKit
 import CoreGraphics
 import PDFKit
 
+/// Structured CI diagnostics complement the full logs. Only explicit CLI
+/// validation phases use these annotations; normal application use is unchanged.
+enum CIDiagnostics {
+    static func record(_ message:String, level:String = "notice", title:String = "PDF native validation") {
+        guard ProcessInfo.processInfo.environment["GITHUB_ACTIONS"] == "true" else { return }
+        func escaped(_ value:String) -> String {
+            String(value.prefix(4000)).replacingOccurrences(of:"%",with:"%25")
+                .replacingOccurrences(of:"\r",with:"%0D").replacingOccurrences(of:"\n",with:"%0A")
+        }
+        let kind = level == "error" ? "error" : "notice"
+        FileHandle.standardError.write(Data(("::\(kind) title=\(title)::\(escaped(message))\n").utf8))
+    }
+}
+
 /// Executed by the installer and CI on macOS before a build is activated.
 @MainActor
 enum MacSmokeTests {
@@ -14,6 +28,7 @@ enum MacSmokeTests {
             }
         }
         func check<T>(_ phase:String, _ operation:() throws -> T) throws -> T {
+            CIDiagnostics.record("Starting: " + phase)
             FileHandle.standardOutput.write(Data(("Native check starting: " + phase + "\n").utf8))
             do {
                 let value = try operation()

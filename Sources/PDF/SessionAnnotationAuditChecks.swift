@@ -50,6 +50,29 @@ import PDFKit
         try restoredWorkspace.refreshRecoveryNow(); restoredWorkspace.restoreRecovery(id: firstSession.id)
         try require(restoredWorkspace.currentPage == 2 && restoredWorkspace.activeSession?.isDirty == true && restoredWorkspace.bookmarks == [2], "A restauração não recuperou o estado de leitura e a proteção contra descarte.")
         try require(try Data(contentsOf: firstURL) == firstBytes, "Sessões/recuperação alteraram o documento original.")
+        let generationsBeforeNavigation = try FileManager.default.contentsOfDirectory(atPath: store.directory.path).sorted()
+        workspace.currentPage = 1; workspace.bookmarks = []; view.scaleFactor = 2.75
+        try workspace.checkpointRecoveryNow()
+        let generationsAfterNavigation = try FileManager.default.contentsOfDirectory(atPath: store.directory.path).sorted()
+        try require(generationsAfterNavigation == generationsBeforeNavigation, "Navegar sem editar serializou novas gerações dos PDFs.")
+        let navigationWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        try navigationWorkspace.refreshRecoveryNow(); navigationWorkspace.restoreRecovery(id: firstSession.id)
+        try require(navigationWorkspace.currentPage == 1 && navigationWorkspace.bookmarks.isEmpty && abs((navigationWorkspace.activeSession?.zoom ?? 0) - 2.75) < 0.01,
+                    "Uma nova sessão não recuperou o sidecar de página, zoom e marcadores.")
+        let staleTaskID = firstSession.beginRecoveryTask()
+        firstSession.recoveryTask = Task { }
+        firstSession.cancelRecoveryTask()
+        let replacementTaskID = firstSession.beginRecoveryTask()
+        firstSession.recoveryTask = Task { }
+        firstSession.recoveryWrite = Task<RecoveryRecord?, Error> { firstRecord }
+        // Reproduce the old task's deferred cleanup arriving after a new task
+        // was installed: it must not erase the new cancellation handles.
+        firstSession.finishRecoveryTask(staleTaskID)
+        try require(firstSession.recoveryTaskID == replacementTaskID && firstSession.recoveryTask != nil && firstSession.recoveryWrite != nil,
+                    "A conclusão de uma tarefa cancelada apagou a tarefa de recuperação mais recente.")
+        firstSession.finishRecoveryTask(replacementTaskID)
+        try require(firstSession.recoveryTaskID == nil && firstSession.recoveryTask == nil && firstSession.recoveryWrite == nil,
+                    "Concluir a tarefa atual não limpou seus próprios identificadores.")
 
         // The original password stays in memory; recovered bytes must require it again.
         let password = "native-session-recovery-123"

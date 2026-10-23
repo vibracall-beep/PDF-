@@ -8,7 +8,13 @@ import ScreenCaptureKit
 /// NSView.cacheDisplay cannot capture all SwiftUI material or PDFKit tiled layers.
 @MainActor
 enum MacPreview {
+    fileprivate static func trace(_ phase:String) {
+        // Bypass stdout buffering so a terminated CI process still identifies its last phase.
+        let line = "PDF preview phase [\(String(format:"%.3f",ProcessInfo.processInfo.systemUptime))]: \(phase)\n"
+        FileHandle.standardError.write(Data(line.utf8))
+    }
     static func render(to destination: URL) throws {
+        trace("application.run begin")
         let application = NSApplication.shared
         guard !application.isRunning else {
             throw failure(1, "A prévia precisa iniciar em um processo dedicado, antes do loop principal do aplicativo.")
@@ -20,6 +26,7 @@ enum MacPreview {
         // run() owns the full AppKit launch lifecycle. Building the window inside
         // applicationDidFinishLaunching avoids rendering from SwiftUI App.init.
         application.run()
+        trace("application.run returned")
         application.delegate = previousDelegate
         guard let result = delegate.result else {
             throw failure(2, "O ciclo de captura terminou sem produzir um resultado.")
@@ -148,6 +155,7 @@ enum MacPreview {
     init(destination: URL) { self.destination = destination }
 
     func applicationDidFinishLaunching(_ notification: Notification) {
+        MacPreview.trace("application launched")
         DispatchQueue.main.async { [weak self] in self?.showWindow() }
         DispatchQueue.main.asyncAfter(deadline: .now() + 160) { [weak self] in
             guard let self, self.result == nil else { return }
@@ -187,16 +195,20 @@ enum MacPreview {
 
     private func resetWindowChrome(title:String) {
         guard let window else { return }
+        MacPreview.trace("reset window chrome begin")
         window.toolbar = nil
         while !window.titlebarAccessoryViewControllers.isEmpty { window.removeTitlebarAccessoryViewController(at:0) }
         window.title = title; window.subtitle = ""; window.representedURL = nil
         window.isDocumentEdited = false; window.titleVisibility = .visible
         window.titlebarAppearsTransparent = false; window.toolbarStyle = .automatic
+        MacPreview.trace("reset window chrome end")
     }
     private func display<V:View>(_ view:V,size:NSSize,title:String,applicationNavigation:Bool = false) {
         guard let window,let model,let preferences,let defaults else { return }
+        MacPreview.trace("display \(title) begin")
         window.makeFirstResponder(nil)
         window.contentView = nil
+        MacPreview.trace("previous hosting view detached")
         resetWindowChrome(title:title)
         standaloneTitle = applicationNavigation ? nil : title
         let root = view.environmentObject(model).environmentObject(preferences).defaultAppStorage(defaults)
@@ -209,23 +221,34 @@ enum MacPreview {
         }
         window.contentView?.layoutSubtreeIfNeeded()
         window.displayIfNeeded()
+        MacPreview.trace("display \(title) end")
     }
 
     private func capture(_ name:String? = nil,auditRequired:[String]? = nil) async throws {
         guard let window else { throw MacPreview.failure(8, "A janela da prévia foi encerrada.") }
+        let stage = name ?? "home"
+        CIDiagnostics.record("Capture starting: " + stage,title:"PDF preview")
+        MacPreview.trace("\(stage): settle begin")
         try await Task.sleep(for:.seconds(1.5))
         try Task.checkCancellation()
         // A removed NavigationSplitView may detach its titlebar asynchronously. Standalone
         // panels get their own real window chrome, instead of the previous document's toolbar.
         if let standaloneTitle { resetWindowChrome(title:standaloneTitle) }
+        MacPreview.trace("\(stage): layout begin")
         window.contentView?.layoutSubtreeIfNeeded(); window.displayIfNeeded(); CATransaction.flush()
         let path = name.map { destination.deletingPathExtension().appendingPathExtension($0 + ".png") } ?? destination
+        MacPreview.trace("\(stage): ScreenCaptureKit begin")
         try await MacPreview.capture(window,to:path)
+        MacPreview.trace("\(stage): PNG written")
         if let auditRequired {
             let reportURL = path.deletingPathExtension().appendingPathExtension("accessibility.json")
+            MacPreview.trace("\(stage): accessibility traversal begin")
+            CIDiagnostics.record("Accessibility starting: " + stage,title:"PDF preview")
             let report = try AccessibilityAudit.write(window:window,to:reportURL,requiredIdentifiers:auditRequired)
+            MacPreview.trace("\(stage): accessibility JSON written (\(report.nodes.count) nodes)")
             print("PDF own-window accessibility audit: \(reportURL.lastPathComponent); nodes=\(report.nodes.count); missingRequired=\(report.missingRequiredIdentifiers.count); findings=\(report.findings.count)")
         }
+        CIDiagnostics.record("Capture completed: " + stage,title:"PDF preview")
     }
 
     private func fixtures(in directory:URL) throws -> (guide:URL,reference:URL) {
@@ -241,30 +264,42 @@ enum MacPreview {
     private func captureSequence() async throws {
         guard let model,let preferences,let scratchDirectory else { throw MacPreview.failure(8, "A prévia não foi iniciada.") }
         let documents = try fixtures(in:scratchDirectory)
+        MacPreview.trace("two fixture PDFs written")
         try await capture(auditRequired:["pdf.catalog.search","pdf.customize.toolbar"])
 
         // Use the normal open path so tabs, per-document state and file identity are real.
+        MacPreview.trace("open primary document begin")
         model.open(url:documents.guide)
+        MacPreview.trace("open primary document end")
         guard let guideID = model.activeSessionID else { throw MacPreview.failure(18,"A abertura do documento de demonstração não criou uma sessão.") }
         try await capture("leitor",auditRequired:["pdf.reader.document","pdf.reader.search","pdf.reader.page"])
+        MacPreview.trace("open second document begin")
         model.open(url:documents.reference)
+        MacPreview.trace("open second document end")
         guard model.sessions.count == 2 else { throw MacPreview.failure(19,"A abertura do segundo documento não preservou a primeira aba.") }
         try await capture("abas")
         model.comparisonSessionID = guideID
         try await capture("lado-a-lado",auditRequired:["pdf.reader.document","pdf.reader.reference"])
+        MacPreview.trace("leave split and select first tab begin")
         model.comparisonSessionID = nil
         model.activateSession(guideID)
+        MacPreview.trace("leave split and select first tab end")
         try await Task.sleep(for:.seconds(0.5))
         guard model.pdfView?.document === model.document else { throw MacPreview.failure(20,"O leitor ainda não apresentou a aba selecionada.") }
+        MacPreview.trace("create and select note begin")
         model.addNote("Revisar esta passagem antes de concluir o documento.",colorHex:"#FFCC00")
         guard let note = model.annotationsOnCurrentPage.last(where:{ PDFAnnotationKind.matches($0,.text) }) else {
             throw MacPreview.failure(21,"A anotação da demonstração não foi criada no documento.")
         }
         model.selectAnnotation(note)
+        MacPreview.trace("create and select note end")
         display(ContentView(initialReaderInspector:true),size:NSSize(width:1050,height:720),title:"PDF",applicationNavigation:true)
         try await capture("anotacoes",auditRequired:["pdf.reader.document","pdf.reader.inspector"])
+        MacPreview.trace("checkpoint recovery begin")
         try model.checkpointRecoveryNow()
+        MacPreview.trace("checkpoint recovery end; refresh begin")
         try model.refreshRecoveryNow()
+        MacPreview.trace("refresh recovery end")
         guard model.recoveryItems.count == 2 else { throw MacPreview.failure(22,"A recuperação local não preservou as duas sessões de demonstração.") }
         display(RecoveryDocumentsView(),size:NSSize(width:720,height:510),title:"Recuperar trabalho — PDF")
         try await capture("recuperacao")
@@ -308,12 +343,17 @@ enum MacPreview {
 
     private func finish(_ outcome:Result<Void,Error>) {
         guard result == nil else { return }
+        switch outcome {
+        case .success: MacPreview.trace("finish success begin")
+        case .failure(let error): MacPreview.trace("finish failure begin: \(error.localizedDescription)")
+        }
         result = outcome
         captureTask?.cancel(); model?.cancelSearch()
         window?.orderOut(nil); window?.contentView = nil
         defaults?.removePersistentDomain(forName:suiteName)
         if let scratchDirectory { try? FileManager.default.removeItem(at:scratchDirectory) }
         NSApplication.shared.stop(nil)
+        MacPreview.trace("application.stop called")
         if let event = NSEvent.otherEvent(with:.applicationDefined,location:.zero,modifierFlags:[],timestamp:0,windowNumber:0,context:nil,subtype:0,data1:0,data2:0) {
             NSApplication.shared.postEvent(event,atStart:false)
         }

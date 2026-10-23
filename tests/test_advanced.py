@@ -1,16 +1,19 @@
 """Functional regression tests for editing, safety, exports and form workflows."""
 import json
+import hashlib
+import os
 from pathlib import Path
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 import fitz
 from PIL import Image
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'engine'))
-from pdf_engine import run
+from pdf_engine import run, capabilities
 
 
 class AdvancedEngineTests(unittest.TestCase):
@@ -166,6 +169,45 @@ class AdvancedEngineTests(unittest.TestCase):
         self.assertIsInstance(capabilities, dict)
         self.assertIn('form-create', json.dumps(capabilities))
         self.assertIn('ocr', json.dumps(capabilities))
+        self.assertEqual(capabilities['version'],'0.5.0')
+        self.assertTrue({'office','ocr','tesseract','html','pyhanko','java','verapdf'}.issubset(capabilities['dependencies']))
+
+    def test_capabilities_missing_jar_disables_standards_without_exposing_paths(self):
+        java=self.output('java');java.write_text('#!/bin/sh\nexit 9\n');java.chmod(0o700)
+        missing=self.output('private-certificate-project/missing.jar')
+        with patch.dict(os.environ,{'PDF_VERAPDF_JAR':str(missing),'PDF_JAVA':str(java)}),patch('subprocess.Popen') as spawn:
+            result=capabilities()
+        self.assertTrue(result['dependencies']['java']);self.assertFalse(result['dependencies']['verapdf'])
+        self.assertFalse(result['features']['independent_standards_validation']);self.assertEqual(result['dependency_status']['verapdf'],'missing')
+        self.assertNotIn(str(self.root),json.dumps(result));spawn.assert_not_called()
+
+    def test_capabilities_corrupted_jar_cannot_report_validation_available(self):
+        java=self.output('java');java.write_text('#!/bin/sh\nexit 9\n');java.chmod(0o700)
+        jar=self.output('modified.jar');jar.write_bytes(b'changed validator bytes')
+        with patch.dict(os.environ,{'PDF_VERAPDF_JAR':str(jar),'PDF_JAVA':str(java)}),patch('subprocess.Popen') as spawn:
+            result=capabilities()
+        self.assertFalse(result['dependencies']['verapdf']);self.assertFalse(result['features']['independent_standards_validation'])
+        self.assertEqual(result['dependency_status']['verapdf'],'integrity-failed');spawn.assert_not_called()
+        self.assertNotIn(str(jar),json.dumps(result))
+
+    def test_capabilities_verified_jar_still_requires_java_and_signature_dependency(self):
+        jar=self.output('validator.jar');jar.write_bytes(b'fixture validator')
+        expected=hashlib.sha256(jar.read_bytes()).hexdigest()
+        with patch.dict(os.environ,{'PDF_VERAPDF_JAR':str(jar),'PDF_JAVA':''}),patch('pdf_standards.VERAPDF_SHA256',expected),patch('pdf_engine.shutil.which',return_value=None),patch('pdf_engine.importlib.util.find_spec',return_value=None),patch('subprocess.Popen') as spawn:
+            result=capabilities()
+        self.assertTrue(result['dependencies']['verapdf']);self.assertEqual(result['dependency_status']['verapdf'],'verified')
+        self.assertFalse(result['dependencies']['java']);self.assertFalse(result['dependencies']['pyhanko'])
+        self.assertFalse(result['features']['independent_standards_validation']);self.assertFalse(result['features']['cryptographic_signatures'])
+        spawn.assert_not_called()
+
+    def test_capabilities_verified_jar_and_executable_enable_validation_without_launch(self):
+        java=self.output('java');java.write_text('#!/bin/sh\nexit 9\n');java.chmod(0o700)
+        jar=self.output('validator.jar');jar.write_bytes(b'fixture validator')
+        expected=hashlib.sha256(jar.read_bytes()).hexdigest()
+        with patch.dict(os.environ,{'PDF_VERAPDF_JAR':str(jar),'PDF_JAVA':str(java)}),patch('pdf_standards.VERAPDF_SHA256',expected),patch('subprocess.Popen') as spawn:
+            result=capabilities()
+        self.assertTrue(result['features']['independent_standards_validation']);self.assertTrue(result['dependencies']['verapdf'])
+        self.assertEqual(result['dependency_status']['java'],'executable-found');spawn.assert_not_called()
 
     def test_merge_failure_leaves_no_output(self):
         corrupt = self.output('corrupt.pdf')

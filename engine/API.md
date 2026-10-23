@@ -1,6 +1,6 @@
 # Local engine API
 
-`python3 engine/pdf_engine.py OPERATION INPUT... --output NEW_PATH` accepts JSON options through `--options` or, preferably, `PDF_OPTIONS_STDIN=1` and standard input. Passwords must use standard input. `--capabilities` reports the operation list and detected dependencies. Success writes one JSON object with `ok` and `output`; failures write JSON to stderr and exit nonzero; cancellation uses code `Cancelled` and exit 130.
+`python3 engine/pdf_engine.py OPERATION INPUT... --output NEW_PATH` accepts JSON options through `--options` or, preferably, `PDF_OPTIONS_STDIN=1` and standard input. Passwords must use standard input. `--capabilities` reports engine version `0.5.0`, the operation list and detected dependencies. Existing dependency keys are retained; `pyhanko`, `java` and `verapdf` report module presence, an executable Java path, and the pinned veraPDF JAR SHA-256 respectively. `independent_standards_validation` is true only when Java and the verified JAR are available. `dependency_status` distinguishes missing, unreadable and altered JARs without disclosing filesystem paths; the probe does not launch Java. Success writes one JSON object with `ok` and `output`; failures write JSON to stderr and exit nonzero; cancellation uses code `Cancelled` and exit 130.
 
 ## Preservation and cancellation
 

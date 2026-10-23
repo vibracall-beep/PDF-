@@ -183,7 +183,7 @@ enum ReaderAnnotationStyle {
         switch alert.runModal() {
         case .alertSecondButtonReturn: return checkpointSynchronously(force: true)
         case .alertThirdButtonReturn:
-            for session in sessions { session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); try? recoveryStore.delete(session.id) }
+            for session in sessions { session.cancelRecoveryTask(); try? recoveryStore.delete(session.id) }
             return true
         default: return false
         }
@@ -244,7 +244,7 @@ enum ReaderAnnotationStyle {
             default: return
             }
         }
-        session.recoveryTask?.cancel(); session.recoveryWrite?.cancel()
+        session.cancelRecoveryTask()
         do { try recoveryStore.delete(id) } catch { message = "Não foi possível remover a recuperação da aba: \(error.localizedDescription)"; return }
         sessions.removeAll { $0.id == id }
         if comparisonSessionID == id { comparisonSessionID = nil }
@@ -270,36 +270,48 @@ enum ReaderAnnotationStyle {
         RecoverySessionState(page: session.page, zoom: session.zoom, autoScale: session.autoScale, bookmarks: Array(session.bookmarks).sorted())
     }
     private func scheduleRecovery(_ session: PDFDocumentSession) {
-        guard recoveryEnabled else { session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); session.recoveryTask = nil; return }
+        guard recoveryEnabled else { session.cancelRecoveryTask(); return }
         let value = fingerprint(session)
         guard value != session.recoveryFingerprint else { return }
-        // Navigation alone need not rewrite every page while the user scrolls.
+        // Navigation uses a small sidecar; debounce it while the user scrolls.
         if contentFingerprint(session) == session.recoveryContentFingerprint, Date().timeIntervalSince(session.lastRecoveryDate) < 15 { return }
         // The pending marker prevents the polling timer from perpetually resetting debounce.
         if session.recoveryTask != nil { return }
+        let token = session.beginRecoveryTask()
         session.recoveryTask = Task { @MainActor [weak self, weak session] in
-            defer { session?.recoveryTask = nil }
+            defer { session?.finishRecoveryTask(token) }
             do {
                 try await Task.sleep(for: .milliseconds(650)); try Task.checkCancellation()
-                guard let self, let session, self.sessions.contains(where: { $0.id == session.id }), self.recoveryEnabled else { return }
+                guard let self, let session, session.recoveryTaskID == token,
+                      self.sessions.contains(where: { $0.id == session.id }), self.recoveryEnabled else { return }
                 let captured = self.fingerprint(session), content = self.contentFingerprint(session), state = self.recoveryState(session)
-                let data = try session.recoveryData(), source = session.savedURL ?? session.sourceURL
+                let previous = content == session.recoveryContentFingerprint ? session.recoveryRecord : nil
+                let data: Data? = previous == nil ? try session.recoveryData() : nil
+                let source = session.savedURL ?? session.sourceURL
                 let id = session.id, encrypted = session.document.isEncrypted, title = session.title
                 let store = self.recoveryStore
                 // Atomic publication stays off the UI thread; capture uses the reader's actor.
-                let write = Task.detached(priority: .utility) {
+                let write = Task<RecoveryRecord?, Error>.detached(priority: .utility) {
                     try Task.checkCancellation()
-                    try store.save(documentData: data, sourceURL: source, sessionID: id, encrypted: encrypted, title: title, state: state)
+                    if let previous { return try store.updateState(record: previous, state: state) }
+                    guard let data else { throw RecoveryError.invalidDocument }
+                    return try store.save(documentData: data, sourceURL: source, sessionID: id, encrypted: encrypted, title: title, state: state)
                 }
                 session.recoveryWrite = write
-                defer { session.recoveryWrite = nil }
-                try await withTaskCancellationHandler { try await write.value } onCancel: { write.cancel() }
+                let record = try await withTaskCancellationHandler { try await write.value } onCancel: { write.cancel() }
                 try Task.checkCancellation()
+                guard session.recoveryTaskID == token else { return }
+                guard let record else {
+                    // The snapshot was removed/replaced. The next poll captures
+                    // current content instead of attaching state to stale bytes.
+                    session.recoveryRecord = nil; session.recoveryContentFingerprint = ""; return
+                }
+                session.recoveryRecord = record
                 session.recoveryFingerprint = captured
                 session.recoveryContentFingerprint = content; session.lastRecoveryDate = Date()
                 self.refreshRecovery()
             } catch is CancellationError { }
-            catch { self?.message = "Recuperação: \(error.localizedDescription)" }
+            catch { if session?.recoveryTaskID == token { self?.message = "Recuperação: \(error.localizedDescription)" } }
         }
     }
     func checkpointRecovery() { captureActiveSession(); for session in sessions { session.recoveryFingerprint = ""; scheduleRecovery(session) } }
@@ -313,9 +325,17 @@ enum ReaderAnnotationStyle {
     func checkpointRecoveryNow() throws {
         NSApp.keyWindow?.makeFirstResponder(nil); (pdfView as? DrawingPDFView)?.finishStroke(); captureActiveSession()
         for session in sessions {
-            session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); session.recoveryTask = nil
-            try recoveryStore.save(documentData: session.recoveryData(), sourceURL: session.savedURL ?? session.sourceURL,
-                sessionID: session.id, encrypted: session.document.isEncrypted, title: session.title, state: recoveryState(session))
+            session.cancelRecoveryTask()
+            let state = recoveryState(session), content = contentFingerprint(session)
+            var updated: RecoveryRecord?
+            if content == session.recoveryContentFingerprint, let previous = session.recoveryRecord {
+                updated = try recoveryStore.updateState(record: previous, state: state)
+            }
+            if updated == nil {
+                updated = try recoveryStore.save(documentData: session.recoveryData(), sourceURL: session.savedURL ?? session.sourceURL,
+                    sessionID: session.id, encrypted: session.document.isEncrypted, title: session.title, state: state)
+            }
+            session.recoveryRecord = updated
             session.recoveryFingerprint = fingerprint(session)
             session.recoveryContentFingerprint = contentFingerprint(session); session.lastRecoveryDate = Date()
         }
@@ -345,11 +365,13 @@ enum ReaderAnnotationStyle {
         session.page = record.state.page; session.zoom = record.state.zoom; session.autoScale = record.state.autoScale
         session.bookmarks = Set(record.state.bookmarks); session.hasEdits = true; session.isDirty = true
         configure(session); sessions.append(session); loadSession(session)
+        session.recoveryRecord = record; session.recoveryContentFingerprint = contentFingerprint(session)
+        session.recoveryFingerprint = fingerprint(session); session.lastRecoveryDate = Date()
         message = "Sessão recuperada. Salve uma cópia para conservar esta versão; o original não foi substituído."
     }
     func deleteRecovery(id: UUID) {
         if let session = sessions.first(where: { $0.id == id }) {
-            session.recoveryTask?.cancel(); session.recoveryWrite?.cancel(); session.recoveryFingerprint = fingerprint(session)
+            session.cancelRecoveryTask(); session.recoveryRecord = nil; session.recoveryFingerprint = fingerprint(session)
         }
         do { try recoveryStore.delete(id); refreshRecovery() }
         catch { message = "Não foi possível excluir a recuperação: \(error.localizedDescription)" }

@@ -28,10 +28,23 @@ struct RecoveryRecord: Codable, Identifiable, Sendable, Equatable {
     fileprivate let version: Int
     fileprivate let generation: UUID
     fileprivate let sha256: String
+    fileprivate func sameContent(as other: RecoveryRecord) -> Bool {
+        id == other.id && version == other.version && generation == other.generation && sha256 == other.sha256 && encrypted == other.encrypted
+            && title == other.title && sourceURL == other.sourceURL
+    }
+}
+
+private struct RecoveryNavigation: Codable {
+    let version: Int
+    let sessionID: UUID
+    let generation: UUID
+    let sha256: String
+    let state: RecoverySessionState
+    let modifiedAt: Date
 }
 
 enum RecoveryError: LocalizedError {
-    case invalidState, invalidDocument, unsafePath, invalidRecord, tooLarge, encryptionMismatch, changed
+    case invalidState, invalidDocument, unsafePath, invalidRecord, tooLarge, metadataTooLarge, encryptionMismatch, changed
     var errorDescription:String? {
         switch self {
         case .invalidState: return "O estado da sessão de leitura é inválido."
@@ -39,6 +52,7 @@ enum RecoveryError: LocalizedError {
         case .unsafePath: return "O armazenamento de recuperação contém um caminho, link ou arquivo que não pode ser usado com segurança."
         case .invalidRecord: return "Uma cópia de recuperação está incompleta ou possui metadados inválidos. Ela foi preservada."
         case .tooLarge: return "Esta cópia excede o limite de 1 GB da recuperação automática. Salve uma cópia pelo menu Arquivo."
+        case .metadataTooLarge: return "Os metadados da sessão excedem o limite de 128 KiB. Reduza a quantidade de marcadores antes de tentar novamente."
         case .encryptionMismatch: return "A recuperação de um documento protegido exige uma cópia criptografada que não aceite senha vazia. A senha não é gravada."
         case .changed: return "A cópia de recuperação foi alterada ou danificada. Nenhum documento original foi substituído."
         }
@@ -71,7 +85,7 @@ final class RecoveryStore: @unchecked Sendable {
         return latest.values.sorted { $0.modifiedAt > $1.modifiedAt }
     }
 
-    func save(documentData:Data, sourceURL:URL?, sessionID:UUID, encrypted:Bool, title:String, state:RecoverySessionState) throws {
+    @discardableResult func save(documentData:Data, sourceURL:URL?, sessionID:UUID, encrypted:Bool, title:String, state:RecoverySessionState) throws -> RecoveryRecord {
         lock.lock(); defer { lock.unlock() }
         try Task.checkCancellation()
         try state.validate()
@@ -95,8 +109,9 @@ final class RecoveryStore: @unchecked Sendable {
                                     sourceURL:sourceURL,encrypted:encrypted,state:state,
                                     modifiedAt:max(Date(),latestDate.addingTimeInterval(0.001)),version:1,generation:generation,
                                     sha256:digest(documentData))
+        let encoded = try boundedMetadata(record)
         try NativeOutput.write(documentData,to:temporary.appendingPathComponent("document.pdf"))
-        try NativeOutput.write(JSONEncoder().encode(record),to:temporary.appendingPathComponent("record.json"))
+        try NativeOutput.write(encoded,to:temporary.appendingPathComponent("record.json"))
         try synchronize(temporary.appendingPathComponent("document.pdf"))
         try synchronize(temporary.appendingPathComponent("record.json"))
         try synchronizeDirectory(temporary)
@@ -112,13 +127,42 @@ final class RecoveryStore: @unchecked Sendable {
             do { try removeGeneration(old) }
             catch { notice("Uma geração anterior foi preservada: " + error.localizedDescription) }
         }
+        return record
+    }
+
+    /// Update only navigation, never PDF bytes or encryption. A caller holding
+    /// an older listing can still load this generation after navigation changes.
+    /// nil means another content generation has replaced the expected snapshot.
+    func updateState(record expected: RecoveryRecord, state: RecoverySessionState) throws -> RecoveryRecord? {
+        lock.lock(); defer { lock.unlock() }
+        try Task.checkCancellation(); try state.validate(); try prepareDirectory()
+        let current = try records().filter { $0.id == expected.id }.max { $0.modifiedAt < $1.modifiedAt }
+        guard let current, current.sameContent(as: expected) else { return nil }
+        let location = folder(current.generation), identity = try directoryIdentity(location)
+        let base = try readRecord(at: location, includeNavigation: false)
+        // Do not overwrite or delete a malformed sidecar. The immutable PDF
+        // remains loadable and its original navigation state remains available.
+        _ = try readNavigation(at: location, for: base)
+        let navigation = RecoveryNavigation(version: 1, sessionID: current.id, generation: current.generation,
+            sha256: current.sha256, state: state, modifiedAt: max(Date(), current.modifiedAt.addingTimeInterval(0.001)))
+        let encoded = try boundedMetadata(navigation)
+        let temporary = location.appendingPathComponent(".navigation-\(UUID().uuidString).json")
+        defer { try? FileManager.default.removeItem(at: temporary) }
+        try NativeOutput.write(encoded, to: temporary); try synchronize(temporary)
+        try Task.checkCancellation()
+        guard try directoryIdentity(location) == identity else { throw RecoveryError.changed }
+        let destination = location.appendingPathComponent("navigation.json")
+        try Task.checkCancellation()
+        guard Darwin.rename(temporary.path, destination.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        try synchronizeDirectory(location)
+        return applying(navigation, to: base)
     }
 
     func load(_ record:RecoveryRecord) throws -> Data {
         lock.lock(); defer { lock.unlock() }
         try prepareDirectory()
         let actual = try readRecord(at:folder(record.generation))
-        guard actual == record else { throw RecoveryError.changed }
+        guard actual.sameContent(as: record) else { throw RecoveryError.changed }
         let data = try readFile(folder(record.generation).appendingPathComponent("document.pdf"),maximum:maximumPDFBytes)
         guard digest(data) == record.sha256 else { throw RecoveryError.changed }
         try checkDocument(data,encrypted:record.encrypted)
@@ -161,7 +205,7 @@ final class RecoveryStore: @unchecked Sendable {
         }
         return result
     }
-    private func readRecord(at url:URL) throws -> RecoveryRecord {
+    private func readRecord(at url:URL, includeNavigation: Bool = true) throws -> RecoveryRecord {
         _ = try directoryIdentity(url)
         let record = try JSONDecoder().decode(RecoveryRecord.self,from:readFile(url.appendingPathComponent("record.json"),maximum:131_072))
         guard record.version == 1, record.generation.uuidString == url.lastPathComponent,
@@ -171,15 +215,20 @@ final class RecoveryStore: @unchecked Sendable {
         try record.state.validate()
         let descriptor = try openFile(url.appendingPathComponent("document.pdf"),maximum:maximumPDFBytes)
         close(descriptor)
+        if includeNavigation {
+            do { if let navigation = try readNavigation(at: url, for: record) { return applying(navigation, to: record) } }
+            catch { notice("O estado de navegação de uma recuperação está inválido e foi preservado. O PDF permanece disponível: " + error.localizedDescription) }
+        }
         return record
     }
     private func removeGeneration(_ record:RecoveryRecord) throws {
         let location = folder(record.generation)
-        guard try readRecord(at:location) == record else { throw RecoveryError.changed }
+        guard try readRecord(at:location).sameContent(as: record) else { throw RecoveryError.changed }
         try FileManager.default.removeItem(at:location)
     }
     private func openFile(_ url:URL, maximum:Int) throws -> Int32 {
-        let descriptor = Darwin.open(url.path,O_RDONLY | O_NOFOLLOW | O_CLOEXEC)
+        // Opening a FIFO must not block before fstat can reject its file type.
+        let descriptor = Darwin.open(url.path,O_RDONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw RecoveryError.unsafePath }
         var info = stat()
         guard fstat(descriptor,&info) == 0, (info.st_mode & mode_t(S_IFMT)) == mode_t(S_IFREG),
@@ -201,7 +250,7 @@ final class RecoveryStore: @unchecked Sendable {
         return result
     }
     private func synchronize(_ url:URL) throws {
-        let descriptor = Darwin.open(url.path,O_WRONLY | O_NOFOLLOW | O_CLOEXEC)
+        let descriptor = Darwin.open(url.path,O_WRONLY | O_NONBLOCK | O_NOFOLLOW | O_CLOEXEC)
         guard descriptor >= 0 else { throw RecoveryError.unsafePath }
         defer { close(descriptor) }
         var info = stat()
@@ -217,6 +266,30 @@ final class RecoveryStore: @unchecked Sendable {
         guard fsync(descriptor) == 0 else { throw POSIXError(POSIXErrorCode(rawValue:errno) ?? .EIO) }
     }
     private func digest(_ data:Data) -> String { SHA256.hash(data:data).map { String(format:"%02x",$0) }.joined() }
+    private func boundedMetadata<T: Encodable>(_ value: T) throws -> Data {
+        let encoded = try JSONEncoder().encode(value)
+        guard encoded.count <= 131_072 else { throw RecoveryError.metadataTooLarge }
+        return encoded
+    }
+    private func readNavigation(at location: URL, for record: RecoveryRecord) throws -> RecoveryNavigation? {
+        let url = location.appendingPathComponent("navigation.json")
+        var info = stat()
+        guard lstat(url.path, &info) == 0 else {
+            if errno == ENOENT { return nil }
+            throw RecoveryError.unsafePath
+        }
+        let value = try JSONDecoder().decode(RecoveryNavigation.self, from: readFile(url, maximum: 131_072))
+        guard value.version == 1, value.sessionID == record.id, value.generation == record.generation,
+              value.sha256 == record.sha256, value.modifiedAt.timeIntervalSince1970.isFinite,
+              value.modifiedAt >= record.modifiedAt else { throw RecoveryError.invalidRecord }
+        try value.state.validate()
+        return value
+    }
+    private func applying(_ navigation: RecoveryNavigation, to record: RecoveryRecord) -> RecoveryRecord {
+        RecoveryRecord(id: record.id, title: record.title, sourceURL: record.sourceURL, encrypted: record.encrypted,
+                       state: navigation.state, modifiedAt: navigation.modifiedAt, version: record.version,
+                       generation: record.generation, sha256: record.sha256)
+    }
     private func checkDocument(_ data:Data, encrypted:Bool) throws {
         guard let document = PDFDocument(data:data) else { throw RecoveryError.invalidDocument }
         guard document.isEncrypted == encrypted else { throw RecoveryError.encryptionMismatch }
@@ -243,10 +316,42 @@ final class RecoveryStore: @unchecked Sendable {
         let first = try store.list()
         try require(first.count == 1 && first[0].state == state,"A sessão de recuperação perdeu página, zoom ou marcadores.")
         try require(try store.load(first[0]) == original,"A recuperação não preservou os bytes do documento.")
+        let originalLocation = store.directory.appendingPathComponent(first[0].generation.uuidString).appendingPathComponent("document.pdf")
+        let originalModification = try FileManager.default.attributesOfItem(atPath: originalLocation.path)[.modificationDate] as? Date
+        let navigation = RecoverySessionState(page: 1, zoom: 2.25, autoScale: false, bookmarks: [])
+        guard let navigated = try store.updateState(record: first[0], state: navigation) else { throw RecoveryError.changed }
+        let afterNavigation = try store.list()
+        try require(afterNavigation.first?.state == navigation && navigated.generation == first[0].generation,
+                    "Atualizar navegação perdeu o estado ou criou outra geração do PDF.")
+        try require(try Data(contentsOf: originalLocation) == original, "Atualizar navegação modificou os bytes do PDF.")
+        let navigationModification = try FileManager.default.attributesOfItem(atPath: originalLocation.path)[.modificationDate] as? Date
+        try require(originalModification != nil && navigationModification == originalModification, "Atualizar navegação regravou o PDF.")
+        try require(try store.load(first[0]) == original, "Um registro listado antes da navegação deixou de carregar a mesma geração.")
+        let navigationURL = originalLocation.deletingLastPathComponent().appendingPathComponent("navigation.json")
+        let navigationPermissions = try FileManager.default.attributesOfItem(atPath: navigationURL.path)[.posixPermissions] as? NSNumber
+        try require(navigationPermissions?.intValue == 0o600, "O estado de navegação não ficou privado.")
+        _ = try store.updateState(record: navigated, state: RecoverySessionState())
+        let resetNavigation = try store.list()
+        try require(resetNavigation.first?.state == RecoverySessionState(), "Redefinir navegação não restaurou página, ajuste e marcadores padrão.")
+        _ = try store.updateState(record: navigated, state: navigation)
+        let afterResetModification = try FileManager.default.attributesOfItem(atPath: originalLocation.path)[.modificationDate] as? Date
+        try require(afterResetModification == originalModification, "Redefinir navegação regravou o PDF.")
+        let oversized = RecoverySessionState(bookmarks: Array(1...100_000))
+        var oversizedRefused = false
+        do { _ = try store.updateState(record: navigated, state: oversized) } catch RecoveryError.metadataTooLarge { oversizedRefused = true }
+        let afterOversizedNavigation = try store.list()
+        try require(oversizedRefused && afterOversizedNavigation.first?.state == navigation, "O sidecar excedeu o limite legível ou alterou o estado após recusa.")
+        oversizedRefused = false
+        do { try store.save(documentData: original, sourceURL: source, sessionID: id, encrypted: false, title: "Grande", state: oversized) }
+        catch RecoveryError.metadataTooLarge { oversizedRefused = true }
+        let afterOversizedRecord = try store.list()
+        try require(oversizedRefused && afterOversizedRecord.first?.generation == first[0].generation, "O registro excedeu 128 KiB ou invalidou a geração anterior.")
         let changed = try IntelligenceText.PDF("Recovery snapshot after an edit.")
         try store.save(documentData:changed,sourceURL:source,sessionID:id,encrypted:false,title:"Alterado",state:state)
         let second = try store.list()
         try require(second.count == 1 && second[0].generation != first[0].generation,"A nova geração não substituiu atomicamente a anterior.")
+        try require(try store.updateState(record: navigated, state: navigation) == nil, "Uma navegação antiga foi aplicada a uma nova geração de conteúdo.")
+        try require(second[0].state == state, "A nova geração herdou o sidecar do conteúdo anterior.")
         try require(try Data(contentsOf:source) == original,"A recuperação alterou o arquivo original.")
         var refused = false
         do { try store.save(documentData:changed,sourceURL:source,sessionID:id,encrypted:true,title:"Protegido",state:state) } catch { refused = true }
@@ -260,6 +365,30 @@ final class RecoveryStore: @unchecked Sendable {
         let protectedRecord = try store.list().first(where:{$0.id == protectedID})!
         let reopened = PDFDocument(data:try store.load(protectedRecord))!
         try require(reopened.isLocked && !reopened.unlock(withPassword:"") && reopened.unlock(withPassword:"recovery-test-pass"),"A cópia protegida perdeu criptografia ou sua senha.")
+        _ = try store.updateState(record: protectedRecord, state: navigation)
+        let protectedNavigation = store.directory.appendingPathComponent(protectedRecord.generation.uuidString).appendingPathComponent("navigation.json")
+        let protectedMetadata = try String(contentsOf: protectedNavigation, encoding: .utf8)
+        try require(!protectedMetadata.contains("recovery-test-pass") && !protectedMetadata.contains("recovery-owner-pass"), "O sidecar persistiu credenciais.")
+        let preservedEncrypted = try store.load(protectedRecord)
+        try require(preservedEncrypted == protected && PDFDocument(data: preservedEncrypted)?.isLocked == true,
+                    "Atualizar navegação alterou a criptografia do PDF protegido.")
+        let malformed = Data("malformed-navigation".utf8)
+        try malformed.write(to: protectedNavigation)
+        let afterMalformed = try store.list()
+        try require(afterMalformed.contains(where: { $0.id == protectedID && $0.state == state }) && !store.warnings.isEmpty,
+                    "Um sidecar inválido ocultou a recuperação válida ou não produziu diagnóstico.")
+        try require(try store.load(protectedRecord) == protected, "O sidecar inválido impediu carregar o PDF intacto.")
+        var malformedRefused = false
+        do { _ = try store.updateState(record: protectedRecord, state: navigation) } catch { malformedRefused = true }
+        let preservedMalformed = try Data(contentsOf: protectedNavigation)
+        try require(malformedRefused && preservedMalformed == malformed, "Atualizar navegação destruiu um sidecar inválido que deveria ser preservado.")
+        try FileManager.default.removeItem(at: protectedNavigation)
+        guard Darwin.mkfifo(protectedNavigation.path, 0o600) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        let fifoStart = Date()
+        let withFIFO = try store.list()
+        try require(Date().timeIntervalSince(fifoStart) < 5 && withFIFO.contains(where: { $0.id == protectedID }) && !store.warnings.isEmpty,
+                    "Um FIFO de navegação bloqueou a recuperação ou ocultou o PDF intacto.")
+        try require(try store.load(protectedRecord) == protected, "Recusar um FIFO de navegação impediu carregar o PDF válido.")
         let plainLocation = store.directory.appendingPathComponent(second[0].generation.uuidString).appendingPathComponent("document.pdf")
         try Data("corrupted".utf8).write(to:plainLocation)
         refused = false

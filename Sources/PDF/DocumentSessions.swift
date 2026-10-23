@@ -19,11 +19,26 @@ import PDFKit
     var password: String?
     let history = AnnotationHistory()
     var recoveryTask: Task<Void, Never>?
-    var recoveryWrite: Task<Void, Error>?
+    var recoveryWrite: Task<RecoveryRecord?, Error>?
+    private(set) var recoveryTaskID: UUID?
+    var recoveryRecord: RecoveryRecord?
     var recoveryFingerprint = ""
     var recoveryContentFingerprint = ""
     var lastRecoveryDate = Date.distantPast
     var title: String { (savedURL ?? sourceURL)?.lastPathComponent ?? "Documento sem título" }
+    @discardableResult func beginRecoveryTask() -> UUID {
+        cancelRecoveryTask()
+        let token = UUID(); recoveryTaskID = token; return token
+    }
+    func finishRecoveryTask(_ token: UUID) {
+        guard recoveryTaskID == token else { return }
+        recoveryTask = nil; recoveryWrite = nil; recoveryTaskID = nil
+    }
+    func cancelRecoveryTask() {
+        recoveryTaskID = nil
+        recoveryTask?.cancel(); recoveryWrite?.cancel()
+        recoveryTask = nil; recoveryWrite = nil
+    }
     init(id: UUID = UUID(), document: PDFDocument, sourceURL: URL?, password: String? = nil) {
         self.id = id; self.document = document; self.sourceURL = sourceURL; self.password = password
         originalWidgetState = Self.widgetState(document)

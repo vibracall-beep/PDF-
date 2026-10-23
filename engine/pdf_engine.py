@@ -10,6 +10,7 @@ import base64
 import ctypes
 import difflib
 import html
+import hashlib
 import importlib.util
 import io
 import json
@@ -1224,8 +1225,34 @@ def _visual_compare(first,second,output):
 
 
 def capabilities():
+    from pdf_standards import VERAPDF_VERSION, VERAPDF_SHA256
     office=shutil.which('soffice') or ('/Applications/LibreOffice.app/Contents/MacOS/soffice' if Path('/Applications/LibreOffice.app/Contents/MacOS/soffice').exists() else None)
-    return dict(version='0.2.0',operations=list(TOOLS),dependencies=dict(office=bool(office),ocr=bool(shutil.which('ocrmypdf')),tesseract=bool(shutil.which('tesseract')),html=importlib.util.find_spec('playwright') is not None),features=dict(atomic_outputs=True,preserves_pdf_encryption=True,editable_powerpoint=True,structured_scan_ocr=bool(shutil.which('tesseract')),cryptographic_signatures=importlib.util.find_spec('pyhanko') is not None,independent_standards_validation=True),limitations=['Layout reconstruction is approximate.','Visual signatures are not cryptographic signatures.','PDF/A requires independent conformance validation.'])
+    java=shutil.which(os.environ.get('PDF_JAVA') or 'java')
+    configured=os.environ.get('PDF_VERAPDF_JAR')
+    jar=Path(configured).expanduser() if configured else Path(sys.prefix)/'share/verapdf'/f'cli-{VERAPDF_VERSION}.jar'
+    jar_status='missing'
+    try:
+        if jar.is_file():
+            with jar.open('rb') as stream: digest=hashlib.file_digest(stream,'sha256').hexdigest()
+            jar_status='verified' if digest==VERAPDF_SHA256 else 'integrity-failed'
+    except OSError:
+        # Paths and exception text can contain private directory names.
+        jar_status='unreadable'
+    pyhanko=importlib.util.find_spec('pyhanko') is not None
+    tesseract=bool(shutil.which('tesseract'))
+    return dict(
+        version='0.5.0',operations=list(TOOLS),
+        dependencies=dict(office=bool(office),ocr=bool(shutil.which('ocrmypdf')),tesseract=tesseract,
+                          html=importlib.util.find_spec('playwright') is not None,pyhanko=pyhanko,
+                          java=bool(java),verapdf=jar_status=='verified'),
+        dependency_status=dict(pyhanko='available' if pyhanko else 'missing',
+                               java='executable-found' if java else 'missing',verapdf=jar_status),
+        features=dict(atomic_outputs=True,preserves_pdf_encryption=True,editable_powerpoint=True,
+                      structured_scan_ocr=tesseract,cryptographic_signatures=pyhanko,
+                      independent_standards_validation=bool(java) and jar_status=='verified'),
+        limitations=['Layout reconstruction is approximate.','Visual signatures are not cryptographic signatures.',
+                     'PDF/A conversion requires validate-pdfa to establish conformance.',
+                     'Dependency checks inspect executable presence and the pinned JAR checksum; Java is not executed.'])
 
 
 def _cancel_signal(signum, frame):

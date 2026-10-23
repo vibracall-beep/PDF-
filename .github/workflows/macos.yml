@@ -47,6 +47,8 @@ jobs:
           xcrun swift build -c release --arch arm64 --jobs 3
       - name: Validate native document operations
         id: native
+        env:
+          CG_PDF_VERBOSE: '1'
         run: |
           set -o pipefail
           PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
@@ -79,7 +81,9 @@ jobs:
           if-no-files-found: ignore
       - name: Build, install and validate complete application
         id: install
-        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        # A failed native prerequisite cannot produce a validated installation.
+        # Avoid rebuilding dependencies only to repeat that same failure.
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && steps.native.outcome == 'success' }}
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
         run: bash scripts/install-mac.sh

@@ -48,22 +48,27 @@ enum VisionFailureDiagnostics {
 
                 // The first comparison changes only the calling thread. The
                 // others distinguish a language-correction asset from decoding.
-                let legacyCases: [(String, Data?, Bool)] = [
-                    ("legacy accurate CGImage detached", nil, true),
-                    ("legacy accurate CGImage without language correction", nil, false),
-                    ("legacy accurate PNG", data, true)
+                let legacyCases: [(String, Data?, Bool, Bool)] = [
+                    ("legacy accurate CGImage detached", nil, true, false),
+                    ("legacy accurate CGImage without language correction", nil, false, false),
+                    ("legacy accurate PNG", data, true, false),
+                    ("legacy accurate PNG usesCPUOnly", data, true, true)
                 ]
-                for (name, encoded, correction) in legacyCases {
+                for (name, encoded, correction, cpuOnly) in legacyCases {
                     try cancellation.check(); try state.cancellation.check(); try Task.checkCancellation()
                     do {
-                        let texts = try legacy(encoded, image: input.image, language: language, correction: correction, cancellation: state.cancellation)
+                        let texts = try legacy(encoded, image: input.image, language: language, correction: correction, cpuOnly: cpuOnly, cancellation: state.cancellation)
                         result(name, texts: texts, expected: expectedText)
                     } catch { failure(name, error: error) }
                 }
 
-                for encoded in [false, true] {
+                let swiftCases: [(String, Bool, Bool)] = [
+                    ("Swift accurate CGImage", false, false),
+                    ("Swift accurate PNG", true, false),
+                    ("Swift accurate PNG all stages CPU", true, true)
+                ]
+                for (name, encoded, cpuOnly) in swiftCases {
                     try cancellation.check(); try state.cancellation.check(); try Task.checkCancellation()
-                    let name = encoded ? "Swift accurate PNG" : "Swift accurate CGImage"
                     do {
                         var request = RecognizeTextRequest()
                         request.recognitionLevel = .accurate
@@ -75,7 +80,21 @@ enum VisionFailureDiagnostics {
                             throw NSError(domain: "PDF.VisionDiagnostic", code: 3, userInfo: [NSLocalizedDescriptionKey: "Selected language unsupported by the Swift accurate request"])
                         }
                         request.recognitionLanguages = [selected]
-                        log("\(name): revision=\(request.revision); accurate=true; languages=\(request.recognitionLanguages); orientation=up")
+                        var pinnedStages = 0
+                        if cpuOnly {
+                            let stages = request.supportedComputeStageDevices
+                            guard !stages.isEmpty else {
+                                throw NSError(domain: "PDF.VisionDiagnostic", code: 5, userInfo: [NSLocalizedDescriptionKey: "Swift request exposes no compute stages to pin to CPU"])
+                            }
+                            for (stage, devices) in stages {
+                                guard let cpu = devices.first(where: { if case .cpu = $0 { return true }; return false }) else {
+                                    throw NSError(domain: "PDF.VisionDiagnostic", code: 6, userInfo: [NSLocalizedDescriptionKey: "Swift request exposes a compute stage without a supported CPU device: \(stage)"])
+                                }
+                                request.setComputeDevice(cpu, for: stage)
+                                pinnedStages += 1
+                            }
+                        }
+                        log("\(name): revision=\(request.revision); accurate=true; languages=\(request.recognitionLanguages); orientation=up; CPUOnlyRequested=\(cpuOnly); stagesPinnedToCPU=\(pinnedStages)")
                         let observations: [RecognizedTextObservation]
                         if encoded { observations = try await request.perform(on: data, orientation: .up) }
                         else { observations = try await request.perform(on: input.image, orientation: .up) }
@@ -93,17 +112,20 @@ enum VisionFailureDiagnostics {
         } else { log("end; original audit remains failed") }
     }
 
-    private static func legacy(_ data: Data?, image: CGImage, language: String, correction: Bool, cancellation: NativeCancellation) throws -> [String] {
+    private static func legacy(_ data: Data?, image: CGImage, language: String, correction: Bool, cpuOnly: Bool, cancellation: NativeCancellation) throws -> [String] {
         let request = VNRecognizeTextRequest()
         request.recognitionLevel = .accurate
         request.usesLanguageCorrection = correction
         request.automaticallyDetectsLanguage = false
+        // Deliberately exercise this deprecated public switch separately from
+        // setComputeDevice; it is a CLI diagnostic, never a production policy.
+        if cpuOnly { request.usesCPUOnly = true }
         let supported = try request.supportedRecognitionLanguages()
         request.recognitionLanguages = (language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]).filter { supported.contains($0) }
         guard request.recognitionLanguages.contains(where: { $0.hasPrefix(language) }) else {
             throw NSError(domain: "PDF.VisionDiagnostic", code: 4, userInfo: [NSLocalizedDescriptionKey: "Selected language unsupported by the legacy accurate request"])
         }
-        log("legacy \(data == nil ? "CGImage" : "PNG"): revision=\(request.revision); accurate=true; languageCorrection=\(correction); languages=\(request.recognitionLanguages.joined(separator: ",")); orientation=up; mainThread=\(Thread.isMainThread)")
+        log("legacy \(data == nil ? "CGImage" : "PNG"): revision=\(request.revision); accurate=true; languageCorrection=\(correction); usesCPUOnlyRequested=\(cpuOnly); languages=\(request.recognitionLanguages.joined(separator: ",")); orientation=up; mainThread=\(Thread.isMainThread)")
         cancellation.install(request); defer { cancellation.install(nil) }
         try cancellation.check()
         if let data { try VNImageRequestHandler(data: data, orientation: .up, options: [:]).perform([request]) }

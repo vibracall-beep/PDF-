@@ -99,6 +99,12 @@ enum MacSmokeTests {
             page.addAnnotation(field)
             let copy = directory.appendingPathComponent("copy.pdf")
             try require(document.write(to: copy), "Gravação de cópia falhou.")
+            audit("PDFKit unencrypted structural integrity") {
+                try QPDFStructuralAudit.check(Data(contentsOf: copy), phase: "PDFKit unencrypted copy")
+            }
+            audit("Independent stream-length rejection") {
+                try QPDFStructuralAudit.verifyCorruptionDetection()
+            }
             guard let restored = PDFDocument(url: copy), let restoredPage = restored.page(at: 0) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 4,
                               userInfo: [NSLocalizedDescriptionKey: "Cópia não pôde ser reaberta."])
@@ -256,6 +262,9 @@ enum MacSmokeTests {
                               userInfo: [NSLocalizedDescriptionKey: "A exportação PDFKit protegida falhou."])
             }
             trace("protected serialize end")
+            audit("PDFKit encrypted structural integrity") {
+                try QPDFStructuralAudit.check(protectedData, password: "native-check-reader-123", phase: "PDFKit protected copy")
+            }
             trace("protected open begin")
             guard let protectedCopy = PDFDocument(data: protectedData) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 8,

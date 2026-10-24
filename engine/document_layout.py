@@ -8,6 +8,7 @@ table: only characters inside an extracted table are replaced by its cells.
 from __future__ import annotations
 
 from collections import Counter
+from dataclasses import dataclass
 import hashlib
 import io
 import json
@@ -54,23 +55,134 @@ def reading_order(items, depth=0):
     return reading_order(first,depth+1)+reading_order(second,depth+1)
 
 
-def page_elements(page):
-    tables=page.find_tables().tables
+@dataclass(frozen=True)
+class _Table:
+    bbox: tuple
+    cells: tuple
+    row_cells: tuple
+    values: list
+
+
+def _find_tables(page, **options):
+    # PyMuPDF Table.extract() reads module-global CHARS from the most recent
+    # find_tables call. Snapshot immediately before another clipped search can
+    # replace that state and silently empty an earlier table.
+    return [_Table(tuple(table.bbox),tuple(table.cells),tuple(tuple(row.cells) for row in table.rows),table.extract())
+        for table in page.find_tables(**options).tables]
+
+
+def _table_geometry(table, rows):
+    """Require a complete rectangular tiling before claiming merged cells."""
+    cells=[fitz.Rect(cell) for cell in table.cells if cell]
+    if not cells or len(cells)>10000: return None
+    def boundaries(values):
+        groups=[]
+        for value in sorted(values):
+            if groups and abs(value-groups[-1][-1])<=0.5: groups[-1].append(value)
+            else: groups.append([value])
+        return [sum(group)/len(group) for group in groups]
+    xs=boundaries([coordinate for cell in cells for coordinate in (cell.x0,cell.x1)])
+    ys=boundaries([coordinate for cell in cells for coordinate in (cell.y0,cell.y1)])
+    if len(xs)<2 or len(ys)<2 or len(rows)!=len(ys)-1 or any(len(row)!=len(xs)-1 for row in rows): return None
+    if (len(xs)-1)*(len(ys)-1)>10000: return None
+    occupied=set();merges=[]
+    for cell in cells:
+        column,end_column=[min(range(len(xs)),key=lambda index:abs(xs[index]-value)) for value in (cell.x0,cell.x1)]
+        row,end_row=[min(range(len(ys)),key=lambda index:abs(ys[index]-value)) for value in (cell.y0,cell.y1)]
+        if end_column<=column or end_row<=row: return None
+        tiles={(r,c) for r in range(row,end_row) for c in range(column,end_column)}
+        if occupied & tiles: return None
+        if any(rows[r][c] not in (None,'') for r,c in tiles-{(row,column)}): return None
+        occupied.update(tiles)
+        if len(tiles)>1: merges.append(dict(row=row,column=column,row_span=end_row-row,column_span=end_column-column,rect=tuple(cell)))
+    if len(occupied)!=(len(xs)-1)*(len(ys)-1): return None
+    return dict(merges=merges,column_widths=[b-a for a,b in zip(xs,xs[1:])],row_heights=[b-a for a,b in zip(ys,ys[1:])])
+
+
+def _aligned_rows(rows):
+    """Explicit borderless mode still requires repeated numeric columns."""
+    rows=[row for row in rows if any(str(cell or '').strip() for cell in row)]
+    if not 3<=len(rows)<=1000: return None
+    width=len(rows[0])
+    if not 2<=width<=12 or any(len(row)!=width for row in rows): return None
+    if any(sum(bool(str(cell or '').strip()) for cell in row)<2 for row in rows): return None
+    if sum(bool(str(cell or '').strip()) for row in rows for cell in row)<0.8*width*len(rows): return None
+    number=re.compile(r'^[\s$€£¥R()+−\-]*\d[\d\s.,:/%()+−\-]*$')
+    if not any(sum(bool(number.fullmatch(str(row[column] or '').strip())) for row in rows[1:])>=max(2,0.8*(len(rows)-1)) for column in range(width)): return None
+    return rows
+
+
+def _aligned_regions(page, table, exclusions):
+    """Trim non-tabular titles/footers, then rerun detection on that region.
+
+    Text-strategy detection may extend its inferred columns through nearby
+    prose. A row participates only when at least two column cells have text;
+    fully empty spacer rows do not create or remove cell content.
+    """
+    rows=table.values;active=[];regions=[]
+    def finish():
+        if len(active)<3: return
+        candidate=[rows[index] for index in active]
+        if _aligned_rows(candidate) is None: return
+        cells=[fitz.Rect(cell) for index in active for cell in table.row_cells[index] if cell]
+        area=cells[0]
+        for cell in cells[1:]: area|=cell
+        regions.append(area)
+    for index,row in enumerate(rows):
+        if any(not (fitz.Rect(cell)&area).is_empty for cell in table.row_cells[index] if cell for area in exclusions):
+            finish();active=[];continue
+        count=sum(bool(str(cell or '').strip()) for cell in row)
+        if count>=2: active.append(index)
+        elif count==1: finish();active=[]
+    finish()
+    result=[]
+    for area in regions:
+        result.extend(_find_tables(page,clip=area,strategy='text',min_words_vertical=3,min_words_horizontal=2))
+    return result
+
+
+def page_elements(page, options=None):
+    mode=(options or {}).get('table_detection','ruled')
+    if mode not in ('ruled','aligned'): raise ValueError('Detecção de tabela inválida: use ruled ou aligned.')
+    tables=[(table,'ruled') for table in _find_tables(page)]
+    if mode=='aligned':
+        ruled=[fitz.Rect(table.bbox) for table,_ in tables]
+        inferred=_find_tables(page,strategy='text',min_words_vertical=3,min_words_horizontal=2)
+        for table in inferred:
+            # A prose line spanning two inferred cells is not a header: table
+            # evidence starts at a full-width row followed by numeric data.
+            raw=table.values;width=max(map(len,raw),default=0)
+            first=next((index for index,row in enumerate(raw) if width>=2 and all(str(cell or '').strip() for cell in row)),None)
+            if first is None: continue
+            if first:
+                area=fitz.Rect(table.bbox);area.y0=min(cell[1] for cell in table.row_cells[first] if cell)
+                candidates=_find_tables(page,clip=area,strategy='text',min_words_vertical=3,min_words_horizontal=2)
+            else: candidates=[table]
+            for candidate in candidates:
+                for region in _aligned_regions(page,candidate,ruled):
+                    if not any(not (fitz.Rect(region.bbox)&rect).is_empty for rect in ruled): tables.append((region,'aligned'))
     blocks=page.get_text('rawdict',sort=False)['blocks']
     # A detected grid is not evidence that all its text was extracted. If any
     # non-whitespace source character is absent from the cells, retain ordinary
     # text for that region rather than silently dropping it during deduplication.
     verified=[]
-    for table in tables:
+    for table,detection in tables:
+        rows=table.values
+        geometry=_table_geometry(table,rows) if detection=='ruled' else None
+        if detection=='ruled' and geometry is None: continue
+        if detection=='aligned':
+            rows=_aligned_rows(rows)
+            if rows is None: continue
+            geometry=dict(merges=[])
         bounds=fitz.Rect(table.bbox)
         source=Counter(char['c'] for block in blocks if block['type']==0 for line in block['lines'] for span in line['spans'] for char in span['chars']
             if not char['c'].isspace() and bounds.contains((fitz.Rect(char['bbox']).tl+fitz.Rect(char['bbox']).br)/2))
-        recovered=Counter(char for row in table.extract() for cell in row for char in str(cell or '') if not char.isspace())
-        if not source-recovered: verified.append(table)
-    tables=verified
-    table_rects=[fitz.Rect(table.bbox) for table in tables]
-    entries=[dict(type=2,bbox=tuple(table.bbox),rows=table.extract(),
-        cells=[tuple(cell) if cell else None for cell in table.cells]) for table in tables]
+        recovered=Counter(char for row in rows for cell in row for char in str(cell or '') if not char.isspace())
+        if not source-recovered:
+            verified.append(dict(type=2,bbox=tuple(table.bbox),rows=rows,detection=detection,
+                cells=[tuple(cell) if cell else None for cell in table.cells],**geometry))
+    table_rects=[fitz.Rect(table['bbox']) for table in verified]
+    entries=list(verified)
     for block in blocks:
         if block['type']!=0:
             entries.append(block);continue
@@ -97,9 +209,9 @@ def page_elements(page):
     return reading_order(entries)
 
 
-def table_groups(page):
+def table_groups(page, options=None):
     """Tables remain separate; prose outside them remains available in Excel."""
-    return page_elements(page)
+    return page_elements(page,options)
 
 
 def spreadsheet_text(value):

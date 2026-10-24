@@ -9,6 +9,8 @@ import UniformTypeIdentifiers
     private(set) var openingReader = false
     @Published var result: LibrarySearchResult?
     @Published var answer: LibraryGeneratedAnswer?
+    @Published var comparison: LibraryComparisonResult?
+    @Published var smartFolders: [LibrarySmartFolder] = []
     let store: DocumentLibraryStore
     let retrieval = LibraryRetrieval()
     private var task: Task<Void, Never>?
@@ -27,7 +29,12 @@ import UniformTypeIdentifiers
             catch { self.message = error.localizedDescription }
         }
     }
-    func load() { run("Carregando biblioteca…") { [self] _ in catalog = try await store.list(); return "Biblioteca local pronta." } }
+    func load() {
+        run("Carregando biblioteca…") { [self] _ in
+            catalog = try await store.list(); smartFolders = try await store.smartFolders()
+            return "Biblioteca local pronta."
+        }
+    }
     func cancel() { task?.cancel(); cancellation?.cancel() }
 }
 
@@ -44,12 +51,22 @@ struct DocumentLibraryView: View {
     @State private var editing: LibraryDocument?
     @State private var showSync = false
     @State private var showSettingsExchange = false
+    @State private var selectedFolder: UUID?
+    @State private var editingFolder: UUID?
+    @State private var folderName = ""
+    @State private var showFolderEditor = false
     @State private var title = ""
     @State private var collection = ""
     @State private var tags = ""
     init(directory: URL? = nil) { _library = StateObject(wrappedValue: DocumentLibraryController(directory: directory)) }
     private var documents: [LibraryDocument] { library.catalog?.documents ?? [] }
     private var displayed: [LibraryDocument] { filter.apply(documents) }
+    private var collectionOptions: [String] {
+        Array(Set(documents.map { $0.current.labels.collection } + [filter.collection]).filter { !$0.isEmpty }).sorted()
+    }
+    private var tagOptions: [String] {
+        Array(Set(documents.flatMap { $0.current.labels.tags } + [filter.tag]).filter { !$0.isEmpty }).sorted()
+    }
     private var single: LibraryDocument? { selected.count == 1 ? documents.first { selected.contains($0.id) } : nil }
     private var unavailable: Bool { library.busy || model.busy }
 
@@ -81,11 +98,12 @@ struct DocumentLibraryView: View {
         .task { if library.catalog == nil { library.load() } }
         .onDisappear {
             if !library.openingReader { library.cancel() }
-            passwords = [:]; library.result = nil; library.answer = nil
+            passwords = [:]; library.result = nil; library.answer = nil; library.comparison = nil
             Task { await library.store.clearSearchCache() }
         }
         .sheet(item: $editing) { document in metadataSheet(document) }
         .sheet(isPresented: $showSync) { syncSheet }
+        .sheet(isPresented: $showFolderEditor) { smartFolderSheet }
         .sheet(isPresented: $showSettingsExchange) {
             SettingsExchangeView(store: library.store).environmentObject(model).environmentObject(preferences)
         }
@@ -112,22 +130,92 @@ struct DocumentLibraryView: View {
     }
     private var filters: some View {
         VStack(spacing: 10) {
+            HStack {
+                Menu {
+                    Button("Todos os documentos") { filter = LibrarySmartFilter(); selectedFolder = nil }
+                    ForEach(library.smartFolders) { folder in
+                        Button(folder.name) { filter = folder.filter; selectedFolder = folder.id }
+                    }
+                } label: {
+                    Label(library.smartFolders.first(where: { $0.id == selectedFolder })?.name ?? "Pastas inteligentes", systemImage: "folder.badge.gearshape")
+                }.disabled(unavailable)
+                Spacer()
+                Button { editingFolder = nil; folderName = ""; showFolderEditor = true } label: { Image(systemName: "plus") }
+                    .help("Salvar os filtros atuais como pasta inteligente").disabled(unavailable)
+                if let folder = library.smartFolders.first(where: { $0.id == selectedFolder }) {
+                    Menu {
+                        Button("Atualizar regras ou nome…") { editingFolder = folder.id; folderName = folder.name; showFolderEditor = true }
+                        Button("Remover pasta inteligente", role: .destructive) {
+                            library.run("Removendo regra salva…") { _ in
+                                library.smartFolders = try await library.store.deleteSmartFolder(id: folder.id)
+                                selectedFolder = nil
+                                return "Pasta inteligente removida. Os PDFs continuam na biblioteca."
+                            }
+                        }
+                    } label: { Image(systemName: "ellipsis.circle") }.disabled(unavailable)
+                }
+            }
             TextField("Buscar título, coleção ou etiquetas", text: $filter.text).textFieldStyle(.roundedBorder)
             Picker("Filtro inteligente", selection: $filter.mode) {
                 ForEach(LibrarySmartFilter.Mode.allCases) { Text($0.title).tag($0) }
             }
             Picker("Coleção", selection: $filter.collection) {
                 Text("Todas as coleções").tag("")
-                ForEach(Array(Set(documents.map { $0.current.labels.collection }.filter { !$0.isEmpty })).sorted(), id: \.self) { Text($0).tag($0) }
+                ForEach(collectionOptions, id: \.self) { Text($0).tag($0) }
             }
             Picker("Etiqueta", selection: $filter.tag) {
                 Text("Todas as etiquetas").tag("")
-                ForEach(Array(Set(documents.flatMap { $0.current.labels.tags })).sorted(), id: \.self) { Text($0).tag($0) }
+                ForEach(tagOptions, id: \.self) { Text($0).tag($0) }
+            }
+            DisclosureGroup("Datas da versão atual") {
+                dateFilter("A partir de", value: $filter.modifiedAfter, endOfDay: false)
+                dateFilter("Até", value: $filter.modifiedBefore, endOfDay: true)
+                Text("Considera a data de importação, versão ou alteração de etiquetas na biblioteca.")
+                    .font(.caption2).foregroundStyle(.secondary)
+            }
+            if let lower = filter.modifiedAfter, let upper = filter.modifiedBefore, lower > upper {
+                Text("A data inicial deve preceder a final.").font(.caption).foregroundStyle(.red)
             }
             if !displayed.isEmpty {
                 HStack { Button("Selecionar exibidos") { selected = Set(displayed.map(\.id)) }; Spacer(); Button("Limpar") { selected = [] } }.font(.caption)
             }
         }
+    }
+    private func dateFilter(_ label: String, value: Binding<Date?>, endOfDay: Bool) -> some View {
+        HStack {
+            Toggle(label, isOn: Binding(get: { value.wrappedValue != nil }, set: { enabled in
+                value.wrappedValue = enabled ? dateBoundary(Date(), endOfDay: endOfDay) : nil
+            }))
+            if value.wrappedValue != nil {
+                DatePicker(label, selection: Binding(get: { value.wrappedValue ?? Date() }, set: { value.wrappedValue = dateBoundary($0, endOfDay: endOfDay) }), displayedComponents: .date)
+                    .labelsHidden()
+            }
+        }
+    }
+    private func dateBoundary(_ date: Date, endOfDay: Bool) -> Date {
+        let start = Calendar.current.startOfDay(for: date)
+        guard endOfDay, let next = Calendar.current.date(byAdding: .day, value: 1, to: start) else { return start }
+        return Date(timeIntervalSinceReferenceDate: next.timeIntervalSinceReferenceDate.nextDown)
+    }
+    private var smartFolderSheet: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(editingFolder == nil ? "Salvar pasta inteligente" : "Atualizar pasta inteligente").font(.title2.bold())
+            TextField("Nome da pasta", text: $folderName).textFieldStyle(.roundedBorder)
+            Text("Guarda os filtros atuais de título, coleção, etiqueta, categoria e datas neste Mac. Os resultados acompanham as novas versões; nenhum PDF é movido ou excluído.").font(.callout).foregroundStyle(.secondary)
+            HStack {
+                Button("Cancelar") { showFolderEditor = false }.keyboardShortcut(.cancelAction)
+                Spacer()
+                Button("Salvar regras atuais") {
+                    let name = folderName, id = editingFolder, rules = filter
+                    showFolderEditor = false
+                    library.run("Salvando pasta inteligente…") { _ in
+                        library.smartFolders = try await library.store.saveSmartFolder(id: id, name: name, filter: rules)
+                        selectedFolder = library.smartFolders.first(where: { LibrarySmartFolders.nameKey($0.name) == LibrarySmartFolders.nameKey(name.trimmingCharacters(in: .whitespacesAndNewlines)) })?.id
+                        return "Regras salvas localmente. A pasta será recalculada quando o catálogo mudar."
+                    }
+                }.buttonStyle(.borderedProminent).disabled(folderName.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
+            }
+        }.padding(26).frame(width: 470)
     }
     private var documentList: some View {
         List(selection: $selected) {
@@ -230,12 +318,20 @@ struct DocumentLibraryView: View {
                 Text(result.method).font(.caption).foregroundStyle(.secondary)
                 if !result.sources.isEmpty {
                     Button("Responder em português com IA local") {
-                        library.answer = nil
+                        library.answer = nil; library.comparison = nil
                         library.run("Elaborando resposta com as fontes desta consulta…") { _ in
                             library.answer = try await LibraryAnswering.respond(to: result)
                             return "Citações conferidas nos trechos fornecidos. Revise a interpretação nas fontes."
                         }
                     }.disabled(unavailable || LibraryAnswering.availabilityMessage != nil || result.question.count > 800)
+                    Button("Comparar fontes / Contradições") {
+                        library.answer = nil; library.comparison = nil
+                        library.run("Comparando possíveis divergências entre as fontes…") { _ in
+                            library.comparison = try await LibraryAnswering.compare(result)
+                            return "Comparação concluída. Citações verificadas; revise contexto, datas e versões nas duas fontes."
+                        }
+                    }.disabled(unavailable || LibraryAnswering.availabilityMessage != nil || result.question.count > 800 || Set(result.sources.map(\.documentID)).count < 2)
+                    if Set(result.sources.map(\.documentID)).count < 2 { Text("Para comparar possíveis divergências, consulte trechos de pelo menos dois documentos distintos.").font(.caption).foregroundStyle(.secondary) }
                     if result.question.count > 800 { Text("Para a resposta com IA, use uma pergunta de até 800 caracteres.").font(.caption).foregroundStyle(.secondary) }
                     if let reason = LibraryAnswering.availabilityMessage { Text(reason).font(.caption).foregroundStyle(.secondary) }
                 }
@@ -253,6 +349,21 @@ struct DocumentLibraryView: View {
                         Text("A conferência valida a origem literal das citações, não garante a interpretação do modelo.").font(.caption).foregroundStyle(.secondary)
                     }.padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
                 }
+                if let comparison = library.comparison {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Label("Comparar fontes", systemImage: "text.bubble").font(.headline)
+                        Text(comparison.explanation).font(.callout).textSelection(.enabled)
+                        ForEach(comparison.pairs) { pair in
+                            VStack(alignment: .leading, spacing: 10) {
+                                Text("Possível divergência · " + pair.topic).font(.headline)
+                                comparisonClaim(pair.first)
+                                Divider()
+                                comparisonClaim(pair.second)
+                            }.padding(12).background(.quaternary.opacity(0.5), in: RoundedRectangle(cornerRadius: 12))
+                        }
+                        Text("A validação confirma documento, versão, página e texto literal das citações. A interpretação de contradição é uma hipótese do modelo, não uma verdade automática.").font(.caption).foregroundStyle(.secondary)
+                    }.padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                }
                 ForEach(result.sources) { source in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
@@ -266,10 +377,18 @@ struct DocumentLibraryView: View {
                 }
                 ForEach(Array(result.skipped.enumerated()), id: \.offset) { _, notice in Text(notice).font(.caption).foregroundStyle(.secondary) }
                 Button("Limpar trechos da memória") {
-                    library.result = nil; library.answer = nil; question = ""; passwords = [:]
+                    library.result = nil; library.answer = nil; library.comparison = nil; question = ""; passwords = [:]
                     Task { await library.store.clearSearchCache() }
                 }.controlSize(.small).disabled(library.busy)
             }
+        }
+    }
+    private func comparisonClaim(_ item: LibraryComparedClaim) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text("“" + item.claim + "”").font(.callout).textSelection(.enabled)
+            Button(item.citation.source.title + " · página \(item.citation.source.page)") { openCitation(item.citation.source) }
+            Text("Versão " + item.citation.source.revisionID.uuidString + " · SHA-256 " + item.citation.source.fingerprint)
+                .font(.caption2.monospaced()).foregroundStyle(.secondary).textSelection(.enabled)
         }
     }
     private func metadataSheet(_ document: LibraryDocument) -> some View {
@@ -345,9 +464,10 @@ struct DocumentLibraryView: View {
     private func open(_ document: LibraryDocument, revision: LibraryRevision? = nil) {
         guard !unavailable else { return }
         library.run("Verificando versão…", opensReader: true) { _ in
-            let url = try await library.store.verifiedURL(document: document.id, revision: revision?.id)
-            model.open(url: url, page: nil, displayTitle: revisionTitle(document, revision: revision ?? document.current)); await model.waitForPendingOpen()
-            guard model.needsPassword || model.activeSession?.sourceURL == url else { throw SemanticEvidence.failure(model.message) }
+            let chosen = revision ?? document.current
+            let source = try await library.store.verifiedBytes(document: document.id, revision: chosen.id)
+            model.openVerified(data: source.data, url: source.url, sha: source.fingerprint, page: nil, title: revisionTitle(document, revision: chosen)); await model.waitForPendingOpen()
+            guard model.needsPassword || (model.activeSession?.sourceURL == source.url && model.activeSession?.sourceFingerprint == source.fingerprint) else { throw SemanticEvidence.failure(model.message) }
             model.section = "Leitor"
             return model.needsPassword ? "Digite a senha no leitor para abrir a versão protegida." : "Versão aberta no leitor. Salve as alterações em uma nova cópia."
         }
@@ -355,12 +475,14 @@ struct DocumentLibraryView: View {
     private func compare(_ document: LibraryDocument, revision: LibraryRevision) {
         guard revision.fingerprint != document.current.fingerprint else { library.message = "As duas versões contêm exatamente os mesmos bytes PDF; somente os metadados mudaram."; return }
         library.run("Abrindo versões para comparação…", opensReader: true) { _ in
-            let old = try await library.store.verifiedURL(document: document.id, revision: revision.id)
-            let current = try await library.store.verifiedURL(document: document.id)
-            model.open(url: old, page: nil, displayTitle: revisionTitle(document, revision: revision)); await model.waitForPendingOpen()
-            guard !model.needsPassword, let reference = model.activeSession, reference.sourceURL == old else { model.section = "Leitor"; return "Desbloqueie a primeira versão no leitor e repita a comparação." }
-            model.open(url: current, page: nil, displayTitle: revisionTitle(document, revision: document.current)); await model.waitForPendingOpen()
-            guard !model.needsPassword, model.activeSession?.sourceURL == current else { model.section = "Leitor"; return "Desbloqueie a versão atual no leitor e repita a comparação." }
+            let old = try await library.store.verifiedBytes(document: document.id, revision: revision.id)
+            let current = try await library.store.verifiedBytes(document: document.id, revision: document.current.id)
+            model.openVerified(data: old.data, url: old.url, sha: old.fingerprint, page: nil, title: revisionTitle(document, revision: revision)); await model.waitForPendingOpen()
+            if model.needsPassword { model.section = "Leitor"; return "Desbloqueie a primeira versão no leitor e repita a comparação." }
+            guard let reference = model.activeSession, reference.sourceURL == old.url, reference.sourceFingerprint == old.fingerprint else { throw SemanticEvidence.failure(model.message) }
+            model.openVerified(data: current.data, url: current.url, sha: current.fingerprint, page: nil, title: revisionTitle(document, revision: document.current)); await model.waitForPendingOpen()
+            if model.needsPassword { model.section = "Leitor"; return "Desbloqueie a versão atual no leitor e repita a comparação." }
+            guard model.activeSession?.sourceURL == current.url, model.activeSession?.sourceFingerprint == current.fingerprint else { throw SemanticEvidence.failure(model.message) }
             model.comparisonSessionID = reference.id
             model.section = "Leitor"
             return "Versão atual e histórica abertas lado a lado."
@@ -370,7 +492,7 @@ struct DocumentLibraryView: View {
         guard !unavailable else { return }
         let ids = searchSelectedOnly ? selected : Set(documents.map(\.id)), query = question, semantic = useEmbeddings
         let secrets = passwords.filter { ids.contains($0.key) && !$0.value.isEmpty }
-        passwords = [:]; library.result = nil; library.answer = nil
+        passwords = [:]; library.result = nil; library.answer = nil; library.comparison = nil
         library.run("Consultando texto das fontes selecionadas…") { cancellation in
             let source = try await library.store.excerpts(documentIDs: ids, passwords: secrets, cancellation: cancellation)
             library.result = try await library.retrieval.search(question: query, source: source, useEmbeddings: semantic)
@@ -380,10 +502,11 @@ struct DocumentLibraryView: View {
     private func openCitation(_ source: LibraryExcerpt) {
         guard !unavailable else { return }
         library.run("Verificando fonte citada…", opensReader: true) { _ in
-            let url = try await library.store.verifiedURL(document: source.documentID, revision: source.revisionID)
-            model.open(url: url, page: source.page, displayTitle: source.title + " · fonte " + String(source.fingerprint.prefix(8)))
+            let verified = try await library.store.verifiedBytes(document: source.documentID, revision: source.revisionID)
+            guard verified.fingerprint == source.fingerprint else { throw LibraryFailure.corrupt }
+            model.openVerified(data: verified.data, url: verified.url, sha: source.fingerprint, page: source.page, title: source.title + " · fonte " + String(source.fingerprint.prefix(8)))
             await model.waitForPendingOpen()
-            guard model.needsPassword || (model.activeSession?.sourceURL == url && model.currentPage == source.page) else { throw SemanticEvidence.failure(model.message) }
+            guard model.needsPassword || (model.activeSession?.sourceURL == verified.url && model.activeSession?.sourceFingerprint == source.fingerprint && model.currentPage == source.page) else { throw SemanticEvidence.failure(model.message) }
             model.section = "Leitor"
             return model.needsPassword ? "Digite a senha no leitor; a página \(source.page) será aberta após a autenticação." : "Fonte original da citação aberta na página \(source.page)."
         }

@@ -27,6 +27,7 @@ struct OCRReviewView: View {
     @State private var page = 1
     @State private var selection: String?
     @State private var language = "por+eng"
+    @State private var deskew = false
     @State private var corrections = OCRCorrectionState()
     @State private var replacement = ""
     @State private var lowConfidenceOnly = false
@@ -53,14 +54,18 @@ struct OCRReviewView: View {
                     Text("Português + inglês").tag("por+eng"); Text("Português").tag("por"); Text("Inglês").tag("eng"); Text("Espanhol").tag("spa")
                 }.frame(maxWidth: 300).disabled(controller.working)
                 Button("Reconhecer versão salva") {
-                    page = 1; selection = nil; corrections.reset(); replacement = ""; validation = ""
-                    controller.load(model: model, ocr: true, language: language)
+                    if controller.load(model: model, ocr: true, language: language, deskew: deskew) {
+                        page = 1; selection = nil; corrections.reset(); replacement = ""; validation = ""
+                    }
                 }.buttonStyle(.borderedProminent).disabled(model.document == nil || model.busy || controller.working)
                 Spacer()
                 if controller.review != nil {
                     Button("Exportar PDF pesquisável…") { export() }.disabled(controller.working || model.busy)
                 }
             }
+            Toggle("Compensar pequena inclinação durante o reconhecimento", isOn: $deskew)
+                .disabled(controller.working)
+                .help("Aplica compensação apenas com evidência suficiente de linhas inclinadas. A imagem original permanece intacta. Reconheça novamente para aplicar a opção.")
             Text("Use um PDF digitalizado sem texto selecionável. Confira cada trecho contra a imagem. A exportação mantém a página original e aplica uma camada de texto invisível; a imagem impressa não muda com as correções.")
                 .font(.callout).foregroundStyle(.secondary)
             if let review = controller.review, let document = controller.preview {
@@ -131,8 +136,8 @@ struct OCRReviewView: View {
     private func selectFirstWord() {
         if !visibleWords.contains(where: { $0.id == selection }) {
             selection = visibleWords.min(by: { $0.confidence < $1.confidence })?.id
+            updateSelection()
         }
-        updateSelection()
     }
     private func saveCorrection(_ word: OCRReviewWord) {
         do { try corrections.set(replacement, for: word); validation = "Correção guardada para exportação." }

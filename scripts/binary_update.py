@@ -16,7 +16,8 @@ import stat
 import subprocess
 import sys
 import uuid
-from contextlib import contextmanager
+from contextlib import contextmanager, ExitStack
+from bundle_lease import exclusive, open_resource, check_descriptor, validate_inherited
 from install_files import identity, move_new
 
 LIMIT = 12 * 1024 ** 3
@@ -198,12 +199,36 @@ def same(path, expected):
     return identity(path) == expected
 
 
-def recover(parent):
+def recover(parent, held_descriptors=()):
     path = parent / '.pdf-update.json'
     if not os.path.lexists(path):
         return None
     journal = json.loads(regular_bytes(path, 32768))
     destination, incoming, backup, failed = journal_paths(parent, journal)
+    # A restarted installer must not rename a candidate that a user opened
+    # after the interrupted process lost its locks. Refuse and keep the journal.
+    with ExitStack() as recovery_leases:
+        for candidate, expected in ((destination, journal['newIdentity']),
+                                    (destination, journal['oldIdentity']),
+                                    (incoming, journal['newIdentity']),
+                                    (backup, journal['oldIdentity'])):
+            if expected is None or not same(candidate, expected):
+                continue
+            resource = open_resource(candidate)
+            try:
+                key = check_descriptor(resource)
+            finally:
+                os.close(resource)
+            retained = next((fd for fd in held_descriptors if check_descriptor(fd) == key), None)
+            if retained is None:
+                recovery_leases.enter_context(exclusive(candidate))
+            else:
+                validate_inherited(candidate, retained)
+        return recover_locked(parent, journal, destination, incoming, backup, failed)
+
+
+def recover_locked(parent, journal, destination, incoming, backup, failed):
+    path = parent / '.pdf-update.json'
     if journal['state'] != 'committed':
         if same(destination, journal['newIdentity']):
             move_new(destination, failed, journal['newIdentity'])
@@ -226,14 +251,15 @@ def recover(parent):
     return journal['state']
 
 
-def validate_product(app):
+def validate_product(app, descriptor):
     subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(app)], check=True)
+    environment = dict(os.environ, PDF_INSTALLATION_LOCK_FD=str(descriptor), PDF_INSTALLATION_LOCK_BUNDLE=str(app))
     python = app / 'Contents/Resources/runtime/bin/python3'
     verifier = app / 'Contents/Resources/distribution/check_runtime.py'
     deadline = app / 'Contents/Resources/distribution/run-with-timeout.py'
-    subprocess.run([str(python), str(deadline), '--seconds', '600', '--', str(python), str(verifier), str(app)], check=True)
+    subprocess.run([str(python), str(deadline), '--seconds', '600', '--', str(python), str(verifier), str(app)], check=True, env=environment, pass_fds=(descriptor,))
     subprocess.run([str(python), str(deadline), '--seconds', '300', '--',
-                    str(app / 'Contents/MacOS/PDF'), '--smoke-test'], check=True)
+                    str(app / 'Contents/MacOS/PDF'), '--smoke-test'], check=True, env=environment, pass_fds=(descriptor,))
 
 
 def copy_regular_file(source, destination):
@@ -252,29 +278,40 @@ def copy_regular_file(source, destination):
     return shutil.copy2(source, destination)
 
 
-def install(distribution, parent, *, validate=validate_product, checkpoint=lambda _: None):
+def install(distribution, parent, *, validate=None, checkpoint=lambda _: None):
     """Callables are used by the failure harness, never selected by environment/CLI."""
     distribution, parent = Path(distribution).resolve(strict=True), Path(parent).resolve(strict=True)
     manifest = verify_manifest(distribution)
-    with installation_lock(parent):
+    with installation_lock(parent), ExitStack() as leases:
         recover(parent)
         destination = parent / 'PDF.app'
         old_id = None
+        held_descriptors = []
         if os.path.lexists(destination):
             verify_bundle_identity(destination)
             old_id = identity(destination)
+            held_descriptors.append(leases.enter_context(exclusive(destination)))
         token = uuid.uuid4().hex
         incoming = parent / ('.pdf-incoming.' + token + '.app')
-        # Copy fully before changing a previously installed application.
-        shutil.copytree(distribution / 'PDF.app', incoming, symlinks=True, copy_function=copy_regular_file)
-        verify_copied_bundle(incoming, manifest)
-        validate(incoming)
-        checkpoint('validated-staging')
-        journal = {'schemaVersion': 1, 'transaction': token, 'state': 'prepared',
-                   'oldIdentity': old_id, 'newIdentity': identity(incoming)}
-        write_journal(parent, journal)
-        checkpoint('prepared')
+        # Capture our directory before copying so failure can remove only this
+        # attempt's unpublished bytes, including partial copies after ENOSPC.
+        incoming.mkdir(mode=0o700)
+        incoming_id = identity(incoming)
         try:
+            shutil.copytree(distribution / 'PDF.app', incoming, symlinks=True,
+                            copy_function=copy_regular_file, dirs_exist_ok=True)
+            verify_copied_bundle(incoming, manifest)
+            descriptor = leases.enter_context(exclusive(incoming))
+            held_descriptors.append(descriptor)
+            if validate is None:
+                validate_product(incoming, descriptor)
+            else:
+                validate(incoming)
+            checkpoint('validated-staging')
+            journal = {'schemaVersion': 1, 'transaction': token, 'state': 'prepared',
+                       'oldIdentity': old_id, 'newIdentity': incoming_id}
+            write_journal(parent, journal)
+            checkpoint('prepared')
             if old_id:
                 move_new(destination, parent / ('PDF.previous.' + token + '.app'), old_id)
                 sync_directory(parent)
@@ -286,18 +323,27 @@ def install(distribution, parent, *, validate=validate_product, checkpoint=lambd
             checkpoint('activation-renamed')
             journal['state'] = 'activated'
             write_journal(parent, journal)
-            validate(destination)
+            if validate is None:
+                validate_product(destination, descriptor)
+            else:
+                validate(destination)
             checkpoint('validated-destination')
             if not same(destination, journal['newIdentity']):
                 raise ValueError('Bundle mudou durante a verificação final.')
             journal['state'] = 'committed'
             write_journal(parent, journal)
             checkpoint('committed')
-            recover(parent)
+            recover(parent, held_descriptors)
         except BaseException:
             # ENOSPC may prevent writing, but rollback itself only renames and
             # removes the old journal. If that also fails, the next run retries.
-            recover(parent)
+            recover(parent, held_descriptors)
+            # Recovery succeeded (or publication never began). Do not leave a
+            # multi-GB failed copy on each ordinary retry. An interrupted or
+            # foreign directory is never identified by its filename alone.
+            if same(incoming, incoming_id):
+                shutil.rmtree(incoming)
+                sync_directory(parent)
             raise
     return destination
 

@@ -21,6 +21,7 @@ if [[ -f "$PDF_APP/Contents/Resources/runtime/portable.json" ]]; then
   printf '%s\n' 'Bundle portátil, assinatura e motores internos verificados sem ferramentas de desenvolvimento.'
   exit 0
 fi
+"$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/app_intents_metadata.py" verify --resources "$PDF_APP/Contents/Resources"
 lipo "$PDF_EXECUTABLE" -verify_arch arm64
 export PATH="/opt/homebrew/bin:$PATH"
 [[ -x /opt/homebrew/bin/qpdf ]] || { printf '%s\n' 'O verificador qpdf está ausente em /opt/homebrew/bin; execute novamente o instalador completo.' >&2; exit 1; }

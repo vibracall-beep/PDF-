@@ -7,12 +7,15 @@ The engine's transaction layer owns publication of the resulting new file.
 from __future__ import annotations
 
 from collections import Counter
+from bisect import bisect_left, bisect_right
 import hashlib
 import io
 import json
 import os
 import re
 import subprocess
+import statistics
+import unicodedata
 
 import fitz
 
@@ -115,6 +118,84 @@ def _font_spec(doc, page, name, fonts=None):
     return None
 
 
+def _content_paint(doc, index):
+    """Exclude annotation appearances from content-stream clipping evidence.
+
+    Keep the isolated page only in memory. Annotation/widget rectangles on the
+    original page are checked separately and remain protected from editing.
+    """
+    page=doc[index]
+    if next(page.annots() or iter(()),None) is None and next(page.widgets() or iter(()),None) is None:
+        return page.get_texttrace(),page.get_bboxlog(),page.get_drawings(extended=True),page.get_text('rawdict',clip=fitz.INFINITE_RECT())
+    with fitz.open() as content:
+        content.insert_pdf(doc,from_page=index,to_page=index,links=False,annots=False,widgets=False)
+        isolated=content[0]
+        return isolated.get_texttrace(),isolated.get_bboxlog(),isolated.get_drawings(extended=True),isolated.get_text('rawdict',clip=fitz.INFINITE_RECT())
+
+
+def _paragraph_records(records, source_hash, page, image_areas, vector_areas, interactive):
+    """Group only homogeneous consecutive lines from one source text block."""
+    by_block={}
+    for entry,internal in records:
+        by_block.setdefault(internal['block'],{}).setdefault(internal['line'],[]).append((entry,internal))
+    ordered_records=sorted(records,key=lambda record:record[0]['rect'][1])
+    tops=[entry['rect'][1] for entry,_ in ordered_records]
+    tallest=max((entry['rect'][3]-entry['rect'][1] for entry,_ in records),default=0)
+    result=[];comparisons=0
+    def collides(area, members):
+        nonlocal comparisons
+        start=bisect_left(tops,area.y0-tallest);end=bisect_right(tops,area.y1)
+        others=[entry['rect'] for entry,_ in ordered_records[start:end] if entry['id'] not in members]
+        others.extend([*image_areas,*vector_areas,*interactive])
+        for other in others:
+            comparisons+=1
+            if comparisons>1_000_000: raise ValueError('A página contém objetos demais para validar parágrafos com segurança.')
+            if _overlap(area,other): return True
+        return False
+    def alignment(lines):
+        for name,position in (('left',lambda line:line['rect'].x0),('right',lambda line:line['rect'].x1),('center',lambda line:(line['rect'].x0+line['rect'].x1)/2)):
+            values=[position(line) for line in lines]
+            if max(values)-min(values)<=max(1.5,lines[0]['size']*0.15): return name
+        return None
+    def emit(lines):
+        if len(lines)<2: return
+        members=[record for line in lines for record in line['records']];first=members[0][0]
+        area=fitz.Rect(lines[0]['rect'])
+        for line in lines[1:]: area|=line['rect']
+        ids=[entry['id'] for entry,_ in members];member_ids=set(ids)
+        limitations=sorted({reason for _,internal in members for reason in internal['base_limitations']})
+        if collides(area,member_ids): limitations.append('paragraph-object-overlap')
+        spacing=statistics.median((b['baseline']-a['baseline'])/first['font_size'] for a,b in zip(lines,lines[1:]))
+        entry=dict(kind='paragraph',page=first['page'],rect=_numbers(area),text='\n'.join(line['text'] for line in lines),
+            font=first['font'],font_size=first['font_size'],color=first['color'],font_status=first['font_status'],
+            substitution_font=first['substitution_font'],member_ids=ids,line_spacing=round(spacing,5),alignment=alignment(lines),
+            editable=not limitations,limitations=sorted(set(limitations)))
+        entry['id']=_digest([source_hash,'paragraph',page,entry])
+        result.append((entry,dict(font=members[0][1]['font'],member_ids=ids)))
+    for blocks in by_block.values():
+        group=[]
+        for number,records_on_line in sorted(blocks.items()):
+            ordered=sorted(records_on_line,key=lambda record:record[0]['rect'][0])
+            styles={(entry['font'],round(entry['font_size'],5),entry['color'],internal['flags']) for entry,internal in ordered}
+            baselines=[internal['origin'][1] for _,internal in ordered]
+            if len(styles)!=1 or max(baselines)-min(baselines)>0.25 or any(_overlap(a[0]['rect'],b[0]['rect']) for a,b in zip(ordered,ordered[1:])):
+                emit(group);group=[];continue
+            rect=fitz.Rect(ordered[0][0]['rect'])
+            for entry,_ in ordered[1:]: rect|=fitz.Rect(entry['rect'])
+            line=dict(records=ordered,style=next(iter(styles)),size=ordered[0][0]['font_size'],rect=rect,
+                baseline=statistics.mean(baselines),text=''.join(entry['text'] for entry,_ in ordered),number=number)
+            if group:
+                gap=(line['baseline']-group[-1]['baseline'])/line['size']
+                same=number==group[-1]['number']+1 and line['style']==group[-1]['style'] and 1<=gap<=3 and alignment([*group,line]) is not None and len(group)<200
+                if same and len(group)>1:
+                    prior=(group[-1]['baseline']-group[-2]['baseline'])/line['size']
+                    same=abs(prior-gap)<=0.15
+                if not same: emit(group);group=[]
+            group.append(line)
+        emit(group)
+    return result
+
+
 def _inspect(doc, source_hash, pages):
     image_uses = Counter(info['xref'] for page in doc for info in page.get_image_info(xrefs=True) if info['xref'])
     objects=[]; private={}; page_reports=[];font_cache={}
@@ -122,8 +203,7 @@ def _inspect(doc, source_hash, pages):
         page=doc[index]; bounds=_bounds(page)
         page_reports.append(dict(page=index+1,width=bounds.width,height=bounds.height,rotation=page.rotation,
             cropbox=_numbers(page.cropbox)))
-        traces=page.get_texttrace()
-        paint=page.get_bboxlog();drawings=page.get_drawings(extended=True)
+        traces,paint,drawings,raw=_content_paint(doc,index)
         def restricts_page(drawing):
             if drawing['type']!='clip': return False
             items=drawing.get('items',[])
@@ -139,9 +219,9 @@ def _inspect(doc, source_hash, pages):
         interactive.extend(tuple(link['from']) for link in page.get_links())
         pending=any(a.type[0]==fitz.PDF_ANNOT_REDACT for a in page.annots() or [])
         text_records=[];fonts=page.get_fonts(full=True)
-        for block in page.get_text('rawdict',clip=fitz.INFINITE_RECT())['blocks']:
+        for block_number,block in enumerate(raw['blocks']):
             if block['type']!=0: continue
-            for line in block['lines']:
+            for line_number,line in enumerate(block['lines']):
                 for span in line['spans']:
                     text=''.join(char['c'] for char in span['chars'])
                     if not text.strip(): continue
@@ -167,7 +247,8 @@ def _inspect(doc, source_hash, pages):
                     entry=dict(kind='text',page=index+1,rect=_numbers(rect),text=text,font=span['font'],
                         font_size=span['size'],color=f"#{span['color']:06x}",
                         font_status='original' if spec else 'substitution-required',substitution_font='MuPDF Unicode fallback (sans-serif)',limitations=limitations)
-                    text_records.append((entry,dict(font=spec,chars=[tuple(c['bbox']) for c in span['chars']])))
+                    text_records.append((entry,dict(font=spec,chars=[tuple(c['bbox']) for c in span['chars']],
+                        block=block_number,line=line_number,origin=span['origin'],flags=span['flags'],base_limitations=list(limitations))))
                     if len(text_records)>10000: raise ValueError('A página excede 10.000 trechos de texto. Use uma página ou região menos complexa.')
         active=[];overlapping=set();comparisons=0
         for position in sorted(range(len(text_records)),key=lambda offset:text_records[offset][0]['rect'][1]):
@@ -183,7 +264,8 @@ def _inspect(doc, source_hash, pages):
             entry['editable']=not entry['limitations']
             entry['id']=_digest([source_hash,'text',index,position,entry])
             objects.append(entry);private[entry['id']]=internal
-        for position,info in enumerate(page.get_image_info(xrefs=True)):
+        image_info=page.get_image_info(xrefs=True)
+        for position,info in enumerate(image_info):
             limitations=[]; rect=fitz.Rect(info['bbox']); xref=info['xref']; matrix=fitz.Matrix(info['transform'])
             if not xref: limitations.append('inline-image')
             elif image_uses[xref]!=1: limitations.append('shared-image-object')
@@ -196,9 +278,12 @@ def _inspect(doc, source_hash, pages):
                 editable=not limitations,limitations=limitations,supported_actions=['replace','delete'] if clipped or unusual_group else ['replace','move','delete'])
             entry['id']=_digest([source_hash,'image',index,position,xref,entry])
             objects.append(entry);private[entry['id']]=dict(xref=xref,clipped=clipped or unusual_group)
+        vectors=[drawing['rect']+(-0.5,-0.5,0.5,0.5) for drawing in page.get_drawings()]
+        for entry,internal in _paragraph_records(text_records,source_hash,index,[info['bbox'] for info in image_info],vectors,interactive):
+            objects.append(entry);private[entry['id']]=internal
         if len(objects)>OBJECT_LIMIT: raise ValueError('O PDF excede 100.000 objetos inspecionáveis. Selecione menos páginas.')
     return dict(version=1,source_sha256=source_hash,page_count=len(doc),pages=page_reports,objects=objects,
-        limitations=['Only isolated horizontal text runs and uniquely placed axis-aligned images are editable.',
+        limitations=['Only isolated horizontal text runs, homogeneous consecutive paragraph groups and uniquely placed axis-aligned images are editable.',
                      'Font substitution requires explicit consent; arbitrary content-stream reconstruction is not claimed.']),private
 
 
@@ -216,7 +301,7 @@ def _text_plan(doc, entry, internal, edit):
     if not text.strip() or len(text.encode('utf-8'))>65536: raise ValueError('Informe texto não vazio de até 64 KiB; use excluir para remover.')
     rect=_rect(edit.get('rect',entry['rect']),page)
     size=engine.number(edit.get('font_size',entry['font_size']),'Fonte',4,300)
-    alignment=edit.get('alignment','left')
+    alignment=edit.get('alignment',entry.get('alignment','left'))
     if alignment not in ('left','center','right','justify'): raise ValueError('Alinhamento desconhecido.')
     spec=internal['font'];substitution=False
     if edit.get('font_file'):
@@ -229,6 +314,9 @@ def _text_plan(doc, entry, internal, edit):
             if edit.get('font_file'): raise ValueError('A fonte escolhida não contém todos os caracteres. Selecione uma fonte compatível.')
             spec=None
         elif not spec['buffer'] and any(ord(char)>255 for char in text): spec=None
+        if any(unicodedata.bidirectional(char) in ('R','AL','AN') or unicodedata.category(char).startswith('M') or char in '\u200c\u200d' for char in text):
+            if edit.get('font_file'): raise ValueError('Este texto exige composição Unicode. Remova a fonte explícita e autorize a composição automática.')
+            spec=None
     if spec is None:
         if edit.get('allow_font_substitution') is not True:
             raise ValueError('A fonte original não suporta este texto. Autorize a substituição ou escolha um arquivo de fonte compatível.')
@@ -236,17 +324,37 @@ def _text_plan(doc, entry, internal, edit):
     if substitution and edit.get('allow_font_substitution') is not True:
         raise ValueError('A troca de fonte exige allow_font_substitution:true.')
     return dict(text=text,rect=rect,size=size,align=('left','center','right','justify').index(alignment),
-        ink=engine.color(edit.get('color',entry['color'])),font=spec,substitution=substitution)
+        ink=engine.color(edit.get('color',entry['color'])),font=spec,substitution=substitution,
+        paragraph=entry['kind']=='paragraph',line_spacing=engine.number(edit.get('line_spacing',entry.get('line_spacing',1.5)),'Espaçamento',1,3))
 
 
 def _place_text(page, plan, tag):
     rect=plan['rect'];spec=plan['font'];text=plan['text'];size=plan['size']
     if spec is None:
-        _engine()._html_text(page,rect,text,size,plan['ink'],align=plan['align']);return
+        _engine()._html_text(page,rect,text,size,plan['ink'],align=plan['align'],line_spacing=plan['line_spacing']);return
     name=spec['name'] if spec['buffer'] is None else tag
     if spec['buffer']: page.insert_font(fontname=name,fontbuffer=spec['buffer'])
     font=fitz.Font(fontbuffer=spec['buffer']) if spec['buffer'] else fitz.Font(fontname=name)
-    if '\n' not in text and '\r' not in text and plan['align']!=3:
+    if plan['paragraph']:
+        # Isolate the font resource from an existing page font-info cache: some
+        # producers use different ascender metadata for the same Base-14 name.
+        # The actual font program used for measuring and writing must agree.
+        name=tag;buffer=spec['buffer'] or font.buffer
+        page.insert_font(fontname=name,fontbuffer=buffer)
+        # insert_textbox reserves extra descender space and multiplies a supplied
+        # line height by the ascender. Verify actual glyph geometry independently
+        # before using its wrapping engine, rather than clipping surplus text.
+        internal_rect=rect+(0,0,0,max(size*3,-font.descender*size))
+        arguments=dict(fontname=name,fontsize=size,color=plan['ink'],align=plan['align'],lineheight=plan['line_spacing']/max(font.ascender,0.01))
+        with fitz.open() as trial:
+            proof=trial.new_page(width=max(72,internal_rect.x1+1),height=max(72,internal_rect.y1+1))
+            proof.insert_font(fontname=name,fontbuffer=buffer)
+            remaining=proof.insert_textbox(internal_rect,text,**arguments)
+            glyphs=[fitz.Rect(char['bbox']) for block in proof.get_text('rawdict',clip=fitz.INFINITE_RECT())['blocks'] if block['type']==0 for line in block['lines'] for span in line['spans'] for char in span['chars'] if not char['c'].isspace()]
+            if remaining<0 or not glyphs or any(not (rect+(-0.05,-0.05,0.05,0.05)).contains(area) for area in glyphs):
+                raise ValueError('O parágrafo não cabe no retângulo com este espaçamento. Nenhuma cópia foi criada.')
+        if page.insert_textbox(internal_rect,text,**arguments)<0: raise ValueError('O parágrafo excede a área disponível.')
+    elif '\n' not in text and '\r' not in text and plan['align']!=3:
         width=font.text_length(text,fontsize=size)
         if width>rect.width+0.01 or (font.ascender-font.descender)*size>rect.height+0.05:
             raise ValueError('O texto não cabe no retângulo. Ajuste tamanho, área ou conteúdo; nenhuma cópia foi criada.')
@@ -264,20 +372,32 @@ def apply_edits(source, output, options):
         edits=options.get('edits')
         if not isinstance(edits,list) or not 1<=len(edits)<=1000: raise ValueError('Informe de 1 a 1.000 alterações.')
         report,private=_inspect(doc,digest,list(range(len(doc))));objects={o['id']:o for o in report['objects']}
-        planned=[];seen=set()
+        planned=[];seen=set();claimed=set()
         for edit in edits:
             if not isinstance(edit,dict) or not isinstance(edit.get('id'),str) or edit['id'] not in objects: raise ValueError('Objeto desconhecido ou inspeção desatualizada.')
             identity=edit['id'];entry=objects[identity];action=edit.get('action')
             if identity in seen: raise ValueError('Um objeto não pode receber duas alterações na mesma transação.')
             seen.add(identity)
+            members=set(entry.get('member_ids',[identity]))
+            if members & claimed: raise ValueError('Um parágrafo e seus trechos não podem ser alterados juntos na mesma transação.')
+            claimed.update(members)
             if not entry['editable']: raise ValueError('Este objeto não pode ser editado com preservação comprovada: '+', '.join(entry['limitations']))
             if action not in ('replace','move','delete'): raise ValueError('Ação de conteúdo desconhecida.')
             plan=None
-            if entry['kind']=='text' and action!='delete':
+            if entry['kind'] in ('text','paragraph') and action!='delete':
                 plan=_text_plan(doc,entry,private[identity],edit)
                 for other in report['objects']:
-                    if other['kind']=='text' and other['page']==entry['page'] and other['id']!=identity and _overlap(plan['rect'],other['rect']):
-                        raise ValueError('A área de destino sobrepõe outro texto original. Escolha uma área livre.')
+                    kinds=('text','image') if entry['kind']=='paragraph' else ('text',)
+                    if other['kind'] in kinds and other['page']==entry['page'] and other['id'] not in members and _overlap(plan['rect'],other['rect']):
+                        raise ValueError('A área de destino sobrepõe outro objeto original. Escolha uma área livre.')
+                if entry['kind']=='paragraph':
+                    page=doc[entry['page']-1]
+                    occupied=[drawing['rect']+(-0.5,-0.5,0.5,0.5) for drawing in page.get_drawings()]
+                    occupied.extend(a.rect for a in page.annots() or [])
+                    occupied.extend(w.rect for w in page.widgets() or [])
+                    occupied.extend(link['from'] for link in page.get_links())
+                    if any(_overlap(plan['rect'],area) for area in occupied):
+                        raise ValueError('A área do parágrafo sobrepõe gráficos, anotações ou campos. Escolha uma área livre.')
                 with fitz.open() as preview:
                     bounds=_bounds(doc[entry['page']-1]);scratch=preview.new_page(width=bounds.width,height=bounds.height)
                     _place_text(scratch,plan,'preflightfont')
@@ -299,17 +419,21 @@ def apply_edits(source, output, options):
                 else:
                     if private[identity]['clipped']:
                         raise ValueError('Mover esta imagem poderia remover um recorte ou composição original. Apenas substituir na mesma área ou excluir é suportado.')
-                    occupied=[o['rect'] for o in report['objects'] if o['page']==entry['page'] and o['id']!=identity]
+                    occupied=[o['rect'] for o in report['objects'] if o['kind']!='paragraph' and o['page']==entry['page'] and o['id']!=identity]
                     occupied.extend(drawing['rect'] for drawing in page.get_drawings())
                     if any(_overlap(rect,other) for other in occupied):
                         raise ValueError('Mover a imagem sobre outro objeto poderia alterar a ordem das camadas. Escolha uma área livre.')
                     data=doc.extract_image(private[identity]['xref'])['image']
                 plan=dict(rect=rect,data=data)
+            if plan and any(old_plan and old_entry['page']==entry['page'] and
+                (entry['kind']=='paragraph' or old_entry['kind']=='paragraph') and _overlap(plan['rect'],old_plan['rect'])
+                for old_entry,_,old_plan in planned):
+                raise ValueError('As áreas de destino de duas alterações se sobrepõem. Nenhuma cópia foi criada.')
             planned.append((entry,action,plan))
         _engine()._separate_page_aliases(doc)
         for entry,action,plan in planned:
             page=doc[entry['page']-1]
-            if entry['kind']=='text':
+            if entry['kind'] in ('text','paragraph'):
                 _engine()._reject_pending_redactions(page)
                 page.add_redact_annot(fitz.Rect(entry['rect']),fill=False)
                 page.apply_redactions(images=0,graphics=0,text=0)
@@ -329,9 +453,13 @@ def _ocr_settings(options):
     if not isinstance(options,dict): raise ValueError('As configurações OCR devem ser um objeto JSON.')
     language=options.get('language','eng')
     if not isinstance(language,str) or not re.fullmatch(r'[A-Za-z0-9_]+(?:\+[A-Za-z0-9_]+)*',language): raise ValueError('Idioma OCR inválido.')
-    return dict(language=language,ocr_dpi=engine.integer(options.get('ocr_dpi',200),'DPI',120,400),
+    settings=dict(language=language,ocr_dpi=engine.integer(options.get('ocr_dpi',200),'DPI',120,400),
         ocr_psm=engine.integer(options.get('ocr_psm',6),'Segmentação OCR',3,13),
         min_confidence=engine.number(options.get('min_confidence',35),'Confiança',0,100))
+    if 'ocr_deskew' in options:
+        if not isinstance(options['ocr_deskew'],bool): raise ValueError('ocr_deskew deve ser true ou false.')
+        settings['ocr_deskew']=options['ocr_deskew']
+    return settings
 
 
 def _ocr_report(doc,digest,pages,settings):
@@ -349,9 +477,11 @@ def _ocr_report(doc,digest,pages,settings):
         if page.get_text().strip(): raise ValueError('A revisão OCR aceita páginas digitalizadas sem texto selecionável, evitando camadas duplicadas.')
         analysis=analyze(page,index+1,settings,external)
         page_reports.append(dict(page=index+1,width=bounds.width,height=bounds.height,rotation=page.rotation))
+        if settings.get('ocr_deskew'): page_reports[-1]['preprocessing']=analysis['preprocessing']
         for position,word in enumerate(analysis['words']):
             _rect(word['rect'],page)
             record=dict(page=index+1,rect=_numbers(word['rect']),text=word['text'],confidence=word['confidence'])
+            if settings.get('ocr_deskew'): record['quad']=word['quad']
             record['id']=_digest([digest,settings,index,position,record]);words.append(record)
             text_size+=len(word['text'].encode('utf-8'))
         if len(words)>50000 or text_size>TEXT_LIMIT:

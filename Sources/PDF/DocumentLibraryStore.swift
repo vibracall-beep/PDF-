@@ -45,6 +45,14 @@ struct LibraryImportReport: Sendable {
     let catalog: LibraryCatalog
 }
 
+/// Carries exactly the bytes whose hash was checked while reading a revision.
+/// The URL identifies the source; readers must not reopen that mutable path.
+struct LibraryVerifiedBytes: Sendable {
+    let data: Data
+    let url: URL
+    let fingerprint: String
+}
+
 struct LibrarySyncReport: Sendable {
     let received: Int
     let conflicts: Int
@@ -332,6 +340,12 @@ actor DocumentLibraryStore {
             return objects.appendingPathComponent(item.fingerprint + ".pdf")
         }
     }
+    func verifiedBytes(document: UUID, revision: UUID? = nil) throws -> LibraryVerifiedBytes {
+        try locked {
+            let (_, item) = try locate(document, revision: revision, in: readCatalog())
+            return LibraryVerifiedBytes(data: try data(item), url: objects.appendingPathComponent(item.fingerprint + ".pdf"), fingerprint: item.fingerprint)
+        }
+    }
     func export(document: UUID, revision: UUID? = nil, to url: URL) throws {
         try locked {
             let (_, item) = try locate(document, revision: revision, in: readCatalog())
@@ -518,6 +532,67 @@ actor DocumentLibraryStore {
         }
     }
     func clearSearchCache() { textCache = [:]; cachedCharacters = 0 }
+}
+
+extension DocumentLibraryStore {
+    private var smartFolderDirectory: URL { directory.appendingPathComponent("smart-folders", isDirectory: true) }
+    private var smartFolderPointer: URL { directory.appendingPathComponent("smart-folders.json") }
+
+    private func readSmartFolders() throws -> [LibrarySmartFolder] {
+        var info = stat()
+        if lstat(smartFolderPointer.path, &info) != 0 {
+            guard errno == ENOENT else { throw LibraryFailure.unsafePath }
+            return []
+        }
+        let pointer = try JSONDecoder().decode(Pointer.self, from: LibraryFiles.read(smartFolderPointer, maximum: 1_024))
+        guard pointer.version == 1, LibraryFiles.validHash(pointer.hash) else { throw LibraryFailure.corrupt }
+        try LibraryFiles.directory(smartFolderDirectory, create: false)
+        let bytes = try LibraryFiles.read(smartFolderDirectory.appendingPathComponent(pointer.hash + ".json"), maximum: LibrarySmartFolders.maximumBytes)
+        guard LibraryFiles.hash(bytes) == pointer.hash else { throw LibraryFailure.corrupt }
+        let snapshot = try JSONDecoder().decode(LibrarySmartFolders.Snapshot.self, from: bytes)
+        try LibrarySmartFolders.validate(snapshot)
+        return snapshot.folders
+    }
+    private func writeSmartFolders(_ folders: [LibrarySmartFolder]) throws {
+        let snapshot = LibrarySmartFolders.Snapshot(version: 1, folders: folders)
+        try LibrarySmartFolders.validate(snapshot)
+        let bytes = try LibraryFiles.encode(snapshot)
+        guard bytes.count <= LibrarySmartFolders.maximumBytes else { throw LibraryFailure.tooLarge }
+        try LibraryFiles.directory(smartFolderDirectory, create: true)
+        let hash = LibraryFiles.hash(bytes), target = smartFolderDirectory.appendingPathComponent(hash + ".json")
+        do { try LibraryFiles.publish(bytes, to: target) }
+        catch LibraryFailure.destinationExists {
+            guard try LibraryFiles.read(target, maximum: LibrarySmartFolders.maximumBytes) == bytes else { throw LibraryFailure.corrupt }
+            try LibraryFiles.synchronizeDirectory(smartFolderDirectory)
+        }
+        let temporary = directory.appendingPathComponent(".smart-folder-pointer-" + UUID().uuidString)
+        defer { unlink(temporary.path) }
+        try LibraryFiles.publish(LibraryFiles.encode(Pointer(version: 1, hash: hash)), to: temporary)
+        try Task.checkCancellation()
+        guard rename(temporary.path, smartFolderPointer.path) == 0 else { throw POSIXError(.EIO) }
+        try LibraryFiles.synchronizeDirectory(directory)
+    }
+    func smartFolders() throws -> [LibrarySmartFolder] { try locked { try readSmartFolders() } }
+    func saveSmartFolder(id: UUID? = nil, name: String, filter: LibrarySmartFilter) throws -> [LibrarySmartFolder] {
+        try locked {
+            var folders = try readSmartFolders()
+            let folder = LibrarySmartFolder(id: id ?? UUID(), name: name.trimmingCharacters(in: .whitespacesAndNewlines), filter: filter, modified: Date())
+            if let id {
+                guard let index = folders.firstIndex(where: { $0.id == id }) else { throw LibraryFailure.missing }
+                folders[index] = folder
+            } else { folders.append(folder) }
+            folders.sort { LibrarySmartFolders.nameKey($0.name) < LibrarySmartFolders.nameKey($1.name) }
+            try writeSmartFolders(folders); return folders
+        }
+    }
+    func deleteSmartFolder(id: UUID) throws -> [LibrarySmartFolder] {
+        try locked {
+            var folders = try readSmartFolders()
+            guard let index = folders.firstIndex(where: { $0.id == id }) else { throw LibraryFailure.missing }
+            folders.remove(at: index)
+            try writeSmartFolders(folders); return folders
+        }
+    }
 }
 
 extension DocumentLibraryStore {

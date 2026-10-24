@@ -23,6 +23,9 @@ import CryptoKit
     /// records an encrypted reader compatibility copy without replacing its URL
     /// or the user's original in-memory password with an internal credential.
     let usedCompatibilityCopy: Bool
+    /// SHA-256 of the immutable bytes used by a verified-source opening. This
+    /// describes the initial source, not subsequent unsaved annotation edits.
+    let sourceFingerprint: String?
     let history = AnnotationHistory()
     var recoveryTask: Task<Void, Never>?
     var recoveryWrite: Task<RecoveryRecord?, Error>?
@@ -45,9 +48,10 @@ import CryptoKit
         recoveryTask?.cancel(); recoveryWrite?.cancel()
         recoveryTask = nil; recoveryWrite = nil
     }
-    init(id: UUID = UUID(), document: PDFDocument, sourceURL: URL?, password: String? = nil, usedCompatibilityCopy: Bool = false) {
+    init(id: UUID = UUID(), document: PDFDocument, sourceURL: URL?, password: String? = nil, usedCompatibilityCopy: Bool = false, sourceFingerprint: String? = nil) {
         self.id = id; self.document = document; self.sourceURL = sourceURL; self.password = password
         self.usedCompatibilityCopy = usedCompatibilityCopy
+        self.sourceFingerprint = sourceFingerprint
         originalWidgetState = Self.widgetState(document)
     }
     static func widgetState(_ document: PDFDocument) -> String {

@@ -98,8 +98,28 @@ let tools: [Tool] = [
 
 @main enum PDFEntryPoint {
     @MainActor static func main() async {
+        do { try BundleRuntimeLease.activate() }
+        catch {
+            CIDiagnostics.record(String(describing: error), level: "error", title: "PDF installation")
+            fputs("PDF could not acquire its installation lease: \(error)\n", stderr)
+            exit(1)
+        }
+        if BundleRuntimeLeaseAudit.handleCommandLineIfNeeded() { return }
         VisionWorker.handleCommandLineIfNeeded()
         if await CrashRecoveryAudit.handleCommandLineIfNeeded() { return }
+        if CommandLine.arguments.contains("--ai-audit") {
+            do {
+                let arguments = CommandLine.arguments
+                guard arguments.count == 3, arguments[1] == "--ai-audit" else {
+                    throw PreferenceError.invalid("Use --ai-audit seguido de um novo caminho JSON.")
+                }
+                let report = try await LocalAIAudit.run(to: URL(fileURLWithPath: arguments[2]))
+                print("Local AI audit: \(report.status)"); exit(0)
+            } catch {
+                CIDiagnostics.record(String(describing: error), level: "error")
+                fputs("Local AI audit could not publish its report: \(error)\n", stderr); exit(1)
+            }
+        }
         if CommandLine.arguments.contains("--smoke-test") {
             do { try await MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
             catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }

@@ -78,6 +78,55 @@ enum LibraryAuditChecks {
         var filter = LibrarySmartFilter(); filter.text = "CONTRATO AÇÃO"; filter.collection = "Clientes"; filter.tag = "ação"
         try require(filter.apply(edited.documents).count == 1, "Os filtros perderam normalização portuguesa ou etiquetas.")
         filter.mode = .protected; try require(filter.apply(edited.documents).isEmpty, "O filtro protegido incluiu um PDF sem proteção.")
+        filter.mode = .all
+        filter.modifiedAfter = edited.documents[0].current.created.addingTimeInterval(-60)
+        filter.modifiedBefore = edited.documents[0].current.created.addingTimeInterval(60)
+        let savedFolders = try await storeA.saveSmartFolder(name: "Contratos em revisão", filter: filter)
+        guard let savedFolder = savedFolders.first else { throw LibraryFailure.missing }
+        let loadedFolders = try await DocumentLibraryStore(directory: directoryA).smartFolders()
+        try require(loadedFolders == savedFolders && loadedFolders[0].filter.apply(edited.documents).map(\.id) == [id], "A pasta inteligente perdeu regras, datas ou persistência entre instâncias.")
+        let smartPointer = directoryA.appendingPathComponent("smart-folders.json")
+        let savedPointer = try LibraryFiles.read(smartPointer, maximum: 1_024)
+        let sameName = await rejects { _ = try await storeA.saveSmartFolder(name: "CONTRATOS EM REVISAO", filter: filter) }
+        try require(sameName && (try LibraryFiles.read(smartPointer, maximum: 1_024)) == savedPointer, "Um nome equivalente substituiu silenciosamente uma regra salva.")
+        var invalidDates = filter; invalidDates.modifiedAfter = filter.modifiedBefore?.addingTimeInterval(1)
+        let reversedDates = await rejects { _ = try await storeA.saveSmartFolder(name: "Datas inválidas", filter: invalidDates) }
+        invalidDates.modifiedAfter = Date(timeIntervalSince1970: .infinity)
+        let nonfiniteDates = await rejects { _ = try await storeA.saveSmartFolder(name: "Datas infinitas", filter: invalidDates) }
+        try require(reversedDates && nonfiniteDates && (try LibraryFiles.read(smartPointer, maximum: 1_024)) == savedPointer, "Datas inválidas entraram nas regras ou modificaram o estado anterior.")
+        var excluded = filter; excluded.modifiedAfter = edited.documents[0].current.created.addingTimeInterval(1); excluded.modifiedBefore = nil
+        try require(excluded.apply(edited.documents).isEmpty, "A data inicial não foi aplicada à versão atual.")
+        excluded = filter; excluded.modifiedAfter = nil; excluded.modifiedBefore = edited.documents[0].current.created.addingTimeInterval(-1)
+        try require(excluded.apply(edited.documents).isEmpty, "A data final não foi aplicada à versão atual.")
+        var rolling = LibrarySmartFilter(); rolling.mode = .recent
+        try require(rolling.apply(edited.documents, now: edited.documents[0].current.created.addingTimeInterval(8 * 86_400)).isEmpty, "A regra relativa de sete dias congelou os resultados ao ser salva.")
+        var updatedRule = filter; updatedRule.mode = .protected
+        let updatedFolders = try await storeA.saveSmartFolder(id: savedFolder.id, name: "PDFs protegidos", filter: updatedRule)
+        try require(updatedFolders.count == 1 && updatedFolders[0].id == savedFolder.id && updatedFolders[0].filter.apply(edited.documents).isEmpty, "A atualização explícita não preservou a identidade ou alterou os critérios errados.")
+        let protectedPointer = try LibraryFiles.read(smartPointer, maximum: 1_024)
+        guard let pointerObject = try JSONSerialization.jsonObject(with: protectedPointer) as? [String: Any], let rulesHash = pointerObject["hash"] as? String else { throw LibraryFailure.corrupt }
+        let rulesURL = directoryA.appendingPathComponent("smart-folders/" + rulesHash + ".json")
+        let rulesBackup = try LibraryFiles.read(rulesURL, maximum: LibrarySmartFolders.maximumBytes)
+        try Data("{}".utf8).write(to: rulesURL)
+        let damagedRules = await rejects { _ = try await storeA.smartFolders() }
+        try require(damagedRules, "Regras adulteradas passaram pela verificação de integridade.")
+        try rulesBackup.write(to: rulesURL)
+        try Data("{\"version\":1,\"hash\":\"../../outside\"}".utf8).write(to: smartPointer)
+        let rulesTraversal = await rejects { _ = try await storeA.smartFolders() }
+        try require(rulesTraversal, "O ponteiro das regras aceitou travessia de caminho.")
+        try protectedPointer.write(to: smartPointer)
+        try FileManager.default.removeItem(at: smartPointer)
+        try FileManager.default.createSymbolicLink(at: smartPointer, withDestinationURL: source)
+        let linkedRules = await rejects { _ = try await storeA.smartFolders() }
+        try require(linkedRules && (try Data(contentsOf: source)) == original, "A leitura das regras seguiu um link ou alterou o PDF original.")
+        try FileManager.default.removeItem(at: smartPointer); try LibraryFiles.publish(protectedPointer, to: smartPointer)
+        let removedFolders = try await storeA.deleteSmartFolder(id: savedFolder.id)
+        let catalogAfterRuleDeletion = try await storeA.list()
+        try require(removedFolders.isEmpty && catalogAfterRuleDeletion == edited && (try Data(contentsOf: copiedURL)) == original, "Remover uma pasta inteligente removeu documentos ou histórico.")
+        let tooManyRules = (0..<65).map { LibrarySmartFolder(id: UUID(), name: "Regra \($0)", filter: LibrarySmartFilter(), modified: Date()) }
+        let rulesQuota = await rejects { try LibrarySmartFolders.validate(.init(version: 1, folders: tooManyRules)) }
+        let unknownMode = await rejects { _ = try JSONDecoder().decode(LibrarySmartFilter.self, from: Data("{\"text\":\"\",\"collection\":\"\",\"tag\":\"\",\"mode\":\"execute-script\"}".utf8)) }
+        try require(rulesQuota && unknownMode, "A validação aceitou regras excessivas ou uma categoria desconhecida.")
         let searchSource = try await storeA.excerpts(documentIDs: [id], cancellation: NativeCancellation())
         let retrieval = LibraryRetrieval()
         let result = try await retrieval.search(question: "PAGAMENTO AÇÃO", source: searchSource, useEmbeddings: false)
@@ -105,6 +154,58 @@ enum LibraryAuditChecks {
         try require(falseAttribution, "Uma citação de outro documento foi aceita por compartilhar o número da página.")
         let unsupported = try LibraryAnswering.validate(GroundedAnswer(supported: false, answer: "Sem apoio", citations: []), result: multiDocument)
         try require(unsupported.citations.isEmpty && unsupported.text.contains("evidências suficientes"), "A resposta sem apoio não foi recusada.")
+
+        let firstClaim = LibraryComparisonResponse.Claim(claim: firstSource.text, excerpt: context.excerpts[0].id, quote: firstSource.text)
+        let secondClaim = LibraryComparisonResponse.Claim(claim: secondText, excerpt: context.excerpts[1].id, quote: secondText)
+        let comparisonPair = LibraryComparisonResponse.Pair(topic: "Prazo de pagamento", first: firstClaim, second: secondClaim)
+        let comparison = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [comparisonPair]), result: multiDocument)
+        guard let checkedPair = comparison.pairs.first else { throw LibraryFailure.corrupt }
+        try require(comparison.pairs.count == 1 && checkedPair.first.citation.source.documentID != checkedPair.second.citation.source.documentID && checkedPair.first.citation.source.page == 1 && checkedPair.second.citation.source.page == 1 && checkedPair.first.citation.source.revisionID == firstSource.revisionID && checkedPair.second.citation.source.fingerprint == secondSource.fingerprint, "A comparação confundiu documentos na mesma página ou perdeu versão e impressão digital.")
+        try require(comparison.explanation.contains("Possíveis divergências") && Data(checkedPair.first.citation.quote.utf8) == Data(firstSource.text.utf8), "Uma hipótese de contradição foi apresentada como verdade ou perdeu sua citação literal.")
+        let forgedClaim = LibraryComparisonResponse.Claim(claim: firstSource.text, excerpt: "s" + String(repeating: "0", count: 64), quote: firstSource.text)
+        let forgedComparison = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Prazo", first: forgedClaim, second: secondClaim)]), result: multiDocument) }
+        let swappedClaim = LibraryComparisonResponse.Claim(claim: firstSource.text, excerpt: context.excerpts[1].id, quote: firstSource.text)
+        let swappedComparison = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Prazo", first: firstClaim, second: swappedClaim)]), result: multiDocument) }
+        let inventedQuote = LibraryComparisonResponse.Claim(claim: "O prazo de pagamento é de duzentos dias.", excerpt: context.excerpts[1].id, quote: "O prazo de pagamento é de duzentos dias.")
+        let inventedComparison = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Prazo", first: firstClaim, second: inventedQuote)]), result: multiDocument) }
+        try require(forgedComparison && swappedComparison && inventedComparison, "A comparação aceitou ID inventado, atribuição cruzada ou texto inexistente.")
+        try require(firstSource.text.contains("trinta") && firstSource.text.contains("vence"), "A fixture não contém os termos para auditar quantidade e negação.")
+        let alteredAmount = LibraryComparisonResponse.Claim(claim: firstSource.text.replacingOccurrences(of: "trinta", with: "duzentos"), excerpt: firstClaim.excerpt, quote: firstSource.text)
+        let alteredNegation = LibraryComparisonResponse.Claim(claim: firstSource.text.replacingOccurrences(of: "vence", with: "não vence"), excerpt: firstClaim.excerpt, quote: firstSource.text)
+        let fabricatedAmount = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Valor fabricado", first: alteredAmount, second: secondClaim)]), result: multiDocument) }
+        let fabricatedNegation = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Negação fabricada", first: alteredNegation, second: secondClaim)]), result: multiDocument) }
+        try require(fabricatedAmount && fabricatedNegation, "Uma afirmação inventada foi aceita por acompanhar uma citação autêntica.")
+        let sameDocumentSource = LibraryExcerpt(documentID: firstSource.documentID, revisionID: secondSource.revisionID, fingerprint: secondSource.fingerprint, title: "Outra versão, mesmo documento", page: 1, part: 0, text: secondText)
+        let sameDocumentResult = LibrarySearchResult(question: multiDocument.question, sources: [firstSource, sameDocumentSource], method: multiDocument.method, skipped: [])
+        let sameDocumentContext = try LibraryAnswering.context(sameDocumentResult)
+        let sameDocumentClaim = LibraryComparisonResponse.Claim(claim: secondClaim.claim, excerpt: sameDocumentContext.excerpts[1].id, quote: secondText)
+        let sameDocumentRejected = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Mesmo documento", first: firstClaim, second: sameDocumentClaim)]), result: sameDocumentResult) }
+        let reversedPair = LibraryComparisonResponse.Pair(topic: "Repetição invertida", first: secondClaim, second: firstClaim)
+        let repeatedComparison = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [comparisonPair, reversedPair]), result: multiDocument) }
+        let inconsistentRefusal = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: false, pairs: [comparisonPair]), result: multiDocument) }
+        let emptyPositive = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: []), result: multiDocument) }
+        try require(sameDocumentRejected && repeatedComparison && inconsistentRefusal && emptyPositive, "A comparação aceitou fontes iguais, pares repetidos ou um contrato de resposta inconsistente.")
+        let noComparison = try await LibraryAnswering.compare(absent)
+        let oneDocumentComparison = try await LibraryAnswering.compare(sameDocumentResult)
+        let unsupportedComparison = try LibraryAnswering.validateComparison(.init(supported: false, pairs: []), result: multiDocument)
+        try require(noComparison.pairs.isEmpty && oneDocumentComparison.pairs.isEmpty && unsupportedComparison.explanation.contains("não comprova"), "A recusa sem duas fontes tentou inferência ou declarou concordância sem provas.")
+        let changedRevision = LibraryExcerpt(documentID: secondSource.documentID, revisionID: UUID(), fingerprint: secondSource.fingerprint, title: secondSource.title, page: 1, part: 0, text: secondText)
+        let changedRevisionResult = LibrarySearchResult(question: multiDocument.question, sources: [firstSource, changedRevision], method: multiDocument.method, skipped: [])
+        let staleReference = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [comparisonPair]), result: changedRevisionResult) }
+        try require(staleReference, "Uma comparação reaproveitou a identidade de uma revisão fora da consulta atual.")
+        let alteredWhitespace = LibraryComparisonResponse.Claim(claim: firstClaim.quote.replacingOccurrences(of: " ", with: "  "), excerpt: firstClaim.excerpt, quote: firstClaim.quote.replacingOccurrences(of: " ", with: "  "))
+        let nonliteralWhitespace = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [.init(topic: "Citação alterada", first: alteredWhitespace, second: secondClaim)]), result: multiDocument) }
+        let excessivePairs = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: Array(repeating: comparisonPair, count: 5)), result: multiDocument) }
+        try require(nonliteralWhitespace && excessivePairs, "A comparação aceitou alteração dos bytes da citação ou excedeu o limite de pares.")
+        let longSources = (0..<6).map { index in
+            LibraryExcerpt(documentID: UUID(), revisionID: UUID(), fingerprint: initial.fingerprint, title: "Fonte sintética \(index)", page: 1, part: 0,
+                           text: String(repeating: "Conteúdo de contexto limitado. ", count: 28) + " Fim exclusivo da fonte \(index).")
+        }
+        let longResult = LibrarySearchResult(question: "Comparar as condições", sources: longSources, method: "Contrato sintético do limite de contexto", skipped: [])
+        let endpoints = try LibraryAnswering.context(.init(question: longResult.question, sources: [longSources[0], longSources[5]], method: longResult.method, skipped: []))
+        let outsideContext = LibraryComparisonResponse.Pair(topic: "Trecho não enviado", first: .init(claim: "Conteúdo de contexto limitado.", excerpt: endpoints.excerpts[0].id, quote: "Conteúdo de contexto limitado."), second: .init(claim: "Fim exclusivo da fonte 5.", excerpt: endpoints.excerpts[1].id, quote: "Fim exclusivo da fonte 5."))
+        let omittedContext = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [outsideContext]), result: longResult) }
+        try require(omittedContext, "A comparação aceitou uma citação da consulta que não foi enviada ao modelo por limite de contexto.")
 
         let exchange = root.appendingPathComponent("Chosen Sync Folder")
         try LibraryFiles.directory(exchange, create: true)
@@ -261,6 +362,53 @@ enum LibraryAuditChecks {
         localNote.contents = "Private unsaved annotation"; editedPage.addAnnotation(localNote); editedSession.hasEdits = true; reader.hasEdits = true
         reader.open(url: source, page: 1, displayTitle: "Fonte original verificada")
         try require(reader.activeSessionID != editedSession.id && editedSession.document.page(at: 0)?.annotations.contains(where: { $0 === localNote }) == true && reader.document?.page(at: 0)?.annotations.isEmpty == true, "A citação exibiu uma aba alterada ou descartou as alterações da aba anterior.")
+
+        // Replace an on-disk object after validation. Verified readers must use
+        // the original immutable snapshot, including while asking for a password.
+        let pinned = try await storeA.verifiedBytes(document: id, revision: initial.id)
+        let replacementBytes = try Data(contentsOf: changedB)
+        try replacementBytes.write(to: pinned.url)
+        reader.open(url: pinned.url)
+        guard let substitutedSession = reader.activeSession else { throw LibraryFailure.invalidPDF }
+        try require(substitutedSession.document.string?.contains("sessenta") == true, "A fixture de troca do arquivo não abriu os bytes substituídos.")
+        reader.openVerified(data: pinned.data, url: pinned.url, sha: pinned.fingerprint, page: 1, title: "Citação com bytes fixos")
+        await reader.waitForPendingOpen()
+        guard let pinnedSession = reader.activeSession else { throw LibraryFailure.invalidPDF }
+        try require(pinnedSession.id != substitutedSession.id && pinnedSession.sourceFingerprint == pinned.fingerprint && pinnedSession.document.string?.contains("trinta") == true && pinnedSession.document.string?.contains("sessenta") == false, "Uma troca após a verificação mudou o conteúdo exibido sob o hash da citação.")
+        try require(substitutedSession.document.string?.contains("sessenta") == true && (try Data(contentsOf: pinned.url)) == replacementBytes, "A abertura verificada contaminou outra aba ou reescreveu a URL adversarial.")
+        let pinnedNote = PDFAnnotation(bounds: CGRect(x: 20, y: 20, width: 30, height: 30), forType: .text, withProperties: nil)
+        pinnedNote.contents = "Unsaved change in a verified-source tab"
+        pinnedSession.document.page(at: 0)?.addAnnotation(pinnedNote); pinnedSession.hasEdits = true; reader.hasEdits = true
+        reader.openVerified(data: pinned.data, url: pinned.url, sha: pinned.fingerprint, page: 1, title: "Bytes originais novamente")
+        await reader.waitForPendingOpen()
+        try require(reader.activeSessionID != pinnedSession.id && reader.document?.page(at: 0)?.annotations.isEmpty == true && pinnedSession.document.page(at: 0)?.annotations.contains(where: { $0 === pinnedNote }) == true, "Uma aba verificada mas alterada foi reutilizada como fonte original.")
+        let validSessionID = reader.activeSessionID, countBeforeMismatch = reader.sessions.count
+        reader.openVerified(data: replacementBytes, url: pinned.url, sha: pinned.fingerprint, page: 1, title: "Hash incompatível")
+        await reader.waitForPendingOpen()
+        try require(reader.sessions.count == countBeforeMismatch && reader.activeSessionID == validSessionID && reader.message.contains("impressão digital"), "O leitor aceitou bytes diferentes do SHA declarado ou substituiu a aba após rejeitar a referência.")
+        // Same URL, different verified payloads must not share a queue identity.
+        reader.openVerified(data: pinned.data, url: pinned.url, sha: pinned.fingerprint, page: 1, title: "Primeiro payload")
+        let replacementHash = LibraryFiles.hash(replacementBytes)
+        reader.openVerified(data: replacementBytes, url: pinned.url, sha: replacementHash, page: 1, title: "Segundo payload")
+        await reader.waitForPendingOpen()
+        try require(reader.activeSession?.sourceFingerprint == replacementHash && reader.document?.string?.contains("sessenta") == true, "A fila descartou bytes distintos por compartilharem a mesma URL.")
+        try pinned.data.write(to: pinned.url)
+
+        let pinnedProtected = try await privateStore.verifiedBytes(document: protectedID)
+        try replacementBytes.write(to: pinnedProtected.url)
+        reader.openVerified(data: pinnedProtected.data, url: pinnedProtected.url, sha: pinnedProtected.fingerprint, page: 2, title: "Citação protegida com bytes fixos")
+        await reader.waitForPendingOpen()
+        try require(reader.needsPassword, "A abertura verificada seguiu a URL substituída por plaintext em vez dos bytes protegidos.")
+        try Data(contentsOf: changedA).write(to: pinnedProtected.url)
+        reader.documentPassword = "intentionally-wrong-verified-password"; reader.unlockPendingDocument(); await reader.waitForPendingOpen()
+        try require(reader.needsPassword && reader.activeSession?.sourceFingerprint != pinnedProtected.fingerprint, "Uma senha incorreta publicou ou substituiu uma fonte verificada protegida.")
+        reader.documentPassword = secret; reader.unlockPendingDocument(); await reader.waitForPendingOpen()
+        guard let verifiedProtectedSession = reader.activeSession else { throw LibraryFailure.invalidPDF }
+        try require(verifiedProtectedSession.sourceFingerprint == pinnedProtected.fingerprint && verifiedProtectedSession.sourceURL == pinnedProtected.url && verifiedProtectedSession.password == secret && reader.currentPage == 2 && reader.document?.isEncrypted == true && reader.document?.string?.contains("trinta") == true, "O pedido de senha releu a URL ou perdeu bytes, hash, página ou proteção da referência.")
+        reader.openVerified(data: pinnedProtected.data, url: pinnedProtected.url, sha: pinnedProtected.fingerprint, page: 1, title: "Fonte protegida já autenticada")
+        await reader.waitForPendingOpen()
+        try require(!reader.needsPassword && reader.activeSessionID == verifiedProtectedSession.id && reader.currentPage == 1, "Uma fonte autenticada com bytes idênticos não pôde ser reutilizada para comparar versões.")
+        try pinnedProtected.data.write(to: pinnedProtected.url)
         for session in reader.sessions { reader.closeSession(session.id, discardChanges: true) }
         let cancel = NativeCancellation(); cancel.cancel()
         let cancellationRespected = await rejects { _ = try await storeA.excerpts(documentIDs: [id], cancellation: cancel) }

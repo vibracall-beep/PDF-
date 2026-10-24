@@ -9,6 +9,7 @@ import io
 import math
 from pathlib import Path
 import re
+import statistics
 import tempfile
 
 import fitz
@@ -105,7 +106,7 @@ def _read_words(tsv, width, height):
     return words
 
 
-def _lines(words):
+def _word_groups(words):
     groups = []
     for word in sorted(words,key=lambda word:(word['rect'][1],word['rect'][0])):
         box=fitz.Rect(word['rect']); middle=(box.y0+box.y1)/2
@@ -113,20 +114,76 @@ def _lines(words):
         if line is None:
             line=dict(middle=middle,height=box.height,words=[]); groups.append(line)
         line['words'].append(word)
-    return [' '.join(word['text'] for word in sorted(line['words'],key=lambda word:word['rect'][0])) for line in sorted(groups,key=lambda line:line['middle'])]
+    return [sorted(line['words'],key=lambda word:word['rect'][0]) for line in sorted(groups,key=lambda line:line['middle'])]
+
+
+def _lines(words):
+    return [' '.join(word['text'] for word in line) for line in _word_groups(words)]
 
 
 def _inside(words, rect):
     return [word for word in words if rect.contains(fitz.Point((word['rect'][0]+word['rect'][2])/2,(word['rect'][1]+word['rect'][3])/2))]
 
 
+def _aligned_tables(words,excluded):
+    """Require repeated column alignment and numeric evidence, not prose gaps."""
+    from document_layout import _aligned_rows
+    indices={id(word):index for index,word in enumerate(words)}
+    groups=_word_groups([word for index,word in enumerate(words) if index not in excluded])
+    found=[];active=[]
+    def finish():
+        if len(active)<3: return
+        rows=[[' '.join(word['text'] for word in cell) for cell in line['cells']] for line in active]
+        if _aligned_rows(rows) is None: return
+        cells=[];selected=[]
+        for row,line in enumerate(active):
+            for column,group in enumerate(line['cells']):
+                box=fitz.Rect(group[0]['rect'])
+                for word in group[1:]: box|=fitz.Rect(word['rect'])
+                chosen=[indices[id(word)] for word in group];selected.extend(chosen)
+                cells.append(dict(row=row,column=column,row_span=1,column_span=1,rect=list(box),text=rows[row][column],
+                    confidence=sum(word['confidence'] for word in group)/len(group),word_indices=chosen))
+        box=fitz.Rect(cells[0]['rect'])
+        for cell in cells[1:]: box|=fitz.Rect(cell['rect'])
+        selected_set=set(selected)
+        if any(index not in selected_set and box.contains((fitz.Rect(word['rect']).tl+fitz.Rect(word['rect']).br)/2) for index,word in enumerate(words)): return
+        found.append(dict(rect=list(box),rows=rows,cells=cells,word_indices=selected,source='ocr-aligned',merges=[]))
+    for group in groups:
+        height=statistics.median(fitz.Rect(word['rect']).height for word in group)
+        cells=[]
+        for word in group:
+            if not cells or word['rect'][0]-cells[-1][-1]['rect'][2]>max(12,height*2): cells.append([word])
+            else: cells[-1].append(word)
+        if not 2<=len(cells)<=12: finish();active=[];continue
+        rect=fitz.Rect(group[0]['rect'])
+        for word in group[1:]: rect|=fitz.Rect(word['rect'])
+        current=dict(cells=cells,rect=rect,height=height)
+        if active:
+            compatible=len(cells)==len(active[0]['cells']) and rect.y0-active[-1]['rect'].y1<=max(height,active[-1]['height'])*5
+            if compatible:
+                tolerance=max(3,height*0.8)
+                for column in range(len(cells)):
+                    spans=[(row['cells'][column][0]['rect'][0],row['cells'][column][-1]['rect'][2]) for row in [*active,current]]
+                    compatible &= any(max(values)-min(values)<=tolerance for values in ([span[0] for span in spans],[span[1] for span in spans],[(span[0]+span[1])/2 for span in spans]))
+            if not compatible: finish();active=[]
+        active.append(current)
+        if len(active)>=1000: finish();active=[]
+    finish()
+    return found
+
+
 def analyze(page, page_number, options, external):
+    from scan_geometry import rectangular_grid, deskew, original_geometry
     dpi = _number(options.get('ocr_dpi',200),'DPI do OCR',120,400,integer=True)
     minimum_confidence = _number(options.get('min_confidence',35),'Confiança mínima',0,100)/100
     language = options.get('language','eng')
     if not isinstance(language,str) or not re.fullmatch(r'[A-Za-z0-9_]+(?:\+[A-Za-z0-9_]+)*',language):
         raise ValueError('Idioma OCR inválido; use eng, por ou por+eng.')
     psm = _number(options.get('ocr_psm',6),'Modo de segmentação OCR',3,13,integer=True)
+    table_detection=options.get('table_detection','ruled')
+    if table_detection not in ('ruled','aligned'): raise ValueError('Detecção de tabela inválida: use ruled ou aligned.')
+    correct_skew=options.get('ocr_deskew',False)
+    if not isinstance(correct_skew,bool): raise ValueError('ocr_deskew deve ser true ou false.')
     scale=dpi/72
     bounds=page.rect*page.derotation_matrix
     if math.ceil(bounds.width*scale)*math.ceil(bounds.height*scale)>40_000_000:
@@ -138,6 +195,10 @@ def analyze(page, page_number, options, external):
     finally: page.set_rotation(rotation)
     image=Image.frombytes('L',(pix.width,pix.height),pix.samples); del pix
     image=ImageOps.autocontrast(image,cutoff=0.5)
+    preprocessing=dict(applied=False,rotation_degrees=0,status='disabled',original_size=list(image.size),processed_size=list(image.size))
+    if correct_skew:
+        original=image;image,preprocessing=deskew(original,scale,_segments,_components)
+        if image is not original: original.close()
     binary=image.point(lambda value:0 if value<180 else 255)
     horizontal=_segments(binary,scale); vertical=_segments(binary,scale,vertical=True)
     # A cap keeps noisy scans from turning intersection analysis quadratic without bound.
@@ -146,14 +207,13 @@ def analyze(page, page_number, options, external):
     tolerance=max(3,scale*1.5)
     components=[]
     for hs,vs in _components(horizontal,vertical,tolerance):
-        # Every ruling must meet the perpendicular borders. Rounded glyphs such
-        # as O/D have gaps at these corners and must never be erased as boxes.
+        # A strong outer frame and unambiguous interior edges allow rectangular
+        # merged cells; partial/broken borders never imply an absent edge.
         if (vs[-1]['at']-vs[0]['at'])/scale<7 or (hs[-1]['at']-hs[0]['at'])/scale<7: continue
-        if not all(line['start']<=vs[0]['at']+0.5 and line['end']>=vs[-1]['at']-0.5 for line in hs): continue
-        if not all(line['start']<=hs[0]['at']+0.5 and line['end']>=hs[-1]['at']-0.5 for line in vs): continue
-        components.append((hs,vs))
+        grid=rectangular_grid(hs,vs,tolerance)
+        if grid is not None: components.append((hs,vs,grid))
     structural_h=[]; structural_v=[]
-    for hs,vs in components: structural_h.extend(hs); structural_v.extend(vs)
+    for hs,vs,_ in components: structural_h.extend(hs); structural_v.extend(vs)
     # Suppress rules in an OCR-only image; the input PDF and exported image are untouched.
     cleaned=image.copy(); drawing=ImageDraw.Draw(cleaned)
     underlines=[line for line in horizontal if line not in structural_h and (line['end']-line['start'])/scale>=35]
@@ -166,29 +226,43 @@ def analyze(page, page_number, options, external):
         path=Path(temporary)/'page.png'; cleaned.save(path)
         response=external(['tesseract',path,'stdout','-l',language,'--psm',str(psm),'--dpi',str(dpi),'tsv'],timeout=180)
         words=_read_words(response.stdout,image.width,image.height)
-    tables=[]; rectangles=[]
-    for hs,vs in components:
-        if (len(hs)-1)*(len(vs)-1)>4096: raise ValueError('A grade excede 4.096 células. Analise uma região menor.')
-        rows=[]; cells=[]; complete=True
-        for row,(top,bottom) in enumerate(zip(hs,hs[1:])):
-            values=[]
-            for column,(left,right) in enumerate(zip(vs,vs[1:])):
-                rect=fitz.Rect(left['at'],top['at'],right['at'],bottom['at'])
-                edges=(top['start']<=rect.x0+tolerance and top['end']>=rect.x1-tolerance and bottom['start']<=rect.x0+tolerance and bottom['end']>=rect.x1-tolerance and left['start']<=rect.y0+tolerance and left['end']>=rect.y1-tolerance and right['start']<=rect.y0+tolerance and right['end']>=rect.y1-tolerance)
-                if not edges: complete=False; values.append(''); continue
-                inside=_inside(words,rect)
-                value='\n'.join(_lines(inside)); values.append(value)
-                confidence=sum(word['confidence'] for word in inside)/len(inside) if inside else 0
-                cells.append(dict(row=row,column=column,rect=list(rect/scale),text=value,confidence=round(confidence,4)))
-                rectangles.append((rect,inside))
-            rows.append(values)
+    tables=[]; rectangles=[];word_indices={id(word):index for index,word in enumerate(words)}
+    for hs,vs,grid in components:
+        rows=[[None]*grid['columns'] for _ in range(grid['rows'])];cells=[];selected=[];complete=True;merges=[]
+        for cell in grid['cells']:
+            rect=fitz.Rect(cell['rect']);inside=_inside(words,rect)
+            chosen=[word_indices[id(word)] for word in inside]
+            if any(not (rect+(-tolerance,-tolerance,tolerance,tolerance)).contains(fitz.Rect(word['rect'])) for word in inside): complete=False
+            value='\n'.join(_lines(inside));rows[cell['row']][cell['column']]=value
+            confidence=sum(word['confidence'] for word in inside)/len(inside) if inside else 0
+            cells.append(dict(**cell,text=value,confidence=round(confidence,4),word_indices=chosen));selected.extend(chosen)
+            rectangles.append((rect,inside))
+            if cell['row_span']>1 or cell['column_span']>1: merges.append(dict(cell))
+        expected={word_indices[id(word)] for word in _inside(words,fitz.Rect(grid['rect']))}
+        complete &= len(selected)==len(set(selected)) and set(selected)==expected
         nonempty=sum(bool(value) for row in rows for value in row)
-        if complete and len(rows)>=2 and len(vs)>=3 and nonempty>=2:
-            confidence=sum(cell['confidence'] for cell in cells if cell['text'])/nonempty
-            tables.append(dict(rect=[vs[0]['at']/scale,hs[0]['at']/scale,vs[-1]['at']/scale,hs[-1]['at']/scale],rows=rows,cells=cells,confidence=round(confidence,4),source='ocr-grid',review_required=True))
+        if complete and grid['rows']>=2 and grid['columns']>=2 and nonempty>=2:
+            tables.append(dict(rect=grid['rect'],rows=rows,cells=cells,source='ocr-grid',word_indices=selected,merges=merges))
+    owners={};ambiguous=set()
+    for offset,table in enumerate(tables):
+        for index in table['word_indices']:
+            if index in owners: ambiguous.update((offset,owners[index]))
+            else: owners[index]=offset
+    # Nested/disconnected grids may enclose the same recognized words. Preserve
+    # those words as prose instead of duplicating them into competing tables.
+    tables=[table for offset,table in enumerate(tables) if offset not in ambiguous]
+    if table_detection=='aligned':
+        excluded={index for table in tables for index in table['word_indices']}
+        tables.extend(_aligned_tables(words,excluded))
+    for table in tables:
+        occupied=[cell for cell in table['cells'] if cell['text']]
+        table['confidence']=round(sum(cell['confidence'] for cell in occupied)/len(occupied),4)
+        table['review_required']=True
+        for record in [table,*table['cells'],*table['merges']]:
+            record['rect'],record['quad']=original_geometry(record['rect'],preprocessing,scale,bounds)
     fields=[]; seen=[]
     for rect,inside in rectangles:
-        point_rect=(rect/scale) & bounds
+        mapped,quad=original_geometry(rect,preprocessing,scale,bounds);point_rect=fitz.Rect(mapped)
         if inside or not 7<=point_rect.height<=100 or not 7<=point_rect.width<=450: continue
         # Failed OCR does not mean a cell is empty. Check its raster interior so
         # printed/handwritten marks never become apparently blank form fields.
@@ -207,26 +281,33 @@ def analyze(page, page_number, options, external):
         label=' '.join(_lines(label_words))[-160:]
         confidence=sum(word['confidence'] for word in label_words)/len(label_words) if label_words else 0.45
         kind='checkbox' if point_rect.width<=26 and point_rect.height<=26 else 'text'
-        fields.append(dict(name=f'ocr_{page_number}_{len(fields)+1}',page=page_number,type=kind,rect=[round(value,3) for value in point_rect],label=label,confidence=round(confidence,4),source='ocr-grid',review_required=True,low_confidence=confidence<minimum_confidence))
+        fields.append(dict(name=f'ocr_{page_number}_{len(fields)+1}',page=page_number,type=kind,rect=[round(value,3) for value in point_rect],quad=quad,label=label,confidence=round(confidence,4),source='ocr-grid',review_required=True,low_confidence=confidence<minimum_confidence))
     # Underlined fields can be unconnected to a vertical border.
     for line in horizontal:
         if line in structural_h or (line['end']-line['start'])/scale<35: continue
         rect=fitz.Rect(line['start']/scale,max(0,line['at']/scale-18),line['end']/scale,line['at']/scale+2)
-        if _inside(words,rect*scale) or not bounds.contains(rect): continue
+        if _inside(words,rect*scale): continue
+        mapped,quad=original_geometry(rect*scale,preprocessing,scale,bounds)
         label_words=_inside(words,fitz.Rect(max(0,rect.x0-180),rect.y0-5,rect.x0,rect.y1+5)*scale)
         if not label_words: continue
         confidence=sum(word['confidence'] for word in label_words)/len(label_words)
-        fields.append(dict(name=f'ocr_{page_number}_{len(fields)+1}',page=page_number,type='text',rect=list(rect),label=' '.join(_lines(label_words))[-160:],confidence=round(confidence*0.85,4),source='ocr-line',review_required=True,low_confidence=confidence<minimum_confidence))
-    for word in words: word['rect']=[round(value/scale,3) for value in word['rect']]
-    return dict(page=page_number,source='ocr',dpi=dpi,language=language,words=words,lines=_lines(words),tables=tables,fields=fields,review_required=True,
+        fields.append(dict(name=f'ocr_{page_number}_{len(fields)+1}',page=page_number,type='text',rect=mapped,quad=quad,label=' '.join(_lines(label_words))[-160:],confidence=round(confidence*0.85,4),source='ocr-line',review_required=True,low_confidence=confidence<minimum_confidence))
+    lines=_lines(words)
+    for word in words: word['rect'],word['quad']=original_geometry(word['rect'],preprocessing,scale,bounds)
+    image.close();binary.close();cleaned.close()
+    return dict(page=page_number,source='ocr',dpi=dpi,language=language,words=words,lines=lines,tables=tables,fields=fields,review_required=True,preprocessing=preprocessing,
                 low_confidence_words=sum(word['confidence']<minimum_confidence for word in words),
-                limitations=['Scores are OCR evidence, not calibrated accuracy.','Upright ruled tables are supported; merged cells, borderless tables, handwriting and skew require review.'])
+                limitations=['Scores are OCR evidence, not calibrated accuracy.','Merged cells require a strong rectangular frame and unambiguous interior borders.',
+                    'Borderless tables require explicit aligned mode, repeated columns and numeric evidence.',
+                    'Optional deskew uses ruling lines within seven degrees; text-only skew and handwriting are not corrected.',
+                    'Inverse-mapped rectangles enclose original quadrilaterals; rotated form fields require manual review.'])
 
 
 def elements(analysis):
     """Emit editable paragraphs and tables in approximate reading order."""
-    entries=[dict(type=2,bbox=table['rect'],rows=table['rows']) for table in analysis['tables']]
-    words=[word for word in analysis['words'] if not any(fitz.Rect(table['rect']).contains(fitz.Point((word['rect'][0]+word['rect'][2])/2,(word['rect'][1]+word['rect'][3])/2)) for table in analysis['tables'])]
+    entries=[dict(type=2,bbox=table['rect'],rows=table['rows'],merges=table.get('merges',[])) for table in analysis['tables']]
+    consumed={index for table in analysis['tables'] for index in table.get('word_indices',[])}
+    words=[word for index,word in enumerate(analysis['words']) if index not in consumed]
     groups=[]
     for word in sorted(words,key=lambda word:(word['rect'][1],word['rect'][0])):
         rect=fitz.Rect(word['rect']); middle=(rect.y0+rect.y1)/2

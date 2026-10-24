@@ -106,6 +106,8 @@ import Darwin
         process.standardInput = FileHandle.nullDevice
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
+        let bundleLease = try BundleRuntimeLease.configureChild(process)
+        defer { try? bundleLease?.close() }
         let deadline = ProcessInfo.processInfo.systemUptime + 30
         try process.run()
         let ready: Ready

@@ -23,6 +23,9 @@ def fixture_app(path, version):
     (path / 'Contents/MacOS').mkdir(parents=True)
     (path / 'Contents/Info.plist').write_bytes(plistlib.dumps({'CFBundleIdentifier': 'local.pdf.desktop'}))
     (path / 'Contents/MacOS/PDF').write_text(version)
+    (path / 'Contents/Resources').mkdir()
+    lease = path / 'Contents/Resources/installation.lock'
+    lease.touch(); lease.chmod(0o444)
 
 
 class BinaryUpdateTests(unittest.TestCase):
@@ -61,6 +64,39 @@ class BinaryUpdateTests(unittest.TestCase):
             updater.install(self.distribution, self.parent, validate=validate)
         self.assertEqual(self.version(), 'old')
         self.assertEqual(len(list(self.parent.glob('PDF.failed.*.app'))), 1)
+
+    def test_failed_staging_validation_does_not_accumulate_copies(self):
+        def reject(path):
+            self.assertTrue((path / 'Contents/MacOS/PDF').is_file())
+            raise ValueError('candidate failed before publication')
+        for _ in range(2):
+            with self.assertRaisesRegex(ValueError, 'before publication'):
+                updater.install(self.distribution, self.parent, validate=reject)
+            self.assertEqual(list(self.parent.glob('.pdf-incoming.*.app')), [])
+            self.assertFalse((self.parent / '.pdf-update.json').exists())
+            self.assertEqual(self.version(), 'old')
+
+    def test_partial_copy_failure_removes_only_this_staging_directory(self):
+        def fail_copy(source, destination):
+            Path(destination).write_bytes(b'partial')
+            raise OSError(errno.ENOSPC, 'no space for copy')
+        with patch.object(updater, 'copy_regular_file', fail_copy):
+            with self.assertRaises((OSError, updater.shutil.Error)):
+                updater.install(self.distribution, self.parent, validate=lambda _: None)
+        self.assertEqual(list(self.parent.glob('.pdf-incoming.*.app')), [])
+        self.assertEqual(self.version(), 'old')
+
+    def test_staging_failure_preserves_foreign_replacement(self):
+        def replace(path):
+            path.rename(self.parent / 'owned-copy-preserved.app')
+            path.mkdir()
+            (path / 'foreign.txt').write_text('foreign replacement')
+            raise ValueError('directory identity changed')
+        with self.assertRaisesRegex(ValueError, 'identity changed'):
+            updater.install(self.distribution, self.parent, validate=replace)
+        incoming = next(self.parent.glob('.pdf-incoming.*.app'))
+        self.assertEqual((incoming / 'foreign.txt').read_text(), 'foreign replacement')
+        self.assertEqual(self.version(), 'old')
 
     def test_manifest_rejects_tampering_added_file_and_changed_mode(self):
         app = self.distribution / 'PDF.app/Contents/MacOS/PDF'

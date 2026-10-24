@@ -84,6 +84,7 @@ if [[ -e "$PDF_DESTINATION" || -L "$PDF_DESTINATION" ]]; then
   [[ -d "$PDF_DESTINATION" && ! -L "$PDF_DESTINATION" ]] || fail "O destino não é um bundle regular: $PDF_DESTINATION"
   PDF_EXISTING_ID="$(/usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' "$PDF_DESTINATION/Contents/Info.plist" 2>/dev/null || true)"
   [[ "$PDF_EXISTING_ID" == local.pdf.desktop ]] || fail 'Já existe outro aplicativo chamado PDF.app. Escolha PDF_INSTALL_DIR diferente.'
+  [[ -f "$PDF_DESTINATION/Contents/Resources/installation.lock" && ! -L "$PDF_DESTINATION/Contents/Resources/installation.lock" ]] || fail 'A versão anterior não possui atualização segura. Use PDF_INSTALL_DIR em um diretório novo; o aplicativo anterior e suas preferências serão preservados.'
   PDF_ORIGINAL_ID="$(stat -f '%d:%i' "$PDF_DESTINATION")"
 fi
 cd "$PDF_SOURCE_ROOT"
@@ -177,6 +178,9 @@ cat > "$PDF_BUNDLE/Contents/Info.plist" <<'PLIST'
 </dict></array>
 </dict></plist>
 PLIST
+"$PDF_PYTHON" scripts/app_intents_metadata.py extract --source-root "$PDF_SOURCE_ROOT" --resources "$PDF_BUNDLE/Contents/Resources"
+: > "$PDF_BUNDLE/Contents/Resources/installation.lock"
+chmod 444 "$PDF_BUNDLE/Contents/Resources/installation.lock"
 plutil -lint "$PDF_BUNDLE/Contents/Info.plist"
 # Sign innermost application-owned executable, then seal the complete bundle.
 codesign --force --sign - --timestamp=none "$PDF_BUNDLE/Contents/MacOS/PDF"
@@ -185,7 +189,17 @@ codesign --verify --deep --strict "$PDF_BUNDLE"
 printf '%s\n' 'Validando motor, conversões e componentes nativos…'
 "$PDF_RUNTIME/bin/python3" -m unittest discover -s tests -v
 "$PDF_RUNTIME/bin/python3" -m unittest discover -s tests -p 'integration_*.py' -v
-bash scripts/check-mac.sh "$PDF_BUNDLE"
+# Hold the same immutable lock inode across preflight, activation and rollback.
+# The Python child inherits the shell open-file description; closing the child
+# descriptor does not release the lease while this shell keeps FD 8/9 open.
+if [[ -n "$PDF_ORIGINAL_ID" ]]; then
+  [[ -f "$PDF_DESTINATION/Contents/Resources/installation.lock" && ! -L "$PDF_DESTINATION/Contents/Resources/installation.lock" ]] || fail 'A versão anterior não possui atualização segura. Use PDF_INSTALL_DIR em um diretório novo; o aplicativo anterior e suas preferências serão preservados.'
+  exec 9< "$PDF_DESTINATION/Contents/Resources/installation.lock"
+  "$PDF_PYTHON" scripts/bundle_lease.py --app "$PDF_DESTINATION" --fd 9
+fi
+exec 8< "$PDF_BUNDLE/Contents/Resources/installation.lock"
+"$PDF_PYTHON" scripts/bundle_lease.py --app "$PDF_BUNDLE" --fd 8
+PDF_INSTALLATION_LOCK_FD=8 PDF_INSTALLATION_LOCK_BUNDLE="$PDF_BUNDLE" bash scripts/check-mac.sh "$PDF_BUNDLE"
 PDF_STAGED_ID="$("$PDF_PYTHON" "$PDF_FILE_HELPER" identity "$PDF_BUNDLE")"
 if [[ -n "$PDF_ORIGINAL_ID" ]]; then
   PDF_BACKUP="$PDF_INSTALL_PARENT/PDF.previous.$(date -u +%Y%m%dT%H%M%SZ).$$.app"
@@ -193,7 +207,7 @@ if [[ -n "$PDF_ORIGINAL_ID" ]]; then
 fi
 "$PDF_PYTHON" "$PDF_FILE_HELPER" move "$PDF_BUNDLE" "$PDF_DESTINATION" --expected "$PDF_STAGED_ID" >/dev/null
 PDF_ACTIVATED=1
-bash scripts/check-mac.sh "$PDF_DESTINATION"
+PDF_INSTALLATION_LOCK_FD=8 PDF_INSTALLATION_LOCK_BUNDLE="$PDF_DESTINATION" bash scripts/check-mac.sh "$PDF_DESTINATION"
 [[ "$("$PDF_PYTHON" "$PDF_FILE_HELPER" identity "$PDF_DESTINATION")" == "$PDF_STAGED_ID" ]] || fail 'O destino mudou durante a verificação final; os bundles foram preservados.'
 PDF_SUCCESS=1
 printf 'Instalado e verificado: %s\n' "$PDF_DESTINATION"

@@ -810,7 +810,7 @@ private enum LayoutExtraction {
                     do {
                         try cancellation.check()
                         let base = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-layout-\(UUID().uuidString)", isDirectory: true)
-                        try FileManager.default.createDirectory(at: base, withIntermediateDirectories: true)
+                        try FileManager.default.createDirectory(at: base, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
                         defer { try? FileManager.default.removeItem(at: base) }
                         let output = base.appendingPathComponent("blocks.json")
                         let resources = Bundle.main.resourceURL ?? URL(fileURLWithPath: FileManager.default.currentDirectoryPath)
@@ -825,12 +825,15 @@ private enum LayoutExtraction {
                         let process = Process(); process.executableURL = python
                         process.arguments = [engine.path, "layout-extract", inputURL.path, "--output", output.path]
                         var environment = ProcessInfo.processInfo.environment; environment["PDF_OPTIONS_STDIN"] = "1"
+                        environment["PATH"] = python.deletingLastPathComponent().path + ":/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
                         process.environment = environment
-                        let pipe = Pipe(), log = Pipe()
-                        process.standardInput = pipe; process.standardOutput = log; process.standardError = log
+                        let input = try EngineInputTransport(data: Data("{}".utf8)), log = Pipe()
+                        defer { input.close(); try? log.fileHandleForReading.close() }
+                        process.standardInput = input.handle; process.standardOutput = log; process.standardError = log
+                        let runtimeLease = try BundleRuntimeLease.configureRuntimeChild(process)
+                        defer { try? runtimeLease?.close() }
                         try cancellation.check(); try process.run(); cancellation.install(process)
                         defer { cancellation.clear() }
-                        pipe.fileHandleForWriting.write(Data("{}".utf8)); try? pipe.fileHandleForWriting.close()
                         let bytes = log.fileHandleForReading.readDataToEndOfFile(); process.waitUntilExit()
                         try cancellation.check()
                         guard process.terminationStatus == 0 else {

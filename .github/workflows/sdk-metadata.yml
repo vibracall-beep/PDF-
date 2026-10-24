@@ -38,7 +38,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 - <<'PYTHON'
-          import json, os, pathlib, subprocess
+          import json, os, pathlib, shlex, subprocess
           root = pathlib.Path.cwd()
           output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'PDF-SDK-metadata'
           protocols = output / 'protocols.json'
@@ -48,11 +48,17 @@ jobs:
           sdk = subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-path'], text=True).strip()
           compiler = subprocess.check_output(['xcrun', '--find', 'swiftc'], text=True).strip()
           constants = output / 'PDF.swiftconstvalues'
-          subprocess.run([compiler, '-typecheck', '-whole-module-optimization', '-parse-as-library', '-swift-version', '5',
-              '-module-name', 'PDF', '-target', 'arm64-apple-macosx26.0', '-sdk', sdk,
-              '-Xfrontend', '-emit-const-values-path', '-Xfrontend', str(constants),
-              '-Xfrontend', '-const-gather-protocols-file', '-Xfrontend', str(protocols),
-              *map(str, sources)], check=True, timeout=240)
+          driver = subprocess.check_output([compiler, '-driver-print-jobs', '-typecheck', '-parse-as-library',
+              '-swift-version', '5', '-module-name', 'PDF', '-target', 'arm64-apple-macosx26.0', '-sdk', sdk,
+              *map(str, sources)], text=True, timeout=30)
+          (output / 'driver-jobs.txt').write_text(driver)
+          jobs = [shlex.split(line) for line in driver.splitlines() if line.strip()]
+          frontend = next((job for job in jobs if '-frontend' in job and '-typecheck' in job), None)
+          if frontend is None or not set(map(str, sources)) <= set(frontend):
+              raise RuntimeError('Driver did not provide the complete application frontend invocation')
+          frontend = [arg for arg in frontend if arg != '-primary-file']
+          frontend += ['-emit-const-values-path', str(constants), '-const-gather-protocols-file', str(protocols)]
+          subprocess.run(frontend, check=True, timeout=240)
           if not constants.is_file() or constants.stat().st_size == 0:
               raise RuntimeError('Compiler produced no constant metadata')
           (output / 'constants.txt').write_text(str(constants)+'\n')

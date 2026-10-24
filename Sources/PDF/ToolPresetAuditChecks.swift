@@ -37,25 +37,28 @@ import Foundation
         try require(removed.entries(for:"png").isEmpty && removed.defaultOptions(for:"png") == nil,"Excluir configuração deixou referência padrão inválida.")
         var structured = ToolStyleOptions()
         structured.structureSource = "ocr"; structured.structureDPI = 240; structured.structureMinimumConfidence = 52
+        structured.tableDetection = "aligned"
+        structured.structureDeskew = true
         let scanID = try restored.save(name:"Digitalizações",toolID:"word",options:structured)
         let scanData = try restored.exported(scanID)
         let roundTrip = try JSONDecoder().decode(ToolPreset.self,from:scanData)
         try require(roundTrip.options == structured,"Os parâmetros de OCR não sobreviveram à exportação e leitura do preset.")
         var legacyObject = try JSONSerialization.jsonObject(with:scanData) as! [String:Any]
         var legacyOptions = legacyObject["options"] as! [String:Any]
-        for key in ["structureSource","structureDPI","structureMinimumConfidence"] { legacyOptions.removeValue(forKey:key) }
+        for key in ["structureSource","structureDPI","structureMinimumConfidence","tableDetection","structureDeskew"] { legacyOptions.removeValue(forKey:key) }
         legacyObject["options"] = legacyOptions
         legacyObject["toolID"] = "png" // A tool that already supported presets before this change.
         let legacy = try JSONDecoder().decode(ToolPreset.self,from:JSONSerialization.data(withJSONObject:legacyObject))
         try legacy.validate()
-        try require(legacy.options.structureSource == nil && legacy.options.structureDPI == nil && legacy.options.structureMinimumConfidence == nil,"Um preset anterior ao OCR estruturado deixou de ser compatível.")
-        for toolID in ["word","excel","forms","fill-forms"] { try structured.validate(toolID:toolID) }
-        for invalidCase in 0..<4 {
+        try require(legacy.options.structureSource == nil && legacy.options.structureDPI == nil && legacy.options.structureMinimumConfidence == nil && legacy.options.tableDetection == nil && legacy.options.structureDeskew == nil,"Um preset anterior ao OCR estruturado deixou de ser compatível.")
+        for toolID in ["word","excel","markdown","forms","fill-forms"] { try structured.validate(toolID:toolID) }
+        for invalidCase in 0..<5 {
             var invalid = structured
             if invalidCase == 0 { invalid.structureSource = "unsupported" }
             if invalidCase == 1 { invalid.structureDPI = 119 }
             if invalidCase == 2 { invalid.structureMinimumConfidence = 101 }
             if invalidCase == 3 { invalid.structureMinimumConfidence = .nan }
+            if invalidCase == 4 { invalid.tableDetection = "unsupported" }
             var rejected = false
             do { try invalid.validate(toolID:"forms") } catch { rejected = true }
             try require(rejected,"Um parâmetro OCR inválido foi aceito no preset.")

@@ -402,7 +402,7 @@ enum QPDFStructuralAudit {
             throw failure("A amostra de perda de curva não pôde ser reaberta.")
         }
         let retainedCurve = paths.contains { path in
-            (0..<path.elementCount).contains { path.element(at: $0) == .curveTo }
+            (0..<path.elementCount).contains { path.element(at: $0) == .cubicCurveTo }
         }
         try require(!retainedCurve, "O controle de perda de curva não reproduziu a limitação de InkList esperada.")
         try require(rejects { try NativePDFSerialization.verifyFidelity(data: changed, prepared: prepared) },
@@ -912,7 +912,7 @@ enum QPDFStructuralAudit {
                         "Um arquivo temporário não é regular e privado.")
         }
         let arguments = process.arguments ?? []
-        try require(arguments == ["--job-json-file=/dev/stdin"] &&
+        try require(try privateJobArguments(process) == ["--job-json-file=/dev/stdin"] &&
                     !arguments.contains(where: { $0.contains(password) || $0.contains(inputPassword) }),
                     "O processo não usou o canal privado de senha.")
         let job = try observedJob(process)
@@ -949,7 +949,8 @@ enum QPDFStructuralAudit {
     /// pread leaves the offset shared with qpdf untouched, even if the child
     /// has already consumed the job. Never log or interpolate parsed values.
     private static func observedJob(_ process: Process) throws -> [String: Any] {
-        guard process.arguments == ["--job-json-file=/dev/stdin"], let input = process.standardInput as? FileHandle else {
+        guard try privateJobArguments(process) == ["--job-json-file=/dev/stdin"],
+              let input = process.standardInput as? FileHandle else {
             throw failure("O processo não recebeu o job pelo descritor privado esperado.")
         }
         var metadata = stat()
@@ -963,6 +964,32 @@ enum QPDFStructuralAudit {
             throw failure("O job privado não contém JSON válido e completo.")
         }
         return job
+    }
+
+    /// Installed applications retain their bundle lease through a fixed Python
+    /// bootstrap that execs qpdf in-place. Accept only that exact installation's
+    /// prefix; the private job and all secret checks still apply to the child.
+    private static func privateJobArguments(_ process: Process) throws -> [String] {
+        let arguments = process.arguments ?? []
+        let bundle = Bundle.main.bundleURL
+        guard bundle.pathExtension.lowercased() == "app" else {
+            try require(process.executableURL?.standardizedFileURL == executable.standardizedFileURL,
+                        "O job de desenvolvimento não foi encaminhado ao qpdf esperado.")
+            return arguments
+        }
+        let resources = bundle.appendingPathComponent("Contents/Resources", isDirectory: true)
+        let python = resources.appendingPathComponent("runtime/bin/python3")
+        let bootstrap = resources.appendingPathComponent("engine/runtime_lease.py")
+        let expected = ["-E", "-s", "-B", bootstrap.path, "--qpdf", executable.path,
+                        "--job-json-file=/dev/stdin"]
+        var metadata = stat()
+        try require(process.executableURL?.standardizedFileURL == python.standardizedFileURL &&
+                    arguments == expected && lstat(bootstrap.path, &metadata) == 0 &&
+                    metadata.st_mode & S_IFMT == S_IFREG &&
+                    (metadata.st_uid == 0 || metadata.st_uid == getuid()) &&
+                    metadata.st_size > 0 && metadata.st_size <= 262_144,
+                    "O job não usou o transporte de qpdf pertencente a esta instalação.")
+        return Array(arguments.dropFirst(6))
     }
 
     private static func inspectPrivatePatch(_ patch: URL) throws {
@@ -1016,6 +1043,8 @@ enum QPDFStructuralAudit {
         process.standardInput = stdin
         process.standardOutput = outputPDF ? FileHandle.nullDevice : stdout
         process.standardError = FileHandle.nullDevice
+        let runtimeLease = try BundleRuntimeLease.configureQPDFChild(process)
+        defer { try? runtimeLease?.close() }
         do { try process.run() } catch { throw failure("Não foi possível iniciar a auditoria criptográfica independente.") }
         defer { stopAndReap(process) }
         let deadline = ProcessInfo.processInfo.systemUptime + 15
@@ -1053,20 +1082,24 @@ enum QPDFStructuralAudit {
                                                attributes: [.posixPermissions: 0o700])
         defer { try? FileManager.default.removeItem(at: directory) }
         let input = directory.appendingPathComponent("input.pdf")
-        let credential = directory.appendingPathComponent("password.txt")
+        let jobFile = directory.appendingPathComponent("job.json")
         try NativeOutput.write(data, to: input)
-        try NativeOutput.write(Data((secret + "\n").utf8), to: credential)
-        let stdin = try FileHandle(forReadingFrom: credential)
+        let jobBytes = try JSONSerialization.data(withJSONObject: ["inputFile": input.path, "password": secret, "check": ""])
+        try require(jobBytes.count <= 64 * 1_024, "O job estrutural excedeu o limite privado.")
+        try NativeOutput.write(jobBytes, to: jobFile)
+        let stdin = try FileHandle(forReadingFrom: jobFile)
         defer { try? stdin.close() }
         let process = Process()
         process.executableURL = executable
-        process.arguments = ["--password-file=-", "--check", input.path]
+        process.arguments = ["--job-json-file=/dev/stdin"]
         process.currentDirectoryURL = directory
         process.standardInput = stdin
         // qpdf diagnostics can reveal passwords and document content. They are
         // discarded; only the exit status and fixed audit phase are reported.
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
+        let runtimeLease = try BundleRuntimeLease.configureQPDFChild(process)
+        defer { try? runtimeLease?.close() }
         do { try process.run() }
         catch { throw failure("Não foi possível iniciar qpdf para a auditoria estrutural.") }
         defer { stopAndReap(process) }

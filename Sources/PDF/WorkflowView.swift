@@ -74,6 +74,7 @@ private enum WorkflowOperation: String, Codable, CaseIterable, Identifiable {
     }
     var hasText: Bool { [.text, .watermark, .redact].contains(self) }
     var hasTypography: Bool { [.text, .watermark, .numbers].contains(self) }
+    var hasStructuredOCR: Bool { [.word, .excel, .markdown].contains(self) }
     var acceptsPages: Bool { isTerminal || [.rotate, .numbers, .watermark, .organize, .crop, .text, .redact, .deletePages, .extractPages].contains(self) }
 }
 
@@ -91,9 +92,19 @@ private struct WorkflowStage: Identifiable, Codable {
     var dpi = 144.0
     var exportMode = "editable"
     var transparent = false
+    var tableDetection = "ruled"
+    var source = "auto"
+    // Keep this separate from the historical OCRmyPDF language field: exports
+    // previously omitted that field and the structured engine defaulted to eng.
+    var ocrLanguage = "eng"
+    var ocrDPI = 200.0
+    var minConfidence = 35.0
+    var ocrDeskew = false
+    var usesStructuredOCR: Bool { operation.hasStructuredOCR && source != "vector" }
 
     private enum CodingKeys: String, CodingKey {
-        case id, operation, pages, text, degrees, fontSize, margin, opacity, position, language, dpi, exportMode, transparent
+        case id, operation, pages, text, degrees, fontSize, margin, opacity, position, language, dpi, exportMode, transparent, tableDetection
+        case source, ocrLanguage, ocrDPI, minConfidence, ocrDeskew
     }
     init(from decoder: Decoder) throws {
         let values = try decoder.container(keyedBy: CodingKeys.self)
@@ -110,12 +121,19 @@ private struct WorkflowStage: Identifiable, Codable {
         dpi = try values.decodeIfPresent(Double.self, forKey: .dpi) ?? dpi
         exportMode = try values.decodeIfPresent(String.self, forKey: .exportMode) ?? exportMode
         transparent = try values.decodeIfPresent(Bool.self, forKey: .transparent) ?? false
+        tableDetection = try values.decodeIfPresent(String.self, forKey: .tableDetection) ?? "ruled"
+        source = try values.decodeIfPresent(String.self, forKey: .source) ?? source
+        ocrLanguage = try values.decodeIfPresent(String.self, forKey: .ocrLanguage) ?? ocrLanguage
+        ocrDPI = try values.decodeIfPresent(Double.self, forKey: .ocrDPI) ?? ocrDPI
+        minConfidence = try values.decodeIfPresent(Double.self, forKey: .minConfidence) ?? minConfidence
+        ocrDeskew = try values.decodeIfPresent(Bool.self, forKey: .ocrDeskew) ?? false
     }
 
     init(operation: WorkflowOperation) {
         self.operation = operation
         if operation == .watermark { opacity = 0.35; position = "center"; fontSize = 32 }
         if operation == .text { position = "top-left" }
+        if operation == .markdown { source = "vector" }
     }
 
     var options: [String: Any] {
@@ -134,6 +152,16 @@ private struct WorkflowStage: Identifiable, Codable {
         if operation == .jpg || operation == .png { result["dpi"] = dpi; result["mode"] = "pages" }
         if operation == .png { result["alpha"] = transparent }
         if operation == .powerpoint { result["mode"] = exportMode }
+        if operation.hasStructuredOCR {
+            result["table_detection"] = tableDetection
+            result["source"] = source
+            if usesStructuredOCR {
+                result["language"] = ocrLanguage
+                result["ocr_dpi"] = ocrDPI
+                result["min_confidence"] = minConfidence
+                result["ocr_deskew"] = ocrDeskew
+            }
+        }
         return result
     }
 
@@ -155,6 +183,11 @@ private struct WorkflowStage: Identifiable, Codable {
         }
         if !dpi.isFinite || !(36...600).contains(dpi) { return "A resolução deve ficar entre 36 e 600 DPI." }
         if !["editable", "image"].contains(exportMode) { return "Escolha uma apresentação editável ou como imagens." }
+        if !["ruled", "aligned"].contains(tableDetection) { return "Escolha um modo válido de reconhecimento de tabelas." }
+        if !["vector", "ocr", "auto"].contains(source) { return "Escolha uma origem válida: texto vetorial, OCR ou automática." }
+        if !ocrDPI.isFinite || !(120...400).contains(ocrDPI) || ocrDPI.rounded() != ocrDPI { return "A resolução do OCR deve ser um número inteiro entre 120 e 400 DPI." }
+        if !minConfidence.isFinite || !(0...100).contains(minConfidence) { return "O limiar de confiança do OCR deve ficar entre 0 e 100." }
+        if !["por+eng", "por", "eng", "spa", "fra", "deu"].contains(ocrLanguage) { return "Escolha um idioma de OCR disponível na lista." }
         if !fontSize.isFinite || !(4...144).contains(fontSize) { return "O tamanho da fonte deve ficar entre 4 e 144 pontos." }
         if !margin.isFinite || !(0...500).contains(margin) { return "A margem deve ficar entre 0 e 500 pontos." }
         if !opacity.isFinite || !(0...1).contains(opacity) { return "A opacidade deve ficar entre 0 e 100%." }
@@ -705,8 +738,18 @@ private struct WorkflowStageEditor: View {
         }
         if stage.operation.isTerminal {
             Text("Saída final: \(stage.operation.outputDirectory ? "pasta de imagens" : "." + stage.operation.outputSuffix). Esta etapa deve encerrar o fluxo.").font(.caption).foregroundStyle(.secondary)
-            if [.word, .excel, .markdown].contains(stage.operation) {
-                Text("A reconstrução de texto, tabelas e layout depende do documento. Para digitalizações, adicione OCR antes desta etapa.").font(.caption).foregroundStyle(.secondary)
+            if stage.operation.hasStructuredOCR {
+                Picker("Origem do texto", selection: $stage.source) {
+                    Text("Texto vetorial existente").tag("vector")
+                    Text("OCR das páginas").tag("ocr")
+                    Text("Automática: OCR em digitalizações").tag("auto")
+                }
+                Picker("Reconhecimento de tabelas", selection: $stage.tableDetection) {
+                    Text("Grades com linhas").tag("ruled")
+                    Text("Incluir colunas alinhadas sem bordas").tag("aligned")
+                }
+                if stage.usesStructuredOCR { structuredOCROptions }
+                Text("A reconstrução de texto, tabelas e layout depende do documento. A origem automática usa OCR apenas em páginas com imagem e sem texto selecionável; a origem OCR força o reconhecimento.").font(.caption).foregroundStyle(.secondary)
             }
         }
         if stage.operation == .powerpoint {
@@ -727,6 +770,26 @@ private struct WorkflowStageEditor: View {
         if stage.operation == .flatten { Text("Incorpora anotações e valores dos formulários à página. Os campos deixam de ser editáveis no resultado.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .deletePages { Text("Exclui as páginas indicadas da cópia de saída. O documento precisa manter ao menos uma página.").font(.caption).foregroundStyle(.secondary) }
         if stage.operation == .extractPages { Text("Mantém apenas as páginas indicadas, na ordem escolhida. Páginas podem ser repetidas.").font(.caption).foregroundStyle(.secondary) }
+    }
+
+    private var structuredOCROptions: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Picker("Idioma do OCR", selection: $stage.ocrLanguage) {
+                Text("Português + inglês").tag("por+eng"); Text("Português").tag("por"); Text("Inglês").tag("eng")
+                Text("Espanhol").tag("spa"); Text("Francês").tag("fra"); Text("Alemão").tag("deu")
+            }.frame(maxWidth: 350)
+            HStack(spacing: 16) {
+                Text("OCR DPI (120–400)")
+                TextField("DPI", value: $stage.ocrDPI, format: .number).frame(width: 80).textFieldStyle(.roundedBorder)
+                Text("Confiança mínima (0–100)")
+                TextField("Limiar", value: $stage.minConfidence, format: .number).frame(width: 80).textFieldStyle(.roundedBorder)
+            }
+            Toggle("Corrigir inclinação da imagem temporária de OCR", isOn: $stage.ocrDeskew)
+            Text("A correção depende de linhas de grade e limita-se a ±7°. O PDF original não é alterado. Palavras abaixo do limiar continuam na exportação e são sinalizadas para revisão; o escore não mede a precisão factual.")
+                .font(.caption).foregroundStyle(.secondary)
+            Text("Requer Tesseract e os idiomas selecionados instalados. A disponibilidade dos dados de idioma é conferida ao executar.")
+                .font(.caption).foregroundStyle(.secondary)
+        }
     }
 
     private var pagePlaceholder: String {
@@ -767,20 +830,23 @@ private enum WorkflowDependencies {
         let bundledPython = resources.appendingPathComponent("runtime/bin/python3")
         let python = files.isExecutableFile(atPath: bundledPython.path) ? bundledPython : project.appendingPathComponent(".venv/bin/python3")
         let bundledEngine = resources.appendingPathComponent("engine")
-        let engine = files.fileExists(atPath: bundledEngine.appendingPathComponent("workflow_batch.py").path) ? bundledEngine : project.appendingPathComponent("engine")
+        let engine = files.fileExists(atPath: bundledEngine.appendingPathComponent("pdf_engine.py").path) ? bundledEngine : project.appendingPathComponent("engine")
         guard files.isExecutableFile(atPath: python.path) else { throw WorkflowError.invalid("Instale o motor local para verificar as dependências do fluxo.") }
         let process = Process(); process.executableURL = python
-        process.arguments = ["-c", "import sys,json; sys.path.insert(0,sys.argv[1]); from workflow_batch import check_dependencies; check_dependencies(json.load(sys.stdin))", engine.path]
+        process.arguments = [engine.appendingPathComponent("pdf_engine.py").path, "--check-workflow-dependencies"]
         var environment = ProcessInfo.processInfo.environment
-        environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
+        environment["PATH"] = python.deletingLastPathComponent().path + ":/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
         process.environment = environment
-        let input = Pipe(); let log = Pipe(); process.standardInput = input; process.standardOutput = log; process.standardError = log
+        let input = try EngineInputTransport(data: data), log = Pipe()
+        defer { input.close(); try? log.fileHandleForReading.close() }
+        process.standardInput = input.handle; process.standardOutput = log; process.standardError = log
+        let runtimeLease = try BundleRuntimeLease.configureRuntimeChild(process)
+        defer { try? runtimeLease?.close() }
         try process.run()
-        input.fileHandleForWriting.write(data); try? input.fileHandleForWriting.close()
         // Dependency checks only inspect installed modules/executables and produce
         // a bounded error. A timeout still protects against a broken Python runtime.
-        let deadline = Date().addingTimeInterval(8)
-        while process.isRunning && Date() < deadline { Thread.sleep(forTimeInterval: 0.05) }
+        let deadline = ProcessInfo.processInfo.systemUptime + 8
+        while process.isRunning && ProcessInfo.processInfo.systemUptime < deadline { Thread.sleep(forTimeInterval: 0.05) }
         if process.isRunning { process.terminate(); if process.processIdentifier > 0 { kill(process.processIdentifier, SIGKILL) } }
         process.waitUntilExit()
         let output = log.fileHandleForReading.readDataToEndOfFile()
@@ -843,10 +909,12 @@ private enum WorkflowDependencies {
             legacyStages[index].removeValue(forKey: "dpi")
             legacyStages[index].removeValue(forKey: "exportMode")
             legacyStages[index].removeValue(forKey: "transparent")
+            legacyStages[index].removeValue(forKey: "tableDetection")
+            for key in ["source", "ocrLanguage", "ocrDPI", "minConfidence", "ocrDeskew"] { legacyStages[index].removeValue(forKey: key) }
         }
         legacyObject["stages"] = legacyStages
         let legacy = try JSONDecoder().decode(WorkflowPreset.self, from: JSONSerialization.data(withJSONObject: legacyObject))
-        try require(legacy.version == 1 && legacy.validation == nil && legacy.stages[0].dpi == 144, "A migração do fluxo v1 falhou.")
+        try require(legacy.version == 1 && legacy.validation == nil && legacy.stages[0].dpi == 144 && legacy.stages[0].tableDetection == "ruled", "A migração do fluxo v1 falhou.")
         let upgraded = try JSONDecoder().decode(WorkflowPreset.self, from: WorkflowLibrary.encode(legacy))
         try require(upgraded.version == 2, "O fluxo legado não foi salvo como v2.")
         for terminal in [WorkflowOperation.word, .excel, .powerpoint, .markdown, .jpg, .png] {
@@ -857,6 +925,72 @@ private enum WorkflowDependencies {
             try require(typed.validation != nil, "Uma etapa após exportação foi aceita.")
         }
         let batch = try WorkflowRequest.make(preset: restored, sourcePasswords: ["first-private", "second-private"], destinationPassword: "destination-private")
+        var aligned = WorkflowStage(operation: .excel)
+        aligned.tableDetection = "aligned"
+        let alignedDecoded = try JSONDecoder().decode(WorkflowStage.self, from: JSONEncoder().encode(aligned))
+        try require(alignedDecoded.options["table_detection"] as? String == "aligned" && alignedDecoded.validation == nil, "O modo de tabelas se perdeu ao salvar o fluxo.")
+        aligned.tableDetection = "unsupported"
+        try require(aligned.validation != nil, "Um modo de tabela desconhecido foi aceito.")
+        for operation in [WorkflowOperation.word, .excel, .markdown] {
+            let expectedSource = operation == .markdown ? "vector" : "auto"
+            for version in [1, 2] {
+                let oldPreset: [String: Any] = ["id": UUID().uuidString, "version": version, "name": "Exportação legada",
+                    "stages": [["operation": operation.rawValue, "language": "por+eng", "tableDetection": "aligned"]]]
+                let decoded = try JSONDecoder().decode(WorkflowPreset.self, from: JSONSerialization.data(withJSONObject: oldPreset))
+                let old = decoded.stages[0]
+                try require(decoded.validation == nil && old.source == expectedSource && old.ocrLanguage == "eng" && old.ocrDPI == 200 && old.minConfidence == 35 && !old.ocrDeskew, "A migração alterou a origem ou os parâmetros efetivos do OCR de um fluxo legado.")
+                try require(old.options["source"] as? String == expectedSource && old.options["table_detection"] as? String == "aligned", "A migração perdeu opções de extração anteriores.")
+                if operation == .markdown {
+                    try require(old.options["language"] == nil && old.options["ocr_dpi"] == nil && old.options["ocr_deskew"] == nil, "O Markdown legado passou a fazer OCR implicitamente.")
+                } else {
+                    try require(old.options["language"] as? String == "eng", "O campo antigo de idioma inativo mudou os pacotes exigidos pela exportação legada.")
+                }
+            }
+            var scan = WorkflowStage(operation: operation)
+            scan.source = "ocr"; scan.ocrLanguage = "por+eng"; scan.ocrDPI = 300; scan.minConfidence = 47.5; scan.ocrDeskew = true; scan.tableDetection = "aligned"
+            var scanPreset = WorkflowPreset(); scanPreset.name = "OCR " + operation.rawValue
+            scanPreset.stages = [.init(operation: .numbers), scan]
+            try library.save(scanPreset)
+            let savedScan = try WorkflowLibrary.read(directory.appendingPathComponent(scanPreset.id.uuidString).appendingPathExtension("json"))
+            let restoredScan = savedScan.stages[1]
+            let scanRequest = try WorkflowRequest.make(preset: savedScan, sourcePassword: "", destinationPassword: "")
+            let scanSteps = scanRequest["steps"] as? [[String: Any]] ?? []
+            let scanOptions = scanSteps.last?["options"] as? [String: Any] ?? [:]
+            try require(restoredScan.source == "ocr" && restoredScan.ocrLanguage == "por+eng" && restoredScan.ocrDPI == 300 && restoredScan.minConfidence == 47.5 && restoredScan.ocrDeskew && restoredScan.validation == nil, "Os controles de OCR não sobreviveram à gravação e releitura do preset.")
+            try require(scanOptions["source"] as? String == "ocr" && scanOptions["language"] as? String == "por+eng" && scanOptions["ocr_dpi"] as? Double == 300 && scanOptions["min_confidence"] as? Double == 47.5 && scanOptions["ocr_deskew"] as? Bool == true && scanOptions["dpi"] == nil, "O fluxo não enviou os parâmetros corretos de OCR ao motor.")
+            scan.source = "vector"
+            try require(!scan.usesStructuredOCR && scan.options["language"] == nil && scan.options["ocr_dpi"] == nil && scan.options["min_confidence"] == nil && scan.options["ocr_deskew"] == nil, "A extração vetorial recebeu opções de processamento raster.")
+            scan.source = "auto"
+            try require(scan.usesStructuredOCR && scan.options["ocr_deskew"] as? Bool == true, "O modo automático perdeu a configuração de OCR quando uma página digitalizada a exigir.")
+        }
+        for operation in [WorkflowOperation.ocr, .pdfa] {
+            var direct = WorkflowStage(operation: operation); direct.ocrDeskew = true
+            try require(direct.options["language"] as? String == "por+eng" && direct.options["source"] == nil && direct.options["ocr_dpi"] == nil && direct.options["min_confidence"] == nil && direct.options["ocr_deskew"] == nil, "Opções de OCR estruturado vazaram para o contrato direto do OCRmyPDF.")
+        }
+        var boundedOCR = WorkflowStage(operation: .word)
+        for value in [Double.nan, .infinity, -.infinity, 119, 120.5, 400.5, 401] {
+            boundedOCR.ocrDPI = value
+            try require(boundedOCR.validation != nil, "Uma resolução de OCR não finita, fracionária ou fora dos limites foi aceita.")
+        }
+        for value in [120.0, 400.0] {
+            boundedOCR.ocrDPI = value
+            try require(boundedOCR.validation == nil, "Um limite válido de DPI do OCR foi recusado.")
+        }
+        for value in [Double.nan, .infinity, -.infinity, -0.1, 100.1] {
+            boundedOCR.minConfidence = value
+            try require(boundedOCR.validation != nil, "Um limiar de confiança inválido foi aceito.")
+        }
+        for value in [0.0, 100.0] {
+            boundedOCR.minConfidence = value
+            try require(boundedOCR.validation == nil, "Um limite válido de confiança foi recusado.")
+        }
+        boundedOCR.source = "remote"; try require(boundedOCR.validation != nil, "Uma origem de texto desconhecida foi aceita.")
+        boundedOCR.source = "auto"; boundedOCR.ocrLanguage = "eng;command"
+        try require(boundedOCR.validation != nil, "Um idioma fora da lista foi aceito.")
+        var deskewTypeRefused = false
+        do { _ = try JSONDecoder().decode(WorkflowStage.self, from: Data("{\"operation\":\"word\",\"ocrDeskew\":\"true\"}".utf8)) }
+        catch { deskewTypeRefused = true }
+        try require(deskewTypeRefused, "Um parâmetro de correção de inclinação que não é booleano foi aceito.")
         try require(batch["batch"] as? Bool == true && batch["input_passwords"] as? [String] == ["first-private", "second-private"], "As senhas individuais do lote foram perdidas.")
         let batchSteps = batch["steps"] as? [[String: Any]] ?? []
         try require(batch["password"] == nil && (batchSteps[0]["options"] as? [String: Any])?["password"] == nil, "A senha do primeiro arquivo foi aplicada ao lote inteiro.")

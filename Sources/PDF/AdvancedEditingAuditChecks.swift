@@ -52,6 +52,28 @@ enum AdvancedEditingAuditChecks {
         try require(clippedDraft.action == "replace", "a operação inicial oferece mover uma imagem recortada")
         clippedDraft.action = "move"
         try require(rejects { _ = try clippedDraft.options(for: clippedImage, pages: [page]) }, "aceitou mover imagem cujo recorte exige posição fixa")
+        let secondLine = ContentObjectDescriptor(id: "p1-text1", kind: "text", page: 1, rect: [20, 60, 120, 80], text: "Segunda linha",
+            font: "Helvetica", font_size: 12, color: "#000000", editable: true, limitations: [], font_status: "original", substitution_font: nil)
+        var paragraph = ContentObjectDescriptor(id: "p1-paragraph0", kind: "paragraph", page: 1, rect: [20, 30, 120, 80], text: "Texto original\nSegunda linha",
+            font: "Helvetica", font_size: 12, color: "#000000", editable: true, limitations: [], font_status: "original", substitution_font: nil)
+        paragraph.member_ids = [item.id, secondLine.id]; paragraph.line_spacing = 1.5
+        paragraph.alignment = "center"
+        let grouped = ContentInspection(version: 1, source_sha256: hash, page_count: 1, pages: [page], objects: [item, secondLine, paragraph])
+        let roundTrip = try JSONDecoder().decode(ContentInspection.self, from: JSONEncoder().encode(grouped))
+        try roundTrip.validate(digest: hash)
+        try roundTrip.validateEditSelection([paragraph.id])
+        try roundTrip.validateEditSelection([item.id, secondLine.id])
+        try require(rejects { try roundTrip.validateEditSelection([paragraph.id, item.id]) }, "aceitou editar o parágrafo e seu trecho na mesma transação")
+        var paragraphDraft = ContentEditDraft(paragraph); paragraphDraft.text = "Parágrafo corrigido\nCom duas linhas"; paragraphDraft.lineSpacing = 1.75
+        try require(ContentEditDraft(roundTrip.objects.last!).alignment == "center", "perdeu o alinhamento original do parágrafo ao criar o rascunho")
+        let paragraphPayload = try paragraphDraft.options(for: paragraph, pages: [page])
+        try require(paragraphPayload["line_spacing"] as? Double == 1.75 && paragraphPayload["text"] as? String == paragraphDraft.text && paragraphPayload["alignment"] as? String == "center",
+                    "perdeu o texto ou espaçamento na edição do parágrafo")
+        paragraphDraft.lineSpacing = 0.5
+        try require(rejects { _ = try paragraphDraft.options(for: paragraph, pages: [page]) }, "aceitou espaçamento fora do intervalo seguro")
+        var nested = paragraph; nested.member_ids = [paragraph.id, item.id]
+        let invalidGroup = ContentInspection(version: 1, source_sha256: hash, page_count: 1, pages: [page], objects: [item, secondLine, nested])
+        try require(rejects { try invalidGroup.validate(digest: hash) }, "aceitou um grupo que referencia outro parágrafo")
         let word = OCRReviewWord(id: "word-1", page: 1, rect: box, text: "a\u{301}", confidence: 0.65)
         let review = OCRReviewDocument(version: 1, source_sha256: hash, page_count: 1, pages: [page], words: [word], backend: "tesseract", language: "por")
         try review.validate(digest: hash)

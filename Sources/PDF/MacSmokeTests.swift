@@ -361,8 +361,10 @@ enum MacSmokeTests {
         await auditAsync("Opt-in folder automation") { try await AutomationAuditChecks.run() }
         await auditAsync("Library revisions synchronization and Portuguese sources") { try await LibraryAuditChecks.run() }
         await auditAsync("Real crash and recovery") { try await CrashRecoveryAudit.run() }
+        await auditAsync("Runtime lease across native process termination") { try await BundleRuntimeLeaseAudit.run() }
         await auditAsync("Explicit settings and bookmark exchange") { try await SettingsExchangeAuditChecks.run() }
         audit("App Intents input and private temporary files") { try AppIntentsAuditChecks.run() }
+        audit("Portuguese AI experiment acceptance criteria") { try LocalAIAudit.validateCriteria() }
         print("Native checks hardware: \(AppleHardware.summary)")
         guard failures.isEmpty else {
             throw NSError(domain: "PDF.NativeChecks", code: 1, userInfo: [NSLocalizedDescriptionKey:

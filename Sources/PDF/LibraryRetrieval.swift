@@ -29,12 +29,14 @@ struct LibrarySearchResult: Sendable {
     }
 }
 
-struct LibrarySmartFilter: Sendable {
+struct LibrarySmartFilter: Codable, Sendable, Equatable {
     var text = ""
     var collection = ""
     var tag = ""
     var mode: Mode = .all
-    enum Mode: String, CaseIterable, Identifiable {
+    var modifiedAfter: Date?
+    var modifiedBefore: Date?
+    enum Mode: String, Codable, CaseIterable, Identifiable {
         case all, recent, protected, duplicates, conflicts
         var id: String { rawValue }
         var title: String {
@@ -55,7 +57,9 @@ struct LibrarySmartFilter: Sendable {
             let labels = current.labels
             let haystack = SemanticRanking.words(([labels.title, labels.collection] + labels.tags).joined(separator: " "))
             guard terms.isSubset(of: haystack), collection.isEmpty || labels.collection == collection,
-                  tag.isEmpty || labels.tags.contains(tag) else { return false }
+                  tag.isEmpty || labels.tags.contains(tag),
+                  modifiedAfter.map({ current.created >= $0 }) ?? true,
+                  modifiedBefore.map({ current.created <= $0 }) ?? true else { return false }
             switch mode {
             case .all: return true
             case .recent: return current.created >= now.addingTimeInterval(-7 * 86_400)

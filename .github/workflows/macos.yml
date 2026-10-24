@@ -152,6 +152,44 @@ jobs:
             ${{ runner.temp }}/PDF-vision-audit.json
             ${{ runner.temp }}/PDF-vision-audit.log
           if-no-files-found: ignore
+      - name: Evaluate Portuguese answers with the actual local Apple model
+        id: ai_quality
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        run: |
+          python3 scripts/run-with-timeout.py --seconds 600 -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --ai-audit "$RUNNER_TEMP/PDF-local-ai.json"
+          python3 - <<'PYTHON'
+          import json, math, os
+          from pathlib import Path
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'PDF-local-ai.json').read_text())
+          def require(condition, message):
+              if not condition: raise SystemExit('Local AI report: ' + message)
+          require(report.get('schemaVersion') == 1, 'unsupported schema')
+          require(report.get('status') in ('sample_passed', 'sample_failed', 'unavailable'), 'missing result')
+          require(len(report.get('documents', [])) == 2, 'missing source PDFs')
+          items = report.get('items', [])
+          require(len(items) == 5 and {item.get('id') for item in items} == {'responsavel', 'orcamento', 'participantes', 'sem-apoio', 'divergencia'}, 'missing or repeated case')
+          for item in items:
+              require(type(item.get('modelAttempted')) is bool and item.get('status') in ('passed', 'failed', 'unavailable'), 'invalid case status')
+              require(isinstance(item.get('milliseconds'), (float, int)) and math.isfinite(item['milliseconds']) and item['milliseconds'] >= 0, 'invalid duration')
+              if item['status'] == 'passed':
+                  require(item['modelAttempted'] and item.get('checks') and all(check.get('passed') is True for check in item['checks']), 'unexecuted or contradictory passing case')
+              if item['status'] == 'unavailable': require(not item['modelAttempted'], 'unavailable case claims inference')
+          if report['status'] == 'unavailable':
+              require(report.get('availabilityReason') and all(item['status'] == 'unavailable' for item in items), 'unavailability is not explicit')
+          if report['status'] == 'sample_passed': require(all(item['status'] == 'passed' for item in items), 'sample result contradicts cases')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('### Portuguese local AI experiment\n\nResult: **' + report['status'] + '**. Five synthetic cases; no replacement response or remote model.\n\n')
+              if report['status'] == 'unavailable': summary.write('Apple model unavailable on this runner. No generation quality or Neural Engine performance is approved.\n\n')
+              for item in items: summary.write('- ' + item['id'] + ': ' + item['status'] + '\n')
+          require(report['status'] != 'sample_failed', 'the actual model did not meet the sample acceptance checks')
+          PYTHON
+      - name: Retain local AI experiment and explicit availability
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-local-AI-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-local-ai.json
+          if-no-files-found: ignore
       - name: Benchmark the installed application with OCR
         id: benchmark
         if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
@@ -270,17 +308,23 @@ jobs:
           from pathlib import Path
           root = Path(os.environ['RUNNER_TEMP'])
           manifest = json.loads((root / 'PDF-binary-artifact/distribution-manifest.json').read_text())
+          ai_path = root / 'PDF-local-ai.json'
+          ai_status = json.loads(ai_path.read_text()).get('status', 'invalid') if ai_path.is_file() else 'not_run'
           report = {'schemaVersion': 1, 'commit': os.environ['GITHUB_SHA'], 'runner': '${{ matrix.runner }}',
                     'isolatedRuntimePassed': True, 'freshInstallPassed': True, 'transactionalUpdatePassed': True, 'preferencesPreserved': True, 'wrongChecksumRejected': True,
                     'manifestEntries': len(manifest['files']), 'developerToolsOnDestinationRequired': False,
-                    'applicationVersion': '0.6.0', 'signing': 'ad-hoc', 'appleNotarized': False}
+                    'applicationVersion': '0.6.0', 'signing': 'ad-hoc', 'appleNotarized': False,
+                    'appIntentsMetadataVerified': True, 'localAIStatus': ai_status,
+                    'localAIGenerationSamplePassed': ai_status == 'sample_passed',
+                    'physicalM4Measured': False, 'neuralEngineMeasured': False, 'energyMeasured': False,
+                    'humanVoiceOverTested': False}
           (root / 'PDF-binary-artifact/distribution-validation.json').write_text(json.dumps(report, indent=2) + '\n')
           PYTHON
       - name: Retain binary package with explicit validation status
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && 'PDF-binary-validated' || 'PDF-binary-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && 'PDF-binary-validated' || 'PDF-binary-unvalidated' }}-${{ matrix.runner }}
           path: ${{ runner.temp }}/PDF-binary-artifact/*
           if-no-files-found: ignore
           retention-days: 7
@@ -294,7 +338,7 @@ jobs:
           python3 - <<'PYTHON'
           import os
           from pathlib import Path
-          for name in ('PDF-vision-audit.json', 'PDF-benchmark.json'):
+          for name in ('PDF-vision-audit.json', 'PDF-benchmark.json', 'PDF-local-ai.json'):
               source = Path(os.environ['RUNNER_TEMP']) / name
               if source.is_file():
                   with (Path('dist') / name).open('xb') as destination:
@@ -304,10 +348,11 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256
             dist/PDF-vision-audit.json
             dist/PDF-benchmark.json
+            dist/PDF-local-ai.json
           if-no-files-found: ignore

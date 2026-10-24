@@ -94,6 +94,8 @@ enum TesseractPageRecognizer {
         // The only result transport is the bounded private JSON file.
         process.standardOutput = FileHandle.nullDevice
         process.standardError = FileHandle.nullDevice
+        let runtimeLease = try BundleRuntimeLease.configureRuntimeChild(process)
+        defer { try? runtimeLease?.close() }
         try checkCancellation(cancellation)
         do { try process.run() }
         catch { throw failure(5, "Não foi possível iniciar o motor local de OCR. Execute novamente o instalador completo.") }

@@ -199,7 +199,13 @@ def build(installed, output, commit):
     bin_dir = runtime / 'bin'; bin_dir.mkdir()
     java = runtime / 'vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/bin/java'
     jar = next((runtime / 'share/verapdf').glob('*.jar'))
-    gs_resource = next((runtime / 'vendor/ghostscript/share/ghostscript').glob('*/Resource'))
+    gs_share = runtime / 'vendor/ghostscript/share/ghostscript'
+    # Current Homebrew uses --without-versioned-path (Ghostscript10.07+).
+    # Keep the older versioned tree supported without inventing missing data.
+    gs_resources = [gs_share / 'Resource'] if (gs_share / 'Resource').is_dir() else sorted(gs_share.glob('*/Resource'))
+    if len(gs_resources) != 1 or not (gs_resources[0].parent / 'iccprofiles').is_dir():
+        raise ValueError('Recursos e perfis ICC do Ghostscript não foram encontrados de forma inequívoca.')
+    gs_resource = gs_resources[0]
     tessdata = runtime / 'vendor/tesseract/share/tessdata'
     # Homebrew's tesseract-lang is a separate keg; merge only missing language
     # files, retaining licenses and all original kegs in vendor.
@@ -262,7 +268,7 @@ unset PYTHONPATH PYTHONHOME
                 'optionalSystemIntegrations': ['Apple Pages for Pages conversion', 'compatible scanner', 'Apple Intelligence system model']}
     (runtime / 'portable.json').write_text(json.dumps(portable, indent=2) + '\n')
     distribution = resources / 'distribution'; distribution.mkdir()
-    for filename in ('binary_update.py', 'install_files.py', 'run-with-timeout.py', 'check_runtime.py'):
+    for filename in ('binary_update.py', 'bundle_lease.py', 'app_intents_metadata.py', 'install_files.py', 'run-with-timeout.py', 'check_runtime.py'):
         shutil.copy2(SCRIPTS / filename, distribution / filename)
     shutil.copy2(SCRIPTS / 'install-binary.sh', output / 'install-binary.sh')
     info = json.loads(command('brew', 'info', '--json=v2', '--formula', *formulas))

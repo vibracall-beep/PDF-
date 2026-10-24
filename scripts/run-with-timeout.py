@@ -6,6 +6,7 @@ import os
 import signal
 import subprocess
 import sys
+from bundle_lease import inherited_from_environment
 
 
 def stop(process):
@@ -75,7 +76,7 @@ def main():
     try:
         for number in (signal.SIGINT, signal.SIGTERM):
             previous[number] = signal.signal(number, interrupted)
-        process = subprocess.Popen(command, start_new_session=True)
+        process = subprocess.Popen(command, start_new_session=True, pass_fds=inherited_from_environment())
         try:
             result = process.wait(timeout=args.seconds)
             return result if result >= 0 else 128 - result
@@ -101,7 +102,7 @@ def main():
         if process is not None:
             stop(process)
         return 128 + error.number
-    except OSError as error:
+    except (OSError, ValueError) as error:
         print(f'Could not run validation command: {error}', file=sys.stderr)
         return 127
     finally:

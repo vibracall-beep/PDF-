@@ -145,6 +145,8 @@ enum VisionWorker {
         // Framework logging is not a transport. Structured errors are written
         // to the bounded private response; unbounded stderr is discarded.
         process.standardError = FileHandle.nullDevice
+        let bundleLease = try BundleRuntimeLease.configureChild(process)
+        defer { try? bundleLease?.close() }
         try cancellation.check()
         try process.run()
         // Stop/reap this exact child before the enclosing defer removes its files.

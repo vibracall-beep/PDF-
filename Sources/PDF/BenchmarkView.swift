@@ -23,17 +23,19 @@ private final class BenchmarkJob: @unchecked Sendable {
             }
         }
     }
-    func run(executable:URL,input:URL?,pages:Int) throws -> Data {
+    func run(executable:URL,input:URL?,pages:Int,aiAudit:Bool = false) throws -> Data {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-benchmark-job-" + UUID().uuidString,isDirectory:true)
         try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:true,attributes:[.posixPermissions:0o700])
         defer { try? FileManager.default.removeItem(at:directory) }
         let output = directory.appendingPathComponent("report.json")
         let child = Process(), pipe = Pipe()
         child.executableURL = executable
-        child.arguments = ["--benchmark",output.path,"--benchmark-pages",String(pages)]
-        if let input { child.arguments! += ["--benchmark-input",input.path] }
+        child.arguments = aiAudit ? ["--ai-audit",output.path] : ["--benchmark",output.path,"--benchmark-pages",String(pages)]
+        if !aiAudit,let input { child.arguments! += ["--benchmark-input",input.path] }
         child.standardOutput = pipe; child.standardError = pipe
         child.standardInput = FileHandle.nullDevice
+        let bundleLease = try BundleRuntimeLease.configureChild(child)
+        defer { try? bundleLease?.close() }
         lock.lock()
         if cancelled { lock.unlock(); throw CancellationError() }
         process = child
@@ -63,7 +65,7 @@ private final class BenchmarkJob: @unchecked Sendable {
         }
         child.waitUntilExit()
         lock.lock(); let wasCancelled = cancelled, expired = timedOut; lock.unlock()
-        if expired { throw NSError(domain:"PDF.Benchmark",code:2,userInfo:[NSLocalizedDescriptionKey:"O benchmark ultrapassou 10 minutos e foi encerrado."]) }
+        if expired { throw NSError(domain:"PDF.Benchmark",code:2,userInfo:[NSLocalizedDescriptionKey:aiAudit ? "A avaliação de IA ultrapassou 10 minutos e foi encerrada. Nenhuma aprovação de qualidade foi produzida." : "O benchmark ultrapassou 10 minutos e foi encerrado."]) }
         if wasCancelled { throw CancellationError() }
         guard child.terminationStatus == 0 else {
             throw NSError(domain:"PDF.Benchmark",code:Int(child.terminationStatus),userInfo:[NSLocalizedDescriptionKey:String(data:diagnostic,encoding:.utf8) ?? "O benchmark não pôde ser concluído."])
@@ -108,10 +110,48 @@ private final class BenchmarkJob: @unchecked Sendable {
     }
 }
 
+@MainActor private final class LocalAIAuditController: ObservableObject {
+    @Published private(set) var busy = false
+    @Published private(set) var report: LocalAIReport?
+    @Published private(set) var message = ""
+    private var job: BenchmarkJob?
+    private var data: Data?
+    func start() {
+        guard !busy, let executable = Bundle.main.executableURL else { return }
+        busy = true; report = nil; data = nil
+        message = "Consultando o modelo local com cinco casos em português…"
+        let job = BenchmarkJob(); self.job = job
+        Task {
+            defer { busy = false; self.job = nil }
+            do {
+                let bytes = try await Task.detached(priority: .userInitiated) { try job.run(executable: executable, input: nil, pages: 0, aiAudit: true) }.value
+                let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
+                let value = try decoder.decode(LocalAIReport.self, from: bytes)
+                guard value.schemaVersion == 1, value.items.count == 5,
+                      ["sample_passed", "sample_failed", "unavailable"].contains(value.status) else { throw RecoveryError.invalidRecord }
+                data = bytes; report = value
+                switch value.status {
+                case "unavailable": message = value.availabilityReason ?? "Modelo indisponível. A qualidade de geração não foi avaliada."
+                case "sample_passed": message = "Os cinco casos desta amostra atenderam aos critérios. Isso não certifica a qualidade geral."
+                default: message = "A amostra apresentou critérios não atendidos ou erros. Consulte cada resultado."
+                }
+            } catch is CancellationError { message = "Avaliação de IA cancelada. Nenhuma conclusão foi emitida." }
+            catch { message = error.localizedDescription }
+        }
+    }
+    func cancel() { job?.cancel() }
+    func export(model: Workspace) {
+        guard let data, let destination = NativeOutput.destination(model: model, toolName: "Avaliação IA português", extension: "json", originalName: "IA-portugues.json") else { return }
+        do { try NativeOutput.write(data, to: destination); message = "Relatório de IA salvo com resultados e citações verificáveis." }
+        catch { message = error.localizedDescription }
+    }
+}
+
 struct BenchmarkView: View {
     @EnvironmentObject private var model: Workspace
     @EnvironmentObject private var preferences:AppearancePreferences
     @StateObject private var controller = BenchmarkController()
+    @StateObject private var aiController = LocalAIAuditController()
     @State private var input:URL?
     @State private var pages = 100
     var body:some View {
@@ -119,7 +159,7 @@ struct BenchmarkView: View {
             VStack(alignment:.leading,spacing:20) {
                 Label("Desempenho deste Mac",systemImage:"gauge.with.dots.needle.67percent").font(.largeTitle.bold())
                 Text("Meça tempos e memória com uma amostra ou um PDF seu. O relatório identifica o hardware usado e registra as operações que não puderam ser executadas.").foregroundStyle(.secondary)
-                GroupBox("Preferência de processamento") { PerformancePolicyView().padding(10) }.disabled(controller.busy)
+                GroupBox("Preferência de processamento") { PerformancePolicyView().padding(10) }.disabled(controller.busy || aiController.busy)
                 GroupBox("Documento da medição") {
                     VStack(alignment:.leading,spacing:12) {
                         HStack {
@@ -133,16 +173,61 @@ struct BenchmarkView: View {
                         }
                         Text("A entrada é copiada para uma pasta temporária privada. Nenhum arquivo original é alterado e nenhum documento é enviado à rede.").font(.caption).foregroundStyle(.secondary)
                     }.padding(10)
-                }.disabled(controller.busy)
+                }.disabled(controller.busy || aiController.busy)
                 HStack {
                     if controller.busy { ProgressView().controlSize(.small); Button("Cancelar") { controller.cancel() } }
-                    else { Button("Medir desempenho") { controller.start(input:input,pages:pages) }.buttonStyle(.borderedProminent) }
+                    else { Button("Medir desempenho") { controller.start(input:input,pages:pages) }.buttonStyle(.borderedProminent).disabled(aiController.busy) }
                     if controller.report != nil { Button("Exportar relatório…") { controller.export(model: model) } }
                     Text(controller.message).font(.callout).textSelection(.enabled)
                 }
                 if let report = controller.report { results(report) }
+                aiEvaluation
             }.padding(28).frame(maxWidth:1000,alignment:.leading).frame(maxWidth:.infinity)
-        }.tint(preferences.accent).onDisappear { controller.cancel() }
+        }.tint(preferences.accent).onDisappear { controller.cancel(); aiController.cancel() }
+    }
+    private var aiEvaluation: some View {
+        GroupBox("Avaliar respostas da IA em português") {
+            VStack(alignment: .leading, spacing: 12) {
+                Text("Execute cinco perguntas controladas sobre dois PDFs sintéticos: fatos, falta de apoio e prazos contraditórios. O teste usa o mesmo modelo e as mesmas validações da biblioteca. Nenhum documento seu é usado.")
+                    .font(.callout).foregroundStyle(.secondary)
+                HStack {
+                    if aiController.busy {
+                        ProgressView().controlSize(.small)
+                        Button("Cancelar avaliação") { aiController.cancel() }
+                    } else {
+                        Button("Avaliar IA local") { aiController.start() }.disabled(controller.busy)
+                    }
+                    if aiController.report != nil { Button("Exportar avaliação…") { aiController.export(model: model) } }
+                }
+                if !aiController.message.isEmpty { Text(aiController.message).font(.callout).textSelection(.enabled) }
+                if let report = aiController.report {
+                    ForEach(report.items) { item in
+                        DisclosureGroup {
+                            Text(item.expectation).font(.caption).foregroundStyle(.secondary)
+                            if let text = item.response { Text(text).textSelection(.enabled) }
+                            if let error = item.error { Text(error).foregroundStyle(.orange).textSelection(.enabled) }
+                            ForEach(item.checks) { check in
+                                Label(check.detail, systemImage: check.passed ? "checkmark.circle" : "xmark.circle").font(.caption)
+                            }
+                            Text("\(item.citations.count) citações · \(Int(item.milliseconds)) ms. IDs, páginas, trechos e SHA-256 estão no relatório exportado.").font(.caption)
+                        } label: {
+                            Text("\(item.question) — \(aiStatus(item.status))").font(.callout)
+                        }
+                    }
+                    Text("Amostra pequena, uma execução por pergunta. Respostas curtas não recebem classificação automática de idioma; não substitui avaliação humana ou um conjunto representativo de documentos.")
+                        .font(.caption).foregroundStyle(.secondary)
+                }
+            }.padding(10)
+        }
+    }
+    private func aiStatus(_ status: String) -> String {
+        switch status {
+        case "passed": return "critérios atendidos"
+        case "unavailable": return "modelo indisponível"
+        case "failed": return "critério não atendido"
+        case "cancelled": return "cancelado"
+        default: return "erro na avaliação"
+        }
     }
     private func results(_ report:BenchmarkReport) -> some View {
         VStack(alignment:.leading,spacing:16) {

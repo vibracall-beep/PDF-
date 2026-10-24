@@ -35,7 +35,11 @@ struct ContentObjectDescriptor: Codable, Identifiable, Sendable {
     let font_status: String?
     let substitution_font: String?
     var supported_actions: [String]? = nil
+    var member_ids: [String]? = nil
+    var line_spacing: Double? = nil
+    var alignment: String? = nil
     var supportedActions: [String] { supported_actions ?? ["replace", "move", "delete"] }
+    var isText: Bool { kind == "text" || kind == "paragraph" }
 }
 struct ContentInspection: Codable, Sendable {
     let version: Int
@@ -46,16 +50,50 @@ struct ContentInspection: Codable, Sendable {
     func validate(digest: String) throws {
         try AdvancedDocumentValidation.pages(version: version, digest: source_sha256, expected: digest, count: page_count, pages: pages)
         guard objects.count <= 100_000, Set(objects.map(\.id)).count == objects.count else { throw AdvancedDocumentValidation.failure("A lista de objetos contém identificadores inválidos ou excede o limite de revisão.") }
+        let indexed = Dictionary(uniqueKeysWithValues: objects.map { ($0.id, $0) })
+        var grouped = Set<String>()
         for item in objects {
             try Task.checkCancellation()
-            guard !item.id.isEmpty, item.id.utf8.count <= 256, ["text", "image"].contains(item.kind),
+            guard !item.id.isEmpty, item.id.utf8.count <= 256, ["text", "image", "paragraph"].contains(item.kind),
                   (item.text?.utf8.count ?? 0) <= 1_048_576,
                   !item.supportedActions.isEmpty, Set(item.supportedActions).count == item.supportedActions.count,
                   item.supportedActions.allSatisfy({ ["replace", "move", "delete"].contains($0) }),
+                  item.alignment == nil || ["left", "center", "right", "justify"].contains(item.alignment!),
                   item.font_size == nil || (item.font_size!.isFinite && item.font_size! > 0 && item.font_size! <= 1000) else {
                 throw AdvancedDocumentValidation.failure("Um objeto de conteúdo não pôde ser validado.")
             }
             try AdvancedDocumentValidation.rect(item.rect, page: item.page, pages: pages, withinPage: item.editable)
+            if item.kind == "paragraph" {
+                guard let members = item.member_ids, members.count >= 2, members.count <= objects.count,
+                      Set(members).count == members.count, grouped.isDisjoint(with: members),
+                      let spacing = item.line_spacing, spacing.isFinite, (1...3).contains(spacing) else {
+                    throw AdvancedDocumentValidation.failure("O agrupamento de parágrafo não contém linhas e espaçamento válidos.")
+                }
+                grouped.formUnion(members)
+                for id in members {
+                    guard let member = indexed[id], member.kind == "text", member.page == item.page,
+                          member.rect.count == 4, member.rect.allSatisfy(\.isFinite),
+                          member.rect[0] >= item.rect[0] - 0.1, member.rect[1] >= item.rect[1] - 0.1,
+                          member.rect[2] <= item.rect[2] + 0.1, member.rect[3] <= item.rect[3] + 0.1 else {
+                        throw AdvancedDocumentValidation.failure("Um parágrafo referencia trechos ausentes ou fora de sua área original.")
+                    }
+                }
+            } else if item.member_ids?.isEmpty == false {
+                throw AdvancedDocumentValidation.failure("Somente parágrafos podem agrupar trechos originais.")
+            }
+        }
+    }
+    func validateEditSelection(_ selected: Set<String>) throws {
+        guard !selected.isEmpty, selected.count <= 1000, Set(objects.map(\.id)).count == objects.count else { throw AdvancedDocumentValidation.failure("Prepare entre 1 e 1.000 alterações em objetos distintos por revisão.") }
+        let indexed = Dictionary(uniqueKeysWithValues: objects.map { ($0.id, $0) })
+        var covered = Set<String>()
+        for id in selected {
+            guard let item = indexed[id], item.editable else { throw AdvancedDocumentValidation.failure("Uma alteração não pertence aos objetos editáveis desta análise.") }
+            let members = Set(item.kind == "paragraph" ? (item.member_ids ?? []) : [id])
+            guard !members.isEmpty, covered.isDisjoint(with: members) else {
+                throw AdvancedDocumentValidation.failure("Edite o parágrafo inteiro ou seus trechos individuais em uma revisão. Remova as alterações que usam o mesmo texto duas vezes.")
+            }
+            covered.formUnion(members)
         }
     }
 }
@@ -198,13 +236,13 @@ private enum AdvancedDecodedAnalysis: Sendable {
     private var generation = UUID()
     private var ocrReviewURL: URL?
     deinit { cancellation?.cancel(); assetCancellations.values.forEach { $0.cancel() }; task?.cancel(); if let source { try? FileManager.default.removeItem(at: source.directory) } }
-    func load(model: Workspace, ocr: Bool, language: String = "por+eng") {
-        guard !working, !model.busy else { return }
+    @discardableResult func load(model: Workspace, ocr: Bool, language: String = "por+eng", deskew: Bool = false) -> Bool {
+        guard !working, !model.busy else { return false }
         NSApp.keyWindow?.makeFirstResponder(nil)
         guard let document = model.document, let url = model.savedDocumentURL ?? model.url, !document.isLocked else {
-            status = "Abra e desbloqueie um PDF no leitor primeiro."; return
+            status = "Abra e desbloqueie um PDF no leitor primeiro."; return false
         }
-        guard !model.hasUnsavedChanges else { status = "Salve uma cópia das alterações do leitor antes de carregar esta revisão."; return }
+        guard !model.hasUnsavedChanges else { status = "Salve uma cópia das alterações do leitor antes de carregar esta revisão."; return false }
         clear(); closed = false; working = true; status = "Preparando uma cópia privada da versão salva…"
         let token = NativeCancellation(), current = UUID(), secret = model.activeSession?.password
         cancellation = token; generation = current; originalURL = url; sourceName = url.lastPathComponent; password = secret
@@ -218,7 +256,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
                 self.source = captured
                 self.preview = try NativePDFSerialization.finishOpen(captured.opening)
                 self.task = nil; self.cancellation = nil
-                self.inspect(model: model, ocr: ocr, language: language, generation: current)
+                self.inspect(model: model, ocr: ocr, language: language, deskew: deskew, generation: current)
             } catch {
                 guard let self, self.generation == current else { return }
                 self.working = false; self.task = nil; self.cancellation = nil
@@ -226,17 +264,18 @@ private enum AdvancedDecodedAnalysis: Sendable {
                 self.clearSource()
             }
         }
+        return true
     }
-    private func inspect(model: Workspace, ocr: Bool, language: String, generation current: UUID) {
+    private func inspect(model: Workspace, ocr: Bool, language: String, deskew: Bool, generation current: UUID) {
         guard let source else { working = false; return }
         let metadata = source.directory.appendingPathComponent("analysis-" + UUID().uuidString + ".json")
         var options: [String: Any] = [:]
         if let password { options["password"] = password }
-        if ocr { options["language"] = language; options["min_confidence"] = 0 }
+        if ocr { options["language"] = language; options["min_confidence"] = 0; options["ocr_deskew"] = deskew }
         status = ocr ? "Reconhecendo palavras e posições com OCR local…" : "Identificando objetos de texto e imagem…"
         ownsEngine = true
         model.execute(operation: ocr ? "ocr-review" : "content-inspect", inputs: [source.url], output: metadata, options: options,
-                      title: ocr ? "Analisando OCR para revisão" : "Analisando conteúdo original") { [self, weak model] result in
+                      title: ocr ? "Analisando OCR para revisão" : "Analisando conteúdo original", completion: { [self, weak model] result in
             ownsEngine = false
             if model?.lastOutput == metadata { model?.lastOutput = nil; model?.message = "Validando a análise local do documento…" }
             guard generation == current, !closed else { working = false; clearSource(); return }
@@ -263,7 +302,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
                     } catch { if !closed { status = error is CancellationError ? "Análise cancelada." : error.localizedDescription } }
                 }
             }
-        }
+        })
     }
     func apply(model: Workspace, edits: [[String: Any]], corrections: [[String: Any]]? = nil) {
         guard !working, !model.busy, let source, let originalURL else { return }
@@ -276,14 +315,14 @@ private enum AdvancedDecodedAnalysis: Sendable {
         else { options["edits"] = edits }
         working = true; ownsEngine = true; status = "Aplicando e validando a cópia…"
         model.execute(operation: ocr ? "ocr-apply" : "content-apply", inputs: [source.url], output: destination, options: options,
-                      title: ocr ? "Exportando OCR revisado" : "Editando conteúdo original") { [self] result in
+                      title: ocr ? "Exportando OCR revisado" : "Editando conteúdo original", completion: { [self] result in
             ownsEngine = false; working = false
             switch result {
             case .success(let url): output = url; status = "Cópia concluída: \(url.lastPathComponent). Abra o resultado para revisar a apresentação."
             case .failure(let error): status = error.localizedDescription
             }
             if closed { clearSource() }
-        }
+        })
     }
     func stop(model: Workspace) {
         cancellation?.cancel(); task?.cancel()

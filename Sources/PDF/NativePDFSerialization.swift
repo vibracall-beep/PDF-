@@ -510,7 +510,7 @@ enum NativePDFSerialization {
                     var points = [NSPoint](repeating: .zero, count: 3)
                     let element = points.withUnsafeMutableBufferPointer { path.element(at: index, associatedPoints: $0.baseAddress!) }
                     result.append(Double(element.rawValue))
-                    let count = element == .curveTo ? 3 : element == .closePath ? 0 : 1
+                    let count = element == .cubicCurveTo ? 3 : element == .closePath ? 0 : 1
                     for value in points.prefix(count) { result += try point(value) }
                 }
                 return result
@@ -771,6 +771,8 @@ enum NativePDFSerialization {
         let process = Process()
         process.executableURL = executable; process.arguments = arguments; process.currentDirectoryURL = directory
         process.standardInput = stdin; process.standardOutput = stdout ?? FileHandle.nullDevice; process.standardError = FileHandle.nullDevice
+        let runtimeLease = try BundleRuntimeLease.configureQPDFChild(process)
+        defer { try? runtimeLease?.close() }
         do { try process.run() } catch { throw failure("Não foi possível iniciar o verificador PDF.") }
         defer {
             if process.isRunning {

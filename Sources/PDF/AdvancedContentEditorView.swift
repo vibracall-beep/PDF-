@@ -13,6 +13,7 @@ struct ContentEditDraft: Equatable {
     var fontSize: Double
     var color: String
     var alignment = "left"
+    var lineSpacing: Double
     var allowFontSubstitution = false
     var imageURL: URL?
     var fontURL: URL?
@@ -20,6 +21,8 @@ struct ContentEditDraft: Equatable {
         text = item.text ?? ""; x = item.rect[0]; y = item.rect[1]
         width = item.rect[2] - item.rect[0]; height = item.rect[3] - item.rect[1]
         fontSize = item.font_size ?? 12
+        lineSpacing = item.line_spacing ?? 1.2
+        alignment = item.alignment ?? "left"
         color = item.color ?? "#000000"
         action = item.kind == "image" && item.supportedActions.contains("move") ? "move" : (item.supportedActions.first ?? "replace")
     }
@@ -30,7 +33,7 @@ struct ContentEditDraft: Equatable {
         if action == "delete" { return value }
         try AdvancedDocumentValidation.rect(rect, page: item.page, pages: pages)
         value["rect"] = rect
-        if item.kind == "text" {
+        if item.isText {
             guard fontSize.isFinite, (4...300).contains(fontSize), ["left", "center", "right", "justify"].contains(alignment),
                   color.range(of: "^#[0-9a-fA-F]{6}$", options: .regularExpression) != nil else {
                 throw AdvancedDocumentValidation.failure("O tamanho da fonte ou alinhamento é inválido.")
@@ -38,6 +41,10 @@ struct ContentEditDraft: Equatable {
             try AdvancedDocumentValidation.text(text, maximum: 65_536)
             value["text"] = text; value["font_size"] = fontSize; value["alignment"] = alignment
             value["color"] = color
+            if item.kind == "paragraph" {
+                guard lineSpacing.isFinite, (1...3).contains(lineSpacing) else { throw AdvancedDocumentValidation.failure("Use espaçamento entre linhas de 1 a 3 vezes o tamanho da fonte.") }
+                value["line_spacing"] = lineSpacing
+            }
             value["allow_font_substitution"] = allowFontSubstitution
             if let fontURL { value["font_file"] = fontURL.path }
         } else if action == "replace" {
@@ -71,9 +78,11 @@ struct AdvancedContentEditorView: View {
                     Text(controller.sourceName.isEmpty ? "Texto e imagens do próprio PDF" : controller.sourceName).foregroundStyle(.secondary)
                 }
                 Spacer()
-                Button("Abrir PDF…") { model.open() }.disabled(controller.working || model.busy)
-                Button("Carregar versão salva") { edits = [:]; selection = nil; draft = nil; page = 1; controller.load(model: model, ocr: false) }
-                    .disabled(controller.working || model.busy || model.document == nil)
+                Button("Abrir PDF…") { model.open() }.disabled(controller.working || model.busy || loadingAsset)
+                Button("Carregar versão salva") {
+                    if controller.load(model: model, ocr: false) { edits = [:]; selection = nil; draft = nil; page = 1 }
+                }
+                    .disabled(controller.working || model.busy || loadingAsset || model.document == nil)
             }
             Text("A prévia mostra a origem. As alterações entram em uma nova cópia ao exportar. Objetos com sobreposição ou estrutura incompatível ficam indisponíveis com uma explicação.")
                 .font(.callout).foregroundStyle(.secondary)
@@ -88,16 +97,17 @@ struct AdvancedContentEditorView: View {
                 HSplitView {
                     ContentPagePreview(document: document, page: content.pages[page - 1], regions: pageObjects.map {
                         ContentPreviewRegion(id: $0.id, rect: $0.rect,
-                            label: $0.kind == "text" ? "Texto: " + String(($0.text ?? "").prefix(100)) : "Imagem da página \(page)",
+                            label: $0.isText ? ($0.kind == "paragraph" ? "Parágrafo: " : "Texto: ") + String(($0.text ?? "").prefix(100)) : "Imagem da página \(page)",
                             changed: edits[$0.id] != nil, warning: !$0.editable)
                     }, selection: $selection).frame(minWidth: 320, minHeight: 320)
                     VStack(alignment: .leading, spacing: 10) {
                         Text("Objetos da página").font(.headline)
                         List(pageObjects, selection: $selection) { item in
                             HStack(alignment: .top) {
-                                Image(systemName: item.kind == "text" ? "text.alignleft" : "photo")
+                                Image(systemName: item.kind == "paragraph" ? "paragraphsign" : item.isText ? "text.alignleft" : "photo")
                                 VStack(alignment: .leading) {
-                                    Text(item.kind == "text" ? String((item.text ?? "Texto").prefix(90)) : "Imagem original").lineLimit(2)
+                                    Text(item.isText ? String((item.text ?? "Texto").prefix(90)) : "Imagem original").lineLimit(2)
+                                    if item.kind == "paragraph" { Text("Parágrafo · \(item.member_ids?.count ?? 0) trechos").font(.caption).foregroundStyle(.secondary) }
                                     if !item.editable { Text("Revisão somente").font(.caption).foregroundStyle(.orange) }
                                     if edits[item.id] != nil { Text("Alteração preparada").font(.caption).foregroundStyle(.green) }
                                 }
@@ -131,10 +141,10 @@ struct AdvancedContentEditorView: View {
     @ViewBuilder private func inspector(_ item: ContentObjectDescriptor, draft: Binding<ContentEditDraft>) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 12) {
-                Text(item.kind == "text" ? "Parágrafo / trecho original" : "Imagem original").font(.headline)
+                Text(item.kind == "paragraph" ? "Parágrafo original" : item.isText ? "Trecho original" : "Imagem original").font(.headline)
                 ForEach(Array(item.limitations.enumerated()), id: \.offset) { _, limitation in Text(explanation(limitation)).font(.caption).foregroundStyle(.secondary) }
                 Picker("Operação", selection: draft.action) {
-                    if item.supportedActions.contains("replace") { Text(item.kind == "text" ? "Substituir texto" : "Substituir imagem").tag("replace") }
+                    if item.supportedActions.contains("replace") { Text(item.isText ? "Substituir texto" : "Substituir imagem").tag("replace") }
                     if item.supportedActions.contains("move") { Text("Mover / redimensionar").tag("move") }
                     if item.supportedActions.contains("delete") { Text("Excluir objeto").tag("delete") }
                 }
@@ -142,7 +152,7 @@ struct AdvancedContentEditorView: View {
                     Text("Esta imagem usa recorte ou transparência da página. A substituição preserva sua área; mover poderia revelar conteúdo fora do recorte.").font(.caption).foregroundStyle(.secondary)
                 }
                 if draft.wrappedValue.action != "delete" {
-                    if item.kind == "text" {
+                    if item.isText {
                         TextEditor(text: draft.text).font(.body).frame(minHeight: 100).border(.quaternary)
                             .accessibilityLabel("Texto substituto do objeto")
                         HStack {
@@ -150,6 +160,15 @@ struct AdvancedContentEditorView: View {
                             Picker("Alinhamento", selection: draft.alignment) {
                                 Text("Esquerda").tag("left"); Text("Centro").tag("center"); Text("Direita").tag("right"); Text("Justificado").tag("justify")
                             }
+                        }
+                        if item.kind == "paragraph" {
+                            HStack {
+                                Text("Espaçamento entre linhas")
+                                TextField("Multiplicador", value: draft.lineSpacing, format: .number).frame(width: 70)
+                                    .accessibilityLabel("Espaçamento do parágrafo, de 1 a 3")
+                            }
+                            Text("O grupo reúne trechos originais compatíveis. Use de 1 a 3 vezes o tamanho da fonte; a cópia só será exportada se o novo texto couber na área escolhida.")
+                                .font(.caption).foregroundStyle(.secondary)
                         }
                         Text("Fonte original: \(item.font ?? "não identificada")").font(.caption)
                         ColorPicker("Cor do texto", selection: Binding(get: {
@@ -165,8 +184,10 @@ struct AdvancedContentEditorView: View {
                         }
                         Toggle("Autorizar substituição de fonte", isOn: draft.allowFontSubstitution)
                         Button(draft.wrappedValue.fontURL?.lastPathComponent ?? "Selecionar fonte TTF / OTF…") { chooseAsset(font: true) }
+                            .disabled(loadingAsset || controller.working)
                     } else if draft.wrappedValue.action == "replace" {
                         Button(draft.wrappedValue.imageURL?.lastPathComponent ?? "Selecionar nova imagem…") { chooseAsset(font: false) }
+                            .disabled(loadingAsset || controller.working)
                     }
                     if item.kind == "image", draft.wrappedValue.action == "replace" {
                         Text("A substituição mantém a posição e a ordem da imagem na página. Para reposicioná-la, use Mover em uma revisão separada.").font(.caption).foregroundStyle(.secondary)
@@ -195,15 +216,20 @@ struct AdvancedContentEditorView: View {
     }
     private func selectFirstObject() {
         guard selection == nil else { return }
-        selection = pageObjects.first(where: \.editable)?.id ?? pageObjects.first?.id
+        selection = pageObjects.first(where: { $0.editable && $0.kind == "paragraph" })?.id ?? pageObjects.first(where: \.editable)?.id ?? pageObjects.first?.id
         select(selection)
     }
     private func queue() {
         guard let selected, let draft, let content = controller.content else { return }
-        do { _ = try draft.options(for: selected, pages: content.pages); edits[selected.id] = draft; validation = "Alteração preparada. A prévia acima ainda mostra a origem." }
+        do {
+            try content.validateEditSelection(Set(edits.keys).union([selected.id]))
+            _ = try draft.options(for: selected, pages: content.pages)
+            edits[selected.id] = draft; validation = "Alteração preparada. A prévia acima ainda mostra a origem."
+        }
         catch { validation = error.localizedDescription }
     }
     private func chooseAsset(font: Bool) {
+        guard !loadingAsset, !controller.working else { return }
         let panel = NSOpenPanel(); panel.allowsMultipleSelection = false
         panel.allowedContentTypes = font ? [UTType(filenameExtension: "ttf"), UTType(filenameExtension: "otf")].compactMap { $0 } : [.image]
         guard panel.runModal() == .OK, let url = panel.url else { return }
@@ -221,6 +247,7 @@ struct AdvancedContentEditorView: View {
     private func export() {
         guard let content = controller.content else { return }
         do {
+            try content.validateEditSelection(Set(edits.keys))
             let values = try content.objects.compactMap { item in try edits[item.id]?.options(for: item, pages: content.pages) }
             guard values.count <= 1000 else { throw AdvancedDocumentValidation.failure("Exporte no máximo 1.000 alterações por revisão.") }
             controller.apply(model: model, edits: values)
@@ -242,6 +269,7 @@ struct AdvancedContentEditorView: View {
         case "nonstandard-transparency-group": return "A página usa composição de transparência incompatível com esta reescrita."
         case "unmapped-text-paint-order": return "A ordem de desenho deste texto não pôde ser confirmada."
         case "later-object-overlap": return "Outro objeto cobre parte deste texto; reescrevê-lo alteraria a ordem visual."
+        case "paragraph-object-overlap": return "Outro objeto ocupa a área entre as linhas; este trecho não pode ser reescrito como um único parágrafo."
         default: return "A estrutura deste objeto ainda não permite uma edição com preservação verificada."
         }
     }

@@ -16,11 +16,13 @@ class PrintIntegration(unittest.TestCase):
         executable = shutil.which('gs')
         self.assertIsNotNone(executable, 'Ghostscript is required for this integration suite')
         candidates = [Path('/usr/share/color/icc/ghostscript/default_cmyk.icc')]
-        # Homebrew keeps profiles inside the versioned keg, including portable
-        # copies whose wrapper location differs from the executable itself.
+        # Homebrew 10.07+ builds --without-versioned-path; older releases keep
+        # the version below share/ghostscript. Accept both real layouts.
         if executable:
             base = Path(executable).resolve().parent.parent
+            candidates.append(base / 'share/ghostscript/iccprofiles/default_cmyk.icc')
             candidates += list((base / 'share/ghostscript').glob('*/iccprofiles/default_cmyk.icc'))
+        candidates.append(Path('/opt/homebrew/share/ghostscript/iccprofiles/default_cmyk.icc'))
         candidates += list(Path('/opt/homebrew/share/ghostscript').glob('*/iccprofiles/default_cmyk.icc'))
         profile = next((path for path in candidates if path.is_file()), None)
         self.assertIsNotNone(profile, 'A real Ghostscript CMYK profile is required')

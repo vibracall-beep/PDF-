@@ -76,6 +76,8 @@ struct ToolConfigurationView: View {
     @State private var formMode = "create"
     @State private var compareMode = "visual"
     @State private var presentationMode = "editable"
+    @State private var tableDetection = "ruled"
+    @State private var structureDeskew = false
     @State private var watermarkMode = "text"
     @State private var sourceMode = "file"
     @State private var webURL = "https://"
@@ -177,6 +179,7 @@ struct ToolConfigurationView: View {
             HStack { Button("Cancelar") { dismiss() }; Spacer(); Button("Escolher destino e executar…") { perform() }.buttonStyle(.borderedProminent).disabled(model.busy) }.padding(20)
         }.frame(width:690,height:730)
         .onAppear {
+            if tool.id == "markdown" { structureSource = "vector" }
             if tool.id == "fill-forms" { formMode = "fill" }
             if ["txt","epub"].contains(operation) { pageSize = "a4" }
             NSApp.keyWindow?.makeFirstResponder(nil)
@@ -237,6 +240,7 @@ struct ToolConfigurationView: View {
         if ["txt-pdf","epub-pdf"].contains(tool.id) { value.pageSize = "a4" }
         if tool.id == "watermark" { value.opacity = 0.35; value.position = "center"; value.fontSize = 32 }
         if tool.id == "numbers" { value.position = "bottom-center" }
+        if tool.id == "markdown" { value.structureSource = "vector" }
         return value
     }
     var currentOptions: ToolStyleOptions {
@@ -252,6 +256,8 @@ struct ToolConfigurationView: View {
         v.fitWidth = fitWidth; v.transparentPNG = transparentPNG; v.flattenAnnotations = flattenAnnotations
         v.flattenWidgets = flattenWidgets; v.textBox = textBox
         v.structureSource = structureSource; v.structureDPI = structureDPI; v.structureMinimumConfidence = structureMinimumConfidence
+        v.tableDetection = tableDetection
+        v.structureDeskew = structureDeskew
         return v
     }
     func apply(_ v:ToolStyleOptions) {
@@ -265,8 +271,10 @@ struct ToolConfigurationView: View {
         x = v.x; y = v.y; width = v.width; height = v.height; recompressImages = v.recompressImages
         fitWidth = v.fitWidth; transparentPNG = v.transparentPNG; flattenAnnotations = v.flattenAnnotations
         flattenWidgets = v.flattenWidgets; textBox = v.textBox
-        structureSource = v.structureSource ?? "auto"; structureDPI = v.structureDPI ?? 200
+        structureSource = v.structureSource ?? (tool.id == "markdown" ? "vector" : "auto"); structureDPI = v.structureDPI ?? 200
         structureMinimumConfidence = v.structureMinimumConfidence ?? 35
+        tableDetection = v.tableDetection ?? "ruled"
+        structureDeskew = v.structureDeskew ?? false
     }
     func styleColor(_ hex:String) -> Color {
         let number = UInt64(hex.dropFirst(),radix:16) ?? 0
@@ -423,7 +431,14 @@ struct ToolConfigurationView: View {
             Text("Requer os componentes de OCR e os idiomas instalados. OCR nativo Apple também está disponível em Digitalizar.").font(.caption).foregroundStyle(.secondary)
         }
         if tool.id == "compare" { Picker("Comparação",selection:$compareMode) { Text("Visual (HTML)").tag("visual"); Text("Diferenças de texto").tag("text") }.pickerStyle(.segmented); Text("Selecione exatamente dois documentos.").font(.caption) }
-        if ["word","excel"].contains(operation) { structuredOCRSection }
+        if ["word","excel","markdown"].contains(operation) { structuredOCRSection }
+        if ["word","excel","markdown"].contains(operation) {
+            Picker("Reconhecimento de tabelas", selection: $tableDetection) {
+                Text("Grades com linhas").tag("ruled")
+                Text("Incluir colunas alinhadas sem bordas").tag("aligned")
+            }
+            Text("O reconhecimento por alinhamento exige evidências de linhas, colunas e dados. Revise o resultado; textos ambíguos são preservados como prosa.").font(.caption).foregroundStyle(.secondary)
+        }
         if isFormsTool { formsSection }
         if ["txt","epub"].contains(operation) { documentLayoutSection }
         if operation == "csv" { csvOptionsSection }
@@ -435,9 +450,9 @@ struct ToolConfigurationView: View {
         if operation == "delete-pages" { Text("Informe as páginas a excluir. O documento precisa conservar ao menos uma página.").font(.caption).foregroundStyle(.secondary) }
         if operation == "extract-pages" { Text("Informe as páginas que devem aparecer na nova cópia, na ordem desejada.").font(.caption).foregroundStyle(.secondary) }
     }
-    var structureSettingsIdentity: String { "\(structureSource)|\(language)|\(structureDPI)|\(structureMinimumConfidence)|\(pages)" }
+    var structureSettingsIdentity: String { "\(structureSource)|\(language)|\(structureDPI)|\(structureMinimumConfidence)|\(structureDeskew)|\(tableDetection)|\(pages)" }
     var structuredOptions: [String:Any] {
-        ["source":structureSource,"language":language,"ocr_dpi":structureDPI,"min_confidence":structureMinimumConfidence]
+        ["source":structureSource,"language":language,"ocr_dpi":structureDPI,"min_confidence":structureMinimumConfidence,"ocr_deskew":structureDeskew,"table_detection":tableDetection]
     }
     var structuredOCRSection: some View {
         VStack(alignment:.leading,spacing:12) {
@@ -453,6 +468,8 @@ struct ToolConfigurationView: View {
                     Text("Espanhol").tag("spa"); Text("Francês").tag("fra"); Text("Alemão").tag("deu")
                 }
                 Stepper("Resolução do OCR: \(structureDPI) DPI",value:$structureDPI,in:120...400,step:10)
+                Toggle("Compensar pequena inclinação quando houver evidência", isOn: $structureDeskew)
+                Text("A compensação ajuda na leitura de grades inclinadas e preserva a imagem original. Páginas sem evidência suficiente permanecem na orientação original.").font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Text("Sinalizar confiança abaixo de")
                     Slider(value:$structureMinimumConfidence,in:0...100,step:1)
@@ -730,7 +747,8 @@ struct ToolConfigurationView: View {
         if operation == "images" && pageSize != "original" { options["paper"] = pageSize; options["margin"] = margin; options["orientation"] = orientation }
         if tool.id == "excel-pdf" { options["fit_width"] = fitWidth; options["orientation"] = orientation }
         if operation == "powerpoint" { options["mode"] = presentationMode }
-        if ["word","excel"].contains(operation) { options.merge(structuredOptions) { _,new in new } }
+        if ["word","excel","markdown"].contains(operation) { options.merge(structuredOptions) { _,new in new } }
+        if ["word","excel","markdown"].contains(operation) { options["table_detection"] = tableDetection }
         if ["txt","epub"].contains(operation) {
             options["paper"] = pageSize; options["font_size"] = fontSize; options["margin"] = margin; options["landscape"] = orientation == "landscape"
             if operation == "txt" { options["encoding"] = encoding }

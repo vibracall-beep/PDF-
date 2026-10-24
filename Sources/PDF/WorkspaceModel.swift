@@ -18,11 +18,13 @@ private struct ReaderOpenRequest: Sendable {
     var data: Data?
     var password: String?
     var navigation: ReaderNavigationTarget?
+    var verifiedSHA: String?
 }
 private struct PendingReaderPassword {
     let source: ReaderOpenSource
     let data: Data
     let navigation: ReaderNavigationTarget?
+    let verifiedSHA: String?
 }
 
 /// Literal token substitution only: user templates never become code or paths.
@@ -162,6 +164,19 @@ enum ReaderAnnotationStyle {
         }
         open(url: url, navigation: ReaderNavigationTarget(page: page, displayTitle: displayTitle))
     }
+    /// Verify and open this immutable snapshot; the URL is only its identity.
+    /// No URL-backed PDFKit path or file reread participates in this route.
+    func openVerified(data: Data, url: URL, sha: String, page: Int?, title: String?) {
+        guard url.isFileURL, !data.isEmpty, data.count <= LibraryFiles.maximumPDF, LibraryFiles.validHash(sha),
+              page.map({ (1...1_000_000).contains($0) }) ?? true,
+              title.map({ !$0.isEmpty && $0.count <= 300 }) ?? true else {
+            message = "Os bytes, a impressão digital ou o destino da referência são inválidos."; return
+        }
+        (pdfView as? DrawingPDFView)?.finishStroke(); captureActiveSession()
+        pendingReaderPassword = nil; documentPassword = ""; needsPassword = false
+        enqueueOpening(ReaderOpenRequest(source: .file(url), data: data,
+                                         navigation: ReaderNavigationTarget(page: page, displayTitle: title), verifiedSHA: sha))
+    }
     private func open(url: URL, navigation: ReaderNavigationTarget?) {
         // A new explicit selection replaces an unanswered password prompt, but
         // does not discard distinct files already being opened in the queue.
@@ -199,7 +214,7 @@ enum ReaderAnnotationStyle {
         let password = documentPassword
         documentPassword = ""; needsPassword = false
         guard let pending = pendingReaderPassword, activeOpening == nil else { return }
-        startOpening(ReaderOpenRequest(source: pending.source, data: pending.data, password: password, navigation: pending.navigation))
+        startOpening(ReaderOpenRequest(source: pending.source, data: pending.data, password: password, navigation: pending.navigation, verifiedSHA: pending.verifiedSHA))
     }
     func cancelPendingUnlock() {
         if let task = openingTask, let id = activeOpening?.id {
@@ -227,7 +242,12 @@ enum ReaderAnnotationStyle {
         }
     }
     private func enqueueOpening(_ request: ReaderOpenRequest) {
-        guard activeOpening?.source != request.source, !openingQueue.contains(where: { $0.source == request.source }) else { startNextOpening(); return }
+        // A verified request has not had its supplied bytes checked yet. Never
+        // deduplicate it by URL or trust another request's claimed fingerprint.
+        if request.verifiedSHA == nil {
+            guard !(activeOpening?.source == request.source && activeOpening?.verifiedSHA == nil),
+                  !openingQueue.contains(where: { $0.source == request.source && $0.verifiedSHA == nil }) else { startNextOpening(); return }
+        }
         openingQueue.append(request); startNextOpening()
     }
     private func startNextOpening() {
@@ -257,6 +277,12 @@ enum ReaderAnnotationStyle {
                 }
             }
             try Task.checkCancellation(); try token.check()
+            if let expected = request.verifiedSHA {
+                guard LibraryFiles.hash(data) == expected else {
+                    throw NSError(domain: "PDF.Reader", code: 5, userInfo: [NSLocalizedDescriptionKey: "Os bytes da referência não correspondem à impressão digital verificada."])
+                }
+                try Task.checkCancellation(); try token.check()
+            }
             return try NativePDFSerialization.prepareOpen(data: data, password: request.password, cancellation: token)
         }
         openingWorker = worker
@@ -267,8 +293,27 @@ enum ReaderAnnotationStyle {
                 }
                 try Task.checkCancellation(); try token.check()
                 guard let self, self.activeOpening?.id == request.id else { return }
-                if opening.requiresPassword {
-                    self.pendingReaderPassword = PendingReaderPassword(source: request.source, data: opening.originalData, navigation: request.navigation)
+                let verifiedSession: PDFDocumentSession?
+                if let sha = request.verifiedSHA, case .file(let url) = request.source {
+                    (self.pdfView as? DrawingPDFView)?.finishStroke(); self.captureActiveSession()
+                    verifiedSession = self.sessions.first {
+                        $0.sourceFingerprint == sha && $0.savedURL == nil && $0.sourceURL?.standardizedFileURL == url.standardizedFileURL && !$0.refreshDirty()
+                    }
+                } else { verifiedSession = nil }
+                if let existing = verifiedSession {
+                    if let page = request.navigation?.page, page > existing.document.pageCount {
+                        throw NSError(domain: "PDF.Reader", code: 4, userInfo: [NSLocalizedDescriptionKey: "A página citada não existe nesta versão."])
+                    }
+                    self.pendingReaderPassword = nil; self.needsPassword = false; self.documentPassword = ""
+                    self.activateSession(existing.id)
+                    if let title = request.navigation?.displayTitle { existing.displayTitle = title }
+                    if let page = request.navigation?.page {
+                        existing.page = page; self.currentPage = page
+                        if self.pdfView?.document === existing.document, let target = existing.document.page(at: page - 1) { self.pdfView?.go(to: target) }
+                    }
+                    self.message = "Fonte verificada aberta na página \(self.currentPage)."
+                } else if opening.requiresPassword {
+                    self.pendingReaderPassword = PendingReaderPassword(source: request.source, data: opening.originalData, navigation: request.navigation, verifiedSHA: request.verifiedSHA)
                     self.documentPassword = ""; self.needsPassword = true
                     self.message = "Digite a senha para abrir o documento protegido."
                 } else {
@@ -280,7 +325,7 @@ enum ReaderAnnotationStyle {
                     self.pendingReaderPassword = nil; self.needsPassword = false
                     switch request.source {
                     case .file(let url): self.installDocument(document, url: url, password: request.password,
-                                                           usedCompatibilityCopy: opening.usedCompatibilityCopy, navigation: request.navigation)
+                                                           usedCompatibilityCopy: opening.usedCompatibilityCopy, navigation: request.navigation, sourceFingerprint: request.verifiedSHA)
                     case .recovery(let record): self.restore(document, from: record, password: request.password,
                                                             usedCompatibilityCopy: opening.usedCompatibilityCopy)
                     }
@@ -328,10 +373,10 @@ enum ReaderAnnotationStyle {
         return data
     }
     private func installDocument(_ doc:PDFDocument, url:URL, password: String? = nil, usedCompatibilityCopy: Bool = false,
-                                 navigation: ReaderNavigationTarget? = nil) {
+                                 navigation: ReaderNavigationTarget? = nil, sourceFingerprint: String? = nil) {
         (pdfView as? DrawingPDFView)?.finishStroke()
         captureActiveSession()
-        let session = PDFDocumentSession(document: doc, sourceURL: url, password: password, usedCompatibilityCopy: usedCompatibilityCopy)
+        let session = PDFDocumentSession(document: doc, sourceURL: url, password: password, usedCompatibilityCopy: usedCompatibilityCopy, sourceFingerprint: sourceFingerprint)
         let preferredZoom = defaults.object(forKey: "readerZoom") as? Double ?? 1
         session.zoom = preferredZoom.isFinite ? min(8, max(0.1, preferredZoom)) : 1
         session.autoScale = defaults.object(forKey: "readerAutoScale") as? Bool ?? true
@@ -873,15 +918,18 @@ enum ReaderAnnotationStyle {
         var environment = ProcessInfo.processInfo.environment
         AdaptivePerformance.apply(to: &environment)
         environment["PDF_OPTIONS_STDIN"] = "1"
-        environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
+        environment["PATH"] = python.deletingLastPathComponent().path + ":/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
         task.environment = environment
         let log = Pipe(); task.standardInput = input.handle; task.standardError = log; task.standardOutput = log
+        let runtimeLease: FileHandle?
+        do { runtimeLease = try BundleRuntimeLease.configureRuntimeChild(task) }
+        catch { input.close(); busy = false; fail("Não foi possível manter o bloqueio do motor: \(error.localizedDescription)"); return }
         process = task
         do { try task.run() }
-        catch { input.close(); busy = false; process = nil; fail("Não foi possível iniciar o motor: \(error.localizedDescription)"); return }
+        catch { try? runtimeLease?.close(); input.close(); busy = false; process = nil; fail("Não foi possível iniciar o motor: \(error.localizedDescription)"); return }
         // Drain the pipe before waiting; external converters can emit enough logs to fill it.
         DispatchQueue.global(qos:.userInitiated).async { [weak self] in
-            defer { input.close(); try? log.fileHandleForReading.close() }
+            defer { try? runtimeLease?.close(); input.close(); try? log.fileHandleForReading.close() }
             var tail = Data(), pending = Data()
             while let chunk = try? log.fileHandleForReading.read(upToCount: 16_384), !chunk.isEmpty {
                 tail.append(chunk); if tail.count > 131_072 { tail = Data(tail.suffix(131_072)) }

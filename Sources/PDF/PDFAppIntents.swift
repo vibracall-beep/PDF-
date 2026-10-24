@@ -134,11 +134,18 @@ struct PDFShortcutInput: Sendable {
         let report = try await library.importFiles([input.url])
         guard let item = report.catalog.documents.first(where: { $0.revisions.contains(where: { $0.fingerprint == input.fingerprint }) }),
               let revision = item.revisions.first(where: { $0.fingerprint == input.fingerprint }) else { throw LibraryFailure.missing }
-        let source = try await library.verifiedURL(document: item.id, revision: revision.id)
+        let source = try await library.verifiedBytes(document: item.id, revision: revision.id)
+        guard source.fingerprint == input.fingerprint else { throw LibraryFailure.corrupt }
         try Task.checkCancellation()
         NSApp.activate(ignoringOtherApps: true)
-        model.open(url: source, page: nil, displayTitle: revision.labels.title); await model.waitForPendingOpen()
-        if !model.sessions.contains(where: { $0.sourceURL == source }), !model.needsPassword { throw PreferenceError.invalid(model.message.isEmpty ? "Não foi possível abrir o PDF recebido." : model.message) }
+        model.openVerified(data: source.data, url: source.url, sha: source.fingerprint, page: nil, title: revision.labels.title); await model.waitForPendingOpen()
+        try Task.checkCancellation()
+        if !model.needsPassword {
+            guard let session = model.activeSession, session.sourceURL == source.url,
+                  session.sourceFingerprint == source.fingerprint, session.savedURL == nil, !session.refreshDirty() else {
+                throw PreferenceError.invalid(model.message.isEmpty ? "Não foi possível abrir a versão verificada do PDF recebido." : model.message)
+            }
+        }
         return revision.labels.title
     }
     func run(_ file: IntentFile, workflowID: UUID) async throws -> URL {

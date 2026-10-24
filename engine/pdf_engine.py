@@ -238,7 +238,8 @@ def _publish(payload, output):
 def _external(command, timeout=180, allowed_returncodes=(0,)):
     """Own a separate process group so cancel never leaves converters running."""
     try:
-        process = subprocess.Popen([str(v) for v in command],stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.DEVNULL,text=True,start_new_session=True)
+        from runtime_lease import inherited_fds
+        process = subprocess.Popen([str(v) for v in command],stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.DEVNULL,text=True,start_new_session=True,pass_fds=inherited_fds())
     except FileNotFoundError:
         raise RuntimeError(f'Dependência indisponível: {command[0]}. Execute o instalador completo.') from None
     try:
@@ -487,7 +488,7 @@ def _execute(operation, inputs, output, options):
             content = _form_records(doc,pages)
             output.write_text(json.dumps(content,ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'markdown':
-            _markdown(doc,pages,output)
+            _markdown(doc,pages,output,options)
         elif operation in ('compare','compare-visual'):
             with open_pdf(inputs[1],options.get('second_password',password)) as other:
                 if operation == 'compare-visual': _visual_compare(doc,other,output)
@@ -687,7 +688,7 @@ def _font_has_text(text,font,fontfile):
     return True
 
 
-def _html_text(page,rect,text,fontsize,ink,minimum=None,opacity=1,align=0,font='helv'):
+def _html_text(page,rect,text,fontsize,ink,minimum=None,opacity=1,align=0,font='helv',line_spacing=1.5):
     """Shape on a disposable page and verify bounds before importing the text."""
     minimum=fontsize if minimum is None else minimum
     family='monospace' if font.startswith('co') else 'serif' if font.startswith('ti') else 'sans-serif'
@@ -695,7 +696,7 @@ def _html_text(page,rect,text,fontsize,ink,minimum=None,opacity=1,align=0,font='
     style='italic' if font in ('heit','hebi','tiit','tibi','coit','cobi') else 'normal'
     css_color='#'+''.join(f'{round(component*255):02x}' for component in ink)
     content='<div>'+html.escape(text).replace('\n','<br>').replace('\t','&nbsp;&nbsp;&nbsp;&nbsp;')+'</div>'
-    css=f'* {{font-family:{family};font-size:{fontsize}pt;color:{css_color};font-weight:{weight};font-style:{style};margin:0;padding:0;line-height:1.5;text-align:{("left","center","right","justify")[align]}}}'
+    css=f'* {{font-family:{family};font-size:{fontsize}pt;color:{css_color};font-weight:{weight};font-style:{style};margin:0;padding:0;line-height:{line_spacing};text-align:{("left","center","right","justify")[align]}}}'
     with fitz.open() as shaped:
         scratch=shaped.new_page(width=max(1,rect.x1+2),height=max(1,rect.y1+2))
         spare,scale=scratch.insert_htmlbox(rect,content,css=css,scale_low=minimum/fontsize,opacity=opacity)
@@ -1126,10 +1127,10 @@ def _fill_forms(doc,options):
             doc.xref_set_key(parent or xref,'V',_pdf_name(value) if value else '/Off')
 
 
-def _page_elements(page):
+def _page_elements(page,options=None):
     """Reading-order blocks and extracted tables, avoiding duplicated table text."""
     from document_layout import page_elements
-    return page_elements(page)
+    return page_elements(page,options)
 
 
 def _write_base64(stream, data):
@@ -1139,7 +1140,8 @@ def _write_base64(stream, data):
             stream.write(base64.b64encode(view[offset:offset+49152]).decode('ascii'))
 
 
-def _markdown(doc,pages,output):
+def _markdown(doc,pages,output,options=None):
+    options=options or {}
     def escaped(value):
         return str(value or '').replace('\\','\\\\').replace('<','&lt;').replace('>','&gt;')
     with output.open('w',encoding='utf-8') as stream:
@@ -1151,11 +1153,19 @@ def _markdown(doc,pages,output):
         def emit(text):
             begin_line(); stream.write(text)
         for i in pages:
-            page=doc[i]; elements=_page_elements(page)
-            sizes=[s['size'] for b in elements if b['type']==0 for line in b['lines'] for s in line['spans'] if s['text'].strip()]
+            page=doc[i]
+            if options.get('source') in ('ocr','auto'):
+                from scan_analysis import analyze, elements as scan_elements, source_mode
+                if source_mode(page,options)=='ocr':
+                    analysis=analyze(page,i+1,options,_external)
+                    page_items=scan_elements(analysis) if analysis['words'] else _page_elements(page,options)
+                else: page_items=_page_elements(page,options)
+            elif options.get('source','vector')!='vector': raise ValueError('source deve ser auto, vector ou ocr.')
+            else: page_items=_page_elements(page,options)
+            sizes=[s['size'] for b in page_items if b['type']==0 for line in b['lines'] for s in line['spans'] if s['text'].strip()]
             body=sorted(sizes)[len(sizes)//2] if sizes else 11
             emit(f'<!-- Página {i+1} -->')
-            for block in elements:
+            for block in page_items:
                 if block['type']==2:
                     rows=block['rows']
                     if not rows: continue
@@ -1205,8 +1215,8 @@ def _word(doc,pages,output,options=None):
         if count: result.add_page_break()
         if source_mode(page,options)=='ocr':
             analysis=analyze(page,i+1,options,_external)
-            blocks=elements(analysis) if analysis['words'] else _page_elements(page)
-        else: blocks=_page_elements(page)
+            blocks=elements(analysis) if analysis['words'] else _page_elements(page,options)
+        else: blocks=_page_elements(page,options)
         sizes=sorted(span['size'] for block in blocks if block['type']==0 for line in block['lines'] for span in line['spans'] if span['text'].strip())
         body=sizes[len(sizes)//2] if sizes else 11
         for block in blocks:
@@ -1215,8 +1225,14 @@ def _word(doc,pages,output,options=None):
                 if rows:
                     table=result.add_table(rows=len(rows),cols=max(map(len,rows)))
                     table.style='Table Grid'
+                    covered=set()
+                    for merge in block.get('merges',[]):
+                        r,c=merge['row'],merge['column'];end_r=r+merge['row_span'];end_c=c+merge['column_span']
+                        table.cell(r,c).merge(table.cell(end_r-1,end_c-1))
+                        covered.update((rr,cc) for rr in range(r,end_r) for cc in range(c,end_c) if (rr,cc)!=(r,c))
                     for r,row in enumerate(rows):
-                        for c,value in enumerate(row): table.cell(r,c).text=str(value or '')
+                        for c,value in enumerate(row):
+                            if (r,c) not in covered: table.cell(r,c).text=str(value or '')
                 continue
             if block['type']==1:
                 try: result.add_picture(io.BytesIO(block['image']),width=Inches(min(6,(block['bbox'][2]-block['bbox'][0])/72)))
@@ -1294,7 +1310,7 @@ def _excel(doc,pages,output,options=None):
             groups=elements(analysis)
             if not analysis['words']: raise ValueError('Nenhum texto foi reconhecido na página '+str(i+1)+'. Ajuste idioma/DPI ou forneça uma digitalização mais nítida.')
         else:
-            groups=table_groups(page)
+            groups=table_groups(page,options)
         prior_table=False;cursor=1
         for group in groups:
             if group['type']==1: continue
@@ -1309,6 +1325,9 @@ def _excel(doc,pages,output,options=None):
                     sheet.cell(cursor,column,"'"+value if value.startswith(('=','+','-','@')) else value)
                 cursor+=1
             if is_table:
+                for merge in group.get('merges',[]):
+                    sheet.merge_cells(start_row=start+merge['row'],start_column=merge['column']+1,
+                        end_row=start+merge['row']+merge['row_span']-1,end_column=merge['column']+merge['column_span'])
                 for cell in sheet[start]: cell.font=Font(bold=True)
                 sheet.cell(start,1).comment=Comment('Origem: página '+str(i+1)+'; retângulo '+','.join(str(round(value,2)) for value in group['bbox'])+'. Revise a estrutura extraída.','PDF')
             prior_table=is_table
@@ -1397,8 +1416,18 @@ def main():
     parser.add_argument('inputs',nargs='*'); parser.add_argument('--output')
     parser.add_argument('--options',default='{}',help='JSON; use PDF_OPTIONS_STDIN=1 para opções sensíveis.')
     parser.add_argument('--capabilities',action='store_true')
+    parser.add_argument('--check-workflow-dependencies',action='store_true',help='Verifica etapas JSON em stdin sem executar o fluxo.')
     args=parser.parse_args()
     try:
+        if args.check_workflow_dependencies:
+            if args.operation or args.inputs or args.output or args.capabilities or args.options != '{}':
+                raise ValueError('A verificação de dependências aceita somente etapas por stdin.')
+            raw=sys.stdin.buffer.read(1024*1024+1)
+            if len(raw)>1024*1024: raise ValueError('A verificação de dependências excede 1 MiB.')
+            from workflow_batch import check_dependencies,validate_steps
+            steps=validate_steps(json.loads(raw),TOOLS,PDF_OPERATIONS)
+            check_dependencies(steps)
+            print(json.dumps(dict(ok=True,dependencies_checked=True))); return
         if args.capabilities:
             print(json.dumps(capabilities(),ensure_ascii=False)); return
         if not args.operation or not args.output: parser.error('operation e --output são obrigatórios.')

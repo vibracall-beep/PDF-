@@ -14,6 +14,11 @@ def main():
     runtime = app / 'Contents/Resources/runtime'
     if not sys.prefix.startswith(str(runtime) + os.sep):
         raise RuntimeError('Python escaped the bundled runtime: ' + sys.prefix)
+    # -I intentionally omits the script directory; permit only this signed
+    # distribution helper directory, without restoring cwd or host packages.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from app_intents_metadata import verify
+    verify(app / 'Contents/Resources')
     for name in ('qpdf', 'gs', 'ocrmypdf', 'tesseract', 'soffice', 'java'):
         executable = shutil.which(name)
         if not executable or not Path(executable).is_relative_to(runtime):

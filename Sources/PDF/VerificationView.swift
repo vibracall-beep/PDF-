@@ -235,9 +235,9 @@ struct VerificationView: View {
                         Text("SHA-256: \(certificate.sha256)").font(.caption.monospaced()).textSelection(.enabled)
                     }
                     if let coverage = signature.coverage { Text("Cobertura: \(coverage)").font(.caption) }
-                    if let revocation = signature.revocation { Text("Revogação: \(revocation.status)").font(.caption) }
+                    if let revocation = signature.revocation { Text("Revogação: \(revocation.label)").font(.caption) }
                     if let preservation = signature.longTermValidation {
-                        Text("AdES-LTA: \(preservation.passed ? "provas validadas" : preservation.status)").font(.caption)
+                        Text("Preservação AdES-LTA: \(preservation.passed ? "provas validadas" : "não confirmada; consulte o relatório")").font(.caption)
                     }
                 }.padding(12).background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
             }
@@ -352,7 +352,17 @@ private struct VerificationReport: Decodable {
             case longTermValidation = "long_term_validation"
         }
     }
-    struct Revocation: Decodable { let status: String }
+    struct Revocation: Decodable {
+        let status: String
+        var label: String {
+            switch status {
+            case "good": return "prova válida segundo a política escolhida"
+            case "revoked": return "certificado revogado"
+            case "not_required": return "não exigida nesta verificação"
+            default: return "não confirmada"
+            }
+        }
+    }
     struct LongTermValidation: Decodable { let status: String; let passed: Bool }
     struct Certificate: Decodable {
         let subject: String

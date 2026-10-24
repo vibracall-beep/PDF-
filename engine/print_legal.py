@@ -198,10 +198,28 @@ def measure(source, output, options):
         closed = options.get('closed', False)
         if not isinstance(closed, bool) or (closed and len(checked) < 3):
             raise ValueError('Uma área fechada precisa de três ou mais pontos.')
+        if any(a == b for a, b in zip(checked, checked[1:])) or (closed and checked[0] == checked[-1]):
+            raise ValueError('Remova pontos consecutivos repetidos; o fechamento do polígono é automático.')
         area = None
         if closed:
+            def turn(a, b, c):
+                return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+            def within(a, b, p):
+                return min(a[0], b[0]) <= p[0] <= max(a[0], b[0]) and min(a[1], b[1]) <= p[1] <= max(a[1], b[1])
+            edges = list(zip(checked, checked[1:] + checked[:1]))
+            for i, (a, b) in enumerate(edges):
+                for j in range(i + 1, len(edges)):
+                    if j == i + 1 or (i == 0 and j == len(edges) - 1):
+                        continue
+                    c, d = edges[j]
+                    t1, t2, t3, t4 = turn(a, b, c), turn(a, b, d), turn(c, d, a), turn(c, d, b)
+                    if ((t1 > 0) != (t2 > 0) and (t3 > 0) != (t4 > 0)) or any(
+                        t == 0 and within(x, y, p) for t, x, y, p in ((t1, a, b, c), (t2, a, b, d), (t3, c, d, a), (t4, c, d, b))):
+                        raise ValueError('O polígono cruza a si mesmo. Corrija a ordem dos pontos antes de calcular a área.')
             distance += math.dist(checked[-1], checked[0]) * factor
             area = abs(sum(a[0] * b[1] - b[0] * a[1] for a, b in zip(checked, checked[1:] + checked[:1]))) / 2 * factor**2
+            if area == 0:
+                raise ValueError('Os pontos não delimitam uma área positiva.')
         _json(output, dict(schema_version=1, source_sha256=hashlib.sha256(Path(source).read_bytes()).hexdigest(),
                            page=index + 1, scale=scale, unit=unit, points=checked, closed=closed, distance=distance, area=area,
                            scope='Escala informada pelo usuário; confirme uma medida conhecida. Não substitui levantamento técnico.'))

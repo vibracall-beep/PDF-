@@ -11,8 +11,17 @@ PDF_INTERPRETER="$PDF_APP/Contents/Resources/runtime/bin/python3"
 PDF_ENGINE_DIRECTORY="$PDF_APP/Contents/Resources/engine"
 [[ -x "$PDF_EXECUTABLE" && -x "$PDF_INTERPRETER" ]] || { printf '%s\n' 'Executável ou runtime ausente.' >&2; exit 1; }
 plutil -lint "$PDF_APP/Contents/Info.plist"
-lipo "$PDF_EXECUTABLE" -verify_arch arm64
 codesign --verify --deep --strict "$PDF_APP"
+if [[ -f "$PDF_APP/Contents/Resources/runtime/portable.json" ]]; then
+  # The binary distribution carries its verifier; this path must not invoke
+  # lipo/xcrun or require a developer toolchain on the destination Mac.
+  "$PDF_INTERPRETER" "$PDF_APP/Contents/Resources/distribution/run-with-timeout.py" --seconds 600 -- \
+    "$PDF_INTERPRETER" "$PDF_APP/Contents/Resources/distribution/check_runtime.py" "$PDF_APP"
+  "$PDF_INTERPRETER" "$PDF_APP/Contents/Resources/distribution/run-with-timeout.py" --seconds 300 -- "$PDF_EXECUTABLE" --smoke-test
+  printf '%s\n' 'Bundle portátil, assinatura e motores internos verificados sem ferramentas de desenvolvimento.'
+  exit 0
+fi
+lipo "$PDF_EXECUTABLE" -verify_arch arm64
 export PATH="/opt/homebrew/bin:$PATH"
 [[ -x /opt/homebrew/bin/qpdf ]] || { printf '%s\n' 'O verificador qpdf está ausente em /opt/homebrew/bin; execute novamente o instalador completo.' >&2; exit 1; }
 /opt/homebrew/bin/qpdf --version

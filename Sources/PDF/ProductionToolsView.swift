@@ -3,7 +3,7 @@ import AppKit
 import UniformTypeIdentifiers
 
 enum ProductionMode: String, CaseIterable, Identifiable {
-    case preflight = "print-preflight", prepare = "print-prepare", pdfx, bates, dossier, stamp, measure
+    case preflight = "print-preflight", prepare = "print-prepare", pdfx, bates, dossier, stamp, measure, conversion = "conversion-audit"
     var id: String { rawValue }
     var title: String {
         switch self {
@@ -14,6 +14,7 @@ enum ProductionMode: String, CaseIterable, Identifiable {
         case .dossier: return "Conjunto de documentos"
         case .stamp: return "Carimbo personalizado"
         case .measure: return "Medir com escala"
+        case .conversion: return "Auditar conversão Office"
         }
     }
     var report: Bool { self == .preflight || self == .measure }
@@ -62,6 +63,7 @@ struct ProductionToolsView: View {
                         HStack {
                             Button(mode == .dossier ? "Adicionar PDFs…" : "Escolher PDF…") { choosePDFs() }
                             Button("Usar versão salva do leitor") { useReader() }.disabled(model.url == nil)
+                            if mode == .conversion { Button("Escolher resultado Office…") { chooseOffice() }.disabled(inputs.isEmpty) }
                             if !inputs.isEmpty { Button("Limpar lista") { inputs = [] } }
                         }
                         ForEach(Array(inputs.enumerated()), id: \.offset) { index, url in
@@ -77,21 +79,30 @@ struct ProductionToolsView: View {
                         }
                         SecureField("Senha dos arquivos protegidos, se houver", text: $password)
                         if mode == .dossier { Text("Nesta tela, os PDFs protegidos precisam usar a mesma senha. O conjunto preserva a interseção das permissões e inclui índice com links e marcadores.").font(.caption).foregroundStyle(.secondary) }
-                        else if !mode.report && mode != .pdfx { TextField("Páginas: todas ou, por exemplo, 1,3-5", text: $pages) }
+                        else if !mode.report && mode != .pdfx && mode != .conversion { TextField("Páginas: todas ou, por exemplo, 1,3-5", text: $pages) }
                     }.padding(10)
                 }
                 .disabled(model.busy)
                 settings
                 HStack {
-                    Button(mode.report ? "Gerar relatório…" : "Criar cópia…") { execute() }
-                        .buttonStyle(.borderedProminent).disabled(inputs.isEmpty || model.busy || (mode == .pdfx && profile == nil))
+                    Button(mode.report || mode == .conversion ? "Gerar relatório…" : "Criar cópia…") { execute() }
+                        .buttonStyle(.borderedProminent).disabled(inputs.isEmpty || model.busy || (mode == .pdfx && profile == nil) || (mode == .conversion && inputs.count != 2))
                     if model.busy { ProgressView().controlSize(.small); Button("Cancelar") { model.cancel() } }
                 }
                 if !error.isEmpty { Text(error).foregroundStyle(.orange).textSelection(.enabled) }
                 if !report.isEmpty { GroupBox("Resultado") { Text(report).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled).padding(12) } }
             }.padding(28).frame(maxWidth: 1100, alignment: .leading).frame(maxWidth: .infinity)
-        }.accessibilityIdentifier("pdf.production.tools").onDisappear { generation = UUID() }
+        }.accessibilityIdentifier("pdf.production.tools")
+            .onChange(of: inputs) { _, _ in invalidateReport() }
+            .onChange(of: reportSettings) { _, _ in invalidateReport() }
+            .onDisappear { generation = UUID() }
     }
+    private var reportSettings: [String] {
+        [password, pages, prefix, String(start), String(digits), stamp, String(inset), String(bleed),
+         String(minimumDPI), profile?.path ?? "", condition, String(page), String(scale), unit, String(closed)]
+        + points.flatMap { [String($0.x), String($0.y)] }
+    }
+    private func invalidateReport() { report = ""; error = "" }
     @ViewBuilder private var settings: some View {
         GroupBox(mode.title) {
             VStack(alignment: .leading, spacing: 12) {
@@ -114,6 +125,8 @@ struct ProductionToolsView: View {
                     Text("Identificadores consecutivos no rodapé direito das páginas selecionadas.").font(.caption)
                 case .dossier:
                     Text("O índice respeita a ordem da lista. Os nomes dos arquivos tornam-se títulos; cada item leva à primeira página do documento correspondente.")
+                case .conversion:
+                    Text("Escolha primeiro o PDF original e depois o arquivo DOCX, XLSX, PPTX, ODT ou RTF convertido. O resultado inclui comparação visual HTML, PDF reexportado e relatório de texto, imagens, páginas e objetos editáveis. Diferenças são indicadores para revisão, sem promessa de equivalência perfeita.")
                 case .stamp:
                     TextField("Texto do carimbo", text: $stamp)
                     Text("O carimbo será inserido na região superior esquerda. Use o editor para posicionamentos e estilos adicionais.").font(.caption)
@@ -143,6 +156,10 @@ struct ProductionToolsView: View {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [UTType(filenameExtension: "icc") ?? .data]
         if panel.runModal() == .OK { profile = panel.url }
     }
+    private func chooseOffice() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = ["docx", "xlsx", "pptx", "odt", "rtf"].compactMap { UTType(filenameExtension: $0) }
+        if panel.runModal() == .OK, let url = panel.url, let original = inputs.first { inputs = [original, url] }
+    }
     private func useReader() {
         NSApp.keyWindow?.makeFirstResponder(nil)
         (model.pdfView as? DrawingPDFView)?.finishStroke()
@@ -152,6 +169,7 @@ struct ProductionToolsView: View {
         password = model.activeSession?.password ?? ""; error = ""
     }
     private func execute() {
+        NSApp.keyWindow?.makeFirstResponder(nil)
         guard let first = inputs.first else { return }
         var options: [String: Any] = ["password": password]
         if !pages.isEmpty { options["pages"] = pages }
@@ -160,27 +178,28 @@ struct ProductionToolsView: View {
         case .prepare: options["trim_inset"] = inset; options["bleed"] = bleed; options["crop_marks"] = true
         case .pdfx: options["icc_profile"] = profile?.path; options["output_condition"] = condition
         case .bates: options["prefix"] = prefix; options["start"] = start; options["digits"] = digits
-        case .dossier: break
+        case .dossier, .conversion: break
         case .stamp: options["text"] = stamp
         case .measure:
             options["points"] = points.map { [$0.x, $0.y] }; options["scale"] = scale; options["unit"] = unit
             options["page"] = page; options["closed"] = closed
         }
-        guard let output = NativeOutput.destination(model: model, toolName: mode.title, extension: mode.report ? "json" : "pdf", originalURL: first) else { return }
+        guard let output = model.selectOutput(extension: mode.report ? "json" : "pdf", directory: mode == .conversion, toolName: mode.title, originalURL: first) else { return }
         let selectedMode = mode
+        let submittedInputs = inputs, submittedSettings = reportSettings
         let token = UUID(); generation = token
         error = ""; report = ""
         model.execute(operation: mode.rawValue, inputs: inputs, output: output, options: options, title: mode.title) { result in
-            guard generation == token else { return }
+            guard generation == token, inputs == submittedInputs, reportSettings == submittedSettings else { return }
             switch result {
             case .failure(let failure): error = failure.localizedDescription
             case .success(let url):
                 if selectedMode.report {
                     Task {
                         let message = await Task.detached(priority: .utility) { Self.describeReport(url, mode: selectedMode) }.value
-                        if generation == token { report = message }
+                        if generation == token, inputs == submittedInputs, reportSettings == submittedSettings { report = message }
                     }
-                } else { report = "Cópia criada. Abra o resultado para revisar a aparência final." }
+                } else { report = selectedMode == .conversion ? "Relatório criado. Abra comparison.html na pasta do resultado para comparar os documentos." : "Cópia criada. Abra o resultado para revisar a aparência final." }
             }
         }
     }

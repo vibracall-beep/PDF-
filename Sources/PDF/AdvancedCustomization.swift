@@ -76,6 +76,11 @@ struct PDFWorkspaceProfile: Codable, Identifiable {
     var settings: Data
     var modified = Date()
 }
+struct PDFWorkspaceProfilesSnapshot:Codable {
+    var version = 1
+    var profiles:[PDFWorkspaceProfile]
+}
+enum PDFProfileConflictPolicy:Equatable { case keepBoth, replaceMatchingIdentifiers }
 
 @MainActor final class AdvancedCustomizationStore: ObservableObject {
     static let bindingKey = "PDF.CommandBindings.v1"
@@ -96,8 +101,7 @@ struct PDFWorkspaceProfile: Codable, Identifiable {
             do {
                 let values = try JSONDecoder().decode([PDFWorkspaceProfile].self,from:data)
                 guard values.count <= 30,Set(values.map(\.id)).count == values.count else { throw PreferenceError.invalid("Biblioteca de perfis inválida.") }
-                for value in values { try Self.validateProfile(value) }
-                profiles = values
+                profiles = try values.map(Self.canonicalProfile)
             } catch { loadWarning = "Os perfis salvos não puderam ser carregados: " + error.localizedDescription }
         }
     }
@@ -141,10 +145,18 @@ struct PDFWorkspaceProfile: Codable, Identifiable {
         if let shortcuts = snapshot.shortcuts { try validate(shortcuts) }
         if let output = snapshot.output { try output.validate() }
     }
+    private static func canonicalProfile(_ profile:PDFWorkspaceProfile) throws -> PDFWorkspaceProfile {
+        try validateProfile(profile)
+        var value = profile
+        let snapshot = try JSONDecoder().decode(CustomizationSnapshot.self,from:profile.settings)
+        let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
+        value.settings = try encoder.encode(snapshot)
+        return value
+    }
     func saveProfile(name:String,settings:Data,replacing id:UUID? = nil) throws {
         var value = PDFWorkspaceProfile(name:name.trimmingCharacters(in:.whitespacesAndNewlines),settings:settings)
         if let id { value.id = id }
-        try Self.validateProfile(value)
+        value = try Self.canonicalProfile(value)
         guard !profiles.contains(where:{$0.id != value.id && $0.name.localizedCaseInsensitiveCompare(value.name) == .orderedSame}) else { throw PreferenceError.invalid("Já existe um perfil com esse nome.") }
         var candidate = profiles
         if let index = candidate.firstIndex(where:{$0.id == value.id}) { candidate[index] = value } else { candidate.append(value) }
@@ -154,6 +166,36 @@ struct PDFWorkspaceProfile: Codable, Identifiable {
         defaults.set(data,forKey:Self.profileKey); profiles = candidate
     }
     func deleteProfile(_ id:UUID) { profiles.removeAll { $0.id == id }; if let data = try? JSONEncoder().encode(profiles) { defaults.set(data,forKey:Self.profileKey) } }
+    func exportProfiles() throws -> Data {
+        try JSONEncoder().encode(PDFWorkspaceProfilesSnapshot(profiles:profiles.map(Self.canonicalProfile)))
+    }
+    static func decodeProfiles(_ data:Data) throws -> PDFWorkspaceProfilesSnapshot {
+        guard data.count <= 8_388_608 else { throw PreferenceError.invalid("O arquivo de perfis excede 8 MB.") }
+        var value = try JSONDecoder().decode(PDFWorkspaceProfilesSnapshot.self,from:data)
+        guard value.version == 1,value.profiles.count <= 30,Set(value.profiles.map(\.id)).count == value.profiles.count else { throw PreferenceError.invalid("O conjunto de perfis é inválido.") }
+        value.profiles = try value.profiles.map(Self.canonicalProfile)
+        return value
+    }
+    func importProfiles(_ data:Data,policy:PDFProfileConflictPolicy) throws {
+        let incoming = try Self.decodeProfiles(data)
+        var candidate = profiles
+        for var item in incoming.profiles {
+            let match = candidate.firstIndex(where:{$0.id == item.id})
+            if let match,candidate[match].settings == item.settings,candidate[match].name == item.name { continue }
+            if match != nil && policy == .keepBoth { item.id = UUID() }
+            let target = policy == .replaceMatchingIdentifiers ? match : nil
+            let base = item.name
+            var suffix = 1
+            while candidate.enumerated().contains(where:{$0.offset != target && $0.element.name.localizedCaseInsensitiveCompare(item.name) == .orderedSame}) {
+                item.name = String(base.prefix(60))+" (recebido \(suffix))"; suffix += 1
+            }
+            if let target { candidate[target] = item } else { candidate.append(item) }
+        }
+        guard candidate.count <= 30 else { throw PreferenceError.invalid("A união ultrapassa 30 perfis. Remova perfis locais ou escolha substituir os identificadores em conflito.") }
+        let bytes = try JSONEncoder().encode(candidate)
+        guard bytes.count <= 8_388_608 else { throw PreferenceError.invalid("A união de perfis excede 8 MB.") }
+        defaults.set(bytes,forKey:Self.profileKey); profiles = candidate
+    }
 }
 
 struct PDFShortcutSnapshot: Codable { var bindings:[String:PDFKeyboardBinding]; var disabled:[String] }

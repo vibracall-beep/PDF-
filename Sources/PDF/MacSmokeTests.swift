@@ -355,10 +355,14 @@ enum MacSmokeTests {
         audit("Semantic retrieval and verifiable citations") { try SemanticAuditChecks.run() }
         audit("Performance measurement harness") { try BenchmarkAuditChecks.run() }
         audit("Adaptive resource limits") { try PerformancePolicyAuditChecks.run() }
+        audit("Private engine input and cleanup") { try EngineInputAuditChecks.run() }
         audit("Advanced editing and OCR review contracts") { try AdvancedEditingAuditChecks.run() }
         audit("Command palette shortcuts and workspace profiles") { try AdvancedCustomizationAuditChecks.run() }
         await auditAsync("Opt-in folder automation") { try await AutomationAuditChecks.run() }
         await auditAsync("Library revisions synchronization and Portuguese sources") { try await LibraryAuditChecks.run() }
+        await auditAsync("Real crash and recovery") { try await CrashRecoveryAudit.run() }
+        await auditAsync("Explicit settings and bookmark exchange") { try await SettingsExchangeAuditChecks.run() }
+        audit("App Intents input and private temporary files") { try AppIntentsAuditChecks.run() }
         print("Native checks hardware: \(AppleHardware.summary)")
         guard failures.isEmpty else {
             throw NSError(domain: "PDF.NativeChecks", code: 1, userInfo: [NSLocalizedDescriptionKey:

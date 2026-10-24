@@ -13,6 +13,7 @@ from urllib.parse import urlsplit
 import aiohttp
 from asn1crypto import crl,ocsp,pem,x509
 from cryptography import x509 as crypto_x509
+from cryptography.exceptions import InvalidSignature
 from cryptography.hazmat.primitives import hashes,serialization
 from cryptography.x509 import ocsp as crypto_ocsp
 from cryptography.x509.oid import AuthorityInformationAccessOID
@@ -83,7 +84,7 @@ def material(options,certificates=()):
                 issuers=[c for c in parsed_certs if c.subject==certificate.issuer]
                 for issuer in issuers:
                     try: certificate.verify_directly_issued_by(issuer)
-                    except (ValueError,TypeError):continue
+                    except (ValueError,TypeError,InvalidSignature):continue
                     request=crypto_ocsp.OCSPRequestBuilder().add_certificate(certificate,issuer,hashes.SHA256()).build()
                     requests.append(request.public_bytes(serialization.Encoding.DER));break
             if not requests:raise ValueError('O endpoint OCSP não corresponde a um certificado com emissor verificável na cadeia fornecida.')
@@ -106,6 +107,31 @@ def context(roots,material,other_certs=()):
         revocation_mode='require' if material['mode']=='require' else 'soft-fail')
 
 
+def add_embedded(reader,result):
+    """DSS evidence is untrusted input until normal certificate validation succeeds."""
+    from pyhanko.pdf_utils import generic
+    dss=reader.root.get('/DSS')
+    if dss is None:return []
+    dss=dss.get_object()
+    if not isinstance(dss,generic.DictionaryObject):raise ValueError('DSS inválido.')
+    certificates=[]
+    for key,kind,parser in [('/CRLs','crl',crl.CertificateList),('/OCSPs','ocsp',ocsp.OCSPResponse),('/Certs','certificate',x509.Certificate)]:
+        entries=dss.get(key,generic.ArrayObject()).get_object()
+        if not isinstance(entries,generic.ArrayObject) or len(entries)>256:raise ValueError('DSS contém evidências demais ou uma lista inválida.')
+        for entry in entries:
+            value=entry.get_object()
+            if not isinstance(value,generic.StreamObject):raise ValueError('Evidência DSS sem stream válido.')
+            data=value.data
+            if len(data)>MAX_RESPONSE:raise ValueError('Uma evidência DSS excede 4 MiB.')
+            try:parsed=parser.load(data,strict=True);parsed.native
+            except (ValueError,TypeError,KeyError):raise ValueError('Evidência DSS malformada.') from None
+            if kind=='certificate':certificates.append(parsed)
+            else:
+                result['crls' if kind=='crl' else 'ocsps'].append(parsed)
+                result['evidence'].append({'kind':kind,'source':'embedded_dss','sha256':hashlib.sha256(data).hexdigest()})
+    return certificates
+
+
 def lta_status(signature,roots):
     from pyhanko.sign.validation.ades import ades_lta_validation
     from pyhanko.sign.validation.policy_decl import (PdfSignatureValidationSpec,SignatureValidationSpec,
@@ -113,6 +139,12 @@ def lta_status(signature,roots):
     from pyhanko_certvalidator.context import CertValidationPolicySpec
     from pyhanko_certvalidator.registry import SimpleTrustManager
     from pyhanko_certvalidator.policy_decl import CertRevTrustPolicy,RevocationCheckingPolicy
+    structure={'has_document_timestamp':any(s.sig_object_type=='/DocTimeStamp' and s.signed_revision>signature.signed_revision for s in signature.reader.embedded_signatures),
+        'has_embedded_validation_info':'/DSS' in signature.reader.root,
+        'has_signature_timestamp':any(attribute['type'].native=='signature_time_stamp_token' for attribute in signature.signer_info['unsigned_attrs']),
+        'pades_subfilter':str(signature.sig_object.get('/SubFilter',''))=='/ETSI.CAdES.detached'}
+    if not all(structure.values()):
+        return {'validation':'ETSI_AdES_LTA','status':'MISSING_LTA_STRUCTURE','passed':False,'network_access':False,**structure}
     policy=CertValidationPolicySpec(trust_manager=SimpleTrustManager.build(trust_roots=roots),
         revinfo_policy=CertRevTrustPolicy(RevocationCheckingPolicy.from_legacy('require')))
     spec=PdfSignatureValidationSpec(SignatureValidationSpec(cert_validation_policy=policy,
@@ -122,5 +154,5 @@ def lta_status(signature,roots):
     result=asyncio.run(ades_lta_validation(signature,spec))
     indication=result.ades_subindic
     return {'validation':'ETSI_AdES_LTA','status':indication.name,
-            'passed':indication.name=='OK','network_access':False,
+            'passed':indication.name=='OK','network_access':False,**structure,
             'note':'A validação usa provas de tempo e revogação embutidas; preservação exige renovação antes de algoritmos e certificados perderem validade.'}

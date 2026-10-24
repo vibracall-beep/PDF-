@@ -6,20 +6,22 @@ import UniformTypeIdentifiers
     @Published var catalog: LibraryCatalog?
     @Published var message = ""
     @Published var busy = false
+    private(set) var openingReader = false
     @Published var result: LibrarySearchResult?
+    @Published var answer: LibraryGeneratedAnswer?
     let store: DocumentLibraryStore
     let retrieval = LibraryRetrieval()
     private var task: Task<Void, Never>?
     private var cancellation: NativeCancellation?
     init(directory: URL? = nil) { store = DocumentLibraryStore(directory: directory ?? DocumentLibraryStore.defaultDirectory) }
     deinit { task?.cancel(); cancellation?.cancel() }
-    func run(_ title: String, action: @escaping @MainActor (NativeCancellation) async throws -> String) {
+    func run(_ title: String, opensReader: Bool = false, action: @escaping @MainActor (NativeCancellation) async throws -> String) {
         guard !busy else { return }
-        busy = true; message = title
+        busy = true; message = title; openingReader = opensReader
         let cancellation = NativeCancellation(); self.cancellation = cancellation
         task = Task { [weak self] in
             guard let self else { return }
-            defer { self.busy = false; self.task = nil; self.cancellation = nil }
+            defer { self.busy = false; self.task = nil; self.cancellation = nil; self.openingReader = false }
             do { self.message = try await action(cancellation) }
             catch is CancellationError { self.message = "Operação cancelada. A última versão completa continua disponível." }
             catch { self.message = error.localizedDescription }
@@ -31,6 +33,7 @@ import UniformTypeIdentifiers
 
 struct DocumentLibraryView: View {
     @EnvironmentObject private var model: Workspace
+    @EnvironmentObject private var preferences: AppearancePreferences
     @StateObject private var library: DocumentLibraryController
     @State private var selected = Set<UUID>()
     @State private var filter = LibrarySmartFilter()
@@ -40,6 +43,7 @@ struct DocumentLibraryView: View {
     @State private var useEmbeddings = true
     @State private var editing: LibraryDocument?
     @State private var showSync = false
+    @State private var showSettingsExchange = false
     @State private var title = ""
     @State private var collection = ""
     @State private var tags = ""
@@ -75,8 +79,16 @@ struct DocumentLibraryView: View {
             }.padding(12)
         }
         .task { if library.catalog == nil { library.load() } }
+        .onDisappear {
+            if !library.openingReader { library.cancel() }
+            passwords = [:]; library.result = nil; library.answer = nil
+            Task { await library.store.clearSearchCache() }
+        }
         .sheet(item: $editing) { document in metadataSheet(document) }
         .sheet(isPresented: $showSync) { syncSheet }
+        .sheet(isPresented: $showSettingsExchange) {
+            SettingsExchangeView(store: library.store).environmentObject(model).environmentObject(preferences)
+        }
         .accessibilityIdentifier("pdf.library")
     }
     private var header: some View {
@@ -86,6 +98,7 @@ struct DocumentLibraryView: View {
                 Spacer()
                 Button(action: importDocuments) { Label("Importar PDFs", systemImage: "plus") }.buttonStyle(.borderedProminent).disabled(unavailable)
                 Button { showSync = true } label: { Label("Sincronizar…", systemImage: "arrow.triangle.2.circlepath") }.disabled(unavailable)
+                Button { showSettingsExchange = true } label: { Image(systemName: "slider.horizontal.3") }.help("Trocar ajustes, perfis e marcadores").disabled(unavailable)
                 Button(action: library.load) { Image(systemName: "arrow.clockwise") }.help("Recarregar catálogo").disabled(unavailable)
             }
             Text("Cópias locais, coleções e versões verificadas. Seus arquivos originais permanecem intactos.")
@@ -212,8 +225,34 @@ struct DocumentLibraryView: View {
             Button(action: search) { Label("Buscar nas fontes", systemImage: "magnifyingglass") }
                 .buttonStyle(.borderedProminent).disabled(unavailable || question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty || (searchSelectedOnly && selected.isEmpty))
             if let result = library.result {
+                Text("Consulta: " + result.question).font(.caption.weight(.medium))
                 Text(result.response).font(.callout)
                 Text(result.method).font(.caption).foregroundStyle(.secondary)
+                if !result.sources.isEmpty {
+                    Button("Responder em português com IA local") {
+                        library.answer = nil
+                        library.run("Elaborando resposta com as fontes desta consulta…") { _ in
+                            library.answer = try await LibraryAnswering.respond(to: result)
+                            return "Citações conferidas nos trechos fornecidos. Revise a interpretação nas fontes."
+                        }
+                    }.disabled(unavailable || LibraryAnswering.availabilityMessage != nil || result.question.count > 800)
+                    if result.question.count > 800 { Text("Para a resposta com IA, use uma pergunta de até 800 caracteres.").font(.caption).foregroundStyle(.secondary) }
+                    if let reason = LibraryAnswering.availabilityMessage { Text(reason).font(.caption).foregroundStyle(.secondary) }
+                }
+                if let answer = library.answer {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("Resposta local", systemImage: "sparkles").font(.headline)
+                        Text(answer.text).textSelection(.enabled)
+                        ForEach(answer.citations) { citation in
+                            VStack(alignment: .leading, spacing: 5) {
+                                Button(citation.source.title + " · página \(citation.source.page)") { openCitation(citation.source) }
+                                Text("“" + citation.quote + "”").font(.callout).textSelection(.enabled)
+                                Text(citation.source.fingerprint).font(.caption2.monospaced()).foregroundStyle(.secondary).textSelection(.enabled)
+                            }
+                        }
+                        Text("A conferência valida a origem literal das citações, não garante a interpretação do modelo.").font(.caption).foregroundStyle(.secondary)
+                    }.padding(16).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
+                }
                 ForEach(result.sources) { source in
                     VStack(alignment: .leading, spacing: 8) {
                         HStack {
@@ -226,7 +265,10 @@ struct DocumentLibraryView: View {
                     }.padding(14).background(.regularMaterial, in: RoundedRectangle(cornerRadius: 14))
                 }
                 ForEach(Array(result.skipped.enumerated()), id: \.offset) { _, notice in Text(notice).font(.caption).foregroundStyle(.secondary) }
-                Button("Limpar trechos da memória") { library.result = nil; question = ""; passwords = [:] }.controlSize(.small)
+                Button("Limpar trechos da memória") {
+                    library.result = nil; library.answer = nil; question = ""; passwords = [:]
+                    Task { await library.store.clearSearchCache() }
+                }.controlSize(.small).disabled(library.busy)
             }
         }
     }
@@ -256,6 +298,7 @@ struct DocumentLibraryView: View {
             Label("Levar sua biblioteca a outro Mac", systemImage: "externaldrive.badge.icloud").font(.title2.bold())
             Text("Escolha uma pasta local, unidade externa ou pasta de um provedor de sincronização configurado por você. No outro Mac, escolha a mesma pasta e sincronize.")
             Text("Todos os PDFs e os metadados da biblioteca serão copiados para ‘PDF Library Exchange’. Um provedor poderá enviar essa pasta à nuvem conforme suas configurações. As senhas e os índices de texto não são exportados; PDFs protegidos permanecem criptografados.").font(.callout)
+            Text("Snapshots de ajustes, perfis ou marcadores preparados por você também são transferidos. No outro Mac, revise e aplique cada snapshot em ‘Trocar ajustes’; receber um arquivo nunca altera automaticamente suas preferências.").font(.callout)
             Text("A sincronização ocorre somente ao acionar este comando. Versões divergentes são mantidas no histórico e em cópias separadas na pasta ‘conflicts’. Não há exclusão automática nem substituição silenciosa. Aguarde o provedor concluir a transferência antes de abrir no outro Mac.")
                 .font(.caption).foregroundStyle(.secondary)
             HStack {
@@ -289,7 +332,7 @@ struct DocumentLibraryView: View {
         showSync = false
         library.run("Verificando manifestos e sincronizando cópias…") { _ in
             let report = try await library.store.synchronize(with: url); library.catalog = report.catalog
-            return "\(report.received) versões recebidas · \(report.conflicts) documentos com ramificações preservadas."
+            return "\(report.received) versões e \(report.configurationsReceived) ajustes recebidos · \(report.conflicts) documentos com ramificações preservadas."
         }
     }
     private func export(_ document: LibraryDocument, revision: LibraryRevision) {
@@ -301,25 +344,25 @@ struct DocumentLibraryView: View {
     }
     private func open(_ document: LibraryDocument, revision: LibraryRevision? = nil) {
         guard !unavailable else { return }
-        library.run("Verificando versão…") { _ in
+        library.run("Verificando versão…", opensReader: true) { _ in
             let url = try await library.store.verifiedURL(document: document.id, revision: revision?.id)
-            model.open(url: url); await model.waitForPendingOpen(); model.section = "Leitor"
-            if model.activeSession?.sourceURL == url { model.activeSession?.displayTitle = revisionTitle(document, revision: revision ?? document.current) }
-            return "Versão aberta no leitor. Salve as alterações em uma nova cópia."
+            model.open(url: url, page: nil, displayTitle: revisionTitle(document, revision: revision ?? document.current)); await model.waitForPendingOpen()
+            guard model.needsPassword || model.activeSession?.sourceURL == url else { throw SemanticEvidence.failure(model.message) }
+            model.section = "Leitor"
+            return model.needsPassword ? "Digite a senha no leitor para abrir a versão protegida." : "Versão aberta no leitor. Salve as alterações em uma nova cópia."
         }
     }
     private func compare(_ document: LibraryDocument, revision: LibraryRevision) {
         guard revision.fingerprint != document.current.fingerprint else { library.message = "As duas versões contêm exatamente os mesmos bytes PDF; somente os metadados mudaram."; return }
-        library.run("Abrindo versões para comparação…") { _ in
+        library.run("Abrindo versões para comparação…", opensReader: true) { _ in
             let old = try await library.store.verifiedURL(document: document.id, revision: revision.id)
             let current = try await library.store.verifiedURL(document: document.id)
-            model.open(url: old); await model.waitForPendingOpen(); model.section = "Leitor"
-            guard !model.needsPassword, let reference = model.activeSession, reference.sourceURL == old else { return "Desbloqueie a primeira versão no leitor e repita a comparação." }
-            reference.displayTitle = revisionTitle(document, revision: revision)
-            model.open(url: current); await model.waitForPendingOpen()
-            guard !model.needsPassword, model.activeSession?.sourceURL == current else { return "Desbloqueie a versão atual no leitor e repita a comparação." }
-            model.activeSession?.displayTitle = revisionTitle(document, revision: document.current)
+            model.open(url: old, page: nil, displayTitle: revisionTitle(document, revision: revision)); await model.waitForPendingOpen()
+            guard !model.needsPassword, let reference = model.activeSession, reference.sourceURL == old else { model.section = "Leitor"; return "Desbloqueie a primeira versão no leitor e repita a comparação." }
+            model.open(url: current, page: nil, displayTitle: revisionTitle(document, revision: document.current)); await model.waitForPendingOpen()
+            guard !model.needsPassword, model.activeSession?.sourceURL == current else { model.section = "Leitor"; return "Desbloqueie a versão atual no leitor e repita a comparação." }
             model.comparisonSessionID = reference.id
+            model.section = "Leitor"
             return "Versão atual e histórica abertas lado a lado."
         }
     }
@@ -327,7 +370,7 @@ struct DocumentLibraryView: View {
         guard !unavailable else { return }
         let ids = searchSelectedOnly ? selected : Set(documents.map(\.id)), query = question, semantic = useEmbeddings
         let secrets = passwords.filter { ids.contains($0.key) && !$0.value.isEmpty }
-        passwords = [:]; library.result = nil
+        passwords = [:]; library.result = nil; library.answer = nil
         library.run("Consultando texto das fontes selecionadas…") { cancellation in
             let source = try await library.store.excerpts(documentIDs: ids, passwords: secrets, cancellation: cancellation)
             library.result = try await library.retrieval.search(question: query, source: source, useEmbeddings: semantic)
@@ -336,14 +379,13 @@ struct DocumentLibraryView: View {
     }
     private func openCitation(_ source: LibraryExcerpt) {
         guard !unavailable else { return }
-        library.run("Verificando fonte citada…") { _ in
+        library.run("Verificando fonte citada…", opensReader: true) { _ in
             let url = try await library.store.verifiedURL(document: source.documentID, revision: source.revisionID)
-            model.open(url: url); await model.waitForPendingOpen(); model.section = "Leitor"
-            if !model.needsPassword, model.activeSession?.sourceURL == url, let page = model.document?.page(at: source.page - 1) {
-                model.activeSession?.displayTitle = source.title + " · fonte " + String(source.fingerprint.prefix(8))
-                model.currentPage = source.page; model.activeSession?.page = source.page; model.pdfView?.go(to: page)
-            }
-            return "Fonte original da citação aberta."
+            model.open(url: url, page: source.page, displayTitle: source.title + " · fonte " + String(source.fingerprint.prefix(8)))
+            await model.waitForPendingOpen()
+            guard model.needsPassword || (model.activeSession?.sourceURL == url && model.currentPage == source.page) else { throw SemanticEvidence.failure(model.message) }
+            model.section = "Leitor"
+            return model.needsPassword ? "Digite a senha no leitor; a página \(source.page) será aberta após a autenticação." : "Fonte original da citação aberta na página \(source.page)."
         }
     }
     private func revisionTitle(_ document: LibraryDocument, revision: LibraryRevision) -> String {

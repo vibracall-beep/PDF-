@@ -42,6 +42,16 @@ enum AdvancedEditingAuditChecks {
         replacement.action = "delete"
         let deletion = try replacement.options(for: image, pages: [page])
         try require(deletion.count == 2 && deletion["action"] as? String == "delete", "exclusão carregou parâmetros de substituição")
+        var clippedImage = image
+        clippedImage.supported_actions = ["replace", "delete"]
+        let clippedInspection = ContentInspection(version: 1, source_sha256: hash, page_count: 1, pages: [page], objects: [clippedImage])
+        let clippedDecoded = try JSONDecoder().decode(ContentInspection.self, from: JSONEncoder().encode(clippedInspection))
+        try clippedDecoded.validate(digest: hash)
+        try require(clippedDecoded.objects[0].supportedActions == ["replace", "delete"], "a análise perdeu a restrição de movimentos da imagem recortada")
+        var clippedDraft = ContentEditDraft(clippedDecoded.objects[0])
+        try require(clippedDraft.action == "replace", "a operação inicial oferece mover uma imagem recortada")
+        clippedDraft.action = "move"
+        try require(rejects { _ = try clippedDraft.options(for: clippedImage, pages: [page]) }, "aceitou mover imagem cujo recorte exige posição fixa")
         let word = OCRReviewWord(id: "word-1", page: 1, rect: box, text: "a\u{301}", confidence: 0.65)
         let review = OCRReviewDocument(version: 1, source_sha256: hash, page_count: 1, pages: [page], words: [word], backend: "tesseract", language: "por")
         try review.validate(digest: hash)

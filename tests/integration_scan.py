@@ -33,7 +33,12 @@ class StructuredScanIntegrationTests(unittest.TestCase):
         self.assertEqual([[cell.text for cell in row.cells] for row in document.tables[0].rows],expected)
         self.assertIn('Order form','\n'.join(paragraph.text for paragraph in document.paragraphs))
         workbook=load_workbook(excel)
-        try:self.assertEqual([list(row) for row in workbook.active.iter_rows(values_only=True)],expected)
+        try:
+            rows=[list(row) for row in workbook.active.iter_rows(values_only=True)]
+            first=rows.index(expected[0]);self.assertEqual(rows[first:first+len(expected)],expected)
+            values=[value for row in rows for value in row if value is not None]
+            for label in ('Order form','Name:','Accept terms','Date:'): self.assertIn(label,values)
+            self.assertEqual(values.count('Oranges'),1)
         finally:workbook.close()
 
     def test_fields_have_labels_review_scores_and_creatable_coordinates(self):
@@ -96,7 +101,13 @@ class StructuredScanIntegrationTests(unittest.TestCase):
         self.assertEqual(len(document.tables),1)
         selected=self.root/'selected.xlsx';run('excel',[mixed],selected,{**self.options,'pages':'2'})
         workbook=load_workbook(selected)
-        try:self.assertEqual(workbook.sheetnames,['Página 2']);self.assertEqual(workbook.active['A3'].value,'Oranges')
+        try:
+            self.assertEqual(workbook.sheetnames,['Página 2'])
+            rows=[list(row) for row in workbook.active.iter_rows(values_only=True)]
+            first=rows.index(['Product','Amount'])
+            self.assertEqual(rows[first:first+3],[['Product','Amount'],['Apples','12'],['Oranges','34']])
+            self.assertIn(['Order form',None],rows)
+            self.assertNotIn('Native searchable heading',[value for row in rows for value in row])
         finally:workbook.close()
 
 if __name__=='__main__':unittest.main()

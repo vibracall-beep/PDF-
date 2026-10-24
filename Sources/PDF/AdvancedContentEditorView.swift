@@ -21,11 +21,11 @@ struct ContentEditDraft: Equatable {
         width = item.rect[2] - item.rect[0]; height = item.rect[3] - item.rect[1]
         fontSize = item.font_size ?? 12
         color = item.color ?? "#000000"
-        action = item.kind == "image" ? "move" : "replace"
+        action = item.kind == "image" && item.supportedActions.contains("move") ? "move" : (item.supportedActions.first ?? "replace")
     }
     var rect: [Double] { [x, y, x + width, y + height] }
     func options(for item: ContentObjectDescriptor, pages: [ContentPageDescriptor]) throws -> [String: Any] {
-        guard item.editable, ["replace", "move", "delete"].contains(action) else { throw AdvancedDocumentValidation.failure("Este objeto não aceita a operação selecionada.") }
+        guard item.editable, item.supportedActions.contains(action) else { throw AdvancedDocumentValidation.failure("Este objeto não aceita a operação selecionada.") }
         var value: [String: Any] = ["id": item.id, "action": action]
         if action == "delete" { return value }
         try AdvancedDocumentValidation.rect(rect, page: item.page, pages: pages)
@@ -134,9 +134,12 @@ struct AdvancedContentEditorView: View {
                 Text(item.kind == "text" ? "Parágrafo / trecho original" : "Imagem original").font(.headline)
                 ForEach(Array(item.limitations.enumerated()), id: \.offset) { _, limitation in Text(explanation(limitation)).font(.caption).foregroundStyle(.secondary) }
                 Picker("Operação", selection: draft.action) {
-                    Text(item.kind == "text" ? "Substituir texto" : "Substituir imagem").tag("replace")
-                    Text("Mover / redimensionar").tag("move")
-                    Text("Excluir objeto").tag("delete")
+                    if item.supportedActions.contains("replace") { Text(item.kind == "text" ? "Substituir texto" : "Substituir imagem").tag("replace") }
+                    if item.supportedActions.contains("move") { Text("Mover / redimensionar").tag("move") }
+                    if item.supportedActions.contains("delete") { Text("Excluir objeto").tag("delete") }
+                }
+                if item.kind == "image", !item.supportedActions.contains("move") {
+                    Text("Esta imagem usa recorte ou transparência da página. A substituição preserva sua área; mover poderia revelar conteúdo fora do recorte.").font(.caption).foregroundStyle(.secondary)
                 }
                 if draft.wrappedValue.action != "delete" {
                     if item.kind == "text" {
@@ -235,6 +238,10 @@ struct AdvancedContentEditorView: View {
         case "shared-image-object": return "A mesma imagem é usada em mais de um local."
         case "rotated-skewed-or-reflected-image": return "Imagem rotacionada, inclinada ou espelhada."
         case "image-mask": return "A imagem usa uma máscara de transparência que precisa ser preservada."
+        case "clipped-page-content": return "O texto usa um recorte da página que precisa ser preservado."
+        case "nonstandard-transparency-group": return "A página usa composição de transparência incompatível com esta reescrita."
+        case "unmapped-text-paint-order": return "A ordem de desenho deste texto não pôde ser confirmada."
+        case "later-object-overlap": return "Outro objeto cobre parte deste texto; reescrevê-lo alteraria a ordem visual."
         default: return "A estrutura deste objeto ainda não permite uma edição com preservação verificada."
         }
     }

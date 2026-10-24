@@ -48,15 +48,17 @@ struct LibraryImportReport: Sendable {
 struct LibrarySyncReport: Sendable {
     let received: Int
     let conflicts: Int
+    let configurationsReceived: Int
     let catalog: LibraryCatalog
 }
 
 enum LibraryFailure: LocalizedError {
-    case unsafePath, corrupt, tooLarge, searchTooLarge, syncTooLarge, missing, busy, invalidPDF, invalidMetadata, noTextPermission
+    case unsafePath, corrupt, destinationExists, tooLarge, searchTooLarge, syncTooLarge, missing, busy, invalidPDF, invalidMetadata, noTextPermission
     var errorDescription: String? {
         switch self {
         case .unsafePath: return "A biblioteca recusou um link, caminho ou arquivo não regular. Os originais foram preservados."
         case .corrupt: return "A integridade da biblioteca ou da pasta de sincronização não confere. Nenhum catálogo existente foi substituído."
+        case .destinationExists: return "O destino já existe. Escolha outro nome para preservar o arquivo."
         case .tooLarge: return "O limite desta biblioteca foi atingido: 256 MiB por PDF, 2.000 documentos e 20.000 versões."
         case .searchTooLarge: return "Reduza a consulta para até 100 documentos, 10.000 páginas e 16 MiB de texto extraído."
         case .syncTooLarge: return "A pasta atingiu o limite de 512 manifestos ou 64 MiB de metadados. Escolha uma nova pasta de sincronização para publicar o catálogo completo; a pasta anterior permanece intacta."
@@ -137,7 +139,10 @@ enum LibraryFiles {
         }
         guard fsync(fd) == 0 else { throw POSIXError(.EIO) }
         try Task.checkCancellation()
-        guard link(temp.path, url.path) == 0 else { throw LibraryFailure.corrupt }
+        guard link(temp.path, url.path) == 0 else {
+            if errno == EEXIST { throw LibraryFailure.destinationExists }
+            throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO)
+        }
         // Persist the directory entry as well as the bytes. In particular the
         // current-catalog pointer must never outlive an unsynced object link.
         try synchronizeDirectory(url.deletingLastPathComponent())
@@ -156,13 +161,14 @@ enum LibraryFiles {
         var metadata = stat()
         if lstat(url.path, &metadata) == 0 {
             guard Self.hash(try read(url, maximum: maximumPDF)) == hash else { throw LibraryFailure.corrupt }
+            try synchronizeDirectory(folder)
         } else {
             do { try publish(bytes, to: url) }
-            catch is CancellationError { throw CancellationError() }
-            catch {
+            catch LibraryFailure.destinationExists {
                 // Another Mac may publish this identical immutable object. A
                 // racing different file is rejected instead of overwritten.
                 guard Self.hash(try read(url, maximum: maximumPDF)) == hash else { throw LibraryFailure.corrupt }
+                try synchronizeDirectory(folder)
             }
         }
     }
@@ -200,6 +206,7 @@ enum LibraryFiles {
                 guard validHash(revision.fingerprint), (1...maximumPDF).contains(revision.byteCount),
                       (0...100_000).contains(revision.pages), revision.pages > 0 || revision.encrypted,
                       revision.note.count <= 500, revision.created.timeIntervalSince1970.isFinite,
+                      (0...32_503_680_000).contains(revision.created.timeIntervalSince1970),
                       revision.parents.count <= 64, Set(revision.parents).count == revision.parents.count,
                       revision.parents.allSatisfy({ $0 != revision.id && byID[$0] != nil }),
                       try labels(title: revision.labels.title, collection: revision.labels.collection, tags: revision.labels.tags) == revision.labels else { throw LibraryFailure.corrupt }
@@ -225,6 +232,9 @@ actor DocumentLibraryStore {
             .appendingPathComponent("PDF/Library", isDirectory: true)
     }
     let directory: URL
+    private struct CachedText { let page: Int; let part: Int; let text: String }
+    private var textCache: [String: [CachedText]] = [:]
+    private var cachedCharacters = 0
     init(directory: URL = DocumentLibraryStore.defaultDirectory) { self.directory = directory.standardizedFileURL }
     private var objects: URL { directory.appendingPathComponent("objects", isDirectory: true) }
     private var catalogs: URL { directory.appendingPathComponent("catalogs", isDirectory: true) }
@@ -234,6 +244,13 @@ actor DocumentLibraryStore {
     private func locked<T>(_ action: () throws -> T) throws -> T {
         try LibraryFiles.directory(directory, create: true)
         try LibraryFiles.directory(objects, create: true); try LibraryFiles.directory(catalogs, create: true)
+        for managed in [directory, objects, catalogs] {
+            let descriptor = Darwin.open(managed.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+            guard descriptor >= 0 else { throw LibraryFailure.unsafePath }
+            defer { Darwin.close(descriptor) }
+            var info = stat()
+            guard fstat(descriptor, &info) == 0, info.st_uid == geteuid(), fchmod(descriptor, 0o700) == 0 else { throw LibraryFailure.unsafePath }
+        }
         let fd = Darwin.open(directory.appendingPathComponent(".lock").path, O_RDWR | O_CREAT | O_NOFOLLOW | O_NONBLOCK, mode_t(0o600))
         guard fd >= 0 else { throw LibraryFailure.unsafePath }
         defer { Darwin.close(fd) }
@@ -262,6 +279,7 @@ actor DocumentLibraryStore {
         let target = catalogs.appendingPathComponent(hash + ".json")
         if FileManager.default.fileExists(atPath: target.path) {
             guard try LibraryFiles.read(target, maximum: LibraryFiles.maximumManifest) == data else { throw LibraryFailure.corrupt }
+            try LibraryFiles.synchronizeDirectory(catalogs)
         } else { try LibraryFiles.publish(data, to: target) }
         let temporary = directory.appendingPathComponent(".pointer-" + UUID().uuidString)
         defer { unlink(temporary.path) }
@@ -442,12 +460,14 @@ actor DocumentLibraryStore {
                     }
                 }
             }
+            let configurationsReceived = try synchronizeConfigurations(remoteRoot: root)
             if FileManager.default.fileExists(atPath: manifest.path) {
                 guard try LibraryFiles.read(manifest, maximum: LibraryFiles.maximumManifest) == encoded else { throw LibraryFailure.corrupt }
             } else { try LibraryFiles.publish(encoded, to: manifest) }
             try commit(catalog)
             return LibrarySyncReport(received: catalog.documents.reduce(0) { $0 + $1.revisions.count } - previous,
-                                     conflicts: catalog.documents.filter { $0.heads.count > 1 }.count, catalog: catalog)
+                                     conflicts: catalog.documents.filter { $0.heads.count > 1 }.count,
+                                     configurationsReceived: configurationsReceived, catalog: catalog)
         }
     }
 
@@ -461,11 +481,20 @@ actor DocumentLibraryStore {
                 try Task.checkCancellation(); try cancellation.check()
                 let current = document.current, bytes = try data(current)
                 if current.encrypted && current.pages == 0 && passwords[document.id] == nil { skipped.append(current.labels.title + ": protegido; informe a senha para incluir."); continue }
+                if !current.encrypted, let cached = textCache[current.fingerprint] {
+                    visitedPages += current.pages
+                    totalCharacters += cached.reduce(0) { $0 + $1.text.utf8.count }
+                    guard visitedPages <= 10_000, totalCharacters <= 16 * 1_024 * 1_024 else { throw LibraryFailure.searchTooLarge }
+                    excerpts += cached.map { LibraryExcerpt(documentID: document.id, revisionID: current.id, fingerprint: current.fingerprint,
+                                                           title: current.labels.title, page: $0.page, part: $0.part, text: $0.text) }
+                    if cached.isEmpty { skipped.append(current.labels.title + ": sem camada de texto; execute OCR para pesquisar.") }
+                    continue
+                }
                 let pdf: PDFDocument
                 if current.encrypted { pdf = try NativePDFSerialization.open(data: bytes, password: passwords[document.id], cancellation: cancellation) }
                 else { guard let opened = PDFDocument(data: bytes) else { throw LibraryFailure.invalidPDF }; pdf = opened }
                 guard pdf.allowsCopying else { skipped.append(current.labels.title + ": extração não permitida."); continue }
-                var found = false
+                var found = false, cached: [CachedText] = []
                 for index in 0..<pdf.pageCount {
                     try Task.checkCancellation(); try cancellation.check(); visitedPages += 1
                     guard visitedPages <= 10_000 else { throw LibraryFailure.searchTooLarge }
@@ -475,11 +504,102 @@ actor DocumentLibraryStore {
                     for (part, chunk) in IntelligenceText.chunks(text, limit: 900).enumerated() where !chunk.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                         excerpts.append(LibraryExcerpt(documentID: document.id, revisionID: current.id, fingerprint: current.fingerprint,
                                                        title: current.labels.title, page: index + 1, part: part, text: chunk)); found = true
+                        if !current.encrypted { cached.append(CachedText(page: index + 1, part: part, text: chunk)) }
                     }
+                }
+                if !current.encrypted {
+                    let bytes = cached.reduce(0) { $0 + $1.text.utf8.count }
+                    if cachedCharacters + bytes > 16 * 1_024 * 1_024 { textCache = [:]; cachedCharacters = 0 }
+                    textCache[current.fingerprint] = cached; cachedCharacters += bytes
                 }
                 if !found { skipped.append(current.labels.title + ": sem camada de texto; execute OCR para pesquisar.") }
             }
             return LibrarySearchSource(excerpts: excerpts, skipped: skipped)
         }
+    }
+    func clearSearchCache() { textCache = [:]; cachedCharacters = 0 }
+}
+
+extension DocumentLibraryStore {
+    private var configurationFolder: URL { directory.appendingPathComponent("configurations", isDirectory: true) }
+
+    func publishConfiguration(kind: String, payload: Data) throws -> LibraryConfigurationSnapshot {
+        try LibraryConfigurationFiles.validatePayload(kind: kind, payload: payload)
+        return try locked {
+            try LibraryFiles.directory(configurationFolder, create: true)
+            let catalog = try readCatalog(), hash = LibraryFiles.hash(payload)
+            let files = try LibraryConfigurationFiles.files(configurationFolder)
+            var total = 0, existing: LibraryConfigurationSnapshot?
+            for file in files {
+                let (metadata, _, bytes) = try LibraryConfigurationFiles.read(file); total += bytes.count
+                guard total <= LibraryConfigurationFiles.maximumTotal else { throw LibraryFailure.tooLarge }
+                if metadata.kind == kind && metadata.payloadHash == hash { existing = metadata }
+            }
+            if let existing { return existing }
+            let bytes = try LibraryConfigurationFiles.encode(kind: kind, payload: payload, device: catalog.device)
+            guard files.count < 128, total <= LibraryConfigurationFiles.maximumTotal - bytes.count else {
+                throw SemanticEvidence.failure("O histórico de configurações atingiu 128 snapshots ou 128 MiB. Exporte uma cópia antes de reorganizar sua biblioteca.")
+            }
+            let id = LibraryFiles.hash(bytes), (metadata, _) = try LibraryConfigurationFiles.decode(bytes, expectedHash: id)
+            try LibraryFiles.publish(bytes, to: configurationFolder.appendingPathComponent(id + ".json"))
+            return metadata
+        }
+    }
+
+    func configurationSnapshots() throws -> [LibraryConfigurationSnapshot] {
+        try locked {
+            try LibraryFiles.directory(configurationFolder, create: true)
+            var total = 0, values: [LibraryConfigurationSnapshot] = []
+            for file in try LibraryConfigurationFiles.files(configurationFolder) {
+                let (metadata, _, bytes) = try LibraryConfigurationFiles.read(file); total += bytes.count
+                guard total <= LibraryConfigurationFiles.maximumTotal else { throw LibraryFailure.tooLarge }
+                values.append(metadata)
+            }
+            return values.sorted { $0.created == $1.created ? $0.id < $1.id : $0.created > $1.created }
+        }
+    }
+
+    func loadConfiguration(_ snapshot: LibraryConfigurationSnapshot) throws -> Data {
+        try locked {
+            guard LibraryFiles.validHash(snapshot.id) else { throw LibraryFailure.corrupt }
+            try LibraryFiles.directory(configurationFolder, create: false)
+            let (actual, payload, _) = try LibraryConfigurationFiles.read(configurationFolder.appendingPathComponent(snapshot.id + ".json"))
+            guard actual == snapshot else { throw LibraryFailure.corrupt }
+            return payload
+        }
+    }
+
+    /// Receiving settings never changes UserDefaults, profiles, reading state,
+    /// output folders or credentials. The settings UI must explicitly validate
+    /// and apply one chosen snapshot after the transfer has completed.
+    private func synchronizeConfigurations(remoteRoot: URL) throws -> Int {
+        let remote = remoteRoot.appendingPathComponent("configurations", isDirectory: true)
+        try LibraryFiles.directory(configurationFolder, create: true); try LibraryFiles.directory(remote, create: true)
+        let localFiles = try LibraryConfigurationFiles.files(configurationFolder), remoteFiles = try LibraryConfigurationFiles.files(remote)
+        let localNames = Set(localFiles.map(\.lastPathComponent)), remoteNames = Set(remoteFiles.map(\.lastPathComponent))
+        let names = localNames.union(remoteNames).sorted()
+        guard names.count <= 128 else { throw LibraryFailure.tooLarge }
+        // Preflight both sides before publishing the first new snapshot. Keep
+        // only byte counts here; large JSON payloads are read one at a time.
+        var total = 0
+        for name in names {
+            try Task.checkCancellation()
+            let localPath = configurationFolder.appendingPathComponent(name), remotePath = remote.appendingPathComponent(name)
+            let (_, _, bytes) = try LibraryConfigurationFiles.read(localNames.contains(name) ? localPath : remotePath)
+            total += bytes.count
+            guard total <= LibraryConfigurationFiles.maximumTotal else { throw LibraryFailure.tooLarge }
+            if localNames.contains(name) && remoteNames.contains(name) {
+                guard try LibraryConfigurationFiles.read(remotePath).2 == bytes else { throw LibraryFailure.corrupt }
+            }
+        }
+        var received = 0
+        for name in names {
+            try Task.checkCancellation()
+            let localPath = configurationFolder.appendingPathComponent(name), remotePath = remote.appendingPathComponent(name)
+            let (_, _, bytes) = try LibraryConfigurationFiles.read(localNames.contains(name) ? localPath : remotePath)
+            if !localNames.contains(name) { try LibraryFiles.publish(bytes, to: localPath); received += 1 }
+            if !remoteNames.contains(name) { try LibraryFiles.publish(bytes, to: remotePath) }
+        }
+        return received
     }
 }

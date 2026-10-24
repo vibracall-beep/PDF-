@@ -56,8 +56,10 @@ struct SignatureRequestView: View {
     @State private var draftHash = ""
     @State private var sourceHash = ""
     @State private var reviewedSummary = ""
+    @State private var attemptRecord: URL?
     @State private var requestID = ""
     @State private var resultText = ""
+    @State private var resultURL: URL?
     @State private var error = ""
     @State private var credentialNotice = ""
 
@@ -105,7 +107,7 @@ struct SignatureRequestView: View {
                     }
                 }
                 Button("Adicionar destinatário") { recipients.append(RequestRecipient()) }.disabled(recipients.count >= 20)
-                Text("Posições usam o sistema de coordenadas por página do Dropbox Sign, em pixels, com origem superior esquerda. Revise as posições no documento; a preparação não modifica o PDF.").font(.caption).foregroundStyle(.secondary)
+                Text("Posições usam pixels a 72 DPI (um ponto PDF por pixel), por página, com origem superior esquerda. O campo inteiro deve caber na página visível. Revise as posições no documento; a preparação não redimensiona o PDF.").font(.caption).foregroundStyle(.secondary)
                 HStack {
                     Button("Preparar rascunho local…") { prepare() }.buttonStyle(.borderedProminent).disabled(source == nil)
                     if let draft { Button("Abrir rascunho") { NSWorkspace.shared.open(draft) } }
@@ -125,7 +127,11 @@ struct SignatureRequestView: View {
                     TextField("Identificador de solicitação", text: $requestID).textFieldStyle(.roundedBorder)
                     Button("Consultar estado…") { status() }.disabled(requestID.isEmpty)
                 }
-                if !resultText.isEmpty { Text(resultText).font(.body.monospaced()).textSelection(.enabled) }
+                if let attemptRecord, FileManager.default.fileExists(atPath: attemptRecord.path) {
+                    Button("Abrir registro local da tentativa") { NSWorkspace.shared.open(attemptRecord) }
+                }
+                if !resultText.isEmpty { Text(resultText).textSelection(.enabled) }
+                if let resultURL { Button("Abrir relatório completo") { NSWorkspace.shared.open(resultURL) } }
                 if !error.isEmpty { Text(error).foregroundStyle(.red).textSelection(.enabled) }
             }.padding(24).disabled(model.busy)
         }.safeAreaInset(edge: .bottom) {
@@ -139,7 +145,7 @@ struct SignatureRequestView: View {
     }
     private func choose() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
-        if panel.runModal() == .OK { source = panel.url; draft = nil; resultText = ""; error = "" }
+        if panel.runModal() == .OK { source = panel.url; draft = nil; attemptRecord = nil; resultText = ""; resultURL = nil; error = "" }
     }
     private func storeCredential() {
         do { try SignatureServiceCredential.save(apiKey); apiKey = ""; credentialNotice = "Chave guardada no Chaves deste Mac." }
@@ -158,8 +164,10 @@ struct SignatureRequestView: View {
             do {
                 let url = try outcome.get(); let data = try Data(contentsOf: url)
                 guard data.count <= 2 * 1024 * 1024, let value = try JSONSerialization.jsonObject(with: data) as? [String: Any], let digest = value["input_sha256"] as? String,
+                      let draftID = value["draft_id"] as? String, draftID.range(of: "^[a-f0-9]{32}$", options: .regularExpression) != nil,
                       let configuration = value["configuration"] as? [String: Any], let people = configuration["signers"] as? [[String: Any]] else { throw NSError(domain: "PDF.SignatureRequest", code: 1) }
                 draft = url; draftHash = SHA256.hash(data: data).map { String(format: "%02x", $0) }.joined(); sourceHash = digest
+                attemptRecord = url.deletingLastPathComponent().appendingPathComponent(".pdf-signature-attempt-" + draftID + ".json")
                 reviewedSummary = "\(source.lastPathComponent)\n\(configuration["subject"] as? String ?? "")\n" + people.map { "\($0["name"] as? String ?? "") <\($0["email_address"] as? String ?? "")>" }.joined(separator: "\n") + "\nModo de teste: \((configuration["test_mode"] as? Bool) == true ? "sim" : "não")"
             } catch { self.error = error.localizedDescription }
         }
@@ -194,9 +202,26 @@ struct SignatureRequestView: View {
             let url = try outcome.get(); let data = try Data(contentsOf: url)
             guard data.count <= 2 * 1024 * 1024, let result = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw NSError(domain: "PDF.SignatureRequest", code: 2) }
             requestID = result["signature_request_id"] as? String ?? requestID
-            resultText = String(data: data, encoding: .utf8) ?? "Relatório salvo."
+            let completed = result["is_complete"] as? Bool == true
+            let failed = result["has_error"] as? Bool == true
+            let heading = failed ? "O serviço informou um erro na solicitação." : completed ? "Solicitação concluída no Dropbox Sign." : sending ? "Solicitação enviada ao Dropbox Sign." : "Solicitação em andamento."
+            let people = result["signatures"] as? [[String: Any]] ?? []
+            let lines = people.map { person -> String in
+                let name = person["signer_name"] as? String ?? "Destinatário"
+                let status = person["status_code"] as? String ?? ""
+                let label = ["signed": "assinou", "awaiting_signature": "aguardando assinatura", "declined": "recusou", "error": "erro informado pelo serviço" ][status] ?? "estado disponível no relatório"
+                return "\(name): \(label)"
+            }
+            resultText = ([heading] + lines + ["A integridade criptográfica do PDF final deve ser verificada separadamente."]).joined(separator: "\n")
+            resultURL = url
             if sending { draft = nil }
         } catch {
+            if sending, let attemptRecord,
+               let size = (try? FileManager.default.attributesOfItem(atPath: attemptRecord.path)[.size] as? NSNumber)?.intValue,
+               size <= 8192, let data = try? Data(contentsOf: attemptRecord),
+               let record = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any], let identifier = record["signature_request_id"] as? String {
+                requestID = identifier
+            }
             self.error = error.localizedDescription + (sending ? "\nUm envio pode ter ocorrido. Consulte a conta ou o identificador recebido antes de repetir; o aplicativo não repete envios automaticamente." : "")
         }
     }

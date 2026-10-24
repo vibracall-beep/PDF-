@@ -27,6 +27,7 @@ import tempfile
 import fitz
 
 TOOLS = {
+    'conversion-audit':'Auditar conversão Office',
     'accessibility-inspect':'Inspecionar estrutura acessível', 'accessibility-remediate':'Corrigir estrutura acessível',
     'signature-request-prepare':'Preparar solicitação de assinatura', 'signature-request-send':'Enviar solicitação de assinatura',
     'signature-request-status':'Consultar solicitação de assinatura',
@@ -55,8 +56,8 @@ TOOLS = {
 ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual','delete_pages':'delete-pages','extract_pages':'extract-pages','delete':'delete-pages','extract':'extract-pages'}
 PDF_OPERATIONS = {'digital-sign','merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
 PDF_OPERATIONS.update({'content-apply','ocr-apply','print-prepare','pdfx','bates','stamp','dossier','accessibility-remediate'})
-MULTI_INPUT = {'merge','images','compare','compare-visual','organize','dossier'}
-DIRECTORY_OUTPUT = {'split','jpg','png'}
+MULTI_INPUT = {'merge','images','compare','compare-visual','organize','dossier','conversion-audit'}
+DIRECTORY_OUTPUT = {'split','jpg','png','conversion-audit'}
 
 
 def open_pdf(path, password=''):
@@ -279,6 +280,8 @@ def run(operation, inputs, output, options=None):
         raise ValueError('Esta operação aceita um arquivo por vez.')
     if operation in ('compare','compare-visual') and len(inputs) != 2:
         raise ValueError('Selecione dois PDFs para comparar.')
+    if operation == 'conversion-audit' and len(inputs) != 2:
+        raise ValueError('Selecione o PDF original e o documento Office convertido, nessa ordem.')
     requested = Path(output).expanduser().absolute()
     output = requested.parent.resolve() / requested.name
     if os.path.lexists(output) or any(output.resolve() == Path(p).expanduser().resolve() for p in inputs if not p.startswith(('https://','http://'))):
@@ -297,6 +300,10 @@ def run(operation, inputs, output, options=None):
 
 
 def _execute(operation, inputs, output, options):
+    if operation == 'conversion-audit':
+        from document_layout import conversion_audit
+        conversion_audit(inputs[0],inputs[1],output,options)
+        return
     if operation in ('accessibility-inspect','accessibility-remediate'):
         from pdf_accessibility import inspect_pdf, remediate_pdf
         (inspect_pdf if operation == 'accessibility-inspect' else remediate_pdf)(inputs[0],output,options)
@@ -1185,6 +1192,7 @@ def _markdown(doc,pages,output):
 
 def _word(doc,pages,output,options=None):
     from docx import Document
+    from docx.image.exceptions import UnrecognizedImageError, InvalidImageStreamError, UnexpectedEndOfFileError
     from docx.shared import Pt, Inches, RGBColor
     from PIL import Image
     from scan_analysis import analyze, elements, source_mode
@@ -1212,7 +1220,7 @@ def _word(doc,pages,output,options=None):
                 continue
             if block['type']==1:
                 try: result.add_picture(io.BytesIO(block['image']),width=Inches(min(6,(block['bbox'][2]-block['bbox'][0])/72)))
-                except (ValueError,TypeError):
+                except (ValueError,TypeError,UnrecognizedImageError,InvalidImageStreamError,UnexpectedEndOfFileError):
                     # Convert a supported PDF image encoding to PNG instead of
                     # silently omitting it from the exported document.
                     with Image.open(io.BytesIO(block['image'])) as image:
@@ -1364,7 +1372,7 @@ def capabilities():
     pyhanko=importlib.util.find_spec('pyhanko') is not None
     tesseract=bool(shutil.which('tesseract'))
     return dict(
-        version='0.5.0',operations=list(TOOLS),
+        version='0.6.0',operations=list(TOOLS),
         dependencies=dict(office=bool(office),ocr=bool(shutil.which('ocrmypdf')),tesseract=tesseract,
                           html=importlib.util.find_spec('playwright') is not None,pyhanko=pyhanko,
                           java=bool(java),verapdf=jar_status=='verified'),

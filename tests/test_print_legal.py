@@ -106,6 +106,14 @@ class ProductionTests(unittest.TestCase):
                 run('measure', [self.source], self.output('invalid.json'), {'points': [[0, 0], point]})
         self.assertFalse(self.output('invalid.json').exists())
 
+    def test_area_refuses_crossed_or_degenerate_polygons(self):
+        for points in ([[10, 10], [82, 82], [82, 10], [10, 82]],
+                       [[10, 10], [20, 20], [30, 30]],
+                       [[10, 10], [20, 10], [20, 10], [10, 20]]):
+            with self.subTest(points=points), self.assertRaises(ValueError):
+                run('measure', [self.source], self.output('invalid-area.json'), {'points': points, 'closed': True})
+        self.assertFalse(self.output('invalid-area.json').exists())
+
     def test_dossier_links_and_outlines_are_correct_and_inputs_unchanged(self):
         target = self.output('set.pdf')
         run('dossier', [self.source, self.source], target, {'titles': ['Primeiro', 'Segundo']})

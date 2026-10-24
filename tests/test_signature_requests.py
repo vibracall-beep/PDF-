@@ -114,4 +114,31 @@ class SignatureRequestTests(unittest.TestCase):
             with self.assertRaises(ValueError):adapter.prepare_request(self.pdf,self.root/'bad.json',options)
         self.assertEqual(self.requests,[])
 
+    def test_owner_only_encryption_is_refused_despite_open_without_user_password(self):
+        protected=self.root/'owner-only.pdf'
+        with fitz.open(self.pdf) as document:
+            document.save(protected,encryption=fitz.PDF_ENCRYPT_AES_256,owner_pw='synthetic-owner-secret',user_pw='',permissions=fitz.PDF_PERM_PRINT)
+        with fitz.open(protected) as document:
+            self.assertFalse(document.needs_pass);self.assertFalse(document.is_encrypted)
+            self.assertTrue(document.metadata['encryption'])
+        with self.assertRaisesRegex(ValueError,'não criptografada'):
+            adapter.prepare_request(protected,self.root/'no.json',self.options)
+        self.assertFalse((self.root/'no.json').exists());self.assertEqual(self.requests,[])
+
+    def test_entire_field_must_fit_visible_page_at_provider_72dpi(self):
+        for field in ({'x':590,'y':50,'width':10,'height':20},
+                      {'x':50,'y':830,'width':100,'height':20}):
+            with self.assertRaisesRegex(ValueError,'ultrapassa'):
+                adapter.prepare_request(self.pdf,self.root/'out.json',{
+                    **self.options,'fields':[{**self.options['fields'][0],**field}]})
+        rotated=self.root/'rotated.pdf'
+        with fitz.open() as document:
+            page=document.new_page(width=612,height=792);page.set_rotation(90);document.save(rotated)
+        before=rotated.read_bytes()
+        result=adapter.prepare_request(rotated,self.root/'landscape.json',{
+            **self.options,'fields':[{**self.options['fields'][0],'x':700,'y':500,'width':50,'height':40}]})
+        self.assertEqual(result['pages'][0]['width_points'],792)
+        self.assertEqual(rotated.read_bytes(),before)
+        self.assertEqual(self.requests,[])
+
 if __name__=='__main__':unittest.main()

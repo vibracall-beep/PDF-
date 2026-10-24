@@ -85,14 +85,44 @@ enum LibraryAuditChecks {
         try require(result.sources.allSatisfy { searchSource.excerpts.contains($0) }, "A busca inventou uma citação.")
         let absent = try await retrieval.search(question: "galáxia extraterrestre", source: searchSource, useEmbeddings: false)
         try require(absent.sources.isEmpty && absent.response.contains("Não encontrei"), "A busca sem apoio exibiu uma conclusão.")
+        let absentAnswer = try await LibraryAnswering.respond(to: absent)
+        try require(absentAnswer.citations.isEmpty && absentAnswer.text.contains("não fornecem"), "Uma pergunta sem fontes chegou à geração de resposta.")
         let empty = try await retrieval.search(question: "de o a e", source: searchSource, useEmbeddings: false)
         try require(empty.sources.isEmpty, "Termos vazios selecionaram fontes arbitrárias.")
+        guard let firstSource = result.sources.first, let secondPDF = PDFDocument(url: changedB), let secondText = secondPDF.page(at: 0)?.string else { throw LibraryFailure.invalidPDF }
+        let secondSource = LibraryExcerpt(documentID: UUID(), revisionID: UUID(), fingerprint: LibraryFiles.hash(try Data(contentsOf: changedB)),
+                                           title: "Outra fonte real", page: 1, part: 0, text: secondText)
+        let multiDocument = LibrarySearchResult(question: "Quais os prazos de pagamento?", sources: [firstSource, secondSource], method: "Auditoria estrutural, sem inferência de modelo", skipped: [])
+        let context = try LibraryAnswering.context(multiDocument)
+        let grounded = GroundedAnswer(supported: true, answer: "Os trechos apresentam prazos diferentes.", citations: [
+            ModelCitation(excerpt: context.excerpts[0].id, quote: firstSource.text),
+            ModelCitation(excerpt: context.excerpts[1].id, quote: secondText)
+        ])
+        let groundedResult = try LibraryAnswering.validate(grounded, result: multiDocument)
+        try require(Set(groundedResult.citations.map { $0.source.documentID }).count == 2 && groundedResult.citations.allSatisfy { $0.source.page == 1 }, "Documentos diferentes com página 1 compartilharam a identidade da citação.")
+        let wrongSource = GroundedAnswer(supported: true, answer: "Atribuição errada", citations: [ModelCitation(excerpt: context.excerpts[1].id, quote: firstSource.text)])
+        let falseAttribution = await rejects { _ = try LibraryAnswering.validate(wrongSource, result: multiDocument) }
+        try require(falseAttribution, "Uma citação de outro documento foi aceita por compartilhar o número da página.")
+        let unsupported = try LibraryAnswering.validate(GroundedAnswer(supported: false, answer: "Sem apoio", citations: []), result: multiDocument)
+        try require(unsupported.citations.isEmpty && unsupported.text.contains("evidências suficientes"), "A resposta sem apoio não foi recusada.")
 
         let exchange = root.appendingPathComponent("Chosen Sync Folder")
         try LibraryFiles.directory(exchange, create: true)
+        let bookmarks = PDFReadingExchangeSnapshot(documentHash: initial.fingerprint, title: "Contrato principal", pageCount: 1,
+                                                   bookmarks: [1], page: 1, zoom: 1.5, autoScale: false)
+        let bookmarkPayload = try JSONEncoder().encode(bookmarks)
+        let configA = try await storeA.publishConfiguration(kind: "bookmarks", payload: bookmarkPayload)
+        let duplicateConfig = try await storeA.publishConfiguration(kind: "bookmarks", payload: bookmarkPayload)
+        try require(configA.id == duplicateConfig.id, "Um snapshot de ajustes idêntico foi duplicado.")
+        let secretConfiguration = await rejects { _ = try await storeA.publishConfiguration(kind: "preferences", payload: Data("{\"password\":\"must-not-persist\"}".utf8)) }
+        try require(secretConfiguration, "A troca de ajustes aceitou uma chave de senha.")
         _ = try await storeA.synchronize(with: exchange)
         let received = try await storeB.synchronize(with: exchange)
         try require(received.catalog.documents.count == 1 && received.catalog.documents[0].current.labels.title == "Contrato principal", "O segundo Mac não recebeu a coleção.")
+        let receivedConfiguration = try await storeB.loadConfiguration(configA)
+        try require(received.configurationsReceived == 1 && receivedConfiguration == bookmarkPayload, "Os marcadores perderam integridade na transferência.")
+        var differentBookmarks = bookmarks; differentBookmarks.bookmarks = []; differentBookmarks.zoom = 2
+        _ = try await storeB.publishConfiguration(kind: "bookmarks", payload: JSONEncoder().encode(differentBookmarks))
         let bURL = try await storeB.verifiedURL(document: id)
         try require(try Data(contentsOf: bURL) == original, "A sincronização modificou o PDF.")
         _ = try await storeA.addVersion(document: id, source: changedA)
@@ -102,6 +132,8 @@ enum LibraryAuditChecks {
         try require(divergent.conflicts == 1 && divergent.catalog.documents[0].heads.count == 2, "Versões independentes foram sobrescritas silenciosamente.")
         let resolvedA = try await storeA.synchronize(with: exchange)
         try require(resolvedA.conflicts == 1 && resolvedA.catalog.documents[0].heads.count == 2, "O conflito não chegou ao primeiro Mac.")
+        let alternativeSettings = try await storeA.configurationSnapshots()
+        try require(alternativeSettings.count == 2 && Set(alternativeSettings.map(\.payloadHash)).count == 2, "Snapshots divergentes de ajustes foram substituídos silenciosamente.")
         let conflictFolder = exchange.appendingPathComponent("PDF Library Exchange/conflicts/" + id.uuidString)
         let conflictCopies = try FileManager.default.contentsOfDirectory(at: conflictFolder, includingPropertiesForKeys: nil).filter { $0.pathExtension == "pdf" }
         try require(conflictCopies.count == 2, "O conflito não preservou duas cópias PDF independentes.")
@@ -122,6 +154,8 @@ enum LibraryAuditChecks {
         try Data("%PDF-corrupt".utf8).write(to: copiedURL)
         let corruptRead = await rejects { _ = try await storeA.verifiedURL(document: id, revision: initial.id) }
         try require(corruptRead, "Um PDF alterado passou pela verificação SHA-256.")
+        let corruptCachedSearch = await rejects { _ = try await storeA.excerpts(documentIDs: [id], cancellation: NativeCancellation()) }
+        try require(corruptCachedSearch, "O cache de busca reutilizou texto sem verificar os bytes da versão atual.")
         try original.write(to: copiedURL)
         let beforeBadSync = try LibraryFiles.read(directoryA.appendingPathComponent("current.json"), maximum: 1_024)
         let remoteObject = exchange.appendingPathComponent("PDF Library Exchange/objects/" + initial.fingerprint + ".pdf")
@@ -130,6 +164,12 @@ enum LibraryAuditChecks {
         try require(corruptSync, "Um objeto remoto danificado foi ignorado ou substituído silenciosamente.")
         try require(try LibraryFiles.read(directoryA.appendingPathComponent("current.json"), maximum: 1_024) == beforeBadSync, "Uma sincronização incompleta publicou outro catálogo.")
         try original.write(to: remoteObject)
+        let configPath = directoryA.appendingPathComponent("configurations/" + configA.id + ".json")
+        let configBackup = try Data(contentsOf: configPath)
+        try Data("{}".utf8).write(to: configPath)
+        let configurationCorruption = await rejects { _ = try await storeA.loadConfiguration(configA) }
+        try require(configurationCorruption, "Um snapshot de configuração adulterado passou pela verificação.")
+        try configBackup.write(to: configPath)
         let manifests = exchange.appendingPathComponent("PDF Library Exchange/manifests")
         let forged = manifests.appendingPathComponent(String(repeating: "a", count: 64) + ".json")
         try LibraryFiles.publish(Data("{}".utf8), to: forged)
@@ -179,6 +219,8 @@ enum LibraryAuditChecks {
         try LibraryFiles.publish(remoteBackup, to: remoteObject)
         let privateStore = DocumentLibraryStore(directory: root.appendingPathComponent("Protected-Library"))
         guard let plain = PDFDocument(data: original) else { throw LibraryFailure.invalidPDF }
+        guard let secondPage = plain.page(at: 0)?.copy() as? PDFPage else { throw LibraryFailure.invalidPDF }
+        plain.insert(secondPage, at: 1)
         let secret = "library-audit-password-123"
         let protectedBytes = try NativePDFSerialization.finish(NativePDFSerialization.prepare(document: plain, password: secret))
         let protectedFile = root.appendingPathComponent("Protected.pdf")
@@ -194,6 +236,32 @@ enum LibraryAuditChecks {
         try require(!protectedWithSecret.excerpts.isEmpty && protectedWithSecret.excerpts.allSatisfy { $0.fingerprint == LibraryFiles.hash(protectedBytes) }, "A consulta autenticada perdeu a proveniência do PDF protegido original.")
         let manifestText = String(decoding: try LibraryFiles.encode(protectedImport.catalog), as: UTF8.self)
         try require(!manifestText.contains(secret) && !manifestText.contains("pagamento vence"), "O catálogo persistiu senha ou texto extraído.")
+        let suite = "PDF.Library.ReaderAudit." + UUID().uuidString
+        guard let defaults = UserDefaults(suiteName: suite) else { throw LibraryFailure.corrupt }
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let reader = Workspace(defaults: defaults, recoveryStore: RecoveryStore(directory: root.appendingPathComponent("Reader-Recovery")), enableRecoveryPolling: false)
+        reader.open(url: protectedFile, page: 2, displayTitle: "Fonte citada · página 2")
+        await reader.waitForPendingOpen()
+        try require(reader.needsPassword && reader.sessions.isEmpty, "A abertura de uma referência protegida ignorou a autenticação.")
+        reader.documentPassword = secret; reader.unlockPendingDocument(); await reader.waitForPendingOpen()
+        try require(reader.currentPage == 2 && reader.activeSession?.page == 2 && reader.activeSession?.displayTitle == "Fonte citada · página 2" && reader.url == protectedFile && reader.activeSession?.password == secret, "A autenticação perdeu página, título, URL ou credencial original da citação.")
+        reader.open(url: protectedFile, page: nil, displayTitle: "Título sem mudar a posição")
+        try require(reader.currentPage == 2 && reader.activeSession?.displayTitle == "Título sem mudar a posição", "Um título importado alterou indevidamente a página de uma aba já aberta.")
+        let otherProtected = root.appendingPathComponent("Cancelled-Reference.pdf")
+        try LibraryFiles.publish(protectedBytes, to: otherProtected)
+        reader.open(url: otherProtected, page: 2, displayTitle: "Destino a cancelar"); await reader.waitForPendingOpen()
+        try require(reader.needsPassword, "O segundo pedido de referência não ficou aguardando a senha.")
+        reader.cancelPendingUnlock()
+        reader.open(url: otherProtected); await reader.waitForPendingOpen()
+        reader.documentPassword = secret; reader.unlockPendingDocument(); await reader.waitForPendingOpen()
+        try require(reader.url == otherProtected && reader.currentPage == 1 && reader.activeSession?.displayTitle == nil, "Uma referência cancelada contaminou outra abertura comum.")
+        reader.open(url: source)
+        guard let editedSession = reader.activeSession, let editedPage = editedSession.document.page(at: 0) else { throw LibraryFailure.invalidPDF }
+        let localNote = PDFAnnotation(bounds: CGRect(x: 20, y: 20, width: 40, height: 40), forType: .text, withProperties: nil)
+        localNote.contents = "Private unsaved annotation"; editedPage.addAnnotation(localNote); editedSession.hasEdits = true; reader.hasEdits = true
+        reader.open(url: source, page: 1, displayTitle: "Fonte original verificada")
+        try require(reader.activeSessionID != editedSession.id && editedSession.document.page(at: 0)?.annotations.contains(where: { $0 === localNote }) == true && reader.document?.page(at: 0)?.annotations.isEmpty == true, "A citação exibiu uma aba alterada ou descartou as alterações da aba anterior.")
+        for session in reader.sessions { reader.closeSession(session.id, discardChanges: true) }
         let cancel = NativeCancellation(); cancel.cancel()
         let cancellationRespected = await rejects { _ = try await storeA.excerpts(documentIDs: [id], cancellation: cancel) }
         try require(cancellationRespected, "Uma consulta cancelada continuou a extrair texto.")

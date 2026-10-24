@@ -23,6 +23,7 @@ struct Tool: Identifiable, Hashable {
 }
 
 let tools: [Tool] = [
+    .init(id:"conversion-audit", name:"Auditar conversão Office", icon:"doc.text.magnifyingglass", detail:"Compare o PDF original com o resultado editável e sua reexportação.", category:"Converter"),
     .init(id:"merge", name:"Juntar PDF", icon:"rectangle.stack", detail:"Combine documentos na ordem que escolher.", category:"Organizar"),
     .init(id:"split", name:"Dividir PDF", icon:"square.split.2x2", detail:"Separe páginas e intervalos em novos arquivos.", category:"Organizar"),
     .init(id:"compress", name:"Comprimir PDF", icon:"arrow.down.right.and.arrow.up.left", detail:"Otimize o arquivo com controle de qualidade.", category:"Organizar"),
@@ -98,6 +99,7 @@ let tools: [Tool] = [
 @main enum PDFEntryPoint {
     @MainActor static func main() async {
         VisionWorker.handleCommandLineIfNeeded()
+        if await CrashRecoveryAudit.handleCommandLineIfNeeded() { return }
         if CommandLine.arguments.contains("--smoke-test") {
             do { try await MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
             catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
@@ -175,6 +177,7 @@ struct PDFApp: App {
                     if !preview.isEnabled {
                         AutomationCoordinator.shared.attach(model: model)
                         PDFServiceProvider.install(model: model)
+                        PDFShortcutsRuntime.shared.attach(model: model)
                     }
                 }
         }
@@ -420,7 +423,7 @@ struct ContentView: View {
         case "library", "document-history", "collection-research", "sync-library": model.section = "Biblioteca"
         case "accessibility-edit": model.section = "Acessibilidade"
         case "signature-request": model.section = "Solicitar assinaturas"
-        case "print-preflight", "print-prepare", "pdfx", "bates", "dossier", "stamp", "measure":
+        case "print-preflight", "print-prepare", "pdfx", "bates", "dossier", "stamp", "measure", "conversion-audit":
             productionMode = ProductionMode(rawValue: tool.id) ?? .preflight; model.section = "Produção"
         case "automation": model.section = "Automação"
         case "summary","translate","chat","quiz": intelligenceMode = tool.id; model.section = "Inteligência"

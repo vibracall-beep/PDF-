@@ -35,10 +35,12 @@ def _regular_stream(path):
 
 
 @contextmanager
-def _snapshot(path):
+def _snapshot(path,limit=None):
     with _regular_stream(path) as source, tempfile.TemporaryDirectory(prefix='pdf-signatures-') as temporary:
         snapshot = Path(temporary)/'document.pdf'
         before = os.fstat(source.fileno())
+        if limit is not None and before.st_size>limit:
+            raise ValueError(f'O arquivo excede o limite de {limit // (1024*1024)} MiB.')
         remaining = before.st_size
         with snapshot.open('xb') as destination:
             while remaining:
@@ -234,7 +236,7 @@ def verify_pdf(input_path, output_path, options):
     from pyhanko.sign.validation import validate_pdf_signature
     from pyhanko_certvalidator import ValidationContext
     roots = _roots(options)
-    from signature_validation import material,context as revocation_context,lta_status
+    from signature_validation import material,context as revocation_context,lta_status,add_embedded
     mode=options.get('revocation_mode','offline')
     if mode not in ('offline','require'): raise ValueError('revocation_mode deve ser offline ou require.')
     now = dt.datetime.now(dt.timezone.utc)
@@ -269,6 +271,7 @@ def verify_pdf(input_path, output_path, options):
             try:
                 certificates=[entry.chosen for entry in signature.signed_data['certificates'] if entry.name=='certificate']
                 revinfo=material(options,[*certificates,*roots])
+                certificates.extend(add_embedded(reader,revinfo))
                 context=revocation_context(roots,revinfo,certificates)
                 report['network_access']=report['network_access'] or revinfo['network_access']
                 with _structured_validation_diagnostics():
@@ -306,6 +309,9 @@ def verify_pdf(input_path, output_path, options):
                     'evidence':revinfo['evidence']}
                 if options.get('validate_lta') is True and not is_document_timestamp:
                     item['long_term_validation']=lta_status(signature,roots)
+                    if not item['long_term_validation']['passed']:
+                        report['findings'].append({'severity':'error','rule':'long-term-validation','field':signature.field_name,
+                            'message':'A estrutura ou as provas de preservação LTA não foram confirmadas.'})
                 if not item['integrity_ok']:
                     report['findings'].append({'severity': 'error', 'rule': 'signature-integrity', 'field': signature.field_name,
                         'message': 'A assinatura não corresponde aos bytes assinados ou é criptograficamente inválida.'})
@@ -328,6 +334,9 @@ def verify_pdf(input_path, output_path, options):
     report['all_integrity_ok'] = bool(signatures) and all(s['integrity_ok'] for s in signatures)
     report['all_chains_trusted'] = bool(signatures) and all(s['trusted'] for s in signatures)
     report['all_cover_current_file'] = bool(signatures) and all(s.get('unchanged_since_signing', False) for s in signatures)
+    if options.get('validate_lta') is True:
+        ordinary=[s for s in signatures if s.get('kind')!='document-timestamp']
+        report['all_lta_proofs_valid']=bool(ordinary) and all(s.get('long_term_validation',{}).get('passed',False) for s in ordinary)
     if not signatures:
         report['summary'] = 'Nenhuma assinatura digital criptográfica encontrada.'
     elif not report['all_integrity_ok']:
@@ -337,6 +346,8 @@ def verify_pdf(input_path, output_path, options):
     else:
         report['summary'] = ('Integridade, cadeias e evidência de revogação confirmadas segundo a política explícita; identidade civil não certificada.'
                              if mode=='require' else 'Integridade e cadeias locais confirmadas. Revogação e identidade civil não foram certificadas.')
+    if options.get('validate_lta') is True and not report['all_lta_proofs_valid']:
+        report['summary']+=' Preservação LTA não confirmada.'
     with Path(output_path).open('x', encoding='utf-8') as destination:
         json.dump(report, destination, ensure_ascii=False, indent=2)
     return report

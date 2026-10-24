@@ -8,6 +8,14 @@ import Foundation
         let preferences = AppearancePreferences(defaults:defaults),store = preferences.advanced
         func check(_ condition:Bool,_ message:String) throws { if !condition { throw PreferenceError.invalid("Personalização avançada: "+message) } }
         try AdvancedCustomizationStore.validate(store.snapshot)
+        let catalogIDs = tools.map(\.id)
+        try check(Set(catalogIDs).count == catalogIDs.count,"IDs do catálogo precisam ser únicos")
+        try check(Set(tools.map(\.category)).isSubset(of:Set(AppearanceState.categories)),"todas as categorias precisam aparecer nos filtros e menus")
+        let commandIDs = PDFCommandCatalog.all.map(\.id)
+        try check(Set(commandIDs).count == commandIDs.count && Set(catalogIDs.map { "tool:"+$0 }).isSubset(of:Set(commandIDs)),"cada ferramenta precisa ter um comando único na paleta")
+        try check(preferences.orderedTools().map(\.id) == catalogIDs,"a personalização inicial deve incluir todas as ferramentas")
+        let originalTools:Set<String> = ["merge", "split", "compress", "word", "powerpoint", "excel", "word-pdf", "powerpoint-pdf", "excel-pdf", "edit", "jpg", "images", "signature", "watermark", "rotate", "html", "unlock", "protect", "organize", "pdfa", "repair", "numbers", "scan", "ocr", "compare", "redact", "crop", "forms", "summary", "translate", "markdown", "workflow", "png", "odt-pdf", "txt-pdf", "rtf-pdf", "epub-pdf", "csv-pdf", "pages-pdf", "flatten", "delete-pages", "extract-pages", "converter", "share", "annotate", "fill-forms", "chat", "quiz", "sign-service", "digital-sign", "verify-signatures", "validate-pdfa", "validate-pdfua", "benchmark"]
+        try check(originalTools.isSubset(of:Set(catalogIDs)),"a expansão não pode remover ferramentas existentes")
         let original = store.binding(for:"action:open")
         do { try store.assign(.init(key:"q"),to:"action:open"); throw PreferenceError.invalid("Atalho reservado foi aceito.") }
         catch { try check(store.binding(for:"action:open") == original,"rejeitar tecla reservada deve preservar o atalho anterior") }

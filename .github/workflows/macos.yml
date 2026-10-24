@@ -37,6 +37,11 @@ jobs:
           sysctl -n hw.ncpu
           xcodebuild -version
           xcrun --sdk macosx --show-sdk-version
+          # Read-only SDK discovery; actual App Intents extraction will be a
+          # separate required bundle check, not inferred from this help text.
+          if xcrun --find appintentsmetadataprocessor; then
+            xcrun appintentsmetadataprocessor --help || true
+          fi
       - name: Verify installer integrity
         id: integrity
         run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
@@ -233,12 +238,16 @@ jobs:
         run: |
           mkdir -p "$RUNNER_TEMP/PDF-binary-artifact"
           python3 - <<'PYTHON'
-          import os, sys
+          import os, sys, shutil
           from pathlib import Path
           sys.path.insert(0, 'scripts')
           from package_binary import archive
           root = Path(os.environ['RUNNER_TEMP'])
           archive(root / 'PDF-relocated distribution', root / 'PDF-binary-artifact/PDF-arm64.tar.gz')
+          shutil.copy2(root / 'PDF-relocated distribution/manifest.json', root / 'PDF-binary-artifact/distribution-manifest.json')
+          # The authenticated archive is now sufficient; avoid retaining an
+          # unnecessary second full runtime during the two install exercises.
+          shutil.rmtree(root / 'PDF-relocated distribution')
           PYTHON
           PDF_ARCHIVE="$RUNNER_TEMP/PDF-binary-artifact/PDF-arm64.tar.gz"
           PDF_SHA="$(cut -d' ' -f1 "$PDF_ARCHIVE.sha256")"
@@ -260,11 +269,11 @@ jobs:
           import json, os
           from pathlib import Path
           root = Path(os.environ['RUNNER_TEMP'])
-          manifest = json.loads((root / 'PDF-relocated distribution/manifest.json').read_text())
+          manifest = json.loads((root / 'PDF-binary-artifact/distribution-manifest.json').read_text())
           report = {'schemaVersion': 1, 'commit': os.environ['GITHUB_SHA'], 'runner': '${{ matrix.runner }}',
                     'isolatedRuntimePassed': True, 'freshInstallPassed': True, 'transactionalUpdatePassed': True, 'preferencesPreserved': True, 'wrongChecksumRejected': True,
                     'manifestEntries': len(manifest['files']), 'developerToolsOnDestinationRequired': False,
-                    'signing': 'ad-hoc', 'appleNotarized': False}
+                    'applicationVersion': '0.6.0', 'signing': 'ad-hoc', 'appleNotarized': False}
           (root / 'PDF-binary-artifact/distribution-validation.json').write_text(json.dumps(report, indent=2) + '\n')
           PYTHON
       - name: Retain binary package with explicit validation status

@@ -52,6 +52,9 @@ class OCRReviewIntegrationTests(unittest.TestCase):
         output=self.apply(corrections=[dict(id=word['id'],text='Pears')])
         with fitz.open(output) as after,fitz.open(self.source) as before:
             self.assertIn('Pears',after[0].get_text());self.assertNotIn('Apples',after[0].get_text())
+            found=after[0].search_for('Pears');self.assertEqual(len(found),1)
+            self.assertTrue((fitz.Rect(word['rect'])+(-0.2,-0.2,0.2,0.2)).contains(found[0]))
+            self.assertEqual(len(after[0].get_fonts()),1)
             self.assertEqual(after[0].get_pixmap(dpi=144).samples,before[0].get_pixmap(dpi=144).samples)
             self.assertEqual(after[0].get_image_info()[0]['bbox'],before[0].get_image_info()[0]['bbox'])
 
@@ -69,7 +72,7 @@ class OCRReviewIntegrationTests(unittest.TestCase):
 
     def test_duplicate_correction_and_geometry_injection_are_refused(self):
         word=self.review['words'][0];correction=dict(id=word['id'],text='Changed')
-        for corrections in ([correction,correction],[dict(**correction,rect=[0,0,100,100])],[dict(id='unknown',text='Changed')]):
+        for corrections in ([correction,correction],[dict(**correction,rect=[0,0,100,100])],[dict(id='unknown',text='Changed')],[dict(id=word['id'],text='Injected\nline')]):
             with self.subTest(corrections=corrections),self.assertRaises(ValueError): self.apply(corrections=corrections)
             self.assertFalse(self.output('.pdf').exists())
 
@@ -108,4 +111,3 @@ class OCRReviewIntegrationTests(unittest.TestCase):
             self.assertEqual(after[0].rotation,90)
             self.assertEqual(after[0].get_pixmap().samples,before[0].get_pixmap().samples)
             self.assertEqual(after[1].get_pixmap().samples,before[1].get_pixmap().samples)
-

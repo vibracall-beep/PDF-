@@ -22,6 +22,18 @@ BASE_URL='https://api.hellosign.com/v3'
 MAX_ATTACHMENT=40*1024*1024
 
 
+def _field_bounds(pdf,fields):
+    # Official Dropbox Sign API demo uses A4 595x842 at72DPI and transfers
+    # x/y/width/height unchanged to page-relative form_fields_per_document.
+    # PDF points are1/72in. These checks do not resize or rasterize the upload.
+    # https://github.com/hellosign/dropbox-sign-api-demo/blob/d60fa159b9c68dc3d8dd89d1f40992be6a05a216/public/main.js#L1987
+    for field in fields:
+        if field['page']>len(pdf):raise ValueError('Um campo aponta para uma página inexistente.')
+        page=pdf[field['page']-1];bounds=page.rect
+        if field['x']+field['width']>bounds.width or field['y']+field['height']>bounds.height:
+            raise ValueError('Um campo de assinatura ultrapassa os limites visíveis da página (pixels a 72 DPI).')
+
+
 def _configuration(options):
     signers=options.get('signers')
     if not isinstance(signers,list) or not 1<=len(signers)<=20:
@@ -61,17 +73,17 @@ def _configuration(options):
 
 def prepare_request(input_path,output_path,options):
     configuration=_configuration(options)
-    with _snapshot(input_path) as snapshot:
+    with _snapshot(input_path,limit=MAX_ATTACHMENT) as snapshot:
         if snapshot.stat().st_size>MAX_ATTACHMENT: raise ValueError('O PDF excede o limite local de 40 MiB para envio.')
         with fitz.open(snapshot) as pdf:
-            if pdf.needs_pass or pdf.is_encrypted: raise ValueError('Selecione uma cópia não criptografada para os destinatários.')
+            if pdf.needs_pass or (pdf.metadata or {}).get('encryption'): raise ValueError('Selecione uma cópia não criptografada para os destinatários.')
             if not len(pdf): raise ValueError('O PDF não contém páginas.')
-            if any(field['page']>len(pdf) for field in configuration['fields']): raise ValueError('Um campo aponta para uma página inexistente.')
+            _field_bounds(pdf,configuration['fields'])
             pages=[{'page':i+1,'width_points':page.rect.width,'height_points':page.rect.height} for i,page in enumerate(pdf)]
         draft={'schema_version':1,'provider':'dropbox-sign','state':'prepared_not_sent','draft_id':uuid.uuid4().hex,
                'input_sha256':hashlib.sha256(snapshot.read_bytes()).hexdigest(),'file_name':Path(input_path).name,
                'bytes':snapshot.stat().st_size,'pages':pages,'configuration':configuration,
-               'coordinate_system':'provider_pixels_page_relative','network_access':False,
+               'coordinate_system':'provider_page_pixels_72dpi_top_left','network_access':False,
                'notice':'Preparação local. Enviar transmite o PDF, nomes, emails e mensagem ao Dropbox Sign e pode enviar emails mesmo em modo de teste.'}
     with Path(output_path).open('x',encoding='utf-8') as destination:json.dump(draft,destination,ensure_ascii=False,indent=2)
     return draft
@@ -99,7 +111,7 @@ async def _call(method,path,key,form=None):
 
 def _key(options):
     value=options.get('api_key') or os.environ.get('PDF_DROPBOX_SIGN_API_KEY')
-    if not isinstance(value,str) or not 1<=len(value)<=4096 or any(c in value for c in '\r\n\0:'):
+    if not isinstance(value,str) or not 1<=len(value)<=4096 or any(ord(c)<33 or ord(c)>126 or c==':' for c in value):
         raise ValueError('Configure a chave da API Dropbox Sign no Chaves do macOS ou em PDF_DROPBOX_SIGN_API_KEY.')
     return value
 
@@ -139,11 +151,15 @@ def send_request(input_path,output_path,options):
     configuration=_configuration({**draft.get('configuration',{}),
         'fields':[{**f,'signer':int(f['signer'])} for f in draft.get('configuration',{}).get('fields',[])]})
     key=_key(options)
-    with _snapshot(input_path) as snapshot:
+    with _snapshot(input_path,limit=MAX_ATTACHMENT) as snapshot:
         if snapshot.stat().st_size>MAX_ATTACHMENT: raise ValueError('O PDF excede 40 MiB.')
         digest=hashlib.sha256(snapshot.read_bytes()).hexdigest()
         if digest!=draft.get('input_sha256') or digest!=options.get('confirmed_sha256'):
             raise ValueError('O documento mudou desde a preparação. Prepare e revise novamente antes do envio.')
+        with fitz.open(snapshot) as pdf:
+            if pdf.needs_pass or (pdf.metadata or {}).get('encryption'):
+                raise ValueError('Selecione uma cópia não criptografada para os destinatários.')
+            _field_bounds(pdf,configuration['fields'])
         form=aiohttp.FormData()
         for name in ('title','subject','message'): form.add_field(name,configuration[name])
         form.add_field('test_mode','1' if configuration['test_mode'] else '0')
@@ -163,6 +179,9 @@ def send_request(input_path,output_path,options):
                 'draft_sha256':hashlib.sha256(draft_bytes).hexdigest(),'state':'response_not_confirmed',
                 'attempted_at':dt.datetime.now(dt.timezone.utc).isoformat()}
             json.dump(record,receipt);receipt.flush();os.fsync(receipt.fileno())
+            directory_fd=os.open(journal.parent,os.O_RDONLY|getattr(os,'O_DIRECTORY',0))
+            try:os.fsync(directory_fd)
+            finally:os.close(directory_fd)
             with snapshot.open('rb') as attachment:
                 form.add_field('files[0]',attachment,filename=Path(input_path).name,content_type='application/pdf')
                 result=_result(asyncio.run(_call('POST','/signature_request/send',key,form)),'sent')

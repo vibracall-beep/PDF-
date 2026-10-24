@@ -188,7 +188,7 @@ def journal_paths(parent, journal):
     if journal.get('newIdentity') is None:
         raise ValueError('Falta identidade do novo bundle.')
     # No path supplied by the journal is used. Every path is derived locally.
-    return (parent / 'PDF.app', parent / ('.pdf-incoming.' + token),
+    return (parent / 'PDF.app', parent / ('.pdf-incoming.' + token + '.app'),
             parent / ('PDF.previous.' + token + '.app'), parent / ('PDF.failed.' + token + '.app'))
 
 
@@ -264,7 +264,7 @@ def install(distribution, parent, *, validate=validate_product, checkpoint=lambd
             verify_bundle_identity(destination)
             old_id = identity(destination)
         token = uuid.uuid4().hex
-        incoming = parent / ('.pdf-incoming.' + token)
+        incoming = parent / ('.pdf-incoming.' + token + '.app')
         # Copy fully before changing a previously installed application.
         shutil.copytree(distribution / 'PDF.app', incoming, symlinks=True, copy_function=copy_regular_file)
         verify_copied_bundle(incoming, manifest)

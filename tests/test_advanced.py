@@ -169,7 +169,7 @@ class AdvancedEngineTests(unittest.TestCase):
         self.assertIsInstance(capabilities, dict)
         self.assertIn('form-create', json.dumps(capabilities))
         self.assertIn('ocr', json.dumps(capabilities))
-        self.assertEqual(capabilities['version'],'0.5.0')
+        self.assertEqual(capabilities['version'],'0.6.0')
         self.assertTrue({'office','ocr','tesseract','html','pyhanko','java','verapdf'}.issubset(capabilities['dependencies']))
 
     def test_capabilities_missing_jar_disables_standards_without_exposing_paths(self):

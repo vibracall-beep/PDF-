@@ -61,7 +61,7 @@ def _pages(reader):
 def _tree(reader):
     pages=_pages(reader); root=_object(_raw(reader.root,'/StructTreeRoot'))
     nodes=[]; index={}; active=set(); seen=set()
-    def walk(reference,parent,depth):
+    def walk(reference,parent,depth,inherited_page=None):
         if depth>128 or len(nodes)>=100000: raise ValueError('A árvore de tags excede os limites de inspeção.')
         obj=_object(reference)
         if not isinstance(obj,g.DictionaryObject) or '/S' not in obj: return
@@ -76,16 +76,17 @@ def _tree(reader):
             if isinstance(value,g.DictionaryObject) and '/S' in value: child_ids.append(_id(child))
             elif isinstance(value,g.NumberObject): content.append({'mcid':int(value)})
             elif isinstance(value,g.DictionaryObject): content.append({'type':str(value.get('/Type','')), 'mcid':int(value['/MCID']) if '/MCID' in value else None})
+        page_number=pages.get(_id(_raw(obj,'/Pg')),inherited_page)
         attributes=_object(_raw(obj,'/A')); scope=None
         for attrs in _array(attributes):
             attrs=_object(attrs)
-            if isinstance(attrs,g.DictionaryObject) and attrs.get('/O')=='/Table': scope=str(attrs.get('/Scope','')).lstrip('/') or None
-        item={'id':identity,'parent':parent,'role':role,'page':pages.get(_id(_raw(obj,'/Pg'))),
-              'alt':str(obj.get('/Alt','')),'actual_text':str(obj.get('/ActualText','')),
-              'title':str(obj.get('/T','')),'language':str(obj.get('/Lang','')),
+            if isinstance(attrs,g.DictionaryObject) and _object(attrs.get('/O'))=='/Table': scope=str(_object(attrs.get('/Scope',''))).lstrip('/') or None
+        item={'id':identity,'parent':parent,'role':role,'page':page_number,
+              'alt':str(_object(obj.get('/Alt',''))),'actual_text':str(_object(obj.get('/ActualText',''))),
+              'title':str(_object(obj.get('/T',''))),'language':str(_object(obj.get('/Lang',''))),
               'scope':scope,'children':child_ids,'content':content,'depth':depth}
         nodes.append(item);index[identity]=(reference,obj)
-        for child in kids: walk(child,identity,depth+1)
+        for child in kids: walk(child,identity,depth+1,page_number)
         active.remove(identity)
     if isinstance(root,g.DictionaryObject):
         for child in _array(_raw(root,'/K')): walk(child,None,0)
@@ -97,10 +98,11 @@ def inspect_pdf(input_path,output_path,options=None):
         reader=PdfFileReader(source,strict=True)
         if reader.encrypted: raise ValueError('Desbloqueie uma cópia antes de editar ou inspecionar tags.')
         root,nodes,_,pages=_tree(reader)
-        mark=reader.root.get('/MarkInfo',{})
+        mark=_object(reader.root.get('/MarkInfo',{}))
+        if not isinstance(mark,(dict,g.DictionaryObject)):raise ValueError('MarkInfo inválido.')
         report={'schema_version':1,'kind':'accessibility-tree','input_sha256':hashlib.sha256(snapshot.read_bytes()).hexdigest(),
-                'pages':len(pages),'language':str(reader.root.get('/Lang','')),
-                'has_structure_tree':isinstance(root,g.DictionaryObject),'marked':bool(mark.get('/Marked',False)),
+                'pages':len(pages),'language':str(_object(reader.root.get('/Lang',''))),
+                'has_structure_tree':isinstance(root,g.DictionaryObject),'marked':bool(_object(mark.get('/Marked',False))),
                 'nodes':nodes,'manual_review_required':True,'pdfua_conformant':None,
                 'limitations':['A presença de tags não comprova PDF/UA.',
                     'Confira significado, ordem de leitura, tabelas e texto alternativo com leitor de tela.']}
@@ -174,6 +176,9 @@ def remediate_pdf(input_path,output_path,options):
                 node[g.pdf_name('/S')]=g.pdf_name('/'+edit['role'])
             for option,key in [('alt','/Alt'),('actual_text','/ActualText'),('title','/T'),('language','/Lang')]:
                 if option in edit:
+                    if option=='language' and edit[option]=='':
+                        node.pop('/Lang',None)
+                        continue
                     value=_language(edit[option]) if option=='language' else _text(edit[option],option)
                     node[g.pdf_name(key)]=g.pdf_string(value)
             if 'scope' in edit:

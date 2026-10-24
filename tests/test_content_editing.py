@@ -205,3 +205,27 @@ class ContentEditingTests(unittest.TestCase):
         self.assertNotIn('PRIVATE_WORD',str(failure.exception));self.assertNotIn('/private',str(failure.exception))
         self.assertFalse((self.root/'rejected.json').exists())
 
+    def test_text_behind_later_image_is_not_brought_to_the_front(self):
+        source=self.root/'covered.pdf'
+        with fitz.open() as doc:
+            page=doc.new_page();page.insert_text((40,60),'Original content',fontsize=14)
+            page.insert_image(fitz.Rect(30,30,230,90),stream=self.image);doc.save(source)
+        report=self.inspect(source);entry=self.text_object(report)
+        self.assertFalse(entry['editable']);self.assertIn('later-object-overlap',entry['limitations'])
+        with self.assertRaises(ValueError): self.apply(report,[dict(id=entry['id'],action='replace',text='Revealed content')],source)
+
+    def test_clipped_content_is_not_exposed_by_text_edit_or_image_move(self):
+        source=self.root/'clipped.pdf'
+        with fitz.open() as doc:
+            page=doc.new_page();page.insert_text((40,60),'Original content',fontsize=14)
+            page.insert_image(fitz.Rect(40,200,120,260),stream=self.image)
+            streams=page.get_contents()
+            for xref in streams:
+                original=doc.xref_stream(xref);doc.update_stream(xref,b'q\n40 580 30 240 re W n\n'+original+b'\nQ')
+            doc.save(source)
+        report=self.inspect(source);entry=next(item for item in report['objects'] if item['kind']=='text')
+        self.assertFalse(entry['editable']);self.assertIn('clipped-page-content',entry['limitations'])
+        image=next(item for item in report['objects'] if item['kind']=='image')
+        self.assertEqual(image['supported_actions'],['replace','delete'])
+        with self.assertRaisesRegex(ValueError,'recorte'):
+            self.apply(report,[dict(id=image['id'],action='move',rect=[300,500,380,560])],source)

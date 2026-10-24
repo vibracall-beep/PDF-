@@ -117,6 +117,10 @@ class LongTermSignatureTests(unittest.TestCase):
 
     def test_missing_revocation_is_not_a_trusted_result(self):
         report=self.verify();self.assertTrue(report['all_integrity_ok']);self.assertFalse(report['all_chains_trusted'])
+        with tempfile.TemporaryDirectory() as temporary:
+            basic=signatures.verify_pdf(self.signed,Path(temporary)/'basic.json',{'trust_roots':[str(self.trust)],'validate_lta':True})
+            self.assertTrue(basic['all_integrity_ok']);self.assertFalse(basic['all_lta_proofs_valid'])
+            self.assertEqual(basic['signatures'][0]['long_term_validation']['status'],'MISSING_LTA_STRUCTURE')
 
     def test_https_ocsp_good_and_revoked_responses_are_cryptographically_checked(self):
         options={'allow_revocation_network':True,'revocation_endpoints':[{'kind':'ocsp','url':self.base+'/ocsp'}]}
@@ -138,6 +142,34 @@ class LongTermSignatureTests(unittest.TestCase):
         report=self.verify(**options);self.assertFalse(report['all_chains_trusted']);self.assertEqual(self.calls,[])
         type(self).redirect=True
         report=self.verify(**options,allow_revocation_network=True);self.assertFalse(report['all_chains_trusted']);self.assertEqual(len(self.calls),1)
+
+    def test_local_ocsp_and_forged_crl_do_not_inherit_transport_trust(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);response=root/'response.der';response.write_bytes(self.ocsp_bytes())
+            with patch('socket.socket.connect',side_effect=AssertionError('Unexpected network')):
+                report=self.verify(ocsp_responses=[str(response)])
+            self.assertTrue(report['all_chains_trusted']);self.assertEqual(self.calls,[])
+            foreign=rsa.generate_private_key(public_exponent=65537,key_size=2048)
+            forged=(x509.CertificateRevocationListBuilder().issuer_name(self.ca_name)
+                .last_update(self.now-dt.timedelta(minutes=5)).next_update(self.now+dt.timedelta(days=1))
+                .sign(foreign,hashes.SHA256()).public_bytes(serialization.Encoding.DER))
+            invalid=root/'forged.crl';invalid.write_bytes(forged)
+            report=self.verify(crls=[str(invalid)])
+            self.assertTrue(report['all_integrity_ok']);self.assertFalse(report['all_chains_trusted'])
+
+    def test_lt_rejects_missing_tsa_root_or_revoked_chain_before_publishing(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary)
+            for changes in ({'tsa_url':''},{'trust_roots':[]},{'crls':[],'revocation_endpoints':[]}):
+                with self.assertRaises(ValueError):signatures.sign_pdf(self.source,root/'no.pdf',{
+                    **self.sign_options(),'profile':'B-LT','tsa_url':self.base+'/tsa',**changes})
+                self.assertFalse((root/'no.pdf').exists())
+            import pdf_engine
+            type(self).revoked=True;revoked=root/'revoked.crl';revoked.write_bytes(self.crl_bytes())
+            before=self.source.read_bytes()
+            with self.assertRaises(Exception):pdf_engine.run('digital-sign',[self.source],root/'revoked.pdf',{
+                **self.sign_options(),'profile':'B-LT','tsa_url':self.base+'/tsa','crls':[str(revoked)]})
+            self.assertFalse((root/'revoked.pdf').exists());self.assertEqual(self.source.read_bytes(),before)
 
     def test_real_https_tsa_pades_lt_embeds_validation_material(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -163,10 +195,12 @@ class LongTermSignatureTests(unittest.TestCase):
                 self.assertEqual(str(reader.embedded_signatures[1].sig_object['/Type']),'/DocTimeStamp')
                 result=validation.lta_status(reader.embedded_signatures[0],[asn1x509.Certificate.load(self.ca.public_bytes(serialization.Encoding.DER))])
                 self.assertTrue(result['passed'],result)
-            report=signatures.verify_pdf(target,Path(temporary)/'report.json',{'trust_roots':[str(self.trust)],'validate_lta':True})
+            report=signatures.verify_pdf(target,Path(temporary)/'report.json',{'trust_roots':[str(self.trust)],'validate_lta':True,'revocation_mode':'require'})
             self.assertTrue(report['all_integrity_ok'],report)
             self.assertTrue(report['all_chains_trusted'],report)
             self.assertEqual(report['signatures'][1]['kind'],'document-timestamp')
             self.assertTrue(report['signatures'][0]['long_term_validation']['passed'])
+            self.assertEqual(report['signatures'][0]['revocation']['status'],'good')
+            self.assertTrue(any(e['source']=='embedded_dss' for e in report['signatures'][0]['revocation']['evidence']))
 
 if __name__=='__main__':unittest.main()

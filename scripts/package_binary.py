@@ -19,7 +19,7 @@ import stat
 import subprocess
 import sys
 import tarfile
-from binary_update import contained_link
+from binary_update import contained_link, copy_regular_file
 
 SCRIPTS = Path(__file__).resolve().parent
 MAGICS = {b'\xfe\xed\xfa\xce', b'\xce\xfa\xed\xfe', b'\xfe\xed\xfa\xcf', b'\xcf\xfa\xed\xfe', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca', b'\xca\xfe\xba\xbf', b'\xbf\xba\xfe\xca'}
@@ -38,7 +38,7 @@ def macho(path):
 
 
 def copy_tree(source, destination):
-    shutil.copytree(source, destination, symlinks=True, ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '.DS_Store'))
+    shutil.copytree(source, destination, symlinks=True, copy_function=copy_regular_file, ignore=shutil.ignore_patterns('__pycache__', '*.pyc', '.DS_Store'))
 
 
 def remap_absolute(value, maps):
@@ -90,7 +90,7 @@ def rewrite_macho(path, maps, root):
             identifiers.add(output[index + 2].strip().removeprefix('name ').split(' (offset', 1)[0])
         if line.strip() == 'cmd LC_RPATH':
             rpaths.add(output[index + 2].strip().removeprefix('path ').split(' (offset', 1)[0])
-    if identifiers:
+    if any(value.startswith('/') and not value.startswith(SYSTEM) for value in identifiers):
         changes += ['-id', '@rpath/' + path.name]
     deps = {line.strip().split(' (', 1)[0] for line in command('/usr/bin/otool', '-L', path).splitlines()
             if line.startswith(('\t', ' ')) and ' (' in line}
@@ -110,7 +110,12 @@ def rewrite_macho(path, maps, root):
                 changes += ['-delete_rpath', value]
 
     if changes:
-        subprocess.run(['/usr/bin/install_name_tool', *changes, str(path)], check=True)
+        mode = stat.S_IMODE(path.stat().st_mode)
+        try:
+            path.chmod(mode | stat.S_IWUSR)
+            subprocess.run(['/usr/bin/install_name_tool', *changes, str(path)], check=True)
+        finally:
+            path.chmod(mode)
     # Reject a surviving absolute load path; textual debug/build strings do not
     # count as a load command and are retained for license/provenance integrity.
     for line in command('/usr/bin/otool', '-L', path).splitlines():
@@ -201,7 +206,7 @@ def build(installed, output, commit):
     extra_languages = runtime / 'vendor/tesseract-lang/share/tessdata'
     for item in extra_languages.glob('*.traineddata'):
         if not (tessdata / item.name).exists():
-            shutil.copy2(item, tessdata / item.name)
+            (tessdata / item.name).symlink_to(os.path.relpath(item, tessdata))
     def rel(path):
         return path.relative_to(runtime).as_posix()
     environment = '''#!/bin/bash
@@ -212,6 +217,8 @@ export PYTHONDONTWRITEBYTECODE=1 PYTHONNOUSERSITE=1
 unset PYTHONPATH PYTHONHOME
 '''
     for key, value in {'PDF_JAVA': rel(java), 'PDF_VERAPDF_JAR': rel(jar),
+                       'SSL_CERT_FILE': rel(site / 'certifi/cacert.pem'),
+                       'REQUESTS_CA_BUNDLE': rel(site / 'certifi/cacert.pem'),
                        'PLAYWRIGHT_BROWSERS_PATH': 'browsers', 'TESSDATA_PREFIX': rel(tessdata),
                        'GS_LIB': rel(gs_resource / 'Init') + ':$PDF_RUNTIME/' + rel(gs_resource / 'Font') + ':$PDF_RUNTIME/' + rel(gs_resource.parent / 'lib')}.items():
         # These build-generated relative paths contain no shell input.
@@ -222,8 +229,17 @@ unset PYTHONPATH PYTHONHOME
     programs = {'python3': rel(python), 'qpdf': 'vendor/qpdf/bin/qpdf',
                 'tesseract': 'vendor/tesseract/bin/tesseract', 'gs': 'vendor/ghostscript/bin/gs',
                 'java': rel(java), 'soffice': 'LibreOffice.app/Contents/MacOS/soffice'}
+    for name, formula in (('jbig2', 'jbig2enc'), ('pngquant', 'pngquant'), ('unpaper', 'unpaper'), ('ffmpeg', 'ffmpeg')):
+        candidate = runtime / 'vendor' / formula / 'bin' / name
+        if candidate.is_file():
+            programs[name] = rel(candidate)
     for name, relative in programs.items():
-        write_executable(bin_dir / name, '#!/bin/bash\nset -euo pipefail\nsource "$(dirname "$0")/../environment.sh"\nexec "$PDF_RUNTIME/' + relative + '" "$@"\n')
+        # -B is explicit: -I/-E intentionally ignore environment variables.
+        # Runtime verification must never add __pycache__ to the signed bundle.
+        arguments = ' -B' if name == 'python3' else ''
+        if name == 'gs':
+            arguments = ' "-sGenericResourceDir=$PDF_RUNTIME/' + rel(gs_resource) + '/" "-sICCProfilesDir=$PDF_RUNTIME/' + rel(gs_resource.parent / 'iccprofiles') + '/"'
+        write_executable(bin_dir / name, '#!/bin/bash\nset -euo pipefail\nsource "$(dirname "$0")/../environment.sh"\nexec "$PDF_RUNTIME/' + relative + '"' + arguments + ' "$@"\n')
     ocr_env = runtime / 'vendor/ocrmypdf/libexec'
     ocr_site = next((ocr_env / 'lib').glob('python*/site-packages'))
     version = ocr_site.parent.name.removeprefix('python')
@@ -231,10 +247,19 @@ unset PYTHONPATH PYTHONHOME
     if not ocr_python.exists():
         # Current formula may use the same 3.12 already bundled.
         raise ValueError('Python do OCRmyPDF não encontrado na árvore de dependências.')
-    (runtime / 'dispatch_ocr.py').write_text('import runpy,sys\nfrom pathlib import Path\nsys.path.insert(0,str(Path(__file__).parent/' + repr(rel(ocr_site)) + '))\nsys.argv[0]="ocrmypdf"\nrunpy.run_module("ocrmypdf",run_name="__main__")\n')
-    write_executable(bin_dir / 'ocrmypdf', '#!/bin/bash\nset -euo pipefail\nsource "$(dirname "$0")/../environment.sh"\nexec "$PDF_RUNTIME/' + rel(ocr_python) + '" -I "$PDF_RUNTIME/dispatch_ocr.py" "$@"\n')
+    # Homebrew separates some Python dependencies (Pillow/img2pdf) into their
+    # own kegs. Add matching-ABI bundled package directories explicitly; never
+    # inherit /opt/homebrew/lib/pythonX.Y/site-packages from the build machine.
+    ocr_sites = [ocr_site] + sorted(path for path in (runtime / 'vendor').rglob('site-packages')
+                                    if path.is_dir() and not path.is_symlink()
+                                    and path.parent.name == 'python' + version and path != ocr_site)
+    site_names = [rel(path) for path in ocr_sites]
+    (runtime / 'dispatch_ocr.py').write_text('import runpy,sys\nfrom pathlib import Path\nroot=Path(__file__).parent\nsys.path[:0]=[str(root/name) for name in ' + repr(site_names) + ']\nsys.argv[0]="ocrmypdf"\nrunpy.run_module("ocrmypdf",run_name="__main__")\n')
+    write_executable(bin_dir / 'ocrmypdf', '#!/bin/bash\nset -euo pipefail\nsource "$(dirname "$0")/../environment.sh"\nexec "$PDF_RUNTIME/' + rel(ocr_python) + '" -I -B "$PDF_RUNTIME/dispatch_ocr.py" "$@"\n')
     portable = {'schemaVersion': 1, 'commit': commit, 'architecture': 'arm64', 'minimumMacOS': '26.0',
-                'dependencyFormulae': formulas, 'hostDependenciesAllowed': False}
+                'applicationVersion': plistlib.loads((app / 'Contents/Info.plist').read_bytes()).get('CFBundleShortVersionString'),
+                'dependencyFormulae': formulas, 'externalCoreEnginesRequired': False,
+                'optionalSystemIntegrations': ['Apple Pages for Pages conversion', 'compatible scanner', 'Apple Intelligence system model']}
     (runtime / 'portable.json').write_text(json.dumps(portable, indent=2) + '\n')
     distribution = resources / 'distribution'; distribution.mkdir()
     for filename in ('binary_update.py', 'install_files.py', 'run-with-timeout.py', 'check_runtime.py'):
@@ -254,19 +279,40 @@ unset PYTHONPATH PYTHONHOME
         subprocess.run(['/usr/bin/lipo', str(path), '-verify_arch', 'arm64'], check=True, stdout=subprocess.DEVNULL)
         rewrite_macho(path, maps, app)
     for path in native_files:
-        subprocess.run(['/usr/bin/codesign', '--force', '--sign', '-', '--timestamp=none', str(path)], check=True, stdout=subprocess.DEVNULL)
+        sign_if_needed(path)
     nested = [path for path in app.rglob('*') if path.is_dir() and not path.is_symlink() and path.suffix in ('.app', '.framework', '.xpc')]
     for path in sorted(nested, key=lambda item: len(item.parts), reverse=True) + [app]:
-        subprocess.run(['/usr/bin/codesign', '--force', '--sign', '-', '--timestamp=none', str(path)], check=True, stdout=subprocess.DEVNULL)
+        sign_if_needed(path, deep=True)
     subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(app)], check=True)
     write_manifest(output, commit)
     return output
+
+
+def sign_if_needed(path, deep=False):
+    # Keep an upstream Developer ID signature when relocation did not change
+    # its bytes (notably LibreOffice/Chromium). Re-sign modified or unsigned
+    # code locally; no quarantine attribute or Gatekeeper policy is changed.
+    check = ['/usr/bin/codesign', '--verify', '--strict']
+    if deep:
+        check.append('--deep')
+    if subprocess.run(check + [str(path)], capture_output=True).returncode != 0:
+        mode = stat.S_IMODE(path.stat().st_mode)
+        try:
+            if path.is_file():
+                path.chmod(mode | stat.S_IWUSR)
+            subprocess.run(['/usr/bin/codesign', '--force', '--sign', '-', '--timestamp=none', str(path)],
+                           check=True, stdout=subprocess.DEVNULL)
+        finally:
+            if path.is_file():
+                path.chmod(mode)
 
 
 def write_manifest(root, commit):
     files = {}
     for path in sorted(root.rglob('*')):
         relative = path.relative_to(root).as_posix()
+        if relative == 'manifest.json':
+            continue
         if path.is_symlink():
             contained_link(path, os.readlink(path), root)
             files[relative] = {'type': 'symlink', 'target': os.readlink(path)}
@@ -282,6 +328,9 @@ def write_manifest(root, commit):
 
 
 def archive(root, output):
+    checksum = output.with_suffix(output.suffix + '.sha256')
+    if os.path.lexists(output) or os.path.lexists(checksum):
+        raise FileExistsError('Pacote ou checksum de destino já existe.')
     with output.open('xb') as raw:
         with tarfile.open(fileobj=raw, mode='w:gz', dereference=False) as tar:
             tar.add(root, arcname='PDF-distribution', recursive=True)
@@ -289,7 +338,8 @@ def archive(root, output):
     with output.open('rb') as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             digest.update(block)
-    output.with_suffix(output.suffix + '.sha256').write_text(digest.hexdigest() + '  ' + output.name + '\n')
+    with checksum.open('x') as stream:
+        stream.write(digest.hexdigest() + '  ' + output.name + '\n')
     print('Binary package SHA-256:', digest.hexdigest())
 
 

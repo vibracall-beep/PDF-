@@ -34,6 +34,8 @@ struct ContentObjectDescriptor: Codable, Identifiable, Sendable {
     let limitations: [String]
     let font_status: String?
     let substitution_font: String?
+    var supported_actions: [String]? = nil
+    var supportedActions: [String] { supported_actions ?? ["replace", "move", "delete"] }
 }
 struct ContentInspection: Codable, Sendable {
     let version: Int
@@ -48,6 +50,8 @@ struct ContentInspection: Codable, Sendable {
             try Task.checkCancellation()
             guard !item.id.isEmpty, item.id.utf8.count <= 256, ["text", "image"].contains(item.kind),
                   (item.text?.utf8.count ?? 0) <= 1_048_576,
+                  !item.supportedActions.isEmpty, Set(item.supportedActions).count == item.supportedActions.count,
+                  item.supportedActions.allSatisfy({ ["replace", "move", "delete"].contains($0) }),
                   item.font_size == nil || (item.font_size!.isFinite && item.font_size! > 0 && item.font_size! <= 1000) else {
                 throw AdvancedDocumentValidation.failure("Um objeto de conteúdo não pôde ser validado.")
             }

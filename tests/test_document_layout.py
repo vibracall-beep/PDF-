@@ -94,4 +94,3 @@ class DocumentLayoutTests(unittest.TestCase):
         with fitz.open(source) as doc:
             elements=page_elements(doc[0]);text=''.join(span['text'] for block in elements if block['type']==0 for line in block['lines'] for span in line['spans'])
         self.assertIn('Alpha overlap',text);self.assertIn('Beta overlap',text)
-

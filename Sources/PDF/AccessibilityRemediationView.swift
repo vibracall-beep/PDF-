@@ -85,9 +85,9 @@ struct AccessibilityRemediationView: View {
     private func taggedEditor(_ report: AccessibilityTreeReport) -> some View {
         HStack(alignment: .top, spacing: 18) {
             List(selection: $selection) {
-                ForEach(report.nodes) { node in
+                ForEach(orderedNodes(report)) { node in
                     VStack(alignment: .leading, spacing: 3) {
-                        Text("\(node.role)\(node.page.map { " · página \($0)" } ?? "")").font(.headline)
+                        Text("\(edits[node.id]?["role"] as? String ?? node.role)\(node.page.map { " · página \($0)" } ?? "")").font(.headline)
                         Text(node.title.isEmpty ? node.alt : node.title).font(.caption).lineLimit(2)
                     }.padding(.leading, CGFloat(min(node.depth, 8)) * 10).tag(node.id)
                 }
@@ -136,10 +136,16 @@ struct AccessibilityRemediationView: View {
             model.execute(operation: "accessibility-inspect", inputs: [source], output: directory.appendingPathComponent("tree.json"), options: [:], title: "Inspecionando tags") { outcome in
                 defer { try? FileManager.default.removeItem(at: directory) }
                 do {
-                    let url = try outcome.get(); let data = try Data(contentsOf: url)
+                    let url = try outcome.get()
+                    let size = (try FileManager.default.attributesOfItem(atPath: url.path)[.size] as? NSNumber)?.intValue ?? Int.max
+                    guard size <= 16 * 1024 * 1024 else { throw NSError(domain: "PDF.Accessibility", code: 1, userInfo: [NSLocalizedDescriptionKey: "A árvore excede o limite da revisão visual."]) }
+                    let data = try Data(contentsOf: url)
                     guard data.count <= 16 * 1024 * 1024 else { throw NSError(domain: "PDF.Accessibility", code: 1, userInfo: [NSLocalizedDescriptionKey: "A árvore excede o limite da revisão visual."]) }
                     let value = try JSONDecoder().decode(AccessibilityTreeReport.self, from: data)
-                    guard value.schema_version == 1, value.pages > 0, value.pages <= 10000, value.nodes.count <= 100000 else { throw NSError(domain: "PDF.Accessibility", code: 2) }
+                    guard value.schema_version == 1, value.pages > 0, value.pages <= 10000, value.nodes.count <= 100000,
+                          Set(value.nodes.map(\.id)).count == value.nodes.count,
+                          value.input_sha256.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil,
+                          value.nodes.allSatisfy({ (0...128).contains($0.depth) && ($0.page == nil || (1...value.pages).contains($0.page!)) }) else { throw NSError(domain: "PDF.Accessibility", code: 2) }
                     report = value; language = value.language.isEmpty ? "pt-BR" : value.language
                     pageRoles = Array(repeating: "P", count: value.pages); pageAlternatives = Array(repeating: "", count: value.pages)
                     reviewedPages = false; edits = [:]; selection = nil; result = nil
@@ -154,11 +160,24 @@ struct AccessibilityRemediationView: View {
         actualText = edit["actual_text"] as? String ?? node.actual_text; tagTitle = edit["title"] as? String ?? node.title
         tagLanguage = edit["language"] as? String ?? node.language; scope = edit["scope"] as? String ?? node.scope ?? "Column"
     }
+    private func orderedNodes(_ report: AccessibilityTreeReport) -> [AccessibilityTag] {
+        let byID = Dictionary(uniqueKeysWithValues: report.nodes.map { ($0.id, $0) })
+        var visited = Set<String>(); var ordered: [AccessibilityTag] = []
+        func append(_ node: AccessibilityTag) {
+            guard visited.insert(node.id).inserted else { return }
+            ordered.append(node)
+            for child in edits[node.id]?["children"] as? [String] ?? node.children {
+                if let value = byID[child] { append(value) }
+            }
+        }
+        for node in report.nodes where node.parent == nil { append(node) }
+        return ordered
+    }
     private func stageSelection() {
         guard let selection else { return }
         var edit = edits[selection] ?? ["id": selection]
         edit["role"] = role; edit["alt"] = alt; edit["actual_text"] = actualText; edit["title"] = tagTitle
-        if !tagLanguage.isEmpty { edit["language"] = tagLanguage }
+        edit["language"] = tagLanguage
         if role == "TH" { edit["scope"] = scope } else { edit.removeValue(forKey: "scope") }
         edits[selection] = edit
     }

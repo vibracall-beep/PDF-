@@ -22,9 +22,21 @@ TERMINAL_OUTPUTS = {
     "compare-visual": ("html", False),
     "verify-signatures": ("json", False), "validate-pdfa": ("json", False),
     "validate-pdfua": ("json", False), "ocr-page": ("json", False),
+    "content-inspect": ("json", False), "ocr-review": ("json", False),
+    "accessibility-inspect": ("json", False), "print-preflight": ("json", False),
+    "measure": ("json", False),
 }
 SOURCE_CONVERTERS = {"office", "odt", "rtf", "txt", "epub", "csv", "html", "images", "ocr-page"}
 MULTI_SOURCE = {"merge", "images", "compare", "compare-visual"}
+# Source-bound plans and explicit network requests must go through their own
+# review interface. Adding a PDF operation must never enable it implicitly.
+REVIEW_OPERATIONS = {"content-apply", "ocr-apply", "accessibility-remediate", "dossier", "conversion-audit"}
+WORKFLOW_PDF_OPERATIONS = {
+    "digital-sign", "merge", "compress", "office", "text", "edit", "image", "shape", "images",
+    "signature", "watermark", "rotate", "html", "unlock", "protect", "organize", "pdfa", "repair",
+    "numbers", "ocr", "redact", "crop", "form-create", "form-fill", "translate-layout", "odt", "rtf",
+    "txt", "epub", "csv", "flatten", "delete-pages", "extract-pages", "print-prepare", "pdfx", "bates", "stamp",
+}
 
 
 def output_type(operation, options=None):
@@ -40,6 +52,10 @@ def validate_steps(steps, tools, pdf_operations, *, batch=False):
         if not isinstance(step, dict) or not isinstance(step.get("operation"), str) or step.get("operation") not in tools or step["operation"] == "workflow":
             raise ValueError(f"Etapa {index + 1} inválida; fluxos recursivos não são permitidos.")
         operation = step["operation"]
+        if operation in REVIEW_OPERATIONS or operation.startswith("signature-request-"):
+            raise ValueError(f"{operation}: esta operação exige revisão própria e não pode executar em um fluxo genérico.")
+        if operation not in WORKFLOW_PDF_OPERATIONS and operation not in TERMINAL_OUTPUTS:
+            raise ValueError(f"{operation}: esta operação não possui um contrato aprovado para fluxos.")
         if not isinstance(step.get("options", {}), dict):
             raise ValueError(f"As opções da etapa {index + 1} devem ser um objeto JSON.")
         if index < len(steps) - 1 and operation == "digital-sign":

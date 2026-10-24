@@ -98,10 +98,10 @@ def _overlap(a, b):
 def _font_name(value): return re.sub(r'^[A-Z]{6}\+', '', value or '')
 
 
-def _font_spec(doc, page, name):
+def _font_spec(doc, page, name, fonts=None):
     normalized = _font_name(name)
     candidates = {};standard=False
-    for font in page.get_fonts(full=True):
+    for font in fonts if fonts is not None else page.get_fonts(full=True):
         if _font_name(font[3]) != normalized or not font[0]: continue
         try:
             _, extension, _, data = doc.extract_font(font[0])
@@ -117,16 +117,28 @@ def _font_spec(doc, page, name):
 
 def _inspect(doc, source_hash, pages):
     image_uses = Counter(info['xref'] for page in doc for info in page.get_image_info(xrefs=True) if info['xref'])
-    objects=[]; private={}; page_reports=[]
+    objects=[]; private={}; page_reports=[];font_cache={}
     for index in pages:
         page=doc[index]; bounds=_bounds(page)
         page_reports.append(dict(page=index+1,width=bounds.width,height=bounds.height,rotation=page.rotation,
             cropbox=_numbers(page.cropbox)))
         traces=page.get_texttrace()
+        paint=page.get_bboxlog();drawings=page.get_drawings(extended=True)
+        def restricts_page(drawing):
+            if drawing['type']!='clip': return False
+            items=drawing.get('items',[])
+            return not (len(items)==1 and items[0][0]=='re' and fitz.Rect(items[0][1]).contains(bounds))
+        clipped=any(restricts_page(drawing) for drawing in drawings)
+        unusual_group=any(drawing['type']=='group' and (drawing.get('opacity',1)!=1 or drawing.get('blendmode','Normal')!='Normal') for drawing in drawings)
+        origins={}
+        for trace in traces:
+            for code,_,origin,_ in trace['chars']:
+                if 0<=code<=0x10ffff:
+                    origins.setdefault((round(origin[0],3),round(origin[1],3),chr(code)),set()).add(trace['seqno'])
         interactive=[tuple(a.rect) for a in page.annots() or []]+[tuple(w.rect) for w in page.widgets() or []]
         interactive.extend(tuple(link['from']) for link in page.get_links())
         pending=any(a.type[0]==fitz.PDF_ANNOT_REDACT for a in page.annots() or [])
-        text_records=[]
+        text_records=[];fonts=page.get_fonts(full=True)
         for block in page.get_text('rawdict',clip=fitz.INFINITE_RECT())['blocks']:
             if block['type']!=0: continue
             for line in block['lines']:
@@ -138,15 +150,35 @@ def _inspect(doc, source_hash, pages):
                     if not bounds.contains(rect): limitations.append('text-outside-visible-page')
                     if any(_overlap(rect, area) for area in interactive): limitations.append('interactive-overlap')
                     if pending: limitations.append('pending-redaction')
-                    if span.get('alpha',255)!=255 or any(t['type']!=0 and _overlap(rect,t['bbox']) for t in traces):
+                    if clipped: limitations.append('clipped-page-content')
+                    if unusual_group: limitations.append('nonstandard-transparency-group')
+                    sequences=set()
+                    for char in span['chars']:
+                        sequences.update(origins.get((round(char['origin'][0],3),round(char['origin'][1],3),char['c']),set()))
+                    if not sequences: limitations.append('unmapped-text-paint-order')
+                    elif any(offset>min(sequences) and kind not in ('fill-text','stroke-text','ignore-text') and _overlap(rect,area)
+                             for offset,(kind,area) in enumerate(paint)):
+                        limitations.append('later-object-overlap')
+                    if span.get('alpha',255)!=255 or any((t['type']!=0 or t.get('opacity',1)!=1) and _overlap(rect,t['bbox']) for t in traces):
                         limitations.append('nonstandard-or-invisible-text-rendering')
-                    spec=_font_spec(doc,page,span['font'])
+                    key=(_font_name(span['font']),tuple(font[0] for font in fonts if _font_name(font[3])==_font_name(span['font'])))
+                    if key not in font_cache: font_cache[key]=_font_spec(doc,page,span['font'],fonts)
+                    spec=font_cache[key]
                     entry=dict(kind='text',page=index+1,rect=_numbers(rect),text=text,font=span['font'],
                         font_size=span['size'],color=f"#{span['color']:06x}",
-                        font_status='original' if spec else 'substitution-required',substitution_font='helv',limitations=limitations)
+                        font_status='original' if spec else 'substitution-required',substitution_font='MuPDF Unicode fallback (sans-serif)',limitations=limitations)
                     text_records.append((entry,dict(font=spec,chars=[tuple(c['bbox']) for c in span['chars']])))
+                    if len(text_records)>10000: raise ValueError('A página excede 10.000 trechos de texto. Use uma página ou região menos complexa.')
+        active=[];overlapping=set();comparisons=0
+        for position in sorted(range(len(text_records)),key=lambda offset:text_records[offset][0]['rect'][1]):
+            rect=text_records[position][0]['rect'];active=[offset for offset in active if text_records[offset][0]['rect'][3]>rect[1]]
+            for offset in active:
+                comparisons+=1
+                if comparisons>1_000_000: raise ValueError('A página contém sobreposições demais para inspecionar com segurança.')
+                if _overlap(rect,text_records[offset][0]['rect']): overlapping.update((offset,position))
+            active.append(position)
         for position,(entry,internal) in enumerate(text_records):
-            if any(_overlap(entry['rect'],other['rect']) for offset,(other,_) in enumerate(text_records) if offset!=position):
+            if position in overlapping:
                 entry['limitations'].append('overlapping-text-runs')
             entry['editable']=not entry['limitations']
             entry['id']=_digest([source_hash,'text',index,position,entry])
@@ -161,9 +193,9 @@ def _inspect(doc, source_hash, pages):
             if any(_overlap(rect,area) for area in interactive): limitations.append('interactive-overlap')
             if pending: limitations.append('pending-redaction')
             entry=dict(kind='image',page=index+1,rect=_numbers(rect),width=info['width'],height=info['height'],
-                editable=not limitations,limitations=limitations)
+                editable=not limitations,limitations=limitations,supported_actions=['replace','delete'] if clipped or unusual_group else ['replace','move','delete'])
             entry['id']=_digest([source_hash,'image',index,position,xref,entry])
-            objects.append(entry);private[entry['id']]=dict(xref=xref)
+            objects.append(entry);private[entry['id']]=dict(xref=xref,clipped=clipped or unusual_group)
         if len(objects)>OBJECT_LIMIT: raise ValueError('O PDF excede 100.000 objetos inspecionáveis. Selecione menos páginas.')
     return dict(version=1,source_sha256=source_hash,page_count=len(doc),pages=page_reports,objects=objects,
         limitations=['Only isolated horizontal text runs and uniquely placed axis-aligned images are editable.',
@@ -265,6 +297,8 @@ def apply_edits(source, output, options):
                     with fitz.open(stream=data) as image:
                         if len(image)!=1 or image.is_pdf: raise ValueError('Selecione uma imagem estática.')
                 else:
+                    if private[identity]['clipped']:
+                        raise ValueError('Mover esta imagem poderia remover um recorte ou composição original. Apenas substituir na mesma área ou excluir é suportado.')
                     occupied=[o['rect'] for o in report['objects'] if o['page']==entry['page'] and o['id']!=identity]
                     occupied.extend(drawing['rect'] for drawing in page.get_drawings())
                     if any(_overlap(rect,other) for other in occupied):
@@ -336,6 +370,18 @@ def review_ocr(source,output,options):
     finally: doc.close()
 
 
+def _place_ocr_word(page,rect,text,font,font_name):
+    """Reuse one standard font for Latin OCR instead of grafting one font/word."""
+    if all(ord(char)<=255 and (char.isspace() or font.has_glyph(ord(char))) for char in text):
+        width=font.text_length(text,fontsize=1)
+        size=min(72,rect.height/(font.ascender-font.descender),rect.width/max(width,0.001))*0.995
+        if size<1: raise ValueError('A correção OCR não cabe na área original. Reduza a palavra antes de aplicar.')
+        page.insert_text((rect.x0,rect.y0+font.ascender*size),text,fontname=font_name,fontsize=size,render_mode=3)
+    else:
+        size=max(4,min(72,rect.height/1.5))
+        _engine()._html_text(page,rect,text,size,(0,0,0),minimum=min(4,size),opacity=0)
+
+
 def apply_ocr(source,output,options):
     doc,digest=_source(source,options)
     try:
@@ -362,14 +408,22 @@ def apply_ocr(source,output,options):
                 raise ValueError('Uma correção contém identidade, geometria ou propriedade não autorizada.')
             text=_engine()._checked_text(edit.get('text'))
             if not text.strip() or len(text.encode('utf-8'))>4096: raise ValueError('A palavra corrigida deve conter de 1 a 4.096 bytes de texto.')
+            if any(char in text for char in '\n\r\t'): raise ValueError('Uma correção de palavra não pode conter quebras de linha ou tabulações.')
             changed[edit['id']]=text
         if not words: raise ValueError('Nenhuma palavra foi reconhecida para criar uma camada OCR.')
+        font=fitz.Font('helv')
+        shaped=sum(any(ord(char)>255 or (not char.isspace() and not font.has_glyph(ord(char))) for char in changed.get(word['id'],word['text'])) for word in current['words'])
+        if shaped>2000: raise ValueError('A revisão excede 2.000 trechos que exigem fontes Unicode compostas. Revise menos páginas por vez para limitar a memória.')
         _engine()._separate_page_aliases(doc)
+        font_names={}
         for word in current['words']:
             page=doc[word['page']-1];rect=fitz.Rect(word['rect']);text=changed.get(word['id'],word['text'])
-            # A transparent shaped text layer keeps the original image and
-            # provides Unicode selection/search without rasterizing the PDF.
-            size=max(4,min(72,rect.height/1.5))
-            _engine()._html_text(page,rect,text,size,(0,0,0),minimum=min(4,size),opacity=0)
+            if word['page'] not in font_names:
+                existing={entry[4] for entry in page.get_fonts(full=True)};suffix=0
+                while f'OCRReviewFont{suffix}' in existing: suffix+=1
+                name=f'OCRReviewFont{suffix}';page.insert_font(fontname=name,fontbuffer=font.buffer);font_names[word['page']]=name
+            # Invisible text keeps original pixels, with shaped Unicode fallback
+            # only when needed. Reusing Latin resources bounds ordinary OCR RAM.
+            _place_ocr_word(page,rect,text,font,font_names[word['page']])
         _save(doc,output)
     finally: doc.close()

@@ -4,11 +4,11 @@ import json
 import os
 from pathlib import Path
 
-BASE_REVISION = "0910ad97614e53fd11becd65e173b6dbaff8cc7a"
+BASE_REVISION = "d3b3857228f522f1f731d1ac429b262c25d4647a"
 SOURCE_HASHES = {
     "NativePDFSerialization.swift": "b255f3d2fa01ab431e170a4c5f95d060c6ddc3ca98d62dcfff7b18561c30b856",
-    "NativePDFStringRepair.swift": "5bc7c33f2edee43a00e886e0514cd40cfbffc969c212696a096ba8a44cd69506",
-    "QPDFStructuralAudit.swift": "baf04e241e49c06dbd10b44f48da85c3f7ba547efea5c3c1cd6bb062f5aa704c",
+    "NativePDFStringRepair.swift": "23b644616ec2c5347e8f65e6142cf3edb462dd3a322bd350fd282e1ae5d66611",
+    "QPDFStructuralAudit.swift": "988955990147a6c79dac8dd1118cb646d88a10c28b82dcd254c534ea3ee727d4",
     "AnnotationEditing.swift": "bf1258ca54a1a0cab1601f6a904c52d7a649c6ea8a8e31978d349fdafe962a37",
 }
 
@@ -32,7 +32,9 @@ def annotation_metadata(objects):
     for reference, wrapped in objects.items():
         value = wrapped.get("value") if isinstance(wrapped, dict) else None
         if isinstance(value, dict) and value.get("/Subtype") in ("/Text", "/Popup", "/Widget", "/FreeText"):
-            rows.append({"object": reference, "dictionary": {key: entry for key, entry in value.items() if key in keys}})
+            rows.append({"object": reference, "openPresent": "/Open" in value,
+                         "openValueType": type(value["/Open"]).__name__ if "/Open" in value else "absent",
+                         "dictionary": {key: entry for key, entry in value.items() if key in keys}})
     if len(rows) > 256:
         raise ValueError("Synthetic annotation report exceeded 256 objects")
     return rows

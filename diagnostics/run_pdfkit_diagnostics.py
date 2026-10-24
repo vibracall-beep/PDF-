@@ -10,6 +10,7 @@ import selectors
 import signal
 import stat
 import subprocess
+import sys
 import tempfile
 import time
 
@@ -18,6 +19,9 @@ READER = "native-check-reader-123"
 STAGING = "native-stage-only-456"
 OUTPUT_LIMIT = 128 * 1024
 
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "engine"))
+from owned_process import OwnedProcess, OutputLimitExceeded
+
 
 def redacted(text):
     for secret in (OWNER, READER, STAGING):
@@ -25,74 +29,25 @@ def redacted(text):
     return re.sub(r"(?im)^(\s*(?:user|owner)\s+password\s*=).*$", r"\1 [redacted]", text)
 
 
-def stop(process):
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        pass
-    try:
-        process.wait(timeout=1)
-    except subprocess.TimeoutExpired:
-        pass
-    try:
-        os.killpg(process.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    process.wait()
-
-
 def run(arguments, password="", seconds=30, verbose=False, output_limit=OUTPUT_LIMIT):
     environment = dict(os.environ)
     environment["CG_PDF_VERBOSE"] = "1" if verbose else "0"
-    process = subprocess.Popen(arguments, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                               stderr=subprocess.PIPE, start_new_session=True, env=environment)
-    buffers = {"stdout": bytearray(), "stderr": bytearray()}
+    child = OwnedProcess(arguments, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                         stderr=subprocess.PIPE, env=environment, grace_seconds=1)
     timed_out = exceeded = False
-    started = time.monotonic()
     try:
-        try:
-            process.stdin.write((password + "\n").encode())
-            process.stdin.close()
-        except BrokenPipeError:
-            # --version and a rejected invocation can close stdin immediately.
-            try:
-                process.stdin.close()
-            except BrokenPipeError:
-                pass
-        with selectors.DefaultSelector() as selector:
-            for name in buffers:
-                pipe = getattr(process, name)
-                os.set_blocking(pipe.fileno(), False)
-                selector.register(pipe, selectors.EVENT_READ, name)
-            while selector.get_map():
-                if time.monotonic() - started > seconds:
-                    timed_out = True
-                    break
-                for key, _ in selector.select(0.05):
-                    data = os.read(key.fileobj.fileno(), 65536)
-                    if not data:
-                        selector.unregister(key.fileobj)
-                        continue
-                    buffer = buffers[key.data]
-                    available = output_limit - len(buffer)
-                    buffer.extend(data[:available])
-                    if len(data) > available:
-                        exceeded = True
-                        break
-                if exceeded:
-                    break
-        if not (timed_out or exceeded):
-            try:
-                process.wait(timeout=max(0.01, seconds - (time.monotonic() - started)))
-            except subprocess.TimeoutExpired:
-                timed_out = True
-    finally:
-        stop(process)
-        for name in buffers:
-            getattr(process, name).close()
-    return {"exitCode": process.returncode, "timedOut": timed_out,
+        stdout, stderr = child.communicate(seconds, input_bytes=(password + "\n").encode(),
+                                           output_limit=output_limit)
+    except subprocess.TimeoutExpired as error:
+        timed_out = True
+        stdout, stderr = error.output or b"", error.stderr or b""
+    except OutputLimitExceeded as error:
+        exceeded = True
+        stdout, stderr = error.stdout, error.stderr
+    return {"exitCode": child.returncode, "timedOut": timed_out,
             "outputLimitExceeded": exceeded,
-            **{name: redacted(bytes(data).decode("utf-8", "replace")) for name, data in buffers.items()}}
+            "stdout": redacted(stdout.decode("utf-8", "replace")),
+            "stderr": redacted(stderr.decode("utf-8", "replace"))}
 
 
 def read_regular(path, limit=128 * 1024 * 1024):

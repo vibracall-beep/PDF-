@@ -6,25 +6,18 @@ import os
 import signal
 import subprocess
 import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
 from bundle_lease import inherited_from_environment
+
+# Both checkout scripts/ and bundle Resources/distribution/ have ../engine.
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "engine"))
+from owned_process import OwnedProcess
 
 
 def stop(process):
-    try:
-        os.killpg(process.pid, signal.SIGTERM)
-    except ProcessLookupError:
-        process.wait()
-        return
-    try:
-        process.wait(timeout=10)
-    except subprocess.TimeoutExpired:
-        pass
-    # A child can outlive its parent or ignore SIGTERM. Clear the entire group.
-    try:
-        os.killpg(process.pid, signal.SIGKILL)
-    except ProcessLookupError:
-        pass
-    process.wait()
+    process.close()
 
 
 def sample_owned_process(process):
@@ -34,7 +27,7 @@ def sample_owned_process(process):
     /dev/stdout destination sends its report directly to the existing CI log.
     No name lookup, process enumeration, TCC change or permission request occurs.
     """
-    if sys.platform != 'darwin' or process.poll() is not None:
+    if sys.platform != 'darwin' or process.exited():
         return
     print(f'Sampling the owned validation process {process.pid} for 3 seconds before cleanup.',
           file=sys.stderr, flush=True)
@@ -68,6 +61,7 @@ def main():
     if not command or not math.isfinite(args.seconds) or args.seconds <= 0:
         parser.error('Provide a command and a finite positive timeout.')
     process = None
+    primary_error = None
     previous = {}
 
     def interrupted(number, frame):
@@ -76,40 +70,48 @@ def main():
     try:
         for number in (signal.SIGINT, signal.SIGTERM):
             previous[number] = signal.signal(number, interrupted)
-        process = subprocess.Popen(command, start_new_session=True, pass_fds=inherited_from_environment())
-        try:
-            result = process.wait(timeout=args.seconds)
-            return result if result >= 0 else 128 - result
-        except subprocess.TimeoutExpired:
+        process = OwnedProcess(command, pass_fds=inherited_from_environment(), grace_seconds=10)
+        def before_timeout(child):
             print(f'Validation failed: command exceeded {args.seconds:g} seconds; terminating its process group.', file=sys.stderr, flush=True)
-            # Ignore further cancellation while cleaning up the child group.
             for number in previous:
                 signal.signal(number, signal.SIG_IGN)
             try:
                 if args.sample_on_timeout:
-                    sample_owned_process(process)
+                    sample_owned_process(child)
             except Exception as error:
-                # Diagnostics must never change deadline failure into success or
-                # suppress cleanup, even if an unexpected sampling error occurs.
                 print(f'Stack diagnostic failed ({type(error).__name__}); continuing timeout cleanup.',
                       file=sys.stderr, flush=True)
-            finally:
-                stop(process)
+        try:
+            result = process.wait(args.seconds, before_timeout=before_timeout)
+            return result if result >= 0 else 128 - result
+        except subprocess.TimeoutExpired as error:
+            primary_error = error
             return 124
     except Interrupted as error:
+        primary_error = error
         for number in previous:
             signal.signal(number, signal.SIG_IGN)
-        if process is not None:
-            stop(process)
         return 128 + error.number
     except (OSError, ValueError) as error:
+        primary_error = error
         print(f'Could not run validation command: {error}', file=sys.stderr)
         return 127
     finally:
-        if process is not None and process.poll() is None:
-            stop(process)
-        for number, handler in previous.items():
-            signal.signal(number, handler)
+        try:
+            if process is not None:
+                try:
+                    stop(process)
+                except BaseException as cleanup:
+                    if primary_error is None:
+                        raise
+                    primary_error.add_note("Owned process cleanup failed: " + type(cleanup).__name__)
+            if primary_error is not None:
+                for note in getattr(primary_error, "__notes__", []):
+                    print(note, file=sys.stderr)
+        finally:
+            for number, handler in previous.items():
+                signal.signal(number, handler)
+
 
 
 if __name__ == '__main__':

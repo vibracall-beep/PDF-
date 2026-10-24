@@ -25,6 +25,7 @@ class RuntimeLeaseTests(unittest.TestCase):
         self.engine = self.bundle / 'Contents/Resources/engine'
         self.engine.mkdir(parents=True)
         shutil.copy2(ROOT / 'engine/runtime_lease.py', self.engine / 'runtime_lease.py')
+        shutil.copy2(ROOT / 'engine/owned_process.py', self.engine / 'owned_process.py')
         self.resource = self.bundle / 'Contents/Resources/installation.lock'
         self.resource.touch(); self.resource.chmod(0o444)
         self.payload = b'{"fixture":"stdin remains private and intact"}'

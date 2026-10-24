@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+import venv
 
 from package_binary import isolate_python_startups
 
@@ -31,29 +32,35 @@ class PythonStartupIsolationTests(unittest.TestCase):
         self.startup = self.stdlib / 'sitecustomize.py'
         self.startup.write_text(MARKER + 'import site\nsite.addsitedir(' + repr(str(self.host)) + ')\n')
 
-    def startup_process(self):
+    def startup_process(self, interpreter=None):
         # -I keeps user site and PYTHONPATH excluded. -S permits selecting this
         # synthetic framework prefix before calling the real site.main(), which
         # uses the same .pth and sitecustomize startup logic as production.
-        script = '''import sys,site,json,importlib.util,ssl,sqlite3
+        script = '''import sys,site,json,importlib.util,ssl,sqlite3,os
+# Match the entire synthetic framework identity. Otherwise site.venv() can
+# rediscover the test runner's pyvenv.cfg and discard this framework's PREFIXES.
+sys.executable=sys._base_executable=os.path.join(sys.argv[1], 'bin', 'python3')
+os.environ.pop('__PYVENV_LAUNCHER__', None)
 sys.prefix=sys.exec_prefix=sys.base_prefix=sys.base_exec_prefix=sys.argv[1]
 site.PREFIXES[:]=[sys.argv[1]]
 sys.path.insert(0,sys.argv[2])
 site.main()
 import private_pdf_module
-print(json.dumps({"private":private_pdf_module.value,"host":importlib.util.find_spec("host_only_module") is not None,"ssl":bool(ssl.OPENSSL_VERSION),"sqlite":sqlite3.connect(":memory:").execute("select 7").fetchone()[0]}))
+print(json.dumps({"prefix":sys.prefix,"private":private_pdf_module.value,"host":importlib.util.find_spec("host_only_module") is not None,"ssl":bool(ssl.OPENSSL_VERSION),"sqlite":sqlite3.connect(":memory:").execute("select 7").fetchone()[0]}))
 '''
-        result = subprocess.run([sys.executable, '-I', '-S', '-B', '-c', script, str(self.prefix), str(self.stdlib)],
+        result = subprocess.run([str(interpreter or sys.executable), '-I', '-S', '-B', '-c', script, str(self.prefix), str(self.stdlib)],
                                 capture_output=True, text=True, check=True, timeout=10)
         return json.loads(result.stdout)
 
-    def test_real_isolated_startup_no_longer_executes_host_pth_and_keeps_imports(self):
-        before = self.startup_process()
+    def check_isolation(self, interpreter=None):
+        before = self.startup_process(interpreter)
+        self.assertEqual(before["prefix"], str(self.prefix))
         self.assertTrue(before['host']); self.assertTrue(self.sentinel.is_file())
         self.sentinel.unlink()
         original = self.startup.read_bytes()
         self.assertEqual(isolate_python_startups(self.runtime, [self.formula]), [self.formula])
-        after = self.startup_process()
+        after = self.startup_process(interpreter)
+        self.assertEqual(after["prefix"], str(self.prefix))
         self.assertFalse(after['host']); self.assertFalse(self.sentinel.exists())
         self.assertEqual(after['private'], 'private module loaded')
         self.assertTrue(after['ssl']); self.assertEqual(after['sqlite'], 7)
@@ -61,6 +68,16 @@ print(json.dumps({"private":private_pdf_module.value,"host":importlib.util.find_
         evidence = self.runtime / 'share/python-startup-provenance' / (self.formula + '-sitecustomize.txt')
         self.assertEqual(evidence.read_bytes(), original)
         self.assertEqual(evidence.stat().st_mode & 0o111, 0)
+
+    def test_real_isolated_startup_no_longer_executes_host_pth_and_keeps_imports(self):
+        self.check_isolation()
+
+    def test_real_virtualenv_runner_uses_the_same_synthetic_framework_startup(self):
+        # Explicitly cover this even when the overall script suite uses a base
+        # interpreter. No pip/network is involved; startup still runs site.main.
+        host_venv = self.root / 'runner virtualenv'
+        venv.EnvBuilder(with_pip=False, symlinks=True).create(host_venv)
+        self.check_isolation(host_venv / 'bin/python')
 
     def test_unknown_or_cached_startup_is_preserved_and_refused(self):
         self.startup.write_text('print("unknown customization")\n')

@@ -338,29 +338,23 @@ def _publish(payload, output):
 
 
 def _external(command, timeout=180, allowed_returncodes=(0,)):
-    """Own a separate process group so cancel never leaves converters running."""
+    """Own the group through cleanup, including descendants after a normal exit."""
+    from owned_process import OwnedProcess
+    from runtime_lease import inherited_fds
+    import locale
     try:
-        from runtime_lease import inherited_fds
-        process = subprocess.Popen([str(v) for v in command],stdout=subprocess.PIPE,stderr=subprocess.PIPE,stdin=subprocess.DEVNULL,text=True,start_new_session=True,pass_fds=inherited_fds())
+        child = OwnedProcess([str(v) for v in command], stdout=subprocess.PIPE,
+                             stderr=subprocess.PIPE, stdin=subprocess.DEVNULL,
+                             pass_fds=inherited_fds())
     except FileNotFoundError:
         raise RuntimeError(f'Dependência indisponível: {command[0]}. Execute o instalador completo.') from None
-    try:
-        stdout,stderr = process.communicate(timeout=timeout)
-    except BaseException:
-        try: os.killpg(process.pid,signal.SIGTERM)
-        except ProcessLookupError: pass
-        try:
-            process.communicate(timeout=3)
-        except subprocess.TimeoutExpired:
-            pass
-        finally:
-            # The leader can exit while a descendant ignores TERM and closes its
-            # pipes. Always finish the owned group, even after communicate returns.
-            try: os.killpg(process.pid,signal.SIGKILL)
-            except ProcessLookupError: pass
-            process.communicate()
-        raise
-    result = subprocess.CompletedProcess(command,process.returncode,stdout,stderr)
+    stdout, stderr = child.communicate(timeout)
+    # Match subprocess text=True, including universal newlines, only after the
+    # leader and owned group have been cleaned up. Decode failures cannot orphan it.
+    encoding = locale.getpreferredencoding(False)
+    stdout = stdout.decode(encoding).replace('\r\n', '\n').replace('\r', '\n')
+    stderr = stderr.decode(encoding).replace('\r\n', '\n').replace('\r', '\n')
+    result = subprocess.CompletedProcess(command, child.returncode, stdout, stderr)
     if result.returncode not in allowed_returncodes:
         message = (result.stderr or result.stdout).strip()[-2500:]
         raise RuntimeError(f'{Path(command[0]).name} falhou ({result.returncode}): {message}')

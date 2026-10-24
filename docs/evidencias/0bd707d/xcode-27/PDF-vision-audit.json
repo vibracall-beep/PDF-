@@ -1,0 +1,23 @@
+{
+  "checks" : [
+    {
+      "errorCode" : 1,
+      "errorDomain" : "PDF.VisionRuntimeUnavailable",
+      "id" : "searchable-pdf",
+      "message" : "PDF.VisionRuntimeUnavailable (1): O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). CPU: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Revisão compatível 2: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Nenhum resultado foi publicado. Processo nativo isolado: PDF.VisionWorker.RuntimeFailure (1): O processo isolado do Vision falhou durante o reconhecimento: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=PDF.VisionExecutionFailure(underlying: Foundation._GenericObjCError.nilError)",
+      "status" : "failed"
+    },
+    {
+      "errorCode" : 1,
+      "errorDomain" : "PDF.VisionWorker.RuntimeFailure",
+      "id" : "isolated-process",
+      "message" : "PDF.VisionWorker.RuntimeFailure (1): O processo isolado do Vision falhou durante o reconhecimento: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=PDF.VisionExecutionFailure(underlying: Foundation._GenericObjCError.nilError)",
+      "status" : "failed"
+    }
+  ],
+  "fixture" : "image-only-verification-v1",
+  "schemaVersion" : 1,
+  "summary" : {
+    "appleVisionPassed" : false
+  }
+}

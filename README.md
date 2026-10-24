@@ -9,8 +9,7 @@ Aplicativo nativo macOS, em português, com **71 ferramentas e leitor permanente
 - **Implementação:** catálogo com 71 entradas, mantendo todos os 54 IDs anteriores. Leitor com abas, comparação lado a lado, pesquisa, miniaturas, marcadores, anotações e recuperação.
 - **Base visual conferida:** `cbb3298` aprovou compilação/instalação por fontes, 411 casos Python (410 aprovados/um skip) e 37 grupos nativos × três por sistema. Os 64 PNGs foram revisados sem nova regressão visual; o pacote reprovou no `otool`. [Originais históricos recuperados](docs/evidencias/cbb3298/README.md).
 - **Última base inteiramente aprovada no CI:** `5a11c07`, [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), macOS 26.6.2 e 27.0.1. Essa base é anterior às 17 ampliações.
-- **Última rodada:** `4ac9d26`, [40114980785](https://github.com/vibracall-beep/PDF-/actions/runs/40114980785), **reprovada**. Foram registrados 428 casos Python (427 aprovados/um skip) e 38 grupos nativos × três por sistema. Falharam o AX Scope no macOS 26, a captura no macOS 27 por timeout e a assinatura do framework Python em ambos. [Originais](docs/evidencias/4ac9d26/README.md). Ajustes locais aguardam nova validação; não há pacote portátil aprovado.
-- **Candidata em validação:** `0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), está **em execução**, com ajustes de rótulos AX, descoberta do framework Python e diagnóstico de inicialização. Ainda não há aprovação dessa candidata ou do pacote portátil.
+- **Última rodada:** `0bd707d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), **reprovada no isolamento do Office**. Foram registrados 434 casos Python (433 aprovados/um skip), 38 grupos nativos × três, 32 PNGs/seis AX e montagem/assinatura aprovados por sistema. O Office retornou 1 sem detalhe; a causa segue em investigação. Instalação/atualização do binário ainda não passaram. [Originais](docs/evidencias/0bd707d/README.md).
 - **Alcance:** runners M1 virtualizados não medem M4 físico, energia ou Neural Engine; inspeção AX automática não substitui uso humano com VoiceOver.
 
 A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs/FERRAMENTAS.md), as [dez primeiras melhorias](docs/MELHORIAS.md) e a [auditoria histórica](docs/AUDITORIA-FERRAMENTAS.md) permanecem disponíveis.
@@ -29,7 +28,7 @@ O alvo é Mac Apple Silicon com macOS 26 ou posterior, incluindo M4 e superiores
 
 Existem dois caminhos, descritos em [INSTALACAO.md](docs/INSTALACAO.md):
 
-- **Pacote autocontido 0.6:** empacotador e instalador por comando implementados, com runtime, dependências, checksum, atualização transacional e preservação de configurações. A validação em ambiente isolado, primeira instalação e atualização no Mac ainda precisam passar antes da entrega. Não exige Xcode, Homebrew ou Python no Mac de destino.
+- **Pacote autocontido 0.6:** empacotador e instalador por comando implementados, com runtime, dependências, checksum, atualização transacional e preservação de configurações. A validação em ambiente isolado, primeira instalação e atualização no Mac ainda precisam passar antes da entrega. Foi projetado para dispensar Xcode, Homebrew e Python no Mac de destino; essa independência ainda depende da aprovação do pacote.
 - **Compilação por fontes:** `bash scripts/install-mac.sh`, para desenvolvimento, exige Xcode/Swift e Homebrew arm64. Instala dependências, executa verificações e ativa o aplicativo somente após aprovação. A aprovação histórica pertence ao commit indicado, não a qualquer `main` futuro.
 
 O pacote do GitHub Actions tem retenção limitada; isso não equivale a uma publicação permanente. Nenhum pacote marcado `unvalidated` deve ser tratado como a entrega final solicitada.
@@ -57,7 +56,7 @@ Pages continua requerendo o aplicativo Pages e autorização de Automação. EPU
 
 ## Desenvolvimento e verificações
 
-Na rodada `4ac9d26`, cada Mac aprovou 281 testes de núcleo, 46 integrações e 100 de 101 testes de scripts; o skip depende de `/dev/full` do Linux. O teste real de relocação de executáveis com parênteses passou. Os 12 testes de acessibilidade e 19 de produção já pertencem ao núcleo; reexecuções focais não são somadas. Isso não sobrepõe as falhas de captura/AX e montagem do pacote.
+Na rodada `0bd707d`, cada Mac aprovou 281 testes de núcleo, 46 integrações e 106 de 107 testes de scripts; o skip depende de `/dev/full` do Linux. O teste real de relocação de executáveis com parênteses passou. Os 12 testes de acessibilidade e 19 de produção já pertencem ao núcleo; reexecuções focais não são somadas. Isso não sobrepõe a falha do Office no teste isolado do pacote.
 
 Use o checkout existente em `/workspace/PDF-`, sem criar worktrees salvo pedido explícito.
 

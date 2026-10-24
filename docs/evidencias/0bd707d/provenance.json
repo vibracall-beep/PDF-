@@ -1,0 +1,898 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "commit": "0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d",
+  "runID": 40118132309,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40118132309",
+  "overallConclusion": "failure",
+  "binaryDistributionApproved": false,
+  "retention": {
+    "runID": 40120146837,
+    "releaseID": 422903642,
+    "draft": true,
+    "tag": "audit-0bd707d4023c-40118132309",
+    "manifest": "retention-manifest.json",
+    "manifestSHA256": "c36ec1b9ff9cfafd163195108192ee24fff3878f9fe7bf5ad4e70b8d70aea9e4",
+    "retrieval": "Official release asset API; sizes and SHA-256 matched release metadata and retained manifest; ten ZIP digests matched original Actions artifacts and source commit."
+  },
+  "archiveDownloads": [
+    {
+      "assetID": 672970394,
+      "name": "PDF-native-checks-macos-26.zip",
+      "bytes": 8096,
+      "sha256": "ddd59fb9884d40daa177c89cef2234b80ca43ca1bfd4f6a9ea2878eab8caf881",
+      "extracted": [
+        {
+          "name": "PDF-native-checks.log",
+          "bytes": 81155,
+          "sha256": "fa441c381762502ee222e87f29df7e54a6fd6d78c8599702636217e8540e1fab"
+        }
+      ]
+    },
+    {
+      "assetID": 672970455,
+      "name": "PDF-macOS-preview-macos-26.zip",
+      "bytes": 3141135,
+      "sha256": "cb2f2fa2c8db40a16ce1529aa664a90db390a8882f17788719389ff5c6d7e3b0",
+      "extracted": [
+        {
+          "name": "PDF-preview.abas.png",
+          "bytes": 124020,
+          "sha256": "93fabb9ef9b6b413590d827999f53f6405d06f1c74d5cfd2d33880f49f11be03"
+        },
+        {
+          "name": "PDF-preview.accessibility.json",
+          "bytes": 105738,
+          "sha256": "cbb41c02b9979fbe57b005d00e3ed9b0382b3d740831697e04247c8c61a1643a"
+        },
+        {
+          "name": "PDF-preview.anotacoes.accessibility.json",
+          "bytes": 139576,
+          "sha256": "7e93f59144b11e080da7f564f24e0ff5096d32ce5534ff807fc992bb422f8a3e"
+        },
+        {
+          "name": "PDF-preview.anotacoes.png",
+          "bytes": 155410,
+          "sha256": "752534cf67690a0a5f2ea490cf8fe91ad5305187ae606f115afd9457d1d158a1"
+        },
+        {
+          "name": "PDF-preview.arquivos.png",
+          "bytes": 76968,
+          "sha256": "d6a11402aa67a249680170df6ece1851e48663291d796efc8188de896baa1cfe"
+        },
+        {
+          "name": "PDF-preview.assinatura-digital.png",
+          "bytes": 84324,
+          "sha256": "96bf99a028edac865a2b378330a7459db6638b74598652f9520578bd497eab8b"
+        },
+        {
+          "name": "PDF-preview.atalhos.png",
+          "bytes": 75242,
+          "sha256": "0897d14e2e9e1b9a7f53e0e63cb27d21300ffcb630950475df1cb596993a854e"
+        },
+        {
+          "name": "PDF-preview.auditar-pdfua.png",
+          "bytes": 70265,
+          "sha256": "8dde7c59314eaac2a771225ae9cfaacc33ef574073493719b1aa125a57f0b4bf"
+        },
+        {
+          "name": "PDF-preview.automacao.png",
+          "bytes": 93918,
+          "sha256": "e86301c350608686c653a532d6264cf43a9662bf937fc6a585eb2773e23dab9e"
+        },
+        {
+          "name": "PDF-preview.biblioteca.accessibility.json",
+          "bytes": 55715,
+          "sha256": "3b47f9aa1960ef487f9e230f48e33c1ca21f3655edcdc8875286a25d36ebc6d9"
+        },
+        {
+          "name": "PDF-preview.biblioteca.png",
+          "bytes": 112064,
+          "sha256": "4d598ee0373caab6fa677b974b9ef2e5083ffa37903b9cf07d6923d739677387"
+        },
+        {
+          "name": "PDF-preview.configuracao-ferramenta.png",
+          "bytes": 88095,
+          "sha256": "f0f07f1ea94c10ba3f1d1ed6541260c5248de1e5724b1a4da8fe894d175b338a"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+          "bytes": 49048,
+          "sha256": "535d9d4a63901fb65ba4d1551e9b99788938733a8c940bd986c934befc1d6086"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.png",
+          "bytes": 94346,
+          "sha256": "775e95cbfeb5d62dc30d0874b81daf12171b6ad9520f26b5b87a2d01b622336f"
+        },
+        {
+          "name": "PDF-preview.editor-conteudo.png",
+          "bytes": 121722,
+          "sha256": "65711ebf19f5a6761233cd0f50bf2e23198418dd3eb382c4b9e8706290639545"
+        },
+        {
+          "name": "PDF-preview.escuro.png",
+          "bytes": 364642,
+          "sha256": "cd3c53a5646b79a509062daf6b451929c8b37bdb1c71dff27746c67ad67e460e"
+        },
+        {
+          "name": "PDF-preview.ferramentas.png",
+          "bytes": 87460,
+          "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca"
+        },
+        {
+          "name": "PDF-preview.fluxo-lote.png",
+          "bytes": 105858,
+          "sha256": "1da9a3b0481636117810bde64f5554a52f56221ec9b6a255ca772c299ccfc68e"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.accessibility.json",
+          "bytes": 150914,
+          "sha256": "32c767cf27535fdc2ab14bffa37f57e031626928c3810193d949ab110bb26e5e"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.png",
+          "bytes": 138396,
+          "sha256": "d63737fd82931b9fa6120a4174a26ae6d6b39202277929e4d7a80aaa660b06e7"
+        },
+        {
+          "name": "PDF-preview.leitor.accessibility.json",
+          "bytes": 113565,
+          "sha256": "9adffe346452b41133a4ed40f0ad3a7ed752e7d791799a8b4c99965168e45a5d"
+        },
+        {
+          "name": "PDF-preview.leitor.png",
+          "bytes": 120811,
+          "sha256": "94ad17f20d2cb37b21e25f344b17a62f1f01ba9edb068e2a53b7d657b228ea2e"
+        },
+        {
+          "name": "PDF-preview.lista.png",
+          "bytes": 94729,
+          "sha256": "7124ad2c0e5754d2e414f3a8efd47691c45ec6a73f351d6530f0183eea24eadd"
+        },
+        {
+          "name": "PDF-preview.navegacao.png",
+          "bytes": 79859,
+          "sha256": "8fca986791c33c27ecc98157d27b947a980ebcddb7008199b3e40bbc30740f52"
+        },
+        {
+          "name": "PDF-preview.opcoes-leitura.png",
+          "bytes": 79823,
+          "sha256": "d8b6a76d502a62cfed5ad8f25248d06f2b01d0f4374d3cba9cfb707721bb9324"
+        },
+        {
+          "name": "PDF-preview.paleta.png",
+          "bytes": 62960,
+          "sha256": "5b922a1fa67cfea20ee7bd444dd1a7a936d874f74067765ea4487d23ed9b0899"
+        },
+        {
+          "name": "PDF-preview.perfis.png",
+          "bytes": 59535,
+          "sha256": "384f7eafe888a143e59623d14dea4d1e703de98a2f9ded28be1d9424a03e0e9c"
+        },
+        {
+          "name": "PDF-preview.personalizar.png",
+          "bytes": 99903,
+          "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54"
+        },
+        {
+          "name": "PDF-preview.png",
+          "bytes": 348716,
+          "sha256": "0736299e3f56ed7505dde03a5705a0d7d77afb142f03492e3d058d337e426b6b"
+        },
+        {
+          "name": "PDF-preview.producao-bates.png",
+          "bytes": 64205,
+          "sha256": "390e8ff9de2e46cc957200e4a94d724b1f092d976c8c6b6363261754563731a7"
+        },
+        {
+          "name": "PDF-preview.producao-measure.png",
+          "bytes": 73628,
+          "sha256": "f23a69b7cc88c88c1fa61ee98d593a62249682e0fb7d51e29a0bb23f37744aa2"
+        },
+        {
+          "name": "PDF-preview.producao-pdfx.png",
+          "bytes": 71803,
+          "sha256": "69eae0885253ace256e1eedc15ac19409a0c508efb6a2d2fcc74f30bdb30f1f6"
+        },
+        {
+          "name": "PDF-preview.producao-print-preflight.png",
+          "bytes": 63860,
+          "sha256": "143fe6a00f014c13ffdd864208c1b89aa9ab28bf5a20aceef9c814709ae87c59"
+        },
+        {
+          "name": "PDF-preview.recuperacao.png",
+          "bytes": 67928,
+          "sha256": "55fca0b4b18e72cf1d99aebdad451fb68fb1c68a472066f1cab5b092feb76cd1"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.png",
+          "bytes": 129916,
+          "sha256": "e9a9a12e4decd8fe8c4d4410446552018743b9450418aaf01b8e859356118600"
+        },
+        {
+          "name": "PDF-preview.solicitar-assinaturas.png",
+          "bytes": 99164,
+          "sha256": "ed3153117498882bd7727936d2fecdfb724acd35c5af3aff4a8b4d92d057dafe"
+        },
+        {
+          "name": "PDF-preview.validar-pdfa.png",
+          "bytes": 62268,
+          "sha256": "9cf0bdcf82f346cbb0d9be66deb96101bd1e16cbae361352643b3bd1db8edd30"
+        },
+        {
+          "name": "PDF-preview.verificar-assinaturas.png",
+          "bytes": 73581,
+          "sha256": "9b97ce5fcbe08823e7d29ddc7917089eb14099ebd11e0429bc8d6c1f8c0309f7"
+        }
+      ]
+    },
+    {
+      "assetID": 672970538,
+      "name": "PDF-Apple-Vision-capability-macos-26.zip",
+      "bytes": 887,
+      "sha256": "a7a0ed71b8129d680b6be0d0208c1ff66e455e68a2608920d54276956f9285a6",
+      "extracted": [
+        {
+          "name": "PDF-vision-audit.json",
+          "bytes": 432,
+          "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582"
+        },
+        {
+          "name": "PDF-vision-audit.log",
+          "bytes": 773,
+          "sha256": "d3fd5e6d04f5b3240484863b20782cbc38e055038998f1c685408ac4678aa5bc"
+        }
+      ]
+    },
+    {
+      "assetID": 672970617,
+      "name": "PDF-local-AI-macos-26.zip",
+      "bytes": 2181,
+      "sha256": "db5a7306cd4c162e07db6ffd333ceacb3a4b1dff720cdb18edd7440591512062",
+      "extracted": [
+        {
+          "name": "PDF-local-ai.json",
+          "bytes": 7661,
+          "sha256": "e763a57806157ddc056d3261ad60054e5d8deb15f1781ff721a792321da0897d"
+        }
+      ]
+    },
+    {
+      "assetID": 672970705,
+      "name": "PDF-macOS-benchmark-macos-26.zip",
+      "bytes": 1864,
+      "sha256": "3a4a47ec3640403c5164d411a707660810e554d17bcd83d581ec5f3196b735f0",
+      "extracted": [
+        {
+          "name": "PDF-benchmark.json",
+          "bytes": 4895,
+          "sha256": "26526a3f1a06b79178b8688f679fa50046c610189b8a9549ee1eb2d2901b21da"
+        }
+      ]
+    },
+    {
+      "assetID": 672970772,
+      "name": "PDF-native-checks-xcode-27.zip",
+      "bytes": 14265,
+      "sha256": "3e56fc5800d4e9354e5601426584b7ecf801206287d0e55ee3728095385b2fb9",
+      "extracted": [
+        {
+          "name": "PDF-native-checks.log",
+          "bytes": 300376,
+          "sha256": "e9bbf38dc64e594c16a4c08d10b90a5e7ba20ef0cc4ccc06c4e52278387a23d9"
+        }
+      ]
+    },
+    {
+      "assetID": 672970853,
+      "name": "PDF-macOS-preview-xcode-27.zip",
+      "bytes": 3206305,
+      "sha256": "9b7f61c29a5df3abe2f216b4e8b62ea2dd41278e52dbe664a1c579ecc0b9b2eb",
+      "extracted": [
+        {
+          "name": "PDF-preview.abas.png",
+          "bytes": 118835,
+          "sha256": "3c59bd579d278e4c7031241adc2d3b3ba831ed2ed553ee0adb29b2ca35a5aa9b"
+        },
+        {
+          "name": "PDF-preview.accessibility.json",
+          "bytes": 105277,
+          "sha256": "2503c5ba5bb72bbec182ab12c965f66d605f29209e13509dc04afdff2ece449e"
+        },
+        {
+          "name": "PDF-preview.anotacoes.accessibility.json",
+          "bytes": 137698,
+          "sha256": "13b5e841934404a9fdec55664eabaa0f8f0a85474aa1713a82c2421443aad0b7"
+        },
+        {
+          "name": "PDF-preview.anotacoes.png",
+          "bytes": 150880,
+          "sha256": "d2455d40f2951d40cdd7253919c9a043c364aaf37e9219655f391482c6d41174"
+        },
+        {
+          "name": "PDF-preview.arquivos.png",
+          "bytes": 78056,
+          "sha256": "27ad5c15667c27f46c74d34d1b61ba53e42827e0ff4a71d0dcc7b68a2684c2eb"
+        },
+        {
+          "name": "PDF-preview.assinatura-digital.png",
+          "bytes": 86312,
+          "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee"
+        },
+        {
+          "name": "PDF-preview.atalhos.png",
+          "bytes": 76354,
+          "sha256": "13595f1fad59b708e7df632ae6abf3a4540a39fd69a607ce2458ce73b05d5b5b"
+        },
+        {
+          "name": "PDF-preview.auditar-pdfua.png",
+          "bytes": 71581,
+          "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+        },
+        {
+          "name": "PDF-preview.automacao.png",
+          "bytes": 96109,
+          "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d"
+        },
+        {
+          "name": "PDF-preview.biblioteca.accessibility.json",
+          "bytes": 52833,
+          "sha256": "1df8a97b95720e52c6d863b15fd3cf8fe491fc63dfad15203ce168a7e87508fc"
+        },
+        {
+          "name": "PDF-preview.biblioteca.png",
+          "bytes": 114708,
+          "sha256": "71f5af831a8e52699aad335945fe8b56044ca6fb1576b902b7e8db54ca076087"
+        },
+        {
+          "name": "PDF-preview.configuracao-ferramenta.png",
+          "bytes": 89948,
+          "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+          "bytes": 47868,
+          "sha256": "15c2cf89947302b8fdcac686c2ad8ab3b4b9dac97d3d7f70e87dba13b9effebd"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.png",
+          "bytes": 96069,
+          "sha256": "72f393bbd96e18c664b3bef14e590da75918a968acb26c0c68748ee114db1ecf"
+        },
+        {
+          "name": "PDF-preview.editor-conteudo.png",
+          "bytes": 124558,
+          "sha256": "1b9d87ce6f9bd394d7139ab82d2058c9da09542f455d105c274d0f4b4470604b"
+        },
+        {
+          "name": "PDF-preview.escuro.png",
+          "bytes": 402042,
+          "sha256": "5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3"
+        },
+        {
+          "name": "PDF-preview.ferramentas.png",
+          "bytes": 88478,
+          "sha256": "9f470902372e83a498221c409ca57bebb570625ac1ada7c404b90dab4bd18b0e"
+        },
+        {
+          "name": "PDF-preview.fluxo-lote.png",
+          "bytes": 108618,
+          "sha256": "e2b232c8df9dba700be73e1adfccf1859eeb5e678e2c9f901e4d28ebaf005bbe"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.accessibility.json",
+          "bytes": 144198,
+          "sha256": "eb13ae553159b5dec908c6e7120aab1d2e7353704fff0ce2b294b4b34f088edf"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.png",
+          "bytes": 132666,
+          "sha256": "6fecbd1db5447e2e41c1a3289d88ea0c775dddac9b96bafa14207b7439a2af70"
+        },
+        {
+          "name": "PDF-preview.leitor.accessibility.json",
+          "bytes": 107516,
+          "sha256": "1de025286ec5eb553b559e74ac96796d23ed736a8876b87341e9603fb5cf4b13"
+        },
+        {
+          "name": "PDF-preview.leitor.png",
+          "bytes": 116322,
+          "sha256": "a67f3600b8a5592c2633ca3ce09da3ddc31024fc6a75afd2323d1734daf634ab"
+        },
+        {
+          "name": "PDF-preview.lista.png",
+          "bytes": 92678,
+          "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86"
+        },
+        {
+          "name": "PDF-preview.navegacao.png",
+          "bytes": 80824,
+          "sha256": "537617001faa314590e8413f556e0cb076d5cac0cf6306fae2e028d4151ff9d4"
+        },
+        {
+          "name": "PDF-preview.opcoes-leitura.png",
+          "bytes": 82123,
+          "sha256": "afdc9c4b6c71a0d3e5d44682198b3b06a64cddf54fb5d380ecb33ed1d6bdaaec"
+        },
+        {
+          "name": "PDF-preview.paleta.png",
+          "bytes": 64592,
+          "sha256": "b4c2eaaab899010e8c2e899ecc5b0f4001e9b451d9caf44d2e0035e46323452a"
+        },
+        {
+          "name": "PDF-preview.perfis.png",
+          "bytes": 60648,
+          "sha256": "4ff9d6119a676f6592e939f5aa5f2457ff9dfcf863ef1cb1bb33468c566695bb"
+        },
+        {
+          "name": "PDF-preview.personalizar.png",
+          "bytes": 101022,
+          "sha256": "612ee7933e6ea2fe39eda5324c665b82439024aa47b651afcde1df3fb1bc5372"
+        },
+        {
+          "name": "PDF-preview.png",
+          "bytes": 348641,
+          "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b"
+        },
+        {
+          "name": "PDF-preview.producao-bates.png",
+          "bytes": 66392,
+          "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f"
+        },
+        {
+          "name": "PDF-preview.producao-measure.png",
+          "bytes": 76071,
+          "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae"
+        },
+        {
+          "name": "PDF-preview.producao-pdfx.png",
+          "bytes": 73685,
+          "sha256": "968c0ba8aeedbbc3fd36337f35ec7ae234d4a0ba994c0d96d3be14eeab4343fc"
+        },
+        {
+          "name": "PDF-preview.producao-print-preflight.png",
+          "bytes": 65432,
+          "sha256": "73ed8272ca10cf933d29fe5ec6df6c257ad30bba698c790a77ddb1b01db9d5aa"
+        },
+        {
+          "name": "PDF-preview.recuperacao.png",
+          "bytes": 69458,
+          "sha256": "104fdcc2eb99080cb1cfcc47b055d24a6790d164baf54609c01614f99b825b76"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.png",
+          "bytes": 130510,
+          "sha256": "1cb4f608151f29c9f66698d38ce966de33f956f3f4cb14eef994b3bcf81711f9"
+        },
+        {
+          "name": "PDF-preview.solicitar-assinaturas.png",
+          "bytes": 100763,
+          "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5"
+        },
+        {
+          "name": "PDF-preview.validar-pdfa.png",
+          "bytes": 64131,
+          "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+        },
+        {
+          "name": "PDF-preview.verificar-assinaturas.png",
+          "bytes": 74744,
+          "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17"
+        }
+      ]
+    },
+    {
+      "assetID": 672970934,
+      "name": "PDF-Apple-Vision-capability-xcode-27.zip",
+      "bytes": 2082,
+      "sha256": "be99687ac2b6e927c7afffb8c3e6786f2d955fd0e42c805f012f5995b28afab6",
+      "extracted": [
+        {
+          "name": "PDF-vision-audit.json",
+          "bytes": 1621,
+          "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc"
+        },
+        {
+          "name": "PDF-vision-audit.log",
+          "bytes": 7815,
+          "sha256": "d08ce0d3ea319d99de7da8f20506f50cd11249937698c0a5d3bedf0f9c41ee0b"
+        }
+      ]
+    },
+    {
+      "assetID": 672970984,
+      "name": "PDF-local-AI-xcode-27.zip",
+      "bytes": 2175,
+      "sha256": "8c606d7be1c37d840a3f253387780f22718b0ce86c34e5f4a1a0659d44627490",
+      "extracted": [
+        {
+          "name": "PDF-local-ai.json",
+          "bytes": 7663,
+          "sha256": "361901a9c71cb0f6f3f0b13d51135940205a5d3e142a3966669b5377f1a1706d"
+        }
+      ]
+    },
+    {
+      "assetID": 672971062,
+      "name": "PDF-macOS-benchmark-xcode-27.zip",
+      "bytes": 2212,
+      "sha256": "6ed8e46f2b5e5b72e7e8575698a3c7a3f3ad07f716ba0b164349db9dfdaf4334",
+      "extracted": [
+        {
+          "name": "PDF-benchmark.json",
+          "bytes": 8319,
+          "sha256": "c66c1e2b3121efb427a637e284b1b1a1051bff5e30811bf56f5e08631073e06b"
+        }
+      ]
+    },
+    {
+      "assetID": 672971129,
+      "name": "source-run-40118132309-attempt-1-logs.zip",
+      "bytes": 731203,
+      "sha256": "a8032fcf101c81d47c57fcd70797edd3727e1e5685838db08c1b10fa43bccfb6"
+    }
+  ],
+  "originalFiles": [
+    {
+      "path": "retention-manifest.json",
+      "bytes": 6912,
+      "sha256": "c36ec1b9ff9cfafd163195108192ee24fff3878f9fe7bf5ad4e70b8d70aea9e4",
+      "releaseAssetID": 672971189,
+      "releaseAssetDigest": "sha256:c36ec1b9ff9cfafd163195108192ee24fff3878f9fe7bf5ad4e70b8d70aea9e4"
+    },
+    {
+      "path": "macos-26/PDF-native-checks.log",
+      "bytes": 81155,
+      "sha256": "fa441c381762502ee222e87f29df7e54a6fd6d78c8599702636217e8540e1fab",
+      "artifactID": 12570434642,
+      "artifactName": "PDF-native-checks-macos-26",
+      "githubArchiveDigest": "sha256:ddd59fb9884d40daa177c89cef2234b80ca43ca1bfd4f6a9ea2878eab8caf881"
+    },
+    {
+      "path": "macos-26/PDF-vision-audit.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "artifactID": 12570835006,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "githubArchiveDigest": "sha256:a7a0ed71b8129d680b6be0d0208c1ff66e455e68a2608920d54276956f9285a6"
+    },
+    {
+      "path": "macos-26/PDF-local-ai.json",
+      "bytes": 7661,
+      "sha256": "e763a57806157ddc056d3261ad60054e5d8deb15f1781ff721a792321da0897d",
+      "artifactID": 12570830101,
+      "artifactName": "PDF-local-AI-macos-26",
+      "githubArchiveDigest": "sha256:db5a7306cd4c162e07db6ffd333ceacb3a4b1dff720cdb18edd7440591512062"
+    },
+    {
+      "path": "macos-26/PDF-benchmark.json",
+      "bytes": 4895,
+      "sha256": "26526a3f1a06b79178b8688f679fa50046c610189b8a9549ee1eb2d2901b21da",
+      "artifactID": 12570164898,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "githubArchiveDigest": "sha256:3a4a47ec3640403c5164d411a707660810e554d17bcd83d581ec5f3196b735f0"
+    },
+    {
+      "path": "macos-26/PDF-preview.corrigir-acessibilidade.accessibility.json",
+      "bytes": 49048,
+      "sha256": "535d9d4a63901fb65ba4d1551e9b99788938733a8c940bd986c934befc1d6086",
+      "artifactID": 12570995007,
+      "artifactName": "PDF-macOS-preview-macos-26",
+      "githubArchiveDigest": "sha256:cb2f2fa2c8db40a16ce1529aa664a90db390a8882f17788719389ff5c6d7e3b0"
+    },
+    {
+      "path": "jobs/macos-26.log",
+      "bytes": 969813,
+      "sha256": "a7147446dc8f9a238a8198ed4b8bb977fa6b6c15edc2d929ec3193980f52600a",
+      "sourceZIP": "source-run-40118132309-attempt-1-logs.zip",
+      "sourceZIPEntry": "0_native-application (macos-26).txt"
+    },
+    {
+      "path": "xcode-27/PDF-native-checks.log",
+      "bytes": 300376,
+      "sha256": "e9bbf38dc64e594c16a4c08d10b90a5e7ba20ef0cc4ccc06c4e52278387a23d9",
+      "artifactID": 12569259905,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "githubArchiveDigest": "sha256:3e56fc5800d4e9354e5601426584b7ecf801206287d0e55ee3728095385b2fb9"
+    },
+    {
+      "path": "xcode-27/PDF-vision-audit.json",
+      "bytes": 1621,
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "artifactID": 12570328803,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "githubArchiveDigest": "sha256:be99687ac2b6e927c7afffb8c3e6786f2d955fd0e42c805f012f5995b28afab6"
+    },
+    {
+      "path": "xcode-27/PDF-local-ai.json",
+      "bytes": 7663,
+      "sha256": "361901a9c71cb0f6f3f0b13d51135940205a5d3e142a3966669b5377f1a1706d",
+      "artifactID": 12569843600,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "githubArchiveDigest": "sha256:8c606d7be1c37d840a3f253387780f22718b0ce86c34e5f4a1a0659d44627490"
+    },
+    {
+      "path": "xcode-27/PDF-benchmark.json",
+      "bytes": 8319,
+      "sha256": "c66c1e2b3121efb427a637e284b1b1a1051bff5e30811bf56f5e08631073e06b",
+      "artifactID": 12569588859,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "githubArchiveDigest": "sha256:6ed8e46f2b5e5b72e7e8575698a3c7a3f3ad07f716ba0b164349db9dfdaf4334"
+    },
+    {
+      "path": "xcode-27/PDF-preview.corrigir-acessibilidade.accessibility.json",
+      "bytes": 47868,
+      "sha256": "15c2cf89947302b8fdcac686c2ad8ab3b4b9dac97d3d7f70e87dba13b9effebd",
+      "artifactID": 12569473966,
+      "artifactName": "PDF-macOS-preview-xcode-27",
+      "githubArchiveDigest": "sha256:9b7f61c29a5df3abe2f216b4e8b62ea2dd41278e52dbe664a1c579ecc0b9b2eb"
+    },
+    {
+      "path": "jobs/xcode-27.log",
+      "bytes": 2221018,
+      "sha256": "0433ca0a7f7e058608ff25f2917bfd70aeef49ed4cacab979d3c861e836be20d",
+      "sourceZIP": "source-run-40118132309-attempt-1-logs.zip",
+      "sourceZIPEntry": "1_native-application (xcode-27).txt"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "fullLog": {
+        "name": "0_native-application (macos-26).txt",
+        "bytes": 969813,
+        "sha256": "a7147446dc8f9a238a8198ed4b8bb977fa6b6c15edc2d929ec3193980f52600a"
+      },
+      "python": [
+        {
+          "cases": 107,
+          "passed": 106,
+          "skipped": 1,
+          "seconds": 19.913,
+          "line": 272
+        },
+        {
+          "cases": 281,
+          "passed": 281,
+          "skipped": 0,
+          "seconds": 70.998,
+          "line": 1084
+        },
+        {
+          "cases": 46,
+          "passed": 46,
+          "skipped": 0,
+          "seconds": 42.309,
+          "line": 1136
+        }
+      ],
+      "nativeDistinct": 38,
+      "nativeTotal": 114,
+      "nativeRepeatCounts": [
+        3
+      ],
+      "nativeFailed": [],
+      "previewCaptures": 32,
+      "failureContext": [
+        {
+          "line": 628,
+          "text": "2026-10-24T17:59:14.7337450Z \u001b[34m==>\u001b[0m \u001b[1mLinking Command Wrapper 'soffice' to '/opt/homebrew/bin/soffice'\u001b[0m"
+        },
+        {
+          "line": 7253,
+          "text": "2026-10-24T18:16:08.2073000Z Traceback (most recent call last):"
+        },
+        {
+          "line": 7264,
+          "text": "2026-10-24T18:16:08.2085010Z RuntimeError: soffice falhou (1): "
+        },
+        {
+          "line": 7265,
+          "text": "2026-10-24T18:16:08.3876040Z ##[error]Process completed with exit code 1."
+        }
+      ],
+      "pythonDistinctCases": 434,
+      "pythonPassed": 433,
+      "pythonSkipped": 1,
+      "vision": {
+        "appleVisionPassed": true,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "passed"
+          },
+          {
+            "id": "isolated-process",
+            "status": "passed"
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+        "items": 5,
+        "modelAttempts": 0
+      },
+      "benchmark": {
+        "operations": 6,
+        "repetitions": 3,
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 26.6.2 (Build 25G83)",
+        "activeProcessorCount": 3,
+        "physicalMemoryBytes": 7516192768,
+        "sourceSHA256": "0da15e2ce83d3ebcd2dd1aa4d9be01ac037084c143c71942f627e6ca4d26135c",
+        "pageCount": 100,
+        "processPeakMemoryBytes": 301400064,
+        "ocrBackendsIncludingWarmup": [
+          "apple-vision",
+          "apple-vision",
+          "apple-vision",
+          "apple-vision"
+        ]
+      },
+      "preview": {
+        "pngs": 32,
+        "axReports": 6,
+        "ciGate": "passed",
+        "localOriginalArtifactGate": "passed",
+        "manualVisualReview": "completed-no-new-fixed-control-clipping",
+        "imagesCopiedHere": false,
+        "manualVisualReviewEvidence": {
+          "reviewer": "UI agent",
+          "imagesInspected": 32,
+          "scope": "Todos os originais individuais: TH, abas, rodapé, personalização, edição e produção.",
+          "artifactCaveat": "Imagem escura26 menos nítida, 1050×752; preservada sem retoque, sem prova de bug do produto.",
+          "excludes": [
+            "VoiceOver humano",
+            "aprovação do isolamento Office",
+            "correções posteriores"
+          ]
+        },
+        "scopeAXName": "Escopo do cabeçalho da tabela",
+        "traversalLimited": false,
+        "missingRequiredIdentifiers": []
+      },
+      "portable": {
+        "assembleAndCodeSign": "passed",
+        "isolatedValidation": "failed",
+        "observedFailure": "RuntimeError: soffice falhou (1): [empty captured detail]",
+        "cause": "not established by this evidence",
+        "binaryInstallAndUpdate": "not executed"
+      }
+    },
+    {
+      "runner": "xcode-27",
+      "fullLog": {
+        "name": "1_native-application (xcode-27).txt",
+        "bytes": 2221018,
+        "sha256": "0433ca0a7f7e058608ff25f2917bfd70aeef49ed4cacab979d3c861e836be20d"
+      },
+      "python": [
+        {
+          "cases": 107,
+          "passed": 106,
+          "skipped": 1,
+          "seconds": 19.203,
+          "line": 270
+        },
+        {
+          "cases": 281,
+          "passed": 281,
+          "skipped": 0,
+          "seconds": 69.053,
+          "line": 1123
+        },
+        {
+          "cases": 46,
+          "passed": 46,
+          "skipped": 0,
+          "seconds": 40.156,
+          "line": 1175
+        }
+      ],
+      "nativeDistinct": 38,
+      "nativeTotal": 114,
+      "nativeRepeatCounts": [
+        3
+      ],
+      "nativeFailed": [],
+      "previewCaptures": 32,
+      "failureContext": [
+        {
+          "line": 667,
+          "text": "2026-10-24T17:58:09.3423290Z \u001b[34m==>\u001b[0m \u001b[1mLinking Command Wrapper 'soffice' to '/opt/homebrew/bin/soffice'\u001b[0m"
+        },
+        {
+          "line": 26162,
+          "text": "2026-10-24T18:14:58.5904690Z Traceback (most recent call last):"
+        },
+        {
+          "line": 26173,
+          "text": "2026-10-24T18:14:58.5920870Z RuntimeError: soffice falhou (1): "
+        },
+        {
+          "line": 26174,
+          "text": "2026-10-24T18:14:58.7047220Z ##[error]Process completed with exit code 1."
+        }
+      ],
+      "pythonDistinctCases": 434,
+      "pythonPassed": 433,
+      "pythonSkipped": 1,
+      "vision": {
+        "appleVisionPassed": false,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "failed"
+          },
+          {
+            "id": "isolated-process",
+            "status": "failed"
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+        "items": 5,
+        "modelAttempts": 0
+      },
+      "benchmark": {
+        "operations": 6,
+        "repetitions": 3,
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 27.0.1 (Build 26A434)",
+        "activeProcessorCount": 3,
+        "physicalMemoryBytes": 7516192768,
+        "sourceSHA256": "b2f65b47fe87ff2ff0da377c18d5f6968c175c16f4a294b803c39cdd243b2b89",
+        "pageCount": 100,
+        "processPeakMemoryBytes": 150044672,
+        "ocrBackendsIncludingWarmup": [
+          "tesseract",
+          "tesseract",
+          "tesseract",
+          "tesseract"
+        ]
+      },
+      "preview": {
+        "pngs": 32,
+        "axReports": 6,
+        "ciGate": "passed",
+        "localOriginalArtifactGate": "passed",
+        "manualVisualReview": "completed-no-new-fixed-control-clipping",
+        "imagesCopiedHere": false,
+        "manualVisualReviewEvidence": {
+          "reviewer": "UI agent",
+          "imagesInspected": 32,
+          "scope": "Todos os originais individuais: TH, abas, rodapé, personalização, edição e produção.",
+          "artifactCaveat": "Imagem escura27 nítida, 1050×772.",
+          "excludes": [
+            "VoiceOver humano",
+            "aprovação do isolamento Office",
+            "correções posteriores"
+          ]
+        },
+        "scopeAXName": "Escopo do cabeçalho da tabela",
+        "traversalLimited": false,
+        "missingRequiredIdentifiers": []
+      },
+      "portable": {
+        "assembleAndCodeSign": "passed",
+        "isolatedValidation": "failed",
+        "observedFailure": "RuntimeError: soffice falhou (1): [empty captured detail]",
+        "cause": "not established by this evidence",
+        "binaryInstallAndUpdate": "not executed"
+      }
+    }
+  ],
+  "limitations": [
+    "A conclusão global é failure; sucesso da retenção e da montagem não aprova isolamento nem entrega.",
+    "Os dois logs completos usados na contagem correspondem byte a byte ao ZIP de logs retido.",
+    "O ZIP de logs não teve digest fornecido na origem Actions; o SHA foi calculado no download e conferido novamente na retenção.",
+    "Os PNGs não estão nesta pasta; os 64 originais foram revisados individualmente; menor nitidez da captura escura26 é ressalva do artefato, não defeito comprovado do produto.",
+    "Nenhum modelo Apple executou geração; hardware M1 Virtual não demonstra M4 físico, energia ou uso de NPU.",
+    "Verificações AX automáticas não substituem VoiceOver humano; não há aprovação de correções posteriores."
+  ]
+}

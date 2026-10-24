@@ -326,8 +326,27 @@ Os dois jobs falharam ao assinar `runtime/vendor/python@3.12/Frameworks/Python.f
 
 Os JSONs originais conservaram Vision aprovado no26 e reprovado no27, onde as quatro chamadas OCR do benchmark usaram Tesseract. Ambos completaram seis operações em M1 Virtual; IA registrou cinco itens `unavailable`/`modelAttempted=false`, sem geração. Nenhum desses resultados mede M4 físico, energia/NPU, interação humana com VoiceOver ou aprovação de um serviço externo.
 
-A candidata `0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), está **em execução**, com ajustes de rótulos AX, descoberta do framework Python e diagnóstico de inicialização. Ainda não há aprovação dessa candidata ou do pacote portátil. Nessa candidata, o agregado local de scripts foi de **107 casos: 104 aprovados e três skips exclusivos de macOS**, em 2,631 s. Essa contagem substitui os 101 casos apenas para o código novo; não altera os resultados históricos de `4ac9d26` nem prova assinatura/carregamento do framework no Mac.
+Na conclusão deste registro de 4ac, a candidata `0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), ainda estava **em execução** (resultado final registrado abaixo), com ajustes de rótulos AX, descoberta do framework Python e diagnóstico de inicialização. Ainda não há aprovação dessa candidata ou do pacote portátil. Nessa candidata, o agregado local de scripts foi de **107 casos: 104 aprovados e três skips exclusivos de macOS**, em 2,631 s. Essa contagem substitui os 101 casos apenas para o código novo; não altera os resultados históricos de `4ac9d26` nem prova assinatura/carregamento do framework no Mac.
 
 ## 0fdfffb — lançador OCR com processos filhos
 
 A auditoria posterior reproduziu uma reentrada indevida na CLI do OCR quando Python inicia um worker por `spawn`. A revisão `0fdfffbb95a45dc74cf6c16a813496865466f856` acrescenta a guarda `__main__` ao lançador gerado, mantendo os caminhos privados disponíveis nos filhos. O teste usa esse mesmo gerador, cria um processo real com PID distinto, verifica execução única da CLI e preservação de argumentos e erros. O agregado local passou com **109 casos: 106 aprovados e três skips macOS**, em 2,643 s; a revisão independente não identificou bloqueadores. Esta alteração ainda depende da próxima matriz nativa. O modo padrão de OCR usa threads; não foi atribuída a este defeito uma falha da rodada em andamento.
+
+
+## 0bd707d — montagem aprovada; Office falha no isolamento
+
+A matriz [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), tentativa 1, commit `0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d`, terminou **reprovada nos dois sistemas**, somente na etapa **Validate portable app without host dependencies or network**. Os logs mostram `RuntimeError: soffice falhou (1):`, sem detalhe capturado. A causa não é determinada por essa mensagem. Montagem e assinatura do bundle passaram; isolamento completo, instalação e atualização posteriores do binário não receberam aprovação.
+
+| Resultado por sistema | macOS 26 | macOS 27 |
+|---|---:|---:|
+| Núcleo | 281 aprovados · 70,998 s | 281 aprovados · 69,053 s |
+| Integrações | 46 aprovadas · 42,309 s | 46 aprovadas · 40,156 s |
+| Scripts | 106 aprovados + um skip · 19,913 s | 106 aprovados + um skip · 19,203 s |
+| Grupos nativos | 38 × três aprovados | 38 × três aprovados |
+| Capturas e AX | 32 PNGs/seis AX aprovados | 32 PNGs/seis AX aprovados |
+
+São **434 casos Python distintos por sistema: 433 aprovados e um skip Linux**. A contagem usa os dois logs completos de topo, conferidos byte a byte com o ZIP retido; não soma reexecuções. Os gates AX e as capturas passaram nos dois sistemas: Scope sem nome e ausência de imagens27 não se repetiram nesta rodada, sem comprovar a causa do timeout anterior. Os 64 PNGs foram revisados individualmente sem novo corte de controles fixos. A captura escura26 (1050 × 752) ficou menos nítida que a escura27 (1050 × 772); sem reprodução adicional, isso permanece ressalva do artefato, não defeito comprovado do aplicativo.
+
+Os [13 originais preservados](evidencias/0bd707d/README.md) incluem o manifesto da retenção, dois logs completos, dois smokes, seis JSONs Vision/IA/benchmark e os dois AX da tela de acessibilidade. A [retenção 40120146837](https://github.com/vibracall-beep/PDF-/actions/runs/40120146837), release privada `422903642`, recuperou os dez ZIPs e o ZIP de logs após o bloqueio dos downloads diretos. IDs, SHA da fonte, digests e tamanhos foram conferidos; a retenção não muda o resultado do produto.
+
+Vision passou no26 e falhou no27, cujo OCR funcional e benchmark usaram Tesseract identificado. IA ficou `unavailable`/`deviceNotEligible` em ambos, com cinco itens sem tentativa de geração. Seis operações foram medidas em M1 Virtual; não há aprovação de M4 físico, energia/NPU, modelo Apple instalado, VoiceOver humano ou correções posteriores.

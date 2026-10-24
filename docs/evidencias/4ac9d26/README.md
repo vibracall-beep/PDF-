@@ -31,4 +31,4 @@ O benchmark executou seis operações, com aquecimento e três amostras, em Appl
 
 Os [originais de cbb3298](../cbb3298/README.md), com 64 capturas revisadas, permanecem históricos. O [estado de entrega](../../VALIDACAO.md) e o [histórico](../../HISTORICO-VALIDACAO.md) distinguem resultados de cada revisão.
 
-A candidata `0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), está **em execução**, com ajustes de rótulos AX, descoberta do framework Python e diagnóstico de inicialização. Ainda não há aprovação dessa candidata ou do pacote portátil. Este registro continua vinculado exclusivamente a `4ac9d26`.
+A rodada posterior [0bd707d](../0bd707d/README.md) concluiu as capturas/AX e a montagem/assinatura nos dois sistemas, mas reprovou no isolamento do Office. Este registro permanece vinculado exclusivamente a `4ac9d26`; a galeria e seus limites não mudam retroativamente.

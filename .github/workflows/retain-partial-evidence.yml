@@ -1,0 +1,54 @@
+name: Retain incomplete native audit evidence in a draft
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Completed failed macos.yml run with an actual capture or visual gate failure
+        required: true
+        type: string
+      source_commit:
+        description: Exact 40-character source commit of that failed run
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: retain-partial-evidence-${{ inputs.source_run_id }}-${{ inputs.source_commit }}
+  cancel-in-progress: false
+jobs:
+  retain-partial-originals:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      PDF_SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      PDF_SOURCE_COMMIT: ${{ inputs.source_commit }}
+    steps:
+      - name: Check out only the partial audit retention control
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify partial evidence and unchanged strict retention rules
+        run: |
+          python3 -m unittest discover -s diagnostics -p 'test_retain_partial_evidence.py' -v
+          python3 -m unittest discover -s diagnostics -p 'test_retain_evidence.py' -v
+      - name: Preserve available original ZIPs and official attempt logs without extraction
+        id: retain
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 diagnostics/retain_partial_evidence.py --directory "$RUNNER_TEMP/PDF-partial-audit-evidence"
+      - name: Record the draft and explicit failed visual validation
+        env:
+          PDF_RELEASE_ID: ${{ steps.retain.outputs.release_id }}
+          PDF_RELEASE_TAG: ${{ steps.retain.outputs.release_tag }}
+        run: |
+          python3 - <<'PY'
+          import os
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('Partial original audit evidence retained in a **draft**, without public publication.\n\n')
+              output.write('Source run: ' + os.environ['PDF_SOURCE_RUN_ID'] + '\n\n')
+              output.write('Draft ID: ' + os.environ['PDF_RELEASE_ID'] + '\n\n')
+              output.write('Draft tag: `' + os.environ['PDF_RELEASE_TAG'] + '`\n\n')
+              output.write('Source conclusion: **FAILURE**. Capture or visual validation failed. Missing artifacts and unknown image counts remain explicit in the provenance manifest. This does **not** approve an application, installer or visual review.\n')
+          PY

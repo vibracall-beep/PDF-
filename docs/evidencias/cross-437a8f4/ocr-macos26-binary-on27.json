@@ -1,0 +1,74 @@
+{
+  "runner": "macos26-binary-on27",
+  "sourceSHA256": "00248660436e5b6cc0888bc619f8877ffd8f20e973088f390c4451a6c9b6158f",
+  "reportSHA256": "32cb5bd9df697a4ecee212f2f7c36576e56a8a896cfa0f48f2bc358ec2b952e7",
+  "sourceDigestMatches": true,
+  "reviewDigestMatches": true,
+  "sourcePages": 1,
+  "sourceSelectableCharacters": 0,
+  "sourceRasterPixels": [
+    [
+      1130,
+      1600
+    ]
+  ],
+  "pagePoints": [
+    1130.0,
+    1600.0
+  ],
+  "words": 60,
+  "confidenceRange": [
+    0.37141106,
+    0.96993111
+  ],
+  "below80percent": [
+    {
+      "text": "informag6es",
+      "confidence": 0.37141106
+    },
+    {
+      "text": "retne",
+      "confidence": 0.5989798
+    },
+    {
+      "text": "conversao",
+      "confidence": 0.76576363
+    },
+    {
+      "text": "realgar.",
+      "confidence": 0.55814468
+    },
+    {
+      "text": "sumario",
+      "confidence": 0.790177
+    },
+    {
+      "text": "copia",
+      "confidence": 0.68199066
+    }
+  ],
+  "settings": {
+    "language": "eng",
+    "min_confidence": 0.0,
+    "ocr_deskew": false,
+    "ocr_dpi": 200,
+    "ocr_psm": 3
+  },
+  "uniqueIDs": true,
+  "finiteInBoundsCoordinates": true,
+  "visualInspectionPending": false,
+  "renderedSourceIndividuallyViewed": true,
+  "originalOCRScreenshotIndividuallyViewed": true,
+  "visibleLanguageAndModeMatchSettings": true,
+  "recognizedWordsHeadingFullyVisible": true,
+  "independentInspectorScrollVisible": true,
+  "transcriptionErrorsPreserved": [
+    "informag6es",
+    "retne"
+  ],
+  "limits": [
+    "Only the captured viewport was reviewed; live editing, scrolling and VoiceOver were not exercised.",
+    "The raster contains Portuguese text but this fixture explicitly selects English/PSM3; confidence is not a guarantee of transcription accuracy.",
+    "No original PDF, JSON or PNG was changed."
+  ]
+}

@@ -1,0 +1,488 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "controllerSHA": "6daf46294b10f35ec8252fd473f1d0865cd4bf8f",
+  "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "sourceRunID": 40137438618,
+  "runID": 40141728214,
+  "runAttempt": 1,
+  "runConclusion": "success",
+  "workflowURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40141728214",
+  "sourceTarSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+  "sourceArtifactID": 12578358642,
+  "collection": "Normal authenticated GitHub API, original artifact ZIP checked against published digest, size, run and controller SHA; source identity checked from receipt against the independently authenticated source tar and manifest.",
+  "artifact": {
+    "id": 12580060577,
+    "name": "PDF-cross-platform-validated",
+    "bytes": 3320598,
+    "githubDigest": "sha256:daa8a6f16902247791a22d668e96bcb5287a5cdab522ff8f9cbd01b806cf114e",
+    "sha256": "daa8a6f16902247791a22d668e96bcb5287a5cdab522ff8f9cbd01b806cf114e",
+    "createdAt": "2026-10-24T23:29:06Z",
+    "expiresAt": "2026-10-31T23:29:04Z",
+    "originalMembers": [
+      {
+        "name": "PDF-cross-gui-before.json",
+        "bytes": 1491,
+        "sha256": "0a505eb906b22f897220d68edc706c53d6b7578e77df1751df1aa8f9d6bed714"
+      },
+      {
+        "name": "PDF-cross-gui-capture.log",
+        "bytes": 54345,
+        "sha256": "9736573ef5d097d9b467b41074b730e55696b597a44bed89aa26c58249716581"
+      },
+      {
+        "name": "PDF-cross-gui-validation.log",
+        "bytes": 13464,
+        "sha256": "8870e7a15211965765baeccddc6513c12bb2ed2d45f7bc0ec68974e1a2c08318"
+      },
+      {
+        "name": "PDF-cross-gui.json",
+        "bytes": 8259,
+        "sha256": "d71ca57e808cc15e1e20d2f620723055403c9915c650c33f9b7966d7c549b1ed"
+      },
+      {
+        "name": "PDF-cross-isolation.log",
+        "bytes": 27815,
+        "sha256": "ce7e6dd37ecdee40efbd8f70e08b21280103a46e55c5b2319c2d38837c8add6b"
+      },
+      {
+        "name": "PDF-cross-origin.json",
+        "bytes": 461,
+        "sha256": "9c8ccd71e877dd0bbd4434f91a0c44711b8402e07bdddd6a0f3a15babef50be5"
+      },
+      {
+        "name": "PDF-cross-platform.json",
+        "bytes": 1655,
+        "sha256": "bc6e552992dc9fd190bd8ac36536bb74fb175b27aad2a23d7a641057d2c62706"
+      },
+      {
+        "name": "PDF-cross-verified.json",
+        "bytes": 796,
+        "sha256": "7484376277de336ab30acc9c2b536affe6f7d1f73899903238762a2be99d7548"
+      },
+      {
+        "name": "PDF-preview.abas.png",
+        "bytes": 118835,
+        "sha256": "3c59bd579d278e4c7031241adc2d3b3ba831ed2ed553ee0adb29b2ca35a5aa9b"
+      },
+      {
+        "name": "PDF-preview.accessibility.json",
+        "bytes": 105277,
+        "sha256": "50187adf2d1130a4bbf72db77194c1bbb5c055d6c0b8bc98288f644d1e6f1a73"
+      },
+      {
+        "name": "PDF-preview.anotacoes.accessibility.json",
+        "bytes": 137697,
+        "sha256": "185b3c1ea3a073c33964bcd35930d32f66ed8ab2e5901af8dd167fd117f4f5e9"
+      },
+      {
+        "name": "PDF-preview.anotacoes.png",
+        "bytes": 150895,
+        "sha256": "ba8dac1de38e834125821c3c1c738e596a981d405394a3fdc558b16db1a4b6b8"
+      },
+      {
+        "name": "PDF-preview.arquivos.png",
+        "bytes": 78056,
+        "sha256": "27ad5c15667c27f46c74d34d1b61ba53e42827e0ff4a71d0dcc7b68a2684c2eb"
+      },
+      {
+        "name": "PDF-preview.assinatura-digital.png",
+        "bytes": 86312,
+        "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee"
+      },
+      {
+        "name": "PDF-preview.atalhos.png",
+        "bytes": 76354,
+        "sha256": "13595f1fad59b708e7df632ae6abf3a4540a39fd69a607ce2458ce73b05d5b5b"
+      },
+      {
+        "name": "PDF-preview.auditar-pdfua.png",
+        "bytes": 71581,
+        "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+      },
+      {
+        "name": "PDF-preview.automacao.png",
+        "bytes": 96109,
+        "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d"
+      },
+      {
+        "name": "PDF-preview.biblioteca.accessibility.json",
+        "bytes": 52456,
+        "sha256": "1b1a841fe7c058e6a9c00cf43738668da708ad8bd65686c8dc873943029f3a1c"
+      },
+      {
+        "name": "PDF-preview.biblioteca.png",
+        "bytes": 114493,
+        "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c"
+      },
+      {
+        "name": "PDF-preview.configuracao-ferramenta.png",
+        "bytes": 89948,
+        "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+      },
+      {
+        "name": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+        "bytes": 47868,
+        "sha256": "29a37a5580530898048090ab8983512f94687b73639f6de80a4d386d1da9d859"
+      },
+      {
+        "name": "PDF-preview.corrigir-acessibilidade.png",
+        "bytes": 95873,
+        "sha256": "091d5db62e5d9c34ae2c7b9ab81e4daa1e5999a59e7a76b24e163e57000690f1"
+      },
+      {
+        "name": "PDF-preview.editor-conteudo.png",
+        "bytes": 117364,
+        "sha256": "041f1226a9e60c18cfbfd26b50a914d2daafc95476e50a0a8c25edfea7400385"
+      },
+      {
+        "name": "PDF-preview.escuro.png",
+        "bytes": 402042,
+        "sha256": "5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3"
+      },
+      {
+        "name": "PDF-preview.ferramentas.png",
+        "bytes": 88478,
+        "sha256": "9f470902372e83a498221c409ca57bebb570625ac1ada7c404b90dab4bd18b0e"
+      },
+      {
+        "name": "PDF-preview.fluxo-lote.png",
+        "bytes": 107998,
+        "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735"
+      },
+      {
+        "name": "PDF-preview.lado-a-lado.accessibility.json",
+        "bytes": 144199,
+        "sha256": "1b408c4aabfa425184e24ac4a7ac487473d06e3605bbed42cdd4c73a44eae08b"
+      },
+      {
+        "name": "PDF-preview.lado-a-lado.png",
+        "bytes": 132666,
+        "sha256": "6fecbd1db5447e2e41c1a3289d88ea0c775dddac9b96bafa14207b7439a2af70"
+      },
+      {
+        "name": "PDF-preview.leitor.accessibility.json",
+        "bytes": 107516,
+        "sha256": "df6638a976ba525bd711e8da4f4a0534e3299cb18fb7fe366aab70cde11a7234"
+      },
+      {
+        "name": "PDF-preview.leitor.png",
+        "bytes": 116322,
+        "sha256": "a67f3600b8a5592c2633ca3ce09da3ddc31024fc6a75afd2323d1734daf634ab"
+      },
+      {
+        "name": "PDF-preview.lista.png",
+        "bytes": 92678,
+        "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86"
+      },
+      {
+        "name": "PDF-preview.navegacao.png",
+        "bytes": 80824,
+        "sha256": "537617001faa314590e8413f556e0cb076d5cac0cf6306fae2e028d4151ff9d4"
+      },
+      {
+        "name": "PDF-preview.opcoes-leitura.png",
+        "bytes": 86073,
+        "sha256": "c4a1d2928a751c79d1666d18332eb10c7e1682aaf11925569a833606fa39887c"
+      },
+      {
+        "name": "PDF-preview.paleta.png",
+        "bytes": 64592,
+        "sha256": "b4c2eaaab899010e8c2e899ecc5b0f4001e9b451d9caf44d2e0035e46323452a"
+      },
+      {
+        "name": "PDF-preview.perfis.png",
+        "bytes": 63468,
+        "sha256": "38d7d6e96ae37cc8088b1c827c1818269c7651b3a8a70c8a8756177c89aedeef"
+      },
+      {
+        "name": "PDF-preview.personalizar.png",
+        "bytes": 101022,
+        "sha256": "612ee7933e6ea2fe39eda5324c665b82439024aa47b651afcde1df3fb1bc5372"
+      },
+      {
+        "name": "PDF-preview.png",
+        "bytes": 348641,
+        "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b"
+      },
+      {
+        "name": "PDF-preview.producao-bates.png",
+        "bytes": 66392,
+        "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f"
+      },
+      {
+        "name": "PDF-preview.producao-measure.png",
+        "bytes": 76071,
+        "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae"
+      },
+      {
+        "name": "PDF-preview.producao-pdfx.png",
+        "bytes": 73685,
+        "sha256": "968c0ba8aeedbbc3fd36337f35ec7ae234d4a0ba994c0d96d3be14eeab4343fc"
+      },
+      {
+        "name": "PDF-preview.producao-print-preflight.png",
+        "bytes": 65432,
+        "sha256": "73ed8272ca10cf933d29fe5ec6df6c257ad30bba698c790a77ddb1b01db9d5aa"
+      },
+      {
+        "name": "PDF-preview.recuperacao.png",
+        "bytes": 69250,
+        "sha256": "d747d85b0e04d81a07b24b5705cc67d985ae7ff45342b21e4f1da54ab0cb682b"
+      },
+      {
+        "name": "PDF-preview.revisao-ocr.analysis.json",
+        "bytes": 10098,
+        "sha256": "32cb5bd9df697a4ecee212f2f7c36576e56a8a896cfa0f48f2bc358ec2b952e7"
+      },
+      {
+        "name": "PDF-preview.revisao-ocr.png",
+        "bytes": 133312,
+        "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207"
+      },
+      {
+        "name": "PDF-preview.revisao-ocr.source.pdf",
+        "bytes": 121931,
+        "sha256": "00248660436e5b6cc0888bc619f8877ffd8f20e973088f390c4451a6c9b6158f"
+      },
+      {
+        "name": "PDF-preview.solicitar-assinaturas.png",
+        "bytes": 100763,
+        "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5"
+      },
+      {
+        "name": "PDF-preview.validar-pdfa.png",
+        "bytes": 64131,
+        "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+      },
+      {
+        "name": "PDF-preview.verificar-assinaturas.png",
+        "bytes": 74744,
+        "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17"
+      }
+    ]
+  },
+  "preservedFiles": [
+    {
+      "file": "original-artifact.zip",
+      "bytes": 3320598,
+      "sha256": "daa8a6f16902247791a22d668e96bcb5287a5cdab522ff8f9cbd01b806cf114e",
+      "kind": "original",
+      "origin": "unchanged GitHub artifact ZIP",
+      "artifactID": 12580060577,
+      "artifactName": "PDF-cross-platform-validated"
+    },
+    {
+      "file": "attempt-1-logs.zip",
+      "bytes": 78586,
+      "sha256": "8bf7fb32b21fc0b2223bd74510dc506e5c724014298ca1a312929329098e7d5e",
+      "kind": "original",
+      "origin": "unchanged official GitHub attempt log archive",
+      "upstreamDigestAvailable": false
+    },
+    {
+      "file": "PDF-cross-origin.json",
+      "bytes": 461,
+      "sha256": "9c8ccd71e877dd0bbd4434f91a0c44711b8402e07bdddd6a0f3a15babef50be5",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-origin.json"
+    },
+    {
+      "file": "PDF-cross-verified.json",
+      "bytes": 796,
+      "sha256": "7484376277de336ab30acc9c2b536affe6f7d1f73899903238762a2be99d7548",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-verified.json"
+    },
+    {
+      "file": "PDF-cross-gui-before.json",
+      "bytes": 1491,
+      "sha256": "0a505eb906b22f897220d68edc706c53d6b7578e77df1751df1aa8f9d6bed714",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-gui-before.json"
+    },
+    {
+      "file": "PDF-cross-gui.json",
+      "bytes": 8259,
+      "sha256": "d71ca57e808cc15e1e20d2f620723055403c9915c650c33f9b7966d7c549b1ed",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-gui.json"
+    },
+    {
+      "file": "PDF-cross-platform.json",
+      "bytes": 1655,
+      "sha256": "bc6e552992dc9fd190bd8ac36536bb74fb175b27aad2a23d7a641057d2c62706",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-platform.json"
+    },
+    {
+      "file": "PDF-cross-isolation.log",
+      "bytes": 27815,
+      "sha256": "ce7e6dd37ecdee40efbd8f70e08b21280103a46e55c5b2319c2d38837c8add6b",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-isolation.log"
+    },
+    {
+      "file": "PDF-cross-gui-capture.log",
+      "bytes": 54345,
+      "sha256": "9736573ef5d097d9b467b41074b730e55696b597a44bed89aa26c58249716581",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-gui-capture.log"
+    },
+    {
+      "file": "PDF-cross-gui-validation.log",
+      "bytes": 13464,
+      "sha256": "8870e7a15211965765baeccddc6513c12bb2ed2d45f7bc0ec68974e1a2c08318",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-cross-gui-validation.log"
+    },
+    {
+      "file": "PDF-preview.png",
+      "bytes": 348641,
+      "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-preview.png"
+    },
+    {
+      "file": "PDF-preview.ferramentas.png",
+      "bytes": 88478,
+      "sha256": "9f470902372e83a498221c409ca57bebb570625ac1ada7c404b90dab4bd18b0e",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-preview.ferramentas.png"
+    },
+    {
+      "file": "PDF-preview.revisao-ocr.png",
+      "bytes": 133312,
+      "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207",
+      "kind": "original",
+      "origin": "unchanged original artifact member",
+      "artifactID": 12580060577,
+      "member": "PDF-preview.revisao-ocr.png"
+    },
+    {
+      "file": "final-counts.json",
+      "bytes": 741,
+      "sha256": "7b906b009159410191fad50f1fdbcfef80326f74cc5ee97a7cf0b793d1cc0efe",
+      "kind": "derived",
+      "origin": "local read-only analysis of authenticated originals"
+    },
+    {
+      "file": "ocr-macos26-binary-on27.json",
+      "bytes": 1808,
+      "sha256": "cc4816731b63daa4309f131e8fad50ed79540afcfe7aba86a368264c4c09ed3c",
+      "kind": "derived",
+      "origin": "local read-only analysis of authenticated originals"
+    },
+    {
+      "file": "visual-review-00-15.json",
+      "bytes": 17351,
+      "sha256": "119dbae7a97aeed06fcbf44f0ed64a825a557893b396468b0c40bcb8331305ce",
+      "kind": "derived",
+      "origin": "independent individual visual review after the automated workflow; not a GitHub-produced report"
+    },
+    {
+      "file": "visual-review-16-31.json",
+      "bytes": 13756,
+      "sha256": "980d54af5964622682e404191f376d79273d7065b1a9b881e8ce07b49ea51571",
+      "kind": "derived",
+      "origin": "independent individual visual review after the automated workflow; not a GitHub-produced report"
+    }
+  ],
+  "logIdentity": {
+    "originalZIP": "collector-attempt-1-logs.zip",
+    "bytes": 78586,
+    "sha256": "8bf7fb32b21fc0b2223bd74510dc506e5c724014298ca1a312929329098e7d5e",
+    "jobLogMember": "0_compatible-binary.txt",
+    "jobLogEqualsDirectDownload": true,
+    "jobLogBytes": 229022,
+    "jobLogSHA256": "d90f0c22aaeff167cb9e9d06655b89f5d4a2d102c4a2a83042c2f1f9627eb45a"
+  },
+  "actualCounts": {
+    "jobID": 121014698642,
+    "originalLog": "collector-job-121014698642.log",
+    "bytes": 229022,
+    "sha256": "d90f0c22aaeff167cb9e9d06655b89f5d4a2d102c4a2a83042c2f1f9627eb45a",
+    "controllerPythonSuites": [
+      {
+        "count": 9,
+        "seconds": 0.051,
+        "line": 148,
+        "resultLine": "2026-10-24T23:11:58.5901050Z OK"
+      },
+      {
+        "count": 11,
+        "seconds": 0.368,
+        "line": 164,
+        "resultLine": "2026-10-24T23:11:59.1906420Z OK"
+      }
+    ],
+    "nativeSuccessfulRuns": [
+      {
+        "line": 603,
+        "groups": 41
+      },
+      {
+        "line": 896,
+        "groups": 41
+      },
+      {
+        "line": 1204,
+        "groups": 41
+      }
+    ],
+    "totalNativePassedLines": 123,
+    "nativeFailureLines": 0,
+    "errorAnnotations": []
+  },
+  "sourceBinding": {
+    "manifestComparedWithOriginalMacOS26Artifact": true,
+    "GUIReceiptVerifiedBeforeAndAfter": true,
+    "originalGUIFilesVerified": 40,
+    "noExecutableRebuiltOrReplaced": true
+  },
+  "visualReview": {
+    "individualOriginalPNGsReviewed": 32,
+    "performedAfterWorkflow": true,
+    "workflowOriginalReceiptHumanVisualReviewRemainsFalse": true,
+    "originalsUnmodified": true
+  },
+  "privacyReview": {
+    "textEntriesScanned": 37,
+    "patternOccurrences": {
+      "temporary_signed_url": 0,
+      "github_token": 0,
+      "private_key": 0,
+      "authorization_value": 0
+    },
+    "redacted": false,
+    "limits": "Pattern screening is not proof of absence of all possible sensitive data; synthetic fixture diagnostics and runtime paths remain in original logs."
+  },
+  "limits": [
+    "The GUI capture runs outside the dependency sandbox; the isolated runtime gate passed separately.",
+    "One capture attempt with a 300-second deadline; static screenshots do not approve live interaction, scrolling outside the viewport, animations or human VoiceOver.",
+    "The target is a virtual Apple M1 with macOS 27.0.1, not a physical M4. No energy or Neural Engine usage measurements.",
+    "OCR errors in the Portuguese raster fixture remain visible with the explicitly selected English model.",
+    "Ad-hoc signing without Apple notarization. External device, Pages and signing-service checks require their own setup.",
+    "The 20 controller methods and 123 native groups are separate evidence; they were not added to the 491 distinct methods of the source matrix."
+  ]
+}

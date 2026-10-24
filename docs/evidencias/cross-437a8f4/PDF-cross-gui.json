@@ -1,0 +1,224 @@
+{
+  "archiveBytes": 1448521887,
+  "archiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+  "archiveUnchanged": true,
+  "beforeSHA256": "0a505eb906b22f897220d68edc706c53d6b7578e77df1751df1aa8f9d6bed714",
+  "captureAttempts": 1,
+  "captureDeadlineSeconds": 300,
+  "dependencyIsolationSeparate": true,
+  "guiCapturePassed": true,
+  "guiOutsideDependencySandbox": true,
+  "humanVisualReview": false,
+  "humanVoiceOverTested": false,
+  "installedBinary": {
+    "PDF.app/Contents/Info.plist": {
+      "bytes": 2034,
+      "sha256": "56c581852eca3b7e40820d991b83df2f04cc6d0294a01831c4bf927e51330480"
+    },
+    "PDF.app/Contents/MacOS/PDF": {
+      "bytes": 17201424,
+      "sha256": "c92f9cf48459dcbc334f70b96ac020299efcc3b134256d2c83306f67c1b5831e"
+    }
+  },
+  "installedBundleManifestMatchedBeforeAndAfter": true,
+  "logs": {
+    "PDF-cross-gui-capture.log": {
+      "bytes": 54345,
+      "sha256": "9736573ef5d097d9b467b41074b730e55696b597a44bed89aa26c58249716581"
+    },
+    "PDF-cross-gui-validation.log": {
+      "bytes": 13464,
+      "sha256": "8870e7a15211965765baeccddc6513c12bb2ed2d45f7bc0ec68974e1a2c08318"
+    }
+  },
+  "manifestSHA256": "638d706bf919c8c689fdac88866d54333d8d5c58521cf715dbfb6503d0633106",
+  "originalOCRFileCount": 2,
+  "originals": {
+    "PDF-preview.abas.png": {
+      "bytes": 118835,
+      "sha256": "3c59bd579d278e4c7031241adc2d3b3ba831ed2ed553ee0adb29b2ca35a5aa9b"
+    },
+    "PDF-preview.accessibility.json": {
+      "bytes": 105277,
+      "sha256": "50187adf2d1130a4bbf72db77194c1bbb5c055d6c0b8bc98288f644d1e6f1a73"
+    },
+    "PDF-preview.anotacoes.accessibility.json": {
+      "bytes": 137697,
+      "sha256": "185b3c1ea3a073c33964bcd35930d32f66ed8ab2e5901af8dd167fd117f4f5e9"
+    },
+    "PDF-preview.anotacoes.png": {
+      "bytes": 150895,
+      "sha256": "ba8dac1de38e834125821c3c1c738e596a981d405394a3fdc558b16db1a4b6b8"
+    },
+    "PDF-preview.arquivos.png": {
+      "bytes": 78056,
+      "sha256": "27ad5c15667c27f46c74d34d1b61ba53e42827e0ff4a71d0dcc7b68a2684c2eb"
+    },
+    "PDF-preview.assinatura-digital.png": {
+      "bytes": 86312,
+      "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee"
+    },
+    "PDF-preview.atalhos.png": {
+      "bytes": 76354,
+      "sha256": "13595f1fad59b708e7df632ae6abf3a4540a39fd69a607ce2458ce73b05d5b5b"
+    },
+    "PDF-preview.auditar-pdfua.png": {
+      "bytes": 71581,
+      "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+    },
+    "PDF-preview.automacao.png": {
+      "bytes": 96109,
+      "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d"
+    },
+    "PDF-preview.biblioteca.accessibility.json": {
+      "bytes": 52456,
+      "sha256": "1b1a841fe7c058e6a9c00cf43738668da708ad8bd65686c8dc873943029f3a1c"
+    },
+    "PDF-preview.biblioteca.png": {
+      "bytes": 114493,
+      "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c"
+    },
+    "PDF-preview.configuracao-ferramenta.png": {
+      "bytes": 89948,
+      "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+    },
+    "PDF-preview.corrigir-acessibilidade.accessibility.json": {
+      "bytes": 47868,
+      "sha256": "29a37a5580530898048090ab8983512f94687b73639f6de80a4d386d1da9d859"
+    },
+    "PDF-preview.corrigir-acessibilidade.png": {
+      "bytes": 95873,
+      "sha256": "091d5db62e5d9c34ae2c7b9ab81e4daa1e5999a59e7a76b24e163e57000690f1"
+    },
+    "PDF-preview.editor-conteudo.png": {
+      "bytes": 117364,
+      "sha256": "041f1226a9e60c18cfbfd26b50a914d2daafc95476e50a0a8c25edfea7400385"
+    },
+    "PDF-preview.escuro.png": {
+      "bytes": 402042,
+      "sha256": "5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3"
+    },
+    "PDF-preview.ferramentas.png": {
+      "bytes": 88478,
+      "sha256": "9f470902372e83a498221c409ca57bebb570625ac1ada7c404b90dab4bd18b0e"
+    },
+    "PDF-preview.fluxo-lote.png": {
+      "bytes": 107998,
+      "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735"
+    },
+    "PDF-preview.lado-a-lado.accessibility.json": {
+      "bytes": 144199,
+      "sha256": "1b408c4aabfa425184e24ac4a7ac487473d06e3605bbed42cdd4c73a44eae08b"
+    },
+    "PDF-preview.lado-a-lado.png": {
+      "bytes": 132666,
+      "sha256": "6fecbd1db5447e2e41c1a3289d88ea0c775dddac9b96bafa14207b7439a2af70"
+    },
+    "PDF-preview.leitor.accessibility.json": {
+      "bytes": 107516,
+      "sha256": "df6638a976ba525bd711e8da4f4a0534e3299cb18fb7fe366aab70cde11a7234"
+    },
+    "PDF-preview.leitor.png": {
+      "bytes": 116322,
+      "sha256": "a67f3600b8a5592c2633ca3ce09da3ddc31024fc6a75afd2323d1734daf634ab"
+    },
+    "PDF-preview.lista.png": {
+      "bytes": 92678,
+      "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86"
+    },
+    "PDF-preview.navegacao.png": {
+      "bytes": 80824,
+      "sha256": "537617001faa314590e8413f556e0cb076d5cac0cf6306fae2e028d4151ff9d4"
+    },
+    "PDF-preview.opcoes-leitura.png": {
+      "bytes": 86073,
+      "sha256": "c4a1d2928a751c79d1666d18332eb10c7e1682aaf11925569a833606fa39887c"
+    },
+    "PDF-preview.paleta.png": {
+      "bytes": 64592,
+      "sha256": "b4c2eaaab899010e8c2e899ecc5b0f4001e9b451d9caf44d2e0035e46323452a"
+    },
+    "PDF-preview.perfis.png": {
+      "bytes": 63468,
+      "sha256": "38d7d6e96ae37cc8088b1c827c1818269c7651b3a8a70c8a8756177c89aedeef"
+    },
+    "PDF-preview.personalizar.png": {
+      "bytes": 101022,
+      "sha256": "612ee7933e6ea2fe39eda5324c665b82439024aa47b651afcde1df3fb1bc5372"
+    },
+    "PDF-preview.png": {
+      "bytes": 348641,
+      "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b"
+    },
+    "PDF-preview.producao-bates.png": {
+      "bytes": 66392,
+      "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f"
+    },
+    "PDF-preview.producao-measure.png": {
+      "bytes": 76071,
+      "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae"
+    },
+    "PDF-preview.producao-pdfx.png": {
+      "bytes": 73685,
+      "sha256": "968c0ba8aeedbbc3fd36337f35ec7ae234d4a0ba994c0d96d3be14eeab4343fc"
+    },
+    "PDF-preview.producao-print-preflight.png": {
+      "bytes": 65432,
+      "sha256": "73ed8272ca10cf933d29fe5ec6df6c257ad30bba698c790a77ddb1b01db9d5aa"
+    },
+    "PDF-preview.recuperacao.png": {
+      "bytes": 69250,
+      "sha256": "d747d85b0e04d81a07b24b5705cc67d985ae7ff45342b21e4f1da54ab0cb682b"
+    },
+    "PDF-preview.revisao-ocr.analysis.json": {
+      "bytes": 10098,
+      "sha256": "32cb5bd9df697a4ecee212f2f7c36576e56a8a896cfa0f48f2bc358ec2b952e7"
+    },
+    "PDF-preview.revisao-ocr.png": {
+      "bytes": 133312,
+      "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207"
+    },
+    "PDF-preview.revisao-ocr.source.pdf": {
+      "bytes": 121931,
+      "sha256": "00248660436e5b6cc0888bc619f8877ffd8f20e973088f390c4451a6c9b6158f"
+    },
+    "PDF-preview.solicitar-assinaturas.png": {
+      "bytes": 100763,
+      "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5"
+    },
+    "PDF-preview.validar-pdfa.png": {
+      "bytes": 64131,
+      "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+    },
+    "PDF-preview.verificar-assinaturas.png": {
+      "bytes": 74744,
+      "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17"
+    }
+  },
+  "ownWindowAXCount": 6,
+  "pngCount": 32,
+  "rebuiltOnDestination": false,
+  "repository": "vibracall-beep/PDF-",
+  "schemaVersion": 1,
+  "sourceArtifactID": 12578358642,
+  "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "sourceRunID": 40137438618,
+  "sourceScripts": {
+    "binary_update.py": {
+      "bytes": 17323,
+      "sha256": "3639c1ec0a7f6ce5be814297a81f5349cab1958e53ab814987f9249dca05de2a"
+    },
+    "check_accessibility_report.py": {
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+    },
+    "check_preview_artifacts.py": {
+      "bytes": 10210,
+      "sha256": "89c39cb041862f77b134327d605290f28bd2942e29287194183da64dab64d120"
+    },
+    "run-with-timeout.py": {
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    }
+  }
+}

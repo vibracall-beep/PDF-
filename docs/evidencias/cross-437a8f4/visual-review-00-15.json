@@ -1,0 +1,386 @@
+{
+  "schemaVersion": 1,
+  "kind": "derived independent visual review",
+  "reviewer": "delivery",
+  "reviewedAtUTC": "2026-10-24T23:31:21.874061+00:00",
+  "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "sourceRunID": 40137438618,
+  "sourceBinaryArtifactID": 12578358642,
+  "crossRunID": 40141728214,
+  "crossRunAttempt": 1,
+  "crossControllerSHA": "6daf46294b10f35ec8252fd473f1d0865cd4bf8f",
+  "crossRunConclusionObserved": "success",
+  "crossArtifact": {
+    "id": 12580060577,
+    "name": "PDF-cross-platform-validated",
+    "bytes": 3320598,
+    "githubDigest": "sha256:daa8a6f16902247791a22d668e96bcb5287a5cdab522ff8f9cbd01b806cf114e"
+  },
+  "target": "macOS 26 binary installed on macOS 27, without rebuilding",
+  "archiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+  "archiveBytes": 1448521887,
+  "manifestSHA256": "638d706bf919c8c689fdac88866d54333d8d5c58521cf715dbfb6503d0633106",
+  "originalGUIReceiptSHA256": "d71ca57e808cc15e1e20d2f620723055403c9915c650c33f9b7966d7c549b1ed",
+  "scope": {
+    "sortedPNGIndices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "individuallyViewedOriginalCount": 16,
+    "totalOriginalPNGsInCrossArtifact": 32,
+    "method": "Each of these sixteen original PNGs was opened separately with view_image at original detail; tool calls displayed four individual originals at a time. No thumbnails, crops, composite or replacement image was used."
+  },
+  "summary": {
+    "newBlockingVisualFindings": 0,
+    "newFixedControlClippingOrOverlapObserved": false,
+    "librarySingularVersionCorrect": true,
+    "editorFontLabelVisible": true
+  },
+  "limits": [
+    "Esta revisão cobre somente os índices 00–15; não se atribui a ela a revisão dos outros 16 PNGs.",
+    "Pixels estáticos: não houve cliques, digitação, arraste, rolagem, redimensionamento, exportação ou navegação por teclado.",
+    "Áreas roláveis limitam a parte visível e não demonstram alcance dos controles ocultos ou preservação de estado.",
+    "Não é uma execução humana de VoiceOver nem aprovação geral de acessibilidade, precisão de OCR, desempenho M4 ou IA.",
+    "A origem e a conclusão técnica do gate cruzado foram obtidas dos metadados e recibos já coletados; esta revisão visual não reexecuta os gates nem amplia seu escopo.",
+    "Nenhum PNG, recibo ou arquivo original foi alterado. Não se declara perfeição ou aprovação irrestrita do produto."
+  ],
+  "humanVoiceOverTested": false,
+  "interactionTested": false,
+  "productApprovedByThisReview": false,
+  "files": [
+    {
+      "index": 0,
+      "name": "PDF-preview.abas.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.abas.png",
+      "sha256": "3c59bd579d278e4c7031241adc2d3b3ba831ed2ed553ee0adb29b2ca35a5aa9b",
+      "bytes": 118835,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "As duas abas estão legíveis; Referência de revisão está ativa, com título, página e rodapé coerentes. Miniaturas e controles fixos não apresentam sobreposição visível.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "A barra de ferramentas tem rolagem horizontal e o documento tem rolagem vertical; ferramentas e regiões fora da janela visível não foram examinadas por interação."
+      ]
+    },
+    {
+      "index": 1,
+      "name": "PDF-preview.anotacoes.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.anotacoes.png",
+      "sha256": "ba8dac1de38e834125821c3c1c738e596a981d405394a3fdc558b16db1a4b6b8",
+      "bytes": 150895,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "O inspetor Anotações apresenta a nota selecionada, texto, cor, posição, dimensões e Aplicar alterações legíveis. Desfazer e Refazer permanecem separados na área inferior.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "A página é exibida em escala reduzida. Parte inferior do formulário de anotação está além da área rolável visível; não foi exercida seleção, arraste, edição ou aplicação."
+      ]
+    },
+    {
+      "index": 2,
+      "name": "PDF-preview.arquivos.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.arquivos.png",
+      "sha256": "27ad5c15667c27f46c74d34d1b61ba53e42827e0ff4a71d0dcc7b68a2684c2eb",
+      "bytes": 78056,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Os rótulos de modelo do nome e nome alternativo, escolha de pasta, recuperação e controles de importar/exportar estão visíveis e separados.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "O estado visual não comprova persistência de preferências, seleção de pasta ou recuperação de documentos."
+      ]
+    },
+    {
+      "index": 3,
+      "name": "PDF-preview.assinatura-digital.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.assinatura-digital.png",
+      "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee",
+      "bytes": 86312,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Documento, certificado, PIN, motivo, local, nome do campo e perfil PAdES têm rótulos legíveis; ação final desativada e rodapé estão completos.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Nenhum certificado foi escolhido e nenhuma assinatura, validação ou diálogo foi executado nesta revisão."
+      ]
+    },
+    {
+      "index": 4,
+      "name": "PDF-preview.atalhos.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.atalhos.png",
+      "sha256": "13595f1fad59b708e7df632ae6abf3a4540a39fd69a607ce2458ce73b05d5b5b",
+      "bytes": 76354,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Busca, linhas de comandos, combinações de teclas e botões Editar estão alinhados e legíveis; rodapé de restauração/importação/exportação permanece inteiro.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "A lista prossegue além do trecho capturado, com barra de rolagem visível. Atalhos e edição não foram acionados."
+      ]
+    },
+    {
+      "index": 5,
+      "name": "PDF-preview.auditar-pdfua.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.auditar-pdfua.png",
+      "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418",
+      "bytes": 71581,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Título PDF/UA, perfil, texto sobre limites automáticos e ação de validar/salvar relatório aparecem inteiros.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "A captura não demonstra execução do validador, conformidade PDF/UA ou experiência com leitor de tela."
+      ]
+    },
+    {
+      "index": 6,
+      "name": "PDF-preview.automacao.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.automacao.png",
+      "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d",
+      "bytes": 96109,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Nome da regra, fluxo, entrada/saída, estado sem pasta ativa e instruções dos Serviços do Finder estão legíveis e sem sobreposição observada.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Não foi ativada regra, observada pasta, aberto o Finder ou executado fluxo por esta revisão."
+      ]
+    },
+    {
+      "index": 7,
+      "name": "PDF-preview.biblioteca.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.biblioteca.png",
+      "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c",
+      "bytes": 114493,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Cabeçalho mostra 2 documentos, 2 versões e 0 selecionados; os dois documentos mostram corretamente 1 versão. Filtros, consulta e botões superiores estão legíveis.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "O painel de detalhes está no estado sem seleção. Pesquisa, importação, sincronização e restauração não foram exercidas."
+      ]
+    },
+    {
+      "index": 8,
+      "name": "PDF-preview.configuracao-ferramenta.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.configuracao-ferramenta.png",
+      "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7",
+      "bytes": 89948,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Marca d’água mostra configuração, aviso de alterações não salvas, entrada, tipo, fonte, tamanho e cor legíveis; Cancelar e Escolher destino e executar estão separados no rodapé.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Há continuação do formulário na área rolável, indicada pela barra à direita. Não se alteraram parâmetros nem se executou a ferramenta."
+      ]
+    },
+    {
+      "index": 9,
+      "name": "PDF-preview.corrigir-acessibilidade.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.corrigir-acessibilidade.png",
+      "sha256": "091d5db62e5d9c34ae2c7b9ab81e4daa1e5999a59e7a76b24e163e57000690f1",
+      "bytes": 95873,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "TH da página 1 está selecionado; idioma, Papel, título, texto alternativo, ActualText e Cabeçalho da tabela têm rótulos persistentes e valores legíveis. Ações de guardar, reordenar e salvar cópia estão completas.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Nenhuma tag foi aplicada, reordenada ou validada por esta revisão. A imagem não comprova uso de VoiceOver ou correção semântica do documento."
+      ]
+    },
+    {
+      "index": 10,
+      "name": "PDF-preview.editor-conteudo.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.editor-conteudo.png",
+      "sha256": "041f1226a9e60c18cfbfd26b50a914d2daafc95476e50a0a8c25edfea7400385",
+      "bytes": 117364,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Editar conteúdo original, Página 1 e Objetos da página estão inteiros. Objeto selecionado, operação e texto aparecem legíveis; o rótulo Tamanho da fonte (pt) mostra 23. Rodapé informa 12 objetos identificados.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Página, lista de objetos e inspetor têm rolagens próprias; controles inferiores do inspetor ficam além do trecho capturado. Não se demonstram alcance por rolagem, edição, exportação ou estado após redimensionar."
+      ]
+    },
+    {
+      "index": 11,
+      "name": "PDF-preview.escuro.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.escuro.png",
+      "sha256": "5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3",
+      "bytes": 402042,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Tema escuro está nítido em 1050×772. Cabeçalho, busca, categorias, três cartões visíveis, recuperação e atalhos laterais permanecem legíveis, sem sobreposição observada.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Catálogo continua abaixo da área visível. Não houve medição normativa de contraste nem verificação de animações ou dos 71 recursos listados."
+      ]
+    },
+    {
+      "index": 12,
+      "name": "PDF-preview.ferramentas.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.ferramentas.png",
+      "sha256": "9f470902372e83a498221c409ca57bebb570625ac1ada7c404b90dab4bd18b0e",
+      "bytes": 88478,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Categorias, busca, nomes, ícones, caixas de visibilidade e setas de ordenação aparecem alinhados. O rodapé de preferências está íntegro.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "A quarta linha aparece parcialmente no limite da lista rolável, e as demais não estão visíveis. Arraste, reordenação, alteração de nomes e persistência não foram exercidos."
+      ]
+    },
+    {
+      "index": 13,
+      "name": "PDF-preview.fluxo-lote.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.fluxo-lote.png",
+      "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735",
+      "bytes": 107998,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Título, ações do fluxo, 2 documentos selecionados, destino e etapas têm rótulos legíveis. Rotação e numeração estão visualmente separadas.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "Parte inferior da etapa de numeração e etapas seguintes estão além da área rolável capturada. Não houve execução, alteração de sequência ou exportação."
+      ]
+    },
+    {
+      "index": 14,
+      "name": "PDF-preview.lado-a-lado.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.lado-a-lado.png",
+      "sha256": "6fecbd1db5447e2e41c1a3289d88ea0c775dddac9b96bafa14207b7439a2af70",
+      "bytes": 132666,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Documento principal Referência de revisão e referência Guia do PDF aparecem em painéis separados com controles próprios; Tornar principal, fechar e navegação da referência estão visíveis. Aba, título e rodapé identificam o principal coerentemente.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "O texto dos PDFs é pequeno pela escala dos dois painéis. Não se exerceu zoom, troca de principal ou navegação; barras de ferramentas e páginas têm conteúdo rolável."
+      ]
+    },
+    {
+      "index": 15,
+      "name": "PDF-preview.leitor.png",
+      "path": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated/PDF-preview.leitor.png",
+      "sha256": "a67f3600b8a5592c2633ca3ce09da3ddc31024fc6a75afd2323d1734daf634ab",
+      "bytes": 116322,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "detail": "original",
+      "originalModified": false,
+      "finding": "Aba Guia do PDF, título, miniaturas, página 1 de 2 e rodapé são coerentes. Título e parágrafos do documento ficam legíveis e sem sobreposição de controles fixos.",
+      "newBlockingVisualFinding": false,
+      "limits": [
+        "A página e a barra de ferramentas continuam em áreas roláveis. Busca, marcações, seleção, zoom e leitura assistiva não foram acionados."
+      ]
+    }
+  ]
+}

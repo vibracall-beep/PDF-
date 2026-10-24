@@ -1,0 +1,595 @@
+PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false
+PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false
+PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false
+PDF preview startup: preview session init begin; mainThread=true; swiftTask=false
+PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false
+PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false
+PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false
+PDF preview startup: workspace ready; mainThread=true; swiftTask=false
+PDF preview startup: preview session init end; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false
+PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown
+PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false
+PDF preview startup: window observer creation end; mainThread=true; swiftTask=false
+PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false
+PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true
+PDF preview phase [1544.347]: real SwiftUI WindowGroup attached
+PDF preview phase [1544.348]: preview regular activation policy accepted=false
+PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true
+PDF preview phase [1545.473]: two fixture PDFs written
+::notice title=PDF preview::Capture starting: home
+PDF preview phase [1545.473]: home: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: post-launch two-second observation; mainThread=true; swiftTask=false; policy=0; running=true; active=true; windows=3; visible=1; contentViews=3; key=true; main=true; defaultLaunch=true
+PDF preview phase [1546.976]: home: layout begin
+PDF preview phase [1546.976]: home: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1546.977]: home: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1546.977]: home: ScreenCaptureKit begin
+PDF preview phase [1547.476]: home: PNG written
+PDF preview phase [1547.476]: home: accessibility traversal begin
+::notice title=PDF preview::Accessibility starting: home
+PDF preview phase [1548.023]: home: accessibility JSON written (419 nodes)
+PDF preview phase [1548.023]: home: public own-process AX status=own-window-read; trusted=true; code=nil; windows=1; matches=1
+::notice title=PDF preview::Capture completed: home
+PDF preview phase [1548.023]: open primary document begin
+PDF preview phase [1548.025]: open primary document end
+::notice title=PDF preview::Capture starting: leitor
+PDF preview phase [1548.025]: leitor: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+2026-10-24 23:27:41.724 PDF[55579:126519] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:41.881 PDF[55579:126464] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview phase [1549.530]: leitor: layout begin
+PDF preview phase [1549.531]: leitor: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1549.531]: leitor: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1549.531]: leitor: ScreenCaptureKit begin
+PDF preview phase [1549.677]: leitor: PNG written
+PDF preview phase [1549.677]: leitor: accessibility traversal begin
+::notice title=PDF preview::Accessibility starting: leitor
+PDF preview phase [1549.811]: leitor: accessibility JSON written (452 nodes)
+PDF preview phase [1549.811]: leitor: public own-process AX status=own-window-read; trusted=true; code=nil; windows=1; matches=1
+::notice title=PDF preview::Capture completed: leitor
+PDF preview phase [1549.811]: open second document begin
+PDF preview phase [1549.813]: open second document end
+::notice title=PDF preview::Capture starting: abas
+PDF preview phase [1549.813]: abas: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1551.323]: abas: layout begin
+PDF preview phase [1551.324]: abas: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1551.324]: abas: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1551.324]: abas: ScreenCaptureKit begin
+PDF preview phase [1551.399]: abas: PNG written
+::notice title=PDF preview::Capture completed: abas
+::notice title=PDF preview::Capture starting: lado-a-lado
+PDF preview phase [1551.399]: lado-a-lado: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:44.871 PDF[55579:127192] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+2026-10-24 23:27:44.871 PDF[55579:126464] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+2026-10-24 23:27:44.875 PDF[55579:127192] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+2026-10-24 23:27:44.877 PDF[55579:126464] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:44.921 PDF[55579:126464] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview phase [1552.908]: lado-a-lado: layout begin
+PDF preview phase [1552.908]: lado-a-lado: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1552.908]: lado-a-lado: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1552.908]: lado-a-lado: ScreenCaptureKit begin
+PDF preview phase [1552.948]: lado-a-lado: PNG written
+PDF preview phase [1552.949]: lado-a-lado: accessibility traversal begin
+::notice title=PDF preview::Accessibility starting: lado-a-lado
+PDF preview phase [1553.093]: lado-a-lado: accessibility JSON written (615 nodes)
+PDF preview phase [1553.093]: lado-a-lado: public own-process AX status=own-window-read; trusted=true; code=nil; windows=1; matches=1
+::notice title=PDF preview::Capture completed: lado-a-lado
+PDF preview phase [1553.093]: leave split and select first tab begin
+PDF preview phase [1553.094]: leave split and select first tab end
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:46.554 PDF[55579:127262] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:46.661 PDF[55579:126519] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview phase [1553.598]: create and select note begin
+::notice title=PDF annotation preview::addNote: currentPage begin
+::notice title=PDF annotation preview::addNote: currentPage end; bounds begin
+::notice title=PDF annotation preview::addNote: bounds end; annotation init begin
+::notice title=PDF annotation preview::addNote: annotation init end; contents begin
+::notice title=PDF annotation preview::addNote: contents end; color begin
+::notice title=PDF annotation preview::addNote: color end; page.addAnnotation begin
+::notice title=PDF annotation preview::addNote: page.addAnnotation end; ensureSession begin
+::notice title=PDF annotation preview::addNote: ensureSession end; history.inserted begin
+::notice title=PDF annotation preview::history.inserted: undo registration begin
+::notice title=PDF annotation preview::history.registration: active group action name begin
+::notice title=PDF annotation preview::history.registration: active group action name end
+::notice title=PDF annotation preview::history.inserted: undo registration end; onChange begin
+::notice title=PDF annotation preview::history.onChange: session state begin
+::notice title=PDF annotation preview::history.onChange: session state end; workspace state begin
+::notice title=PDF annotation preview::history.onChange: workspace state end; recovery schedule begin
+::notice title=PDF annotation preview::history.onChange: recovery schedule end
+::notice title=PDF annotation preview::history.inserted: onChange end
+::notice title=PDF annotation preview::addNote: history.inserted end
+PDF preview phase [1553.602]: note added; read annotation list begin
+PDF preview phase [1553.602]: note located; select annotation begin
+PDF preview phase [1553.602]: create and select note end
+PDF preview phase [1553.602]: SwiftUI route: workspace-true
+::notice title=PDF preview::Capture starting: anotacoes
+PDF preview phase [1553.602]: anotacoes: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:47.257 PDF[55579:126519] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+2026-10-24 23:27:47.770 PDF[55579:126464] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+2026-10-24 23:27:47.774 PDF[55579:126464] [VNImageRequestHandler performRequests:] failed. Error: TextRecognition.CRImageReaderError.unknownError
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1555.106]: anotacoes: layout begin
+PDF preview phase [1555.107]: anotacoes: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1555.107]: anotacoes: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1555.107]: anotacoes: ScreenCaptureKit begin
+PDF preview phase [1555.215]: anotacoes: PNG written
+PDF preview phase [1555.215]: anotacoes: accessibility traversal begin
+::notice title=PDF preview::Accessibility starting: anotacoes
+PDF preview phase [1555.385]: anotacoes: accessibility JSON written (584 nodes)
+PDF preview phase [1555.385]: anotacoes: public own-process AX status=own-window-read; trusted=true; code=nil; windows=1; matches=1
+::notice title=PDF preview::Capture completed: anotacoes
+PDF preview phase [1555.386]: checkpoint recovery begin
+PDF preview phase [1555.864]: checkpoint recovery end; refresh begin
+PDF preview phase [1555.864]: refresh recovery end
+PDF preview phase [1555.865]: SwiftUI route: recovery
+::notice title=PDF preview::Capture starting: recuperacao
+PDF preview phase [1555.865]: recuperacao: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1557.385]: recuperacao: layout begin
+PDF preview phase [1557.389]: recuperacao: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1557.389]: recuperacao: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 740.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1557.389]: recuperacao: ScreenCaptureKit begin
+PDF preview phase [1557.434]: recuperacao: PNG written
+::notice title=PDF preview::Capture completed: recuperacao
+PDF preview phase [1557.434]: SwiftUI route: customization-Aparência
+::notice title=PDF preview::Capture starting: personalizar
+PDF preview phase [1557.434]: personalizar: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1558.965]: personalizar: layout begin
+PDF preview phase [1558.968]: personalizar: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1558.968]: personalizar: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1558.968]: personalizar: ScreenCaptureKit begin
+PDF preview phase [1559.036]: personalizar: PNG written
+::notice title=PDF preview::Capture completed: personalizar
+PDF preview phase [1559.036]: SwiftUI route: customization-Ferramentas
+::notice title=PDF preview::Capture starting: ferramentas
+PDF preview phase [1559.036]: ferramentas: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1561.023]: ferramentas: layout begin
+PDF preview phase [1561.023]: ferramentas: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1561.023]: ferramentas: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1561.023]: ferramentas: ScreenCaptureKit begin
+PDF preview phase [1561.066]: ferramentas: PNG written
+::notice title=PDF preview::Capture completed: ferramentas
+PDF preview phase [1561.067]: SwiftUI route: customization-Navegação
+::notice title=PDF preview::Capture starting: navegacao
+PDF preview phase [1561.067]: navegacao: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1562.591]: navegacao: layout begin
+PDF preview phase [1562.591]: navegacao: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1562.591]: navegacao: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1562.592]: navegacao: ScreenCaptureKit begin
+PDF preview phase [1562.642]: navegacao: PNG written
+::notice title=PDF preview::Capture completed: navegacao
+PDF preview phase [1562.642]: SwiftUI route: customization-Leitor
+::notice title=PDF preview::Capture starting: opcoes-leitura
+PDF preview phase [1562.642]: opcoes-leitura: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1564.280]: opcoes-leitura: layout begin
+PDF preview phase [1564.281]: opcoes-leitura: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1564.281]: opcoes-leitura: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1564.281]: opcoes-leitura: ScreenCaptureKit begin
+PDF preview phase [1564.318]: opcoes-leitura: PNG written
+::notice title=PDF preview::Capture completed: opcoes-leitura
+PDF preview phase [1564.318]: SwiftUI route: customization-Arquivos
+::notice title=PDF preview::Capture starting: arquivos
+PDF preview phase [1564.318]: arquivos: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1565.862]: arquivos: layout begin
+PDF preview phase [1565.863]: arquivos: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1565.863]: arquivos: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1565.863]: arquivos: ScreenCaptureKit begin
+PDF preview phase [1565.896]: arquivos: PNG written
+::notice title=PDF preview::Capture completed: arquivos
+PDF preview phase [1565.897]: SwiftUI route: customization-Atalhos
+::notice title=PDF preview::Capture starting: atalhos
+PDF preview phase [1565.897]: atalhos: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1567.551]: atalhos: layout begin
+PDF preview phase [1567.551]: atalhos: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1567.551]: atalhos: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1567.552]: atalhos: ScreenCaptureKit begin
+PDF preview phase [1567.597]: atalhos: PNG written
+::notice title=PDF preview::Capture completed: atalhos
+PDF preview phase [1567.597]: SwiftUI route: customization-Perfis
+::notice title=PDF preview::Capture starting: perfis
+PDF preview phase [1567.597]: perfis: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1569.120]: perfis: layout begin
+PDF preview phase [1569.121]: perfis: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1569.121]: perfis: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1569.121]: perfis: ScreenCaptureKit begin
+PDF preview phase [1569.166]: perfis: PNG written
+::notice title=PDF preview::Capture completed: perfis
+PDF preview phase [1569.168]: SwiftUI route: workspace-false
+::notice title=PDF preview::Capture starting: escuro
+PDF preview phase [1569.168]: escuro: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1570.820]: escuro: layout begin
+PDF preview phase [1570.821]: escuro: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1570.821]: escuro: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1570.821]: escuro: ScreenCaptureKit begin
+PDF preview phase [1570.920]: escuro: PNG written
+::notice title=PDF preview::Capture completed: escuro
+PDF preview phase [1570.923]: SwiftUI route: workspace-false
+::notice title=PDF preview::Capture starting: lista
+PDF preview phase [1570.924]: lista: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1572.552]: lista: layout begin
+PDF preview phase [1572.553]: lista: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1572.553]: lista: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1572.553]: lista: ScreenCaptureKit begin
+PDF preview phase [1572.606]: lista: PNG written
+::notice title=PDF preview::Capture completed: lista
+PDF preview phase [1572.607]: SwiftUI route: tool-watermark
+::notice title=PDF preview::Capture starting: configuracao-ferramenta
+PDF preview phase [1572.607]: configuracao-ferramenta: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1574.113]: configuracao-ferramenta: layout begin
+PDF preview phase [1574.116]: configuracao-ferramenta: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1574.116]: configuracao-ferramenta: window frame (20.0, -35.0, 1050.0, 772.0); content layout (0.0, 0.0, 1050.0, 740.0); host Optional((0.0, 0.0, 1050.0, 772.0))
+PDF preview phase [1574.116]: configuracao-ferramenta: ScreenCaptureKit begin
+PDF preview phase [1574.163]: configuracao-ferramenta: PNG written
+::notice title=PDF preview::Capture completed: configuracao-ferramenta
+PDF preview phase [1574.163]: SwiftUI route: workflow
+::notice title=PDF preview::Capture starting: fluxo-lote
+PDF preview phase [1574.163]: fluxo-lote: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1575.684]: fluxo-lote: layout begin
+PDF preview phase [1575.685]: fluxo-lote: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1575.685]: fluxo-lote: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1575.685]: fluxo-lote: ScreenCaptureKit begin
+PDF preview phase [1575.737]: fluxo-lote: PNG written
+::notice title=PDF preview::Capture completed: fluxo-lote
+PDF preview phase [1575.737]: SwiftUI route: verification-sign
+::notice title=PDF preview::Capture starting: assinatura-digital
+PDF preview phase [1575.737]: assinatura-digital: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1577.376]: assinatura-digital: layout begin
+PDF preview phase [1577.381]: assinatura-digital: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1577.381]: assinatura-digital: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1577.381]: assinatura-digital: ScreenCaptureKit begin
+PDF preview phase [1577.421]: assinatura-digital: PNG written
+::notice title=PDF preview::Capture completed: assinatura-digital
+PDF preview phase [1577.422]: SwiftUI route: verification-verify
+::notice title=PDF preview::Capture starting: verificar-assinaturas
+PDF preview phase [1577.422]: verificar-assinaturas: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1579.084]: verificar-assinaturas: layout begin
+PDF preview phase [1579.088]: verificar-assinaturas: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1579.088]: verificar-assinaturas: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1579.088]: verificar-assinaturas: ScreenCaptureKit begin
+PDF preview phase [1579.136]: verificar-assinaturas: PNG written
+::notice title=PDF preview::Capture completed: verificar-assinaturas
+PDF preview phase [1579.137]: SwiftUI route: verification-pdfa
+::notice title=PDF preview::Capture starting: validar-pdfa
+PDF preview phase [1579.137]: validar-pdfa: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1580.676]: validar-pdfa: layout begin
+PDF preview phase [1580.680]: validar-pdfa: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1580.680]: validar-pdfa: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1580.680]: validar-pdfa: ScreenCaptureKit begin
+PDF preview phase [1580.718]: validar-pdfa: PNG written
+::notice title=PDF preview::Capture completed: validar-pdfa
+PDF preview phase [1580.718]: SwiftUI route: verification-pdfua
+::notice title=PDF preview::Capture starting: auditar-pdfua
+PDF preview phase [1580.718]: auditar-pdfua: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1582.356]: auditar-pdfua: layout begin
+PDF preview phase [1582.360]: auditar-pdfua: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1582.360]: auditar-pdfua: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1582.360]: auditar-pdfua: ScreenCaptureKit begin
+PDF preview phase [1582.403]: auditar-pdfua: PNG written
+::notice title=PDF preview::Capture completed: auditar-pdfua
+PDF preview phase [1582.403]: SwiftUI route: palette
+::notice title=PDF preview::Capture starting: paleta
+PDF preview phase [1582.403]: paleta: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1584.014]: paleta: layout begin
+PDF preview phase [1584.018]: paleta: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1584.018]: paleta: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1584.019]: paleta: ScreenCaptureKit begin
+PDF preview phase [1584.066]: paleta: PNG written
+::notice title=PDF preview::Capture completed: paleta
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1585.160]: SwiftUI route: advanced-content
+::notice title=PDF preview::Capture starting: editor-conteudo
+PDF preview phase [1585.160]: editor-conteudo: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1586.674]: editor-conteudo: layout begin
+PDF preview phase [1586.676]: editor-conteudo: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1586.676]: editor-conteudo: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1586.676]: editor-conteudo: ScreenCaptureKit begin
+PDF preview phase [1586.724]: editor-conteudo: PNG written
+::notice title=PDF preview::Capture completed: editor-conteudo
+PDF preview phase [1586.750]: OCR fixture: sourcePoints=595.0x842.0; thumbnailPoints=1130.0x1600.0; bitmapPixels=1130x1600; scanPoints=1130.0x1600.0
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1588.814]: SwiftUI route: advanced-ocr
+::notice title=PDF preview::Capture starting: revisao-ocr
+PDF preview phase [1588.814]: revisao-ocr: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1590.329]: revisao-ocr: layout begin
+PDF preview phase [1590.329]: revisao-ocr: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1590.330]: revisao-ocr: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1590.330]: revisao-ocr: ScreenCaptureKit begin
+PDF preview phase [1590.383]: revisao-ocr: PNG written
+::notice title=PDF preview::Capture completed: revisao-ocr
+PDF preview phase [1590.389]: SwiftUI route: advanced-library
+::notice title=PDF preview::Capture starting: biblioteca
+PDF preview phase [1590.390]: biblioteca: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1591.961]: biblioteca: layout begin
+PDF preview phase [1591.962]: biblioteca: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1591.962]: biblioteca: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1591.963]: biblioteca: ScreenCaptureKit begin
+PDF preview phase [1592.013]: biblioteca: PNG written
+PDF preview phase [1592.013]: biblioteca: accessibility traversal begin
+::notice title=PDF preview::Accessibility starting: biblioteca
+PDF preview phase [1592.118]: biblioteca: accessibility JSON written (215 nodes)
+PDF preview phase [1592.118]: biblioteca: public own-process AX status=own-window-read; trusted=true; code=nil; windows=1; matches=1
+::notice title=PDF preview::Capture completed: biblioteca
+PDF preview phase [1592.118]: accessibility fixture: create real page tags
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1595.322]: accessibility fixture: apply real TH attributes
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1596.834]: SwiftUI route: advanced-accessibility
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1598.243]: accessibility fixture: production inspection and selected fields ready
+::notice title=PDF preview::Capture starting: corrigir-acessibilidade
+PDF preview phase [1598.243]: corrigir-acessibilidade: settle begin
+PDF preview phase [1599.842]: corrigir-acessibilidade: layout begin
+PDF preview phase [1599.843]: corrigir-acessibilidade: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1599.843]: corrigir-acessibilidade: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1599.843]: corrigir-acessibilidade: ScreenCaptureKit begin
+PDF preview phase [1599.888]: corrigir-acessibilidade: PNG written
+PDF preview phase [1599.888]: corrigir-acessibilidade: accessibility traversal begin
+::notice title=PDF preview::Accessibility starting: corrigir-acessibilidade
+PDF preview phase [1599.941]: corrigir-acessibilidade: accessibility JSON written (197 nodes)
+PDF preview phase [1599.941]: corrigir-acessibilidade: public own-process AX status=own-window-read; trusted=true; code=nil; windows=1; matches=1
+::notice title=PDF preview::Capture completed: corrigir-acessibilidade
+PDF preview phase [1599.942]: SwiftUI route: advanced-signatures
+::notice title=PDF preview::Capture starting: solicitar-assinaturas
+PDF preview phase [1599.942]: solicitar-assinaturas: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1601.452]: solicitar-assinaturas: layout begin
+PDF preview phase [1601.453]: solicitar-assinaturas: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1601.453]: solicitar-assinaturas: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1601.453]: solicitar-assinaturas: ScreenCaptureKit begin
+PDF preview phase [1601.503]: solicitar-assinaturas: PNG written
+::notice title=PDF preview::Capture completed: solicitar-assinaturas
+PDF preview phase [1601.503]: SwiftUI route: advanced-automation
+::notice title=PDF preview::Capture starting: automacao
+PDF preview phase [1601.503]: automacao: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1603.160]: automacao: layout begin
+PDF preview phase [1603.161]: automacao: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1603.161]: automacao: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1603.161]: automacao: ScreenCaptureKit begin
+PDF preview phase [1603.207]: automacao: PNG written
+::notice title=PDF preview::Capture completed: automacao
+PDF preview phase [1603.207]: SwiftUI route: production-print-preflight
+::notice title=PDF preview::Capture starting: producao-print-preflight
+PDF preview phase [1603.208]: producao-print-preflight: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1604.809]: producao-print-preflight: layout begin
+PDF preview phase [1604.814]: producao-print-preflight: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1604.814]: producao-print-preflight: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1604.814]: producao-print-preflight: ScreenCaptureKit begin
+PDF preview phase [1604.856]: producao-print-preflight: PNG written
+::notice title=PDF preview::Capture completed: producao-print-preflight
+PDF preview phase [1604.856]: SwiftUI route: production-bates
+::notice title=PDF preview::Capture starting: producao-bates
+PDF preview phase [1604.856]: producao-bates: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1606.491]: producao-bates: layout begin
+PDF preview phase [1606.496]: producao-bates: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1606.496]: producao-bates: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1606.497]: producao-bates: ScreenCaptureKit begin
+PDF preview phase [1606.550]: producao-bates: PNG written
+::notice title=PDF preview::Capture completed: producao-bates
+PDF preview phase [1606.550]: SwiftUI route: production-measure
+::notice title=PDF preview::Capture starting: producao-measure
+PDF preview phase [1606.550]: producao-measure: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1608.059]: producao-measure: layout begin
+PDF preview phase [1608.061]: producao-measure: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1608.061]: producao-measure: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1608.061]: producao-measure: ScreenCaptureKit begin
+PDF preview phase [1608.098]: producao-measure: PNG written
+::notice title=PDF preview::Capture completed: producao-measure
+PDF preview phase [1608.099]: SwiftUI route: production-pdfx
+::notice title=PDF preview::Capture starting: producao-pdfx
+PDF preview phase [1608.099]: producao-pdfx: settle begin
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview phase [1609.726]: producao-pdfx: layout begin
+PDF preview phase [1609.730]: producao-pdfx: active=true; key=true; main=true; activationPolicy=0
+PDF preview phase [1609.730]: producao-pdfx: window frame (20.0, -15.0, 1050.0, 752.0); content layout (0.0, 0.0, 1050.0, 720.0); host Optional((0.0, 0.0, 1050.0, 752.0))
+PDF preview phase [1609.730]: producao-pdfx: ScreenCaptureKit begin
+PDF preview phase [1609.772]: producao-pdfx: PNG written
+::notice title=PDF preview::Capture completed: producao-pdfx
+PDF preview phase [1609.775]: real WindowGroup preview completed
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF own-window accessibility audit: PDF-preview.accessibility.json; nodes=419; missingRequired=0; findings=11
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.leitor.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF own-window accessibility audit: PDF-preview.leitor.accessibility.json; nodes=452; missingRequired=0; findings=19
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.abas.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.lado-a-lado.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF own-window accessibility audit: PDF-preview.lado-a-lado.accessibility.json; nodes=615; missingRequired=0; findings=28
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.anotacoes.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF own-window accessibility audit: PDF-preview.anotacoes.accessibility.json; nodes=584; missingRequired=0; findings=27
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.recuperacao.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.personalizar.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.ferramentas.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.navegacao.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.opcoes-leitura.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.arquivos.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.atalhos.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.perfis.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.escuro.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.lista.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x772; content=1050x772; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x772; requestedPixels=1050x772
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.configuracao-ferramenta.png; window=32; content=1050x772; pixels=1050x772; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.fluxo-lote.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.assinatura-digital.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.verificar-assinaturas.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.validar-pdfa.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.auditar-pdfua.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.paleta.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.editor-conteudo.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.revisao-ocr.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.biblioteca.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF own-window accessibility audit: PDF-preview.biblioteca.accessibility.json; nodes=215; missingRequired=0; findings=7
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.corrigir-acessibilidade.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF own-window accessibility audit: PDF-preview.corrigir-acessibilidade.accessibility.json; nodes=197; missingRequired=0; findings=4
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.solicitar-assinaturas.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.automacao.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.producao-print-preflight.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.producao-bates.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.producao-measure.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2
+PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=true; captureScope=currentProcess; frame=1050x752; content=1050x752; backingScale=1.0
+PDF preview own-window filter: window=32; onScreen=true; points=1050x752; requestedPixels=1050x752
+PDF preview captured from WindowServer via ScreenCaptureKit: PDF-preview.producao-pdfx.png; window=32; content=1050x752; pixels=1050x752; geometrySamples=2

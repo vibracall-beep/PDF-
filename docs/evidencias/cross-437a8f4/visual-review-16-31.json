@@ -1,0 +1,278 @@
+{
+  "schemaVersion": 1,
+  "kind": "derived assistant visual review, not an original GitHub artifact and not a human interaction test",
+  "reviewer": "/root/cross_visual",
+  "reviewedAtUTC": "2026-10-24T23:32:10.592675+00:00",
+  "repository": "vibracall-beep/PDF-",
+  "crossRunID": 40141728214,
+  "crossControlCommit": "6daf46294b10f35ec8252fd473f1d0865cd4bf8f",
+  "sourceRunID": 40137438618,
+  "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "archiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+  "originalDirectory": "/tmp/pdf-cross-437a8f4/extracted/PDF-cross-platform-validated",
+  "guiReceipt": {
+    "file": "PDF-cross-gui.json",
+    "bytes": 8259,
+    "sha256": "d71ca57e808cc15e1e20d2f620723055403c9915c650c33f9b7966d7c549b1ed"
+  },
+  "assignedRangeInclusive": [
+    16,
+    31
+  ],
+  "reviewedOriginalPNGCount": 16,
+  "method": "Opened all sixteen assigned PNGs individually with tools.view_image; each original hash and size independently matched the authenticated GUI receipt. No image was edited, resized, cropped or recomposed.",
+  "summary": {
+    "ocrHeadingFullyVisible": true,
+    "newBlockingLayoutDefectObserved": false,
+    "scope": "Only the visible states of these sixteen screenshots. Scroll boundaries and intentionally truncated long paths are recorded separately from fixed-header clipping."
+  },
+  "limits": [
+    "No clicks, keyboard operation, scrolling, resizing or animations were exercised.",
+    "No human VoiceOver audit was performed.",
+    "Visible OCR recognition errors remain; this review does not establish transcription accuracy.",
+    "This derived report does not itself approve installation, runtime isolation, every tool, external service delivery, M4 performance or AI generation.",
+    "No independent inspection of all seventy-one tool cards is claimed from the home/list screenshots."
+  ],
+  "originals": [
+    {
+      "sortedPNGIndex": 16,
+      "file": "PDF-preview.lista.png",
+      "bytes": 92678,
+      "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86",
+      "width": 1050,
+      "height": 772,
+      "screen": "Lista e navegação compacta",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Lista com títulos, categorias, favoritos e busca legíveis; contagem de 71 ferramentas e documentos recentes visíveis. A próxima linha aparece apenas parcialmente no limite inferior da lista rolável.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não demonstra os demais itens da lista nem navegação, favoritos ou recuperação por interação."
+      ]
+    },
+    {
+      "sortedPNGIndex": 17,
+      "file": "PDF-preview.navegacao.png",
+      "bytes": 80824,
+      "sha256": "537617001faa314590e8413f556e0cb076d5cac0cf6306fae2e028d4151ff9d4",
+      "width": 1050,
+      "height": 752,
+      "screen": "Personalização da navegação",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Seis seções, nomes, ícones, checkboxes e setas aparecem alinhados, sem sobreposição. As abas e os controles Restaurar, Importar e Exportar estão visíveis.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não comprova arraste, alteração de ícones ou persistência dos ajustes."
+      ]
+    },
+    {
+      "sortedPNGIndex": 18,
+      "file": "PDF-preview.opcoes-leitura.png",
+      "bytes": 86073,
+      "sha256": "c4a1d2928a751c79d1666d18332eb10c7e1682aaf11925569a833606fa39887c",
+      "width": 1050,
+      "height": 752,
+      "screen": "Opções do leitor",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Controles de modo, direção, área, fundo, zoom de 57%, abas, leitura lado a lado, miniaturas e anotações aparecem legíveis. A área possui barra de rolagem e continua abaixo do estilo de anotações.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Os controles inferiores não estão integralmente apresentados; não houve rolagem ou alteração de preferências nesta revisão."
+      ]
+    },
+    {
+      "sortedPNGIndex": 19,
+      "file": "PDF-preview.paleta.png",
+      "bytes": 64592,
+      "sha256": "b4c2eaaab899010e8c2e899ecc5b0f4001e9b451d9caf44d2e0035e46323452a",
+      "width": 1050,
+      "height": 752,
+      "screen": "Paleta de comandos",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Cabeçalho, botão Fechar e busca estão inteiros. A lista apresenta comandos e atalhos legíveis, seleção visível e contagem de 91 comandos.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Só a área inicial da lista está visível; não demonstra execução de comandos ou uso do teclado."
+      ]
+    },
+    {
+      "sortedPNGIndex": 20,
+      "file": "PDF-preview.perfis.png",
+      "bytes": 63468,
+      "sha256": "38d7d6e96ae37cc8088b1c827c1818269c7651b3a8a70c8a8756177c89aedeef",
+      "width": 1050,
+      "height": 752,
+      "screen": "Perfis",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Abas, título e explicação de preservação do espaço de trabalho estão legíveis. Nome do novo perfil, botão de guardar desativado e controles inferiores aparecem sem sobreposição.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Estado inicial sem perfis preenchidos; não demonstra criação, aplicação ou exportação de um perfil."
+      ]
+    },
+    {
+      "sortedPNGIndex": 21,
+      "file": "PDF-preview.personalizar.png",
+      "bytes": 101022,
+      "sha256": "612ee7933e6ea2fe39eda5324c665b82439024aa47b651afcde1df3fb1bc5372",
+      "width": 1050,
+      "height": 752,
+      "screen": "Aparência",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Predefinições, tema, cores, organização, espaçamento, larguras e tamanhos aparecem legíveis junto da prévia do cartão. Há uma barra de rolagem própria; os controles posteriores estão fora da área mostrada.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não demonstra aplicação imediata, animações ou controles inferiores da área rolável."
+      ]
+    },
+    {
+      "sortedPNGIndex": 22,
+      "file": "PDF-preview.png",
+      "bytes": 348641,
+      "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b",
+      "width": 1050,
+      "height": 772,
+      "screen": "Menu principal",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Título e chamada de abertura inteiros; busca, filtro, contagem de 71 ferramentas, navegação e seis cartões iniciais legíveis. O início da linha seguinte fica no limite da área rolável.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não demonstra abertura de documento nem execução dos cartões; não equivale a revisar visualmente todos os 71 itens."
+      ]
+    },
+    {
+      "sortedPNGIndex": 23,
+      "file": "PDF-preview.producao-bates.png",
+      "bytes": 66392,
+      "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f",
+      "width": 1050,
+      "height": 752,
+      "screen": "Numeração Bates",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Seleção do documento, senha, páginas, prefixo, número inicial, dígitos e ação de criar cópia estão visíveis e alinhados.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Estado sem documento selecionado; não comprova a numeração ou a saída."
+      ]
+    },
+    {
+      "sortedPNGIndex": 24,
+      "file": "PDF-preview.producao-measure.png",
+      "bytes": 76071,
+      "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae",
+      "width": 1050,
+      "height": 752,
+      "screen": "Medição por escala",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Página, escala 100, unidade Metros, opção de polígono e duas linhas de coordenadas estão legíveis. Botões de adicionar ponto e gerar relatório aparecem sem corte. A reticência no rótulo Escala: 1 para… corresponde ao texto literal no código.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não demonstra calibração, alteração das coordenadas ou cálculo do relatório."
+      ]
+    },
+    {
+      "sortedPNGIndex": 25,
+      "file": "PDF-preview.producao-pdfx.png",
+      "bytes": 73685,
+      "sha256": "968c0ba8aeedbbc3fd36337f35ec7ae234d4a0ba994c0d96d3be14eeab4343fc",
+      "width": 1050,
+      "height": 752,
+      "screen": "Preparação PDF/X-3",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Seleção do documento, perfil ICC, condição de impressão e botão de criação visíveis. O aviso sobre conversão de cores e certificação independente está completo em duas linhas.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Estado de preparação; não comprova saída PDF/X, cor ou conformidade."
+      ]
+    },
+    {
+      "sortedPNGIndex": 26,
+      "file": "PDF-preview.producao-print-preflight.png",
+      "bytes": 65432,
+      "sha256": "73ed8272ca10cf933d29fe5ec6df6c257ad30bba698c790a77ddb1b01db9d5aa",
+      "width": 1050,
+      "height": 752,
+      "screen": "Diagnóstico de impressão",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Título, escolha do documento, senha, resolução mínima de 200 DPI e botão de relatório legíveis. A explicação de escopo do diagnóstico aparece inteira.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não há relatório executado na imagem; não demonstra diagnóstico de fontes ou resolução."
+      ]
+    },
+    {
+      "sortedPNGIndex": 27,
+      "file": "PDF-preview.recuperacao.png",
+      "bytes": 69250,
+      "sha256": "d747d85b0e04d81a07b24b5705cc67d985ae7ff45342b21e4f1da54ab0cb682b",
+      "width": 1050,
+      "height": 772,
+      "screen": "Recuperação",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Dois documentos, datas, botões Recuperar e excluir, checkbox de cópias locais, Atualizar lista e contagem de duas cópias aparecem sem sobreposição. Caminhos longos usam reticências.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Caminhos completos não estão visíveis; não houve recuperação ou exclusão nesta revisão."
+      ]
+    },
+    {
+      "sortedPNGIndex": 28,
+      "file": "PDF-preview.revisao-ocr.png",
+      "bytes": 133312,
+      "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207",
+      "width": 1050,
+      "height": 752,
+      "screen": "Revisão OCR",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "O cabeçalho Palavras reconhecidas está inteiro, com margem superior dentro do inspetor. Página e caixas reconhecidas aparecem à esquerda; idioma Inglês, Página automática e motor tesseract estão legíveis. Lista, confiança e campo Original: informag6es aparecem no inspetor rolável; o erro de OCR permanece visível sem retoque.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "A parte inferior dos painéis continua fora da área visível. Não demonstra rolagem até o fim, edição/exportação, correspondência geométrica universal ou transcrição perfeita."
+      ]
+    },
+    {
+      "sortedPNGIndex": 29,
+      "file": "PDF-preview.solicitar-assinaturas.png",
+      "bytes": 100763,
+      "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5",
+      "width": 1050,
+      "height": 752,
+      "screen": "Solicitação de assinaturas",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Título, conexão Dropbox Sign, seleção do PDF, assunto, mensagem, modo de teste e linha de destinatário/campo estão legíveis. O aviso de que teste pode enviar emails reais aparece completo. A página continua abaixo de Adicionar destinatário, com a próxima ação parcialmente visível no limite rolável.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não houve envio externo, configuração de chave, preenchimento de destinatário ou revisão dos controles além da área mostrada."
+      ]
+    },
+    {
+      "sortedPNGIndex": 30,
+      "file": "PDF-preview.validar-pdfa.png",
+      "bytes": 64131,
+      "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53",
+      "width": 1050,
+      "height": 752,
+      "screen": "Validação PDF/A",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Título, documento, escolha PDF/A-2b, identificação veraPDF 1.30.3, descrições e botão fixo Validar e salvar relatório aparecem inteiros.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não é resultado de validação de um PDF; a imagem não aprova conformidade do documento exibido."
+      ]
+    },
+    {
+      "sortedPNGIndex": 31,
+      "file": "PDF-preview.verificar-assinaturas.png",
+      "bytes": 74744,
+      "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17",
+      "width": 1050,
+      "height": 752,
+      "screen": "Verificação de assinaturas",
+      "openedIndividuallyWith": "tools.view_image",
+      "visualFinding": "Título, documento, raízes de confiança, opções OCSP/CRL e AdES-LTA, explicações e ação fixa de salvar relatório estão legíveis e sem sobreposição.",
+      "newBlockingLayoutDefectObserved": false,
+      "limits": [
+        "Não demonstra assinatura presente, confiança, revogação ou execução de consulta externa."
+      ]
+    }
+  ]
+}

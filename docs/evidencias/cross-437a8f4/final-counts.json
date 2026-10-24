@@ -1,0 +1,37 @@
+{
+  "jobID": 121014698642,
+  "originalLog": "collector-job-121014698642.log",
+  "bytes": 229022,
+  "sha256": "d90f0c22aaeff167cb9e9d06655b89f5d4a2d102c4a2a83042c2f1f9627eb45a",
+  "controllerPythonSuites": [
+    {
+      "count": 9,
+      "seconds": 0.051,
+      "line": 148,
+      "resultLine": "2026-10-24T23:11:58.5901050Z OK"
+    },
+    {
+      "count": 11,
+      "seconds": 0.368,
+      "line": 164,
+      "resultLine": "2026-10-24T23:11:59.1906420Z OK"
+    }
+  ],
+  "nativeSuccessfulRuns": [
+    {
+      "line": 603,
+      "groups": 41
+    },
+    {
+      "line": 896,
+      "groups": 41
+    },
+    {
+      "line": 1204,
+      "groups": 41
+    }
+  ],
+  "totalNativePassedLines": 123,
+  "nativeFailureLines": 0,
+  "errorAnnotations": []
+}

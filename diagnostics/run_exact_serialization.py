@@ -4,11 +4,11 @@ import json
 import os
 from pathlib import Path
 
-BASE_REVISION = "63bf88a4ba1421e94b2817e90b074ce8734f4b74"
+BASE_REVISION = "0910ad97614e53fd11becd65e173b6dbaff8cc7a"
 SOURCE_HASHES = {
-    "NativePDFSerialization.swift": "af8cfdab875db95c90a554a8f1068f46ab8214d9e460bedc2ccc158989712f86",
-    "NativePDFStringRepair.swift": "56a0ee2287f3d0957174e88dfa382ba1727756f0783a7620bed9132cd3935d24",
-    "QPDFStructuralAudit.swift": "a977ac2567d9c3447613f2360231c9183336b5362a434e4e464262621148a287",
+    "NativePDFSerialization.swift": "b255f3d2fa01ab431e170a4c5f95d060c6ddc3ca98d62dcfff7b18561c30b856",
+    "NativePDFStringRepair.swift": "5bc7c33f2edee43a00e886e0514cd40cfbffc969c212696a096ba8a44cd69506",
+    "QPDFStructuralAudit.swift": "baf04e241e49c06dbd10b44f48da85c3f7ba547efea5c3c1cd6bb062f5aa704c",
     "AnnotationEditing.swift": "bf1258ca54a1a0cab1601f6a904c52d7a649c6ea8a8e31978d349fdafe962a37",
 }
 
@@ -25,6 +25,19 @@ def private_write(path, data):
         output.write(data)
 
 
+def annotation_metadata(objects):
+    keys = {"/Type", "/Subtype", "/Open", "/F", "/Rect", "/Contents", "/Parent", "/Popup", "/NM",
+            "/FT", "/T", "/V", "/DV", "/Opt", "/Ff"}
+    rows = []
+    for reference, wrapped in objects.items():
+        value = wrapped.get("value") if isinstance(wrapped, dict) else None
+        if isinstance(value, dict) and value.get("/Subtype") in ("/Text", "/Popup", "/Widget"):
+            rows.append({"object": reference, "dictionary": {key: entry for key, entry in value.items() if key in keys}})
+    if len(rows) > 256:
+        raise ValueError("Synthetic annotation report exceeded 256 objects")
+    return rows
+
+
 def stage_sources(repository, directory):
     directory.mkdir(mode=0o700)
     original = {}
@@ -35,8 +48,8 @@ def stage_sources(repository, directory):
         original[name] = data.decode()
 
     text = original["NativePDFSerialization.swift"]
-    text = replace(text, "FileManager.default.temporaryDirectory", "ExactAuditCapture.currentDirectory")
-    text = replace(text, "defer { try? FileManager.default.removeItem(at: directory) }", "// Synthetic diagnostic retains its private staging directory.")
+    text = replace(text, "FileManager.default.temporaryDirectory", "ExactAuditCapture.currentDirectory", 2)
+    text = replace(text, "defer { try? FileManager.default.removeItem(at: directory) }", "// Synthetic diagnostic retains its private staging directory.", 2)
     text = replace(text, "let baseline = try snapshot(document)", "let baseline = try snapshot(document)\n        try ExactAuditCapture.snapshot(document, label: \"prepare-before\")")
     text = replace(text, "try materializeWriterDefaults(document)", "try materializeWriterDefaults(document)\n        try ExactAuditCapture.snapshot(document, label: \"prepare-materialized\")")
     text = replace(text, "let actual = try snapshot(reopened, cancellation: cancellation)", "try ExactAuditCapture.snapshot(reopened, label: \"reopened-final\")\n        let actual = try snapshot(reopened, cancellation: cancellation)")
@@ -64,16 +77,9 @@ def stage_sources(repository, directory):
         "        try capture.check(); capture.record(process)\n        try require(process.terminationReason == .exit && process.terminationStatus == 0,")
     text = replace(text, "        return process.terminationStatus", "        try capture.check(); capture.record(process)\n        return process.terminationStatus")
     text = replace(text, "if password == nil { plainBytes = bytes }", "if password == nil { plainBytes = bytes; ExactAuditCapture.lastEditablePlain = bytes }")
-    for signature in ("verifyExplicitAnnotationGuards(base:", "auditJob(_ data:", "run(_ data:", "streamFixture()"):
-        text = replace(text, "private static func " + signature, "static func " + signature)
-    start = '        for password in [String(repeating: "a", count: 128), String(repeating: "🔑", count: 32)] {'
-    end = "    private struct EncryptionEvidence {"
-    if text.count(start) != 1 or text.count(end) != 1:
-        raise ValueError("Independent permission phase anchors changed")
-    tail = text[text.index(start):text.index(end)]
-    tail = replace(tail, 'log("AES-256 guards: cipher, distinct owner, permissions, legacy refusal and 127-byte Unicode boundary verified")',
-                   'log("Independent permissions phase: original permission and legacy restriction assertions completed")')
-    text = replace(text, end, "    @MainActor\n    static func exactPermissionsOnly() throws {\n" + tail + end)
+    text = replace(text, 'guard let restored = result.page(at: 0) else { throw failure("A cópia de anotações perdeu sua página.") }',
+        'try ExactAuditCapture.snapshot(result, label: password == nil ? "audit-result-plain" : "audit-result-protected")\n            guard let restored = result.page(at: 0) else { throw failure("A cópia de anotações perdeu sua página.") }')
+    text = replace(text, "private static func verifyExplicitAnnotationGuards(base:", "static func verifyExplicitAnnotationGuards(base:")
     private_write(directory / "QPDFStructuralAudit.swift", text.encode())
 
     text = original["AnnotationEditing.swift"]
@@ -128,6 +134,10 @@ def run_exact(repository, output, qpdf):
                         secrets.add(container[key])
         if isinstance(value, dict) and isinstance(value.get("qpdf"), list) and len(value["qpdf"]) == 2:
             private_write(path.with_suffix(".relations.json"), json.dumps(object_relations(value["qpdf"][1]), indent=2).encode())
+            annotations = annotation_metadata(value["qpdf"][1])
+            private_write(path.with_suffix(".annotations.json"), json.dumps(annotations, indent=2).encode())
+            if annotations:
+                print("EXACT RAW ANNOTATIONS " + str(path.relative_to(output)) + ": " + json.dumps(annotations, ensure_ascii=False), flush=True)
     for path in (output / "captures").rglob("password.txt"):
         if path.stat().st_size <= 4096:
             secret = path.read_text().rstrip("\n")
@@ -168,5 +178,9 @@ def run_exact(repository, output, qpdf):
             value = json.loads(inspection["stdout"])
             private_write(destination, inspection["stdout"].encode())
             private_write(destination.with_suffix(".relations.json"), json.dumps(object_relations(value["qpdf"][1]), indent=2).encode())
+            annotations = annotation_metadata(value["qpdf"][1])
+            private_write(destination.with_suffix(".annotations.json"), json.dumps(annotations, indent=2).encode())
+            if annotations:
+                print("EXACT FINAL ANNOTATIONS " + str(destination.relative_to(output)) + ": " + json.dumps(annotations, ensure_ascii=False), flush=True)
     if not completed(result) or result["exitCode"] != 0:
         raise ValueError("Exact synthetic diagnostic process did not complete")

@@ -42,6 +42,13 @@ enum ExactAuditCapture {
         }
         let record = try MainActor.assumeIsolated { try PDFKitDiagnosis.annotationSnapshot(document, progressPrefix: url) }
         try NativeOutput.write(JSONSerialization.data(withJSONObject: PDFKitDiagnosis.diagnosticJSON(record), options: [.prettyPrinted, .sortedKeys]), to: url)
+        let keys: Set<String> = ["index", "type", "contents", "bounds", "flags", "isOpen", "rawOpen", "parent", "rawParent",
+                                 "popup", "rawPopup", "field", "fieldType", "value", "default", "choices", "choiceValues", "list"]
+        let selected = (record["annotations"] as? [[String: Any]] ?? []).filter {
+            ["text", "popup", "widget"].contains(($0["type"] as? String ?? "").replacingOccurrences(of: "/", with: "").lowercased())
+        }.map { $0.filter { keys.contains($0.key) } }
+        let summary: [String: Any] = ["syntheticSnapshot": url.lastPathComponent, "annotations": selected]
+        FileHandle.standardOutput.write(try JSONSerialization.data(withJSONObject: PDFKitDiagnosis.diagnosticJSON(summary), options: [.sortedKeys]) + Data([10]))
     }
 
     final class Logs {
@@ -106,16 +113,12 @@ struct ExactSerializationDiagnosis {
                 FileHandle.standardOutput.write(bytes + Data([10]))
             }
             try phase("editable-exact") { try QPDFStructuralAudit.verifyEditableRoundTrips() }
-            try phase("unicode-fields-exact") { try QPDFStructuralAudit.verifyUnicodeFieldIdentity() }
-            try phase("encryption-exact") { try QPDFStructuralAudit.verifyEncryptionGuards() }
-            try phase("permissions-independent") { try QPDFStructuralAudit.exactPermissionsOnly() }
             try phase("explicit-annotations-independent") {
                 guard let bytes = ExactAuditCapture.lastEditablePlain else {
                     throw NSError(domain: "PDF.ExactDiagnosis", code: 4, userInfo: [NSLocalizedDescriptionKey: "No validated editable plain result was available in this run"])
                 }
                 try QPDFStructuralAudit.verifyExplicitAnnotationGuards(base: bytes)
             }
-            try phase("password-strategies") { try passwordStrategies() }
             try NativeOutput.write(JSONSerialization.data(withJSONObject: ["phases": phases, "productValidation": false], options: [.prettyPrinted, .sortedKeys]),
                                    to: root.appendingPathComponent("exact-summary.json"))
         } catch {
@@ -123,41 +126,4 @@ struct ExactSerializationDiagnosis {
         }
     }
 
-    @MainActor private static func passwordStrategies() throws {
-        let cases = [("ascii127", String(repeating: "a", count: 127)), ("latin1", "ação-123"), ("bmp", "ΩSenha-123"),
-                     ("emoji7", "🔑abc"), ("emoji127", String(repeating: "🔑", count: 31) + "abc")]
-        var rows: [[String: Any]] = []
-        for (name, password) in cases {
-            let bytes = try QPDFStructuralAudit.auditJob(QPDFStructuralAudit.streamFixture().valid, options: ["encrypt": [
-                "userPassword": password, "ownerPassword": "synthetic-only-owner", "256bit": [String: String]()]], outputPDF: true)
-            try NativeOutput.write(bytes, to: ExactAuditCapture.currentDirectory.appendingPathComponent(name + ".pdf"))
-            var row: [String: Any] = ["case": name, "utf8ByteCount": password.utf8.count]
-            row["qpdfUTF8PasswordFileCheck"] = try QPDFStructuralAudit.run(bytes, password: password)
-            func state(_ document: PDFDocument) -> [String: Any] {
-                ["isEncrypted": document.isEncrypted, "isLocked": document.isLocked, "pageCount": document.pageCount,
-                 "knownText": !document.isLocked && (document.string ?? "").contains("PDF structural verification")]
-            }
-            for (label, credential) in [("correct", password), ("empty", ""), ("wrong", "synthetic-wrong")] {
-                if label != "correct" { row["qpdfUTF8PasswordFile-" + label] = try QPDFStructuralAudit.run(bytes, password: credential) }
-                guard let document = PDFDocument(data: bytes) else { throw NSError(domain: "PDF.ExactDiagnosis", code: 5) }
-                let before = state(document), result = document.unlock(withPassword: credential)
-                row["PDFKit-" + label] = ["before": before, "returned": result, "after": state(document)]
-            }
-            guard let provider = CGDataProvider(data: bytes as CFData), let cg = CGPDFDocument(provider) else { throw NSError(domain: "PDF.ExactDiagnosis", code: 6) }
-            let cgBefore: [String: Any] = ["isEncrypted": cg.isEncrypted, "isUnlocked": cg.isUnlocked, "pageCount": cg.numberOfPages]
-            let cgResult = password.withCString { cg.unlockWithPassword($0) }
-            row["CoreGraphics-UTF8"] = ["before": cgBefore, "returned": cgResult, "isEncrypted": cg.isEncrypted,
-                                        "isUnlocked": cg.isUnlocked, "pageCount": cg.numberOfPages]
-            guard let document = PDFDocument(data: bytes), let reference = document.documentRef else { throw NSError(domain: "PDF.ExactDiagnosis", code: 7) }
-            let before = state(document), referenceResult = password.withCString { reference.unlockWithPassword($0) }
-            let afterCG = state(document), wrapperResult = document.unlock(withPassword: password)
-            row["PDFKit-documentRef-UTF8"] = ["before": before, "cgReturned": referenceResult, "afterCG": afterCG,
-                "cgEncrypted": reference.isEncrypted, "cgUnlocked": reference.isUnlocked,
-                "wrapperReturned": wrapperResult, "afterWrapper": state(document)]
-            rows.append(row)
-            FileHandle.standardOutput.write(try JSONSerialization.data(withJSONObject: row, options: [.sortedKeys]) + Data([10]))
-        }
-        try NativeOutput.write(JSONSerialization.data(withJSONObject: rows, options: [.prettyPrinted, .sortedKeys]),
-                               to: ExactAuditCapture.currentDirectory.appendingPathComponent("strategies.json"))
-    }
 }

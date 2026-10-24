@@ -3,6 +3,7 @@ import fcntl
 import json
 import os
 from pathlib import Path
+import shlex
 import signal
 import subprocess
 import sys
@@ -45,14 +46,17 @@ print('unchanged')
         self.assertEqual({number:signal.getsignal(number) for number in previous},previous)
 
     def test_pdfkit_and_office_cli_cancel_real_groups_and_release_descendant_locks(self):
-        with tempfile.TemporaryDirectory(prefix='pdf-cli-cancel-') as temporary:
+        with tempfile.TemporaryDirectory(prefix='PDF CLI cancellation ') as temporary:
             root=Path(temporary)
+            runtime=root/'Library/Application Support/PDF';runtime.mkdir(parents=True)
+            interpreter=runtime/'python3';interpreter.symlink_to(sys.executable)
             for kind in ('pdfkit','office'):
                 for requested in (signal.SIGINT,signal.SIGTERM):
                     with self.subTest(driver=kind,signal=requested):
                         case=root/f'{kind}-{requested}';case.mkdir()
                         marker=case/'ready.json';lock=case/'child.lock';child=case/'synthetic-engine'
-                        child.write_text('#!'+sys.executable+'\n'+'''import fcntl,json,os,signal,time
+                        child_script=case/'synthetic engine.py'
+                        child_script.write_text('''import fcntl,json,os,signal,time
 from pathlib import Path
 signal.signal(signal.SIGINT,signal.SIG_IGN)
 signal.signal(signal.SIGTERM,signal.SIG_IGN)
@@ -67,6 +71,11 @@ os.close(write);assert os.read(read,5)==b'ready';os.close(read)
 Path(__MARKER_PATH__).write_text(json.dumps(dict(pid=os.getpid(),descendant=descendant)))
 time.sleep(15)
 '''.replace('__LOCK_PATH__',repr(str(lock))).replace('__MARKER_PATH__',repr(str(marker))))
+                        # Kernels do not interpret a quoted interpreter path in
+                        # a shebang. Exercise the installed venv's space-bearing
+                        # path using an actual shell exec with two quoted argv.
+                        child.write_text('#!/bin/sh\nexec '+shlex.quote(str(interpreter))+' '
+                                         +shlex.quote(str(child_script))+' "$@"\n')
                         child.chmod(0o700)
                         output=case/'output'
                         if kind=='pdfkit':
@@ -89,7 +98,13 @@ raise SystemExit(office.run_main())
                             deadline=time.monotonic()+5
                             while not marker.exists() and process.poll() is None and time.monotonic()<deadline:
                                 time.sleep(.01)
-                            self.assertTrue(marker.exists(),'The actual descendant must hold its lock before cancellation.')
+                            if not marker.exists():
+                                startup_error=b'Process still running; stderr was not read before collection.'
+                                if process.poll() is not None:
+                                    _,startup_error=process.communicate(timeout=1)
+                                self.fail('The actual descendant must hold its lock before cancellation; '
+                                          +'bootstrap exit='+str(process.returncode)+'; stderr='
+                                          +startup_error.decode(errors='replace')[:8192])
                             identities=json.loads(marker.read_text())
                             self.assertNotEqual(identities['pid'],identities['descendant'])
                             process.send_signal(requested)

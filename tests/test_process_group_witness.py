@@ -60,16 +60,25 @@ class ProcessGroupWitnessTests(unittest.TestCase):
             resources = Path(temporary) / 'PDF.app/Contents/Resources'
             engine = resources / 'engine'; engine.mkdir(parents=True)
             helper = resources / 'runtime/bin/pdf-process-group-check'; helper.parent.mkdir(parents=True)
-            with mock.patch.object(owned_process, '__file__', str(engine / 'owned_process.py')), \
-                 mock.patch.dict(os.environ, {'PDF_PROCESS_HELPER': '/bin/true', 'PATH': '/bin'}):
-                with self.assertRaisesRegex(RuntimeError, 'missing'): owned_process._group_snapshot_helper()
-                helper.write_bytes(b'fixture'); helper.chmod(0o755)
-                self.assertEqual(owned_process._group_snapshot_helper(), helper)
-                for mode in (0o777, 0o4755, 0o2755, 0o644):
-                    helper.chmod(mode)
-                    with self.subTest(mode=mode), self.assertRaises(RuntimeError): owned_process._group_snapshot_helper()
-                helper.unlink(); helper.symlink_to('/bin/true')
-                with self.assertRaises(RuntimeError): owned_process._group_snapshot_helper()
+            alias = Path(temporary) / 'bundle folder alias'
+            alias.symlink_to(resources.parent.parent, target_is_directory=True)
+            for module in (engine / 'owned_process.py', alias / 'Contents/Resources/engine/owned_process.py'):
+                with self.subTest(module=module), \
+                     mock.patch.object(owned_process, '__file__', str(module)), \
+                     mock.patch.dict(os.environ, {'PDF_PROCESS_HELPER': '/bin/true', 'PATH': '/bin'}):
+                    with self.assertRaisesRegex(RuntimeError, 'missing'): owned_process._group_snapshot_helper()
+                    helper.write_bytes(b'fixture'); helper.chmod(0o755)
+                    selected = owned_process._group_snapshot_helper()
+                    # macOS /var is an alias of /private/var. Canonicalizing the
+                    # parent folder must still name this exact regular leaf.
+                    self.assertEqual(selected, helper.resolve(strict=True))
+                    self.assertTrue(selected.samefile(helper))
+                    for mode in (0o777, 0o4755, 0o2755, 0o644):
+                        helper.chmod(mode)
+                        with self.subTest(mode=mode), self.assertRaises(RuntimeError): owned_process._group_snapshot_helper()
+                    helper.unlink(); helper.symlink_to('/bin/true')
+                    with self.assertRaises(RuntimeError): owned_process._group_snapshot_helper()
+                    helper.unlink()
 
     def test_only_identified_source_checkout_can_use_absent_helper_ps_fallback(self):
         with tempfile.TemporaryDirectory() as temporary:

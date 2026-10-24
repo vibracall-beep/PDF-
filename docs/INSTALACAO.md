@@ -78,7 +78,7 @@ Fontes existentes não são mesclados nem apagados. O helper conserva a cópia e
 
 ## Identificação da versão aprovada
 
-A última rodada ampliada é `4ac9d264473fd5440df4d67bfa6cf2e702d8d3bf`, [40114980785](https://github.com/vibracall-beep/PDF-/actions/runs/40114980785), **reprovada**. Os [originais de `4ac9d26`](evidencias/4ac9d26/README.md) preservam os testes aprovados e as falhas de captura/AX e assinatura do framework Python. Os [originais de `cbb3298`](evidencias/cbb3298/README.md) continuam históricos, com 64 capturas revisadas e erro anterior de `otool`. Ajustes posteriores aguardam nova matriz; não há checksum de pacote portátil aprovado para indicar aqui.
+A revisão 0.6 ainda não tem pacote portátil aprovado. A [tabela de execuções](VALIDACAO.md) identifica o resultado de cada commit e os respectivos originais. As falhas anteriores de captura, empacotamento e isolamento permanecem no histórico; uma compilação ou um diagnóstico focal aprovado não substitui a instalação, atualização e compatibilidade do pacote completo. Por isso ainda não há checksum de entrega final para indicar aqui.
 
 A última base inteiramente aprovada foi **0.5**, commit `5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`, na [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Os dois sistemas, macOS 26.6.2 e 27.0.1, passaram os checks daquele código. Essa base não contém as 17 ampliações atuais nem o novo pacote portátil. Os [relatórios históricos](evidencias/5a11c07/README.md) conservam sua procedência.
 

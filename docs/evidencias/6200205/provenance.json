@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceCommit": "62002051d708eaec412218324db1dc05dd2ea001",
+  "runID": 40129433128,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40129433128",
+  "sourceWorkflow": ".github/workflows/macos.yml",
+  "conclusion": "failure",
+  "productApproved": false,
+  "originalFiles": [
+    {
+      "path": "actions-attempt-1-logs.zip",
+      "bytes": 157636,
+      "sha256": "dfdf2a42e62a063a676b2bcf3b08b39b13b2b9b9c8b74591d0d1b29859045b37",
+      "sourceAPIPath": "/repos/vibracall-beep/PDF-/actions/runs/40129433128/attempts/1/logs",
+      "upstreamDigestSupplied": false
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "jobID": 120977781206,
+      "conclusion": "failure",
+      "officialLogEntry": "0_native-application (macos-26).txt",
+      "logBytes": 182154,
+      "logSHA256": "55937ab1163347f3bc1f5de522f3625abbd02819f9892b1616b4b0b180ca5117",
+      "compile": "success",
+      "scripts": {
+        "methods": 120,
+        "passed": 119,
+        "skipped": 1,
+        "skipReason": "Linux /dev/full supplies a real ENOSPC write",
+        "seconds": 20.813,
+        "nativeProcessGroupConsensusTest": "passed"
+      },
+      "core": {
+        "methods": 311,
+        "passedMethods": 309,
+        "failedMethods": 2,
+        "failureRecords": 5,
+        "skipped": 0,
+        "seconds": 83.255,
+        "failedMethodIDs": [
+          "test_cooperative_cli.CooperativeCLITests.test_pdfkit_and_office_cli_cancel_real_groups_and_release_descendant_locks",
+          "test_process_group_witness.ProcessGroupWitnessTests.test_bundle_requires_fixed_regular_unprivileged_executable_without_path_override"
+        ]
+      },
+      "notExecuted": [
+        "integration_suite",
+        "native_smoke",
+        "preview",
+        "accessibility",
+        "vision",
+        "local_ai",
+        "benchmark",
+        "portable_assembly",
+        "portable_isolation",
+        "binary_install_update"
+      ],
+      "relevantLogLines": {
+        "scriptsSummary": 291,
+        "coreSummary": 1178,
+        "failureRecords": [
+          1138,
+          1146,
+          1154,
+          1162,
+          1170
+        ]
+      }
+    },
+    {
+      "runner": "xcode-27",
+      "jobID": 120977780929,
+      "conclusion": "failure",
+      "officialLogEntry": "1_native-application (xcode-27).txt",
+      "logBytes": 184290,
+      "logSHA256": "e51292929358135d931bbbb1124070e54d7311cb0f6a053ee9ee7fd5eab2aac0",
+      "compile": "success",
+      "scripts": {
+        "methods": 120,
+        "passed": 119,
+        "skipped": 1,
+        "skipReason": "Linux /dev/full supplies a real ENOSPC write",
+        "seconds": 20.354,
+        "nativeProcessGroupConsensusTest": "passed"
+      },
+      "core": {
+        "methods": 311,
+        "passedMethods": 309,
+        "failedMethods": 2,
+        "failureRecords": 5,
+        "skipped": 0,
+        "seconds": 86.214,
+        "failedMethodIDs": [
+          "test_cooperative_cli.CooperativeCLITests.test_pdfkit_and_office_cli_cancel_real_groups_and_release_descendant_locks",
+          "test_process_group_witness.ProcessGroupWitnessTests.test_bundle_requires_fixed_regular_unprivileged_executable_without_path_override"
+        ]
+      },
+      "notExecuted": [
+        "integration_suite",
+        "native_smoke",
+        "preview",
+        "accessibility",
+        "vision",
+        "local_ai",
+        "benchmark",
+        "portable_assembly",
+        "portable_isolation",
+        "binary_install_update"
+      ],
+      "relevantLogLines": {
+        "scriptsSummary": 289,
+        "coreSummary": 1218,
+        "failureRecords": [
+          1178,
+          1186,
+          1194,
+          1202,
+          1210
+        ]
+      }
+    }
+  ],
+  "privacyReview": {
+    "textEntriesScanned": 38,
+    "patternMatches": 0,
+    "redactionsApplied": false,
+    "scope": "Token, signed-URL, authorization-header and private-key patterns only; this is not a proof of absence of every sensitive value."
+  },
+  "interpretation": [
+    "311 counts test methods; four failures are subcases of one method, plus one different failing method. Thus 309 core methods completed without failure, not 306.",
+    "The failure occurred before integration tests and native smoke; no capture or OCR originals exist from this run.",
+    "The cooperative fixture wrote a shebang containing an interpreter path with spaces; the path helper comparison used /var versus its canonical /private/var path. Fixes after this commit require separate validation."
+  ]
+}

@@ -1,6 +1,6 @@
 # Evidências de validação
 
-## Revisão 0.6 — ecae663 reprovada em captura e isolamento
+## Revisão 0.6 — validação em andamento; pacote final ainda não aprovado
 
 A implementação ampliada **ainda não está aprovada para instalação final**. A [matriz das 17 ampliações](AMPLIACOES-2026-10.md) identifica cada caminho, teste e limite. As 54 ferramentas anteriores foram preservadas e o catálogo passou a 71 entradas, além do leitor. O acesso ao GitHub foi restabelecido; o HTTP 401 anterior não é um bloqueio ativo.
 
@@ -19,10 +19,11 @@ A implementação ampliada **ainda não está aprovada para instalação final**
 | `360dae6` / [40124180933](https://github.com/vibracall-beep/PDF-/actions/runs/40124180933) | **Compilação corrigida; primeiro smoke reprovado em ambos.** 454 casos Python (453 aprovados/um skip). Foram observados 18 grupos nativos aprovados e 16 reprovados; sete checks dependentes não foram alcançados. A preparação de descritores do novo owner falhou, afetando qpdf e seus consumidores. Nenhum smoke posterior ou instalação ativada |
 | `ecae663` / [40125423021](https://github.com/vibracall-beep/PDF-/actions/runs/40125423021) | **Testes aprovados; matriz reprovada nos dois sistemas.** 460 casos Python aprovados/um skip e 41 grupos nativos × três. Captura expirou antes da WindowGroup, sem arquivos. Montagem/assinatura passou; controle de processos Java falhou com `EPERM` no isolamento, antes de Office |
 | `a0a3c0c` / [40129073067](https://github.com/vibracall-beep/PDF-/actions/runs/40129073067) | **Compilação reprovada nos dois sistemas:** constante Core Foundation renomeada pelo SDK. Scripts: 119 aprovados/um skip por Mac, incluindo helper C real com quatro controles. Aplicativo/capturas/portátil não executados. [Original](evidencias/a0a3c0c/README.md) |
+| `6200205` / [40129433128](https://github.com/vibracall-beep/PDF-/actions/runs/40129433128) | **Compilação aprovada; validação por fontes interrompida no núcleo Python.** Os testes expuseram um launcher de teste incompatível com espaços no caminho do Python e uma comparação lexical entre aliases `/var` e `/private/var`. Smokes, capturas e pacote portátil não foram alcançados. [Originais e contagens](evidencias/6200205/README.md) |
 
 Em **`ecae663`**, [40125423021](https://github.com/vibracall-beep/PDF-/actions/runs/40125423021), os dois sistemas aprovaram **461 casos Python: 460 aprovados e um skip**, e **41 grupos nativos × três = 123 aprovações** por sistema. Isso confirma a correção anterior de descritores e os contratos OCR do snapshot. A captura expirou nos dois após `PDFApp init end; mainThread=true`, antes de qualquer janela observada: **zero PNGs, AX, PDFs ou JSONs de revisão OCR**. O amostrador também expirou. A montagem/assinatura passou; o isolamento falhou ao sinalizar um grupo Java/veraPDF com `EPERM`, antes de alcançar Office. Instalação/atualização binária não foram executadas. [Nove originais, tempos e procedência](evidencias/ecae663/README.md).
 
-As correções seguintes de perfis/páginas/zoom, revalidação antes de sair, cleanup Pages, inicialização síncrona GUI e comunicação privada precisam de outra matriz. A causa exata da recusa de inspeção/sinais no sandbox está sob diagnóstico separado. Os resultados históricos abaixo não aprovam essas alterações.
+As correções seguintes de perfis/páginas/zoom, revalidação antes de sair, cleanup Pages, inicialização síncrona GUI e comunicação privada precisam de outra matriz completa. O diagnóstico separado identificou a recusa de `/bin/ps` setuid no sandbox e o comportamento de grupos zumbis; o helper sem privilégios passou seus controles nativos, mas ainda precisa passar o runtime Java/Office completo. Em `6200205`, a compilação foi corrigida e os testes pararam antes dos smokes. As fixtures foram corrigidas mantendo as provas de cancelamento e identidade dos arquivos; uma varredura com intérprete em caminho contendo espaços e pasta temporária por alias também corrigiu a expectativa canônica no teste de recomposição do instalador, preservando bytes, hashes e partes. Essas correções aguardam outra execução macOS.
 
 ### Rodada visual histórica 75d5012
 

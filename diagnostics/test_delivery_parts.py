@@ -87,10 +87,16 @@ class DeliveryPartsTests(unittest.TestCase):
         plan, script = self.script()
         before = {record['name']: (self.assets / record['name']).read_bytes() for record in plan['parts']}
         subprocess.run(['/bin/bash', '-n', str(script)], check=True, timeout=10)
+        # Exercise the /var -> /private/var shape on every platform: the
+        # delivered script intentionally reports its canonical output path.
+        alias = self.root / 'output directory alias'
+        alias.symlink_to(self.output, target_is_directory=True)
+        self.output = alias
         result = self.execute(script)
         self.assertEqual(result.returncode, 0, result.stderr)
         target = self.output / parts.ARCHIVE_NAME
-        self.assertEqual(result.stdout.strip(), str(target))
+        self.assertNotEqual(target, target.resolve())
+        self.assertEqual(result.stdout.strip(), str(target.resolve()))
         self.assertEqual(target.read_bytes(), self.data)
         self.assertEqual(hashlib.sha256(target.read_bytes()).hexdigest(), plan['sha256'])
         self.assertEqual(stat.S_IMODE(target.stat().st_mode), 0o600)

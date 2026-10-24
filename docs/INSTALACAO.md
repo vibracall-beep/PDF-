@@ -1,6 +1,6 @@
 # Instalação do PDF por comando
 
-**Estado da versão 0.6:** o instalador autocontido e o atualizador estão implementados, mas o pacote portátil desta revisão ainda não foi aprovado na matriz macOS. O acesso ao GitHub foi restabelecido. O aplicativo por fontes passou os três smokes no macOS 26 em `d0fda92`, mas o empacotamento portátil recusou uma referência externa de certificados; o job27 parou na desmontagem do volume HFS+ de teste. A rodada `766fe59` reprovou antes da compilação numa comparação de aliases de caminho do teste de certificados. As correções ainda precisam da matriz completa. Este documento descreve os procedimentos preparados; não é uma solicitação de teste de uma versão incompleta pelo usuário. Consulte [VALIDACAO.md](VALIDACAO.md) antes de identificar qualquer pacote como entrega final.
+**Estado da versão 0.6:** o instalador autocontido e o atualizador estão implementados, mas o pacote portátil desta revisão ainda não foi aprovado na matriz macOS. O aplicativo por fontes passou compilação, instalação e três smokes de 37 grupos nos dois sistemas em `73c9863`; o empacotamento reprovou no26 por comentários UTF-8 na lista CA e no27 por confundir arquivo Java com Mach-O. A [matriz 40109285584](https://github.com/vibracall-beep/PDF-/actions/runs/40109285584), `cbb3298`, também terminou com falha de montagem nos dois sistemas. A API registra sucesso das etapas anteriores; logs e artefatos inacessíveis impedem confirmar a nova causa e revisar as capturas. Este documento descreve os procedimentos preparados; não é uma solicitação de teste de uma versão incompleta pelo usuário. Consulte [VALIDACAO.md](VALIDACAO.md) antes de identificar qualquer pacote como entrega final.
 
 ## Requisitos comuns
 
@@ -29,7 +29,7 @@ bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE "$HOM
 
 Os valores acima são parâmetros documentais, **não um link ou checksum de uma versão já aprovada**. O script verifica SHA-256 antes de extrair, valida a assinatura do bundle e usa o Python incluído para conferir o manifesto e instalar. A assinatura ad hoc não identifica um publicador Apple; a origem confiável do checksum continua necessária.
 
-O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` testa com rede, Homebrew, LibreOffice externo e ferramentas de desenvolvimento bloqueados. **A existência desses checks não significa que o pacote atual já passou.** A correção do empacotamento usa a lista pública Mozilla do keg de certificados, sem copiar a lista local mesclada com Keychains. A ausência de dependências externas, instalação e atualização do bundle ainda não foi aprovada.
+O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` testa com rede, Homebrew, LibreOffice externo e ferramentas de desenvolvimento bloqueados. **A existência desses checks não significa que o pacote atual já passou.** O empacotamento usa a lista pública Mozilla do keg, sem copiar a lista local mesclada com Keychains. A correção atual valida cada bloco PEM sem recusar comentários UTF-8 e distingue estruturalmente Mach-O de arquivos Java; arquitetura, carregamento e assinatura continuam verificados. Os 97 testes de scripts locais tiveram 96 aprovações e um skip HFS+ exclusivo de Mac; isso não aprova ausência de dependências externas, instalação ou atualização do bundle.
 
 ## Atualização, recuperação e retorno à versão anterior
 
@@ -42,7 +42,7 @@ O atualizador:
 3. Prepara e valida uma cópia, grava um diário durável e preserva `PDF.previous.<identificador>.app`.
 4. Ativa a cópia e repete verificações. Falha tratada restaura a anterior; uma interrupção pode deixar diário para recuperação na próxima execução.
 
-Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. HFS+ realmente cheio e recuperação após SIGKILL passaram nos dois sistemas em `fcac3db`; a desmontagem HFS+ corrigida também passou nos dois jobs de `766fe59`. Isso valida esses cenários do helper, sem aprovar o pacote portátil completo. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
+Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. HFS+ realmente cheio, desmontagem do volume e recuperação após SIGKILL passaram nos dois sistemas em `73c9863`. Isso valida esses cenários do helper, sem aprovar o pacote portátil completo. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
 
 Para **voltar deliberadamente** a uma versão, use novamente o instalador com o pacote anterior aprovado e seu checksum original. Isso preserva a instalação que está sendo substituída. Não mova bundles manualmente enquanto houver aplicativo, tarefas ou instalador em execução. Não apague cópias anteriores e runtimes durante a investigação de uma interrupção.
 
@@ -77,6 +77,8 @@ bash scripts/install-from-github.sh --archive URL_HTTPS_DO_PACOTE_DE_FONTES --sh
 Fontes existentes não são mesclados nem apagados. O helper conserva a cópia em `~/Library/Application Support/PDF/sources/<SHA>`; `--source-dir` escolhe outra pasta nova. Não passe credenciais na URL ou linha de comando.
 
 ## Identificação da versão aprovada
+
+A ampliação `73c98630e50e4b978f0bebeeb7965613c2d4536f` aprovou a instalação por fontes e os testes funcionais nos dois sistemas, mas sua [matriz 40106710898](https://github.com/vibracall-beep/PDF-/actions/runs/40106710898) reprovou a montagem da distribuição autocontida. Os [relatórios originais](evidencias/73c9863/README.md) preservam essa distinção. `cbb3298` também reprovou a montagem nos dois sistemas. O diagnóstico aguarda os logs bloqueados para download; não há checksum de pacote portátil aprovado para indicar aqui.
 
 A última base inteiramente aprovada foi **0.5**, commit `5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`, na [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Os dois sistemas, macOS 26.6.2 e 27.0.1, passaram os checks daquele código. Essa base não contém as 17 ampliações atuais nem o novo pacote portátil. Os [relatórios históricos](evidencias/5a11c07/README.md) conservam sua procedência.
 

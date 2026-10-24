@@ -7,9 +7,9 @@ Aplicativo nativo macOS, em português, com **71 ferramentas e leitor permanente
 ## Estado verificável
 
 - **Implementação:** catálogo com 71 entradas, mantendo todos os 54 IDs anteriores. Leitor com abas, comparação lado a lado, pesquisa, miniaturas, marcadores, anotações e recuperação.
-- **Validação da ampliação:** `d0fda92` passou compilação, 268 testes de núcleo, 45 integrações, 75 testes de scripts e três execuções dos 37 grupos nativos no macOS 26; um teste Linux foi ignorado. As 32 capturas reais e cinco relatórios AX passaram e foram revisados. [Relatórios originais](docs/evidencias/d0fda92-macos26/README.md) e [VALIDACAO.md](docs/VALIDACAO.md) delimitam essa aprovação parcial.
+- **Validação da ampliação:** `73c9863` passou compilação e instalação por fontes nos dois sistemas: cada um aprovou 400 testes Python, com um caso Linux ignorado, e 37 grupos nativos em três execuções. Os gates de 32 capturas/cinco AX passaram por sistema; as 64 imagens foram revisadas. [Relatórios originais](docs/evidencias/73c9863/README.md) e [VALIDACAO.md](docs/VALIDACAO.md) delimitam essa aprovação funcional, que não inclui o pacote portátil.
 - **Última base inteiramente aprovada no CI:** `5a11c07`, [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), macOS 26.6.2 e 27.0.1. Essa base é anterior às 17 ampliações.
-- **Pendente:** a autenticação GitHub foi restabelecida. As matrizes recentes ainda reprovaram: `d0fda92` na desmontagem do volume de teste27 e no empacotamento26; `766fe59` numa comparação de caminhos do teste de certificados, antes de compilar. As correções seguem em validação; nenhum pacote portátil está aprovado.
+- **Estado atual:** a [rodada 40109285584](https://github.com/vibracall-beep/PDF-/actions/runs/40109285584), `cbb3298`, terminou com falha de empacotamento nos dois sistemas. A API informa sucesso das etapas anteriores, mas logs e artefatos estão bloqueados para download; o diagnóstico e a revisão das capturas continuam pendentes. Não há novos tempos/contagens conferidos nem pacote portátil validado.
 - **Alcance:** runners M1 virtualizados não medem M4 físico, energia ou Neural Engine; inspeção AX automática não substitui uso humano com VoiceOver.
 
 A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs/FERRAMENTAS.md), as [dez primeiras melhorias](docs/MELHORIAS.md) e a [auditoria histórica](docs/AUDITORIA-FERRAMENTAS.md) permanecem disponíveis.
@@ -18,7 +18,7 @@ A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs
 
 ![Captura histórica do menu principal do PDF](docs/imagens/menu-principal.png)
 
-Esta é uma **captura real da base `5a11c07`**, em macOS 27.0.1; não representa as novas telas da versão 0.6. A [galeria histórica](docs/imagens/README.md) conserva procedência e hashes. A ampliação `d0fda92` produziu 32 capturas reais e cinco relatórios AX aprovados no macOS 26; as 32 imagens foram revisadas. Essa revisão revelou rótulos preenchidos pouco claros, corrigidos em `766fe59`; a aparência dessas correções ainda precisa de novas capturas.
+Esta é uma **captura real da base `5a11c07`**, em macOS 27.0.1; não representa as novas telas da versão 0.6. A [galeria histórica](docs/imagens/README.md) conserva procedência e hashes. A ampliação `73c9863` produziu 32 capturas reais e cinco relatórios AX aprovados em cada sistema, e suas 64 imagens foram revisadas. A galeria acima continua histórica; a atualização aguarda acesso e revisão das capturas de `cbb3298`, com o ajuste mais recente do rodapé; o download dessa rodada está bloqueado.
 
 O ambiente oferece busca, favoritos, categorias, nomes e ícones personalizados, ordem e visibilidade de ferramentas, aparência, densidade, opções de leitura e saída. A ampliação inclui arraste com alternativa por teclado, atalhos editáveis com verificação de conflitos, paleta de comandos e perfis de trabalho. Animações acompanham as mudanças e respeitam Reduzir Movimento. Veja [PERSONALIZACAO.md](docs/PERSONALIZACAO.md) e a [matriz atual](docs/AMPLIACOES-2026-10.md).
 

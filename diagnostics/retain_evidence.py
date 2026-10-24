@@ -240,7 +240,8 @@ def release_description(run_id, commit):
             'Isto não é uma versão aprovada do aplicativo nem um instalador.\n\n'
             'Execução: ' + run_id + '\nCommit: `' + commit + '`\n'
             'Workflow de origem: `.github/workflows/macos.yml`\n\n'
-            'Apenas dez arquivos ZIP de evidência nativa, dois logs completos e seu manifesto. '
+            'Apenas dez arquivos ZIP de evidência nativa, o ZIP original dos logs completos '
+            'da tentativa validada e seu manifesto. '
             'Os ZIPs não são extraídos nem executados durante esta preservação. '
             'Resultados de IA indisponível e de capacidade Vision permanecem nos originais.\n\n'
             'Manter como rascunho. Não publicar nem substituir assets existentes.\n')
@@ -307,14 +308,20 @@ def retain(api, run_id, commit, directory):
     job_records = []
     for runner in RUNNERS:
         job = selected_jobs[runner]
-        print('Retaining original complete job log:', runner, 'ID:', job['id'], flush=True)
-        file = directory / ('job-' + runner + '-' + str(job['id']) + '.log')
-        record = api.download('/actions/jobs/' + str(job['id']) + '/logs', file, MAX_LOG)
-        files.append(dict(record, kind='original-complete-job-log', jobID=job['id'], runner=runner))
         job_records.append({'id': job['id'], 'runner': runner, 'conclusion': job['conclusion'],
                             'requiredNativeGatesPassed': list(REQUIRED_STEPS),
                             'failedSteps': [step['name'] for step in job['steps'] if step.get('conclusion') == 'failure']})
-    manifest = {'schemaVersion': 1, 'purpose': 'original-evidence-retention-only',
+    # GitHub supplies the original full log ZIP for the verified attempt. Keep
+    # its bytes opaque; do not reconstruct logs or stream ANSI text to a terminal.
+    log_route = base + '/attempts/' + str(run['run_attempt']) + '/logs'
+    print('Retaining original complete log ZIP for source attempt:', run['run_attempt'], flush=True)
+    file = directory / ('source-run-' + run_id + '-attempt-' + str(run['run_attempt']) + '-logs.zip')
+    record = api.download(log_route, file, MAX_LOG)
+    files.append(dict(record, kind='original-complete-attempt-logs-zip', sourceAPIPath=log_route,
+                      sourceRunID=int(run_id), sourceRunAttempt=run['run_attempt'],
+                      jobIDs=[job['id'] for job in job_records],
+                      digestProvenance='calculated-from-original-download; no upstream digest supplied'))
+    manifest = {'schemaVersion': 2, 'purpose': 'original-evidence-retention-only',
                 'repository': api.repository, 'sourceRunID': int(run_id), 'sourceCommit': commit,
                 'sourceRunAttempt': run['run_attempt'], 'sourceWorkflow': run['path'],
                 'sourceConclusion': 'failure', 'applicationApproved': False,

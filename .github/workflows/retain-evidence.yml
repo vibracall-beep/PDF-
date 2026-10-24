@@ -31,7 +31,7 @@ jobs:
           persist-credentials: false
       - name: Verify evidence selection and refusal rules
         run: python3 -m unittest discover -s diagnostics -p 'test_retain_evidence.py' -v
-      - name: Preserve authenticated original ZIPs and job logs without extraction
+      - name: Preserve authenticated evidence ZIPs and original attempt log ZIP without extraction
         id: retain
         env:
           GITHUB_TOKEN: ${{ github.token }}

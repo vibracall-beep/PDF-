@@ -41,8 +41,12 @@ class MemoryGitHub:
                 'digest': 'sha256:' + hashlib.sha256(data).hexdigest(), 'expired': False,
                 'created_at': '2026-10-24T10:30:00Z',
                 'workflow_run': {'id': 123, 'head_sha': self.commit, 'repository_id': 45, 'head_repository_id': 45}})
-        for job in self.jobs:
-            self.payloads['/actions/jobs/' + str(job['id']) + '/logs'] = ('Complete log ' + str(job['id'])).encode()
+        logs = io.BytesIO()
+        with zipfile.ZipFile(logs, 'w') as archive:
+            for job in self.jobs:
+                archive.writestr(str(job['id']) + '/complete.log', '\x1b[31mComplete original log ' + str(job['id']))
+            archive.writestr('../../must-not-extract-logs', 'opaque archive')
+        self.payloads['/actions/runs/123/attempts/1/logs'] = logs.getvalue()
         self.release = None; self.assets = []; self.upload_count = 0; self.create_count = 0
 
     def json(self, route, method='GET', payload=None):
@@ -96,7 +100,7 @@ class EvidenceRetentionTests(unittest.TestCase):
 
     def test_failed_source_native_successes_are_retained_without_execution_or_approval(self):
         result = gate.retain(self.api, '123', self.api.commit, self.root / 'first')
-        self.assertEqual(result['verifiedAssets'], 13)
+        self.assertEqual(result['verifiedAssets'], 12)
         self.assertTrue(result['draft']); self.assertFalse(result['applicationApproved'])
         self.assertFalse((self.root / 'must-not-be-extracted').exists())
         self.assertTrue(all((self.root / 'first' / (name + '.zip')).is_file() for name in gate.ARTIFACT_NAMES))
@@ -104,14 +108,22 @@ class EvidenceRetentionTests(unittest.TestCase):
         self.assertEqual(manifest['sourceConclusion'], 'failure')
         self.assertFalse(manifest['binaryDistributionApproved'])
         self.assertFalse(manifest['archiveContentsExtractedOrExecuted'])
-        self.assertEqual(len(manifest['files']), 12)
+        self.assertEqual(len(manifest['files']), 11)
+        original_log = manifest['files'][-1]
+        self.assertEqual(original_log['kind'], 'original-complete-attempt-logs-zip')
+        self.assertEqual(original_log['sourceRunAttempt'], 1)
+        self.assertEqual(original_log['jobIDs'], [100, 101])
+        self.assertEqual(original_log['sourceAPIPath'], '/actions/runs/123/attempts/1/logs')
+        self.assertEqual((self.root / 'first' / original_log['name']).read_bytes(),
+                         self.api.payloads[original_log['sourceAPIPath']])
+        self.assertFalse((self.root / 'must-not-extract-logs').exists())
         self.assertEqual(self.api.create_count, 1)
 
     def test_rerun_compares_existing_bytes_and_never_reuploads_them(self):
         first = gate.retain(self.api, '123', self.api.commit, self.root / 'first')
         second = gate.retain(self.api, '123', self.api.commit, self.root / 'second')
         self.assertEqual(first, second)
-        self.assertEqual(self.api.upload_count, 13); self.assertEqual(self.api.create_count, 1)
+        self.assertEqual(self.api.upload_count, 12); self.assertEqual(self.api.create_count, 1)
         self.assertEqual((self.root / 'first' / gate.MANIFEST).read_bytes(), (self.root / 'second' / gate.MANIFEST).read_bytes())
 
     def test_interrupted_export_can_add_missing_assets_without_replacing_any(self):
@@ -119,8 +131,8 @@ class EvidenceRetentionTests(unittest.TestCase):
         removed = self.api.assets.pop()
         self.api.payloads.pop('/releases/assets/' + str(removed['id']))
         gate.retain(self.api, '123', self.api.commit, self.root / 'second')
-        self.assertEqual(self.api.upload_count, 14)
-        self.assertEqual(len(self.api.assets), 13)
+        self.assertEqual(self.api.upload_count, 13)
+        self.assertEqual(len(self.api.assets), 12)
 
     def test_published_or_changed_release_is_refused_without_any_write(self):
         gate.retain(self.api, '123', self.api.commit, self.root / 'first')
@@ -129,7 +141,7 @@ class EvidenceRetentionTests(unittest.TestCase):
                 api = copy.deepcopy(self.api); api.release[field] = value
                 with self.assertRaises(gate.EvidenceFailure):
                     gate.retain(api, '123', api.commit, self.root / field)
-                self.assertEqual(api.upload_count, 13); self.assertEqual(api.create_count, 1)
+                self.assertEqual(api.upload_count, 12); self.assertEqual(api.create_count, 1)
 
     def test_changed_asset_bytes_and_foreign_assets_are_not_overwritten(self):
         gate.retain(self.api, '123', self.api.commit, self.root / 'first')
@@ -137,10 +149,10 @@ class EvidenceRetentionTests(unittest.TestCase):
         asset = api.assets[0]; asset.pop('digest')
         api.payloads['/releases/assets/' + str(asset['id'])] = b'x' * asset['size']
         with self.assertRaises(gate.EvidenceFailure): gate.retain(api, '123', api.commit, self.root / 'different')
-        self.assertEqual(api.upload_count, 13)
+        self.assertEqual(api.upload_count, 12)
         api = copy.deepcopy(self.api); api.assets.append({'name': 'owner-file', 'id': 999})
         with self.assertRaises(gate.EvidenceFailure): gate.retain(api, '123', api.commit, self.root / 'extra')
-        self.assertEqual(api.upload_count, 13)
+        self.assertEqual(api.upload_count, 12)
 
     def test_release_changed_during_final_verification_is_not_reported_as_a_draft(self):
         for field, value in [('draft', False), ('body', 'changed during final download')]:
@@ -155,7 +167,7 @@ class EvidenceRetentionTests(unittest.TestCase):
                 with patch.object(api, 'download', side_effect=changed_download):
                     with self.assertRaises(gate.EvidenceFailure):
                         gate.retain(api, '123', api.commit, self.root / field)
-                self.assertEqual(api.upload_count, 13)
+                self.assertEqual(api.upload_count, 12)
 
     def test_foreign_run_commit_workflow_and_incomplete_gates_are_rejected(self):
         variants = []
@@ -219,7 +231,7 @@ class EvidenceRetentionTests(unittest.TestCase):
             observed.append((route, accept))
             return [sys.executable, '-c', 'print("original bytes")']
         api.arguments = arguments
-        routes = ['/actions/artifacts/123/zip', '/actions/jobs/456/logs', '/releases/assets/789']
+        routes = ['/actions/artifacts/123/zip', '/actions/runs/123/attempts/1/logs', '/releases/assets/789']
         for index, route in enumerate(routes):
             api.download(route, self.root / ('accept-' + str(index)), 100)
         self.assertEqual(observed, [(routes[0], 'application/vnd.github+json'),

@@ -152,7 +152,8 @@ enum ReaderAnnotationStyle {
             activateSession(existing.id); startNextOpening(); return
         }
         var metadata = stat()
-        guard Darwin.stat(url.path, &metadata) == 0, metadata.st_mode & S_IFMT == S_IFREG else {
+        guard url.path.withCString({ fstatat(AT_FDCWD, $0, &metadata, 0) }) == 0,
+              metadata.st_mode & S_IFMT == S_IFREG else {
             message = "Escolha um arquivo PDF regular e acessível."; startNextOpening(); return
         }
         // PDFKit keeps ordinary PDFs backed by their URL. Only protected input

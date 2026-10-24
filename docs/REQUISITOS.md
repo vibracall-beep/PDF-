@@ -100,7 +100,7 @@ Escolhas de implementação feitas durante o desenvolvimento — como linguagens
 
 ## Pedido adicional de auditoria e personalização
 
-O usuário informou que a personalização de ferramentas e das opções de visualização não estava suficiente ou visível. Pediu ampliar esses controles, acrescentar menus animados ao Liquid Glass, verificar todas as ferramentas e orientações, corrigir sistematicamente os problemas e realizar outra auditoria após as correções. Também pediu apresentar melhorias que tornem o aplicativo mais completo e elegante. A matriz de execução, correções e limites fica em [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md); as opções efetivas da interface, em [PERSONALIZACAO.md](PERSONALIZACAO.md).
+O usuário informou que a personalização de ferramentas e das opções de visualização não estava suficiente ou visível. Pediu ampliar esses controles, acrescentar menus animados ao Liquid Glass, verificar todas as ferramentas e orientações, corrigir sistematicamente os problemas e realizar outra auditoria após as correções. Também pediu apresentar melhorias que tornem o aplicativo mais completo e elegante. A matriz vigente de execução, correções e limites fica em [AMPLIACOES-2026-10.md](AMPLIACOES-2026-10.md); o registro histórico da base 0.5, em [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md); e as opções efetivas da interface, em [PERSONALIZACAO.md](PERSONALIZACAO.md).
 
 ## Dez melhorias posteriormente autorizadas
 

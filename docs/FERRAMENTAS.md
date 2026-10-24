@@ -64,7 +64,7 @@ Os 45 itens da terceira imagem correspondem a **44 cartões preservados e ao lei
 | Anotador de PDF | Anotar PDF; abre o leitor com realces, notas e desenho livre |
 | Leitor de PDF | Leitor na barra lateral; PDFKit, busca, miniaturas, sumário, marcadores, zoom e impressão |
 | Numere páginas | Números de página; posição, fonte, tamanho, início e formato |
-| Recortar PDF | Recortar PDF; ajuste de margens |
+| Recortar PDF | Recortar PDF; ajuste de margens ou seleção de área específica |
 | Redigir PDF | Ocultar PDF; remoção permanente de texto/áreas, metadados e anexos |
 | Marca d'água PDF | Marca d’água; texto ou imagem, posição e transparência |
 | Preenchimento de formulários em PDF | Preencher PDF; lê e preenche campos existentes. Formulários PDF também cria e sugere campos |

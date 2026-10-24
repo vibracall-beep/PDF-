@@ -46,13 +46,24 @@ final class OwnedChildProcess: @unchecked Sendable {
         let streams: [Any?] = [configuration.standardInput, configuration.standardOutput, configuration.standardError]
         for (index, value) in streams.enumerated() {
             let descriptor: Int32
-            if let handle = value as? FileHandle { descriptor = handle.fileDescriptor }
+            var openedNull: Int32?
+            defer { if let openedNull { Darwin.close(openedNull) } }
+            if let handle = value as? FileHandle {
+                // Foundation's null handle can be a sink object with no real
+                // descriptor. Process.run handles this intention specially;
+                // posix_spawn needs a real /dev/null descriptor instead.
+                // An arbitrary invalid/closed handle is never treated as null.
+                if handle === FileHandle.nullDevice {
+                    let opened = Darwin.open("/dev/null", (index == 0 ? O_RDONLY : O_WRONLY) | O_CLOEXEC | O_NOFOLLOW)
+                    guard opened >= 0 else { throw Self.descriptorError(index: index, code: errno) }
+                    openedNull = opened; descriptor = opened
+                } else { descriptor = handle.fileDescriptor }
+            }
             else if let pipe = value as? Pipe {
                 descriptor = index == 0 ? pipe.fileHandleForReading.fileDescriptor : pipe.fileHandleForWriting.fileDescriptor
             } else if value == nil { descriptor = Int32(index) }
             else { throw Self.error("O transporte do processo auxiliar é inválido.") }
-            let copy = fcntl(descriptor, F_DUPFD_CLOEXEC, 3)
-            guard copy >= 0 else { throw Self.error("Não foi possível preparar os descritores do processo auxiliar.") }
+            let copy = try Self.duplicateDescriptor(descriptor, streamIndex: index)
             copies.append(copy)
             try Self.check(posix_spawn_file_actions_adddup2(&actions, copy, Int32(index)))
         }
@@ -216,6 +227,19 @@ final class OwnedChildProcess: @unchecked Sendable {
     }
     private static func check(_ status: Int32) throws {
         guard status == 0 else { throw error("Não foi possível iniciar o processo auxiliar (\(status)).") }
+    }
+    static func duplicateDescriptor(_ descriptor: Int32, streamIndex: Int) throws -> Int32 {
+        guard (0...2).contains(streamIndex) else { throw error("O transporte do processo auxiliar é inválido.") }
+        let copy = fcntl(descriptor, F_DUPFD_CLOEXEC, 3)
+        guard copy >= 0 else { throw descriptorError(index: streamIndex, code: errno) }
+        return copy
+    }
+    private static func descriptorError(index: Int, code: Int32) -> NSError {
+        let names = ["entrada padrão", "saída padrão", "saída de diagnóstico"]
+        return NSError(domain: "PDF.OwnedChild.Descriptor", code: Int(code), userInfo: [
+            NSLocalizedDescriptionKey: "Não foi possível preparar a \(names[index]) do processo auxiliar (erro \(code)).",
+            "streamIndex": index
+        ])
     }
     private static func validateReapingPolicy() throws {
         var disposition = sigaction()

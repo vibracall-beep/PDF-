@@ -104,6 +104,58 @@ struct OCRReviewWord: Codable, Identifiable, Sendable {
     let text: String
     let confidence: Double
 }
+struct OCRReviewSettings: Codable, Equatable, Sendable {
+    let language: String
+    let ocr_dpi: Int
+    let ocr_psm: Int
+    let min_confidence: Double
+    let ocr_deskew: Bool?
+    func validate(language expected: String) throws {
+        guard language.utf8.elementsEqual(expected.utf8), (120...400).contains(ocr_dpi),
+              (3...13).contains(ocr_psm), min_confidence.isFinite, (0...100).contains(min_confidence) else {
+            throw AdvancedDocumentValidation.failure("As opções registradas na análise OCR não são válidas.")
+        }
+    }
+}
+/// New UI requests use automatic page layout. Reports without settings retain
+/// the engine's historical single-block default instead of claiming a new mode.
+struct OCRRecognitionConfiguration: Equatable, Sendable {
+    var language = "por+eng"
+    var segmentation = 3
+    var deskew = false
+    init(language: String = "por+eng", segmentation: Int = 3, deskew: Bool = false) {
+        self.language = language; self.segmentation = segmentation; self.deskew = deskew
+    }
+    init(review: OCRReviewDocument) {
+        language = review.language
+        segmentation = review.settings?.ocr_psm ?? 6
+        deskew = review.settings?.ocr_deskew ?? false
+    }
+    func requestOptions() throws -> [String: Any] {
+        guard language.range(of: "^[A-Za-z0-9_]+(?:\\+[A-Za-z0-9_]+)*$", options: .regularExpression) != nil,
+              (3...13).contains(segmentation) else {
+            throw AdvancedDocumentValidation.failure("Escolha um idioma e uma organização do texto válidos para o OCR.")
+        }
+        return ["language": language, "ocr_psm": segmentation, "ocr_deskew": deskew, "min_confidence": 0]
+    }
+    var languageTitle: String {
+        ["por+eng": "Português + inglês", "por": "Português", "eng": "Inglês", "spa": "Espanhol"][language] ?? language
+    }
+    var layoutTitle: String {
+        switch segmentation {
+        case 3: return "Página automática"
+        case 4: return "Coluna com tamanhos variados"
+        case 5: return "Bloco vertical"
+        case 6: return "Bloco de texto uniforme"
+        case 7, 13: return "Linha única"
+        case 8, 9: return "Palavra única"
+        case 10: return "Caractere único"
+        case 11: return "Texto esparso"
+        case 12: return "Texto esparso com orientação"
+        default: return "Organização não reconhecida"
+        }
+    }
+}
 struct OCRReviewDocument: Codable, Sendable {
     let version: Int
     let source_sha256: String
@@ -112,10 +164,18 @@ struct OCRReviewDocument: Codable, Sendable {
     let words: [OCRReviewWord]
     let backend: String
     let language: String
+    var settings: OCRReviewSettings? = nil
+    var review_sha256: String? = nil
+    var recognitionConfiguration: OCRRecognitionConfiguration { OCRRecognitionConfiguration(review: self) }
     func validate(digest: String) throws {
         try AdvancedDocumentValidation.pages(version: version, digest: source_sha256, expected: digest, count: page_count, pages: pages)
         guard words.count <= 50_000, Set(words.map(\.id)).count == words.count,
               !backend.isEmpty, !language.isEmpty else { throw AdvancedDocumentValidation.failure("O resultado OCR não contém uma identificação válida.") }
+        _ = try recognitionConfiguration.requestOptions()
+        try settings?.validate(language: language)
+        if let review_sha256, review_sha256.range(of: "^[0-9a-f]{64}$", options: .regularExpression) == nil {
+            throw AdvancedDocumentValidation.failure("A análise OCR não contém uma identificação de revisão válida.")
+        }
         for word in words {
             try Task.checkCancellation()
             guard !word.id.isEmpty, word.id.utf8.count <= 256, word.text.utf8.count <= 16_384,
@@ -234,10 +294,17 @@ private enum AdvancedDecodedAnalysis: Sendable {
     private var ownsEngine = false
     private var closed = false
     private var generation = UUID()
-    private var ocrReviewURL: URL?
+    // Read-only access lets the isolated preview retain the exact engine report
+    // alongside its synthetic source; production export uses the same file.
+    private(set) var ocrReviewURL: URL?
     deinit { cancellation?.cancel(); assetCancellations.values.forEach { $0.cancel() }; task?.cancel(); if let source { try? FileManager.default.removeItem(at: source.directory) } }
-    @discardableResult func load(model: Workspace, ocr: Bool, language: String = "por+eng", deskew: Bool = false) -> Bool {
+    @discardableResult func load(model: Workspace, ocr: Bool, language: String = "por+eng", deskew: Bool = false, segmentation: Int = 6) -> Bool {
         guard !working, !model.busy, ApplicationWork.isAcceptingWork else { return false }
+        let recognition = OCRRecognitionConfiguration(language: language, segmentation: segmentation, deskew: deskew)
+        if ocr {
+            do { _ = try recognition.requestOptions() }
+            catch { status = error.localizedDescription; return false }
+        }
         NSApp.keyWindow?.makeFirstResponder(nil)
         guard let document = model.document, let url = model.savedDocumentURL ?? model.url, !document.isLocked else {
             status = "Abra e desbloqueie um PDF no leitor primeiro."; return false
@@ -259,7 +326,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
                 self.source = captured
                 self.preview = try NativePDFSerialization.finishOpen(captured.opening)
                 self.task = nil; self.cancellation = nil
-                self.inspect(model: model, ocr: ocr, language: language, deskew: deskew, generation: current)
+                self.inspect(model: model, ocr: ocr, recognition: recognition, generation: current)
             } catch {
                 guard let self, self.generation == current else { return }
                 self.working = false; self.task = nil; self.cancellation = nil
@@ -269,12 +336,15 @@ private enum AdvancedDecodedAnalysis: Sendable {
         }
         return true
     }
-    private func inspect(model: Workspace, ocr: Bool, language: String, deskew: Bool, generation current: UUID) {
+    private func inspect(model: Workspace, ocr: Bool, recognition: OCRRecognitionConfiguration, generation current: UUID) {
         guard let source else { working = false; return }
         let metadata = source.directory.appendingPathComponent("analysis-" + UUID().uuidString + ".json")
         var options: [String: Any] = [:]
         if let password { options["password"] = password }
-        if ocr { options["language"] = language; options["min_confidence"] = 0; options["ocr_deskew"] = deskew }
+        if ocr {
+            do { options.merge(try recognition.requestOptions()) { _, new in new } }
+            catch { status = error.localizedDescription; working = false; return }
+        }
         status = ocr ? "Reconhecendo palavras e posições com OCR local…" : "Identificando objetos de texto e imagem…"
         ownsEngine = true
         model.execute(operation: ocr ? "ocr-review" : "content-inspect", inputs: [source.url], output: metadata, options: options,

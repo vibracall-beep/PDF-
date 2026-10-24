@@ -557,18 +557,30 @@ enum MacPreview {
         guard contentController.content?.objects.isEmpty == false else { throw MacPreview.failure(24, "O editor não carregou objetos reais da amostra.") }
         present(.advanced("content")); try await capture("editor-conteudo")
 
-        guard let page = model.document?.page(at: 0),
-              let imagePage = PDFPage(image: page.thumbnail(of: NSSize(width: 1200, height: 1600), for: .cropBox)) else {
+        guard let page = model.document?.page(at: 0) else {
             throw MacPreview.failure(25, "Não foi possível preparar a amostra raster para revisão OCR.")
         }
+        let thumbnail = page.thumbnail(of: NSSize(width: 1200, height: 1600), for: .cropBox)
+        guard let imagePage = PDFPage(image: thumbnail) else { throw MacPreview.failure(25, "Não foi possível preparar a amostra raster para revisão OCR.") }
+        let originalBounds = page.bounds(for: .cropBox), imageBounds = imagePage.bounds(for: .cropBox)
+        let rasterSizes = thumbnail.representations.map { "\($0.pixelsWide)x\($0.pixelsHigh)" }.joined(separator: ",")
+        MacPreview.trace("OCR fixture: sourcePoints=\(originalBounds.width)x\(originalBounds.height); thumbnailPoints=\(thumbnail.size.width)x\(thumbnail.size.height); bitmapPixels=\(rasterSizes); scanPoints=\(imageBounds.width)x\(imageBounds.height)")
         let scanned = PDFDocument(); scanned.insert(imagePage, at: 0)
         let scanURL = scratchDirectory.appendingPathComponent("Revisão digitalizada.pdf")
         guard let bytes = scanned.dataRepresentation() else { throw MacPreview.failure(26, "A amostra raster está vazia.") }
         try NativeOutput.write(bytes, to: scanURL)
         model.open(url: scanURL); await model.waitForPendingOpen()
-        ocrController.load(model: model, ocr: true, language: "eng")
+        ocrController.load(model: model, ocr: true, language: "eng", segmentation: 3)
         try await waitForReview(ocrController)
         guard ocrController.review?.words.isEmpty == false else { throw MacPreview.failure(27, "O OCR não recuperou palavras reais da amostra.") }
+        guard let destination, let reportURL = ocrController.ocrReviewURL,
+              ocrController.review?.recognitionConfiguration == OCRRecognitionConfiguration(language: "eng", segmentation: 3),
+              try Data(contentsOf: scanURL) == bytes else {
+            throw MacPreview.failure(27, "As opções OCR ou a amostra original não foram preservadas na prévia.")
+        }
+        let evidence = destination.deletingPathExtension()
+        try NativeOutput.write(bytes, to: evidence.appendingPathExtension("revisao-ocr.source.pdf"))
+        try NativeOutput.write(Data(contentsOf: reportURL), to: evidence.appendingPathExtension("revisao-ocr.analysis.json"))
         present(.advanced("ocr")); try await capture("revisao-ocr")
 
         let library = DocumentLibraryStore(directory: scratchDirectory.appendingPathComponent("Library", isDirectory: true))

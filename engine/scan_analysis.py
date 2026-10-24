@@ -61,10 +61,33 @@ def _segments(image, scale, vertical=False):
             candidates.append(previous)
         selected={id(line) for line in candidates}
         active = candidates + [line for line in active if id(line) not in selected and row-line['last'] < tolerance]
-    # Characters can contain short straight runs; rectangles require all four edges.
+    # A glyph can have four approximately straight sides too. Only thin rules
+    # are eligible for destructive suppression: a short, thick stroke is not
+    # evidence of a table/field border, regardless of the page's physical scale.
     return [dict(start=line['start'], end=line['end'], at=(line['first']+line['last']+1)/2,
                  thickness=line['last']-line['first']+1) for line in segments
-            if line['last']-line['first']+1 <= max(12, 6*scale)]
+            if line['last']-line['first']+1 <= max(12, 6*scale)
+            and line['end']-line['start'] >= 10*(line['last']-line['first']+1)]
+
+
+def _isolated_underline(binary, line, scale):
+    """Require blank bands beside a standalone rule before erasing any pixels.
+
+    A long horizontal stroke inside a large letter is not a blank form line:
+    its connected stem/curve enters one of these bands. Ambiguous, touching or
+    noisy rules stay in the OCR image and are not proposed as empty fields.
+    Grid borders are qualified separately by their full rectangular topology.
+    """
+    padding = max(2, math.ceil(scale))
+    left = max(0, math.floor(line['start'])-padding)
+    right = min(binary.width, math.ceil(line['end'])+padding)
+    top = max(0, math.floor(line['at']-line['thickness']/2))
+    bottom = min(binary.height, math.ceil(line['at']+line['thickness']/2))
+    for first, last in ((max(0, top-padding), top), (bottom, min(binary.height, bottom+padding))):
+        if first == last: return False
+        with binary.crop((left, first, right, last)) as band:
+            if band.histogram()[0]: return False
+    return True
 
 
 def _components(horizontal, vertical, tolerance):
@@ -216,7 +239,8 @@ def analyze(page, page_number, options, external):
     for hs,vs,_ in components: structural_h.extend(hs); structural_v.extend(vs)
     # Suppress rules in an OCR-only image; the input PDF and exported image are untouched.
     cleaned=image.copy(); drawing=ImageDraw.Draw(cleaned)
-    underlines=[line for line in horizontal if line not in structural_h and (line['end']-line['start'])/scale>=35]
+    underlines=[line for line in horizontal if line not in structural_h and (line['end']-line['start'])/scale>=35
+                and _isolated_underline(binary,line,scale)]
     for axis,lines in (('h',structural_h+underlines),('v',structural_v)):
         for line in lines:
             half=line['thickness']/2+1
@@ -283,8 +307,7 @@ def analyze(page, page_number, options, external):
         kind='checkbox' if point_rect.width<=26 and point_rect.height<=26 else 'text'
         fields.append(dict(name=f'ocr_{page_number}_{len(fields)+1}',page=page_number,type=kind,rect=[round(value,3) for value in point_rect],quad=quad,label=label,confidence=round(confidence,4),source='ocr-grid',review_required=True,low_confidence=confidence<minimum_confidence))
     # Underlined fields can be unconnected to a vertical border.
-    for line in horizontal:
-        if line in structural_h or (line['end']-line['start'])/scale<35: continue
+    for line in underlines:
         rect=fitz.Rect(line['start']/scale,max(0,line['at']/scale-18),line['end']/scale,line['at']/scale+2)
         if _inside(words,rect*scale): continue
         mapped,quad=original_geometry(rect*scale,preprocessing,scale,bounds)
@@ -298,6 +321,7 @@ def analyze(page, page_number, options, external):
     return dict(page=page_number,source='ocr',dpi=dpi,language=language,words=words,lines=lines,tables=tables,fields=fields,review_required=True,preprocessing=preprocessing,
                 low_confidence_words=sum(word['confidence']<minimum_confidence for word in words),
                 limitations=['Scores are OCR evidence, not calibrated accuracy.','Merged cells require a strong rectangular frame and unambiguous interior borders.',
+                    'Automatic rule removal requires thin borders; standalone field lines require blank adjacent bands. Ambiguous shapes need manual review.',
                     'Borderless tables require explicit aligned mode, repeated columns and numeric evidence.',
                     'Optional deskew uses ruling lines within seven degrees; text-only skew and handwriting are not corrected.',
                     'Inverse-mapped rectangles enclose original quadrilaterals; rotated form fields require manual review.'])

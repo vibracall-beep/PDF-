@@ -100,6 +100,8 @@ jobs:
           path: |
             ${{ runner.temp }}/PDF-preview*.png
             ${{ runner.temp }}/PDF-preview*accessibility.json
+            ${{ runner.temp }}/PDF-preview.revisao-ocr.source.pdf
+            ${{ runner.temp }}/PDF-preview.revisao-ocr.analysis.json
           if-no-files-found: ignore
       - name: Record Apple Vision capability independently
         id: vision

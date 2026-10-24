@@ -26,20 +26,25 @@ struct OCRReviewView: View {
     @StateObject private var controller: AdvancedDocumentController
     @State private var page = 1
     @State private var selection: String?
-    @State private var language = "por+eng"
-    @State private var deskew = false
+    @State private var recognition: OCRRecognitionConfiguration
     @State private var corrections = OCRCorrectionState()
     @State private var replacement = ""
     @State private var lowConfidenceOnly = false
     @State private var confidenceThreshold = 80.0
     @State private var validation = ""
     @MainActor init(controller: AdvancedDocumentController? = nil) {
-        _controller = StateObject(wrappedValue: controller ?? AdvancedDocumentController())
+        let value = controller ?? AdvancedDocumentController()
+        _controller = StateObject(wrappedValue: value)
+        _recognition = State(initialValue: value.review?.recognitionConfiguration ?? OCRRecognitionConfiguration())
     }
     private var allPageWords: [OCRReviewWord] { controller.review?.words.filter { $0.page == page } ?? [] }
     private var visibleWords: [OCRReviewWord] { allPageWords.filter { !lowConfidenceOnly || $0.confidence * 100 < confidenceThreshold } }
     private var selected: OCRReviewWord? { controller.review?.words.first { $0.id == selection } }
+    private var pendingRecognitionChanges: Bool {
+        controller.review.map { recognition != $0.recognitionConfiguration } ?? false
+    }
     var body: some View {
+        ScrollView {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 VStack(alignment: .leading) {
@@ -49,12 +54,15 @@ struct OCRReviewView: View {
                 Spacer()
                 Button("Abrir PDF…") { model.open() }.disabled(controller.working || model.busy)
             }
+            Text(controller.review == nil ? "Opções de reconhecimento" : "Opções para reconhecer novamente").font(.headline)
+            ViewThatFits(in: .horizontal) {
+                HStack(alignment: .top, spacing: 20) { languagePicker; layoutPicker }
+                VStack(alignment: .leading, spacing: 10) { languagePicker; layoutPicker }
+            }.disabled(controller.working)
             HStack {
-                Picker("Idioma do OCR", selection: $language) {
-                    Text("Português + inglês").tag("por+eng"); Text("Português").tag("por"); Text("Inglês").tag("eng"); Text("Espanhol").tag("spa")
-                }.frame(maxWidth: 300).disabled(controller.working)
                 Button("Reconhecer versão salva") {
-                    if controller.load(model: model, ocr: true, language: language, deskew: deskew) {
+                    if controller.load(model: model, ocr: true, language: recognition.language,
+                                       deskew: recognition.deskew, segmentation: recognition.segmentation) {
                         page = 1; selection = nil; corrections.reset(); replacement = ""; validation = ""
                     }
                 }.buttonStyle(.borderedProminent).disabled(model.document == nil || model.busy || controller.working)
@@ -63,9 +71,13 @@ struct OCRReviewView: View {
                     Button("Exportar PDF pesquisável…") { export() }.disabled(controller.working || model.busy)
                 }
             }
-            Toggle("Compensar pequena inclinação durante o reconhecimento", isOn: $deskew)
+            Toggle("Compensar pequena inclinação durante o reconhecimento", isOn: $recognition.deskew)
                 .disabled(controller.working)
                 .help("Aplica compensação apenas com evidência suficiente de linhas inclinadas. A imagem original permanece intacta. Reconheça novamente para aplicar a opção.")
+            if pendingRecognitionChanges {
+                Text("Opções alteradas. Reconheça novamente para aplicá-las; a lista e a exportação ainda usam a análise anterior.")
+                    .font(.callout).foregroundStyle(.orange)
+            }
             Text("Use um PDF digitalizado sem texto selecionável. Confira cada trecho contra a imagem. A exportação mantém a página original e aplica uma camada de texto invisível; a imagem impressa não muda com as correções.")
                 .font(.callout).foregroundStyle(.secondary)
             if let review = controller.review, let document = controller.preview {
@@ -88,7 +100,10 @@ struct OCRReviewView: View {
                     }, selection: $selection).frame(minWidth: 320, minHeight: 330)
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Palavras reconhecidas").font(.headline)
-                        Text("Motor: \(review.backend) · idioma: \(review.language)").font(.caption).foregroundStyle(.secondary)
+                        Text("Análise: \(review.recognitionConfiguration.languageTitle) · \(review.recognitionConfiguration.layoutTitle)")
+                            .font(.caption).foregroundStyle(.secondary)
+                        Text("Motor: \(review.backend)" + (review.recognitionConfiguration.deskew ? " · compensação de inclinação solicitada" : ""))
+                            .font(.caption).foregroundStyle(.secondary)
                         List(visibleWords, selection: $selection) { word in
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 3) {
@@ -110,7 +125,7 @@ struct OCRReviewView: View {
                             }.disabled(controller.working)
                         } else { Text("Selecione uma palavra na lista ou na página para corrigir o texto.").foregroundStyle(.secondary) }
                     }.padding(12).frame(minWidth: 310, idealWidth: 380, maxWidth: 500)
-                }
+                }.frame(height: 420)
             } else {
                 ContentUnavailableView("Imagem e texto sob revisão", systemImage: "text.viewfinder",
                     description: Text("O reconhecimento acontece neste Mac. A confiança do OCR ajuda a localizar erros; ela não substitui a conferência visual."))
@@ -124,13 +139,43 @@ struct OCRReviewView: View {
                 if controller.working { Button("Cancelar") { controller.stop(model: model) } }
                 if let output = controller.output { Button("Abrir resultado") { model.open(url: output) } }
             }
-        }.padding(24).onChange(of: selection) { _, _ in updateSelection() }
+        }.padding(24)
+        }.onChange(of: selection) { _, _ in updateSelection() }
             .onAppear { selectFirstWord() }
-            .onChange(of: controller.review?.source_sha256) { _, _ in selectFirstWord() }
+            .onChange(of: controller.review?.recognitionConfiguration) { _, value in
+                if let value { recognition = value }
+            }
+            .onChange(of: controller.review?.review_sha256 ?? controller.review?.source_sha256) { _, _ in selectFirstWord() }
             .onChange(of: page) { _, _ in selection = nil; selectFirstWord() }
             .onChange(of: lowConfidenceOnly) { _, _ in selectFirstWord() }
             .onChange(of: confidenceThreshold) { _, _ in selectFirstWord() }
             .onDisappear { controller.close(model: model) }
+    }
+    private var languagePicker: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Idioma do OCR").font(.callout)
+            Picker("Idioma do OCR", selection: $recognition.language) {
+                Text("Português + inglês").tag("por+eng"); Text("Português").tag("por")
+                Text("Inglês").tag("eng"); Text("Espanhol").tag("spa")
+                if !["por+eng", "por", "eng", "spa"].contains(recognition.language) {
+                    Text(recognition.languageTitle).tag(recognition.language)
+                }
+            }.labelsHidden().accessibilityLabel("Idioma do OCR")
+        }.frame(minWidth: 225, maxWidth: 310, alignment: .leading)
+    }
+    private var layoutPicker: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text("Organização do texto").font(.callout)
+            Picker("Organização do texto", selection: $recognition.segmentation) {
+                Text("Página automática").tag(3)
+                Text("Bloco de texto uniforme").tag(6)
+                Text("Texto esparso").tag(11)
+                if ![3, 6, 11].contains(recognition.segmentation) {
+                    Text(recognition.layoutTitle).tag(recognition.segmentation)
+                }
+            }.labelsHidden().accessibilityLabel("Organização do texto")
+                .help("Página automática separa títulos, colunas e corpo. Bloco uniforme trata a página como um único bloco. Texto esparso procura trechos separados; confira a ordem de leitura.")
+        }.frame(minWidth: 240, maxWidth: 330, alignment: .leading)
     }
     private func updateSelection() { replacement = selected.map { corrections.values[$0.id] ?? $0.text } ?? ""; validation = "" }
     private func selectFirstWord() {

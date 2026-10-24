@@ -77,6 +77,41 @@ enum AdvancedEditingAuditChecks {
         let word = OCRReviewWord(id: "word-1", page: 1, rect: box, text: "a\u{301}", confidence: 0.65)
         let review = OCRReviewDocument(version: 1, source_sha256: hash, page_count: 1, pages: [page], words: [word], backend: "tesseract", language: "por")
         try review.validate(digest: hash)
+        let legacyReview = try JSONDecoder().decode(OCRReviewDocument.self, from: JSONEncoder().encode(review))
+        try require(legacyReview.settings == nil && legacyReview.recognitionConfiguration.language == "por" &&
+                    legacyReview.recognitionConfiguration.segmentation == 6 && !legacyReview.recognitionConfiguration.deskew,
+                    "a revisão antiga passou a declarar opções que não usou")
+        let freshRequest = OCRRecognitionConfiguration()
+        try require(freshRequest.segmentation == 3 && freshRequest.language == "por+eng", "um novo pedido não usa a organização automática da página")
+        for mode in [3, 6, 11, 4] {
+            var configuredReview = review
+            configuredReview.settings = OCRReviewSettings(language: "por", ocr_dpi: 200, ocr_psm: mode, min_confidence: 0, ocr_deskew: true)
+            configuredReview.review_sha256 = String(repeating: "b", count: 64)
+            let roundTrip = try JSONDecoder().decode(OCRReviewDocument.self, from: JSONEncoder().encode(configuredReview))
+            try roundTrip.validate(digest: hash)
+            let configuration = roundTrip.recognitionConfiguration
+            let options = try configuration.requestOptions()
+            try require(configuration.language == "por" && configuration.segmentation == mode && configuration.deskew &&
+                        options["language"] as? String == "por" && options["ocr_psm"] as? Int == mode && options["ocr_deskew"] as? Bool == true,
+                        "as opções visíveis ou enviadas não correspondem à revisão carregada")
+            var pending = configuration; pending.language = "eng"
+            try require(pending != roundTrip.recognitionConfiguration && roundTrip.language == "por" &&
+                        roundTrip.review_sha256 == configuredReview.review_sha256,
+                        "mudar opções pendentes alterou a identificação da análise existente")
+        }
+        for settings in [
+            OCRReviewSettings(language: "eng", ocr_dpi: 200, ocr_psm: 3, min_confidence: 0, ocr_deskew: nil),
+            OCRReviewSettings(language: "por", ocr_dpi: 119, ocr_psm: 3, min_confidence: 0, ocr_deskew: nil),
+            OCRReviewSettings(language: "por", ocr_dpi: 200, ocr_psm: 2, min_confidence: 0, ocr_deskew: nil),
+            OCRReviewSettings(language: "por", ocr_dpi: 200, ocr_psm: 3, min_confidence: .nan, ocr_deskew: nil)
+        ] {
+            var malformed = review; malformed.settings = settings
+            try require(rejects { try malformed.validate(digest: hash) }, "aceitou opções OCR inválidas ou idioma divergente")
+        }
+        var badReviewHash = review; badReviewHash.review_sha256 = "invalid"
+        try require(rejects { try badReviewHash.validate(digest: hash) }, "aceitou uma identificação de revisão inválida")
+        try require(rejects { _ = try OCRRecognitionConfiguration(language: "eng;invalid").requestOptions() }, "aceitou idioma OCR malformado")
+        try require(rejects { _ = try OCRRecognitionConfiguration(segmentation: 14).requestOptions() }, "aceitou organização OCR fora do contrato")
         var corrections = OCRCorrectionState()
         try corrections.set("á", for: word)
         let edits = try corrections.payload(words: [word])

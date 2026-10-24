@@ -39,6 +39,7 @@ import PDFKit
         let source = root.appendingPathComponent("original.txt")
         let original = Data("original preservado\n".utf8)
         try NativeOutput.write(original, to: source)
+        try await nullAndInvalidDescriptors()
         try await rejectAutomaticReaping(root: root)
 
         // The same unlinked private stdin used by Workspace survives dup2;
@@ -139,6 +140,32 @@ import PDFKit
 
         try await workspaceTermination(root: root)
         try await ticketLifecycle(root: root)
+    }
+
+    private static func nullAndInvalidDescriptors() async throws {
+        // All three explicitly null streams must have real descriptors in the
+        // child: stdin reaches EOF, and both output channels accept writes.
+        let null = Process()
+        null.executableURL = URL(fileURLWithPath: "/bin/bash")
+        null.arguments = ["--noprofile", "--norc", "-c", "set -e; /bin/cat; printf stdout; printf stderr >&2"]
+        null.standardInput = FileHandle.nullDevice; null.standardOutput = FileHandle.nullDevice; null.standardError = FileHandle.nullDevice
+        let child = try OwnedChildProcess(configuration: null)
+        let completion = try await Task.detached { try child.waitUntilExit() }.value
+        try require(completion.status == 0 && !completion.signalled, "o transporte explícito /dev/null falhou.")
+        try reaped(child)
+
+        // Exercise the production duplication primitive with an actually
+        // invalid descriptor. Unlike close(fd) followed by spawn, -1 cannot be
+        // reused by another thread between preparation and the assertion.
+        var refused = false
+        do {
+            let unexpected = try OwnedChildProcess.duplicateDescriptor(-1, streamIndex: 0)
+            Darwin.close(unexpected)
+        } catch {
+            let failure = error as NSError
+            refused = failure.domain == "PDF.OwnedChild.Descriptor" && failure.code == Int(EBADF) && failure.userInfo["streamIndex"] as? Int == 0
+        }
+        try require(refused, "um descritor inválido foi aceito como dispositivo nulo.")
     }
 
     private static func rejectAutomaticReaping(root: URL) async throws {

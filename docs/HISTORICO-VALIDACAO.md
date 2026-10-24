@@ -1,5 +1,10 @@
 # Histórico de validação
 
+## Rodada 360dae6 — compilação corrigida, descritores nativos reprovados
+
+[40124180933](https://github.com/vibracall-beep/PDF-/actions/runs/40124180933) compilou nos dois SDKs. Cada Mac aprovou 297 testes de núcleo, 46 integrações e 110 de 111 testes de scripts; o único skip depende de `/dev/full`. No primeiro smoke houve 18 grupos aprovados e 16 reprovados, começando pela preparação dos descritores do novo owner e afetando qpdf. Sete checks dependentes não foram alcançados; não houve segunda/terceira execução nativa nem ativação da instalação. A hipótese de `FileHandle.nullDevice` abstrato motivou tradução explícita para `/dev/null`, com testes de EOF/escrita e recusa de descritor inválido. Essa correção ainda depende de outra matriz.
+
+
 Este arquivo preserva registros anteriores. A aprovação vigente, os limites e o commit para instalação estão em [VALIDACAO.md](VALIDACAO.md) e [INSTALACAO.md](INSTALACAO.md).
 
 ## Auditoria estrutural posterior a 2816a41

@@ -205,12 +205,39 @@ class EvidenceRetentionTests(unittest.TestCase):
             with self.assertRaises(gate.EvidenceFailure): api.download('/unused', bad, 100, expected_size, digest)
             self.assertFalse(bad.exists())
         api.arguments = lambda *args, **kwargs: [sys.executable, '-c', 'import sys;sys.stderr.write("secret signed URL");sys.exit(1)']
-        with self.assertRaisesRegex(gate.EvidenceFailure, '^GitHub evidence download was rejected\\.$'):
+        with self.assertRaisesRegex(gate.EvidenceFailure, r'API host=api\.github\.com; HTTP=unreported; gh exit=1'):
             api.download('/unused', self.root / 'error', 100)
         protected = self.root / 'already-present'
         protected.write_bytes(b'preserve original')
         with self.assertRaises(FileExistsError): api.download('/unused', protected, 100)
         self.assertEqual(protected.read_bytes(), b'preserve original')
+
+    def test_actions_redirects_and_release_assets_use_their_required_accept_headers(self):
+        api = object.__new__(gate.GitHub); api.environment = os.environ.copy()
+        observed = []
+        def arguments(route, *, accept):
+            observed.append((route, accept))
+            return [sys.executable, '-c', 'print("original bytes")']
+        api.arguments = arguments
+        routes = ['/actions/artifacts/123/zip', '/actions/jobs/456/logs', '/releases/assets/789']
+        for index, route in enumerate(routes):
+            api.download(route, self.root / ('accept-' + str(index)), 100)
+        self.assertEqual(observed, [(routes[0], 'application/vnd.github+json'),
+                                    (routes[1], 'application/vnd.github+json'),
+                                    (routes[2], 'application/octet-stream')])
+
+    def test_http_failure_reports_only_status_origin_host_and_exit_without_raw_stderr(self):
+        api = object.__new__(gate.GitHub); api.environment = os.environ.copy()
+        private = 'https://storage.invalid/file?sig=secret-token'
+        diagnostic = 'gh: wrong Accept (HTTP 415) ' + private + '\n'
+        api.arguments = lambda *args, **kwargs: [sys.executable, '-c',
+            'import sys;sys.stderr.write(' + repr(diagnostic) + ');sys.stderr.write("x"*1048576);sys.exit(1)']
+        with self.assertRaises(gate.EvidenceFailure) as caught:
+            api.download('/actions/artifacts/123/zip', self.root / 'rejected', 100)
+        self.assertEqual(str(caught.exception), 'GitHub evidence download was rejected (API host=api.github.com; HTTP=415; gh exit=1).')
+        self.assertFalse((self.root / 'rejected').exists())
+        self.assertNotIn('secret-token', str(caught.exception))
+        self.assertNotIn('storage.invalid', str(caught.exception))
 
     def test_token_is_used_only_through_job_environment_and_host_is_fixed(self):
         with patch.dict(os.environ, {'GITHUB_TOKEN': 'private-test-token', 'GH_TOKEN': 'wrong-token', 'GH_DEBUG': 'api'}):

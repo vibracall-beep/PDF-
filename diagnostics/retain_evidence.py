@@ -31,6 +31,7 @@ REQUIRED_STEPS = (
 MAX_ARTIFACT = 256 * 1024 ** 2
 MAX_LOG = 64 * 1024 ** 2
 MAX_JSON = 8 * 1024 ** 2
+MAX_DIAGNOSTIC = 16 * 1024
 MANIFEST = 'evidence-provenance.json'
 
 
@@ -45,6 +46,14 @@ def require(condition, message):
 
 def positive_integer(value):
     return type(value) is int and value > 0
+
+
+def download_failure(returncode, diagnostic):
+    # Never print raw gh stderr: it may contain credentials or signed redirects.
+    match = re.search(rb'\bHTTP\s+([1-5][0-9]{2})\b', diagnostic[:MAX_DIAGNOSTIC])
+    status = match.group(1).decode('ascii') if match else 'unreported'
+    return ('GitHub evidence download was rejected (API host=api.github.com; HTTP='
+            + status + '; gh exit=' + str(returncode) + ').')
 
 
 def validate_inputs(run_id, commit, repository):
@@ -166,28 +175,37 @@ class GitHub:
         # stream before disk exhaustion; discard raw gh errors and signed URLs.
         process = None
         digest = hashlib.sha256()
+        diagnostic = bytearray()
         count = 0
         created = False
+        # Actions ZIP/log endpoints negotiate JSON metadata before redirecting;
+        # requesting octet-stream there returns HTTP 415. Release assets require it.
+        accept = ('application/octet-stream' if route.startswith('/releases/assets/')
+                  else 'application/vnd.github+json')
         try:
             with destination.open('xb') as output:
                 created = True
-                process = subprocess.Popen(self.arguments(route, accept='application/octet-stream'),
-                    stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, env=self.environment)
+                process = subprocess.Popen(self.arguments(route, accept=accept),
+                    stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environment)
                 deadline = time.monotonic() + 300
                 with selectors.DefaultSelector() as selector:
-                    selector.register(process.stdout, selectors.EVENT_READ)
-                    while True:
+                    selector.register(process.stdout, selectors.EVENT_READ, 'content')
+                    selector.register(process.stderr, selectors.EVENT_READ, 'diagnostic')
+                    while selector.get_map():
                         require(time.monotonic() < deadline, 'GitHub evidence download timed out.')
-                        if not selector.select(timeout=1):
-                            continue
-                        block = os.read(process.stdout.fileno(), 1024 * 1024)
-                        if not block:
-                            break
-                        count += len(block)
-                        require(count <= limit and (expected_bytes is None or count <= expected_bytes),
-                                'GitHub evidence download exceeded its declared size.')
-                        digest.update(block); output.write(block)
-                require(process.wait(timeout=10) == 0, 'GitHub evidence download was rejected.')
+                        for key, _ in selector.select(timeout=1):
+                            block = os.read(key.fd, 1024 * 1024)
+                            if not block:
+                                selector.unregister(key.fileobj)
+                            elif key.data == 'diagnostic':
+                                diagnostic.extend(block[:max(0, MAX_DIAGNOSTIC - len(diagnostic))])
+                            else:
+                                count += len(block)
+                                require(count <= limit and (expected_bytes is None or count <= expected_bytes),
+                                        'GitHub evidence download exceeded its declared size.')
+                                digest.update(block); output.write(block)
+                returncode = process.wait(timeout=10)
+                require(returncode == 0, download_failure(returncode, diagnostic))
             require(count > 0 and (expected_bytes is None or count == expected_bytes),
                     'GitHub evidence download has the wrong size.')
             value = digest.hexdigest()
@@ -200,8 +218,10 @@ class GitHub:
                 destination.unlink(missing_ok=True)
             raise
         finally:
-            if process is not None and process.stdout is not None:
-                process.stdout.close()
+            if process is not None:
+                for stream in (process.stdout, process.stderr):
+                    if stream is not None:
+                        stream.close()
 
     def upload(self, tag, path):
         # No --clobber: an asset appearing concurrently must make upload fail.

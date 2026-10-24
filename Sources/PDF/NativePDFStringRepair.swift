@@ -9,7 +9,17 @@ enum NativePDFStringRepair {
     struct Baseline: Sendable {
         fileprivate var strings: [String: Set<Data>] = [:]
         fileprivate var buttonStates: Set<Data> = [Data("Off".utf8)]
+        fileprivate var terminalFields: [TerminalField] = []
+        fileprivate var fieldNameCounts: [Data: Int] = [:]
         fileprivate var needsInspection = false
+    }
+
+    fileprivate struct TerminalField: Sendable {
+        let page: Int
+        let name: Data
+        let type: String
+        let bounds: [Double]
+        var checkedBoxValue: Data? = nil
     }
 
     private static let maximumJSONBytes = 64 * 1024 * 1024
@@ -41,10 +51,26 @@ enum NativePDFStringRepair {
                 result.needsInspection = true
                 if let name = item.fieldName {
                     try remember("field:T", name)
+                    result.fieldNameCounts[Data(name.utf8), default: 0] += 1
                     // A field's fully qualified name joins partial /T values.
                     // Dots are separators in the PDF field-name specification.
                     for component in name.split(separator: ".", omittingEmptySubsequences: false) {
                         try remember("field:T", String(component))
+                    }
+                    if item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/Parent")) == nil,
+                       item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/Kids")) == nil,
+                       !name.contains("."), [.text, .choice, .button].contains(item.widgetFieldType) {
+                        let type = item.widgetFieldType == .text ? "/Tx" : item.widgetFieldType == .choice ? "/Ch" : "/Btn"
+                        var witness = TerminalField(page: index, name: Data(name.utf8), type: type,
+                            bounds: try geometry([Double(item.bounds.origin.x), Double(item.bounds.origin.y),
+                                                  Double(item.bounds.width), Double(item.bounds.height)]))
+                        if item.widgetFieldType == .button, item.widgetControlType == .checkBoxControl,
+                           item.buttonWidgetState.rawValue == 1,
+                           let value = item.widgetStringValue, !value.isEmpty,
+                           exact(value, item.buttonWidgetStateString) {
+                            witness.checkedBoxValue = Data(value.utf8)
+                        }
+                        result.terminalFields.append(witness)
                     }
                 }
                 switch item.widgetFieldType {
@@ -132,7 +158,8 @@ enum NativePDFStringRepair {
               let qpdf = document["qpdf"] as? [Any], qpdf.count == 2,
               let header = qpdf[0] as? [String: Any], header["jsonversion"] as? Int == 2,
               let originalObjects = qpdf[1] as? [String: [String: Any]], originalObjects.count <= maximumObjects else { throw failure() }
-        let objects = try repairReferences(originalObjects, pages: document["pages"])
+        let rebound = try repairReferences(originalObjects, pages: document["pages"])
+        let objects = try restoreOmittedFields(rebound, pages: document["pages"], baseline: baseline)
         let graph = Graph(objects: objects)
         let visible = try graph.visibleAnnotations(document["pages"])
         let annotationKeys = try graph.linkedAnnotations(visible)
@@ -195,7 +222,9 @@ enum NativePDFStringRepair {
                     for field in ["/V", "/DV", "/AS"] {
                         guard let current = value[field] as? String, current.hasPrefix("u:") else { continue }
                         let text = String(current.dropFirst(2)), name = "/" + text
-                        guard baseline.buttonStates.contains(Data(text.utf8)), text == "Off" || states.contains(Data(name.utf8)) else { throw failure() }
+                        let singleAppearance = field == "/V" && states.isEmpty
+                            ? try witnessedCheckedBox(key, value: text, graph: graph, pages: document["pages"], baseline: baseline) : false
+                        guard baseline.buttonStates.contains(Data(text.utf8)), text == "Off" || states.contains(Data(name.utf8)) || singleAppearance else { throw failure() }
                         value[field] = name; changed = true
                     }
                 default: break // Signature dictionaries and unknown field types stay untouched.
@@ -331,6 +360,128 @@ enum NativePDFStringRepair {
             try storeValue(key, parent); try storeValue(popupKey, popup)
         }
         return objects
+    }
+
+    /// A second PDFKit write can drop otherwise intact terminal widgets from
+    /// /Fields. Restore only a unique, flat field witnessed before the writer;
+    /// never manufacture a field or guess how to rebuild a complex hierarchy.
+    private static func restoreOmittedFields(_ original: [String: [String: Any]], pages: Any?, baseline: Baseline) throws -> [String: [String: Any]] {
+        let graph = Graph(objects: original)
+        let visible = try graph.visibleAnnotations(pages)
+        let widgets = visible.filter { graph.value($0)?["/Subtype"] as? String == "/Widget" }
+        guard !widgets.isEmpty else { return original }
+        let (catalogKey, catalog) = try graph.catalog()
+        let rawForm = catalog["/AcroForm"]
+        // First writes legitimately seen in the exact fixtures have page
+        // widgets but no AcroForm and already pass qpdf. Do not invent a form
+        // tree while repairing omissions from an existing one.
+        guard rawForm != nil else { return original }
+        let originalForm = try graph.dictionary(rawForm)
+        var fieldKeys = Set<String>()
+        try graph.collectFields(originalForm?["/Fields"], into: &fieldKeys)
+        let omitted = widgets.subtracting(fieldKeys)
+        guard !omitted.isEmpty else { return original }
+        guard var form = originalForm, let rawFields = form["/Fields"], var fields = try graph.array(rawFields),
+              let pages = pages as? [[String: Any]] else { throw failure() }
+        var membership: [String: Set<Int>] = [:]
+        for (index, page) in pages.enumerated() {
+            guard let pageKey = graph.reference(page["object"]), let value = graph.value(pageKey) else { throw failure() }
+            for entry in try graph.array(value["/Annots"]) ?? [] {
+                guard let key = graph.reference(entry) else { throw failure() }
+                membership[key, default: []].insert(index)
+            }
+        }
+        func fieldName(_ key: String) throws -> Data? {
+            var cursor: String? = key, visited = Set<String>(), parts: [String] = []
+            while let current = cursor {
+                guard visited.insert(current).inserted, visited.count <= 128, let value = graph.value(current) else { throw failure() }
+                if let rawName = value["/T"] {
+                    let fixed = try repairStrings(rawName, allowed: baseline.strings["field:T"] ?? [])
+                    guard let text = fixed.value as? String, text.hasPrefix("u:") else { throw failure() }
+                    parts.insert(String(text.dropFirst(2)), at: 0)
+                }
+                cursor = graph.reference(value["/Parent"])
+            }
+            return parts.isEmpty ? nil : Data(parts.joined(separator: ".").utf8)
+        }
+        var existingNames = Set<Data>(), visibleNames: [Data: Int] = [:]
+        for key in fieldKeys { if let name = try fieldName(key) { existingNames.insert(name) } }
+        for key in widgets { if let name = try fieldName(key) { visibleNames[name, default: 0] += 1 } }
+        for key in omitted.sorted() {
+            guard let value = graph.value(key), value["/Parent"] == nil, value["/Kids"] == nil,
+                  let type = value["/FT"] as? String, ["/Tx", "/Ch", "/Btn"].contains(type),
+                  value["/T"] != nil, let name = try fieldName(key), !name.isEmpty,
+                  !existingNames.contains(name), visibleNames[name] == 1,
+                  let pageSet = membership[key], pageSet.count == 1, let page = pageSet.first,
+                  let rawRectangle = value["/Rect"] as? [NSNumber], rawRectangle.count == 4 else { throw failure() }
+            let rectangle = rawRectangle.map(\.doubleValue)
+            guard rectangle.allSatisfy(\.isFinite), rectangle[2] >= rectangle[0], rectangle[3] >= rectangle[1] else { throw failure() }
+            let bounds = try geometry([rectangle[0], rectangle[1], rectangle[2] - rectangle[0], rectangle[3] - rectangle[1]])
+            let captured = baseline.terminalFields.filter { $0.name == name }
+            guard baseline.fieldNameCounts[name] == 1, captured.count == 1, let witness = captured.first,
+                  witness.page == page, witness.type == type, witness.bounds == bounds else { throw failure() }
+            // Keep the original dictionary/AP/actions intact. This changes only
+            // one structural slot and leaves hidden/signature fields in order.
+            fields.append(String(key.dropFirst(4)))
+            existingNames.insert(name)
+        }
+        var objects = original
+        if let key = graph.reference(rawFields) {
+            guard var record = objects[key] else { throw failure() }
+            record["value"] = fields; objects[key] = record
+        } else {
+            form["/Fields"] = fields
+            if let key = graph.reference(rawForm) {
+                guard var record = objects[key] else { throw failure() }
+                record["value"] = form; objects[key] = record
+            } else {
+                var updated = catalog; updated["/AcroForm"] = form
+                guard var record = objects[catalogKey] else { throw failure() }
+                record["value"] = updated; objects[catalogKey] = record
+            }
+        }
+        return objects
+    }
+
+    /// PDFKit 27 writes a checked checkbox's /V as a String even when its
+    /// normal appearance is one Form XObject, not a state dictionary. The
+    /// exact pre-writer checkbox is the witness; no /AS or AP states are made.
+    private static func witnessedCheckedBox(_ key: String, value text: String, graph: Graph, pages: Any?, baseline: Baseline) throws -> Bool {
+        guard let value = graph.value(key), value["/FT"] as? String == "/Btn",
+              value["/Parent"] == nil, value["/Kids"] == nil, value["/AS"] == nil,
+              let rawName = value["/T"], let rawRectangle = value["/Rect"] as? [NSNumber], rawRectangle.count == 4,
+              let appearance = try graph.dictionary(value["/AP"]), let normalKey = graph.reference(appearance["/N"]),
+              let stream = graph.objects[normalKey]?["stream"] as? [String: Any],
+              let dictionary = stream["dict"] as? [String: Any], dictionary["/Subtype"] as? String == "/Form",
+              let pages = pages as? [[String: Any]] else { return false }
+        let flags = (value["/Ff"] as? NSNumber)?.intValue ?? 0
+        guard flags & ((1 << 15) | (1 << 16)) == 0 else { return false } // Radio/pushbutton are not this case.
+        let fixedName = try repairStrings(rawName, allowed: baseline.strings["field:T"] ?? [])
+        guard let nameString = fixedName.value as? String, nameString.hasPrefix("u:") else { return false }
+        let name = Data(nameString.dropFirst(2).utf8)
+        let captured = baseline.terminalFields.filter { $0.name == name }
+        guard baseline.fieldNameCounts[name] == 1, captured.count == 1, let witness = captured.first,
+              witness.type == "/Btn", witness.checkedBoxValue == Data(text.utf8) else { return false }
+        let rectangle = rawRectangle.map(\.doubleValue)
+        guard rectangle.allSatisfy(\.isFinite), rectangle[2] >= rectangle[0], rectangle[3] >= rectangle[1],
+              try geometry([rectangle[0], rectangle[1], rectangle[2] - rectangle[0], rectangle[3] - rectangle[1]]) == witness.bounds else { return false }
+        var locations: [Int] = []
+        for (index, page) in pages.enumerated() {
+            guard let pageKey = graph.reference(page["object"]), let page = graph.value(pageKey) else { throw failure() }
+            for entry in try graph.array(page["/Annots"]) ?? [] where graph.reference(entry) == key { locations.append(index) }
+        }
+        return locations == [witness.page]
+    }
+
+    private static func geometry(_ values: [Double]) throws -> [Double] {
+        // Match the publication boundary's existing 0.001-point fidelity
+        // precision; no geometric search or nearest-neighbour matching occurs.
+        try values.map { value in
+            let scaled = value * 1000
+            guard value.isFinite, scaled.isFinite else { throw failure() }
+            let rounded = scaled.rounded() / 1000
+            return rounded == 0 ? 0 : rounded
+        }
     }
 
     private static func repairStrings(_ value: Any, allowed: Set<Data>, arrays: Bool = false) throws -> (value: Any, changed: Bool) {
@@ -562,6 +713,80 @@ enum NativePDFStringRepair {
             var refused = false
             do { _ = try patch(jsonData: data(records), baseline: captured) } catch { refused = true }
             try require(refused)
+        }
+        // The second write in the real macOS 26 fixture keeps only the button
+        // in /Fields, while text/choice widgets remain intact on the page.
+        var omitted = objects, omittedBaseline = baseline
+        omitted["obj:2 0 R"] = record(["/Fields": ["7 0 R", "8 0 R", "11 0 R"]])
+        omitted["obj:4 0 R"] = ["value": ["5 0 R", "9 0 R", "20 0 R", "21 0 R"]]
+        omittedBaseline.terminalFields = [TerminalField(page: 0, name: Data("/field".utf8), type: "/Tx", bounds: [20, 20, 100, 20]),
+            TerminalField(page: 0, name: Data("choice".utf8), type: "/Ch", bounds: [20, 90, 120, 30])]
+        omittedBaseline.fieldNameCounts = [Data("/field".utf8): 1, Data("choice".utf8): 1]
+        guard let restored = try patch(jsonData: data(omitted), baseline: omittedBaseline),
+              let restoredRoot = try JSONSerialization.jsonObject(with: restored) as? [String: Any],
+              let restoredQPDF = restoredRoot["qpdf"] as? [Any],
+              let restoredUpdates = restoredQPDF[1] as? [String: [String: Any]],
+              let restoredForm = restoredUpdates["obj:2 0 R"]?["value"] as? [String: Any] else { throw failure() }
+        try require(restoredForm["/Fields"] as? [String] == ["7 0 R", "8 0 R", "11 0 R", "5 0 R", "9 0 R"])
+        try require(restoredUpdates["obj:7 0 R"] == nil && restoredUpdates["obj:8 0 R"] == nil)
+        var restoredObjects = omitted
+        for (key, value) in restoredUpdates { restoredObjects[key] = value }
+        try require(try patch(jsonData: data(restoredObjects), baseline: omittedBaseline) == nil)
+        for change in ["name", "bounds", "parent", "kids", "existing-name", "duplicate-baseline"] {
+            var invalid = omitted, witness = omittedBaseline, candidate = widget
+            switch change {
+            case "name": candidate["/T"] = "u:unrecorded-name"
+            case "bounds": candidate["/Rect"] = [21, 20, 120, 40]
+            case "parent": candidate["/Parent"] = "7 0 R"
+            case "kids": candidate["/Kids"] = [Any]()
+            case "existing-name": invalid["obj:8 0 R"] = record(["/FT": "/Tx", "/T": "u:/field"])
+            default: witness.terminalFields.append(witness.terminalFields[0])
+            }
+            invalid["obj:5 0 R"] = record(candidate)
+            try rejects(invalid, witness)
+        }
+        // First writes with no AcroForm already pass qpdf in both exact
+        // fixtures. They must not be rejected or gain an invented form tree.
+        var noForm = objects
+        noForm["obj:1 0 R"] = record(["/Type": "/Catalog"])
+        guard let noFormPatch = try patch(jsonData: data(noForm), baseline: baseline),
+              let noFormRoot = try JSONSerialization.jsonObject(with: noFormPatch) as? [String: Any],
+              let noFormQPDF = noFormRoot["qpdf"] as? [Any],
+              let noFormUpdates = noFormQPDF[1] as? [String: [String: Any]] else { throw failure() }
+        try require(noFormUpdates["obj:1 0 R"] == nil)
+        // The exact macOS 27 checkbox has /V=u:Yes, no /AS, and a single
+        // normal Form stream. Require its own pre-writer checked-box witness.
+        var single = noForm, singleBaseline = baseline
+        let singleName = Data("single-checkbox".utf8)
+        let singleBox: [String: Any] = ["/Type": "/Annot", "/Subtype": "/Widget", "/FT": "/Btn",
+            "/T": "u:single-checkbox", "/V": "u:Yes", "/Rect": [150, 140, 175, 165], "/AP": ["/N": "40 0 R"]]
+        single["obj:14 0 R"] = record(singleBox)
+        single["obj:4 0 R"] = ["value": ["5 0 R", "14 0 R", "20 0 R", "21 0 R"]]
+        var boxWitness = TerminalField(page: 0, name: singleName, type: "/Btn", bounds: [150, 140, 25, 25])
+        boxWitness.checkedBoxValue = Data("Yes".utf8)
+        singleBaseline.terminalFields = [boxWitness]; singleBaseline.fieldNameCounts[singleName] = 1
+        guard let singlePatch = try patch(jsonData: data(single), baseline: singleBaseline),
+              let singleRoot = try JSONSerialization.jsonObject(with: singlePatch) as? [String: Any],
+              let singleQPDF = singleRoot["qpdf"] as? [Any],
+              let singleUpdates = singleQPDF[1] as? [String: [String: Any]],
+              let singleValue = singleUpdates["obj:14 0 R"]?["value"] as? [String: Any] else { throw failure() }
+        try require(singleValue["/V"] as? String == "/Yes" && singleValue["/AS"] == nil)
+        try require(NSDictionary(dictionary: singleValue["/AP"] as? [String: Any] ?? [:]).isEqual(to: singleBox["/AP"] as? [String: Any] ?? [:]))
+        try require(singleUpdates["obj:40 0 R"] == nil && singleUpdates["obj:1 0 R"] == nil)
+        for change in ["name", "bounds", "state", "page", "duplicate-name", "radio", "pushbutton", "parent"] {
+            var invalid = single, candidate = singleBox, witnessed = singleBaseline
+            switch change {
+            case "name": candidate["/T"] = "u:another-checkbox"
+            case "bounds": candidate["/Rect"] = [151, 140, 175, 165]
+            case "state": witnessed.terminalFields[0].checkedBoxValue = Data("Other".utf8)
+            case "page": witnessed.terminalFields = [TerminalField(page: 1, name: singleName, type: "/Btn", bounds: [150, 140, 25, 25], checkedBoxValue: Data("Yes".utf8))]
+            case "duplicate-name": witnessed.fieldNameCounts[singleName] = 2
+            case "radio": candidate["/Ff"] = 1 << 15
+            case "pushbutton": candidate["/Ff"] = 1 << 16
+            default: candidate["/Parent"] = "11 0 R"
+            }
+            invalid["obj:14 0 R"] = record(candidate)
+            try rejects(invalid, witnessed)
         }
         // Two distinct visible objects cannot be merged merely because their
         // dictionaries currently happen to be equal.

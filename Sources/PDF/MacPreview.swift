@@ -275,11 +275,15 @@ enum MacPreview {
         // Use the normal open path so tabs, per-document state and file identity are real.
         MacPreview.trace("open primary document begin")
         model.open(url:documents.guide)
+        await model.waitForPendingOpen()
+        try Task.checkCancellation()
         MacPreview.trace("open primary document end")
         guard let guideID = model.activeSessionID else { throw MacPreview.failure(18,"A abertura do documento de demonstração não criou uma sessão.") }
         try await capture("leitor",auditRequired:["pdf.reader.document","pdf.reader.search","pdf.reader.page"])
         MacPreview.trace("open second document begin")
         model.open(url:documents.reference)
+        await model.waitForPendingOpen()
+        try Task.checkCancellation()
         MacPreview.trace("open second document end")
         guard model.sessions.count == 2 else { throw MacPreview.failure(19,"A abertura do segundo documento não preservou a primeira aba.") }
         try await capture("abas")

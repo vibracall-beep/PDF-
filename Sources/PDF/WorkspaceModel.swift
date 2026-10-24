@@ -2,6 +2,22 @@ import SwiftUI
 import AppKit
 import PDFKit
 import UniformTypeIdentifiers
+import Darwin
+
+private enum ReaderOpenSource: Sendable, Equatable {
+    case file(URL)
+    case recovery(RecoveryRecord)
+}
+private struct ReaderOpenRequest: Sendable {
+    let id = UUID()
+    let source: ReaderOpenSource
+    var data: Data?
+    var password: String?
+}
+private struct PendingReaderPassword {
+    let source: ReaderOpenSource
+    let data: Data
+}
 
 /// Literal token substitution only: user templates never become code or paths.
 enum OutputFilename {
@@ -73,7 +89,14 @@ enum ReaderAnnotationStyle {
     @Published private(set) var recoveryWarnings: [String] = []
     weak var pdfView: PDFView?
     var externalCancellation:(()->Void)?
-    private var pendingURL: URL?
+    private var pendingReaderPassword: PendingReaderPassword?
+    private var openingQueue: [ReaderOpenRequest] = []
+    private var activeOpening: ReaderOpenRequest?
+    private var openingTask: Task<Void, Never>?
+    private var retiredOpeningTasks: [UUID: Task<Void, Never>] = [:]
+    private var openingWorker: Task<NativePDFSerialization.Opening, Error>?
+    private var openingCancellation: NativeCancellation?
+    private var ownsOpeningBusy = false
     private var process: Process?
     private var cancelled = false
     private var activeJob: UUID?
@@ -90,7 +113,6 @@ enum ReaderAnnotationStyle {
     private var searchLimited = false
     private var searchAnimate = true
     private var recoveryTimer: Timer?
-    private var pendingRecovery: RecoveryRecord?
     private let defaults: UserDefaults
     private let recoveryStore: RecoveryStore
     private let automaticRecoveryPermitted: Bool
@@ -113,51 +135,172 @@ enum ReaderAnnotationStyle {
         } }
         if !automation { refreshRecovery() }
     }
-    deinit { recoveryTimer?.invalidate(); if let transientDefaultsSuite { defaults.removePersistentDomain(forName: transientDefaultsSuite) } }
+    deinit {
+        recoveryTimer?.invalidate(); openingCancellation?.cancel(); openingWorker?.cancel(); openingTask?.cancel()
+        if let transientDefaultsSuite { defaults.removePersistentDomain(forName: transientDefaultsSuite) }
+    }
     func open() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
         guard panel.runModal() == .OK, let url = panel.url else { return }
         open(url:url)
     }
     func open(url:URL) {
-        cancelPendingUnlock()
+        // A new explicit selection replaces an unanswered password prompt, but
+        // does not discard distinct files already being opened in the queue.
+        pendingReaderPassword = nil; documentPassword = ""; needsPassword = false
         if let existing = sessions.first(where: { ($0.savedURL ?? $0.sourceURL)?.standardizedFileURL == url.standardizedFileURL }) {
-            activateSession(existing.id); return
+            activateSession(existing.id); startNextOpening(); return
         }
-        guard let doc = PDFDocument(url:url) else { message = "Não foi possível ler este PDF. Verifique o arquivo e o acesso à pasta."; return }
-        if doc.isLocked {
-            pendingURL = url; documentPassword = ""; needsPassword = true; return
+        var metadata = stat()
+        guard Darwin.stat(url.path, &metadata) == 0, metadata.st_mode & S_IFMT == S_IFREG else {
+            message = "Escolha um arquivo PDF regular e acessível."; startNextOpening(); return
         }
-        installDocument(doc, url:url)
+        // PDFKit keeps ordinary PDFs backed by their URL. Only protected input
+        // needs a bounded immutable byte snapshot and independent authentication.
+        guard let doc = PDFDocument(url:url) else { message = "Não foi possível ler este PDF. Verifique o arquivo e o acesso à pasta."; startNextOpening(); return }
+        if !doc.isEncrypted {
+            guard doc.pageCount > 0 else { message = "O PDF não contém páginas legíveis."; startNextOpening(); return }
+            installDocument(doc, url:url); startNextOpening(); return
+        }
+        enqueueOpening(ReaderOpenRequest(source: .file(url)))
     }
     func unlockPendingDocument() {
-        defer { documentPassword = "" }
-        if let recovery = pendingRecovery {
-            do {
-                let data = try recoveryStore.load(recovery)
-                guard let document = PDFDocument(data: data), document.unlock(withPassword: documentPassword) else { message = "Senha incorreta para a recuperação. Tente novamente."; return }
-                restore(document, from: recovery, password: documentPassword)
-                pendingRecovery = nil; needsPassword = false
-            } catch { message = error.localizedDescription }
-            return
-        }
-        guard let url = pendingURL, let doc = PDFDocument(url:url), doc.unlock(withPassword:documentPassword) else {
-            message = "Senha incorreta ou documento indisponível. Abra o arquivo novamente para tentar outra senha."; return
-        }
         let password = documentPassword
-        pendingURL = nil; needsPassword = false; installDocument(doc, url:url, password: password)
+        documentPassword = ""; needsPassword = false
+        guard let pending = pendingReaderPassword, activeOpening == nil else { return }
+        startOpening(ReaderOpenRequest(source: pending.source, data: pending.data, password: password))
     }
     func cancelPendingUnlock() {
-        pendingURL = nil; pendingRecovery = nil; documentPassword = ""; needsPassword = false
+        if let task = openingTask, let id = activeOpening?.id {
+            retiredOpeningTasks[id] = task
+            Task { @MainActor [weak self] in await task.value; self?.retiredOpeningTasks[id] = nil }
+        }
+        activeOpening = nil
+        openingCancellation?.cancel(); openingWorker?.cancel(); openingTask?.cancel()
+        openingCancellation = nil; openingWorker = nil; openingTask = nil
+        pendingReaderPassword = nil; documentPassword = ""; needsPassword = false
+        releaseOpeningBusy(); startNextOpening()
     }
-    private func installDocument(_ doc:PDFDocument, url:URL, password: String? = nil) {
+    func cancelDocumentOpenings() {
+        openingQueue.removeAll(); cancelPendingUnlock()
+    }
+    /// Await actual work, including queued files, without pumping the run loop.
+    /// A password prompt is a stable waiting state; entering a password starts
+    /// a new task that can be awaited with this same method.
+    func waitForPendingOpen() async {
+        while true {
+            if let task = openingTask { await task.value; continue }
+            guard !retiredOpeningTasks.isEmpty else { return }
+            let tasks = retiredOpeningTasks
+            for (id, task) in tasks { await task.value; retiredOpeningTasks[id] = nil }
+        }
+    }
+    private func enqueueOpening(_ request: ReaderOpenRequest) {
+        guard activeOpening?.source != request.source, !openingQueue.contains(where: { $0.source == request.source }) else { startNextOpening(); return }
+        openingQueue.append(request); startNextOpening()
+    }
+    private func startNextOpening() {
+        guard activeOpening == nil, pendingReaderPassword == nil, !openingQueue.isEmpty else { return }
+        startOpening(openingQueue.removeFirst())
+    }
+    private func releaseOpeningBusy() {
+        if ownsOpeningBusy { busy = false; externalCancellation = nil; ownsOpeningBusy = false }
+    }
+    private func startOpening(_ request: ReaderOpenRequest) {
+        let token = NativeCancellation(), store = recoveryStore
+        activeOpening = request; openingCancellation = token
+        // Do not replace another feature's cancellation handler or busy state.
+        if !busy {
+            ownsOpeningBusy = true; busy = true
+            externalCancellation = { [weak self] in self?.cancelDocumentOpenings() }
+        }
+        message = "Abrindo e verificando o documento…"
+        let worker = Task<NativePDFSerialization.Opening, Error>.detached(priority: .userInitiated) {
+            try Task.checkCancellation(); try token.check()
+            let data: Data
+            if let supplied = request.data { data = supplied }
+            else {
+                switch request.source {
+                case .file(let url): data = try Self.readerBytes(at: url, cancellation: token)
+                case .recovery(let record): data = try store.load(record)
+                }
+            }
+            try Task.checkCancellation(); try token.check()
+            return try NativePDFSerialization.prepareOpen(data: data, password: request.password, cancellation: token)
+        }
+        openingWorker = worker
+        openingTask = Task { @MainActor [weak self] in
+            do {
+                let opening = try await withTaskCancellationHandler { try await worker.value } onCancel: {
+                    token.cancel(); worker.cancel()
+                }
+                try Task.checkCancellation(); try token.check()
+                guard let self, self.activeOpening?.id == request.id else { return }
+                if opening.requiresPassword {
+                    self.pendingReaderPassword = PendingReaderPassword(source: request.source, data: opening.originalData)
+                    self.documentPassword = ""; self.needsPassword = true
+                    self.message = "Digite a senha para abrir o documento protegido."
+                } else {
+                    let document = try NativePDFSerialization.finishOpen(opening)
+                    try token.check()
+                    self.pendingReaderPassword = nil; self.needsPassword = false
+                    switch request.source {
+                    case .file(let url): self.installDocument(document, url: url, password: request.password,
+                                                           usedCompatibilityCopy: opening.usedCompatibilityCopy)
+                    case .recovery(let record): self.restore(document, from: record, password: request.password,
+                                                            usedCompatibilityCopy: opening.usedCompatibilityCopy)
+                    }
+                }
+            } catch is CancellationError { }
+            catch {
+                if let self, self.activeOpening?.id == request.id {
+                    self.message = "Não foi possível abrir: \(error.localizedDescription)"
+                    if self.pendingReaderPassword?.source == request.source { self.needsPassword = true }
+                }
+            }
+            guard let self, self.activeOpening?.id == request.id else { return }
+            self.activeOpening = nil; self.openingCancellation = nil; self.openingWorker = nil; self.openingTask = nil
+            self.releaseOpeningBusy(); self.startNextOpening()
+        }
+    }
+    private nonisolated static func readerBytes(at url: URL, cancellation: NativeCancellation) throws -> Data {
+        let access = url.startAccessingSecurityScopedResource()
+        defer { if access { url.stopAccessingSecurityScopedResource() } }
+        let descriptor = Darwin.open(url.path, O_RDONLY | O_NONBLOCK | O_CLOEXEC)
+        guard descriptor >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+        let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
+        defer { try? handle.close() }
+        var before = stat()
+        let limit = 1_073_741_824
+        guard fstat(descriptor, &before) == 0, before.st_mode & S_IFMT == S_IFREG,
+              before.st_size > 0, before.st_size <= Int64(limit) else {
+            throw NSError(domain: "PDF.Reader", code: 1, userInfo: [NSLocalizedDescriptionKey: "O PDF protegido deve ser um arquivo regular de até 1 GiB."])
+        }
+        var data = Data()
+        while true {
+            try Task.checkCancellation(); try cancellation.check()
+            guard let chunk = try handle.read(upToCount: min(1_048_576, limit - data.count + 1)), !chunk.isEmpty else { break }
+            guard data.count <= limit - chunk.count else {
+                throw NSError(domain: "PDF.Reader", code: 2, userInfo: [NSLocalizedDescriptionKey: "O PDF excedeu o limite de leitura de 1 GiB."])
+            }
+            data.append(chunk)
+        }
+        var after = stat()
+        guard fstat(descriptor, &after) == 0, after.st_size == before.st_size, Int64(data.count) == before.st_size,
+              after.st_mtimespec.tv_sec == before.st_mtimespec.tv_sec, after.st_mtimespec.tv_nsec == before.st_mtimespec.tv_nsec else {
+            throw NSError(domain: "PDF.Reader", code: 3, userInfo: [NSLocalizedDescriptionKey: "O arquivo mudou durante a leitura. Abra-o novamente."])
+        }
+        try cancellation.check()
+        return data
+    }
+    private func installDocument(_ doc:PDFDocument, url:URL, password: String? = nil, usedCompatibilityCopy: Bool = false) {
         (pdfView as? DrawingPDFView)?.finishStroke()
         captureActiveSession()
-        let session = PDFDocumentSession(document: doc, sourceURL: url, password: password)
+        let session = PDFDocumentSession(document: doc, sourceURL: url, password: password, usedCompatibilityCopy: usedCompatibilityCopy)
         session.page = min(max(1, defaults.integer(forKey: "readerPage:" + url.standardizedFileURL.path)), max(1, doc.pageCount))
         session.bookmarks = Set((defaults.array(forKey: "bookmarks:" + url.standardizedFileURL.path) as? [Int] ?? []).filter { $0 > 0 && $0 <= doc.pageCount })
         configure(session); sessions.append(session); loadSession(session)
-        needsPassword = false; pendingURL = nil; pendingRecovery = nil; documentPassword = ""
+        needsPassword = false; pendingReaderPassword = nil; documentPassword = ""
         recentURLs.removeAll { $0.standardizedFileURL == url.standardizedFileURL }; recentURLs.insert(url, at:0)
         recentURLs = Array(recentURLs.prefix(20))
         defaults.set(recentURLs.map(\.path), forKey:"recentDocuments")
@@ -356,19 +499,15 @@ enum ReaderAnnotationStyle {
     }
     func refreshRecoveryNow() throws { recoveryItems = try recoveryStore.list(); recoveryWarnings = recoveryStore.warnings }
     func restoreRecovery(id: UUID) {
-        cancelPendingUnlock()
-        if sessions.contains(where: { $0.id == id }) { activateSession(id); return }
-        guard let record = recoveryItems.first(where: { $0.id == id }) else { return }
-        do {
-            let data = try recoveryStore.load(record)
-            guard let document = PDFDocument(data: data) else { throw NSError(domain: "PDF.Recovery", code: 21, userInfo: [NSLocalizedDescriptionKey: "A recuperação não contém um PDF legível."]) }
-            if document.isLocked { pendingRecovery = record; pendingURL = nil; documentPassword = ""; needsPassword = true; return }
-            restore(document, from: record, password: nil)
-        } catch { message = error.localizedDescription }
+        pendingReaderPassword = nil; documentPassword = ""; needsPassword = false
+        if sessions.contains(where: { $0.id == id }) { activateSession(id); startNextOpening(); return }
+        guard let record = recoveryItems.first(where: { $0.id == id }) else { startNextOpening(); return }
+        enqueueOpening(ReaderOpenRequest(source: .recovery(record)))
     }
-    private func restore(_ document: PDFDocument, from record: RecoveryRecord, password: String?) {
+    private func restore(_ document: PDFDocument, from record: RecoveryRecord, password: String?, usedCompatibilityCopy: Bool = false) {
         captureActiveSession()
-        let session = PDFDocumentSession(id: record.id, document: document, sourceURL: record.sourceURL, password: password)
+        let session = PDFDocumentSession(id: record.id, document: document, sourceURL: record.sourceURL, password: password,
+                                         usedCompatibilityCopy: usedCompatibilityCopy)
         session.page = record.state.page; session.zoom = record.state.zoom; session.autoScale = record.state.autoScale
         session.bookmarks = Set(record.state.bookmarks); session.hasEdits = true; session.isDirty = true
         configure(session); sessions.append(session); loadSession(session)
@@ -377,6 +516,14 @@ enum ReaderAnnotationStyle {
         message = "Sessão recuperada. Salve uma cópia para conservar esta versão; o original não foi substituído."
     }
     func deleteRecovery(id: UUID) {
+        func matches(_ source: ReaderOpenSource) -> Bool {
+            if case .recovery(let record) = source { return record.id == id }
+            return false
+        }
+        openingQueue.removeAll { matches($0.source) }
+        if activeOpening.map({ matches($0.source) }) == true || pendingReaderPassword.map({ matches($0.source) }) == true {
+            cancelPendingUnlock()
+        }
         if let session = sessions.first(where: { $0.id == id }) {
             session.cancelRecoveryTask(); session.recoveryRecord = nil; session.recoveryFingerprint = fingerprint(session)
         }

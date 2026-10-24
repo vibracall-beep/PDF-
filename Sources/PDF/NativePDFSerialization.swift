@@ -10,6 +10,42 @@ import Security
 /// raw structure, repair only proven defects using the pre-writer baseline, then
 /// independently verify structure, protection and original document semantics.
 enum NativePDFSerialization {
+    struct Opening: Sendable {
+        let originalData: Data
+        let requiresPassword: Bool
+        let isEncrypted: Bool
+        let usedCompatibilityCopy: Bool
+        fileprivate let nativeData: Data
+        fileprivate let nativePassword: String?
+        fileprivate let protection: SourceProtection?
+    }
+
+    fileprivate struct SourceProtection: Sendable {
+        let sourceDigest: Data
+        let permissions: EncryptionPermissions
+        let bits: Int
+        let ownerAuthenticated: Bool
+    }
+
+    private final class ProtectionBox: NSObject {
+        let value: SourceProtection
+        init(_ value: SourceProtection) { self.value = value }
+    }
+    private final class ProtectionRegistry: @unchecked Sendable {
+        private let lock = NSLock()
+        private let records = NSMapTable<PDFDocument, ProtectionBox>(
+            keyOptions: [.weakMemory, .objectPointerPersonality], valueOptions: .strongMemory)
+        func set(_ protection: SourceProtection, for document: PDFDocument) {
+            lock.lock(); defer { lock.unlock() }
+            records.setObject(ProtectionBox(protection), forKey: document)
+        }
+        func get(_ document: PDFDocument) -> SourceProtection? {
+            lock.lock(); defer { lock.unlock() }
+            return records.object(forKey: document)?.value
+        }
+    }
+    private static let protectedSources = ProtectionRegistry()
+
     struct Prepared: Sendable {
         let data: Data
         // Private staging authentication only. Never persist this credential in
@@ -60,6 +96,107 @@ enum NativePDFSerialization {
     private static let maximumRepairJSONBytes = 64 * 1_024 * 1_024
     private static let executable = URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
     typealias LaunchObserver = (Process, URL) -> Void
+
+    /// Read-only opening of the exact supplied bytes. Run this synchronous work
+    /// off the UI queue; finishOpen constructs the PDFDocument on its owner queue.
+    /// The original credential is used only to authenticate the original PDF.
+    static func prepareOpen(data: Data, password: String? = nil,
+                            cancellation: NativeCancellation = NativeCancellation(),
+                            onLaunch: LaunchObserver? = nil, timeout: TimeInterval = 60) throws -> Opening {
+        try checkCancellation(cancellation)
+        guard !data.isEmpty, data.count <= maximumBytes, let candidate = PDFDocument(data: data) else {
+            throw failure("O documento original não pôde ser aberto dentro do limite de 1 GiB.")
+        }
+        guard candidate.isEncrypted else {
+            return Opening(originalData: data, requiresPassword: false, isEncrypted: false, usedCompatibilityCopy: false,
+                           nativeData: data, nativePassword: nil, protection: nil)
+        }
+        if candidate.isLocked, password == nil {
+            return Opening(originalData: data, requiresPassword: true, isEncrypted: true, usedCompatibilityCopy: false,
+                           nativeData: data, nativePassword: nil, protection: nil)
+        }
+        let credential = password ?? ""
+        guard !credential.contains("\0"), credential.utf8.count <= 4096 else {
+            throw failure("A senha de abertura contém caracteres não suportados ou excede o limite permitido.")
+        }
+        guard timeout.isFinite, timeout > 0, timeout <= 60,
+              FileManager.default.isExecutableFile(atPath: executable.path) else {
+            throw failure("O verificador de documentos protegidos não está disponível. Execute o instalador completo.")
+        }
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-opening-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let input = directory.appendingPathComponent("original.pdf")
+        try NativeOutput.write(data, to: input)
+        let protection = try inspectOriginalProtection(input, data: data, password: credential,
+            directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout)
+        _ = candidate.unlock(withPassword: credential)
+        if !candidate.isLocked, !protection.ownerAuthenticated || candidate.permissionsStatus == .owner {
+            guard !candidate.isLocked, candidate.pageCount > 0 else {
+                throw failure("O documento autenticado não contém páginas acessíveis.")
+            }
+            return Opening(originalData: data, requiresPassword: false, isEncrypted: true, usedCompatibilityCopy: false,
+                           nativeData: data, nativePassword: credential, protection: protection)
+        }
+
+        // Standalone CoreGraphics accepts these UTF-8 credentials, but PDFKit's
+        // password API can leave the wrapper locked. Keep an encrypted
+        // compatibility copy; never create a plaintext PDF and never replace
+        // the original bytes or their password.
+        guard protection.permissions.accessibility else {
+            throw failure("O leitor nativo não aceitou esta senha e a proteção legada não permite criar uma cópia de compatibilidade sem ampliar permissões. O original permanece intacto.")
+        }
+        guard protection.bits <= 256 else { throw failure("A cifra original não pode ser preservada pela cópia de compatibilidade.") }
+        let readerPassword = try randomCredential(byteCount: 16)
+        let ownerPassword = try randomCredential(byteCount: 16)
+        guard readerPassword != ownerPassword, readerPassword != credential, ownerPassword != credential else {
+            throw failure("Não foi possível gerar credenciais temporárias distintas para o leitor.")
+        }
+        let output = directory.appendingPathComponent("compatible.pdf")
+        try NativeOutput.write(Data(), to: output)
+        let status = try runJob(["inputFile": input.path, "outputFile": output.path, "password": credential,
+            "objectStreams": "preserve", "streamData": "preserve", "encrypt": [
+                "userPassword": readerPassword, "ownerPassword": ownerPassword, "256bit": protection.permissions.options]],
+            directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout)
+        guard status == 0 || status == 3 else { throw failure("A cópia cifrada para leitura não pôde ser preparada. O original permanece intacto.") }
+        let checked = try runJob(["inputFile": output.path, "password": readerPassword, "check": ""],
+            directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout)
+        guard checked == 0 else { throw failure("A cópia cifrada para leitura foi recusada pelo verificador estrutural.") }
+        try verifyEncryption(output, password: readerPassword, permissions: protection.permissions,
+            directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout)
+        let nativeData = try readPrivate(output, cancellation: cancellation)
+        try checkCancellation(cancellation)
+        return Opening(originalData: data, requiresPassword: false, isEncrypted: true, usedCompatibilityCopy: true,
+            nativeData: nativeData, nativePassword: protection.ownerAuthenticated ? ownerPassword : readerPassword, protection: protection)
+    }
+
+    /// Invoke on the queue that will own the returned PDFDocument (MainActor for
+    /// the reader, the current worker for a private fidelity verification).
+    static func finishOpen(_ opening: Opening) throws -> PDFDocument {
+        try checkCancellation(nil)
+        guard !opening.requiresPassword else { throw failure("Informe a senha para abrir o documento protegido.") }
+        guard let document = PDFDocument(data: opening.nativeData), document.isEncrypted == opening.isEncrypted else {
+            throw failure("O documento preparado para leitura não preservou sua proteção.")
+        }
+        if opening.isEncrypted {
+            guard let password = opening.nativePassword, let protection = opening.protection,
+                  protection.sourceDigest == Data(SHA256.hash(data: opening.originalData)) else {
+                throw failure("A origem do documento protegido não pôde ser comprovada.")
+            }
+            _ = document.unlock(withPassword: password)
+            guard !document.isLocked, !protection.ownerAuthenticated || document.permissionsStatus == .owner else {
+                throw failure("O documento autenticado não pôde ser aberto pelo leitor nativo.")
+            }
+            protectedSources.set(protection, for: document)
+        }
+        guard document.pageCount > 0 else { throw failure("O documento não contém páginas acessíveis.") }
+        return document
+    }
+
+    static func open(data: Data, password: String? = nil,
+                     cancellation: NativeCancellation = NativeCancellation()) throws -> PDFDocument {
+        try finishOpen(prepareOpen(data: data, password: password, cancellation: cancellation))
+    }
 
     /// Call on the queue that owns document. The baseline precedes PDFKit's
     /// writer; Prepared contains only immutable values safe to send to a worker.
@@ -118,18 +255,20 @@ enum NativePDFSerialization {
                           cancellation: NativeCancellation = NativeCancellation()) throws -> Data {
         try checkCancellation(cancellation)
         try validatePassword(password)
-        guard !data.isEmpty, data.count <= maximumBytes, let document = PDFDocument(data: data) else {
+        guard !data.isEmpty, data.count <= maximumBytes, let original = PDFDocument(data: data) else {
             throw failure("O PDF gerado não pôde ser aberto para validar sua estrutura.")
         }
-        let encrypted = document.isEncrypted
+        let encrypted = original.isEncrypted
         if password != nil, !encrypted {
             throw failure("A cópia fornecida não está criptografada, embora uma senha tenha sido exigida. Nenhum arquivo sem proteção será publicado.")
         }
+        let document: PDFDocument
         if encrypted {
-            guard let password, document.isLocked, !document.unlock(withPassword: ""), document.unlock(withPassword: password) else {
+            guard let password, original.isLocked, !original.unlock(withPassword: "") else {
                 throw failure("Não foi possível confirmar a proteção do PDF gerado.")
             }
-        }
+            document = try open(data: data, password: password, cancellation: cancellation)
+        } else { document = original }
         let prepared = Prepared(data: data, inputPassword: encrypted ? password : nil, snapshot: try snapshot(document, cancellation: cancellation),
             password: encrypted ? password : nil, encrypted: encrypted, permissions: try encryptionPermissions(document), strings: nil)
         return try finish(prepared, cancellation: cancellation)
@@ -214,16 +353,17 @@ enum NativePDFSerialization {
     /// editable annotations or form values. It is not a pixel-equivalence claim.
     static func verifyFidelity(data: Data, prepared: Prepared, cancellation: NativeCancellation? = nil) throws {
         try checkCancellation(cancellation)
-        guard !data.isEmpty, data.count <= maximumBytes, let reopened = PDFDocument(data: data),
-              reopened.isEncrypted == prepared.encrypted else {
+        guard !data.isEmpty, data.count <= maximumBytes, let original = PDFDocument(data: data),
+              original.isEncrypted == prepared.encrypted else {
             throw failure("A cópia alterou a proteção ou não pode ser reaberta.")
         }
+        let reopened: PDFDocument
         if prepared.encrypted {
-            guard let password = prepared.password, reopened.isLocked,
-                  !reopened.unlock(withPassword: ""), reopened.unlock(withPassword: password) else {
+            guard let password = prepared.password, original.isLocked, !original.unlock(withPassword: "") else {
                 throw failure("A cópia não preservou a senha e a proteção esperadas.")
             }
-        }
+            reopened = try open(data: data, password: password, cancellation: cancellation ?? NativeCancellation())
+        } else { reopened = original }
         let actual = try snapshot(reopened, cancellation: cancellation)
         guard actual == prepared.snapshot else {
             let categories = fidelityDifferences(expected: prepared.snapshot, actual: actual).joined(separator: "; ")
@@ -289,7 +429,7 @@ enum NativePDFSerialization {
         let fields = ["type", "bounds", "contents", "display", "print", "color", "width", "fontName", "fontSize", "fontColor",
                       "quadrilaterals", "start", "end", "startStyle", "endStyle", "paths", "field", "fieldType",
                       "value", "default", "readOnly", "buttonState", "control", "buttonName", "choices", "choiceValues",
-                      "list", "multiline", "maxLength", "url", "open", "textFields"]
+                      "list", "multiline", "maxLength", "url", "open", "textFields", "flags"]
         return fields.filter { key in
             switch (before[key], after[key]) {
             case (nil, nil): return false
@@ -340,7 +480,15 @@ enum NativePDFSerialization {
             values["fontSize"] = try number(item.font?.pointSize ?? 12)
             values["fontColor"] = try color(item.fontColor ?? .black)
         }
-        if PDFAnnotationKind.matches(item, .popup) { values["open"] = item.isOpen }
+        if PDFAnnotationKind.matches(item, .popup) {
+            // SDK26 reports shouldPrint=false for an unchanged popup whose
+            // actual /F remains 4. Compare the complete PDF flags instead of
+            // either convenience getter; preserve unknown bits as well.
+            values.removeValue(forKey: "display")
+            values.removeValue(forKey: "print")
+            values["flags"] = try popupFlags(item)
+            values["open"] = item.isOpen
+        }
         if PDFAnnotationKind.hasQuadrilaterals(item) {
             values["quadrilaterals"] = try (item.quadrilateralPoints ?? []).flatMap { try point($0.pointValue) }
         }
@@ -443,6 +591,16 @@ enum NativePDFSerialization {
         return try color(value)
     }
 
+    private static func popupFlags(_ item: PDFAnnotation) throws -> UInt32 {
+        guard let value = item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) else { return 0 }
+        guard let number = value as? NSNumber, CFGetTypeID(number) != CFBooleanGetTypeID(),
+              number.doubleValue.isFinite, number.doubleValue >= 0,
+              number.doubleValue <= Double(UInt32.max), number.doubleValue.rounded(.towardZero) == number.doubleValue else {
+            throw failure("As opções da anotação popup não puderam ser verificadas como um inteiro PDF válido.")
+        }
+        return number.uint32Value
+    }
+
     private static func number(_ value: CGFloat) throws -> Double {
         guard value.isFinite else { throw failure("O documento contém geometria não finita.") }
         let rounded = (Double(value) * 1000).rounded() / 1000
@@ -461,19 +619,45 @@ enum NativePDFSerialization {
     }
     private static func encryptionPermissions(_ document: PDFDocument) throws -> EncryptionPermissions {
         guard document.isEncrypted else { return .unrestricted }
-        // Read the intrinsic flags before PDFKit serializes. The public
-        // CGPDFDocument accessPermissions getter reads the eight independent
-        // permission bits; unlike its writer, it does not expand supersets.
-        guard let reference = document.documentRef else {
-            throw failure("As permissões originais do PDF protegido não puderam ser verificadas.")
+        // PDFKit.documentRef.accessPermissions reports high-quality print
+        // access for a real low-only fixture on SDK26/27. Only qpdf evidence
+        // from the ORIGINAL input bytes is authoritative; never infer
+        // permissions from a reserialized copy.
+        guard let proof = protectedSources.get(document) else {
+            throw failure("Reabra o PDF protegido pelo aplicativo para verificar as permissões dos bytes originais antes de salvar. Nenhuma cópia foi publicada.")
         }
-        let access = reference.accessPermissions
-        let printLow = access.contains(.allowsLowQualityPrinting)
-        return EncryptionPermissions(accessibility: access.contains(.allowsContentAccessibility),
-            extract: access.contains(.allowsContentCopying), annotate: access.contains(.allowsCommenting),
-            assemble: access.contains(.allowsDocumentAssembly), form: access.contains(.allowsFormFieldEntry),
-            modifyOther: access.contains(.allowsDocumentChanges), printLow: printLow,
-            printHigh: printLow && access.contains(.allowsHighQualityPrinting))
+        return proof.permissions
+    }
+
+    private static func inspectOriginalProtection(_ input: URL, data: Data, password: String, directory: URL,
+                                                  cancellation: NativeCancellation, onLaunch: LaunchObserver?,
+                                                  timeout: TimeInterval) throws -> SourceProtection {
+        let report = directory.appendingPathComponent("source-encryption-\(UUID().uuidString).json")
+        let status = try runJob(["inputFile": input.path, "password": password, "json": "2", "jsonKey": ["encrypt"]],
+            directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout, output: report)
+        guard status == 0 || status == 3 else {
+            throw failure("A senha não foi aceita ou o documento protegido não pôde ser autenticado. Os bytes originais permanecem intactos.")
+        }
+        let bytes = try readPrivate(report, cancellation: cancellation, limit: 65_536)
+        guard let root = (try? JSONSerialization.jsonObject(with: bytes)) as? [String: Any], root["version"] as? Int == 2,
+              let encryption = root["encrypt"] as? [String: Any], encryption["encrypted"] as? Bool == true,
+              let user = encryption["userpasswordmatched"] as? Bool,
+              let owner = encryption["ownerpasswordmatched"] as? Bool, user || owner,
+              let parameters = encryption["parameters"] as? [String: Any],
+              let bits = parameters["bits"] as? Int, bits >= 40, bits <= 256,
+              let capabilities = encryption["capabilities"] as? [String: Any] else {
+            throw failure("A autenticação e as permissões originais não puderam ser comprovadas pelo verificador PDF.")
+        }
+        func flag(_ name: String) throws -> Bool {
+            guard let result = capabilities[name] as? Bool else { throw failure("O verificador não retornou todas as permissões originais do PDF.") }
+            return result
+        }
+        let permissions = try EncryptionPermissions(accessibility: flag("accessibility"), extract: flag("extract"),
+            annotate: flag("modifyannotations"), assemble: flag("modifyassembly"), form: flag("modifyforms"),
+            modifyOther: flag("modifyother"), printLow: flag("printlow"), printHigh: flag("printhigh"))
+        try checkCancellation(cancellation)
+        return SourceProtection(sourceDigest: Data(SHA256.hash(data: data)), permissions: permissions,
+                                bits: bits, ownerAuthenticated: owner)
     }
 
     private static func ownerCredential(excluding password: String) throws -> String {

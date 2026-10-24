@@ -3,8 +3,17 @@ import AppKit
 
 @MainActor final class PDFApplicationDelegate:NSObject,NSApplicationDelegate {
     weak var model:Workspace?
+    private var waitingForOpeningCleanup = false
     func applicationShouldTerminate(_ sender:NSApplication) -> NSApplication.TerminateReply {
-        model?.confirmDiscardEdits() == false ? .terminateCancel : .terminateNow
+        if waitingForOpeningCleanup { return .terminateLater }
+        guard model?.confirmDiscardEdits() != false else { return .terminateCancel }
+        guard let model else { return .terminateNow }
+        model.cancelDocumentOpenings(); waitingForOpeningCleanup = true
+        Task { @MainActor in
+            await model.waitForPendingOpen()
+            sender.reply(toApplicationShouldTerminate: true)
+        }
+        return .terminateLater
     }
 }
 
@@ -34,7 +43,9 @@ struct WorkspaceWindowGuard:NSViewRepresentable {
         }
         func windowShouldClose(_ sender:NSWindow) -> Bool {
             guard model?.confirmDiscardEdits() != false else { return false }
-            return previous?.windowShouldClose?(sender) ?? true
+            let close = previous?.windowShouldClose?(sender) ?? true
+            if close { model?.cancelDocumentOpenings() }
+            return close
         }
         override func responds(to selector:Selector!) -> Bool { super.responds(to:selector) || (previous?.responds(to:selector) ?? false) }
         override func forwardingTarget(for selector:Selector!) -> Any? { previous }

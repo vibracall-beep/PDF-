@@ -80,8 +80,12 @@ let tools: [Tool] = [
 ]
 
 @main enum PDFEntryPoint {
-    @MainActor static func main() {
+    @MainActor static func main() async {
         VisionWorker.handleCommandLineIfNeeded()
+        if CommandLine.arguments.contains("--smoke-test") {
+            do { try await MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
+            catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
+        }
         PDFApp.main()
     }
 }
@@ -135,10 +139,6 @@ struct PDFApp: App {
                 // OCR passed. Its individual checks retain their actual status.
                 exit(0)
             } catch { fputs("PDF Vision capability report failed: \(error)\n", stderr); exit(1) }
-        }
-        if CommandLine.arguments.contains("--smoke-test") {
-            do { try MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
-            catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
         }
     }
     var body: some Scene {

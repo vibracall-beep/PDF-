@@ -19,7 +19,7 @@ enum CIDiagnostics {
 /// Executed by the installer and CI on macOS before a build is activated.
 @MainActor
 enum MacSmokeTests {
-    static func run() throws {
+    static func run() async throws {
         _ = NSApplication.shared
         func require(_ condition: @autoclosure () -> Bool, _ message: String) throws {
             guard condition() else {
@@ -49,6 +49,20 @@ enum MacSmokeTests {
                 FileHandle.standardError.write(Data(("Native check failed: " + detail + "\n").utf8))
             }
         }
+        func auditAsync(_ phase: String, _ operation: () async throws -> Void) async {
+            CIDiagnostics.record("Starting: " + phase)
+            FileHandle.standardOutput.write(Data(("Native check starting: " + phase + "\n").utf8))
+            do {
+                try await operation()
+                FileHandle.standardOutput.write(Data(("Native check passed: " + phase + "\n").utf8))
+            } catch {
+                let issue = error as NSError
+                let detail = phase + ": " + issue.localizedDescription + " (" + issue.domain + ", " + String(issue.code) + ")"
+                failures.append(detail)
+                CIDiagnostics.record(detail, level: "error")
+                FileHandle.standardError.write(Data(("Native check failed: " + detail + "\n").utf8))
+            }
+        }
         func trace(_ phase: String) {
             FileHandle.standardError.write(Data(("Native PDF fixture: " + phase + "\n").utf8))
         }
@@ -70,8 +84,11 @@ enum MacSmokeTests {
         audit("Unsupported ink curve loss is refused") {
             try QPDFStructuralAudit.verifyUnsupportedInkCurveRefusal()
         }
-        audit("Native AES-256, permissions and Unicode credentials") {
-            try QPDFStructuralAudit.verifyEncryptionGuards()
+        audit("Native AES-256 and Unicode credentials") {
+            try QPDFStructuralAudit.verifyCredentialGuards()
+        }
+        audit("Native AES-256 and original permissions") {
+            try QPDFStructuralAudit.verifyPermissionGuards()
         }
         audit("Typed-string repair privacy and interruption") {
             try QPDFStructuralAudit.verifyRepairProcessGuards()
@@ -287,17 +304,18 @@ enum MacSmokeTests {
                 try QPDFStructuralAudit.verifyAES256(Data(contentsOf: protectedFile), password: password)
             }
             trace("protected open begin")
-            guard let protectedCopy = PDFDocument(data: protectedData) else {
+            guard let protectedEnvelope = PDFDocument(data: protectedData) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 8,
                               userInfo: [NSLocalizedDescriptionKey: "A cópia PDFKit protegida não pôde ser aberta."])
             }
             trace("protected open end")
-            try require(protectedCopy.isEncrypted && protectedCopy.isLocked, "A cópia nativa perdeu a proteção.")
+            try require(protectedEnvelope.isEncrypted && protectedEnvelope.isLocked, "A cópia nativa perdeu a proteção.")
             trace("protected empty-password rejection begin")
-            try require(!protectedCopy.unlock(withPassword: ""), "A cópia nativa aceitou senha vazia.")
+            try require(!protectedEnvelope.unlock(withPassword: ""), "A cópia nativa aceitou senha vazia.")
             trace("protected empty-password rejection end")
             trace("protected unlock begin")
-            try require(protectedCopy.unlock(withPassword: password), "A senha da cópia nativa não funciona.")
+            let protectedCopy = try NativePDFSerialization.open(data: protectedData, password: password)
+            try require(protectedCopy.isEncrypted && !protectedCopy.isLocked, "A senha da cópia nativa não funciona.")
             trace("protected unlock end")
             trace("protected content integrity begin")
             try require(!protectedCopy.isLocked && protectedCopy.pageCount == 1 &&
@@ -333,7 +351,7 @@ enum MacSmokeTests {
         audit("Native regression audit") { try NativeAuditChecks.run() }
         audit("Appearance and reader preferences") { try AppearanceAuditChecks.run() }
         audit("Recovery storage and encryption") { try RecoveryAuditChecks.run() }
-        audit("Reader sessions and annotation editing") { try SessionAnnotationAuditChecks.run() }
+        await auditAsync("Reader sessions and annotation editing") { try await SessionAnnotationAuditChecks.run() }
         audit("Semantic retrieval and verifiable citations") { try SemanticAuditChecks.run() }
         audit("Performance measurement harness") { try BenchmarkAuditChecks.run() }
         print("Native checks hardware: \(AppleHardware.summary)")

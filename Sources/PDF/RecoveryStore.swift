@@ -363,8 +363,11 @@ final class RecoveryStore: @unchecked Sendable {
         let protectedID = UUID()
         try store.save(documentData:protected,sourceURL:source,sessionID:protectedID,encrypted:true,title:"Protegido",state:state)
         let protectedRecord = try store.list().first(where:{$0.id == protectedID})!
-        let reopened = PDFDocument(data:try store.load(protectedRecord))!
-        try require(reopened.isLocked && !reopened.unlock(withPassword:"") && reopened.unlock(withPassword:"recovery-test-pass"),"A cópia protegida perdeu criptografia ou sua senha.")
+        let storedProtected = try store.load(protectedRecord)
+        let envelope = PDFDocument(data: storedProtected)!
+        let reopened = try NativePDFSerialization.open(data: storedProtected, password: "recovery-test-pass")
+        try require(envelope.isLocked && !envelope.unlock(withPassword: "") && reopened.isEncrypted && !reopened.isLocked,
+                    "A cópia protegida perdeu criptografia ou sua senha.")
         _ = try store.updateState(record: protectedRecord, state: navigation)
         let protectedNavigation = store.directory.appendingPathComponent(protectedRecord.generation.uuidString).appendingPathComponent("navigation.json")
         let protectedMetadata = try String(contentsOf: protectedNavigation, encoding: .utf8)
@@ -372,6 +375,24 @@ final class RecoveryStore: @unchecked Sendable {
         let preservedEncrypted = try store.load(protectedRecord)
         try require(preservedEncrypted == protected && PDFDocument(data: preservedEncrypted)?.isLocked == true,
                     "Atualizar navegação alterou a criptografia do PDF protegido.")
+        let unicodePassword = String(repeating: "🔑", count: 31) + "abc"
+        let unicodeBytes = try NativePDFSerialization.serialize(document: PDFDocument(data: original)!, password: unicodePassword)
+        try QPDFStructuralAudit.verifyAES256(unicodeBytes, password: unicodePassword)
+        let unicodeID = UUID()
+        let unicodeRecord = try store.save(documentData: unicodeBytes, sourceURL: source, sessionID: unicodeID,
+                                          encrypted: true, title: "Recuperação Unicode", state: state)
+        let loadedUnicode = try store.load(unicodeRecord)
+        let unicodeOpening = try NativePDFSerialization.prepareOpen(data: loadedUnicode, password: unicodePassword)
+        let unicodeDocument = try NativePDFSerialization.finishOpen(unicodeOpening)
+        try require(unicodeOpening.originalData == unicodeBytes && unicodeDocument.isEncrypted && !unicodeDocument.isLocked &&
+                    (unicodeDocument.string ?? "").contains("Recovery preserves the original"),
+                    "A recuperação Unicode perdeu os bytes originais, a proteção ou o conteúdo.")
+        _ = try store.updateState(record: unicodeRecord, state: navigation)
+        let unicodeNavigation = store.directory.appendingPathComponent(unicodeRecord.generation.uuidString).appendingPathComponent("navigation.json")
+        try require(!(try String(contentsOf: unicodeNavigation, encoding: .utf8)).contains(unicodePassword) &&
+                    (try store.load(unicodeRecord)) == unicodeBytes && (try Data(contentsOf: source)) == original,
+                    "A navegação Unicode persistiu credenciais ou alterou o snapshot/original.")
+        try store.delete(unicodeID)
         let malformed = Data("malformed-navigation".utf8)
         try malformed.write(to: protectedNavigation)
         let afterMalformed = try store.list()

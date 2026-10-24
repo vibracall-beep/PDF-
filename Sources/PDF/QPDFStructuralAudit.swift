@@ -171,11 +171,14 @@ enum QPDFStructuralAudit {
                                 phase: password == nil ? "editable defaults unencrypted" : "editable defaults protected")
             let bytes = try NativePDFSerialization.finish(prepared)
             try check(bytes, password: password, phase: "published editable annotations and fields")
-            guard let result = PDFDocument(data: bytes) else { throw failure("A cópia de anotações não pôde ser reaberta.") }
             if let password {
-                try require(result.isEncrypted && result.isLocked && !result.unlock(withPassword: "") && result.unlock(withPassword: password),
+                try require(PDFDocument(data: bytes)?.isLocked == true && rejects {
+                    _ = try NativePDFSerialization.open(data: bytes, password: "")
+                },
                             "O roundtrip de anotações perdeu a proteção por senha.")
+                try verifyAES256(bytes, password: password)
             }
+            let result = try NativePDFSerialization.open(data: bytes, password: password)
             guard let restored = result.page(at: 0) else { throw failure("A cópia de anotações perdeu sua página.") }
             // PDFKit may create/omit the note's closed, inherited popup. It
             // must not hide any independently authored or open annotation.
@@ -246,6 +249,8 @@ enum QPDFStructuralAudit {
         try findAnnotation(page, .widget, field: "roundtrip-choice").widgetDefaultStringValue = "first"
         let popup = PDFAnnotation(bounds: CGRect(x: 330, y: 100, width: 140, height: 90), forType: .popup, withProperties: nil)
         popup.contents = "Independent popup contents"; popup.isOpen = true
+        try require(popup.setValue(NSNumber(value: 4), forAnnotationKey: PDFAnnotationKey(rawValue: "/F")),
+                    "A amostra de Popup não aceitou o flag de impressão explícito.")
         page.addAnnotation(popup)
         let prepared = try NativePDFSerialization.prepare(document: document)
         let bytes = try NativePDFSerialization.finish(prepared)
@@ -263,6 +268,10 @@ enum QPDFStructuralAudit {
                     "A cópia alterou os valores explícitos de redefinição dos campos.")
         try require(restored.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
             $0.contents == "Independent popup contents" && $0.isOpen }, "A cópia perdeu o popup independente aberto.")
+        try require(restored.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
+            $0.contents == "Independent popup contents" &&
+                ($0.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) as? NSNumber)?.intValue == 4 },
+                    "A cópia alterou os flags brutos do Popup independente.")
 
         try mutatedCandidate(bytes, prepared: prepared, name: "changed text reset default", mutate: { page in
             try findAnnotation(page, .widget, field: "roundtrip-text").widgetDefaultStringValue = "Different reset"
@@ -325,6 +334,15 @@ enum QPDFStructuralAudit {
             item.isOpen = false
         }, persisted: { page in page.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
             $0.contents == "Independent popup contents" && !$0.isOpen } })
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed independent popup raw flags", mutate: { page in
+            guard let item = page.annotations.first(where: { PDFAnnotationKind.matches($0, .popup) && $0.contents == "Independent popup contents" }) else {
+                throw failure("O cenário de flags não encontrou o Popup independente.")
+            }
+            try require(item.setValue(NSNumber(value: 0), forAnnotationKey: PDFAnnotationKey(rawValue: "/F")),
+                        "O cenário não conseguiu alterar os flags brutos do Popup.")
+        }, persisted: { page in page.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
+            $0.contents == "Independent popup contents" &&
+                ($0.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) as? NSNumber)?.intValue == 0 } })
         log("explicit fidelity guards: real changed defaults, font family/color, border, note anchor/color, ink vertex and independent popup rejected")
     }
 
@@ -426,8 +444,7 @@ enum QPDFStructuralAudit {
             let bytes = try NativePDFSerialization.finish(prepared)
             try check(bytes, password: password, phase: "byte-exact Unicode field identities")
             if let password { try verifyAES256(bytes, password: password) }
-            guard let result = PDFDocument(data: bytes) else { throw failure("O PDF Unicode não pôde ser reaberto.") }
-            if let password { try require(result.unlock(withPassword: password), "A cópia Unicode não aceitou a senha solicitada.") }
+            let result = try NativePDFSerialization.open(data: bytes, password: password)
             guard let restored = result.page(at: 0) else { throw failure("A cópia Unicode perdeu sua página.") }
             try assertUnicodeFields(restored, suffixes: suffixes)
             if password == nil { plain = (bytes, prepared) }
@@ -482,15 +499,25 @@ enum QPDFStructuralAudit {
         if let permissions {
             try require(evidence.permissions == permissions, "O PDF protegido alterou as permissões originais.")
         }
-        guard let document = PDFDocument(data: data), document.isEncrypted, document.isLocked,
-              !document.unlock(withPassword: ""), !document.unlock(withPassword: "incorrect-audit-credential"),
-              document.unlock(withPassword: password) else {
+        guard let envelope = PDFDocument(data: data), envelope.isEncrypted, envelope.isLocked,
+              !envelope.unlock(withPassword: ""), !envelope.unlock(withPassword: "incorrect-audit-credential") else {
             throw failure("A proteção final não rejeitou senhas incorretas ou não aceitou a senha completa.")
         }
+        try require(try run(data, password: "") == 2 && run(data, password: "incorrect-audit-credential") == 2,
+                    "A autenticação independente aceitou uma senha vazia ou incorreta.")
+        try require(rejects { _ = try NativePDFSerialization.open(data: data, password: "") } &&
+                    rejects { _ = try NativePDFSerialization.open(data: data, password: "incorrect-audit-credential") },
+                    "A abertura do aplicativo aceitou uma senha vazia ou incorreta.")
+        let pending = try NativePDFSerialization.prepareOpen(data: data)
+        try require(pending.isEncrypted && pending.requiresPassword && pending.originalData == data,
+                    "A abertura sem credencial não preservou os bytes protegidos ou a solicitação de senha.")
+        let document = try NativePDFSerialization.open(data: data, password: password)
+        try require(document.isEncrypted && !document.isLocked,
+                    "A abertura autenticada não entregou um documento protegido legível.")
     }
 
     @MainActor
-    static func verifyEncryptionGuards() throws {
+    static func verifyCredentialGuards() throws {
         // Both are exactly 127 UTF-8 bytes. The Unicode case detects character
         // counting and truncation mistakes that an ASCII-only test cannot.
         for password in [String(repeating: "a", count: 127), String(repeating: "🔑", count: 31) + "abc"] {
@@ -506,10 +533,12 @@ enum QPDFStructuralAudit {
             }
             let result = try NativePDFSerialization.finish(prepared)
             try verifyAES256(result, password: password)
-            try require(PDFDocument(data: result)?.unlock(withPassword: stagingPassword) == false,
+            try require(try run(result, password: stagingPassword) == 2 && rejects {
+                _ = try NativePDFSerialization.open(data: result, password: stagingPassword)
+            },
                         "A senha temporária do estágio foi aceita pelo documento final.")
-            guard let reopened = PDFDocument(data: result), reopened.unlock(withPassword: password),
-                  (reopened.string ?? "").contains("PDF structural verification") else {
+            let reopened = try NativePDFSerialization.open(data: result, password: password)
+            guard (reopened.string ?? "").contains("PDF structural verification") else {
                 throw failure("A senha no limite UTF-8 não preservou o acesso ao conteúdo.")
             }
         }
@@ -519,7 +548,11 @@ enum QPDFStructuralAudit {
                 _ = try NativePDFSerialization.prepare(document: document, password: password)
             }, "O escritor aceitou uma senha acima de 127 bytes UTF-8, sujeita a truncamento.")
         }
+        log("AES-256 credential guards: cipher, distinct owner and 127-byte Unicode boundary verified")
+    }
 
+    @MainActor
+    static func verifyPermissionGuards() throws {
         let password = "restricted-audit-reader"
         let permissions: [String: Bool] = ["accessibility": true, "extract": false, "modify": false,
             "modifyannotations": false, "modifyassembly": false, "modifyforms": false, "modifyother": false,
@@ -535,12 +568,15 @@ enum QPDFStructuralAudit {
         let normalized = try NativePDFSerialization.normalize(data: restricted, password: password)
         try verifyAES256(normalized, password: password, permissions: permissions)
         for unlockCredential in [password, sourceOwner] {
-            guard let document = PDFDocument(data: restricted), document.unlock(withPassword: unlockCredential) else {
-                throw failure("A amostra protegida não pôde ser aberta com uma das credenciais exigidas.")
-            }
+            let document = try NativePDFSerialization.open(data: restricted, password: unlockCredential)
             let rewritten = try NativePDFSerialization.serialize(document: document, password: password)
             try verifyAES256(rewritten, password: password, permissions: permissions)
         }
+        guard let unproven = PDFDocument(data: restricted), unproven.unlock(withPassword: password) else {
+            throw failure("O controle sem prova de origem não pôde ser aberto pelo PDFKit.")
+        }
+        try require(rejects { _ = try NativePDFSerialization.prepare(document: unproven, password: password) },
+                    "Publicar um documento protegido sem metadados verificados permitiu confiar em permissões derivadas.")
 
         // A legacy file may set the high-quality bit while denying all print
         // access. That bit alone must not become permission to print after R6.
@@ -552,9 +588,7 @@ enum QPDFStructuralAudit {
                     "A amostra de bits de impressão não representa a proibição esperada.")
         let noPrintOutput = try NativePDFSerialization.normalize(data: noPrintSource, password: password)
         try verifyAES256(noPrintOutput, password: password, permissions: noPrintPermissions)
-        guard let noPrintDocument = PDFDocument(data: noPrintSource), noPrintDocument.unlock(withPassword: password) else {
-            throw failure("A amostra sem impressão não pôde ser aberta.")
-        }
+        let noPrintDocument = try NativePDFSerialization.open(data: noPrintSource, password: password)
         let noPrintRewrite = try NativePDFSerialization.serialize(document: noPrintDocument, password: password)
         try verifyAES256(noPrintRewrite, password: password, permissions: noPrintPermissions)
 
@@ -568,12 +602,10 @@ enum QPDFStructuralAudit {
                     "A amostra legada não contém a restrição de acessibilidade exigida.")
         try require(rejects { _ = try NativePDFSerialization.normalize(data: inaccessible, password: legacyPassword) },
                     "A normalização removeu uma restrição que AES-256/R6 não consegue representar.")
-        guard let legacyDocument = PDFDocument(data: inaccessible), legacyDocument.unlock(withPassword: legacyPassword) else {
-            throw failure("A amostra de restrição legada não pôde ser aberta.")
-        }
+        let legacyDocument = try NativePDFSerialization.open(data: inaccessible, password: legacyPassword)
         try require(rejects { _ = try NativePDFSerialization.serialize(document: legacyDocument, password: legacyPassword) },
                     "A gravação editável removeu a restrição legada de acessibilidade.")
-        log("AES-256 guards: cipher, distinct owner, permissions, legacy refusal and 127-byte Unicode boundary verified")
+        log("AES-256 permission guards: user/owner access, intrinsic flags and incompatible legacy restriction verified")
     }
 
     private struct EncryptionEvidence {
@@ -707,8 +739,8 @@ enum QPDFStructuralAudit {
         try require(folders.allSatisfy { !FileManager.default.fileExists(atPath: $0.path) },
                     "O reparo concluído deixou JSON ou PDFs temporários na pasta privada.")
         try verifyAES256(result, password: password)
-        guard let reopened = PDFDocument(data: result), reopened.unlock(withPassword: password),
-              let repaired = reopened.page(at: 0)?.annotations.first(where: { $0.fieldName == "/field" }),
+        let reopened = try NativePDFSerialization.open(data: result, password: password)
+        guard let repaired = reopened.page(at: 0)?.annotations.first(where: { $0.fieldName == "/field" }),
               repaired.widgetStringValue == "/value", repaired.widgetDefaultStringValue == "/default" else {
             throw failure("O reparo não preservou as strings literais com barra inicial.")
         }

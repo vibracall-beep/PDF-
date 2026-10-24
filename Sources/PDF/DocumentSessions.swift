@@ -17,6 +17,10 @@ import PDFKit
     var originalWidgetState: String
     /// Used solely in memory to encrypt recovery copies; never written into preferences or metadata.
     var password: String?
+    /// The document retains its original protection proof internally. This flag
+    /// records an encrypted reader compatibility copy without replacing its URL
+    /// or the user's original in-memory password with an internal credential.
+    let usedCompatibilityCopy: Bool
     let history = AnnotationHistory()
     var recoveryTask: Task<Void, Never>?
     var recoveryWrite: Task<RecoveryRecord?, Error>?
@@ -39,8 +43,9 @@ import PDFKit
         recoveryTask?.cancel(); recoveryWrite?.cancel()
         recoveryTask = nil; recoveryWrite = nil
     }
-    init(id: UUID = UUID(), document: PDFDocument, sourceURL: URL?, password: String? = nil) {
+    init(id: UUID = UUID(), document: PDFDocument, sourceURL: URL?, password: String? = nil, usedCompatibilityCopy: Bool = false) {
         self.id = id; self.document = document; self.sourceURL = sourceURL; self.password = password
+        self.usedCompatibilityCopy = usedCompatibilityCopy
         originalWidgetState = Self.widgetState(document)
     }
     static func widgetState(_ document: PDFDocument) -> String {

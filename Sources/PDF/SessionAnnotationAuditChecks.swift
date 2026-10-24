@@ -3,7 +3,7 @@ import PDFKit
 import CoreGraphics
 
 @MainActor enum SessionAnnotationAuditChecks {
-    static func run() throws {
+    static func run() async throws {
         func require(_ condition: @autoclosure () throws -> Bool, _ message: String) throws {
             guard try condition() else { throw NSError(domain: "PDF.SessionAudit", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
         }
@@ -28,12 +28,14 @@ import CoreGraphics
         try NativeOutput.write(IntelligenceText.PDF("Segundo documento independente."), to: secondURL)
         let workspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
         workspace.open(url: firstURL)
+        await workspace.waitForPendingOpen()
         guard let firstSession = workspace.activeSession, let openedPage = workspace.document?.page(at: 0) else { throw NSError(domain: "PDF.SessionAudit", code: 5) }
         let view = PDFView(frame: CGRect(x: 0, y: 0, width: 800, height: 600)); view.document = workspace.document
         workspace.pdfView = view; view.autoScales = false; view.scaleFactor = 1.75
         workspace.currentPage = 2; workspace.bookmarks = [2]
         openedPage.annotations.first { $0.fieldName == "session-field" }?.widgetStringValue = "Alterado na primeira aba"
         workspace.open(url: secondURL)
+        await workspace.waitForPendingOpen()
         guard let secondSession = workspace.activeSession else { throw NSError(domain: "PDF.SessionAudit", code: 6) }
         try require(workspace.sessions.count == 2 && firstSession.isDirty && !secondSession.isDirty, "Abrir outra aba perdeu o documento ou alterações de formulário.")
         try require(firstSession.page == 2 && abs(firstSession.zoom - 1.75) < 0.01 && firstSession.bookmarks == [2], "A primeira aba perdeu página, zoom ou marcas.")
@@ -49,6 +51,7 @@ import CoreGraphics
         try require(recovered.page(at: 0)?.annotations.first { $0.fieldName == "session-field" }?.widgetStringValue == "Alterado na primeira aba", "A recuperação perdeu valores preenchidos no formulário.")
         let restoredWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
         try restoredWorkspace.refreshRecoveryNow(); restoredWorkspace.restoreRecovery(id: firstSession.id)
+        await restoredWorkspace.waitForPendingOpen()
         try require(restoredWorkspace.currentPage == 2 && restoredWorkspace.activeSession?.isDirty == true && restoredWorkspace.bookmarks == [2], "A restauração não recuperou o estado de leitura e a proteção contra descarte.")
         try require(try Data(contentsOf: firstURL) == firstBytes, "Sessões/recuperação alteraram o documento original.")
         let generationsBeforeNavigation = try FileManager.default.contentsOfDirectory(atPath: store.directory.path).sorted()
@@ -58,6 +61,7 @@ import CoreGraphics
         try require(generationsAfterNavigation == generationsBeforeNavigation, "Navegar sem editar serializou novas gerações dos PDFs.")
         let navigationWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
         try navigationWorkspace.refreshRecoveryNow(); navigationWorkspace.restoreRecovery(id: firstSession.id)
+        await navigationWorkspace.waitForPendingOpen()
         try require(navigationWorkspace.currentPage == 1 && navigationWorkspace.bookmarks.isEmpty && abs((navigationWorkspace.activeSession?.zoom ?? 0) - 2.75) < 0.01,
                     "Uma nova sessão não recuperou o sidecar de página, zoom e marcadores.")
         let staleTaskID = firstSession.beginRecoveryTask()
@@ -77,14 +81,14 @@ import CoreGraphics
 
         // The original password stays in memory; recovered bytes must require it again.
         let password = "native-session-recovery-123"
-        guard let encryptedData = first.dataRepresentation(options: [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): password,
-              AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): password]), let encrypted = PDFDocument(data: encryptedData),
-              encrypted.unlock(withPassword: password) else { throw NSError(domain: "PDF.SessionAudit", code: 8) }
+        let encryptedData = try NativePDFSerialization.serialize(document: first, password: password)
+        let encrypted = try NativePDFSerialization.open(data: encryptedData, password: password)
         let protectedSession = PDFDocumentSession(document: encrypted, sourceURL: nil, password: password)
         let safeBytes = try protectedSession.recoveryData()
         let verification = PDFDocument(data: safeBytes)
         try require(verification?.isEncrypted == true && verification?.isLocked == true && verification?.unlock(withPassword: "") == false,
                     "A recuperação de documento protegido ficou legível sem senha.")
+        try QPDFStructuralAudit.verifyAES256(safeBytes, password: password)
         protectedSession.password = nil
         try require(rejects { _ = try protectedSession.recoveryData() }, "A recuperação caiu silenciosamente para texto sem proteção quando não havia senha.")
 
@@ -95,23 +99,27 @@ import CoreGraphics
                        title: "Recuperação protegida", state: RecoverySessionState())
         let passwordWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
         try passwordWorkspace.refreshRecoveryNow(); passwordWorkspace.restoreRecovery(id: protectedID)
+        await passwordWorkspace.waitForPendingOpen()
         try require(passwordWorkspace.needsPassword, "A recuperação protegida não solicitou a senha.")
         passwordWorkspace.documentPassword = "senha a descartar"; passwordWorkspace.cancelPendingUnlock()
         try require(!passwordWorkspace.needsPassword && passwordWorkspace.documentPassword.isEmpty, "Cancelar não limpou a solicitação e a senha pendentes.")
         // Repeat the pending state to check replacement even if the alert is
         // dismissed by the system instead of its explicit Cancel button.
         passwordWorkspace.restoreRecovery(id: protectedID)
+        await passwordWorkspace.waitForPendingOpen()
         let otherPassword = "different-source-password-456"
         let otherURL = directory.appendingPathComponent("other-protected.pdf")
-        guard let otherData = first.dataRepresentation(options: [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): otherPassword,
-              AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): otherPassword]) else { throw NSError(domain: "PDF.SessionAudit", code: 10) }
+        let otherData = try NativePDFSerialization.serialize(document: first, password: otherPassword)
         try NativeOutput.write(otherData, to: otherURL)
-        passwordWorkspace.open(url: otherURL); passwordWorkspace.documentPassword = otherPassword; passwordWorkspace.unlockPendingDocument()
+        passwordWorkspace.open(url: otherURL)
+        await passwordWorkspace.waitForPendingOpen()
+        passwordWorkspace.documentPassword = otherPassword; passwordWorkspace.unlockPendingDocument()
+        await passwordWorkspace.waitForPendingOpen()
         try require(passwordWorkspace.url == otherURL && passwordWorkspace.document?.isLocked == false && !passwordWorkspace.needsPassword,
                     "A senha do novo arquivo foi encaminhada a uma recuperação anteriormente solicitada.")
         let savedPassword = "published-copy-password-789"
-        guard let saveBytes = passwordWorkspace.document?.dataRepresentation(options: [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): savedPassword,
-              AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): savedPassword]) else { throw NSError(domain: "PDF.SessionAudit", code: 11) }
+        guard let sourceToSave = passwordWorkspace.document else { throw NSError(domain: "PDF.SessionAudit", code: 11) }
+        let saveBytes = try NativePDFSerialization.serialize(document: sourceToSave, password: savedPassword)
         passwordWorkspace.didEdit()
         try require(rejects { try passwordWorkspace.publishSavedCopy(saveBytes, to: otherURL, password: savedPassword) }, "Salvar uma cópia sobrescreveu a origem protegida.")
         try require(passwordWorkspace.activeSession?.password == otherPassword && passwordWorkspace.savedDocumentURL == nil && passwordWorkspace.hasUnsavedChanges,
@@ -121,10 +129,87 @@ import CoreGraphics
         try passwordWorkspace.publishSavedCopy(saveBytes, to: savedURL, password: savedPassword)
         try require(passwordWorkspace.activeSession?.password == savedPassword && passwordWorkspace.savedDocumentURL == savedURL && !passwordWorkspace.hasUnsavedChanges,
                     "A publicação bem-sucedida não atualizou senha e estado da sessão.")
-        let savedVerification = PDFDocument(url: savedURL)
-        try require(savedVerification?.isLocked == true && savedVerification?.unlock(withPassword: savedPassword) == true,
+        let savedData = try Data(contentsOf: savedURL)
+        let savedVerification = try NativePDFSerialization.open(data: savedData, password: savedPassword)
+        try require(PDFDocument(data: savedData)?.isLocked == true && savedVerification.isEncrypted && !savedVerification.isLocked,
                     "A cópia publicada não manteve a nova senha.")
         try require(try Data(contentsOf: otherURL) == otherData, "Salvar a cópia protegida alterou a origem.")
+
+        // Exercise the actual asynchronous reader and recovery paths with a
+        // full-length UTF-8 credential, without a window or fake unlock result.
+        let unicodePassword = String(repeating: "🔑", count: 31) + "abc"
+        let unicodeData = try NativePDFSerialization.serialize(document: first, password: unicodePassword)
+        try QPDFStructuralAudit.verifyAES256(unicodeData, password: unicodePassword)
+        let unicodeURL = directory.appendingPathComponent("unicode-protected.pdf")
+        try NativeOutput.write(unicodeData, to: unicodeURL)
+        let unicodeWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        unicodeWorkspace.open(url: unicodeURL)
+        await unicodeWorkspace.waitForPendingOpen()
+        try require(unicodeWorkspace.needsPassword && unicodeWorkspace.document == nil,
+                    "O leitor abriu um arquivo Unicode protegido sem solicitar autenticação.")
+        unicodeWorkspace.documentPassword = "incorrect-unicode-audit"; unicodeWorkspace.unlockPendingDocument()
+        await unicodeWorkspace.waitForPendingOpen()
+        try require(unicodeWorkspace.needsPassword && unicodeWorkspace.document == nil,
+                    "Uma senha incorreta instalou o documento protegido no leitor.")
+        unicodeWorkspace.documentPassword = unicodePassword; unicodeWorkspace.unlockPendingDocument()
+        await unicodeWorkspace.waitForPendingOpen()
+        guard let unicodeSession = unicodeWorkspace.activeSession else { throw NSError(domain: "PDF.SessionAudit", code: 12) }
+        try require(unicodeSession.document.isEncrypted && !unicodeSession.document.isLocked &&
+                    unicodeSession.document.pageCount == 2 && (unicodeSession.document.string ?? "").contains("Primeiro documento"),
+                    "O leitor Unicode não manteve proteção, páginas e conteúdo após autenticar.")
+        try unicodeWorkspace.checkpointRecoveryNow()
+        guard let unicodeRecord = try store.list().first(where: { $0.id == unicodeSession.id }) else {
+            throw NSError(domain: "PDF.SessionAudit", code: 13)
+        }
+        let unicodeSnapshot = try store.load(unicodeRecord)
+        try QPDFStructuralAudit.verifyAES256(unicodeSnapshot, password: unicodePassword)
+        let unicodeRecovery = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        try unicodeRecovery.refreshRecoveryNow(); unicodeRecovery.restoreRecovery(id: unicodeRecord.id)
+        await unicodeRecovery.waitForPendingOpen()
+        try require(unicodeRecovery.needsPassword && unicodeRecovery.document == nil,
+                    "A recuperação Unicode não exigiu autenticação novamente.")
+        unicodeRecovery.documentPassword = unicodePassword; unicodeRecovery.unlockPendingDocument()
+        await unicodeRecovery.waitForPendingOpen()
+        try require(unicodeRecovery.document?.isEncrypted == true && unicodeRecovery.document?.isLocked == false &&
+                    unicodeRecovery.document?.pageCount == 2 && unicodeRecovery.document?.page(at: 0)?.annotations.contains {
+                        $0.fieldName == "session-field" && $0.widgetStringValue == "Original"
+                    } == true, "A recuperação Unicode perdeu proteção, páginas ou campo editável.")
+        try require(try store.load(unicodeRecord) == unicodeSnapshot && Data(contentsOf: unicodeURL) == unicodeData,
+                    "Abrir ou restaurar o PDF Unicode alterou os bytes originais ou o snapshot persistido.")
+
+        // Two selections made before the first worker completes must retain
+        // their distinct password prompts. Cancel the first, then authenticate
+        // the second with its own credential and original URL.
+        let queuedWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        queuedWorkspace.open(url: otherURL); queuedWorkspace.open(url: unicodeURL)
+        await queuedWorkspace.waitForPendingOpen()
+        try require(queuedWorkspace.needsPassword && queuedWorkspace.sessions.isEmpty,
+                    "A fila de documentos protegidos instalou uma sessão antes da autenticação.")
+        queuedWorkspace.cancelPendingUnlock()
+        await queuedWorkspace.waitForPendingOpen()
+        try require(queuedWorkspace.needsPassword, "Cancelar a primeira senha descartou o segundo arquivo da fila.")
+        queuedWorkspace.documentPassword = unicodePassword; queuedWorkspace.unlockPendingDocument()
+        await queuedWorkspace.waitForPendingOpen()
+        try require(queuedWorkspace.sessions.count == 1 && queuedWorkspace.url == unicodeURL &&
+                    queuedWorkspace.activeSession?.password == unicodePassword && queuedWorkspace.document?.isLocked == false,
+                    "A fila encaminhou a senha ao arquivo errado ou persistiu a credencial temporária de compatibilidade.")
+
+        // Cancel while a worker is outstanding, then immediately open another
+        // source. Await both current and retired work; stale completion must
+        // not install a document or overwrite the second source's prompt.
+        let cancelledWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        cancelledWorkspace.open(url: otherURL); cancelledWorkspace.cancelDocumentOpenings()
+        cancelledWorkspace.open(url: unicodeURL)
+        await cancelledWorkspace.waitForPendingOpen()
+        try require(cancelledWorkspace.needsPassword && cancelledWorkspace.sessions.isEmpty,
+                    "A conclusão de uma abertura cancelada instalou uma sessão obsoleta.")
+        cancelledWorkspace.documentPassword = unicodePassword; cancelledWorkspace.unlockPendingDocument()
+        await cancelledWorkspace.waitForPendingOpen()
+        try require(cancelledWorkspace.sessions.count == 1 && cancelledWorkspace.url == unicodeURL &&
+                    cancelledWorkspace.activeSession?.password == unicodePassword,
+                    "A tarefa cancelada substituiu o documento ou a senha da abertura seguinte.")
+        try require(try Data(contentsOf: unicodeURL) == unicodeData && Data(contentsOf: otherURL) == otherData,
+                    "Enfileirar ou cancelar aberturas modificou um dos documentos protegidos originais.")
 
         // Real PDFKit annotation changes, independent per-document undo and persisted redo.
         let page = firstSession.document.page(at: 0)!

@@ -1,4 +1,10 @@
-# Capturas reais — 5a11c07
+# Galerias de capturas reais
+
+A [galeria de menu e personalização 4ac9d26](4ac9d26/README.md) mostra dez PNGs originais do **macOS 26**: menu inicial, tema escuro, lista e os sete painéis de personalização. Inclui [procedência, tamanhos e hashes](4ac9d26/proveniencia.json). A rodada foi reprovada no nome AX de Scope e no empacotamento; o macOS 27 não produziu capturas. As imagens não aprovam esses gates nem representam correções posteriores.
+
+A galeria anterior permanece abaixo com seus arquivos e sua procedência preservados.
+
+## Capturas históricas — 5a11c07
 
 Estas imagens pertencem ao commit **`5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`**, execução [40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Substituem a galeria histórica de `0910ad9` anteriormente presente nesta pasta. Os dois artefatos desta execução foram baixados normalmente e inspecionados localmente.
 

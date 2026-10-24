@@ -1,0 +1,123 @@
+{
+  "schema": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "4ac9d264473fd5440df4d67bfa6cf2e702d8d3bf",
+  "runID": 40114980785,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785",
+  "runConclusion": "failure",
+  "platform": "macos-26",
+  "captureMethod": "ScreenCaptureKit; janela real do aplicativo, documentos de demonstração e preferências isoladas",
+  "artifact": {
+    "id": 12569660236,
+    "name": "PDF-macOS-preview-macos-26",
+    "createdAt": "2026-10-24T17:33:27Z",
+    "archiveBytes": 3180823,
+    "archiveSHA256": "2613172d3b99a239b06524da5ab378783deee75c4575c2bcff0fd582b4bf8ddc",
+    "githubDigest": "sha256:2613172d3b99a239b06524da5ab378783deee75c4575c2bcff0fd582b4bf8ddc"
+  },
+  "preservation": "Bytes PNG originais; sem recorte, redimensionamento, retoque ou recomposição.",
+  "visualReview": {
+    "scope": "32 PNG originais do macOS 26 inspecionados individualmente; esta galeria seleciona 10.",
+    "result": "Nenhuma nova regressão visual observada nos estados capturados.",
+    "limits": [
+      "A revisão visual não valida interações, VoiceOver humano ou todos os estados possíveis.",
+      "O gate AX desta execução reprovou: pdf.accessibility.tag.scope tem nome vazio.",
+      "macOS 27 não produziu capturas antes do timeout; nenhuma imagem desta galeria vem do macOS 27.",
+      "O pacote portátil reprovou; esta galeria não aprova distribuição.",
+      "As correções posteriores dos rótulos AX não estão nestas imagens."
+    ]
+  },
+  "files": [
+    {
+      "file": "PDF-preview.png",
+      "originalArtifactPath": "PDF-preview.png",
+      "title": "Menu inicial",
+      "bytes": 348695,
+      "sha256": "94ad1dcda1b4b74ad31762a87f014974b79426c42f9a2e18a569e61f572d4813",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.escuro.png",
+      "originalArtifactPath": "PDF-preview.escuro.png",
+      "title": "Menu no tema escuro",
+      "bytes": 399127,
+      "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.lista.png",
+      "originalArtifactPath": "PDF-preview.lista.png",
+      "title": "Menu em lista",
+      "bytes": 94743,
+      "sha256": "e964b1e11b19d72e0ae2ba3d604ff524a0476cc23adbeff4e2ac9c81f64f3ebb",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.personalizar.png",
+      "originalArtifactPath": "PDF-preview.personalizar.png",
+      "title": "Personalização da aparência",
+      "bytes": 99903,
+      "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.ferramentas.png",
+      "originalArtifactPath": "PDF-preview.ferramentas.png",
+      "title": "Personalização das ferramentas",
+      "bytes": 87460,
+      "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.navegacao.png",
+      "originalArtifactPath": "PDF-preview.navegacao.png",
+      "title": "Personalização da navegação",
+      "bytes": 79859,
+      "sha256": "8fca986791c33c27ecc98157d27b947a980ebcddb7008199b3e40bbc30740f52",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.opcoes-leitura.png",
+      "originalArtifactPath": "PDF-preview.opcoes-leitura.png",
+      "title": "Personalização do leitor",
+      "bytes": 79823,
+      "sha256": "d8b6a76d502a62cfed5ad8f25248d06f2b01d0f4374d3cba9cfb707721bb9324",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.arquivos.png",
+      "originalArtifactPath": "PDF-preview.arquivos.png",
+      "title": "Personalização dos arquivos",
+      "bytes": 76968,
+      "sha256": "d6a11402aa67a249680170df6ece1851e48663291d796efc8188de896baa1cfe",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.atalhos.png",
+      "originalArtifactPath": "PDF-preview.atalhos.png",
+      "title": "Personalização dos atalhos",
+      "bytes": 75242,
+      "sha256": "0897d14e2e9e1b9a7f53e0e63cb27d21300ffcb630950475df1cb596993a854e",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.perfis.png",
+      "originalArtifactPath": "PDF-preview.perfis.png",
+      "title": "Perfis de trabalho",
+      "bytes": 59535,
+      "sha256": "384f7eafe888a143e59623d14dea4d1e703de98a2f9ded28be1d9424a03e0e9c",
+      "width": 1050,
+      "height": 752
+    }
+  ]
+}

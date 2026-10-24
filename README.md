@@ -17,9 +17,9 @@ A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs
 
 ## Menu e personalização
 
-![Captura histórica do menu principal do PDF](docs/imagens/menu-principal.png)
+![Menu principal do PDF — captura real 4ac9d26, macOS 26](docs/imagens/4ac9d26/PDF-preview.png)
 
-Esta é uma **captura real da base `5a11c07`**, em macOS 27.0.1; não representa as novas telas da versão 0.6. A [galeria histórica](docs/imagens/README.md) conserva procedência e hashes. Os 64 originais de `cbb3298` foram recuperados e revisados individualmente sem nova regressão visual, incluindo o rodapé corrigido. Essa revisão não altera a origem da imagem acima. Em `4ac9d26`, os 32 PNGs do macOS 26 também foram revisados sem nova regressão visual, incluindo o TH preenchido. O sexto AX, porém, detectou Scope sem nome; o macOS 27 não produziu capturas antes do timeout. Essas revisões não aprovam os gates reprovados nem o pacote.
+Esta é uma **captura real de `4ac9d26`, no macOS 26**. Veja o [tema escuro, a lista e os sete painéis de personalização](docs/imagens/4ac9d26/README.md), com bytes originais, procedência e hashes. Os 32 PNGs dessa rodada foram revisados sem nova regressão visual; porém, o gate AX detectou Scope sem nome, o macOS 27 não produziu capturas antes do timeout e o pacote portátil reprovou. A galeria não aprova essas etapas nem mostra as correções posteriores. A [galeria histórica `5a11c07`](docs/imagens/README.md) permanece preservada.
 
 O ambiente oferece busca, favoritos, categorias, nomes e ícones personalizados, ordem e visibilidade de ferramentas, aparência, densidade, opções de leitura e saída. A ampliação inclui arraste com alternativa por teclado, atalhos editáveis com verificação de conflitos, paleta de comandos e perfis de trabalho. Animações acompanham as mudanças e respeitam Reduzir Movimento. Veja [PERSONALIZACAO.md](docs/PERSONALIZACAO.md) e a [matriz atual](docs/AMPLIACOES-2026-10.md).
 

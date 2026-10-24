@@ -10,7 +10,8 @@ import Darwin
 enum PreviewStartupTrace {
     static func record(_ phase: StaticString) {
         guard CommandLine.arguments.contains("--render-preview") else { return }
-        let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0)\n"
+        let hasSwiftTask = withUnsafeCurrentTask { $0 != nil }
+        let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0); swiftTask=\(hasSwiftTask)\n"
         // No stdout/stdio buffer: a timeout before WindowGroup attachment must
         // still retain the last phase. Failure to log never changes app behavior.
         let bytes = Array(line.utf8)

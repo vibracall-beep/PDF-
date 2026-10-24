@@ -12,8 +12,6 @@ struct ReaderWorkspaceView: View {
     @AppStorage("readerShowAnnotations") private var showAnnotations = true
     @AppStorage("readerHiddenToolbar") private var hiddenToolbar = ""
     @AppStorage("readerHiddenAnnotations") private var hiddenAnnotations = ""
-    @AppStorage("readerAutoScale") private var autoScale = true
-    @AppStorage("readerZoom") private var zoom = 1.0
     @AppStorage("readerHighlightColor") private var highlightColor = "#FFE600"
     @AppStorage("readerNoteColor") private var noteColor = "#FFCC00"
     @AppStorage("readerShowTabs") private var showTabs = true
@@ -140,7 +138,7 @@ struct ReaderWorkspaceView: View {
                 Button { changeZoom(increase:true) } label: { Image(systemName:"plus.magnifyingglass") }.help("Ampliar").accessibilityLabel("Ampliar zoom")
             }
             if visible("compare",in:hiddenToolbar) { comparisonMenu }
-            if visible("fit",in:hiddenToolbar) { Button("Ajustar") { autoScale = true; model.pdfView?.autoScales = true }.help("Ajustar à janela") }
+            if visible("fit",in:hiddenToolbar) { Button("Ajustar") { model.setReaderMagnification(autoScale: true) }.help("Ajustar à janela") }
             Menu {
                 Picker("Leitura",selection:$mode) { Text("Contínua").tag(0); Text("Página única").tag(1); Text("Duas páginas").tag(2) }
                 Toggle("Barra de anotações",isOn:$showAnnotations)
@@ -239,9 +237,9 @@ struct ReaderWorkspaceView: View {
     func visible(_ id:String,in values:String) -> Bool { !values.split(separator:",").contains(Substring(id)) }
     func changeZoom(increase:Bool) {
         guard let view = model.pdfView else { return }
-        autoScale = false; view.autoScales = false
+        view.autoScales = false
         if increase { view.zoomIn(nil) } else { view.zoomOut(nil) }
-        zoom = min(8,max(0.1,Double(view.scaleFactor)))
+        model.setReaderMagnification(zoom: Double(view.scaleFactor), autoScale: false)
     }
     func find() { model.search(search, animate:preferences.state.animationsEnabled && !reduceMotion) }
 }

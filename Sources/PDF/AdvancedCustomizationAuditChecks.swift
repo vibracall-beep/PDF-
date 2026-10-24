@@ -1,7 +1,10 @@
 import Foundation
+import AppKit
+import PDFKit
+import SwiftUI
 
 @MainActor enum AdvancedCustomizationAuditChecks {
-    static func run() throws {
+    static func run() async throws {
         let suite = "PDF.AdvancedCustomization.Audit."+UUID().uuidString
         guard let defaults = UserDefaults(suiteName:suite) else { throw PreferenceError.invalid("Não foi possível isolar os ajustes de auditoria.") }
         defer { defaults.removePersistentDomain(forName:suite) }
@@ -89,9 +92,134 @@ import Foundation
         try preferences.importData(JSONSerialization.data(withJSONObject:legacy))
         store.deleteProfile(profileID)
         try check(AdvancedCustomizationStore(defaults:defaults).profiles.isEmpty,"excluir perfil deve persistir sem excluir ajustes atuais")
+        try await readerProfileRoundTrip()
         print("Advanced customization audit passed: shortcut conflicts, persistence, profiles, ordering and atomic legacy import")
+    }
+    private static func readerProfileRoundTrip() async throws {
+        let suite = "PDF.ProfileReader.Audit." + UUID().uuidString
+        let defaults = try require(UserDefaults(suiteName: suite))
+        defer { defaults.removePersistentDomain(forName: suite) }
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(suite, isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+        defaults.set(false, forKey: "recoveryEnabled")
+        defaults.set(1.0, forKey: "readerZoom"); defaults.set(true, forKey: "readerAutoScale")
+        defaults.set(1, forKey: "readerMode"); defaults.set("#204060", forKey: "readerPageBackground")
+        defaults.set("media", forKey: "readerDisplayBox")
+        let preferences = AppearancePreferences(defaults: defaults)
+        try preferences.advanced.saveProfile(name: "Leitura automática", settings: preferences.exportData())
+        let profile = try require(preferences.advanced.profiles.first)
+        defaults.set(1.75, forKey: "readerZoom"); defaults.set(false, forKey: "readerAutoScale")
+        defaults.set(0, forKey: "readerMode"); defaults.set("#E8E9EF", forKey: "readerPageBackground")
+        defaults.set("crop", forKey: "readerDisplayBox")
+        var sources: [(url: URL, data: Data)] = []
+        for name in ["principal", "referencia", "novo"] {
+            let document = try require(PDFDocument(data: IntelligenceText.PDF("Documento \(name): três páginas para verificar perfis de leitura.")))
+            let page = try require(document.page(at: 0))
+            page.setBounds(page.bounds(for: .mediaBox).insetBy(dx: 16, dy: 24), for: .cropBox)
+            for index in 1...2 { document.insert(try require(page.copy() as? PDFPage), at: index) }
+            let data = try require(document.dataRepresentation()), url = directory.appendingPathComponent(name + ".pdf")
+            try NativeOutput.write(data, to: url); sources.append((url, data))
+        }
+        let workspace = Workspace(defaults: defaults, recoveryStore: RecoveryStore(directory: directory.appendingPathComponent("Recovery")), enableRecoveryPolling: false)
+        workspace.open(url: sources[0].url); await workspace.waitForPendingOpen()
+        let primary = try require(workspace.activeSession)
+        workspace.currentPage = 2; workspace.bookmarks = [2]
+        workspace.open(url: sources[1].url); await workspace.waitForPendingOpen()
+        let reference = try require(workspace.activeSession)
+        workspace.currentPage = 3; reference.zoom = 2.1; reference.autoScale = false
+        workspace.activateSession(primary.id); workspace.comparisonSessionID = reference.id
+        let host = NSHostingView(rootView: ProfileReaderAuditView().environmentObject(workspace).defaultAppStorage(defaults))
+        host.frame = NSRect(x: 0, y: 0, width: 1100, height: 700)
+        await settle(host)
+        func check(_ condition: Bool, _ message: String) throws {
+            guard condition else { throw PreferenceError.invalid("Perfil com leitores reais: " + message) }
+        }
+        func view(for session: PDFDocumentSession) throws -> PDFView {
+            try require(pdfViews(in: host).first { $0.document === session.document })
+        }
+        func verifySessions() throws {
+            let first = try view(for: primary), second = try view(for: reference)
+            try check(!first.autoScales && abs(Double(first.scaleFactor) - 1.75) < 0.01 &&
+                      !second.autoScales && abs(Double(second.scaleFactor) - 2.1) < 0.01,
+                      "o perfil ou a troca de abas substituiu o zoom manual de uma sessão aberta")
+            try check(primary.page == 2 && reference.page == 3 && primary.bookmarks == [2] &&
+                      first.currentPage === primary.document.page(at: 1) && second.currentPage === reference.document.page(at: 2),
+                      "a aplicação do perfil perdeu a página ou as marcas de uma das sessões")
+            try check(abs(primary.zoom - 1.75) < 0.01 && abs(reference.zoom - 2.1) < 0.01 && !primary.autoScale && !reference.autoScale,
+                      "o estado persistido das sessões divergiu dos leitores nativos")
+        }
+        try verifySessions()
+        try preferences.importData(profile.settings); await settle(host)
+        try verifySessions()
+        for session in [primary, reference] {
+            let reader = try view(for: session), color = try require(reader.backgroundColor.usingColorSpace(.sRGB))
+            try check(reader.displayMode == .singlePage && reader.displayBox == .mediaBox && abs(color.redComponent - 32.0 / 255) < 0.001 &&
+                      abs(color.greenComponent - 64.0 / 255) < 0.001 && abs(color.blueComponent - 96.0 / 255) < 0.001,
+                      "preservar a navegação impediu que modo e aparência do perfil fossem aplicados")
+        }
+        try preferences.importData(profile.settings); await settle(host); try verifySessions()
+        workspace.comparisonSessionID = primary.id; workspace.activateSession(reference.id)
+        await settle(host); try verifySessions()
+        workspace.comparisonSessionID = reference.id; workspace.activateSession(primary.id)
+        await settle(host); try verifySessions()
+        try check(defaults.double(forKey: "readerZoom") == 1 && defaults.bool(forKey: "readerAutoScale"),
+                  "alternar abas sobrescreveu os padrões importados do perfil")
+        workspace.open(url: sources[2].url); await workspace.waitForPendingOpen()
+        let newSession = try require(workspace.activeSession)
+        try check(newSession.zoom == 1 && newSession.autoScale, "uma nova aba ignorou os padrões do perfil")
+        await settle(host)
+        workspace.activateSession(primary.id); await settle(host); try verifySessions()
+        // Use the same action called by the slider and fit button, then a real
+        // PDFKit scale notification (as produced by a native gesture/keyboard action).
+        workspace.setReaderMagnification(zoom: 2.4, autoScale: false); await settle(host)
+        let firstView = try view(for: primary)
+        try check(abs(Double(firstView.scaleFactor) - 2.4) < 0.01 && !firstView.autoScales &&
+                  defaults.double(forKey: "readerZoom") == 2.4 && !defaults.bool(forKey: "readerAutoScale"),
+                  "o controle explícito deixou de ajustar a aba e guardar o padrão")
+        firstView.autoScales = false; firstView.scaleFactor = 2.65; await settle(host)
+        try check(abs(workspace.currentReaderZoom - 2.65) < 0.01 && !workspace.currentReaderAutoScale &&
+                  defaults.double(forKey: "readerZoom") == 2.4, "o zoom nativo não atualizou os controles ou alterou padrões sem comando explícito")
+        workspace.setReaderMagnification(autoScale: true); await settle(host)
+        try check(firstView.autoScales && workspace.currentReaderAutoScale, "Ajustar deixou de ativar o encaixe automático")
+        let fittedZoom = Double(firstView.scaleFactor)
+        workspace.setReaderMagnification(autoScale: false); await settle(host)
+        try check(!firstView.autoScales && abs(Double(firstView.scaleFactor) - fittedZoom) < 0.01,
+                  "desativar Ajustar perdeu o zoom efetivo da janela")
+        try AppearancePreferences(defaults: defaults).importData(profile.settings); await settle(host)
+        try check(!firstView.autoScales && abs(Double(firstView.scaleFactor) - fittedZoom) < 0.01 &&
+                  !reference.autoScale && abs(reference.zoom - 2.1) < 0.01 && defaults.double(forKey: "readerZoom") == 1 && defaults.bool(forKey: "readerAutoScale"),
+                  "restaurar um perfil substituiu o estado atual ou perdeu os padrões de novas abas")
+        for source in sources { try check(try Data(contentsOf: source.url) == source.data, "a personalização alterou um PDF original") }
+    }
+    private static func settle(_ host: NSView) async {
+        // Drain actual SwiftUI/PDFKit work. No fixed delay or nested run loop.
+        for _ in 0..<2 {
+            host.layoutSubtreeIfNeeded()
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                DispatchQueue.main.async { continuation.resume() }
+            }
+        }
+        host.layoutSubtreeIfNeeded()
+    }
+    private static func pdfViews(in view: NSView) -> [PDFView] {
+        if let pdf = view as? PDFView { return [pdf] }
+        return view.subviews.flatMap { pdfViews(in: $0) }
     }
     private static func require<T>(_ value:T?) throws -> T {
         guard let value else { throw PreferenceError.invalid("Valor esperado ausente na auditoria de personalização.") }; return value
+    }
+}
+
+private struct ProfileReaderAuditView: View {
+    @EnvironmentObject var model: Workspace
+    @AppStorage("readerMode") private var mode = 0
+    var body: some View {
+        HStack(spacing: 0) {
+            Reader(mode: mode)
+            if let reference = model.sessions.first(where: { $0.id == model.comparisonSessionID && $0.id != model.activeSessionID }) {
+                SessionComparisonReader(session: reference, mode: mode)
+            }
+        }
     }
 }

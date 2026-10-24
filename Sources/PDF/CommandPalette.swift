@@ -158,7 +158,7 @@ struct WorkspaceProfileControls:View {
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
             Text("Espaços de trabalho para cada tarefa").font(.headline)
-            Text("Guarde aparência, menus, ordem das ferramentas, atalhos, opções do leitor e preferências de saída. Aplicar um perfil mantém os documentos, posições de leitura, histórico e cópias de recuperação.").font(.caption).foregroundStyle(.secondary)
+            Text("Guarde aparência, menus, ordem das ferramentas, atalhos, opções do leitor e preferências de saída. Aplicar um perfil mantém os documentos, páginas de leitura, zoom, histórico e cópias de recuperação. O zoom do perfil vale para novas abas; os controles do leitor ajustam a aba ativa.").font(.caption).foregroundStyle(.secondary)
             HStack { TextField("Nome do novo perfil",text:$name).textFieldStyle(.roundedBorder); Button("Guardar ajustes atuais") { save(name:name) }.disabled(name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty) }
             if !message.isEmpty { Text(message).font(.callout).foregroundStyle(.secondary) }
             ForEach(store.profiles) { profile in

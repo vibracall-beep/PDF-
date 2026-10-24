@@ -2,6 +2,7 @@ import SwiftUI
 import AppKit
 import PDFKit
 import UniformTypeIdentifiers
+import CoreFoundation
 
 struct Tool: Identifiable, Hashable {
     let id: String
@@ -97,7 +98,7 @@ let tools: [Tool] = [
 ]
 
 @main enum PDFEntryPoint {
-    @MainActor static func main() async {
+    @MainActor static func main() {
         PreviewStartupTrace.record("entrypoint begin; acquire bundle lease")
         do { try BundleRuntimeLease.activate() }
         catch {
@@ -109,7 +110,44 @@ let tools: [Tool] = [
         if BundleRuntimeLeaseAudit.handleCommandLineIfNeeded() { return }
         if OwnedChildProcessAudit.handleCommandLineIfNeeded() { return }
         VisionWorker.handleCommandLineIfNeeded()
-        if await CrashRecoveryAudit.handleCommandLineIfNeeded() { return }
+        let arguments = CommandLine.arguments
+        if arguments.contains(CrashRecoveryAudit.argument) || arguments.contains("--smoke-test") || arguments.contains("--ai-audit") {
+            runAsyncCLI()
+        }
+        // SE-0323 allows async main to resume on the main queue after a
+        // suspension. AppKit must own the GUI loop directly, not from that
+        // queue's currently executing task (libdispatch forbids recursive drain).
+        PreviewStartupTrace.record("CLI dispatch complete; enter SwiftUI App.main synchronously")
+        if arguments.contains("--render-preview") {
+            DispatchQueue.main.async { PreviewStartupTrace.record("main queue startup marker delivered") }
+        }
+        PDFApp.main()
+    }
+
+    @MainActor private static func runAsyncCLI() -> Never {
+        // Keep AppKit audits on the original main thread. dispatchMain() can
+        // relinquish that thread; a top-level CF run loop also services the main
+        // queue, without nesting a GUI run loop inside a Swift task.
+        var context = CFRunLoopSourceContext(version: 0, info: nil, retain: nil, release: nil,
+            copyDescription: nil, equal: nil, hash: nil, schedule: nil, cancel: nil, perform: { _ in })
+        guard let keepAlive = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context) else {
+            fputs("PDF could not create the command-line event loop.\n", stderr); exit(1)
+        }
+        CFRunLoopAddSource(CFRunLoopGetMain(), keepAlive, kCFRunLoopDefaultMode)
+        Task { @MainActor in
+            guard Thread.isMainThread else {
+                fputs("PDF command-line audit requires the original main thread.\n", stderr); exit(1)
+            }
+            await performAsyncCLI()
+        }
+        CFRunLoopRun()
+        // Completion always exits explicitly. An unexpected loop return must
+        // never fall through to GUI startup or report an unexecuted audit pass.
+        fputs("PDF command-line event loop ended before completion.\n", stderr); exit(1)
+    }
+
+    @MainActor private static func performAsyncCLI() async -> Never {
+        if await CrashRecoveryAudit.handleCommandLineIfNeeded() { exit(0) }
         if CommandLine.arguments.contains("--ai-audit") {
             do {
                 let arguments = CommandLine.arguments
@@ -127,8 +165,7 @@ let tools: [Tool] = [
             do { try await MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
             catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
         }
-        PreviewStartupTrace.record("CLI dispatch complete; enter SwiftUI App.main")
-        PDFApp.main()
+        fputs("PDF command-line worker was not selected.\n", stderr); exit(2)
     }
 }
 
@@ -186,6 +223,7 @@ struct PDFApp: App {
         PreviewStartupTrace.record("PDFApp init end")
     }
     var body: some Scene {
+        let _ = PreviewStartupTrace.record("PDFApp body evaluated")
         WindowGroup {
             Group {
                 if preview.isEnabled { preview.content.id(preview.routeIdentity) }

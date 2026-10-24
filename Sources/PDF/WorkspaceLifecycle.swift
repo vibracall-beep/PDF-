@@ -4,15 +4,27 @@ import AppKit
 @MainActor final class PDFApplicationDelegate:NSObject,NSApplicationDelegate {
     weak var model:Workspace?
     private var waitingForOperationCleanup = false
+    override init() {
+        super.init()
+        PreviewStartupTrace.record("application delegate initialized")
+    }
+    func applicationWillFinishLaunching(_ notification: Notification) {
+        PreviewStartupTrace.record("application will finish launching")
+    }
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        PreviewStartupTrace.record("application did finish launching")
+    }
     func applicationShouldTerminate(_ sender:NSApplication) -> NSApplication.TerminateReply {
         if waitingForOperationCleanup { return .terminateLater }
         guard model?.confirmDiscardEdits() != false else { return .terminateCancel }
         guard let model else { return .terminateNow }
+        model.captureTerminationDecision()
         waitingForOperationCleanup = true
         Task { @MainActor in
             let ready = await model.prepareForTermination()
+            let authorized = ready && model.authorizeTerminationIfUnchanged()
             waitingForOperationCleanup = false
-            sender.reply(toApplicationShouldTerminate: ready)
+            sender.reply(toApplicationShouldTerminate: authorized)
         }
         return .terminateLater
     }

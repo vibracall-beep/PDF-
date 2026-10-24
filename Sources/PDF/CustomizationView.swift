@@ -51,7 +51,7 @@ struct CustomizationView:View {
             HStack {
                 Menu("Restaurar") {
                     Button("Aparência e menu padrão") { preferences.reset() }
-                    Button("Leitor padrão") { preferences.resetReader() }
+                    Button("Leitor padrão") { preferences.resetReader(); model.setReaderMagnification(zoom: 1, autoScale: true) }
                 }
                 Button("Importar…") { importSettings() }
                 Button("Exportar…") { exportSettings() }
@@ -188,12 +188,13 @@ struct CustomizationView:View {
 }
 
 struct ReaderCustomizationControls:View {
+    @EnvironmentObject var model: Workspace
+    @AppStorage("readerAutoScale") private var defaultAutoScale = true
+    @AppStorage("readerZoom") private var defaultZoom = 1.0
     @AppStorage("readerMode") private var mode = 0
     @AppStorage("readerDirection") private var direction = "vertical"
     @AppStorage("readerDisplayBox") private var box = "crop"
     @AppStorage("readerPageBackground") private var background = "#E8E9EF"
-    @AppStorage("readerAutoScale") private var autoScale = true
-    @AppStorage("readerZoom") private var zoom = 1.0
     @AppStorage("readerDisplayPageBreaks") private var pageBreaks = true
     @AppStorage("readerSidebar") private var sidebar = true
     @AppStorage("readerShowAnnotations") private var annotations = true
@@ -205,6 +206,8 @@ struct ReaderCustomizationControls:View {
     @AppStorage("readerInkWidth") private var inkWidth = 2.5
     @AppStorage("readerShowTabs") private var showTabs = true
     @AppStorage("readerSplitDirection") private var splitDirection = "horizontal"
+    private var effectiveZoom: Double { model.activeSession?.zoom ?? defaultZoom }
+    private var effectiveAutoScale: Bool { model.activeSession?.autoScale ?? defaultAutoScale }
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
             Picker("Modo de leitura",selection:$mode) { Text("Contínuo").tag(0); Text("Página única").tag(1); Text("Duas páginas").tag(2) }
@@ -212,8 +215,14 @@ struct ReaderCustomizationControls:View {
             Picker("Área da página",selection:$box) { Text("Área recortada").tag("crop"); Text("Página inteira").tag("media") }
             ColorPicker("Fundo da área de leitura",selection:Binding(get:{ AppearanceColor.color(background) },set:{ background = AppearanceColor.hex($0) }),supportsOpacity:false)
             Toggle("Separar visualmente as páginas",isOn:$pageBreaks)
-            Toggle("Ajustar zoom à janela",isOn:$autoScale)
-            HStack { Text("Zoom"); Slider(value:$zoom,in:0.1...8).accessibilityLabel("Zoom de leitura").accessibilityValue("\(Int(zoom*100)) por cento"); Text("\(Int(zoom*100))%").monospacedDigit() }.disabled(autoScale)
+            Toggle("Ajustar zoom à janela",isOn:Binding(get:{ effectiveAutoScale },set:{ model.setReaderMagnification(autoScale: $0) }))
+            HStack {
+                Text("Zoom")
+                Slider(value:Binding(get:{ effectiveZoom },set:{ model.setReaderMagnification(zoom: $0, autoScale: false) }),in:0.1...8)
+                    .accessibilityLabel("Zoom de leitura").accessibilityValue("\(Int(effectiveZoom*100)) por cento")
+                Text("\(Int(effectiveZoom*100))%").monospacedDigit()
+            }.disabled(effectiveAutoScale)
+            Text("Estes controles ajustam a aba ativa e o padrão para novos documentos. Cada aba mantém seu zoom ao alternar perfis.").font(.caption).foregroundStyle(.secondary)
             Toggle("Mostrar abas dos documentos",isOn:$showTabs)
             Picker("Leitura simultânea",selection:$splitDirection) { Text("Lado a lado").tag("horizontal"); Text("Empilhada").tag("vertical") }
             Toggle("Mostrar miniaturas e sumário",isOn:$sidebar)

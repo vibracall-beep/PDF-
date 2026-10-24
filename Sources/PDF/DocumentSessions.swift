@@ -115,16 +115,20 @@ struct SessionComparisonReader: NSViewRepresentable {
     }
     func updateNSView(_ view: PDFView, context: Context) {
         let coordinator = context.coordinator
+        coordinator.applyingSettings = true
+        defer { coordinator.applyingSettings = false }
         coordinator.session = session
+        coordinator.sessionID = session.id
         let changedDocument = view.document !== session.document
         if changedDocument { view.document = session.document; coordinator.page = nil }
         // Layout preferences are shared with the primary reader. Page, zoom and
         // automatic fitting continue to belong to this reference session.
         let settings = ReaderSettings(mode: mode, direction: direction, box: box, background: background,
                                       autoScale: session.autoScale, zoom: session.zoom, pageBreaks: pageBreaks)
+        let layoutChanged = settings.layoutDiffers(from: coordinator.settings)
         settings.apply(to: view, previous: coordinator.settings, changedDocument: changedDocument)
         coordinator.settings = settings
-        if coordinator.page != session.page, let page = session.document.page(at: max(0, min(session.document.pageCount - 1, session.page - 1))) {
+        if coordinator.page != session.page || layoutChanged, let page = session.document.page(at: max(0, min(session.document.pageCount - 1, session.page - 1))) {
             view.go(to: page); coordinator.page = session.page
         }
     }
@@ -133,23 +137,30 @@ struct SessionComparisonReader: NSViewRepresentable {
         var observers: [NSObjectProtocol] = []
         var page: Int?
         var settings: ReaderSettings?
-        init(session: PDFDocumentSession) { self.session = session }
+        var applyingSettings = false
+        var sessionID: UUID
+        init(session: PDFDocumentSession) { self.session = session; sessionID = session.id }
         func observe(_ view: PDFView) {
             observers.append(NotificationCenter.default.addObserver(forName: .PDFViewPageChanged, object: view, queue: .main) { [weak view, weak self] _ in
-                guard let view, let page = view.currentPage else { return }
+                guard self?.applyingSettings == false, let sessionID = self?.sessionID,
+                      let view, let page = view.currentPage, let document = view.document else { return }
                 Task { @MainActor in
-                    guard let self, view.document === self.session.document else { return }
+                    guard let self, self.session.id == sessionID, self.session.document === document,
+                          view.document === document, view.currentPage === page else { return }
                     let index = self.session.document.index(for: page)
                     if index != NSNotFound { self.page = index + 1; self.session.page = index + 1 }
                 }
             })
             observers.append(NotificationCenter.default.addObserver(forName: .PDFViewScaleChanged, object: view, queue: .main) { [weak view, weak self] _ in
-                guard let view else { return }
+                guard self?.applyingSettings == false, let sessionID = self?.sessionID,
+                      let view, let document = view.document else { return }
+                let zoom = Double(view.scaleFactor), automatic = view.autoScales
                 Task { @MainActor in
-                    guard let self, view.document === self.session.document else { return }
-                    let zoom = Double(view.scaleFactor)
+                    guard let self, self.session.id == sessionID, self.session.document === document,
+                          view.document === document, view.autoScales == automatic,
+                          abs(Double(view.scaleFactor) - zoom) < 0.001 else { return }
                     if zoom.isFinite, zoom > 0 { self.session.zoom = min(8, max(0.1, zoom)) }
-                    self.session.autoScale = view.autoScales
+                    self.session.autoScale = automatic
                 }
             })
         }

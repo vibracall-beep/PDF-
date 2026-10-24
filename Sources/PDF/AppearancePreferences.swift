@@ -151,6 +151,8 @@ enum PreferenceError:LocalizedError {
         try snapshot.appearance.validate(); try snapshot.reader.validate()
         if let shortcuts = snapshot.shortcuts { try AdvancedCustomizationStore.validate(shortcuts) }
         if let output = snapshot.output { try output.validate() }
+        // Reader sessions retain their own navigation and magnification. These
+        // values are defaults, not an explicit zoom command for an open PDF.
         state = snapshot.appearance; snapshot.reader.apply(to:defaults)
         if let shortcuts = snapshot.shortcuts { try advanced.apply(shortcuts) }
         snapshot.output?.apply(to:defaults)

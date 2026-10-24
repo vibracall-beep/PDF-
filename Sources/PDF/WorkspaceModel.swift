@@ -110,6 +110,27 @@ enum ReaderAnnotationStyle {
     private var process: OwnedChildProcess?
     private var executionTask: Task<Void, Never>?
     private var preparingForTermination = false
+    private struct TerminationSessionState: Equatable {
+        let id: UUID
+        let document: ObjectIdentifier
+        let pageCount: Int
+        let revision: Int
+        let edited: Bool
+        let widgets: String
+        let source: URL?
+        let saved: URL?
+        let title: Data
+        let page: Int
+        let zoom: Double
+        let autoScale: Bool
+        let bookmarks: [Int]
+    }
+    private struct TerminationState: Equatable {
+        let sessions: [TerminationSessionState]
+        let active: UUID?
+        let comparison: UUID?
+    }
+    private var terminationDecision: TerminationState?
     private var cancelled = false
     private var activeJob: UUID?
     private var originalWidgetState = ""
@@ -771,6 +792,33 @@ enum ReaderAnnotationStyle {
         guard let document, number > 0, number <= document.pageCount, let page = document.page(at:number - 1) else { return }
         pdfView?.go(to:page); currentPage = number
     }
+    /// Stored preferences are defaults for future documents. Only an explicit
+    /// reader control changes the magnification of the current session.
+    var currentReaderZoom: Double { activeSession?.zoom ?? (defaults.object(forKey: "readerZoom") as? Double ?? 1) }
+    var currentReaderAutoScale: Bool { activeSession?.autoScale ?? (defaults.object(forKey: "readerAutoScale") as? Bool ?? true) }
+    func setReaderMagnification(zoom requestedZoom: Double? = nil, autoScale requestedAutoScale: Bool? = nil) {
+        let matchingView = pdfView?.document === document ? pdfView : nil
+        let effectiveZoom = matchingView.map { Double($0.scaleFactor) } ?? currentReaderZoom
+        let requested = requestedZoom ?? effectiveZoom
+        let zoom = requested.isFinite ? min(8, max(0.1, requested)) : 1
+        let autoScale = requestedAutoScale ?? currentReaderAutoScale
+        defaults.set(zoom, forKey: "readerZoom"); defaults.set(autoScale, forKey: "readerAutoScale")
+        objectWillChange.send()
+        activeSession?.zoom = zoom; activeSession?.autoScale = autoScale
+        if let view = matchingView {
+            view.autoScales = autoScale
+            if !autoScale { view.scaleFactor = min(view.maxScaleFactor, max(view.minScaleFactor, CGFloat(zoom))) }
+        }
+    }
+    /// Native gestures and PDFKit keyboard actions update their own session,
+    /// without replacing defaults imported by a workspace profile.
+    func recordReaderMagnification(zoom: Double, autoScale: Bool, sessionID: UUID, document: PDFDocument) {
+        guard activeSessionID == sessionID, self.document === document,
+              let session = activeSession, zoom.isFinite, zoom > 0 else { return }
+        let value = min(8, max(0.1, zoom))
+        guard abs(session.zoom - value) > 0.001 || session.autoScale != autoScale else { return }
+        objectWillChange.send(); session.zoom = value; session.autoScale = autoScale
+    }
     func recordPage(_ page: PDFPage, in document: PDFDocument) {
         guard self.document === document else { return }
         let index = document.index(for: page)
@@ -900,7 +948,38 @@ enum ReaderAnnotationStyle {
     }
     /// Called only after the existing save/discard/recovery decision. Do not
     /// reply to AppKit until the owned engine and document-open tasks finished.
+    func captureTerminationDecision() {
+        terminationDecision = currentTerminationState()
+    }
+    private func currentTerminationState() -> TerminationState {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+        (pdfView as? DrawingPDFView)?.finishStroke()
+        captureActiveSession()
+        return TerminationState(sessions: sessions.map { session in
+            TerminationSessionState(id: session.id, document: ObjectIdentifier(session.document),
+                pageCount: session.document.pageCount, revision: session.annotationRevision, edited: session.hasEdits,
+                widgets: PDFDocumentSession.widgetState(session.document), source: session.sourceURL,
+                saved: session.savedURL, title: Data(session.title.utf8), page: session.page, zoom: session.zoom,
+                autoScale: session.autoScale, bookmarks: session.bookmarks.sorted())
+        }, active: activeSessionID, comparison: comparisonSessionID)
+    }
+    private func refuseTermination(_ detail: String) -> Bool {
+        preparingForTermination = false; terminationDecision = nil
+        ApplicationWork.resumeAcceptingWork()
+        message = detail
+        return false
+    }
+    /// Called again synchronously immediately before AppKit's final reply. A
+    /// later widget edit, annotation, tab change or navigation requires a new
+    /// save/recovery decision; the previous checkpoint cannot authorize it.
+    func authorizeTerminationIfUnchanged() -> Bool {
+        guard let terminationDecision, terminationDecision == currentTerminationState() else {
+            return refuseTermination("A sessão mudou enquanto as operações eram encerradas. As alterações permanecem abertas; confira os documentos e solicite a saída novamente.")
+        }
+        return true
+    }
     func prepareForTermination(externalDeadline: TimeInterval = 30) async -> Bool {
+        if terminationDecision == nil { captureTerminationDecision() }
         preparingForTermination = true
         cancelDocumentOpenings()
         cancel()
@@ -913,12 +992,12 @@ enum ReaderAnnotationStyle {
         }
         guard !busy, executionTask == nil, process == nil, openingTask == nil,
               retiredOpeningTasks.isEmpty, ApplicationWork.activeCount == 0 else {
-            preparingForTermination = false
-            ApplicationWork.resumeAcceptingWork()
-            message = "A operação auxiliar ainda não confirmou o encerramento. O PDF permanece aberto; aguarde sua conclusão antes de sair."
-            return false
+            if !PagesCleanupRegistry.shared.pending.isEmpty {
+                return refuseTermination("O Pages ainda não confirmou o fechamento de uma cópia privada. Abra Pages para PDF e use Tentar encerrar cópia privada antes de sair. Os originais permanecem intactos.")
+            }
+            return refuseTermination("A operação auxiliar ainda não confirmou o encerramento. O PDF permanece aberto; aguarde sua conclusão antes de sair.")
         }
-        return true
+        return authorizeTerminationIfUnchanged()
     }
     func executeBatch(operation:String, inputs:[URL], directory:URL, options:[String:Any], title:String) {
         guard !preparingForTermination, !busy, !inputs.isEmpty else { return }
@@ -1062,21 +1141,31 @@ struct Reader: NSViewRepresentable {
         view.onAnnotationTransformed = { [weak model] annotation, before in model?.activeSession?.history.changed(annotation, before: before) }
         view.onDeleteAnnotation = { [weak model] in model?.deleteSelectedAnnotation() }
         model.pdfView = view
-        context.coordinator.observers.append(NotificationCenter.default.addObserver(forName:.PDFViewPageChanged,object:view,queue:.main) { [weak view, weak model] _ in
-            guard let view, let page = view.currentPage, let document = view.document else { return }
-            Task { @MainActor in model?.recordPage(page, in: document) }
+        let coordinator = context.coordinator
+        coordinator.observers.append(NotificationCenter.default.addObserver(forName:.PDFViewPageChanged,object:view,queue:.main) { [weak view, weak model, weak coordinator] _ in
+            guard coordinator?.applyingSettings == false, let view, let page = view.currentPage, let document = view.document else { return }
+            Task { @MainActor in
+                guard view.document === document, view.currentPage === page else { return }
+                model?.recordPage(page, in: document)
+            }
         })
-        let zoomBinding = $zoom
-        context.coordinator.observers.append(NotificationCenter.default.addObserver(forName:.PDFViewScaleChanged,object:view,queue:.main) { [weak view] _ in
-            guard let view, !view.autoScales else { return }
-            let scale = Double(view.scaleFactor)
-            if scale.isFinite, scale > 0, abs(zoomBinding.wrappedValue - scale) > 0.001 {
-                zoomBinding.wrappedValue = scale
+        coordinator.observers.append(NotificationCenter.default.addObserver(forName:.PDFViewScaleChanged,object:view,queue:.main) { [weak view, weak model, weak coordinator] _ in
+            guard coordinator?.applyingSettings == false, let sessionID = coordinator?.sessionID,
+                  let view, let document = view.document else { return }
+            let scale = Double(view.scaleFactor), automatic = view.autoScales
+            Task { @MainActor in
+                guard let model, model.activeSessionID == sessionID,
+                      view.document === document, view.autoScales == automatic,
+                      abs(Double(view.scaleFactor) - scale) < 0.001 else { return }
+                model.recordReaderMagnification(zoom: scale, autoScale: automatic, sessionID: sessionID, document: document)
             }
         })
         return view
     }
     func updateNSView(_ view:PDFView, context:Context) {
+        context.coordinator.applyingSettings = true
+        defer { context.coordinator.applyingSettings = false }
+        context.coordinator.sessionID = model.activeSessionID
         let changedDocument = view.document !== model.document
         let previousPage = model.currentPage
         if changedDocument {
@@ -1090,34 +1179,19 @@ struct Reader: NSViewRepresentable {
             drawing.selectedAnnotation = model.selectedAnnotation
             drawing.documentUndoManager = model.annotationUndoManager
         }
-        if let session = model.activeSession {
-            if !changedDocument {
-                if context.coordinator.preferenceZoom != zoom { session.zoom = zoom }
-                if context.coordinator.preferenceAutoScale != autoScale { session.autoScale = autoScale }
-            } else {
-                let zoomBinding = $zoom, scaleBinding = $autoScale
-                let sessionZoom = session.zoom, sessionScale = session.autoScale
-                let sessionID = session.id
-                DispatchQueue.main.async { [weak model, weak view] in
-                    guard let model, model.activeSessionID == sessionID,
-                          let view, view.document === model.activeSession?.document else { return }
-                    zoomBinding.wrappedValue = sessionZoom; scaleBinding.wrappedValue = sessionScale
-                }
-            }
-        }
         let settings = ReaderSettings(mode: mode, direction: direction, box: box, background: background,
                                       autoScale: model.activeSession?.autoScale ?? autoScale, zoom: model.activeSession?.zoom ?? zoom, pageBreaks: pageBreaks)
-        context.coordinator.preferenceZoom = zoom; context.coordinator.preferenceAutoScale = autoScale
+        let layoutChanged = settings.layoutDiffers(from: context.coordinator.settings)
         settings.apply(to: view, previous: context.coordinator.settings, changedDocument: changedDocument)
         context.coordinator.settings = settings
-        if changedDocument, let page = view.document?.page(at: max(0, previousPage - 1)) { view.go(to: page) }
+        if changedDocument || layoutChanged, let page = view.document?.page(at: max(0, previousPage - 1)) { view.go(to: page) }
     }
     final class Coordinator {
         weak var model:Workspace?
         var observers:[NSObjectProtocol] = []
         var settings: ReaderSettings?
-        var preferenceZoom: Double?
-        var preferenceAutoScale: Bool?
+        var applyingSettings = false
+        var sessionID: UUID?
         init(model:Workspace) { self.model = model }
         deinit { for observer in observers { NotificationCenter.default.removeObserver(observer) } }
     }
@@ -1132,8 +1206,11 @@ struct ReaderSettings: Equatable {
     var autoScale: Bool
     var zoom: Double
     var pageBreaks: Bool
+    func layoutDiffers(from previous: ReaderSettings?) -> Bool {
+        previous == nil || previous?.mode != mode || previous?.direction != direction || previous?.box != box || previous?.pageBreaks != pageBreaks
+    }
     @MainActor func apply(to view: PDFView, previous: ReaderSettings?, changedDocument: Bool) {
-        let geometryChanged = previous == nil || previous?.mode != mode || previous?.direction != direction || previous?.box != box || previous?.pageBreaks != pageBreaks
+        let geometryChanged = layoutDiffers(from: previous)
         if previous?.mode != mode { view.displayMode = mode == 1 ? .singlePage : mode == 2 ? .twoUpContinuous : .singlePageContinuous }
         if previous?.direction != direction { view.displayDirection = direction == "horizontal" ? .horizontal : .vertical }
         if previous?.box != box { view.displayBox = box == "media" ? .mediaBox : .cropBox }

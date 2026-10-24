@@ -361,7 +361,7 @@ enum MacSmokeTests {
         audit("Private engine input and cleanup") { try EngineInputAuditChecks.run() }
         audit("Advanced editing and OCR review contracts") { try AdvancedEditingAuditChecks.run() }
         audit("Accessibility optional tag edit contract") { try AccessibilityTagEdits.runAuditChecks() }
-        audit("Command palette shortcuts and workspace profiles") { try AdvancedCustomizationAuditChecks.run() }
+        await auditAsync("Command palette shortcuts and workspace profiles") { try await AdvancedCustomizationAuditChecks.run() }
         await auditAsync("Opt-in folder automation") { try await AutomationAuditChecks.run() }
         await auditAsync("Library revisions synchronization and Portuguese sources") { try await LibraryAuditChecks.run() }
         await auditAsync("Real crash and recovery") { try await CrashRecoveryAudit.run() }

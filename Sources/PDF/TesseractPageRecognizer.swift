@@ -84,6 +84,7 @@ enum TesseractPageRecognizer {
         process.arguments = ["-E", "-s", "-B", runtime.engine.path, "ocr-page", input.path, "--output", output.path]
         process.currentDirectoryURL = folder
         var environment = ProcessInfo.processInfo.environment
+        AdaptivePerformance.apply(to: &environment)
         environment["PDF_OPTIONS_STDIN"] = "1"
         environment["PATH"] = runtime.python.deletingLastPathComponent().path + ":/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
         environment["TMPDIR"] = folder.path + "/"

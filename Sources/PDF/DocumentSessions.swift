@@ -8,6 +8,7 @@ import CryptoKit
     @Published var document: PDFDocument
     @Published var sourceURL: URL?
     @Published var savedURL: URL?
+    @Published var displayTitle: String?
     @Published var page = 1
     @Published var zoom = 1.0
     @Published var autoScale = true
@@ -30,7 +31,7 @@ import CryptoKit
     var recoveryFingerprint = ""
     var recoveryContentFingerprint = ""
     var lastRecoveryDate = Date.distantPast
-    var title: String { (savedURL ?? sourceURL)?.lastPathComponent ?? "Documento sem título" }
+    var title: String { savedURL?.lastPathComponent ?? displayTitle ?? sourceURL?.lastPathComponent ?? "Documento sem título" }
     @discardableResult func beginRecoveryTask() -> UUID {
         cancelRecoveryTask()
         let token = UUID(); recoveryTaskID = token; return token

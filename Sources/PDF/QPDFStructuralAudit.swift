@@ -8,7 +8,14 @@ import CryptoKit
 /// This auditor never rewrites its input. qpdf may recover data in memory while
 /// checking it, but warnings (exit 3) never count as a successful output audit.
 enum QPDFStructuralAudit {
-    private static let executable = URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
+    private static var executable: URL {
+        if let resources = Bundle.main.resourceURL,
+           FileManager.default.fileExists(atPath: resources.appendingPathComponent("runtime/portable.json").path) {
+            // A portable installation must never fall back to a host dependency.
+            return resources.appendingPathComponent("runtime/bin/qpdf")
+        }
+        return URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
+    }
 
     static func check(_ data: Data, password: String? = nil, phase: String) throws {
         log("\(phase): begin")

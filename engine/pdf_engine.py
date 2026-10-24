@@ -27,6 +27,14 @@ import tempfile
 import fitz
 
 TOOLS = {
+    'accessibility-inspect':'Inspecionar estrutura acessível', 'accessibility-remediate':'Corrigir estrutura acessível',
+    'signature-request-prepare':'Preparar solicitação de assinatura', 'signature-request-send':'Enviar solicitação de assinatura',
+    'signature-request-status':'Consultar solicitação de assinatura',
+    'content-inspect':'Inspecionar conteúdo original', 'content-apply':'Editar conteúdo original',
+    'ocr-review':'Revisar reconhecimento', 'ocr-apply':'Aplicar revisão OCR',
+    'print-preflight':'Diagnóstico de impressão', 'print-prepare':'Preparar corte e sangria',
+    'pdfx':'Preparar PDF/X-3', 'bates':'Numeração Bates', 'stamp':'Carimbo personalizado',
+    'measure':'Medir com escala', 'dossier':'Conjunto com índice navegável',
     'merge':'Juntar PDF', 'split':'Dividir PDF', 'compress':'Comprimir PDF',
     'word':'PDF para Word', 'powerpoint':'PDF para PowerPoint', 'excel':'PDF para Excel',
     'office':'Office para PDF', 'text':'Adicionar texto', 'edit':'Editar texto',
@@ -46,7 +54,8 @@ TOOLS = {
 }
 ALIASES = {'edit_text':'edit', 'form_create':'form-create', 'form_fill':'form-fill', 'compare_visual':'compare-visual','delete_pages':'delete-pages','extract_pages':'extract-pages','delete':'delete-pages','extract':'extract-pages'}
 PDF_OPERATIONS = {'digital-sign','merge','compress','office','text','edit','image','shape','images','signature','watermark','rotate','html','unlock','protect','organize','pdfa','repair','numbers','ocr','redact','crop','form-create','form-fill','translate-layout','odt','rtf','txt','epub','csv','flatten','delete-pages','extract-pages'}
-MULTI_INPUT = {'merge','images','compare','compare-visual','organize'}
+PDF_OPERATIONS.update({'content-apply','ocr-apply','print-prepare','pdfx','bates','stamp','dossier','accessibility-remediate'})
+MULTI_INPUT = {'merge','images','compare','compare-visual','organize','dossier'}
 DIRECTORY_OUTPUT = {'split','jpg','png'}
 
 
@@ -94,6 +103,34 @@ def _separate_page_aliases(doc):
             doc.insert_pdf(copy)
         indices.append(len(doc)-1)
     if len(doc)!=initial: doc.select(indices)
+
+
+def _select_independent_pages(doc, pages):
+    """Clone repeated pages before select() can detach their form widgets.
+
+    Page-tree aliases cannot represent independent annotations or form fields.
+    Copying after select() is too late: MuPDF may already remove the duplicate
+    widget reference while rebuilding the AcroForm tree.
+    """
+    chosen, seen = [], set()
+    for index in pages:
+        if index not in seen:
+            chosen.append(index); seen.add(index)
+        else:
+            internal_links = [link for link in doc[index].get_links() if link.get('kind') == fitz.LINK_GOTO and link.get('page', -1) >= 0]
+            with fitz.open() as duplicate:
+                duplicate.insert_pdf(doc, from_page=index, to_page=index, links=True, annots=True, widgets=True)
+                doc.insert_pdf(duplicate, links=True, annots=True, widgets=True)
+            copied = doc[-1]
+            # A one-page intermediate omits links targeting other source pages.
+            # Reattach them in the original page tree, before select remaps it.
+            for link in list(copied.get_links()):
+                if link.get('kind') == fitz.LINK_GOTO:
+                    copied.delete_link(link)
+            for link in internal_links:
+                copied.insert_link({key: value for key, value in link.items() if key not in ('xref', 'id')})
+            chosen.append(len(doc) - 1)
+    doc.select(chosen)
 
 
 def color(value, default=(0.2, 0.2, 0.25)):
@@ -260,6 +297,27 @@ def run(operation, inputs, output, options=None):
 
 
 def _execute(operation, inputs, output, options):
+    if operation in ('accessibility-inspect','accessibility-remediate'):
+        from pdf_accessibility import inspect_pdf, remediate_pdf
+        (inspect_pdf if operation == 'accessibility-inspect' else remediate_pdf)(inputs[0],output,options)
+        return
+    if operation in ('signature-request-prepare','signature-request-send','signature-request-status'):
+        from signature_requests import prepare_request, send_request, request_status
+        {'signature-request-prepare':prepare_request,'signature-request-send':send_request,
+         'signature-request-status':request_status}[operation](inputs[0],output,options)
+        return
+    if operation in ('content-inspect','content-apply','ocr-review','ocr-apply'):
+        from pdf_content import inspect_pdf, apply_edits, review_ocr, apply_ocr
+        {'content-inspect':inspect_pdf,'content-apply':apply_edits,
+         'ocr-review':review_ocr,'ocr-apply':apply_ocr}[operation](inputs[0],output,options)
+        return
+    if operation in ('print-preflight','print-prepare','pdfx','bates','stamp','measure','dossier'):
+        import print_legal
+        callback = {'print-preflight':print_legal.preflight,'print-prepare':print_legal.prepare_print,
+                    'pdfx':print_legal.pdfx,'bates':print_legal.bates,'stamp':print_legal.stamp,
+                    'measure':print_legal.measure,'dossier':print_legal.dossier}[operation]
+        callback(inputs if operation == 'dossier' else inputs[0],output,options)
+        return
     if operation == 'ocr-page':
         from ocr_page import recognize
         recognize(inputs[0],output,options,_external)
@@ -328,6 +386,7 @@ def _execute(operation, inputs, output, options):
             shutil.copyfile(generated,output)
         return
     if operation in ('ocr','pdfa'):
+        from resource_budget import worker_count
         with open_pdf(inputs[0],password) as doc, tempfile.TemporaryDirectory() as tmp:
             protection = _encrypted_output(doc,password)
             if protection and operation == 'pdfa':
@@ -336,7 +395,7 @@ def _execute(operation, inputs, output, options):
             if protection:
                 source = str(Path(tmp)/'source.pdf'); save(doc,source,encryption=fitz.PDF_ENCRYPT_NONE)
             generated = Path(tmp)/'result.pdf'
-            _external(['ocrmypdf','--output-type','pdfa' if operation == 'pdfa' else 'pdf','--skip-text','--language',options.get('language','por+eng'),source,generated],timeout=1800)
+            _external(['ocrmypdf','--jobs',str(worker_count()),'--output-type','pdfa' if operation == 'pdfa' else 'pdf','--skip-text','--language',options.get('language','por+eng'),source,generated],timeout=1800)
             with open_pdf(generated) as result:
                 if protection: save(result,output,**protection)
                 else: shutil.copyfile(generated,output)
@@ -390,7 +449,7 @@ def _execute(operation, inputs, output, options):
             if not len(result): raise ValueError('Nenhuma página encontrada.')
             if operation=='organize':
                 if not options.get('pages'): raise ValueError('Informe a nova ordem das páginas concatenadas.')
-                result.select(parse_pages(options['pages'],len(result),allow_duplicates=True))
+                _select_independent_pages(result, parse_pages(options['pages'],len(result),allow_duplicates=True))
             if output_password and not protection:
                 protection=dict(encryption=fitz.PDF_ENCRYPT_AES_256,user_pw=output_password,owner_pw=secrets.token_urlsafe(24))
             save(result,output,**protection)
@@ -443,10 +502,10 @@ def _execute(operation, inputs, output, options):
             omitted=set(pages)
             selected=[p for p in range(len(doc)) if p not in omitted] if operation=='delete-pages' else pages
             if not selected: raise ValueError('Não é possível excluir todas as páginas.')
-            doc.select(selected); save(doc,output)
+            _select_independent_pages(doc, selected); save(doc,output)
         elif operation == 'organize':
             if not options.get('pages'): raise ValueError('Informe a nova ordem das páginas.')
-            doc.select(pages)
+            _select_independent_pages(doc, pages)
             secret=options.get('output_password')
             if secret is not None:
                 if not isinstance(secret,str) or not 8<=len(secret)<=40: raise ValueError('A senha do resultado deve conter de 8 a 40 caracteres.')
@@ -1062,14 +1121,8 @@ def _fill_forms(doc,options):
 
 def _page_elements(page):
     """Reading-order blocks and extracted tables, avoiding duplicated table text."""
-    tables = page.find_tables().tables
-    entries = [dict(type=2,bbox=table.bbox,rows=table.extract()) for table in tables]
-    for block in page.get_text('dict',sort=True)['blocks']:
-        bounds = fitz.Rect(block['bbox'])
-        if block['type']==0 and any(_area(bounds & fitz.Rect(table.bbox)) > _area(bounds)*0.65 for table in tables):
-            continue
-        entries.append(block)
-    return sorted(entries,key=lambda b:(round(b['bbox'][1]/8),b['bbox'][0]))
+    from document_layout import page_elements
+    return page_elements(page)
 
 
 def _write_base64(stream, data):
@@ -1115,7 +1168,12 @@ def _markdown(doc,pages,output):
                     if not text: continue
                     size=max(span['size'] for span in line['spans'])
                     prefix='# ' if size>=body*1.7 else '## ' if size>=body*1.3 else ''
-                    emit(prefix+escaped(text))
+                    fragments=[]
+                    for span in line['spans']:
+                        value=re.sub(r'([`*_{}\[\]#!])',r'\\\1',escaped(span['text']))
+                        marker='***' if span.get('flags',0)&18==18 else '**' if span.get('flags',0)&16 else '*' if span.get('flags',0)&2 else ''
+                        fragments.append(marker+value+marker if value.strip() else value)
+                    emit(prefix+''.join(fragments).strip())
                 emit('')
             for link in page.get_links():
                 if link.get('uri'):
@@ -1128,9 +1186,12 @@ def _markdown(doc,pages,output):
 def _word(doc,pages,output,options=None):
     from docx import Document
     from docx.shared import Pt, Inches, RGBColor
+    from PIL import Image
     from scan_analysis import analyze, elements, source_mode
     options=options or {}
     result = Document()
+    result.core_properties.title=doc.metadata.get('title','')
+    result.core_properties.author=doc.metadata.get('author','')
     for count,i in enumerate(pages):
         page = doc[i]
         if count: result.add_page_break()
@@ -1138,6 +1199,8 @@ def _word(doc,pages,output,options=None):
             analysis=analyze(page,i+1,options,_external)
             blocks=elements(analysis) if analysis['words'] else _page_elements(page)
         else: blocks=_page_elements(page)
+        sizes=sorted(span['size'] for block in blocks if block['type']==0 for line in block['lines'] for span in line['spans'] if span['text'].strip())
+        body=sizes[len(sizes)//2] if sizes else 11
         for block in blocks:
             if block['type']==2:
                 rows=block['rows']
@@ -1149,13 +1212,21 @@ def _word(doc,pages,output,options=None):
                 continue
             if block['type']==1:
                 try: result.add_picture(io.BytesIO(block['image']),width=Inches(min(6,(block['bbox'][2]-block['bbox'][0])/72)))
-                except (ValueError,TypeError): pass
+                except (ValueError,TypeError):
+                    # Convert a supported PDF image encoding to PNG instead of
+                    # silently omitting it from the exported document.
+                    with Image.open(io.BytesIO(block['image'])) as image:
+                        encoded=io.BytesIO();image.convert('RGBA').save(encoded,format='PNG');encoded.seek(0)
+                    result.add_picture(encoded,width=Inches(min(6,(block['bbox'][2]-block['bbox'][0])/72)))
                 continue
             paragraph=result.add_paragraph()
+            size=max(span['size'] for line in block['lines'] for span in line['spans'])
+            if size>=body*1.7: paragraph.style='Heading 1'
+            elif size>=body*1.3: paragraph.style='Heading 2'
             for j,line in enumerate(block['lines']):
                 if j: paragraph.add_run('\n')
                 for span in line['spans']:
-                    run=paragraph.add_run(span['text']); run.font.size=Pt(span['size'])
+                    run=paragraph.add_run(span['text']); run.font.size=Pt(span['size']);run.font.name=re.sub(r'^[A-Z]{6}\+','',span.get('font','Arial'))
                     run.bold=bool(span['flags']&16); run.italic=bool(span['flags']&2)
                     ink=span.get('color',0); run.font.color.rgb=RGBColor((ink>>16)&255,(ink>>8)&255,ink&255)
     result.save(output)
@@ -1201,6 +1272,9 @@ def _powerpoint(doc,pages,output,options):
 
 def _excel(doc,pages,output,options=None):
     from openpyxl import Workbook
+    from openpyxl.comments import Comment
+    from openpyxl.styles import Font
+    from document_layout import table_groups, spreadsheet_text, format_sheet
     from scan_analysis import analyze, source_mode
     options=options or {}
     result = Workbook(); result.remove(result.active)
@@ -1208,13 +1282,29 @@ def _excel(doc,pages,output,options=None):
         page = doc[i]; sheet = result.create_sheet(f'Página {i+1}'); sheet.freeze_panes='A2'
         if source_mode(page,options)=='ocr':
             analysis=analyze(page,i+1,options,_external)
-            rows=[row for table in analysis['tables'] for row in table['rows']] if analysis['tables'] else [[line] for line in analysis['lines']]
-            if not rows: raise ValueError('Nenhum texto foi reconhecido na página '+str(i+1)+'. Ajuste idioma/DPI ou forneça uma digitalização mais nítida.')
+            from scan_analysis import elements
+            groups=elements(analysis)
+            if not analysis['words']: raise ValueError('Nenhum texto foi reconhecido na página '+str(i+1)+'. Ajuste idioma/DPI ou forneça uma digitalização mais nítida.')
         else:
-            tables = page.find_tables().tables
-            rows = [row for table in tables for row in table.extract()] if tables else [[line] for line in page.get_text(sort=True).splitlines()]
-        for row in rows:
-            sheet.append(["'"+v if isinstance(v,str) and v.startswith(('=','+','-','@')) else v for v in row])
+            groups=table_groups(page)
+        prior_table=False;cursor=1
+        for group in groups:
+            if group['type']==1: continue
+            is_table=group['type']==2
+            rows=group['rows'] if is_table else [[''.join(span['text'] for span in line['spans'])] for line in group['lines']]
+            if not rows: continue
+            if (prior_table or is_table) and cursor>1: cursor+=1
+            start=cursor
+            for row in rows:
+                values=[spreadsheet_text(value) for value in row]
+                for column,value in enumerate(values,1):
+                    sheet.cell(cursor,column,"'"+value if value.startswith(('=','+','-','@')) else value)
+                cursor+=1
+            if is_table:
+                for cell in sheet[start]: cell.font=Font(bold=True)
+                sheet.cell(start,1).comment=Comment('Origem: página '+str(i+1)+'; retângulo '+','.join(str(round(value,2)) for value in group['bbox'])+'. Revise a estrutura extraída.','PDF')
+            prior_table=is_table
+        format_sheet(sheet)
     result.save(output)
 
 
@@ -1306,8 +1396,9 @@ def main():
         if not args.operation or not args.output: parser.error('operation e --output são obrigatórios.')
         options=json.load(sys.stdin) if os.getenv('PDF_OPTIONS_STDIN')=='1' else json.loads(args.options)
         signature_steps=options.get('steps',[]) if isinstance(options,dict) and isinstance(options.get('steps',[]),list) else []
-        private_signing=args.operation=='digital-sign' or any(isinstance(step,dict) and step.get('operation')=='digital-sign' for step in signature_steps)
-        if private_signing and os.getenv('PDF_OPTIONS_STDIN')!='1': raise ValueError('A assinatura digital exige opções por stdin (PDF_OPTIONS_STDIN=1), para manter o PIN fora dos argumentos do processo.')
+        private_operations={'digital-sign','signature-request-send','signature-request-status'}
+        private_signing=args.operation in private_operations or any(isinstance(step,dict) and step.get('operation') in private_operations for step in signature_steps)
+        if private_signing and os.getenv('PDF_OPTIONS_STDIN')!='1': raise ValueError('Assinaturas exigem opções por stdin (PDF_OPTIONS_STDIN=1), para manter PINs e credenciais fora dos argumentos do processo.')
         run(args.operation,args.inputs,args.output,options)
         print(json.dumps(dict(ok=True,output=args.output),ensure_ascii=False))
     except KeyboardInterrupt:

@@ -21,12 +21,16 @@ PREVIEW_STATES = (
     'personalizar', 'ferramentas', 'navegacao', 'opcoes-leitura', 'arquivos',
     'escuro', 'lista', 'configuracao-ferramenta', 'fluxo-lote',
     'assinatura-digital', 'verificar-assinaturas', 'validar-pdfa', 'auditar-pdfua',
+    'atalhos', 'perfis', 'paleta', 'editor-conteudo', 'revisao-ocr', 'biblioteca',
+    'corrigir-acessibilidade', 'solicitar-assinaturas', 'automacao',
+    'producao-print-preflight', 'producao-bates', 'producao-measure', 'producao-pdfx',
 )
 REQUIRED_AX = {
     'PDF-preview.accessibility.json': {'pdf.catalog.search', 'pdf.customize.toolbar'},
     'PDF-preview.leitor.accessibility.json': {'pdf.reader.document', 'pdf.reader.search', 'pdf.reader.page'},
     'PDF-preview.lado-a-lado.accessibility.json': {'pdf.reader.document', 'pdf.reader.reference'},
     'PDF-preview.anotacoes.accessibility.json': {'pdf.reader.document', 'pdf.reader.inspector'},
+    'PDF-preview.biblioteca.accessibility.json': {'pdf.library'},
 }
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 MAX_ARTIFACT_BYTES = 64 * 1024 * 1024

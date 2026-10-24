@@ -157,6 +157,14 @@ cat > "$PDF_BUNDLE/Contents/Info.plist" <<'PLIST'
 <key>CFBundleVersion</key><string>5</string>
 <key>LSMinimumSystemVersion</key><string>26.0</string>
 <key>NSHighResolutionCapable</key><true/>
+<key>NSServices</key><array><dict>
+<key>NSMenuItem</key><dict><key>default</key><string>Abrir no PDF</string></dict>
+<key>NSMessage</key><string>openPDF</string>
+<key>NSPortName</key><string>PDF</string>
+<key>NSSendFileTypes</key><array><string>com.adobe.pdf</string></array>
+<key>NSRequiredContext</key><dict><key>NSApplicationIdentifier</key><string>com.apple.finder</string></dict>
+<key>NSServiceDescription</key><string>Abrir os arquivos PDF selecionados para leitura e revisão.</string>
+</dict></array>
 <key>NSAppleEventsUsageDescription</key><string>O PDF usa o Pages para converter uma cópia dos seus documentos em PDF.</string>
 <key>NSCameraUsageDescription</key><string>Digitalizar documentos para os arquivos PDF que você escolher.</string>
 <key>NSLocalNetworkUsageDescription</key><string>Encontrar e usar scanners compartilhados na sua rede local.</string>

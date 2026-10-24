@@ -805,6 +805,7 @@ enum ReaderAnnotationStyle {
         let task = Process(); task.executableURL = python
         task.arguments = [engine.path,operation] + inputs.map { $0.isFileURL ? $0.path : $0.absoluteString } + ["--output",output.path]
         var environment = ProcessInfo.processInfo.environment
+        AdaptivePerformance.apply(to: &environment)
         environment["PDF_OPTIONS_STDIN"] = "1"
         environment["PATH"] = "/opt/homebrew/bin:/usr/local/bin:" + (environment["PATH"] ?? "/usr/bin:/bin")
         task.environment = environment

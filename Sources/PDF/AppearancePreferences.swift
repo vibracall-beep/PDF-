@@ -38,7 +38,7 @@ struct AppearanceState:Codable,Equatable {
     var favorites:[String] = ["merge","ocr","word"]
     var toolTitles:[String:String] = [:]
     var toolIcons:[String:String] = [:]
-    static let categories = ["Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar","Compartilhar"]
+    static let categories = ["Organizar","Converter","Editar","Proteger","Capturar","Inteligência","Automatizar","Compartilhar","Produção"]
     static let defaultSidebar = [
         SidebarCustomization(id:"Início",label:"Início",icon:"square.grid.2x2"),
         SidebarCustomization(id:"Leitor",label:"Leitor",icon:"book"),
@@ -82,8 +82,10 @@ enum PreferenceError:LocalizedError {
     static let shared = AppearancePreferences()
     static let storageKey = "PDF.Appearance.v1"
     @Published var state:AppearanceState { didSet { persist() } }
+    let advanced:AdvancedCustomizationStore
     init(defaults:UserDefaults = .standard) {
         self.defaults = defaults
+        advanced = AdvancedCustomizationStore(defaults:defaults)
         if let data = defaults.data(forKey:Self.storageKey),var decoded = try? JSONDecoder().decode(AppearanceState.self,from:data),(try? decoded.validate()) != nil { state = decoded }
         else {
             var initial = AppearanceState()
@@ -110,6 +112,19 @@ enum PreferenceError:LocalizedError {
             (ranks[$0.element.id] ?? (state.toolOrder.count+$0.offset)) < (ranks[$1.element.id] ?? (state.toolOrder.count+$1.offset))
         }.map(\.element)
     }
+    func moveTool(_ id:String,before target:String) {
+        var order = orderedTools().map(\.id)
+        guard id != target,order.contains(id),order.contains(target) else { return }
+        order.removeAll { $0 == id }
+        guard let index = order.firstIndex(of:target) else { return }
+        order.insert(id,at:index); state.toolOrder = order
+    }
+    func moveSidebar(_ id:String,before target:String) {
+        guard id != target,let item = state.sidebar.first(where:{$0.id == id}),state.sidebar.contains(where:{$0.id == target}) else { return }
+        var order = state.sidebar.filter { $0.id != id }
+        guard let index = order.firstIndex(where:{$0.id == target}) else { return }
+        order.insert(item,at:index); state.sidebar = order
+    }
     func animation(reduceMotion:Bool) -> Animation? {
         guard state.animationsEnabled,!reduceMotion else { return nil }
         switch state.animationStyle {
@@ -124,13 +139,17 @@ enum PreferenceError:LocalizedError {
     }
     func exportData() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
-        return try encoder.encode(CustomizationSnapshot(appearance:state,reader:ReaderSettingsSnapshot(defaults:defaults)))
+        return try encoder.encode(CustomizationSnapshot(appearance:state,reader:ReaderSettingsSnapshot(defaults:defaults),shortcuts:advanced.snapshot,output:PDFOutputPreferencesSnapshot(defaults:defaults)))
     }
     func importData(_ data:Data) throws {
         guard data.count <= 1_048_576 else { throw PreferenceError.invalid("O arquivo de personalização é muito grande.") }
         var snapshot = try JSONDecoder().decode(CustomizationSnapshot.self,from:data)
         try snapshot.appearance.validate(); try snapshot.reader.validate()
+        if let shortcuts = snapshot.shortcuts { try AdvancedCustomizationStore.validate(shortcuts) }
+        if let output = snapshot.output { try output.validate() }
         state = snapshot.appearance; snapshot.reader.apply(to:defaults)
+        if let shortcuts = snapshot.shortcuts { try advanced.apply(shortcuts) }
+        snapshot.output?.apply(to:defaults)
     }
     func applyPreset(_ preset:String) {
         var value = state
@@ -226,6 +245,8 @@ struct CustomizableToolCard:View {
 struct CustomizationSnapshot:Codable {
     var appearance:AppearanceState
     var reader:ReaderSettingsSnapshot
+    var shortcuts:PDFShortcutSnapshot? = nil
+    var output:PDFOutputPreferencesSnapshot? = nil
 }
 struct ReaderSettingsSnapshot:Codable {
     var mode:Int

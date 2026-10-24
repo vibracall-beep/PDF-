@@ -76,7 +76,23 @@ let tools: [Tool] = [
     .init(id:"verify-signatures", name:"Verificar assinaturas", icon:"checkmark.shield", detail:"Examine certificados, integridade e evidências de validação.", category:"Proteger"),
     .init(id:"validate-pdfa", name:"Validar PDF/A", icon:"archivebox.fill", detail:"Verifique conformidade de arquivamento com validador independente.", category:"Proteger"),
     .init(id:"validate-pdfua", name:"Auditar PDF/UA", icon:"accessibility", detail:"Analise requisitos de acessibilidade e gere um relatório.", category:"Proteger"),
-    .init(id:"benchmark", name:"Desempenho do Mac", icon:"gauge.with.dots.needle.67percent", detail:"Meça leitura, busca e processamento no hardware deste Mac.", category:"Automatizar")
+    .init(id:"benchmark", name:"Desempenho do Mac", icon:"gauge.with.dots.needle.67percent", detail:"Meça leitura, busca e processamento no hardware deste Mac.", category:"Automatizar"),
+    .init(id:"content-editor", name:"Editar conteúdo original", icon:"text.cursor", detail:"Selecione texto e imagens existentes e prepare uma cópia editada.", category:"Editar"),
+    .init(id:"ocr-review", name:"Revisar OCR", icon:"text.viewfinder", detail:"Confira o texto reconhecido junto da imagem original.", category:"Capturar"),
+    .init(id:"library", name:"Biblioteca de documentos", icon:"books.vertical", detail:"Coleções, etiquetas, pesquisa e identificação de duplicados.", category:"Organizar"),
+    .init(id:"document-history", name:"Histórico de versões", icon:"clock.arrow.circlepath", detail:"Compare e restaure cópias anteriores da sua biblioteca.", category:"Organizar"),
+    .init(id:"collection-research", name:"Pesquisar na coleção", icon:"doc.text.magnifyingglass", detail:"Encontre trechos com documento, página e referência verificável.", category:"Inteligência"),
+    .init(id:"sync-library", name:"Sincronizar biblioteca", icon:"arrow.triangle.2.circlepath", detail:"Una versões entre seus Macs usando uma pasta escolhida.", category:"Organizar"),
+    .init(id:"accessibility-edit", name:"Corrigir acessibilidade", icon:"accessibility", detail:"Revise tags, ordem de leitura e alternativas textuais.", category:"Editar"),
+    .init(id:"signature-request", name:"Solicitar assinaturas", icon:"signature", detail:"Prepare participantes e campos para um serviço de assinaturas.", category:"Compartilhar"),
+    .init(id:"print-preflight", name:"Diagnóstico de impressão", icon:"printer", detail:"Confira fontes, resolução de imagens e caixas da página.", category:"Produção"),
+    .init(id:"print-prepare", name:"Corte e sangria", icon:"crop.rotate", detail:"Defina áreas de impressão e marcas de corte.", category:"Produção"),
+    .init(id:"pdfx", name:"Preparar PDF/X-3", icon:"doc.badge.gearshape", detail:"Converta com o perfil ICC CMYK fornecido pela gráfica.", category:"Produção"),
+    .init(id:"bates", name:"Numeração Bates", icon:"number.square", detail:"Identifique páginas com prefixo e sequência única.", category:"Produção"),
+    .init(id:"dossier", name:"Conjunto de documentos", icon:"list.bullet.rectangle", detail:"Reúna PDFs com índice navegável e marcadores.", category:"Produção"),
+    .init(id:"stamp", name:"Carimbo personalizado", icon:"checkmark.seal", detail:"Insira carimbos de revisão e identificação.", category:"Produção"),
+    .init(id:"measure", name:"Medir com escala", icon:"ruler", detail:"Calcule distâncias, perímetros e áreas com escala definida.", category:"Produção"),
+    .init(id:"automation", name:"Automação do Mac", icon:"gearshape.2", detail:"Execute fluxos em pastas monitoradas e use os Serviços do Finder.", category:"Automatizar")
 ]
 
 @main enum PDFEntryPoint {
@@ -154,9 +170,15 @@ struct PDFApp: App {
                 .onOpenURL { model.open(url:$0) }
                 .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
                 .background(MacPreviewWindowObserver(session:preview).frame(width:0,height:0))
-                .onAppear { applicationDelegate.model = model }
+                .onAppear {
+                    applicationDelegate.model = model
+                    if !preview.isEnabled {
+                        AutomationCoordinator.shared.attach(model: model)
+                        PDFServiceProvider.install(model: model)
+                    }
+                }
         }
-        .commands { PDFMenuCommands(model:model) }
+        .commands { PDFMenuCommands(model:model, preferences:appearancePreferences); AdvancedCommandMenu(preferences:appearancePreferences) }
         Settings { PreferencesView().environmentObject(model).environmentObject(appearancePreferences) }
     }
 
@@ -172,6 +194,11 @@ struct ContentView: View {
     @State private var selected:Tool?
     @State private var intelligenceMode = "summary"
     @State private var verificationMode = "verify"
+    @State private var productionMode: ProductionMode = .preflight
+    @State private var showPalette = false
+    @State private var pendingCommand: String?
+    @State private var paletteReaderActions: ReaderCommandActions?
+    @FocusedValue(\.readerCommandActions) private var readerActions
     @State private var showRecovery = false
     @FocusState private var toolSearchFocused:Bool
     @State private var showCustomization = false
@@ -197,17 +224,31 @@ struct ContentView: View {
             VStack(spacing:0) {
                 destination.id(model.section).transition(!preferences.state.animationsEnabled || reduceMotion ? .identity : .opacity)
                 statusBar
-            }.navigationTitle(model.section == "Leitor" ? model.url?.lastPathComponent ?? "Leitor" : preferences.state.sidebar.first(where:{$0.id == model.section})?.label ?? model.section)
+            }.navigationTitle(model.section == "Leitor" ? model.activeSession?.title ?? model.url?.lastPathComponent ?? "Leitor" : preferences.state.sidebar.first(where:{$0.id == model.section})?.label ?? model.section)
                 .animation(preferences.animation(reduceMotion:reduceMotion),value:model.section)
         }
         .tint(tint).preferredColorScheme(preferences.preferredScheme)
         .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model).environmentObject(preferences) }
         .sheet(isPresented:$showCustomization) { CustomizationView().environmentObject(model).environmentObject(preferences) }
         .sheet(isPresented:$showRecovery) { RecoveryDocumentsView().environmentObject(model).environmentObject(preferences) }
+        .sheet(isPresented:$showPalette, onDismiss: {
+            if let command = pendingCommand { pendingCommand = nil; executeCommand(command, reader: paletteReaderActions) }
+            paletteReaderActions = nil
+        }) { CommandPaletteView(onSelect: { pendingCommand = $0 }).environmentObject(preferences) }
+        .focusedSceneValue(\.advancedCommandActions, AdvancedCommandActions(showPalette: {
+            paletteReaderActions = readerActions; showPalette = true
+        }, execute: { executeCommand($0, reader: readerActions) }))
         .focusedSceneValue(\.catalogSearchAction,{ model.section = "Início"; DispatchQueue.main.async { toolSearchFocused = true } })
         .focusedSceneValue(\.recoveryAction,{ showRecovery = true })
         .onAppear { model.refreshRecovery() }
-        .toolbar { ToolbarItem(placement:.primaryAction) { Button { showCustomization = true } label:{ Label("Personalizar",systemImage:"slider.horizontal.3") }.help("Personalizar aparência, menus e leitura").accessibilityIdentifier("pdf.customize.toolbar") } }
+        .toolbar {
+            ToolbarItemGroup(placement:.primaryAction) {
+                Button { paletteReaderActions = readerActions; showPalette = true } label: { Label("Comandos", systemImage: "command") }
+                    .help("Buscar ferramentas e comandos").accessibilityIdentifier("pdf.commands.toolbar")
+                Button { showCustomization = true } label:{ Label("Personalizar",systemImage:"slider.horizontal.3") }
+                    .help("Personalizar aparência, menus e leitura").accessibilityIdentifier("pdf.customize.toolbar")
+            }
+        }
         .alert("Abrir documento protegido",isPresented:$model.needsPassword) {
             SecureField("Senha",text:$model.documentPassword)
             Button("Abrir") { model.unlockPendingDocument() }
@@ -258,6 +299,13 @@ struct ContentView: View {
         case "Sign.com": ExternalSigningView()
         case "Desempenho": BenchmarkView()
         case "Verificação": VerificationView(initialMode:verificationMode).id(verificationMode)
+        case "Editor avançado": AdvancedContentEditorView()
+        case "Revisão OCR": OCRReviewView()
+        case "Biblioteca": DocumentLibraryView()
+        case "Acessibilidade": AccessibilityRemediationView()
+        case "Solicitar assinaturas": SignatureRequestView()
+        case "Produção": ProductionToolsView(initialMode:productionMode).id(productionMode)
+        case "Automação": AutomationView(coordinator: .shared)
         default: home
         }
     }
@@ -367,6 +415,14 @@ struct ContentView: View {
     func navigate(to section:String) { if section == "Início" || section == "Favoritos" { clearToolFilters() }; model.section = section }
     func activate(_ tool:Tool) {
         switch tool.id {
+        case "content-editor": model.section = "Editor avançado"
+        case "ocr-review": model.section = "Revisão OCR"
+        case "library", "document-history", "collection-research", "sync-library": model.section = "Biblioteca"
+        case "accessibility-edit": model.section = "Acessibilidade"
+        case "signature-request": model.section = "Solicitar assinaturas"
+        case "print-preflight", "print-prepare", "pdfx", "bates", "dossier", "stamp", "measure":
+            productionMode = ProductionMode(rawValue: tool.id) ?? .preflight; model.section = "Produção"
+        case "automation": model.section = "Automação"
         case "summary","translate","chat","quiz": intelligenceMode = tool.id; model.section = "Inteligência"
         case "workflow": model.section = "Fluxos"
         case "scan": model.section = "Digitalizar"
@@ -382,6 +438,12 @@ struct ContentView: View {
         case "annotate": readerShowAnnotations = true; if model.document == nil { model.open() } else { model.section = "Leitor" }
         default: selected = tool
         }
+    }
+    func executeCommand(_ id: String, reader: ReaderCommandActions?) {
+        if id.hasPrefix("tool:"), let tool = tools.first(where: { "tool:" + $0.id == id }) { activate(tool); return }
+        PDFCommandExecution.perform(id, model:model, reader:reader,
+                                    search: { model.section = "Início"; toolSearchFocused = true },
+                                    recovery: { showRecovery = true })
     }
     func isFavorite(_ id:String) -> Bool { preferences.state.favorites.contains(id) }
     func toggleFavorite(_ id:String) { if isFavorite(id) { preferences.state.favorites.removeAll { $0 == id } } else { preferences.state.favorites.append(id) } }

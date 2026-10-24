@@ -36,6 +36,8 @@ struct BenchmarkMetric: Codable, Identifiable, Sendable {
     let error:String?
     var ocrWarmup: OCRBenchmarkEvidence? = nil
     var ocrSamples: [OCRBenchmarkEvidence]? = nil
+    var processCPUMilliseconds: [Double]? = nil
+    var reapedChildrenCPUMilliseconds: [Double]? = nil
     var medianMilliseconds:Double? {
         let sorted = samplesMilliseconds.sorted()
         guard !sorted.isEmpty else { return nil }
@@ -63,6 +65,11 @@ struct BenchmarkReport: Codable, Sendable {
     let repetitions:Int
     let metrics:[BenchmarkMetric]
     let methodology:String
+    var resourcePolicy: PerformanceBudget? = nil
+    var thermalLevelAtStart: Int? = nil
+    var thermalLevelAtEnd: Int? = nil
+    var lowPowerMode: Bool? = nil
+    var energyMeasurement: String? = nil
     var processorIdentifiesM4OrLater:Bool {
         guard let range = processor.range(of:"Apple M[0-9]+",options:.regularExpression),
               let generation = Int(processor[range].dropFirst(7)) else { return false }
@@ -103,8 +110,16 @@ struct BenchmarkReport: Codable, Sendable {
         let data = try Data(contentsOf:source,options:.mappedIfSafe)
         let hash = SHA256.hash(data:data).map { String(format:"%02x",$0) }.joined()
         var metrics:[BenchmarkMetric] = []
+        let thermalStart = ProcessInfo.processInfo.thermalState.rawValue
+        func cpuMilliseconds(_ who: Int32) -> Double {
+            var usage = rusage()
+            guard getrusage(who, &usage) == 0 else { return 0 }
+            return Double(usage.ru_utime.tv_sec + usage.ru_stime.tv_sec) * 1000 +
+                Double(usage.ru_utime.tv_usec + usage.ru_stime.tv_usec) / 1000
+        }
         func record(_ id:String,_ name:String,_ detail:String,_ body:() throws -> Void) throws {
             var durations:[Double] = []
+            var cpu: [Double] = [], children: [Double] = []
             do {
                 // Warm the requested operation once; the report does not call
                 // these results cold-cache or compare them to another machine.
@@ -114,11 +129,15 @@ struct BenchmarkReport: Codable, Sendable {
                 for _ in 0..<repetitions {
                     try cancellation.check()
                     let start = DispatchTime.now().uptimeNanoseconds
+                    let cpuStart = cpuMilliseconds(RUSAGE_SELF), childrenStart = cpuMilliseconds(RUSAGE_CHILDREN)
                     try autoreleasepool(invoking:body)
                     try cancellation.check()
                     durations.append(Double(DispatchTime.now().uptimeNanoseconds-start)/1_000_000)
+                    cpu.append(max(0, cpuMilliseconds(RUSAGE_SELF) - cpuStart))
+                    children.append(max(0, cpuMilliseconds(RUSAGE_CHILDREN) - childrenStart))
                 }
-                metrics.append(BenchmarkMetric(id:id,name:name,samplesMilliseconds:durations,detail:detail,error:nil))
+                metrics.append(BenchmarkMetric(id:id,name:name,samplesMilliseconds:durations,detail:detail,error:nil,
+                                               processCPUMilliseconds:cpu, reapedChildrenCPUMilliseconds:children))
             } catch {
                 if error is CancellationError { throw error }
                 metrics.append(BenchmarkMetric(id:id,name:name,samplesMilliseconds:durations,detail:detail,error:error.localizedDescription))
@@ -176,13 +195,19 @@ struct BenchmarkReport: Codable, Sendable {
         #else
         let architecture = "other"
         #endif
-        return BenchmarkReport(schemaVersion:1,createdAt:Date(),applicationVersion:Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "development",
+        var report = BenchmarkReport(schemaVersion:1,createdAt:Date(),applicationVersion:Bundle.main.object(forInfoDictionaryKey:"CFBundleShortVersionString") as? String ?? "development",
                                processor:processorName(),virtualization:virtualizationStatus(),architecture:architecture,operatingSystem:ProcessInfo.processInfo.operatingSystemVersionString,
                                graphicsDevice:AppleHardware.graphicsDevice,activeProcessorCount:ProcessInfo.processInfo.activeProcessorCount,
                                physicalMemoryBytes:ProcessInfo.processInfo.physicalMemory,processPeakMemoryBytes:peak,
                                sourceName:input?.lastPathComponent ?? "Amostra sintética PDF v1",sourceSHA256:hash,sourceBytes:data.count,pageCount:document.pageCount,
                                fixture:input == nil ? "text-and-vector-v1" : nil,repetitions:repetitions,metrics:metrics,
                                methodology:"Processo dedicado pelo aplicativo; arquivo de entrada copiado para pasta privada e removido ao terminar; uma execução de aquecimento e repetições sequenciais. Não limpa caches. Pico de RSS inclui geração/leitura da amostra, aquecimento e todas as operações. A amostra sintética contém texto e vetores; use o mesmo arquivo e SHA-256 para comparações entre Macs. O nome da GPU identifica disponibilidade, não mede ocupação nem uso do Neural Engine. Erros de uma operação são registrados, não convertidos em tempos zero.")
+        report.resourcePolicy = AdaptivePerformance.current
+        report.thermalLevelAtStart = thermalStart
+        report.thermalLevelAtEnd = ProcessInfo.processInfo.thermalState.rawValue
+        report.lowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
+        report.energyMeasurement = "Não coletada. Tempo de CPU é medido por getrusage; filhos incluem somente processos já recolhidos. CPU não equivale a energia, ocupação da GPU ou uso do Neural Engine."
+        return report
     }
     static func processorName() -> String {
         systemString("machdep.cpu.brand_string") ?? "Processador não identificado"

@@ -26,7 +26,7 @@ jobs:
       matrix:
         runner: [macos-26, xcode-27]
     runs-on: ${{ matrix.runner }}
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Verify Apple toolchain
@@ -54,25 +54,6 @@ jobs:
           brew list --versions qpdf || brew install qpdf
           test -x /opt/homebrew/bin/qpdf
           /opt/homebrew/bin/qpdf --version
-      - name: Capture native window preview
-        id: preview
-        if: ${{ !cancelled() && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' }}
-        run: |
-          PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
-          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$PDF_BINARY_DIR/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
-      - name: Validate all 19 native previews and accessibility reports
-        id: accessibility
-        if: ${{ !cancelled() && steps.preview.outcome == 'success' }}
-        run: python3 scripts/check_preview_artifacts.py "$RUNNER_TEMP"
-      - name: Retain native preview artifact
-        if: always()
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        with:
-          name: PDF-macOS-preview-${{ matrix.runner }}
-          path: |
-            ${{ runner.temp }}/PDF-preview*.png
-            ${{ runner.temp }}/PDF-preview*accessibility.json
-          if-no-files-found: ignore
       - name: Build, install and validate complete application
         id: install
         # Product OCR requires the installed local runtime. Both pre-activation
@@ -96,6 +77,24 @@ jobs:
         with:
           name: PDF-native-checks-${{ matrix.runner }}
           path: ${{ runner.temp }}/PDF-native-checks.log
+          if-no-files-found: ignore
+      - name: Capture native window preview
+        id: preview
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        run: |
+          python3 scripts/run-with-timeout.py --seconds 300 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
+      - name: Validate all native previews and accessibility reports
+        id: accessibility
+        if: ${{ !cancelled() && steps.preview.outcome == 'success' }}
+        run: python3 scripts/check_preview_artifacts.py "$RUNNER_TEMP"
+      - name: Retain native preview artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-macOS-preview-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-preview*.png
+            ${{ runner.temp }}/PDF-preview*accessibility.json
           if-no-files-found: ignore
       - name: Record Apple Vision capability independently
         id: vision
@@ -215,6 +214,67 @@ jobs:
           name: PDF-macOS-benchmark-${{ matrix.runner }}
           path: ${{ runner.temp }}/PDF-benchmark.json
           if-no-files-found: ignore
+      - name: Assemble relocatable binary distribution
+        id: binary_build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' && steps.benchmark.outcome == 'success' }}
+        run: |
+          python3 scripts/package_binary.py --installed "$RUNNER_TEMP/pdf-installed/PDF.app" --output "$RUNNER_TEMP/PDF-distribution" --commit "$GITHUB_SHA"
+      - name: Validate portable app without host dependencies or network
+        id: binary_isolation
+        if: ${{ !cancelled() && steps.binary_build.outcome == 'success' }}
+        run: |
+          # Rename the assembled tree before execution: compiled-in staging
+          # locations must not be needed even when they happened to exist.
+          mv "$RUNNER_TEMP/PDF-distribution" "$RUNNER_TEMP/PDF-relocated distribution"
+          bash scripts/check-portable.sh "$RUNNER_TEMP/PDF-relocated distribution/PDF.app"
+      - name: Package and verify binary install and update
+        id: binary_install
+        if: ${{ !cancelled() && steps.binary_isolation.outcome == 'success' }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/PDF-binary-artifact"
+          python3 - <<'PYTHON'
+          import os, sys
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          from package_binary import archive
+          root = Path(os.environ['RUNNER_TEMP'])
+          archive(root / 'PDF-relocated distribution', root / 'PDF-binary-artifact/PDF-arm64.tar.gz')
+          PYTHON
+          PDF_ARCHIVE="$RUNNER_TEMP/PDF-binary-artifact/PDF-arm64.tar.gz"
+          PDF_SHA="$(cut -d' ' -f1 "$PDF_ARCHIVE.sha256")"
+          bash scripts/install-binary.sh "$PDF_ARCHIVE" "$PDF_SHA" "$RUNNER_TEMP/pdf-binary-installed"
+          # A forged expected checksum must fail before touching the app.
+          if bash scripts/install-binary.sh "$PDF_ARCHIVE" "$(printf '0%.0s' {1..64})" "$RUNNER_TEMP/pdf-binary-installed"; then
+            echo 'Invalid package checksum was accepted.' >&2; exit 1
+          fi
+          PDF_PREFERENCE_SENTINEL="binary-update-$GITHUB_RUN_ID-${{ matrix.runner }}"
+          /usr/bin/defaults write local.pdf.desktop PDFBinaryUpdateSentinel -string "$PDF_PREFERENCE_SENTINEL"
+          # A second real command exercises the transactional update of an
+          # existing verified bundle. Preferences are outside the destination.
+          bash scripts/install-binary.sh "$PDF_ARCHIVE" "$PDF_SHA" "$RUNNER_TEMP/pdf-binary-installed"
+          test "$(/usr/bin/defaults read local.pdf.desktop PDFBinaryUpdateSentinel)" = "$PDF_PREFERENCE_SENTINEL"
+          /usr/bin/defaults delete local.pdf.desktop PDFBinaryUpdateSentinel
+          bash scripts/check-portable.sh "$RUNNER_TEMP/pdf-binary-installed/PDF.app"
+          cp scripts/install-binary.sh "$RUNNER_TEMP/PDF-binary-artifact/install-binary.sh"
+          python3 - <<'PYTHON'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          manifest = json.loads((root / 'PDF-relocated distribution/manifest.json').read_text())
+          report = {'schemaVersion': 1, 'commit': os.environ['GITHUB_SHA'], 'runner': '${{ matrix.runner }}',
+                    'isolatedRuntimePassed': True, 'freshInstallPassed': True, 'transactionalUpdatePassed': True, 'preferencesPreserved': True, 'wrongChecksumRejected': True,
+                    'manifestEntries': len(manifest['files']), 'developerToolsOnDestinationRequired': False,
+                    'signing': 'ad-hoc', 'appleNotarized': False}
+          (root / 'PDF-binary-artifact/distribution-validation.json').write_text(json.dumps(report, indent=2) + '\n')
+          PYTHON
+      - name: Retain binary package with explicit validation status
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.integrity.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && 'PDF-binary-validated' || 'PDF-binary-unvalidated' }}-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-binary-artifact/*
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Create source distribution
         id: package
         if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
@@ -235,7 +295,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256

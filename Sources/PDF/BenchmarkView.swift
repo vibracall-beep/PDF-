@@ -119,6 +119,7 @@ struct BenchmarkView: View {
             VStack(alignment:.leading,spacing:20) {
                 Label("Desempenho deste Mac",systemImage:"gauge.with.dots.needle.67percent").font(.largeTitle.bold())
                 Text("Meça tempos e memória com uma amostra ou um PDF seu. O relatório identifica o hardware usado e registra as operações que não puderam ser executadas.").foregroundStyle(.secondary)
+                GroupBox("Preferência de processamento") { PerformancePolicyView().padding(10) }.disabled(controller.busy)
                 GroupBox("Documento da medição") {
                     VStack(alignment:.leading,spacing:12) {
                         HStack {
@@ -163,6 +164,10 @@ struct BenchmarkView: View {
                 VStack(alignment:.leading,spacing:6) {
                     HStack { Text(metric.name).font(.headline); Spacer(); Text(metric.error == nil ? metric.medianMilliseconds.map { String(format:"%.2f ms",$0) } ?? "Sem medição" : "Indisponível").monospacedDigit() }
                     Text(metric.error ?? metric.detail).font(.caption).foregroundStyle(metric.error == nil ? Color.secondary : Color.orange).textSelection(.enabled)
+                    if let samples = metric.processCPUMilliseconds, !samples.isEmpty {
+                        Text(String(format: "CPU do processo: %.2f ms por amostra, em média.", samples.reduce(0, +) / Double(samples.count)))
+                            .font(.caption).foregroundStyle(.secondary)
+                    }
                     if let samples = metric.ocrSamples, !samples.isEmpty {
                         let apple = samples.filter { $0.backend == "apple-vision" }.count
                         let compatibility = samples.filter { $0.backend == "tesseract" }.count
@@ -175,6 +180,7 @@ struct BenchmarkView: View {
             }
             Text("\(report.pageCount) páginas · \(report.repetitions) medições por operação após aquecimento · mediana em milissegundos.").font(.caption)
             Text(report.methodology).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
+            if let energy = report.energyMeasurement { Text(energy).font(.caption).foregroundStyle(.secondary) }
         }
     }
     private func chooseInput() {

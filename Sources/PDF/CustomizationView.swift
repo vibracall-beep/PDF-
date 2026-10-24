@@ -14,7 +14,7 @@ struct CustomizationView:View {
     @State private var toolSearch = ""
     init(closable:Bool = true, initialTab:String = "Aparência") {
         self.closable = closable
-        _tab = State(initialValue:["Aparência","Ferramentas","Navegação","Leitor","Arquivos"].contains(initialTab) ? initialTab : "Aparência")
+        _tab = State(initialValue:["Aparência","Ferramentas","Navegação","Leitor","Arquivos","Atalhos","Perfis"].contains(initialTab) ? initialTab : "Aparência")
     }
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
@@ -23,7 +23,7 @@ struct CustomizationView:View {
                 Spacer()
                 if closable { Button("Concluir") { dismiss() }.keyboardShortcut(.defaultAction) }
             }
-            Picker("Personalização",selection:$tab) { ForEach(["Aparência","Ferramentas","Navegação","Leitor","Arquivos"],id:\.self) { Text($0) } }.pickerStyle(.segmented)
+            Picker("Personalização",selection:$tab) { ForEach(["Aparência","Ferramentas","Navegação","Leitor","Arquivos","Atalhos","Perfis"],id:\.self) { Text($0) } }.pickerStyle(.segmented).labelsHidden().accessibilityLabel("Seção da personalização")
             HStack(alignment:.top,spacing:22) {
                 ScrollView {
                     VStack(alignment:.leading,spacing:20) {
@@ -32,6 +32,8 @@ struct CustomizationView:View {
                         case "Navegação": navigationSettings
                         case "Leitor": ReaderCustomizationControls()
                         case "Arquivos": OutputCustomizationControls()
+                        case "Atalhos": AdvancedShortcutControls(store:preferences.advanced)
+                        case "Perfis": WorkspaceProfileControls(store:preferences.advanced,preferences:preferences)
                         default: appearanceSettings
                         }
                     }.padding(.trailing,4).padding(.bottom,12)
@@ -109,11 +111,12 @@ struct CustomizationView:View {
             }
             Divider()
             TextField("Encontrar ferramenta para personalizar",text:$toolSearch).textFieldStyle(.roundedBorder)
-            Text("Altere nomes, ícones, visibilidade e ordem. Os favoritos continuam disponíveis pela estrela no menu.").font(.caption).foregroundStyle(.secondary)
+            Text("Altere nomes, ícones, visibilidade e ordem. Arraste pela alça para reordenar ou use as setas. Os favoritos continuam disponíveis pela estrela no menu.").font(.caption).foregroundStyle(.secondary)
             let ordered = preferences.orderedTools()
             ForEach(Array(ordered.enumerated()).filter { toolSearch.isEmpty || preferences.title(for:$0.element).localizedCaseInsensitiveContains(toolSearch) },id:\.element.id) { index,tool in
                 VStack(alignment:.leading,spacing:8) {
                     HStack {
+                        Image(systemName:"line.3.horizontal").foregroundStyle(.secondary).draggable("pdf-customize-tool:"+tool.id).help("Arrastar para reordenar").accessibilityLabel("Arrastar "+preferences.title(for:tool))
                         Toggle("Mostrar",isOn:Binding(get:{ !preferences.state.hiddenTools.contains(tool.id) },set:{ visible in setMembership(tool.id,in:&preferences.state.hiddenTools,included:!visible) })).labelsHidden().accessibilityLabel("Mostrar " + preferences.title(for:tool))
                         TextField(tool.name,text:Binding(get:{ preferences.title(for:tool) },set:{ value in if value.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || value == tool.name { preferences.state.toolTitles.removeValue(forKey:tool.id) } else { preferences.state.toolTitles[tool.id] = String(value.prefix(60)) } })).textFieldStyle(.roundedBorder)
                         iconPicker(value:Binding(get:{ preferences.icon(for:tool) },set:{ preferences.state.toolIcons[tool.id] = $0 }),original:tool.icon,label:"Ícone de " + preferences.title(for:tool))
@@ -122,6 +125,12 @@ struct CustomizationView:View {
                     }
                     Text(tool.name + " · " + tool.category).font(.caption2).foregroundStyle(.secondary)
                 }.padding(10).background(Color.primary.opacity(0.035),in:RoundedRectangle(cornerRadius:10))
+                    .dropDestination(for:String.self) { items,_ in
+                        guard items.count == 1,let value = items.first,value.hasPrefix("pdf-customize-tool:") else { return false }
+                        let id = String(value.dropFirst("pdf-customize-tool:".count))
+                        guard tools.contains(where:{$0.id == id}),id != tool.id else { return false }
+                        withAnimation(preferences.animation(reduceMotion:reduceMotion)) { preferences.moveTool(id,before:tool.id) }; return true
+                    }
             }
             Button("Restaurar nomes, ícones, ordem e visibilidade") { preferences.state.toolTitles = [:]; preferences.state.toolIcons = [:]; preferences.state.toolOrder = []; preferences.state.hiddenTools = []; preferences.state.hiddenCategories = [] }
         }
@@ -130,15 +139,22 @@ struct CustomizationView:View {
         VStack(alignment:.leading,spacing:16) {
             Picker("Aparência da navegação",selection:$preferences.state.sidebarStyle) { Text("Ícones e nomes").tag("both"); Text("Só ícones").tag("icons"); Text("Só nomes").tag("labels") }
             range("Largura da navegação",value:$preferences.state.sidebarWidth,in:190...320,suffix:"pt").disabled(preferences.state.sidebarStyle == "icons")
-            Text("Arrume a ordem, os nomes e os ícones das seções. Início permanece acessível para restaurar seus ajustes.").font(.caption).foregroundStyle(.secondary)
+            Text("Arraste pela alça ou use as setas para mudar a ordem. Altere nomes e ícones das seções; Início permanece acessível para restaurar seus ajustes.").font(.caption).foregroundStyle(.secondary)
             ForEach(Array(preferences.state.sidebar.enumerated()),id:\.element.id) { index,item in
                 HStack {
+                    Image(systemName:"line.3.horizontal").foregroundStyle(.secondary).draggable("pdf-customize-sidebar:"+item.id).help("Arrastar para reordenar").accessibilityLabel("Arrastar "+item.label)
                     Toggle("Mostrar",isOn:Binding(get:{ preferences.state.sidebar[index].visible },set:{ preferences.state.sidebar[index].visible = $0 })).labelsHidden().disabled(item.id == "Início").accessibilityLabel("Mostrar " + item.label)
                     TextField(item.id,text:Binding(get:{ preferences.state.sidebar[index].label },set:{ preferences.state.sidebar[index].label = $0.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? item.id : String($0.prefix(40)) })).textFieldStyle(.roundedBorder)
                     iconPicker(value:Binding(get:{ preferences.state.sidebar[index].icon },set:{ preferences.state.sidebar[index].icon = $0 }),original:item.icon,label:"Ícone da seção " + item.label)
                     Button { preferences.state.sidebar.swapAt(index,index-1) } label:{ Image(systemName:"arrow.up") }.disabled(index == 0).accessibilityLabel("Mover " + item.label + " para cima")
                     Button { preferences.state.sidebar.swapAt(index,index+1) } label:{ Image(systemName:"arrow.down") }.disabled(index == preferences.state.sidebar.count-1).accessibilityLabel("Mover " + item.label + " para baixo")
                 }.padding(.vertical,5)
+                    .dropDestination(for:String.self) { items,_ in
+                        guard items.count == 1,let value = items.first,value.hasPrefix("pdf-customize-sidebar:") else { return false }
+                        let id = String(value.dropFirst("pdf-customize-sidebar:".count))
+                        guard preferences.state.sidebar.contains(where:{$0.id == id}),id != item.id else { return false }
+                        withAnimation(preferences.animation(reduceMotion:reduceMotion)) { preferences.moveSidebar(id,before:item.id) }; return true
+                    }
             }
             Button("Restaurar navegação") { preferences.state.sidebar = AppearanceState.defaultSidebar; preferences.state.sidebarStyle = "both"; preferences.state.sidebarWidth = 210 }
         }
@@ -167,7 +183,7 @@ struct CustomizationView:View {
     func exportSettings() {
         guard let url = NativeOutput.destination(model: model, toolName: "Personalização", extension: "json",
             originalName: "PDF-personalizacao.json") else { return }
-        do { try NativeOutput.write(preferences.exportData(),to:url); message = "Aparência e leitura exportadas." } catch { message = error.localizedDescription }
+        do { try NativeOutput.write(preferences.exportData(),to:url); message = "Aparência, leitura, atalhos e preferências de saída exportados." } catch { message = error.localizedDescription }
     }
 }
 

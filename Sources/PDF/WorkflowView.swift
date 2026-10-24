@@ -323,6 +323,30 @@ private enum WorkflowError: LocalizedError {
     var errorDescription: String? { if case .invalid(let text) = self { return text }; return nil }
 }
 
+/// A validated copy of a saved workflow. Automation never stores document passwords.
+struct AutomationWorkflow: Codable, Identifiable {
+    var id: UUID
+    var name: String
+    var data: Data
+}
+@MainActor enum AutomationWorkflowBridge {
+    static func saved(directory:URL? = nil) throws -> [AutomationWorkflow] {
+        let library = WorkflowLibrary(directory:directory)
+        guard library.error.isEmpty else { throw WorkflowError.invalid(library.error) }
+        return try library.presets.map { .init(id:$0.id,name:$0.name,data:try WorkflowLibrary.encode($0)) }
+    }
+    static func options(_ workflow:AutomationWorkflow) throws -> [String:Any] {
+        guard workflow.data.count <= 1_048_576 else { throw WorkflowError.invalid("O fluxo excede 1 MB.") }
+        let preset = try JSONDecoder().decode(WorkflowPreset.self,from:workflow.data)
+        guard preset.id == workflow.id,preset.name == workflow.name else { throw WorkflowError.invalid("A identidade do fluxo não corresponde à configuração salva.") }
+        if let message = preset.validation { throw WorkflowError.invalid(message) }
+        guard !preset.stages.contains(where:{$0.operation == .protect || $0.operation == .unlock}) else { throw WorkflowError.invalid("Pastas monitoradas não guardam senhas. Execute fluxos de proteção/desbloqueio manualmente.") }
+        var options = try WorkflowRequest.make(preset:preset,sourcePasswords:[""],destinationPassword:"")
+        options["batch"] = true; options["input_passwords"] = [""]
+        return options
+    }
+}
+
 struct WorkflowView: View {
     @EnvironmentObject var model: Workspace
     @StateObject private var library: WorkflowLibrary

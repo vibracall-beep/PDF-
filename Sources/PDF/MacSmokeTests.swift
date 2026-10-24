@@ -354,6 +354,11 @@ enum MacSmokeTests {
         await auditAsync("Reader sessions and annotation editing") { try await SessionAnnotationAuditChecks.run() }
         audit("Semantic retrieval and verifiable citations") { try SemanticAuditChecks.run() }
         audit("Performance measurement harness") { try BenchmarkAuditChecks.run() }
+        audit("Adaptive resource limits") { try PerformancePolicyAuditChecks.run() }
+        audit("Advanced editing and OCR review contracts") { try AdvancedEditingAuditChecks.run() }
+        audit("Command palette shortcuts and workspace profiles") { try AdvancedCustomizationAuditChecks.run() }
+        await auditAsync("Opt-in folder automation") { try await AutomationAuditChecks.run() }
+        await auditAsync("Library revisions synchronization and Portuguese sources") { try await LibraryAuditChecks.run() }
         print("Native checks hardware: \(AppleHardware.summary)")
         guard failures.isEmpty else {
             throw NSError(domain: "PDF.NativeChecks", code: 1, userInfo: [NSLocalizedDescriptionKey:

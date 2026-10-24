@@ -14,7 +14,7 @@ struct VerificationView: View {
     @State private var reason = ""
     @State private var location = ""
     @State private var fieldName = "AssinaturaPDF"
-    @State private var useTimestamp = false
+    @State private var signatureProfile = "B-B"
     @State private var timestampURL = ""
     @State private var archiveProfile = "2b"
     @State private var accessibilityProfile = "ua1"
@@ -22,9 +22,16 @@ struct VerificationView: View {
     @State private var reportURL: URL?
     @State private var signedURL: URL?
     @State private var error = ""
+    @State private var requireRevocation = false
+    @State private var crls: [URL] = []
+    @State private var ocspResponses: [URL] = []
+    @State private var endpoints = ""
+    @State private var allowRevocationNetwork = false
+    @State private var validateLTA = false
 
-    init(initialMode: String = "sign") {
+    init(initialMode: String = "sign", sourceURL: URL? = nil) {
         _mode = State(initialValue: ["sign", "verify", "pdfa", "pdfua"].contains(initialMode) ? initialMode : "sign")
+        _source = State(initialValue: sourceURL)
     }
 
     private var title: String {
@@ -90,7 +97,7 @@ struct VerificationView: View {
         }
         .frame(minWidth: 680, idealWidth: 760, maxWidth: .infinity, minHeight: 560, idealHeight: 720, maxHeight: .infinity)
         .onAppear {
-            if !model.hasUnsavedChanges { source = model.savedDocumentURL ?? model.url }
+            if source == nil && !model.hasUnsavedChanges { source = model.savedDocumentURL ?? model.url }
         }
         .onChange(of: mode) { _, value in
             report = nil; reportURL = nil; error = ""
@@ -134,13 +141,22 @@ struct VerificationView: View {
             TextField("Motivo da assinatura (opcional)", text: $reason).textFieldStyle(.roundedBorder)
             TextField("Local (opcional)", text: $location).textFieldStyle(.roundedBorder)
             TextField("Nome único do campo", text: $fieldName).textFieldStyle(.roundedBorder)
-            Toggle("Adicionar carimbo do tempo de uma TSA escolhida por mim", isOn: $useTimestamp)
-            if useTimestamp {
+            Picker("Perfil PAdES", selection: $signatureProfile) {
+                Text("B-B · assinatura").tag("B-B")
+                Text("B-T · carimbo do tempo").tag("B-T")
+                Text("B-LT · evidências de validação").tag("B-LT")
+                Text("B-LTA · preservação com carimbo documental").tag("B-LTA")
+            }
+            if signatureProfile != "B-B" {
                 TextField("https://servidor-da-sua-tsa", text: $timestampURL).textFieldStyle(.roundedBorder)
                 Text("Somente o resumo criptográfico RFC 3161 será enviado ao endereço informado. A TSA pode exigir contratação; redirecionamentos e credenciais na URL são recusados. Nenhum documento ou PIN é enviado.")
                     .font(.caption).foregroundStyle(.secondary)
             }
-            Text("Certificado autoemitido não certifica identidade. Esta ferramenta não atribui assinatura qualificada, validade jurídica ou preservação PAdES-LT/LTA.")
+            if ["B-LT", "B-LTA"].contains(signatureProfile) {
+                trustOptions
+                Text("LT/LTA exige uma cadeia confiável e OCSP/CRL válidos para todos os certificados não âncora, incluindo a TSA. A preservação de longo prazo exige renovação futura das provas de tempo.").font(.caption).foregroundStyle(.secondary)
+            }
+            Text("Certificado autoemitido não certifica identidade. A ferramenta não atribui assinatura qualificada nem validade jurídica.")
                 .font(.caption).foregroundStyle(.secondary)
         }.disabled(model.busy)
     }
@@ -155,9 +171,28 @@ struct VerificationView: View {
                 if !roots.isEmpty { Button("Limpar") { roots = [] } }
             }
             ForEach(roots, id: \.path) { url in Label(url.lastPathComponent, systemImage: "checkmark.seal").font(.caption) }
-            Text("Verificação offline: sem consulta OCSP, CRL ou de revogação. Uma cadeia confiável aqui não comprova que o certificado não foi revogado nem confirma a identidade civil do titular.")
-                .font(.caption).foregroundStyle(.secondary)
+            if mode == "verify" { Toggle("Exigir prova OCSP/CRL válida de toda a cadeia", isOn: $requireRevocation) }
+            if requireRevocation || (mode == "sign" && ["B-LT", "B-LTA"].contains(signatureProfile)) { revocationOptions }
+            if mode == "verify" { Toggle("Avaliar provas AdES-LTA embutidas, sem rede", isOn: $validateLTA) }
+            Text("Sem a exigência de revogação, uma cadeia confiável não comprova que o certificado continua não revogado. Nenhuma opção confirma identidade civil por si só.").font(.caption).foregroundStyle(.secondary)
         }.disabled(model.busy)
+    }
+
+    private var revocationOptions: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Button("Adicionar CRL…") { selectRevocation(ocsp: false) }
+                Button("Adicionar resposta OCSP…") { selectRevocation(ocsp: true) }
+                Button("Limpar evidências") { crls = []; ocspResponses = [] }
+            }
+            Text("\(crls.count) CRL(s) · \(ocspResponses.count) resposta(s) OCSP local(is)").font(.caption)
+            Toggle("Consultar somente os endpoints HTTPS abaixo", isOn: $allowRevocationNetwork)
+            if allowRevocationNetwork {
+                Text("Uma linha por endpoint: crl https://… ou ocsp https://…").font(.caption)
+                TextEditor(text: $endpoints).font(.body.monospaced()).frame(height: 80).border(.quaternary)
+                Text("OCSP transmite identificadores do certificado; CRL baixa listas de revogação. URLs presentes no certificado não são consultadas sem sua seleção explícita. Não há redirecionamentos automáticos.").font(.caption).foregroundStyle(.secondary)
+            }
+        }
     }
 
     private var standardsOptions: some View {
@@ -200,6 +235,10 @@ struct VerificationView: View {
                         Text("SHA-256: \(certificate.sha256)").font(.caption.monospaced()).textSelection(.enabled)
                     }
                     if let coverage = signature.coverage { Text("Cobertura: \(coverage)").font(.caption) }
+                    if let revocation = signature.revocation { Text("Revogação: \(revocation.status)").font(.caption) }
+                    if let preservation = signature.longTermValidation {
+                        Text("AdES-LTA: \(preservation.passed ? "provas validadas" : preservation.status)").font(.caption)
+                    }
                 }.padding(12).background(.quaternary, in: RoundedRectangle(cornerRadius: 12))
             }
             ForEach(Array(value.findings.enumerated()), id: \.offset) { _, finding in
@@ -232,6 +271,13 @@ struct VerificationView: View {
         panel.allowedContentTypes = ["pem", "cer", "crt", "der"].compactMap { UTType(filenameExtension: $0) }
         if panel.runModal() == .OK { roots = Array(Set(roots + panel.urls)).sorted { $0.path < $1.path } }
     }
+    private func selectRevocation(ocsp: Bool) {
+        let panel = NSOpenPanel(); panel.allowsMultipleSelection = true
+        if panel.runModal() == .OK {
+            if ocsp { ocspResponses = Array(Set(ocspResponses + panel.urls)) }
+            else { crls = Array(Set(crls + panel.urls)) }
+        }
+    }
     private func perform() {
         guard let source else { return }
         error = ""
@@ -240,13 +286,31 @@ struct VerificationView: View {
         if signing {
             guard let certificate else { return }
             options = ["certificate": certificate.path, "certificate_password": certificatePIN,
-                       "reason": reason, "location": location, "field_name": fieldName]
-            if useTimestamp { options["tsa_url"] = timestampURL.trimmingCharacters(in: .whitespacesAndNewlines) }
-            if useTimestamp && timestampURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+                       "reason": reason, "location": location, "field_name": fieldName, "profile": signatureProfile]
+            if signatureProfile != "B-B" { options["tsa_url"] = timestampURL.trimmingCharacters(in: .whitespacesAndNewlines) }
+            if signatureProfile != "B-B" && timestampURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
                 error = "Informe o endereço HTTPS da TSA escolhida."; return
             }
-        } else if mode == "verify" { options["trust_roots"] = roots.map(\.path) }
+        } else if mode == "verify" { options["validate_lta"] = validateLTA }
         else { options["flavour"] = mode == "pdfa" ? archiveProfile : accessibilityProfile }
+        if mode == "verify" || (signing && ["B-LT", "B-LTA"].contains(signatureProfile)) {
+            options["trust_roots"] = roots.map(\.path)
+            let required = requireRevocation || signing
+            options["revocation_mode"] = required ? "require" : "offline"
+            if required {
+                options["crls"] = crls.map(\.path); options["ocsp_responses"] = ocspResponses.map(\.path)
+                options["allow_revocation_network"] = allowRevocationNetwork
+                if allowRevocationNetwork {
+                    var values: [[String: String]] = []
+                    for line in endpoints.split(whereSeparator: \.isNewline) {
+                        let parts = line.split(maxSplits: 1, whereSeparator: \.isWhitespace)
+                        guard parts.count == 2, ["crl", "ocsp"].contains(String(parts[0])) else { error = "Use uma linha por endpoint: crl https://… ou ocsp https://…"; return }
+                        values.append(["kind": String(parts[0]), "url": String(parts[1])])
+                    }
+                    options["revocation_endpoints"] = values
+                }
+            }
+        }
         guard let output = NativeOutput.destination(model: model, toolName: title,
             extension: signing ? "pdf" : "json", originalURL: source) else { return }
         certificatePIN = ""; report = nil; reportURL = nil
@@ -280,11 +344,16 @@ private struct VerificationReport: Decodable {
         let trusted: Bool?
         let coverage: String?
         let certificate: Certificate?
+        let revocation: Revocation?
+        let longTermValidation: LongTermValidation?
         enum CodingKeys: String, CodingKey {
-            case trusted, coverage, certificate
+            case trusted, coverage, certificate, revocation
             case fieldName = "field_name", integrityOK = "integrity_ok"
+            case longTermValidation = "long_term_validation"
         }
     }
+    struct Revocation: Decodable { let status: String }
+    struct LongTermValidation: Decodable { let status: String; let passed: Bool }
     struct Certificate: Decodable {
         let subject: String
         let notAfter: String

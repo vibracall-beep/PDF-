@@ -1,4 +1,4 @@
-"""Local PAdES signatures. Trust roots are explicit; validation never fetches URLs.
+"""PAdES signatures with explicit trust and opt-in bounded revocation endpoints.
 
 The caller's transaction publishes output. PINs arrive over stdin in the CLI and
 live only in process memory; Python/Swift cannot guarantee zeroisation of copies.
@@ -6,6 +6,7 @@ live only in process memory; Python/Swift cannot guarantee zeroisation of copies
 from __future__ import annotations
 
 import datetime as dt
+import asyncio
 from contextlib import contextmanager
 import hashlib
 import json
@@ -143,6 +144,7 @@ def _timestamper(url):
     from pyhanko.sign.timestamps.common_utils import TimestampRequestError
     from asn1crypto import tsp
     import aiohttp
+    from signature_validation import tls_context
     parsed = urlsplit(url)
     if parsed.scheme != 'https' or not parsed.hostname or parsed.username or parsed.password or parsed.fragment:
         raise ValueError('O carimbo do tempo requer uma URL HTTPS sem credenciais nem fragmento.')
@@ -153,7 +155,7 @@ def _timestamper(url):
                 async with aiohttp.ClientSession(trust_env=False) as session:
                     async with session.post(url, data=req.dump(),
                             headers={'Content-Type': 'application/timestamp-query'},
-                            allow_redirects=False, timeout=aiohttp.ClientTimeout(total=20)) as response:
+                            allow_redirects=False, ssl=tls_context(), timeout=aiohttp.ClientTimeout(total=20)) as response:
                         if response.status != 200 or response.content_type != 'application/timestamp-reply':
                             raise TimestampRequestError('A TSA não respondeu com um carimbo do tempo válido.')
                         chunks = []; total = 0
@@ -192,12 +194,26 @@ def sign_pdf(input_path, output_path, options):
         raise ValueError('Nome do campo: use letras sem acentos, números, hífen ou sublinhado.')
     tsa_url = _text(options, 'tsa_url', limit=2048).strip()
     stamper = _timestamper(tsa_url) if tsa_url else None
+    profile=options.get('profile','B-T' if tsa_url else 'B-B')
+    if profile not in ('B-B','B-T','B-LT','B-LTA'): raise ValueError('Perfil PAdES inválido.')
+    if profile!='B-B' and stamper is None: raise ValueError('PAdES B-T/LT/LTA exige uma TSA HTTPS explícita.')
+    validation=None
+    if profile in ('B-LT','B-LTA'):
+        from signature_validation import material,context
+        roots=_roots(options)
+        if not roots: raise ValueError('PAdES LT/LTA exige raízes de confiança explícitas.')
+        certificates=[signer.signing_cert,*list(signer.cert_registry),*roots]
+        revinfo=material({**options,'revocation_mode':'require'},certificates)
+        if not revinfo['crls'] and not revinfo['ocsps']:
+            raise ValueError('PAdES LT/LTA exige evidência OCSP ou CRL verificável para a cadeia.')
+        validation=context(roots,revinfo,certificates)
     metadata = signers.PdfSignatureMetadata(
         field_name=field, md_algorithm='sha256',
         reason=_text(options, 'reason') or None,
         location=_text(options, 'location') or None,
         subfilter=fields.SigSeedSubFilter.PADES,
-        embed_validation_info=False, use_pades_lta=False,
+        embed_validation_info=profile in ('B-LT','B-LTA'), use_pades_lta=profile=='B-LTA',
+        validation_context=validation,
     )
     with _snapshot(input_path) as snapshot, snapshot.open('rb') as source:
         writer = IncrementalPdfFileWriter(source, strict=True)
@@ -218,6 +234,9 @@ def verify_pdf(input_path, output_path, options):
     from pyhanko.sign.validation import validate_pdf_signature
     from pyhanko_certvalidator import ValidationContext
     roots = _roots(options)
+    from signature_validation import material,context as revocation_context,lta_status
+    mode=options.get('revocation_mode','offline')
+    if mode not in ('offline','require'): raise ValueError('revocation_mode deve ser offline ou require.')
     now = dt.datetime.now(dt.timezone.utc)
     report = {
         'schema_version': 1, 'kind': 'digital-signatures',
@@ -225,14 +244,15 @@ def verify_pdf(input_path, output_path, options):
         'trust_policy': 'explicit_local_roots_only',
         'trust_anchors': [_certificate_summary(root, now) for root in roots],
         'network_access': False,
-        'revocation_status': 'not_checked_offline',
+        'revocation_status': 'not_checked_offline' if mode=='offline' else 'required_for_every_non_anchor_certificate',
         'identity_assurance': 'not_assessed',
         'limitations': [
             'A integridade criptográfica não comprova a identidade civil do titular.',
             'As raízes selecionadas são uma decisão de confiança sua; certificados autoemitidos não certificam identidade.',
-            'Sem consulta online de revogação, OCSP ou CRL: o relatório não comprova que o certificado continua não revogado.',
+            ('Sem exigência de revogação: o relatório não comprova que o certificado continua não revogado.' if mode=='offline' else
+             'OCSP/CRL deve cobrir todos os certificados não âncora; resposta ausente, inválida ou expirada não confirma não revogação.'),
             'A data declarada pelo assinante não é prova de tempo. Carimbos são verificados separadamente quando presentes.',
-            'Esta verificação não atribui assinatura qualificada, validade jurídica, PAdES-LT ou PAdES-LTA.',
+            'Esta verificação não atribui assinatura qualificada nem validade jurídica. A avaliação AdES-LTA, quando solicitada, aparece separadamente.',
         ], 'signatures': [], 'findings': [],
     }
     with _snapshot(input_path) as snapshot, snapshot.open('rb') as source:
@@ -247,11 +267,18 @@ def verify_pdf(input_path, output_path, options):
         for signature in embedded:
             item = {'field_name': signature.field_name}
             try:
-                context = ValidationContext(trust_roots=roots, allow_fetching=False,
-                                            moment=now, revocation_mode='soft-fail')
+                certificates=[entry.chosen for entry in signature.signed_data['certificates'] if entry.name=='certificate']
+                revinfo=material(options,[*certificates,*roots])
+                context=revocation_context(roots,revinfo,certificates)
+                report['network_access']=report['network_access'] or revinfo['network_access']
                 with _structured_validation_diagnostics():
-                    status = validate_pdf_signature(signature, signer_validation_context=context,
-                                                    ts_validation_context=context)
+                    is_document_timestamp=signature.sig_object_type=='/DocTimeStamp'
+                    if is_document_timestamp:
+                        from pyhanko.sign.validation import async_validate_pdf_timestamp
+                        status=asyncio.run(async_validate_pdf_timestamp(signature,validation_context=context))
+                    else:
+                        status = validate_pdf_signature(signature, signer_validation_context=context,
+                                                        ts_validation_context=context)
                 certificate = _certificate_summary(status.signing_cert, now)
                 item.update(certificate=certificate, intact=bool(status.intact),
                     cryptographically_valid=bool(status.valid), trusted=bool(status.trusted),
@@ -260,12 +287,13 @@ def verify_pdf(input_path, output_path, options):
                     trust_problem=status.trust_problem_indic.name if status.trust_problem_indic else None,
                     digest_algorithm=status.md_algorithm,
                     signature_algorithm=status.pkcs7_signature_mechanism,
-                    signer_reported_time=status.signer_reported_dt.isoformat() if status.signer_reported_dt else None,
-                    modification_level=status.modification_level.name if status.modification_level else None,
+                    signer_reported_time=getattr(status,'signer_reported_dt',None).isoformat() if getattr(status,'signer_reported_dt',None) else None,
+                    modification_level=getattr(status,'modification_level',None).name if getattr(status,'modification_level',None) else None,
                     chain=[_certificate_summary(cert, now) for cert in status.validation_path] if status.validation_path else [],
                     subfilter=str(signature.sig_object.get('/SubFilter', '')),
                 )
-                timestamp = status.timestamp_validity
+                item['kind']='document-timestamp' if is_document_timestamp else 'signature'
+                timestamp = status if is_document_timestamp else status.timestamp_validity
                 item['timestamp'] = None if timestamp is None else {
                     'time': timestamp.timestamp.isoformat(), 'intact': timestamp.intact,
                     'cryptographically_valid': timestamp.valid, 'trusted': timestamp.trusted,
@@ -273,6 +301,11 @@ def verify_pdf(input_path, output_path, options):
                 }
                 item['unchanged_since_signing'] = item['coverage'] == 'ENTIRE_FILE'
                 item['integrity_ok'] = item['intact'] and item['cryptographically_valid']
+                item['revocation']={'policy':mode,'status':('not_required' if mode=='offline' else
+                    'revoked' if status.revoked else 'good' if status.trusted else 'failed_or_unknown'),
+                    'evidence':revinfo['evidence']}
+                if options.get('validate_lta') is True and not is_document_timestamp:
+                    item['long_term_validation']=lta_status(signature,roots)
                 if not item['integrity_ok']:
                     report['findings'].append({'severity': 'error', 'rule': 'signature-integrity', 'field': signature.field_name,
                         'message': 'A assinatura não corresponde aos bytes assinados ou é criptograficamente inválida.'})
@@ -302,7 +335,8 @@ def verify_pdf(input_path, output_path, options):
     elif not report['all_chains_trusted']:
         report['summary'] = 'Integridade confirmada; a confiança da cadeia não foi estabelecida para todas as assinaturas.'
     else:
-        report['summary'] = 'Integridade e cadeias locais confirmadas. Revogação e identidade civil não foram certificadas.'
+        report['summary'] = ('Integridade, cadeias e evidência de revogação confirmadas segundo a política explícita; identidade civil não certificada.'
+                             if mode=='require' else 'Integridade e cadeias locais confirmadas. Revogação e identidade civil não foram certificadas.')
     with Path(output_path).open('x', encoding='utf-8') as destination:
         json.dump(report, destination, ensure_ascii=False, indent=2)
     return report

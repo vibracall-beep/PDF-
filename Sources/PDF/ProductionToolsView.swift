@@ -1,0 +1,202 @@
+import SwiftUI
+import AppKit
+import UniformTypeIdentifiers
+
+enum ProductionMode: String, CaseIterable, Identifiable {
+    case preflight = "print-preflight", prepare = "print-prepare", pdfx, bates, dossier, stamp, measure
+    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .preflight: return "Diagnóstico de impressão"
+        case .prepare: return "Corte e sangria"
+        case .pdfx: return "Preparar PDF/X-3"
+        case .bates: return "Numeração Bates"
+        case .dossier: return "Conjunto de documentos"
+        case .stamp: return "Carimbo personalizado"
+        case .measure: return "Medir com escala"
+        }
+    }
+    var report: Bool { self == .preflight || self == .measure }
+}
+
+struct MeasurementPoint: Identifiable {
+    let id = UUID()
+    var x: Double
+    var y: Double
+}
+
+struct ProductionToolsView: View {
+    @EnvironmentObject private var model: Workspace
+    @State private var mode: ProductionMode
+    @State private var inputs: [URL] = []
+    @State private var password = ""
+    @State private var pages = ""
+    @State private var prefix = "DOC-"
+    @State private var start = 1
+    @State private var digits = 6
+    @State private var stamp = "REVISADO"
+    @State private var inset = 24.0
+    @State private var bleed = 9.0
+    @State private var minimumDPI = 200.0
+    @State private var profile: URL?
+    @State private var condition = "CMYK printing condition"
+    @State private var page = 1
+    @State private var scale = 100.0
+    @State private var unit = "m"
+    @State private var closed = false
+    @State private var points = [MeasurementPoint(x: 72, y: 72), MeasurementPoint(x: 144, y: 72)]
+    @State private var report = ""
+    @State private var error = ""
+    @State private var generation = UUID()
+    init(initialMode: ProductionMode = .preflight) { _mode = State(initialValue: initialMode) }
+    var body: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 18) {
+                Text("Produção de documentos").font(.largeTitle.bold())
+                Text("Prepare cópias para gráfica, revisão jurídica e medições técnicas.").foregroundStyle(.secondary)
+                Picker("Ferramenta", selection: $mode) {
+                    ForEach(ProductionMode.allCases) { Text($0.title).tag($0) }
+                }.disabled(model.busy).onChange(of: mode) { _, _ in generation = UUID(); report = ""; error = ""; if mode != .dossier { inputs = Array(inputs.prefix(1)) } }
+                GroupBox("Documentos de origem") {
+                    VStack(alignment: .leading, spacing: 10) {
+                        HStack {
+                            Button(mode == .dossier ? "Adicionar PDFs…" : "Escolher PDF…") { choosePDFs() }
+                            Button("Usar versão salva do leitor") { useReader() }.disabled(model.url == nil)
+                            if !inputs.isEmpty { Button("Limpar lista") { inputs = [] } }
+                        }
+                        ForEach(Array(inputs.enumerated()), id: \.offset) { index, url in
+                            HStack {
+                                Text("\(index + 1). \(url.lastPathComponent)").lineLimit(1)
+                                Spacer()
+                                if mode == .dossier {
+                                    Button("Subir", systemImage: "arrow.up") { inputs.swapAt(index, index - 1) }.disabled(index == 0)
+                                    Button("Descer", systemImage: "arrow.down") { inputs.swapAt(index, index + 1) }.disabled(index == inputs.count - 1)
+                                    Button("Remover", systemImage: "minus.circle") { inputs.remove(at: index) }
+                                }
+                            }
+                        }
+                        SecureField("Senha dos arquivos protegidos, se houver", text: $password)
+                        if mode == .dossier { Text("Nesta tela, os PDFs protegidos precisam usar a mesma senha. O conjunto preserva a interseção das permissões e inclui índice com links e marcadores.").font(.caption).foregroundStyle(.secondary) }
+                        else if !mode.report && mode != .pdfx { TextField("Páginas: todas ou, por exemplo, 1,3-5", text: $pages) }
+                    }.padding(10)
+                }
+                .disabled(model.busy)
+                settings
+                HStack {
+                    Button(mode.report ? "Gerar relatório…" : "Criar cópia…") { execute() }
+                        .buttonStyle(.borderedProminent).disabled(inputs.isEmpty || model.busy || (mode == .pdfx && profile == nil))
+                    if model.busy { ProgressView().controlSize(.small); Button("Cancelar") { model.cancel() } }
+                }
+                if !error.isEmpty { Text(error).foregroundStyle(.orange).textSelection(.enabled) }
+                if !report.isEmpty { GroupBox("Resultado") { Text(report).frame(maxWidth: .infinity, alignment: .leading).textSelection(.enabled).padding(12) } }
+            }.padding(28).frame(maxWidth: 1100, alignment: .leading).frame(maxWidth: .infinity)
+        }.accessibilityIdentifier("pdf.production.tools").onDisappear { generation = UUID() }
+    }
+    @ViewBuilder private var settings: some View {
+        GroupBox(mode.title) {
+            VStack(alignment: .leading, spacing: 12) {
+                switch mode {
+                case .preflight:
+                    TextField("Resolução mínima de imagens, em DPI", value: $minimumDPI, format: .number)
+                    Text("Verifica fontes incorporadas, resolução efetiva das imagens e caixas da página. O relatório não certifica PDF/X nem a fidelidade das cores.").font(.callout)
+                case .prepare:
+                    TextField("Margem de corte em pontos", value: $inset, format: .number)
+                    TextField("Sangria em pontos", value: $bleed, format: .number)
+                    Text("Define corte, sangria e marcas dentro da folha existente. O conteúdo não é reposicionado; confira se textos e imagens respeitam a área final. 72 pontos equivalem a uma polegada.").font(.callout)
+                case .pdfx:
+                    Button(profile?.lastPathComponent ?? "Escolher perfil ICC CMYK da gráfica…") { chooseProfile() }
+                    TextField("Condição de impressão (ASCII)", text: $condition)
+                    Text("Gera uma cópia PDF/X-3:2002 com Ghostscript e o perfil escolhido. Cores e transparências podem ser convertidas. Confirme o resultado com a gráfica; este conversor não substitui uma certificação independente.").font(.callout)
+                case .bates:
+                    TextField("Prefixo", text: $prefix)
+                    TextField("Número inicial", value: $start, format: .number)
+                    Stepper("Dígitos: \(digits)", value: $digits, in: 1...16)
+                    Text("Identificadores consecutivos no rodapé direito das páginas selecionadas.").font(.caption)
+                case .dossier:
+                    Text("O índice respeita a ordem da lista. Os nomes dos arquivos tornam-se títulos; cada item leva à primeira página do documento correspondente.")
+                case .stamp:
+                    TextField("Texto do carimbo", text: $stamp)
+                    Text("O carimbo será inserido na região superior esquerda. Use o editor para posicionamentos e estilos adicionais.").font(.caption)
+                case .measure:
+                    TextField("Página", value: $page, format: .number)
+                    TextField("Escala: 1 para…", value: $scale, format: .number)
+                    Picker("Unidade", selection: $unit) { Text("Milímetros").tag("mm"); Text("Centímetros").tag("cm"); Text("Metros").tag("m") }
+                    Toggle("Fechar polígono e calcular área", isOn: $closed)
+                    Text("Coordenadas em pontos, a partir do canto superior esquerdo da página sem rotação. Confira a escala usando uma distância conhecida.").font(.caption)
+                    ForEach($points) { $point in
+                        HStack {
+                            TextField("X", value: $point.x, format: .number)
+                            TextField("Y", value: $point.y, format: .number)
+                            Button("Remover") { points.removeAll { $0.id == point.id } }.disabled(points.count <= 2)
+                        }
+                    }
+                    Button("Adicionar ponto") { points.append(MeasurementPoint(x: 144, y: 144)) }.disabled(points.count >= 1000)
+                }
+            }.textFieldStyle(.roundedBorder).padding(10)
+        }.disabled(model.busy)
+    }
+    private func choosePDFs() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]; panel.allowsMultipleSelection = mode == .dossier
+        if panel.runModal() == .OK { if mode == .dossier { inputs.append(contentsOf: panel.urls) } else { inputs = panel.urls } }
+    }
+    private func chooseProfile() {
+        let panel = NSOpenPanel(); panel.allowedContentTypes = [UTType(filenameExtension: "icc") ?? .data]
+        if panel.runModal() == .OK { profile = panel.url }
+    }
+    private func useReader() {
+        NSApp.keyWindow?.makeFirstResponder(nil)
+        (model.pdfView as? DrawingPDFView)?.finishStroke()
+        guard let url = model.savedDocumentURL ?? model.url else { return }
+        guard !model.hasUnsavedChanges else { error = "Salve uma cópia das alterações do leitor antes de usar este documento."; return }
+        if mode == .dossier { inputs.append(url) } else { inputs = [url] }
+        password = model.activeSession?.password ?? ""; error = ""
+    }
+    private func execute() {
+        guard let first = inputs.first else { return }
+        var options: [String: Any] = ["password": password]
+        if !pages.isEmpty { options["pages"] = pages }
+        switch mode {
+        case .preflight: options["minimum_dpi"] = minimumDPI
+        case .prepare: options["trim_inset"] = inset; options["bleed"] = bleed; options["crop_marks"] = true
+        case .pdfx: options["icc_profile"] = profile?.path; options["output_condition"] = condition
+        case .bates: options["prefix"] = prefix; options["start"] = start; options["digits"] = digits
+        case .dossier: break
+        case .stamp: options["text"] = stamp
+        case .measure:
+            options["points"] = points.map { [$0.x, $0.y] }; options["scale"] = scale; options["unit"] = unit
+            options["page"] = page; options["closed"] = closed
+        }
+        guard let output = NativeOutput.destination(model: model, toolName: mode.title, extension: mode.report ? "json" : "pdf", originalURL: first) else { return }
+        let selectedMode = mode
+        let token = UUID(); generation = token
+        error = ""; report = ""
+        model.execute(operation: mode.rawValue, inputs: inputs, output: output, options: options, title: mode.title) { result in
+            guard generation == token else { return }
+            switch result {
+            case .failure(let failure): error = failure.localizedDescription
+            case .success(let url):
+                if selectedMode.report {
+                    Task {
+                        let message = await Task.detached(priority: .utility) { Self.describeReport(url, mode: selectedMode) }.value
+                        if generation == token { report = message }
+                    }
+                } else { report = "Cópia criada. Abra o resultado para revisar a aparência final." }
+            }
+        }
+    }
+    nonisolated private static func describeReport(_ url: URL, mode: ProductionMode) -> String {
+        guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 64 * 1024 * 1024,
+              let data = try? Data(contentsOf: url), let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
+            return "Relatório salvo. Não foi possível carregar a prévia."
+        }
+        if mode == .measure, let distance = object["distance"] as? Double {
+            var text = String(format: "Distância / perímetro: %.4f %@", distance, object["unit"] as? String ?? "")
+            if let area = object["area"] as? Double { text += String(format: "\nÁrea: %.4f %@²", area, object["unit"] as? String ?? "") }
+            return text
+        }
+        let findings = object["findings"] as? [[String: Any]] ?? []
+        let codes = ["font-not-embedded": "Fonte não incorporada", "low-image-resolution": "Imagem abaixo da resolução escolhida", "no-distinct-trim": "Área de corte igual à folha"]
+        let rows = findings.prefix(200).map { "Página \($0["page"] as? Int ?? 0): \(codes[$0["code"] as? String ?? ""] ?? "Revisão necessária")" }
+        return "\(object["page_count"] as? Int ?? 0) páginas analisadas · \(findings.count) observações.\n" + rows.joined(separator: "\n") + (findings.count > 200 ? "\nAs demais observações estão no relatório exportado." : "")
+    }
+}

@@ -94,7 +94,14 @@ enum NativePDFSerialization {
     }
     private static let maximumBytes = 1_073_741_824
     private static let maximumRepairJSONBytes = 64 * 1_024 * 1_024
-    private static let executable = URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
+    private static var executable: URL {
+        if let resources = Bundle.main.resourceURL,
+           FileManager.default.fileExists(atPath: resources.appendingPathComponent("runtime/portable.json").path) {
+            // A portable installation must never fall back to a host dependency.
+            return resources.appendingPathComponent("runtime/bin/qpdf")
+        }
+        return URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
+    }
     typealias LaunchObserver = (Process, URL) -> Void
 
     /// Read-only opening of the exact supplied bytes. Run this synchronous work

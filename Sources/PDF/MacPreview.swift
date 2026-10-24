@@ -124,7 +124,7 @@ enum MacPreview {
 /// isolated; SwiftUI owns the application, window, toolbar and accessibility lifecycle.
 @MainActor final class MacPreviewSession:ObservableObject {
     private enum Route {
-        case workspace(Bool), customization(String), recovery, tool(String), workflow, verification(String)
+        case workspace(Bool), customization(String), recovery, tool(String), workflow, verification(String), advanced(String), production(ProductionMode), palette
         var identity:String {
             switch self {
             case .workspace(let inspector): return "workspace-\(inspector)"
@@ -133,6 +133,9 @@ enum MacPreview {
             case .tool(let id): return "tool-" + id
             case .workflow: return "workflow"
             case .verification(let mode): return "verification-" + mode
+            case .advanced(let mode): return "advanced-" + mode
+            case .production(let mode): return "production-" + mode.rawValue
+            case .palette: return "palette"
             }
         }
         var title:String? {
@@ -143,6 +146,9 @@ enum MacPreview {
             case .tool: return "Marca d’água — PDF"
             case .workflow: return "Fluxos em lote — PDF"
             case .verification(let mode): return ["sign":"Assinatura digital — PDF","verify":"Verificar assinaturas — PDF","pdfa":"Validar PDF/A — PDF","pdfua":"Acessibilidade PDF/UA — PDF"][mode]
+            case .advanced: return "Ferramentas avançadas — PDF"
+            case .production(let mode): return mode.title + " — PDF"
+            case .palette: return "Comandos — PDF"
             }
         }
     }
@@ -155,6 +161,9 @@ enum MacPreview {
     private let scratchDirectory:URL?
     private weak var window:NSWindow?
     private var fixtureInputs:[URL] = []
+    private let contentController = AdvancedDocumentController()
+    private let ocrController = AdvancedDocumentController()
+    private lazy var automation = AutomationCoordinator(defaults: defaults)
     private lazy var toolPresets = ToolPresetStore(defaults:defaults)
     private var started = false
     private var finished = false
@@ -191,6 +200,17 @@ enum MacPreview {
         case .workflow:
             WorkflowView(initialInputs:fixtureInputs,finalExport:"word",libraryDirectory:scratchDirectory?.appendingPathComponent("Workflows",isDirectory:true))
         case .verification(let mode): VerificationView(initialMode:mode)
+        case .palette: CommandPaletteView(onSelect: { _ in })
+        case .production(let mode): ProductionToolsView(initialMode: mode)
+        case .advanced(let mode):
+            switch mode {
+            case "content": AdvancedContentEditorView(controller: contentController)
+            case "ocr": OCRReviewView(controller: ocrController)
+            case "library": DocumentLibraryView(directory: scratchDirectory?.appendingPathComponent("Library", isDirectory: true))
+            case "accessibility": AccessibilityRemediationView()
+            case "signatures": SignatureRequestView()
+            default: AutomationView(coordinator: automation)
+            }
         }
     }
 
@@ -206,9 +226,9 @@ enum MacPreview {
         NSApplication.shared.activate(ignoringOtherApps:true)
         window.makeKeyAndOrderFront(nil)
         watchdog = Task { @MainActor [weak self] in
-            do { try await Task.sleep(for:.seconds(160)); try Task.checkCancellation() }
+            do { try await Task.sleep(for:.seconds(280)); try Task.checkCancellation() }
             catch { return }
-            self?.finish(.failure(MacPreview.failure(5,"A captura da WindowGroup excedeu 160 segundos. Nenhum fallback de bitmap foi usado.")))
+            self?.finish(.failure(MacPreview.failure(5,"A captura da WindowGroup excedeu 280 segundos. Nenhum fallback de bitmap foi usado.")))
         }
         captureTask = Task { @MainActor [weak self] in
             guard let self else { return }
@@ -316,7 +336,7 @@ enum MacPreview {
         try await capture("recuperacao")
 
         // Keep the original personalization captures, now without residual document chrome.
-        for (tab,name) in [("Aparência","personalizar"),("Ferramentas","ferramentas"),("Navegação","navegacao"),("Leitor","opcoes-leitura"),("Arquivos","arquivos")] {
+        for (tab,name) in [("Aparência","personalizar"),("Ferramentas","ferramentas"),("Navegação","navegacao"),("Leitor","opcoes-leitura"),("Arquivos","arquivos"),("Atalhos","atalhos"),("Perfis","perfis")] {
             present(.customization(tab))
             try await capture(name)
         }
@@ -348,6 +368,44 @@ enum MacPreview {
         for (mode,name) in [("sign","assinatura-digital"),("verify","verificar-assinaturas"),("pdfa","validar-pdfa"),("pdfua","auditar-pdfua")] {
             present(.verification(mode))
             try await capture(name)
+        }
+        present(.palette); try await capture("paleta")
+        contentController.load(model: model, ocr: false)
+        try await waitForReview(contentController)
+        guard contentController.content?.objects.isEmpty == false else { throw MacPreview.failure(24, "O editor não carregou objetos reais da amostra.") }
+        present(.advanced("content")); try await capture("editor-conteudo")
+
+        guard let page = model.document?.page(at: 0),
+              let imagePage = PDFPage(image: page.thumbnail(of: NSSize(width: 1200, height: 1600), for: .cropBox)) else {
+            throw MacPreview.failure(25, "Não foi possível preparar a amostra raster para revisão OCR.")
+        }
+        let scanned = PDFDocument(); scanned.insert(imagePage, at: 0)
+        let scanURL = scratchDirectory.appendingPathComponent("Revisão digitalizada.pdf")
+        guard let bytes = scanned.dataRepresentation() else { throw MacPreview.failure(26, "A amostra raster está vazia.") }
+        try NativeOutput.write(bytes, to: scanURL)
+        model.open(url: scanURL); await model.waitForPendingOpen()
+        ocrController.load(model: model, ocr: true, language: "eng")
+        try await waitForReview(ocrController)
+        guard ocrController.review?.words.isEmpty == false else { throw MacPreview.failure(27, "O OCR não recuperou palavras reais da amostra.") }
+        present(.advanced("ocr")); try await capture("revisao-ocr")
+
+        let library = DocumentLibraryStore(directory: scratchDirectory.appendingPathComponent("Library", isDirectory: true))
+        _ = try await library.importFiles(fixtureInputs, collection: "Documentos de demonstração", tags: ["Revisão"])
+        present(.advanced("library")); try await capture("biblioteca", auditRequired: ["pdf.library"])
+        present(.advanced("accessibility")); try await capture("corrigir-acessibilidade")
+        present(.advanced("signatures")); try await capture("solicitar-assinaturas")
+        present(.advanced("automation")); try await capture("automacao")
+        for mode in [ProductionMode.preflight, .bates, .measure, .pdfx] {
+            present(.production(mode)); try await capture("producao-" + mode.rawValue)
+        }
+    }
+
+    private func waitForReview(_ controller: AdvancedDocumentController) async throws {
+        let deadline = ProcessInfo.processInfo.systemUptime + 90
+        while controller.working {
+            try Task.checkCancellation()
+            guard ProcessInfo.processInfo.systemUptime < deadline else { throw MacPreview.failure(28, "A revisão da amostra ultrapassou 90 segundos.") }
+            try await Task.sleep(for: .milliseconds(50))
         }
     }
 

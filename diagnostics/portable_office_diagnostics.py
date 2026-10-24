@@ -89,21 +89,75 @@ class ExitObservation:
             self.queue.close(); self.queue = None
 
 
+def group_has_only_zombies(leader):
+    """Read a process-table snapshot while our unreaped leader pins the PGID."""
+    result = subprocess.run(['/bin/ps', '-axo', 'pid=,pgid=,stat='],
+                            capture_output=True, text=True, check=True, timeout=5,
+                            env={'PATH': '/usr/bin:/bin', 'LC_ALL': 'C'})
+    if len(result.stdout) > 1024 * 1024:
+        raise RuntimeError('The process-group snapshot exceeds its diagnostic limit.')
+    group = {}
+    for line in result.stdout.splitlines():
+        columns = line.split()
+        if len(columns) != 3:
+            raise RuntimeError('The process-group snapshot is incomplete.')
+        pid, pgid = int(columns[0]), int(columns[1])
+        if pgid == leader:
+            if pid in group:
+                raise RuntimeError('The process-group snapshot contains duplicate members.')
+            group[pid] = columns[2]
+    # Require positive evidence of the still-owned zombie leader, not merely
+    # an empty/missing group. No live member may remain in this snapshot.
+    return leader in group and all(state.startswith('Z') for state in group.values())
+
+
+def signal_owned_group(process, observation, signum):
+    try:
+        os.killpg(process.pid, signum)
+    except ProcessLookupError:
+        pass
+    except PermissionError as error:
+        # XNU killpg1 filters SZOMB out of pgrp_iterate and returns EPERM when
+        # no signallable members remain (bsd/kern/kern_sig.c). Accept this
+        # Darwin-specific case only after proving exit without reap AND a
+        # complete group snapshot containing only zombies. Real permission
+        # failures in a live or uninspectable group remain fatal.
+        if sys.platform == 'darwin' and error.errno == errno.EPERM and observation is not None:
+            try:
+                if observation.exited() and group_has_only_zombies(process.pid):
+                    return
+            except Exception as proof_error:
+                error.add_note('Could not prove the diagnostic group is dead: ' + type(proof_error).__name__)
+        raise
+
+
 def stop(process, observation):
     if process.returncode is not None:
         raise RuntimeError('Diagnostic leader was already reaped; do not signal a reused group.')
+    failure = None
     try:
-        try: os.killpg(process.pid, signal.SIGTERM)
-        except ProcessLookupError: pass
+        signal_owned_group(process, observation, signal.SIGTERM)
         deadline = time.monotonic() + 3
         while observation is not None and not observation.exited() and time.monotonic() < deadline:
             time.sleep(0.05)
+    except BaseException as error:
+        failure = error
     finally:
         # Kill any remaining owned descendants while the unreaped leader still
         # reserves its PID/PGID. Only then may wait() release that identity.
-        try: os.killpg(process.pid, signal.SIGKILL)
-        except ProcessLookupError: pass
-        process.wait(timeout=5)
+        try:
+            signal_owned_group(process, observation, signal.SIGKILL)
+        except BaseException as error:
+            if failure is None: failure = error
+            else: failure.add_note('Group kill also failed: ' + type(error).__name__)
+        finally:
+            try:
+                process.wait(timeout=5)
+            except BaseException as error:
+                if failure is None: failure = error
+                else: failure.add_note('Leader collection also failed: ' + type(error).__name__)
+    if failure is not None:
+        raise failure
 
 
 def measure(command, directory, environment=None, seconds=90):

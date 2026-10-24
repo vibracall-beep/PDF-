@@ -1,5 +1,6 @@
 """Real child lifetimes for the focused converter diagnostic, without macOS."""
 import fcntl
+import errno
 import os
 from pathlib import Path
 import subprocess
@@ -7,8 +8,10 @@ import sys
 import tempfile
 import time
 import unittest
+from unittest import mock
 
-from portable_office_diagnostics import ExitObservation, measure, stop
+import portable_office_diagnostics as diagnosis
+from portable_office_diagnostics import ExitObservation, group_has_only_zombies, measure, stop
 
 
 class OfficeDiagnosticProcessTests(unittest.TestCase):
@@ -82,6 +85,44 @@ os._exit(0)
             self.assertEqual(result['stoppedBecause'], 'deadline')
             self.assertLess(result['exit'], 0)
             self.assertLess(result['seconds'], 5)
+
+    def test_darwin_eperm_requires_a_real_zombie_only_group(self):
+        process = subprocess.Popen([sys.executable, '-c', 'raise SystemExit(9)'], start_new_session=True)
+        observation = ExitObservation(process.pid)
+        try:
+            deadline = time.monotonic() + 5
+            while not observation.exited() and time.monotonic() < deadline: time.sleep(0.01)
+            self.assertTrue(observation.exited())
+            self.assertTrue(group_has_only_zombies(process.pid))
+            # Inject only Darwin's signal error; exit observation and the
+            # process table are real, and wait() must still recover status 9.
+            with mock.patch.object(diagnosis.sys, 'platform', 'darwin'), \
+                 mock.patch.object(diagnosis.os, 'killpg', side_effect=PermissionError(errno.EPERM, 'synthetic Darwin zombie EPERM')):
+                stop(process, observation)
+            self.assertEqual(process.returncode, 9)
+        finally:
+            if process.returncode is None: stop(process, observation)
+            observation.close()
+
+    def test_live_group_eperm_remains_fatal_and_leader_is_collected(self):
+        process = subprocess.Popen([sys.executable, '-c', 'import time;time.sleep(20)'], start_new_session=True)
+        observation = ExitObservation(process.pid)
+        real_killpg = os.killpg
+        def deny_term(group, signum):
+            if signum == diagnosis.signal.SIGTERM:
+                raise PermissionError(errno.EPERM, 'synthetic live-group denial')
+            return real_killpg(group, signum)
+        try:
+            self.assertFalse(group_has_only_zombies(process.pid))
+            with mock.patch.object(diagnosis.sys, 'platform', 'darwin'), \
+                 mock.patch.object(diagnosis.os, 'killpg', side_effect=deny_term):
+                with self.assertRaisesRegex(PermissionError, 'live-group denial'):
+                    stop(process, observation)
+            self.assertIsNotNone(process.returncode)
+            self.assertLess(process.returncode, 0)
+        finally:
+            if process.returncode is None: stop(process, observation)
+            observation.close()
 
 
 if __name__ == '__main__':

@@ -1,0 +1,43 @@
+name: Portable LibreOffice isolation diagnosis
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-office-measurement:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, xcode-27]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Record actual platform
+        run: |
+          uname -m
+          sw_vers -productVersion
+          sysctl -n machdep.cpu.brand_string
+          xcodebuild -version
+      - name: Verify owned process lifecycle before conversion
+        run: python3 -m unittest discover -s diagnostics -p test_portable_office_diagnostics.py -v
+      - name: Install only the converter and synthetic fixture tools
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          brew install --cask libreoffice
+          python3 -m venv "$RUNNER_TEMP/pdf-office-diagnostic-tools"
+          "$RUNNER_TEMP/pdf-office-diagnostic-tools/bin/python3" -m pip install PyMuPDF==1.26.5 python-docx==1.2.0
+      - name: Measure original, copied, signed and isolated conversion
+        run: |
+          "$RUNNER_TEMP/pdf-office-diagnostic-tools/bin/python3" diagnostics/portable_office_diagnostics.py --output "$RUNNER_TEMP/PDF-office-diagnostics"
+      - name: Retain synthetic diagnostic evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-office-diagnostics-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-office-diagnostics/
+          if-no-files-found: warn
+          retention-days: 7

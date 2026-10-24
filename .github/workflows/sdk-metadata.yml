@@ -12,6 +12,7 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 10
     steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
       - name: Record installed SDK and metadata processor interface
         shell: bash
         run: |
@@ -30,11 +31,51 @@ jobs:
           printf 'processor_help_exit_status=%s\n' "$PDF_HELP_STATUS"
           xcrun swiftc -help-hidden > "$RUNNER_TEMP/PDF-SDK-metadata/swift-help.txt" 2>&1
           sed -n '/const-values\|const-gather\|const-extract\|emit-const/p' "$RUNNER_TEMP/PDF-SDK-metadata/swift-help.txt"
+          xcrun swiftc -frontend -help-hidden > "$RUNNER_TEMP/PDF-SDK-metadata/frontend-help.txt" 2>&1
+          sed -n '/const-values\|const-gather\|const-extract\|emit-const/p' "$RUNNER_TEMP/PDF-SDK-metadata/frontend-help.txt"
+      - name: Extract real application intent metadata using the installed SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PYTHON'
+          import json, os, pathlib, subprocess
+          root = pathlib.Path.cwd()
+          output = pathlib.Path(os.environ['RUNNER_TEMP']) / 'PDF-SDK-metadata'
+          protocols = output / 'protocols.json'
+          protocols.write_text(json.dumps(['AppIntent', 'AppEntity', 'EntityQuery', 'AppShortcutsProvider', 'AppEnum', 'AppIntentsPackage']))
+          sources = sorted((root / 'Sources/PDF').glob('*.swift'))
+          (output / 'sources.txt').write_text(''.join(str(path)+'\n' for path in sources))
+          sdk = subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-path'], text=True).strip()
+          compiler = subprocess.check_output(['xcrun', '--find', 'swiftc'], text=True).strip()
+          constants = output / 'PDF.swiftconstvalues'
+          subprocess.run([compiler, '-frontend', '-typecheck', '-parse-as-library', '-swift-version', '5',
+              '-module-name', 'PDF', '-target', 'arm64-apple-macosx26.0', '-sdk', sdk,
+              '-emit-const-values-path', str(constants), '-const-gather-protocols-file', str(protocols),
+              *map(str, sources)], check=True, timeout=240)
+          if not constants.is_file() or constants.stat().st_size == 0:
+              raise RuntimeError('Compiler produced no constant metadata')
+          (output / 'constants.txt').write_text(str(constants)+'\n')
+          version = subprocess.check_output(['xcodebuild', '-version'], text=True).split('Build version ',1)[1].strip()
+          destination = output / 'extracted'; destination.mkdir()
+          subprocess.run(['xcrun', 'appintentsmetadataprocessor', '--output', str(destination),
+              '--toolchain-dir', str(pathlib.Path(compiler).parent.parent.parent), '--module-name', 'PDF',
+              '--sdk-root', sdk, '--xcode-version', version, '--platform-family', 'macOS',
+              '--deployment-target', '26.0', '--target-triple', 'arm64-apple-macosx26.0',
+              '--source-file-list', str(output / 'sources.txt'), '--swift-const-vals-list', str(output / 'constants.txt'),
+              '--deployment-aware-processing'], check=True, timeout=120)
+          for path in sorted(destination.rglob('*')):
+              if path.is_file():
+                  data = path.read_bytes()
+                  print('METADATA', path.relative_to(destination), len(data), flush=True)
+                  if len(data) <= 200000:
+                      try: print(data.decode('utf-8'), flush=True)
+                      except UnicodeDecodeError: pass
+          PYTHON
       - name: Preserve the actual SDK interface
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: PDF-SDK-metadata-${{ matrix.runner }}
-          path: ${{ runner.temp }}/PDF-SDK-metadata/*
+          path: ${{ runner.temp }}/PDF-SDK-metadata/
           if-no-files-found: error
           retention-days: 7

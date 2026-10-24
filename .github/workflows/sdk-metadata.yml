@@ -48,7 +48,7 @@ jobs:
           sdk = subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-path'], text=True).strip()
           compiler = subprocess.check_output(['xcrun', '--find', 'swiftc'], text=True).strip()
           constants = output / 'PDF.swiftconstvalues'
-          subprocess.run([compiler, '-typecheck', '-parse-as-library', '-swift-version', '5',
+          subprocess.run([compiler, '-typecheck', '-whole-module-optimization', '-parse-as-library', '-swift-version', '5',
               '-module-name', 'PDF', '-target', 'arm64-apple-macosx26.0', '-sdk', sdk,
               '-Xfrontend', '-emit-const-values-path', '-Xfrontend', str(constants),
               '-Xfrontend', '-const-gather-protocols-file', '-Xfrontend', str(protocols),
@@ -64,6 +64,14 @@ jobs:
               '--deployment-target', '26.0', '--target-triple', 'arm64-apple-macosx26.0',
               '--source-file-list', str(output / 'sources.txt'), '--swift-const-vals-list', str(output / 'constants.txt'),
               '--deployment-aware-processing'], check=True, timeout=120)
+          action_file = destination / 'Metadata.appintents/extract.actionsdata'
+          if not action_file.is_file():
+              raise RuntimeError('Extractor produced no action metadata; zero exit alone is insufficient')
+          actions = json.loads(action_file.read_text())
+          if not {'OpenPDFIntent', 'RunSavedPDFWorkflowIntent'} <= actions.get('actions', {}).keys():
+              raise RuntimeError('Required application intents are absent')
+          if 'PDFAppShortcuts' not in actions.get('autoShortcutProviderMangledName', ''):
+              raise RuntimeError('AppShortcuts provider was not extracted')
           for path in sorted(destination.rglob('*')):
               if path.is_file():
                   data = path.read_bytes()

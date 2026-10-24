@@ -3,6 +3,29 @@ import SwiftUI
 import PDFKit
 import QuartzCore
 import ScreenCaptureKit
+import Darwin
+
+/// Startup breadcrumbs precede AppKit's window lifecycle. They are enabled
+/// only for the explicit preview command and contain no paths or document data.
+enum PreviewStartupTrace {
+    static func record(_ phase: StaticString) {
+        guard CommandLine.arguments.contains("--render-preview") else { return }
+        let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0)\n"
+        // No stdout/stdio buffer: a timeout before WindowGroup attachment must
+        // still retain the last phase. Failure to log never changes app behavior.
+        let bytes = Array(line.utf8)
+        bytes.withUnsafeBytes { buffer in
+            guard let base = buffer.baseAddress else { return }
+            var offset = 0
+            while offset < buffer.count {
+                let written = Darwin.write(STDERR_FILENO, base.advanced(by: offset), buffer.count - offset)
+                if written > 0 { offset += written }
+                else if written < 0 && errno == EINTR { continue }
+                else { break }
+            }
+        }
+    }
+}
 
 /// Captures the real WindowServer-composited application surface in the native CI session.
 /// NSView.cacheDisplay cannot capture all SwiftUI material or PDFKit tiled layers.
@@ -174,21 +197,27 @@ enum MacPreview {
     var routeIdentity:String { route.identity }
 
     init(destination:URL? = nil) throws {
+        PreviewStartupTrace.record("preview session init begin")
         self.destination = destination
         if destination != nil {
             let suite = "PDF-preview-" + UUID().uuidString
             guard let defaults = UserDefaults(suiteName:suite) else { throw MacPreview.failure(16,"Não foi possível isolar as preferências da prévia.") }
+            PreviewStartupTrace.record("isolated defaults ready")
             let scratch = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-Preview-" + UUID().uuidString,isDirectory:true)
             try FileManager.default.createDirectory(at:scratch,withIntermediateDirectories:false,attributes:[.posixPermissions:0o700])
             self.defaults = defaults; suiteName = suite; scratchDirectory = scratch
+            PreviewStartupTrace.record("isolated scratch directory ready")
             let appearance = AppearancePreferences(defaults:defaults)
             appearance.state.colorScheme = "light"
             preferences = appearance
+            PreviewStartupTrace.record("appearance preferences ready")
             model = Workspace(defaults:defaults,recoveryStore:RecoveryStore(directory:scratch.appendingPathComponent("Recovery",isDirectory:true)),enableRecoveryPolling:false)
+            PreviewStartupTrace.record("workspace ready")
         } else {
             defaults = .standard; suiteName = nil; scratchDirectory = nil
             model = Workspace(); preferences = AppearancePreferences.shared
         }
+        PreviewStartupTrace.record("preview session init end")
     }
 
     @ViewBuilder var content:some View {
@@ -484,10 +513,12 @@ enum MacPreview {
 struct MacPreviewWindowObserver:NSViewRepresentable {
     let session:MacPreviewSession
     func makeNSView(context:Context) -> WindowObserver {
+        PreviewStartupTrace.record("window observer creation begin")
         let view = WindowObserver()
         view.attached = { [weak session] window in
             DispatchQueue.main.async { session?.attach(to:window) }
         }
+        PreviewStartupTrace.record("window observer creation end")
         return view
     }
     func updateNSView(_ view:WindowObserver,context:Context) {
@@ -497,7 +528,10 @@ struct MacPreviewWindowObserver:NSViewRepresentable {
         var attached:((NSWindow)->Void)?
         override func viewDidMoveToWindow() {
             super.viewDidMoveToWindow()
-            if let window { attached?(window) }
+            if let window {
+                PreviewStartupTrace.record("window observer received WindowGroup window")
+                attached?(window)
+            }
         }
     }
 }

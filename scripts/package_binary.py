@@ -204,6 +204,60 @@ def relocate_links(original, copied, maps):
                 dirs.remove(name)
 
 
+def complete_python_frameworks(runtime, formulas):
+    """Restore framework discovery links omitted by Homebrew's altinstall.
+
+    python@3.12.rb deliberately removes Headers/Python/Resources and
+    Versions/Current to avoid conflicts with the primary Python formula.
+    Our private, separately named kegs have no such conflict. A framework
+    signature needs these links to find the existing executable and plist.
+    Validate the versioned payload first; never replace an unexpected entry.
+    """
+    added = []
+    for formula in sorted(formulas):
+        match = re.fullmatch(r'python@(\d+\.\d+)', formula)
+        if match is None:
+            continue
+        version = match.group(1)
+        framework = runtime / 'vendor' / formula / 'Frameworks/Python.framework'
+        versions = framework / 'Versions'
+        payload = versions / version
+        for directory in (framework, versions, payload, payload / 'Resources'):
+            if directory.is_symlink() or not directory.is_dir():
+                raise ValueError('Estrutura versionada do framework Python inválida: ' + str(directory))
+        if {entry.name for entry in versions.iterdir()} - {version, 'Current'}:
+            raise ValueError('Versão inesperada no framework Python privado.')
+        info = plistlib.loads(regular_bytes(payload / 'Resources/Info.plist', 1024 * 1024))
+        if (not isinstance(info, dict) or info.get('CFBundleExecutable') != 'Python'
+                or info.get('CFBundlePackageType') != 'FMWK'
+                or not str(info.get('CFBundleVersion', '')).startswith(version + '.')
+                or not macho(payload / 'Python')):
+            raise ValueError('Executável ou metadados do framework Python incompatíveis.')
+        headers = payload / 'Headers'
+        if not headers.is_dir() or not headers.resolve(strict=True).is_relative_to(payload.resolve(strict=True)):
+            raise ValueError('Headers do framework Python ausentes ou externos.')
+        links = {'Versions/Current': version}
+        links.update({name: 'Versions/Current/' + name for name in ('Headers', 'Python', 'Resources')})
+        missing = []
+        for name, target in links.items():
+            path = framework / name
+            if not os.path.lexists(path):
+                missing.append((path, target))
+                continue
+            if not path.is_symlink():
+                raise ValueError('Entrada de descoberta do framework Python não é um link: ' + name)
+            actual = os.readlink(path)
+            allowed = {target}
+            if name != 'Versions/Current':
+                allowed.add('Versions/' + version + '/' + name)
+            if os.path.isabs(actual) or os.path.normpath(actual) not in allowed:
+                raise ValueError('Link de descoberta do framework Python aponta a destino inesperado: ' + name)
+        for path, target in missing:
+            path.symlink_to(target)
+            added.append(path.relative_to(runtime).as_posix())
+    return added
+
+
 def otool_libraries(output):
     libraries = set()
     for line in output.splitlines():
@@ -302,6 +356,7 @@ def build(installed, output, commit):
     # All dependencies are known before remapping cross-formula symlinks.
     for source, target in copies:
         relocate_links(source, target, maps)
+    completed_framework_links = complete_python_frameworks(runtime, formulas)
     python_root = runtime / 'vendor/python@3.12/Frameworks/Python.framework/Versions/3.12'
     python = python_root / 'bin/python3.12'
     if not python.is_file():
@@ -412,6 +467,7 @@ unset PYTHONPATH PYTHONHOME
                 'applicationVersion': plistlib.loads((app / 'Contents/Info.plist').read_bytes()).get('CFBundleShortVersionString'),
                 'dependencyFormulae': formulas, 'externalCoreEnginesRequired': False,
                 'removedHostPythonStartupPolicy': isolated_pythons,
+                'completedPythonFrameworkLinks': completed_framework_links,
                 'optionalSystemIntegrations': ['Apple Pages for Pages conversion', 'compatible scanner', 'Apple Intelligence system model']}
     (runtime / 'portable.json').write_text(json.dumps(portable, indent=2) + '\n')
     distribution = resources / 'distribution'; distribution.mkdir()

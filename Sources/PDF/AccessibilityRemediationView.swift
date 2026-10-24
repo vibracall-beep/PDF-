@@ -206,6 +206,7 @@ struct AccessibilityRemediationView: View {
               VStack(alignment: .leading, spacing: 10) {
                 if selection != nil {
                     Picker("Papel", selection: $role) { ForEach(roles, id: \.self) { Text($0).tag($0) } }
+                        .accessibilityLabel("Papel da tag")
                     VStack(alignment: .leading, spacing: 4) {
                         Text("Título da tag").font(.caption)
                         TextField("Título", text: $tagTitle).textFieldStyle(.roundedBorder).accessibilityLabel("Título da tag")
@@ -228,6 +229,7 @@ struct AccessibilityRemediationView: View {
                     }
                     if role == "TH" {
                         Picker("Cabeçalho da tabela", selection: $scope) { Text("Não definido").tag(""); Text("Coluna").tag("Column"); Text("Linha").tag("Row"); Text("Ambos").tag("Both") }
+                            .accessibilityLabel("Escopo do cabeçalho da tabela")
                             .accessibilityIdentifier("pdf.accessibility.tag.scope")
                     }
                     Menu("Remover atributo…") {
@@ -255,7 +257,7 @@ struct AccessibilityRemediationView: View {
                         Text("Página \(index + 1)").frame(width: 90, alignment: .leading)
                         Picker("Papel da página \(index + 1)", selection: $pageRoles[index]) {
                             ForEach(["P", "H1", "H2", "H3", "Figure", "Note"], id: \.self) { Text($0).tag($0) }
-                        }.labelsHidden().frame(width: 100)
+                        }.labelsHidden().accessibilityLabel("Papel da página \(index + 1)").frame(width: 100)
                         TextField("Descrição da figura (quando aplicável)", text: $pageAlternatives[index]).textFieldStyle(.roundedBorder)
                     }
                 }

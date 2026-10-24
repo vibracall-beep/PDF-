@@ -98,12 +98,14 @@ let tools: [Tool] = [
 
 @main enum PDFEntryPoint {
     @MainActor static func main() async {
+        PreviewStartupTrace.record("entrypoint begin; acquire bundle lease")
         do { try BundleRuntimeLease.activate() }
         catch {
             CIDiagnostics.record(String(describing: error), level: "error", title: "PDF installation")
             fputs("PDF could not acquire its installation lease: \(error)\n", stderr)
             exit(1)
         }
+        PreviewStartupTrace.record("bundle lease ready; dispatch CLI workers")
         if BundleRuntimeLeaseAudit.handleCommandLineIfNeeded() { return }
         VisionWorker.handleCommandLineIfNeeded()
         if await CrashRecoveryAudit.handleCommandLineIfNeeded() { return }
@@ -124,6 +126,7 @@ let tools: [Tool] = [
             do { try await MacSmokeTests.run(); print("PDF native smoke tests passed"); exit(0) }
             catch { CIDiagnostics.record(String(describing:error),level:"error"); fputs("PDF native smoke tests failed: \(error)\n", stderr); exit(1) }
         }
+        PreviewStartupTrace.record("CLI dispatch complete; enter SwiftUI App.main")
         PDFApp.main()
     }
 }
@@ -134,6 +137,7 @@ struct PDFApp: App {
     @StateObject private var preview:MacPreviewSession
     @NSApplicationDelegateAdaptor(PDFApplicationDelegate.self) private var applicationDelegate
     init() {
+        PreviewStartupTrace.record("PDFApp init begin")
         do {
             let args = CommandLine.arguments
             var destination:URL?
@@ -178,6 +182,7 @@ struct PDFApp: App {
                 exit(0)
             } catch { fputs("PDF Vision capability report failed: \(error)\n", stderr); exit(1) }
         }
+        PreviewStartupTrace.record("PDFApp init end")
     }
     var body: some Scene {
         WindowGroup {
@@ -193,6 +198,7 @@ struct PDFApp: App {
                 .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
                 .background(MacPreviewWindowObserver(session:preview).frame(width:0,height:0))
                 .onAppear {
+                    PreviewStartupTrace.record("WindowGroup content appeared")
                     applicationDelegate.model = model
                     if !preview.isEnabled {
                         AutomationCoordinator.shared.attach(model: model)

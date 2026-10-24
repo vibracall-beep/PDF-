@@ -90,11 +90,17 @@ class ArchiveTests(unittest.TestCase):
         (self.root / 'scripts').mkdir()
         (self.root / 'docs').mkdir()
         (self.root / 'engine').mkdir()
+        (self.root / 'diagnostics').mkdir()
+        (self.root / '.github/workflows').mkdir(parents=True)
         shutil.copy(SCRIPTS / 'package-source.sh', self.root / 'scripts/package-source.sh')
         (self.root / 'scripts/install-mac.sh').write_text('#!/bin/bash\nexit 0\n')
         (self.root / 'Package.swift').write_text('// source fixture\n')
         (self.root / 'docs/INSTALACAO.md').write_text('Documentação\n')
         (self.root / 'engine/engine.py').write_text('print("PDF")\n')
+        (self.root / 'diagnostics/PDFKitDiagnosis.swift').write_text('// independent PDFKit fixture\n')
+        (self.root / 'diagnostics/run_pdfkit_diagnostics.py').write_text('print("diagnostic measurement")\n')
+        (self.root / '.github/workflows/pdfkit-diagnostics.yml').write_text(
+            'run: xcrun swiftc diagnostics/PDFKitDiagnosis.swift\n')
         script = (SCRIPTS / 'install-from-github.sh').read_text()
         self.extractor = script.split("<<'PY'\n", 1)[1].split('\nPY', 1)[0]
 
@@ -129,6 +135,9 @@ class ArchiveTests(unittest.TestCase):
         with tarfile.open(one) as archive:
             names = set(archive.getnames())
             self.assertIn('PDF/docs/INSTALACAO.md', names)
+            self.assertIn('PDF/.github/workflows/pdfkit-diagnostics.yml', names)
+            self.assertIn('PDF/diagnostics/PDFKitDiagnosis.swift', names)
+            self.assertIn('PDF/diagnostics/run_pdfkit_diagnostics.py', names)
             info = json.load(archive.extractfile('PDF/BUILD-INFO.json'))
             self.assertIsNone(info['commit'])
             manifest = archive.extractfile('PDF/SHA256SUMS').read().decode()
@@ -142,6 +151,8 @@ class ArchiveTests(unittest.TestCase):
         result = self.extract(one, destination)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual((destination / 'engine/engine.py').read_text(), 'print("PDF")\n')
+        self.assertEqual((destination / 'diagnostics/PDFKitDiagnosis.swift').read_text(), '// independent PDFKit fixture\n')
+        self.assertEqual((destination / 'diagnostics/run_pdfkit_diagnostics.py').read_text(), 'print("diagnostic measurement")\n')
 
     def test_existing_output_and_dangling_symlinks_are_preserved(self):
         output = self.root / 'existing.tar.gz'; output.write_bytes(b'user data')
@@ -155,11 +166,15 @@ class ArchiveTests(unittest.TestCase):
         for name in ('.env.private', 'credentials.json', 'Credentials.JSON', 'private.P8', 'id_ed25519', 'vault.kdbx', '.DS_Store'):
             (self.root / 'engine' / name).write_text('excluded fixture')
         cache = self.root / 'engine/__pycache__'; cache.mkdir(); (cache / 'file.pyc').write_bytes(b'cache')
+        for name in ('certificate.p12', 'certificate.PFX', '.env.private'):
+            (self.root / 'diagnostics' / name).write_text('excluded diagnostic fixture')
         output = self.root / 'sources.tar.gz'
         self.assertEqual(self.package(output).returncode, 0)
         with tarfile.open(output) as archive:
             names = archive.getnames()
             self.assertEqual([name for name in names if name.startswith('PDF/engine/')], ['PDF/engine/engine.py'])
+            self.assertEqual([name for name in names if name.startswith('PDF/diagnostics/')],
+                             ['PDF/diagnostics/PDFKitDiagnosis.swift', 'PDF/diagnostics/run_pdfkit_diagnostics.py'])
 
     def test_source_symlink_and_fifo_are_rejected(self):
         link = self.root / 'engine/outside.py'; link.symlink_to(self.root / 'Package.swift')

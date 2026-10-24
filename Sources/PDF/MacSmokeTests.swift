@@ -63,6 +63,9 @@ enum MacSmokeTests {
         audit("Native serialization editable annotation and form roundtrips") {
             try QPDFStructuralAudit.verifyEditableRoundTrips()
         }
+        audit("Native AES-256, permissions and Unicode credentials") {
+            try QPDFStructuralAudit.verifyEncryptionGuards()
+        }
 
         audit("PDFKit, capture encoding, AI text helpers and protected output") {
             let source = directory.appendingPathComponent("source.pdf")
@@ -271,6 +274,7 @@ enum MacSmokeTests {
             audit("Published protected copy structural integrity") {
                 try QPDFStructuralAudit.check(Data(contentsOf: protectedFile), password: password,
                                               phase: "published protected copy")
+                try QPDFStructuralAudit.verifyAES256(Data(contentsOf: protectedFile), password: password)
             }
             trace("protected open begin")
             guard let protectedCopy = PDFDocument(data: protectedData) else {

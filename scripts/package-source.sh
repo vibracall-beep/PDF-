@@ -23,7 +23,7 @@ if any(ord(char) < 32 for char in output.name):
     raise SystemExit('Nome de arquivo de destino inválido.')
 if output.exists() or checksum.exists() or output.is_symlink() or checksum.is_symlink():
     raise SystemExit('O arquivo de destino ou seu checksum já existe. Escolha outro nome.')
-allowed = ['README.md', 'Package.swift', '.gitignore', 'requirements.txt', 'requirements-optional.txt', 'Sources', 'engine', 'scripts', 'tests', 'docs', '.github']
+allowed = ['README.md', 'Package.swift', '.gitignore', 'requirements.txt', 'requirements-optional.txt', 'Sources', 'engine', 'scripts', 'tests', 'diagnostics', 'docs', '.github']
 excluded = {'.git', '.venv', '__pycache__', '.build', '.ds_store', 'node_modules', '.env', 'id_rsa', 'id_ed25519', 'credentials', 'secrets'}
 def excluded_name(name):
     lower = name.lower()

@@ -2,6 +2,7 @@ import Foundation
 import AppKit
 import PDFKit
 import Darwin
+import CryptoKit
 
 /// An independent, strict check of the exact bytes the product will publish.
 /// This auditor never rewrites its input. qpdf may recover data in memory while
@@ -71,8 +72,9 @@ enum QPDFStructuralAudit {
             throw failure("A amostra de formulário para auditoria não pôde ser aberta.")
         }
         widget.widgetStringValue = "Altered audit value"
-        guard let widgetBytes = changedWidget.dataRepresentation(),
-              PDFDocument(data: widgetBytes)?.page(at: 0)?.annotations.contains(where: {
+        let widgetBytes = try NativePDFSerialization.serialize(document: changedWidget)
+        try check(widgetBytes, phase: "valid PDF with deliberately changed widget")
+        guard PDFDocument(data: widgetBytes)?.page(at: 0)?.annotations.contains(where: {
                   $0.fieldName == "native-test" && $0.widgetStringValue == "Altered audit value"
               }) == true else { throw failure("A amostra adulterada não persistiu a mudança real de formulário.") }
         try require(rejects { try NativePDFSerialization.verifyFidelity(data: widgetBytes, prepared: prepared) },
@@ -83,8 +85,9 @@ enum QPDFStructuralAudit {
         }
         let crop = changedPage.bounds(for: .cropBox).insetBy(dx: 10, dy: 10)
         changedPage.setBounds(crop, for: .cropBox)
-        guard let geometryBytes = changedGeometry.dataRepresentation(),
-              PDFDocument(data: geometryBytes)?.page(at: 0)?.bounds(for: .cropBox) == crop else {
+        let geometryBytes = try NativePDFSerialization.serialize(document: changedGeometry)
+        try check(geometryBytes, phase: "valid PDF with deliberately changed CropBox")
+        guard PDFDocument(data: geometryBytes)?.page(at: 0)?.bounds(for: .cropBox) == crop else {
             throw failure("A amostra adulterada não persistiu a mudança real de CropBox.")
         }
         try require(rejects { try NativePDFSerialization.verifyFidelity(data: geometryBytes, prepared: prepared) },
@@ -148,6 +151,16 @@ enum QPDFStructuralAudit {
         checkbox.buttonWidgetState = PDFWidgetCellState(rawValue: 1)!
         page.addAnnotation(checkbox)
 
+        let originalNote = try findAnnotation(page, .text)
+        let noteAnchor = CGPoint(x: originalNote.bounds.minX, y: originalNote.bounds.maxY)
+        let originalText = try findAnnotation(page, .freeText)
+        guard let originalFont = originalText.font else { throw failure("A anotação de texto não expôs a fonte efetiva.") }
+        let originalFontColor = originalText.fontColor
+        let textColor = text.value(forKey: "color") as? NSColor
+        let choiceColor = choice.value(forKey: "color") as? NSColor
+        try require((text.widgetDefaultStringValue ?? "").isEmpty && (choice.widgetDefaultStringValue ?? "").isEmpty,
+                    "A amostra precisa começar com valores de redefinição vazios e valores atuais preenchidos.")
+        var plainBytes: Data?
         let passwords: [String?] = [nil, "roundtrip-protected-123"]
         for password in passwords {
             let prepared = try NativePDFSerialization.prepare(document: document, password: password)
@@ -161,12 +174,23 @@ enum QPDFStructuralAudit {
                             "O roundtrip de anotações perdeu a proteção por senha.")
             }
             guard let restored = result.page(at: 0) else { throw failure("A cópia de anotações perdeu sua página.") }
-            try require(result.pageCount == 1 && restored.annotations.count == types.count + 3,
+            // PDFKit may create/omit the note's closed, inherited popup. It
+            // must not hide any independently authored or open annotation.
+            let editable = restored.annotations.filter { item in
+                types.contains { PDFAnnotationKind.matches(item, $0) } || PDFAnnotationKind.matches(item, .widget)
+            }
+            let extras = restored.annotations.filter { item in !editable.contains { $0 === item } }
+            try require(result.pageCount == 1 && editable.count == types.count + 3 && extras.allSatisfy { popup in
+                PDFAnnotationKind.matches(popup, .popup) && !popup.isOpen && restored.annotations.contains { parent in
+                    PDFAnnotationKind.matches(parent, .text) && parent.popup === popup &&
+                        ((popup.contents ?? "").isEmpty || popup.contents == parent.contents)
+                }
+            },
                         "O roundtrip perdeu ou duplicou anotações/campos.")
             for (index, type) in types.enumerated() {
-                try require(restored.annotations.contains {
+                try require(restored.annotations.filter {
                     PDFAnnotationKind.matches($0, type) && $0.contents == "Annotation \(index)"
-                }, "O roundtrip perdeu um tipo editável ou seu conteúdo.")
+                }.count == 1, "O roundtrip perdeu ou duplicou um tipo editável ou seu conteúdo.")
             }
             try require(restored.annotations.contains { $0.fieldName == "roundtrip-text" && $0.widgetStringValue == "Editable field" },
                         "O roundtrip perdeu o valor do campo de texto.")
@@ -178,18 +202,279 @@ enum QPDFStructuralAudit {
                 $0.fieldName == "roundtrip-checkbox" && $0.widgetControlType == .checkBoxControl &&
                     $0.buttonWidgetState.rawValue == 1 && $0.buttonWidgetStateString == "Yes"
             }, "O roundtrip perdeu o estado marcado do checkbox.")
+            let restoredNote = try findAnnotation(restored, .text)
+            try require(restoredNote.bounds.minX == noteAnchor.x && restoredNote.bounds.maxY == noteAnchor.y,
+                        "O roundtrip deslocou a âncora da nota ao materializar o ícone PDFKit.")
+            let restoredText = try findAnnotation(restored, .freeText)
+            try require(restoredText.font?.fontName == originalFont.fontName && restoredText.font?.pointSize == originalFont.pointSize &&
+                        sameColor(restoredText.fontColor, originalFontColor),
+                        "O roundtrip alterou a fonte efetiva, seu tamanho ou sua cor.")
+            let restoredField = try findAnnotation(restored, .widget, field: "roundtrip-text")
+            let restoredChoice = try findAnnotation(restored, .widget, field: "roundtrip-choice")
+            try require((restoredField.widgetDefaultStringValue ?? "").isEmpty &&
+                        (restoredChoice.widgetDefaultStringValue ?? "").isEmpty,
+                        "O roundtrip substituiu a redefinição vazia pelo valor atualmente preenchido.")
+            try require(sameColor(restoredField.value(forKey: "color") as? NSColor, textColor) &&
+                        sameColor(restoredChoice.value(forKey: "color") as? NSColor, choiceColor),
+                        "O roundtrip alterou a ausência ou o valor da cor de um campo.")
+            try require((text.widgetDefaultStringValue ?? "").isEmpty && (choice.widgetDefaultStringValue ?? "").isEmpty &&
+                        originalText.font?.fontName == originalFont.fontName && originalText.font?.pointSize == originalFont.pointSize,
+                        "Preparar a cópia modificou a semântica dos valores ou da fonte no documento aberto.")
+            if password == nil { plainBytes = bytes }
         }
+        guard let plainBytes else { throw failure("A amostra editável sem senha não foi exercitada.") }
+        try verifyExplicitAnnotationGuards(base: plainBytes)
         log("editable roundtrip: all \(types.count) supported annotation types and text/choice/checkbox preserved, plain and encrypted")
     }
 
-    static func verifyProcessGuards(prepared: NativePDFSerialization.Prepared, password: String) throws {
-        var privacyErrors: [String] = [], directories: [URL] = [], launches = 0
-        _ = try NativePDFSerialization.finish(prepared, onLaunch: { process, directory in
-            launches += 1; directories.append(directory)
-            do { try inspectPrivacy(process, directory: directory, password: password) }
-            catch { privacyErrors.append("O processo de validação não preservou os limites privados exigidos.") }
+    @MainActor
+    private static func verifyExplicitAnnotationGuards(base: Data) throws {
+        guard let document = PDFDocument(data: base), let page = document.page(at: 0),
+              let font = NSFont(name: "Helvetica", size: 17), let otherFont = NSFont(name: "Courier", size: 17) else {
+            throw failure("A amostra de propriedades explícitas não pôde ser criada.")
+        }
+        let annotation = try findAnnotation(page, .freeText)
+        annotation.font = font
+        annotation.fontColor = NSColor(srgbRed: 0.2, green: 0.4, blue: 0.6, alpha: 1)
+        let border = PDFBorder(); border.lineWidth = 2; annotation.border = border
+        let note = try findAnnotation(page, .text)
+        note.color = NSColor(srgbRed: 0.1, green: 0.7, blue: 0.3, alpha: 1)
+        try findAnnotation(page, .widget, field: "roundtrip-text").widgetDefaultStringValue = "Reset field"
+        try findAnnotation(page, .widget, field: "roundtrip-choice").widgetDefaultStringValue = "first"
+        let popup = PDFAnnotation(bounds: CGRect(x: 330, y: 100, width: 140, height: 90), forType: .popup, withProperties: nil)
+        popup.contents = "Independent popup contents"; popup.isOpen = true
+        page.addAnnotation(popup)
+        let prepared = try NativePDFSerialization.prepare(document: document)
+        let bytes = try NativePDFSerialization.finish(prepared)
+        try check(bytes, phase: "explicit font, reset defaults and independent popup")
+        guard let reopened = PDFDocument(data: bytes), let restored = reopened.page(at: 0) else {
+            throw failure("A amostra explícita não pôde ser reaberta.")
+        }
+        let restoredText = try findAnnotation(restored, .freeText)
+        try require(restoredText.font?.fontName == font.fontName && restoredText.font?.pointSize == 17 &&
+                    sameColor(restoredText.fontColor, annotation.fontColor) && restoredText.border?.lineWidth == 2,
+                    "A cópia alterou fonte, cor ou borda explicitamente definidas.")
+        let restoredField = try findAnnotation(restored, .widget, field: "roundtrip-text")
+        let restoredChoice = try findAnnotation(restored, .widget, field: "roundtrip-choice")
+        try require(restoredField.widgetDefaultStringValue == "Reset field" && restoredChoice.widgetDefaultStringValue == "first",
+                    "A cópia alterou os valores explícitos de redefinição dos campos.")
+        try require(restored.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
+            $0.contents == "Independent popup contents" && $0.isOpen }, "A cópia perdeu o popup independente aberto.")
+
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed text reset default", mutate: { page in
+            try findAnnotation(page, .widget, field: "roundtrip-text").widgetDefaultStringValue = "Different reset"
+        }, persisted: { page in
+            try findAnnotation(page, .widget, field: "roundtrip-text").widgetDefaultStringValue == "Different reset"
         })
-        try require(launches > 0 && privacyErrors.isEmpty, "Senha, argumentos ou temporários do verificador não ficaram privados.")
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed choice reset default", mutate: { page in
+            try findAnnotation(page, .widget, field: "roundtrip-choice").widgetDefaultStringValue = "second"
+        }, persisted: { page in
+            try findAnnotation(page, .widget, field: "roundtrip-choice").widgetDefaultStringValue == "second"
+        })
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed font family at same size", mutate: { page in
+            try findAnnotation(page, .freeText).font = otherFont
+        }, persisted: { page in
+            let item = try findAnnotation(page, .freeText)
+            return item.font?.fontName == otherFont.fontName && item.font?.pointSize == 17
+        })
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed font color", mutate: { page in
+            try findAnnotation(page, .freeText).fontColor = .red
+        }, persisted: { page in sameColor(try findAnnotation(page, .freeText).fontColor, .red) })
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed explicit border", mutate: { page in
+            let changed = PDFBorder(); changed.lineWidth = 4
+            try findAnnotation(page, .freeText).border = changed
+        }, persisted: { page in try findAnnotation(page, .freeText).border?.lineWidth == 4 })
+        let oldAnchor = CGPoint(x: note.bounds.minX, y: note.bounds.maxY)
+        try mutatedCandidate(bytes, prepared: prepared, name: "moved note anchor", mutate: { page in
+            let item = try findAnnotation(page, .text); item.bounds = item.bounds.offsetBy(dx: 11, dy: 7)
+        }, persisted: { page in
+            let item = try findAnnotation(page, .text)
+            return item.bounds.minX == oldAnchor.x + 11 && item.bounds.maxY == oldAnchor.y + 7
+        })
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed note color", mutate: { page in
+            try findAnnotation(page, .text).color = .blue
+        }, persisted: { page in sameColor(try findAnnotation(page, .text).value(forKey: "color") as? NSColor, .blue) })
+        try mutatedCandidate(bytes, prepared: prepared, name: "removed independent popup", mutate: { page in
+            guard let item = page.annotations.first(where: { PDFAnnotationKind.matches($0, .popup) && $0.contents == "Independent popup contents" }) else {
+                throw failure("O cenário de remoção não encontrou o popup independente.")
+            }
+            page.removeAnnotation(item)
+        }, persisted: { page in !page.annotations.contains { $0.contents == "Independent popup contents" } })
+        try mutatedCandidate(bytes, prepared: prepared, name: "closed independent popup", mutate: { page in
+            guard let item = page.annotations.first(where: { PDFAnnotationKind.matches($0, .popup) && $0.contents == "Independent popup contents" }) else {
+                throw failure("O cenário de fechamento não encontrou o popup independente.")
+            }
+            item.isOpen = false
+        }, persisted: { page in page.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
+            $0.contents == "Independent popup contents" && !$0.isOpen } })
+        log("explicit fidelity guards: real changed defaults, font family/color, border, note anchor/color and independent popup rejected")
+    }
+
+    @MainActor
+    private static func mutatedCandidate(_ baseline: Data, prepared: NativePDFSerialization.Prepared, name: String,
+                                         mutate: (PDFPage) throws -> Void, persisted: (PDFPage) throws -> Bool) throws {
+        guard let document = PDFDocument(data: baseline), let page = document.page(at: 0) else {
+            throw failure("A amostra de adulteração não pôde ser aberta.")
+        }
+        try mutate(page)
+        let bytes = try NativePDFSerialization.serialize(document: document)
+        try check(bytes, phase: name)
+        guard let reopened = PDFDocument(data: bytes), let result = reopened.page(at: 0), try persisted(result) else {
+            throw failure("\(name): a alteração solicitada não persistiu; cenário inválido.")
+        }
+        try require(rejects { try NativePDFSerialization.verifyFidelity(data: bytes, prepared: prepared) },
+                    "\(name): a verificação aceitou uma mudança real em PDF estruturalmente válido.")
+    }
+
+    private static func findAnnotation(_ page: PDFPage, _ type: PDFAnnotationSubtype, field: String? = nil) throws -> PDFAnnotation {
+        guard let annotation = page.annotations.first(where: { PDFAnnotationKind.matches($0, type) && (field == nil || $0.fieldName == field) }) else {
+            throw failure("Uma anotação exigida pela amostra está ausente.")
+        }
+        return annotation
+    }
+
+    private static func sameColor(_ lhs: NSColor?, _ rhs: NSColor?) -> Bool {
+        guard let lhs, let rhs else { return lhs == nil && rhs == nil }
+        guard let left = lhs.usingColorSpace(.sRGB), let right = rhs.usingColorSpace(.sRGB) else { return false }
+        let tolerance: CGFloat = 1 / 255
+        return abs(left.redComponent - right.redComponent) <= tolerance &&
+            abs(left.greenComponent - right.greenComponent) <= tolerance &&
+            abs(left.blueComponent - right.blueComponent) <= tolerance &&
+            abs(left.alphaComponent - right.alphaComponent) <= tolerance
+    }
+
+    /// Inspect the final cipher independently, including the distinction
+    /// between a reader password and the randomly generated owner credential.
+    static func verifyAES256(_ data: Data, password: String, permissions: [String: Bool]? = nil) throws {
+        try check(data, password: password, phase: "AES-256 output structure")
+        let evidence = try encryptionEvidence(data, password: password)
+        try require(evidence.bits == 256 && evidence.revision == 6 && evidence.version == 5 &&
+                    evidence.methods.allSatisfy { $0 == "AESv3" } && evidence.userMatched && !evidence.ownerMatched,
+                    "O PDF final não usa AES-256/R6 com senha de proprietário distinta da senha de leitura.")
+        if let permissions {
+            try require(evidence.permissions == permissions, "O PDF protegido alterou as permissões originais.")
+        }
+        guard let document = PDFDocument(data: data), document.isEncrypted, document.isLocked,
+              !document.unlock(withPassword: ""), !document.unlock(withPassword: "incorrect-audit-credential"),
+              document.unlock(withPassword: password) else {
+            throw failure("A proteção final não rejeitou senhas incorretas ou não aceitou a senha completa.")
+        }
+    }
+
+    @MainActor
+    static func verifyEncryptionGuards() throws {
+        // Both are exactly 127 UTF-8 bytes. The Unicode case detects character
+        // counting and truncation mistakes that an ASCII-only test cannot.
+        for password in [String(repeating: "a", count: 127), String(repeating: "🔑", count: 31) + "abc"] {
+            guard let document = PDFDocument(data: streamFixture().valid) else { throw failure("A amostra de senha é inválida.") }
+            try require(password.utf8.count == 127, "A amostra de limite de senha está incorreta.")
+            let result = try NativePDFSerialization.serialize(document: document, password: password)
+            try verifyAES256(result, password: password)
+            guard let reopened = PDFDocument(data: result), reopened.unlock(withPassword: password),
+                  (reopened.string ?? "").contains("PDF structural verification") else {
+                throw failure("A senha no limite UTF-8 não preservou o acesso ao conteúdo.")
+            }
+        }
+        for password in [String(repeating: "a", count: 128), String(repeating: "🔑", count: 32)] {
+            guard let document = PDFDocument(data: streamFixture().valid) else { throw failure("A amostra de limite inválido está ausente.") }
+            try require(password.utf8.count == 128 && rejects {
+                _ = try NativePDFSerialization.prepare(document: document, password: password)
+            }, "O escritor aceitou uma senha acima de 127 bytes UTF-8, sujeita a truncamento.")
+        }
+
+        let password = "restricted-audit-reader"
+        let permissions: [String: Bool] = ["accessibility": true, "extract": false, "modify": false,
+            "modifyannotations": false, "modifyassembly": false, "modifyforms": false, "modifyother": false,
+            "printhigh": false, "printlow": true]
+        let settings = ["useAes": "y", "accessibility": "y", "annotate": "n", "assemble": "n",
+                        "extract": "n", "form": "n", "modifyOther": "n", "print": "low"]
+        let sourceOwner = "audit-owner-" + UUID().uuidString
+        let restricted = try auditJob(streamFixture().valid, options: ["encrypt": [
+            "userPassword": password, "ownerPassword": sourceOwner, "128bit": settings]], outputPDF: true)
+        let sourceEvidence = try encryptionEvidence(restricted, password: password)
+        try require(sourceEvidence.bits == 128 && sourceEvidence.permissions == permissions,
+                    "A amostra de permissões não contém as restrições que a auditoria exige.")
+        let normalized = try NativePDFSerialization.normalize(data: restricted, password: password)
+        try verifyAES256(normalized, password: password, permissions: permissions)
+        for unlockCredential in [password, sourceOwner] {
+            guard let document = PDFDocument(data: restricted), document.unlock(withPassword: unlockCredential) else {
+                throw failure("A amostra protegida não pôde ser aberta com uma das credenciais exigidas.")
+            }
+            let rewritten = try NativePDFSerialization.serialize(document: document, password: password)
+            try verifyAES256(rewritten, password: password, permissions: permissions)
+        }
+
+        // A legacy file may set the high-quality bit while denying all print
+        // access. That bit alone must not become permission to print after R6.
+        let noPrintSource = try highPrintWithoutLowFixture()
+        var noPrintPermissions = permissions
+        noPrintPermissions["printlow"] = false
+        let noPrintEvidence = try encryptionEvidence(noPrintSource, password: password)
+        try require(noPrintEvidence.permissions == noPrintPermissions,
+                    "A amostra de bits de impressão não representa a proibição esperada.")
+        let noPrintOutput = try NativePDFSerialization.normalize(data: noPrintSource, password: password)
+        try verifyAES256(noPrintOutput, password: password, permissions: noPrintPermissions)
+        guard let noPrintDocument = PDFDocument(data: noPrintSource), noPrintDocument.unlock(withPassword: password) else {
+            throw failure("A amostra sem impressão não pôde ser aberta.")
+        }
+        let noPrintRewrite = try NativePDFSerialization.serialize(document: noPrintDocument, password: password)
+        try verifyAES256(noPrintRewrite, password: password, permissions: noPrintPermissions)
+
+        // qpdf itself ignores accessibility=n when creating current encryption.
+        // This independently generated AES-128 fixture retains that legacy
+        // restriction, so upgrading must fail instead of silently granting it.
+        let inaccessible = try inaccessibleFixture()
+        let legacyPassword = "accessibility-audit-user"
+        let legacyEvidence = try encryptionEvidence(inaccessible, password: legacyPassword)
+        try require(legacyEvidence.bits == 128 && legacyEvidence.permissions["accessibility"] == false,
+                    "A amostra legada não contém a restrição de acessibilidade exigida.")
+        try require(rejects { _ = try NativePDFSerialization.normalize(data: inaccessible, password: legacyPassword) },
+                    "A normalização removeu uma restrição que AES-256/R6 não consegue representar.")
+        guard let legacyDocument = PDFDocument(data: inaccessible), legacyDocument.unlock(withPassword: legacyPassword) else {
+            throw failure("A amostra de restrição legada não pôde ser aberta.")
+        }
+        try require(rejects { _ = try NativePDFSerialization.serialize(document: legacyDocument, password: legacyPassword) },
+                    "A gravação editável removeu a restrição legada de acessibilidade.")
+        log("AES-256 guards: cipher, distinct owner, permissions, legacy refusal and 127-byte Unicode boundary verified")
+    }
+
+    private struct EncryptionEvidence {
+        let bits: Int, revision: Int, version: Int
+        let methods: [String]
+        let userMatched: Bool, ownerMatched: Bool
+        let permissions: [String: Bool]
+    }
+    private static func encryptionEvidence(_ data: Data, password: String) throws -> EncryptionEvidence {
+        let report = try auditJob(data, options: ["password": password, "json": "2", "jsonKey": ["encrypt"]], outputPDF: false)
+        guard let root = try JSONSerialization.jsonObject(with: report) as? [String: Any],
+              let encryption = root["encrypt"] as? [String: Any],
+              encryption["encrypted"] as? Bool == true,
+              let parameters = encryption["parameters"] as? [String: Any],
+              let bits = parameters["bits"] as? Int, let revision = parameters["R"] as? Int,
+              let version = parameters["V"] as? Int,
+              let user = encryption["userpasswordmatched"] as? Bool, let owner = encryption["ownerpasswordmatched"] as? Bool,
+              let permissions = encryption["capabilities"] as? [String: Bool] else {
+            throw failure("O relatório independente de criptografia é inválido.")
+        }
+        let methods = ["method", "streammethod", "stringmethod", "filemethod"].compactMap { parameters[$0] as? String }
+        try require(methods.count == 4, "O relatório omitiu os algoritmos de criptografia.")
+        // Never return or log recovereduserpassword/parameters.key from qpdf.
+        return EncryptionEvidence(bits: bits, revision: revision, version: version, methods: methods,
+                                  userMatched: user, ownerMatched: owner, permissions: permissions)
+    }
+
+    static func verifyProcessGuards(prepared: NativePDFSerialization.Prepared, password: String) throws {
+        var privacyErrors: [String] = [], directories: [URL] = [], launches = 0, ownerDigests: [Data] = []
+        for _ in 0..<2 {
+            _ = try NativePDFSerialization.finish(prepared, onLaunch: { process, directory in
+                launches += 1; directories.append(directory)
+                do {
+                    if let digest = try inspectPrivacy(process, directory: directory, password: password) { ownerDigests.append(digest) }
+                } catch { privacyErrors.append("O processo de validação não preservou os limites privados exigidos.") }
+            })
+        }
+        try require(launches > 0 && privacyErrors.isEmpty && ownerDigests.count == 2 && Set(ownerDigests).count == 2,
+                    "Senha, proprietário aleatório, argumentos ou temporários do verificador não ficaram privados.")
         try require(directories.allSatisfy { !FileManager.default.fileExists(atPath: $0.path) },
                     "A gravação concluída deixou temporários privados no disco.")
 
@@ -253,7 +538,7 @@ enum QPDFStructuralAudit {
         log("private process guards: password on stdin, permissions, cancellation and timeout verified")
     }
 
-    private static func inspectPrivacy(_ process: Process, directory: URL, password: String) throws {
+    private static func inspectPrivacy(_ process: Process, directory: URL, password: String) throws -> Data? {
         let attributes = try FileManager.default.attributesOfItem(atPath: directory.path)
         try require((attributes[.posixPermissions] as? NSNumber)?.intValue == 0o700,
                     "A pasta temporária da gravação não é privada.")
@@ -266,20 +551,39 @@ enum QPDFStructuralAudit {
                         "Um arquivo temporário não é regular e privado.")
         }
         let arguments = process.arguments ?? []
-        try require(arguments.contains("--password-file=-") && !arguments.contains(where: { $0.contains(password) }),
+        try require(arguments == ["--job-json-file=/dev/stdin"] && !arguments.contains(where: { $0.contains(password) }),
                     "O processo não usou o canal privado de senha.")
         guard let input = process.standardInput as? FileHandle else { throw failure("O processo não recebeu stdin privado.") }
         var metadata = stat()
         try require(fstat(input.fileDescriptor, &metadata) == 0 && metadata.st_mode & S_IFMT == S_IFREG &&
-                    metadata.st_mode & 0o777 == 0o600 && metadata.st_uid == getuid(),
+                    metadata.st_mode & 0o777 == 0o600 && metadata.st_uid == getuid() &&
+                    metadata.st_size > 0 && metadata.st_size <= 64 * 1_024,
                     "O descritor da senha não é um arquivo regular privado do usuário.")
-        var buffer = [UInt8](repeating: 0, count: password.utf8.count + 2)
+        var buffer = [UInt8](repeating: 0, count: Int(metadata.st_size))
         let count = buffer.withUnsafeMutableBytes { bytes in
             Darwin.pread(input.fileDescriptor, bytes.baseAddress, bytes.count, 0)
         }
-        try require(count == password.utf8.count + 1 &&
-                    String(decoding: buffer.prefix(max(0, count)), as: UTF8.self) == password + "\n",
-                    "O canal privado não transportou a senha esperada.")
+        guard count == buffer.count, let job = try JSONSerialization.jsonObject(with: Data(buffer)) as? [String: Any],
+              job["password"] as? String == password else {
+            throw failure("O canal JSON privado não transportou a senha esperada.")
+        }
+        for key in ["inputFile", "outputFile"] {
+            if let path = job[key] as? String {
+                try require(URL(fileURLWithPath: path).standardizedFileURL.deletingLastPathComponent() == directory.standardizedFileURL,
+                            "O job de publicação saiu da pasta privada da cópia.")
+            }
+        }
+        guard let encryption = job["encrypt"] as? [String: Any] else { return nil }
+        guard encryption["userPassword"] as? String == password,
+              let owner = encryption["ownerPassword"] as? String, owner != password, owner.utf8.count == 64,
+              owner.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }),
+              encryption["256bit"] is [String: Any] else {
+            throw failure("O job não usou AES-256 e uma credencial independente para o proprietário.")
+        }
+        try require(!arguments.contains(where: { $0.contains(owner) }) &&
+                    !(process.environment?.values.contains(where: { $0.contains(password) || $0.contains(owner) }) ?? false),
+                    "Uma credencial de publicação foi exposta por argumentos ou ambiente.")
+        return Data(SHA256.hash(data: Data(owner.utf8)))
     }
 
     private static func require(_ condition: Bool, _ message: String) throws {
@@ -287,6 +591,62 @@ enum QPDFStructuralAudit {
     }
     private static func rejects(_ operation: () throws -> Void) -> Bool {
         do { try operation(); return false } catch { return true }
+    }
+
+    /// Small independent qpdf jobs used only for synthetic audit fixtures and
+    /// encryption inspection. Job input and captured output can contain secrets;
+    /// both stay in bounded, private regular files and never enter diagnostics.
+    private static func auditJob(_ data: Data, options: [String: Any], outputPDF: Bool) throws -> Data {
+        guard !data.isEmpty, data.count <= 4 * 1_024 * 1_024,
+              FileManager.default.isExecutableFile(atPath: executable.path) else {
+            throw failure("A amostra criptográfica ou o verificador não está disponível.")
+        }
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-crypto-audit-\(UUID().uuidString)", isDirectory: true)
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        defer { try? FileManager.default.removeItem(at: directory) }
+        let input = directory.appendingPathComponent("input.pdf")
+        let jobFile = directory.appendingPathComponent("job.json")
+        let output = directory.appendingPathComponent(outputPDF ? "result.pdf" : "result.json")
+        try NativeOutput.write(data, to: input)
+        try NativeOutput.write(Data(), to: output)
+        var job = options
+        job["inputFile"] = input.path
+        if outputPDF { job["outputFile"] = output.path }
+        let jobBytes = try JSONSerialization.data(withJSONObject: job)
+        try require(jobBytes.count <= 64 * 1_024, "O job sintético excedeu o limite privado.")
+        try NativeOutput.write(jobBytes, to: jobFile)
+        let stdin = try FileHandle(forReadingFrom: jobFile)
+        defer { try? stdin.close() }
+        let stdout = try FileHandle(forWritingTo: output)
+        defer { try? stdout.close() }
+        let process = Process()
+        process.executableURL = executable
+        process.arguments = ["--job-json-file=/dev/stdin"]
+        process.currentDirectoryURL = directory
+        process.standardInput = stdin
+        process.standardOutput = outputPDF ? FileHandle.nullDevice : stdout
+        process.standardError = FileHandle.nullDevice
+        do { try process.run() } catch { throw failure("Não foi possível iniciar a auditoria criptográfica independente.") }
+        defer { stopAndReap(process) }
+        let deadline = ProcessInfo.processInfo.systemUptime + 15
+        while process.isRunning {
+            let size = (try FileManager.default.attributesOfItem(atPath: output.path)[.size] as? NSNumber)?.intValue ?? Int.max
+            guard size <= 4 * 1_024 * 1_024, ProcessInfo.processInfo.systemUptime < deadline else {
+                throw failure("A auditoria criptográfica excedeu o limite de tamanho ou tempo.")
+            }
+            Thread.sleep(forTimeInterval: 0.02)
+        }
+        process.waitUntilExit()
+        try require(process.terminationReason == .exit && process.terminationStatus == 0,
+                    "O job criptográfico independente terminou com erro ou aviso.")
+        let metadata = try FileManager.default.attributesOfItem(atPath: output.path)
+        try require((metadata[.type] as? FileAttributeType) == .typeRegular &&
+                    (metadata[.posixPermissions] as? NSNumber)?.intValue == 0o600 &&
+                    ((metadata[.size] as? NSNumber)?.intValue ?? Int.max) <= 4 * 1_024 * 1_024,
+                    "O resultado da auditoria deixou de ser um arquivo regular privado e limitado.")
+        let result = try Data(contentsOf: output)
+        try require(!result.isEmpty, "O resultado da auditoria criptográfica está vazio.")
+        return result
     }
 
     private static func run(_ data: Data, password: String?) throws -> Int32 {
@@ -342,6 +702,60 @@ enum QPDFStructuralAudit {
             if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
         }
         process.waitUntilExit()
+    }
+
+    // Independently generated with PyMuPDF: one page, AES-128/R4, print only,
+    // accessibility=false. Credentials are synthetic audit constants. Current
+    // qpdf deliberately ignores accessibility=n when producing encryption, so
+    // generating this control with the same qpdf under test would be invalid.
+    private static func inaccessibleFixture() throws -> Data {
+        let encoded = """
+            JVBERi0xLjcKJcK1wrYKCjEgMCBvYmoKPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDIgMCBSPj4KZW5kb2JqCgoyIDAgb2JqCjw8L1R5
+            cGUvUGFnZXMvQ291bnQgMS9LaWRzWzQgMCBSXT4+CmVuZG9iagoKMyAwIG9iago8PC9Gb250PDwvaGVsdiA1IDAgUj4+Pj4KZW5k
+            b2JqCgo0IDAgb2JqCjw8L1R5cGUvUGFnZS9NZWRpYUJveFswIDAgMzAwIDQwMF0vUm90YXRlIDAvUmVzb3VyY2VzIDMgMCBSL1Bh
+            cmVudCAyIDAgUi9Db250ZW50c1s2IDAgUl0+PgplbmRvYmoKCjUgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvQmFz
+            ZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZz4+CmVuZG9iagoKNiAwIG9iago8PC9MZW5ndGggMTI4L0Zp
+            bHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQraU/0PFnCzH4rXJSxBCQw1K7ywu/56KnLOXGbbOYOyFAWidPu8crWI8gVFfyaQ/zqq
+            iVM2cgoSrvLP6WqULYlq7vKb9S0JxBhmDZXqym/HZctK75rTIy5G24GBC1wztQG0YBzLBqpM5fRajO/2yn6QcHvr8LG3AKV9sHlp
+            izTQfAplbmRzdHJlYW0KZW5kb2JqCgp4cmVmCjAgNwowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTYgMDAwMDAgbiAKMDAw
+            MDAwMDA2MiAwMDAwMCBuIAowMDAwMDAwMTE0IDAwMDAwIG4gCjAwMDAwMDAxNTUgMDAwMDAgbiAKMDAwMDAwMDI2MiAwMDAwMCBu
+            IAowMDAwMDAwMzUxIDAwMDAwIG4gCgp0cmFpbGVyCjw8L1NpemUgNy9Sb290IDEgMCBSL0lEWzwwRDczNDFDM0JDNUZDMzk1MTBD
+            Mzg5MzlDMzg3NUYwNj48RTJGNEJGNDBBMTVDOTA1ODc5NTAzMTVGOTIyQ0QyNTk+XS9FbmNyeXB0PDwvRmlsdGVyL1N0YW5kYXJk
+            L1IgNC9WIDQvTGVuZ3RoIDEyOC9QIC0zOTAwL0VuY3J5cHRNZXRhZGF0YSB0cnVlL1N0bUYvU3RkQ0YvU3RyRi9TdGRDRi9DRjw8
+            L1N0ZENGPDwvQXV0aEV2ZW50L0RvY09wZW4vQ0ZNL0FFU1YyL0xlbmd0aCAxNj4+Pj4vTzxEQjNFQkE5NzBBOERCMUNGMTgyNkMw
+            Qjg3MjlDQjdEQzM1MDhDQTM5NEUxMTI3MUE1RDlDRkExRkY2RjM2MkI5Pi9VPERDNTJDQzg3OUQzQTZDRDRENkQxNjIzN0EwNTRD
+            RkJGMjhCRjRFNUU0RTc1OEE0MTY0MDA0RTU2RkZGQTAxMDg+Pj4+PgpzdGFydHhyZWYKNTQ4CiUlRU9GCg==
+            """
+        guard let bytes = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters) else {
+            throw failure("A amostra independente de restrição legada está inválida.")
+        }
+        return bytes
+    }
+
+    // AES-128/R4 with permission bits 12 and 10, but without print bit 3.
+    // Generated independently with PyMuPDF; both effective print rights are off.
+    private static func highPrintWithoutLowFixture() throws -> Data {
+        let encoded = """
+            JVBERi0xLjcKJcK1wrYKCjEgMCBvYmoKPDwvVHlwZS9DYXRhbG9nL1BhZ2VzIDIgMCBSPj4KZW5kb2JqCgoyIDAgb2JqCjw8L1R5
+            cGUvUGFnZXMvQ291bnQgMS9LaWRzWzQgMCBSXT4+CmVuZG9iagoKMyAwIG9iago8PC9Gb250PDwvaGVsdiA1IDAgUj4+Pj4KZW5k
+            b2JqCgo0IDAgb2JqCjw8L1R5cGUvUGFnZS9NZWRpYUJveFswIDAgMzAwIDQwMF0vUm90YXRlIDAvUmVzb3VyY2VzIDMgMCBSL1Bh
+            cmVudCAyIDAgUi9Db250ZW50c1s2IDAgUl0+PgplbmRvYmoKCjUgMCBvYmoKPDwvVHlwZS9Gb250L1N1YnR5cGUvVHlwZTEvQmFz
+            ZUZvbnQvSGVsdmV0aWNhL0VuY29kaW5nL1dpbkFuc2lFbmNvZGluZz4+CmVuZG9iagoKNiAwIG9iago8PC9MZW5ndGggMTI4L0Zp
+            bHRlci9GbGF0ZURlY29kZT4+CnN0cmVhbQr9OljOace+zg2e4Mv0QHfEzr9lyNiLaLDhNizLvGCcqpX3sl6d2iFmBazGPNQgJDkN
+            PosrU+NytjpjGXnYpIRsKRjVGu8t4H4BpEIRa0jRxOGPEDuXbxl1WMpww0Dz2wSWfIR9MPjxIbcqFrRXJFl+BACn8LmnEro5Nyl/
+            Z06XkQplbmRzdHJlYW0KZW5kb2JqCgp4cmVmCjAgNwowMDAwMDAwMDAwIDY1NTM1IGYgCjAwMDAwMDAwMTYgMDAwMDAgbiAKMDAw
+            MDAwMDA2MiAwMDAwMCBuIAowMDAwMDAwMTE0IDAwMDAwIG4gCjAwMDAwMDAxNTUgMDAwMDAgbiAKMDAwMDAwMDI2MiAwMDAwMCBu
+            IAowMDAwMDAwMzUxIDAwMDAwIG4gCgp0cmFpbGVyCjw8L1NpemUgNy9Sb290IDEgMCBSL0lEWzxDMkIwQzM5QTFDM0IzMkMyQUND
+            MjlCQzNCODNDMEVDMj4oRVwwMzNaPzRcMzYzXDMzM0c8Vyw+XDIwNVwyNDN9XCgpXS9FbmNyeXB0PDwvRmlsdGVyL1N0YW5kYXJk
+            L1IgNC9WIDQvTGVuZ3RoIDEyOC9QIC0xMzQ0L0VuY3J5cHRNZXRhZGF0YSB0cnVlL1N0bUYvU3RkQ0YvU3RyRi9TdGRDRi9DRjw8
+            L1N0ZENGPDwvQXV0aEV2ZW50L0RvY09wZW4vQ0ZNL0FFU1YyL0xlbmd0aCAxNj4+Pj4vTzw4RDIwNkM0ODI4RUFBMUJENDhGRUFB
+            MDk4RTU3QTg4MUZFRUVDODI5REY3QkNEMThBRDBGRjdGMDVCQjg1MjVDPi9VPDNGRTMxRkNDNjkxNTRDQTk1MDNBNDI0RjUwNkIy
+            RTEzMjhCRjRFNUU0RTc1OEE0MTY0MDA0RTU2RkZGQTAxMDg+Pj4+PgpzdGFydHhyZWYKNTQ4CiUlRU9GCg==
+            """
+        guard let bytes = Data(base64Encoded: encoded, options: .ignoreUnknownCharacters) else {
+            throw failure("A amostra independente de bits de impressão está inválida.")
+        }
+        return bytes
     }
 
     private static func streamFixture() -> (valid: Data, corrupted: Data) {

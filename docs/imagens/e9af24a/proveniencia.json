@@ -1,0 +1,165 @@
+{
+  "schema": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+  "sourceURL": "https://github.com/vibracall-beep/PDF-/commit/e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+  "runID": 40130449411,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40130449411",
+  "runConclusion": "failure",
+  "platform": "macos-26",
+  "captureMethod": "ScreenCaptureKit; janela real do aplicativo, documentos de demonstração e preferências isoladas",
+  "artifact": {
+    "id": 12575406649,
+    "name": "PDF-macOS-preview-macos-26",
+    "createdAt": "2026-10-24T20:54:24Z",
+    "archiveBytes": 3284185,
+    "archiveSHA256": "74fdf4a489b80973da9f893796d93e9c45131cde3f956f5c1d2d4029b11701ae",
+    "githubDigest": "sha256:74fdf4a489b80973da9f893796d93e9c45131cde3f956f5c1d2d4029b11701ae"
+  },
+  "retrieval": {
+    "method": "original artifact ZIP preserved in partial private draft; each selected PNG compared byte for byte to its original ZIP member and collector hash",
+    "retentionRunID": 40132887159,
+    "retentionRunURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40132887159",
+    "draftReleaseID": 422983201,
+    "draftMetadataURL": "https://api.github.com/repos/vibracall-beep/PDF-/releases/422983201",
+    "draftTag": "audit-partial-e9af24a1bd9b-40130449411",
+    "assetID": 673319503,
+    "downloadVerificationSHA256": "a319303c363abebc22b2144e7d6d92af78be8543294b5cc444f7e01121cebf18"
+  },
+  "preservation": "Bytes PNG originais; sem recorte, redimensionamento, retoque ou recomposição.",
+  "visualReview": {
+    "scope": "32 PNGs originais do macOS 26 revisados individualmente; seleção de 11 nesta galeria. Zero imagens do macOS 27: captura falhou e artefato não foi produzido.",
+    "result": "Não foram observados cortes ou sobreposições dos controles fixos nos 32 estados capturados.",
+    "findings": [
+      "A revisão OCR mostra erros reais no texto português, como informag6es e retne.",
+      "Biblioteca, fora desta seleção, exibe 1 versões em dois pontos. A correção posterior não integra este snapshot."
+    ],
+    "limits": [
+      "Painéis roláveis mostram somente o trecho visível na captura.",
+      "Imagens estáticas não comprovam ações, animações, precisão geral do OCR ou uso humano com VoiceOver.",
+      "A matriz foi reprovada: o smoke portátil falhou nos dois sistemas e a captura falhou no macOS 27.",
+      "Nenhum instalador ou pacote binário desta revisão está aprovado para entrega por estas imagens.",
+      "Correções posteriores ao commit indicado não aparecem nesta galeria."
+    ]
+  },
+  "ocrEvidence": {
+    "backend": "tesseract",
+    "language": "eng",
+    "settings": {
+      "language": "eng",
+      "min_confidence": 0.0,
+      "ocr_deskew": false,
+      "ocr_dpi": 200,
+      "ocr_psm": 3
+    },
+    "sourceSHA256": "8301dd60cb6104dbafede48acc21b7b7a5f7faf7755ffb4d7ca1d9e936ea27df",
+    "analysisJSONSHA256": "8b1265f8ddcc12a36b845a90670c84782d76cb2f01fda2cd985fd58ffc15078a",
+    "displayedControls": "Inglês / Página automática",
+    "recognitionAccuracyApproved": false,
+    "originalsLocation": "Artefato original no draft autenticado; estado detalhado em docs/evidencias/e9af24a/README.md."
+  },
+  "productApproved": false,
+  "installerApproved": false,
+  "files": [
+    {
+      "file": "PDF-preview.png",
+      "originalArtifactPath": "PDF-preview.png",
+      "title": "Menu inicial",
+      "bytes": 348716,
+      "sha256": "0736299e3f56ed7505dde03a5705a0d7d77afb142f03492e3d058d337e426b6b",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.escuro.png",
+      "originalArtifactPath": "PDF-preview.escuro.png",
+      "title": "Menu no tema escuro",
+      "bytes": 399127,
+      "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.lista.png",
+      "originalArtifactPath": "PDF-preview.lista.png",
+      "title": "Menu em lista",
+      "bytes": 94729,
+      "sha256": "7124ad2c0e5754d2e414f3a8efd47691c45ec6a73f351d6530f0183eea24eadd",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.personalizar.png",
+      "originalArtifactPath": "PDF-preview.personalizar.png",
+      "title": "Personalização da aparência",
+      "bytes": 99903,
+      "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.ferramentas.png",
+      "originalArtifactPath": "PDF-preview.ferramentas.png",
+      "title": "Personalização das ferramentas",
+      "bytes": 87460,
+      "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.navegacao.png",
+      "originalArtifactPath": "PDF-preview.navegacao.png",
+      "title": "Personalização da navegação",
+      "bytes": 79824,
+      "sha256": "a209e67ab5b14e18685e004ed2f09955ac257ba61ff70f72a9cdda615bdc36c2",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.opcoes-leitura.png",
+      "originalArtifactPath": "PDF-preview.opcoes-leitura.png",
+      "title": "Personalização do leitor",
+      "bytes": 83653,
+      "sha256": "a7e322e7d525e58b44b5647c3ba30d5240a6daebe12ede63f988bb31b5bece61",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.arquivos.png",
+      "originalArtifactPath": "PDF-preview.arquivos.png",
+      "title": "Personalização dos arquivos",
+      "bytes": 76940,
+      "sha256": "01df9e36e8285823e2e13ba2e349762cd94c6cd7d9c2bdfd5b88c1bb51117a5b",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.atalhos.png",
+      "originalArtifactPath": "PDF-preview.atalhos.png",
+      "title": "Personalização dos atalhos",
+      "bytes": 75215,
+      "sha256": "455e4d4179b3031704b87dd0fada1e344cb1de6d1ac9d5863669d99834ae12da",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.perfis.png",
+      "originalArtifactPath": "PDF-preview.perfis.png",
+      "title": "Perfis de trabalho",
+      "bytes": 62381,
+      "sha256": "0f66179dfc825de6325f6b8d0ce7e519561dc71d23ec2ad47895e697cb52d178",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.revisao-ocr.png",
+      "originalArtifactPath": "PDF-preview.revisao-ocr.png",
+      "title": "Revisão visual de OCR",
+      "bytes": 130348,
+      "sha256": "7b5050d001383348312ae8c47af34cba30589d37c8bcb421ff5eb71a80766c92",
+      "width": 1050,
+      "height": 752
+    }
+  ]
+}

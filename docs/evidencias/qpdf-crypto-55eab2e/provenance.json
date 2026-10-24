@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "55eab2ed4c2e323b01faa91f1cab4b2bd421f6e1",
+  "runID": 40133464239,
+  "runAttempt": 1,
+  "runConclusion": "success",
+  "workflowURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40133464239",
+  "collection": "normal authenticated GitHub API; artifact ZIPs checked against GitHub digests and source/run identity",
+  "originalFiles": [
+    {
+      "file": "attempt-1-logs.zip",
+      "bytes": 38095,
+      "sha256": "9a4a6a550b9f1e5ed3d7950b0fb17c99a332aa3314dd95bfbde5bccb53d6d609",
+      "origin": "GitHub Actions official attempt-1 log archive; unchanged bytes",
+      "endpoint": "https://api.github.com/repos/vibracall-beep/PDF-/actions/runs/40133464239/attempts/1/logs",
+      "upstreamDigestAvailable": false
+    },
+    {
+      "file": "macos-26-report.json",
+      "bytes": 15112,
+      "sha256": "1a83dd3c7d6b3edbcecda00ad311cb2d61177035731ff4728ef420dfbbf132ee",
+      "origin": "original artifact report.json; unchanged bytes",
+      "artifactID": 12575841661,
+      "artifactName": "PDF-qpdf-crypto-macos-26",
+      "artifactArchiveBytes": 193186,
+      "artifactArchiveSHA256": "aa823dee9b3879cdf3ac0eb3012a05d56a415d2b0436d51326faab237c78d0cd",
+      "githubDigest": "sha256:aa823dee9b3879cdf3ac0eb3012a05d56a415d2b0436d51326faab237c78d0cd",
+      "member": "PDF-qpdf-crypto/report.json",
+      "printedJSONStructurallyEqual": true
+    },
+    {
+      "file": "xcode-27-report.json",
+      "bytes": 15096,
+      "sha256": "7cc4c5a346196475071da12605b14072f53b89db0a18bf61b1544a37833c628e",
+      "origin": "original artifact report.json; unchanged bytes",
+      "artifactID": 12575184841,
+      "artifactName": "PDF-qpdf-crypto-xcode-27",
+      "artifactArchiveBytes": 195865,
+      "artifactArchiveSHA256": "4da77e0e214ec32826207b3fcba969b2a44e6d4322ccbceb998dd5491d2da9f8",
+      "githubDigest": "sha256:4da77e0e214ec32826207b3fcba969b2a44e6d4322ccbceb998dd5491d2da9f8",
+      "member": "PDF-qpdf-crypto/report.json",
+      "printedJSONStructurallyEqual": true
+    }
+  ],
+  "independentChecks": {
+    "macos-26": {
+      "protectedSandboxStatuses": [
+        2,
+        0,
+        2,
+        0,
+        2
+      ],
+      "plaintextCheck": 0,
+      "protectedOutside": 0,
+      "wrongPassword": 2,
+      "aes256": true,
+      "independentPDFKitAuthenticationAndText": true,
+      "sameInputAndExecutableHashesAcrossControls": true,
+      "runtimeManifestUnchanged": true,
+      "signaturesVerified": true,
+      "cleanupConfirmed": true,
+      "productApproved": false
+    },
+    "xcode-27": {
+      "protectedSandboxStatuses": [
+        2,
+        0,
+        2,
+        0,
+        2
+      ],
+      "plaintextCheck": 0,
+      "protectedOutside": 0,
+      "wrongPassword": 2,
+      "aes256": true,
+      "independentPDFKitAuthenticationAndText": true,
+      "sameInputAndExecutableHashesAcrossControls": true,
+      "runtimeManifestUnchanged": true,
+      "signaturesVerified": true,
+      "cleanupConfirmed": true,
+      "productApproved": false
+    }
+  },
+  "privacyReview": {
+    "textEntriesScanned": 26,
+    "patternOccurrences": {
+      "temporary_signed_url": 0,
+      "github_token": 0,
+      "private_key": 0,
+      "authorization_value": 0,
+      "synthetic_credential_literal": 0
+    },
+    "redacted": false,
+    "limitations": "Pattern screening is not a proof of absence of every possible secret. Synthetic diagnostic source credentials are not copied into these reports."
+  },
+  "limitations": [
+    "Diagnostic-only success; full application and portable bundle have not been approved by this run.",
+    "Only controlled synthetic PDFs and local subprocesses; no user document or external signing request.",
+    "Original report files were extracted from artifact ZIPs; log-marker JSON was used only as an independent consistency check.",
+    "No Mach-O executable or PDF fixture copied to this folder."
+  ]
+}

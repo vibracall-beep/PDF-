@@ -1,0 +1,586 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceCommit": "e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+  "runID": 40130449411,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40130449411",
+  "sourceWorkflow": ".github/workflows/macos.yml",
+  "conclusion": "failure",
+  "productApproved": false,
+  "binaryDistributionApproved": false,
+  "originalFiles": [
+    {
+      "path": "actions-attempt-1-logs.zip",
+      "bytes": 766242,
+      "sha256": "2e76999cb2edec30b1967bfa8580541dc23d797563365c93ac5109f6728c70f9",
+      "sourceAPIPath": "/repos/vibracall-beep/PDF-/actions/runs/40130449411/attempts/1/logs",
+      "upstreamDigestSupplied": false
+    },
+    {
+      "path": "retained-provenance.json",
+      "bytes": 16070,
+      "sha256": "e14b568804c0afca224c112e9a3893def166e82398d267ee3b94ff8215f5f365",
+      "releaseAssetID": 673319950,
+      "retentionRunID": 40132887159
+    },
+    {
+      "path": "macos-26/PDF-native-checks.log",
+      "bytes": 82211,
+      "sha256": "528b1fd1dc5b9f77c51c248f8256b11b8199de53b49eebcac46cd0cebcee9997",
+      "releaseAssetID": 673319424,
+      "originalArtifactName": "PDF-native-checks-macos-26",
+      "originalArchiveSHA256": "c78c4fe88f79133d1193a6db5d3464eb9f51b5ef753d2dad60df007164140ba1"
+    },
+    {
+      "path": "macos-26/PDF-vision-audit.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "releaseAssetID": 673319559,
+      "originalArtifactName": "PDF-Apple-Vision-capability-macos-26",
+      "originalArchiveSHA256": "27eaa51f872d069c8ebeedeb732e3c63d1d13e631acd4fab0d6351f3c0d49e90"
+    },
+    {
+      "path": "macos-26/PDF-local-ai.json",
+      "bytes": 7659,
+      "sha256": "ec693ef2b4626dad5c8438aa4877be1b00d00d7f195fba3bc26beb793b2cfacd",
+      "releaseAssetID": 673319591,
+      "originalArtifactName": "PDF-local-AI-macos-26",
+      "originalArchiveSHA256": "35a198480348938afa39b61853b7cfd2fcfd2fa3826f3715ca7a0a39a063b702"
+    },
+    {
+      "path": "macos-26/PDF-benchmark.json",
+      "bytes": 4910,
+      "sha256": "22e285bbb568d7aed27c1aeb60580eac8e6b5b5b427cfb6e6a43081b0a8cc661",
+      "releaseAssetID": 673319634,
+      "originalArtifactName": "PDF-macOS-benchmark-macos-26",
+      "originalArchiveSHA256": "e737a4ac16cb2aecaec23e0408e7c4f4b6e36873441671da5c288be2c916151f"
+    },
+    {
+      "path": "xcode-27/PDF-native-checks.log",
+      "bytes": 316921,
+      "sha256": "d88cb12f42b2ded0c0d65dde339d9e5730ddda83b0678908c5e787a48e30f967",
+      "releaseAssetID": 673319698,
+      "originalArtifactName": "PDF-native-checks-xcode-27",
+      "originalArchiveSHA256": "97fcb1a505918a2a1c2da08431e2981fb0276fab45c77d871f5ba7a2d9c845d6"
+    },
+    {
+      "path": "xcode-27/PDF-vision-audit.json",
+      "bytes": 1621,
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "releaseAssetID": 673319755,
+      "originalArtifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "originalArchiveSHA256": "b4c9b28ea636ff04621453f55783fd8228a4b10c3737023ebae9521701d42cea"
+    },
+    {
+      "path": "xcode-27/PDF-local-ai.json",
+      "bytes": 7664,
+      "sha256": "8ce6610d2113674ed73b61bbedcefacd003ea6aa093b569d0f1e6ee03a2316e5",
+      "releaseAssetID": 673319800,
+      "originalArtifactName": "PDF-local-AI-xcode-27",
+      "originalArchiveSHA256": "6572fcaf6fadcdd2b645237be9de2d0992a3c23b4a4e3a5dbf37cc6f4e5ea3f7"
+    },
+    {
+      "path": "xcode-27/PDF-benchmark.json",
+      "bytes": 8294,
+      "sha256": "c7cf9c7de3bca3ba351d928bbb53e8162cf903a4331cc5717e743f0b614e22e0",
+      "releaseAssetID": 673319847,
+      "originalArtifactName": "PDF-macOS-benchmark-xcode-27",
+      "originalArchiveSHA256": "0d6ffcbfec24a7f213fbd2030f71d4c1cae58607e8ca657487c2ef1f1ad5ee02"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "jobID": 120980847013,
+      "originalLogZIPEntry": "0_native-application (macos-26).txt",
+      "logBytes": 1036871,
+      "logSHA256": "9839c2805468bfcc22afc5325673128440cc69930a40c9f192bef82ce1f77f7f",
+      "python": {
+        "scripts": {
+          "methods": 120,
+          "seconds": 25.233,
+          "passed": 119,
+          "skipped": 1
+        },
+        "core": {
+          "methods": 311,
+          "seconds": 99.035,
+          "passed": 311,
+          "skipped": 0
+        },
+        "integrations": {
+          "methods": 49,
+          "seconds": 69.85,
+          "passed": 49,
+          "skipped": 0
+        }
+      },
+      "native": {
+        "source": {
+          "passed": 123,
+          "uniquePassedGroups": 41,
+          "failed": 0,
+          "failedGroups": []
+        },
+        "portable": {
+          "passed": 27,
+          "uniquePassedGroups": 27,
+          "failed": 11,
+          "failedGroups": [
+            "Native serialization editable annotation and form roundtrips: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Unicode field identity and byte-exact fidelity: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Native AES-256 and Unicode credentials: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Native AES-256 and original permissions: O job criptográfico independente terminou com erro ou aviso. (PDF.QPDFStructuralAudit, 1)",
+            "Typed-string repair privacy and interruption: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "PDFKit, capture encoding, AI text helpers and protected output: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Recovery storage and encryption: A senha não foi aceita ou o documento protegido não pôde ser autenticado. Os bytes originais permanecem intactos. (PDF.NativeSerialization, 1)",
+            "Reader sessions and annotation editing: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Advanced editing and OCR review contracts: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Library revisions synchronization and Portuguese sources: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Real crash and recovery: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)"
+          ],
+          "dependentGroupsNotReached": [
+            "Native serialization fidelity and encryption guards",
+            "Native serialization private process and cancellation",
+            "Published protected copy structural integrity"
+          ]
+        }
+      },
+      "preview": {
+        "capturedPNGsInLog": 32,
+        "gatePassed": true,
+        "lastStartupTrace": "2026-10-24T20:54:19.9280100Z PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false",
+        "originalArtifactBytesDownloaded": true
+      },
+      "stepConclusions": {
+        "Compile native application": "success",
+        "Build, install and validate complete application": "success",
+        "Validate installed application and local OCR": "success",
+        "Capture native window preview": "success",
+        "Validate all native previews and accessibility reports": "success",
+        "Assemble relocatable binary distribution": "success",
+        "Validate portable app without host dependencies or network": "failure",
+        "Package and verify binary install and update": "skipped"
+      },
+      "pythonDistinctMethods": 480,
+      "pythonPassedMethods": 479,
+      "pythonSkippedMethods": 1,
+      "runtimeCheckBeforePortableSmoke": "passed",
+      "appleVisionLogStatuses": {
+        "searchable-pdf": "passed",
+        "isolated-process": "passed"
+      },
+      "localAIAuditLogStatus": "unavailable",
+      "relevantLogLines": {
+        "pythonSummaries": [
+          291,
+          1134,
+          1189
+        ],
+        "portableRuntimePass": 7422,
+        "portableFailures": [
+          7455,
+          7460,
+          7470,
+          7475,
+          7478,
+          7520,
+          7532,
+          7536,
+          7552,
+          7565,
+          7570
+        ],
+        "previewGate": [
+          5694
+        ],
+        "lastPreviewStartup": 5443
+      },
+      "originalReportSummary": {
+        "appleVision": {
+          "appleVisionPassed": true
+        },
+        "localAIStatus": "unavailable",
+        "localAIAvailabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+        "localAIItems": 5,
+        "localAIModelAttempted": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "benchmarkProcessor": "Apple M1 (Virtual)",
+        "benchmarkMetrics": 6,
+        "benchmarkRepetitions": 3,
+        "benchmarkOCRBackends": [
+          "apple-vision",
+          "apple-vision",
+          "apple-vision",
+          "apple-vision"
+        ]
+      }
+    },
+    {
+      "runner": "xcode-27",
+      "jobID": 120980846893,
+      "originalLogZIPEntry": "1_native-application (xcode-27).txt",
+      "logBytes": 2293679,
+      "logSHA256": "62f1692312b5ac9289b16e82a2ff6ec20cf146c1d01494e6f27abeb7fc5d8495",
+      "python": {
+        "scripts": {
+          "methods": 120,
+          "seconds": 24.399,
+          "passed": 119,
+          "skipped": 1
+        },
+        "core": {
+          "methods": 311,
+          "seconds": 103.765,
+          "passed": 311,
+          "skipped": 0
+        },
+        "integrations": {
+          "methods": 49,
+          "seconds": 69.202,
+          "passed": 49,
+          "skipped": 0
+        }
+      },
+      "native": {
+        "source": {
+          "passed": 123,
+          "uniquePassedGroups": 41,
+          "failed": 0,
+          "failedGroups": []
+        },
+        "portable": {
+          "passed": 27,
+          "uniquePassedGroups": 27,
+          "failed": 11,
+          "failedGroups": [
+            "Native serialization editable annotation and form roundtrips: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Unicode field identity and byte-exact fidelity: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Native AES-256 and Unicode credentials: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Native AES-256 and original permissions: O job criptográfico independente terminou com erro ou aviso. (PDF.QPDFStructuralAudit, 1)",
+            "Typed-string repair privacy and interruption: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "PDFKit, capture encoding, AI text helpers and protected output: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Recovery storage and encryption: A senha não foi aceita ou o documento protegido não pôde ser autenticado. Os bytes originais permanecem intactos. (PDF.NativeSerialization, 1)",
+            "Reader sessions and annotation editing: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Advanced editing and OCR review contracts: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Library revisions synchronization and Portuguese sources: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)",
+            "Real crash and recovery: O PDF gerado foi recusado pelo verificador estrutural (status 2). Nenhum arquivo foi publicado. (PDF.NativeSerialization, 1)"
+          ],
+          "dependentGroupsNotReached": [
+            "Native serialization fidelity and encryption guards",
+            "Native serialization private process and cancellation",
+            "Published protected copy structural integrity"
+          ]
+        }
+      },
+      "preview": {
+        "capturedPNGsInLog": 0,
+        "gatePassed": false,
+        "lastStartupTrace": "2026-10-24T20:53:18.1099650Z PDF preview startup: application did finish launching; mainThread=true; swiftTask=false",
+        "originalArtifactBytesDownloaded": false
+      },
+      "stepConclusions": {
+        "Compile native application": "success",
+        "Build, install and validate complete application": "success",
+        "Validate installed application and local OCR": "success",
+        "Capture native window preview": "failure",
+        "Validate all native previews and accessibility reports": "skipped",
+        "Assemble relocatable binary distribution": "success",
+        "Validate portable app without host dependencies or network": "failure",
+        "Package and verify binary install and update": "skipped"
+      },
+      "pythonDistinctMethods": 480,
+      "pythonPassedMethods": 479,
+      "pythonSkippedMethods": 1,
+      "runtimeCheckBeforePortableSmoke": "passed",
+      "appleVisionLogStatuses": {
+        "searchable-pdf": "failed",
+        "isolated-process": "failed"
+      },
+      "localAIAuditLogStatus": "unavailable",
+      "relevantLogLines": {
+        "pythonSummaries": [
+          289,
+          1178,
+          1233
+        ],
+        "portableRuntimePass": 26788,
+        "portableFailures": [
+          26821,
+          26827,
+          26837,
+          26841,
+          26845,
+          26887,
+          26901,
+          26907,
+          26923,
+          26944,
+          26948
+        ],
+        "previewGate": [],
+        "lastPreviewStartup": 24177
+      },
+      "originalReportSummary": {
+        "appleVision": {
+          "appleVisionPassed": false
+        },
+        "localAIStatus": "unavailable",
+        "localAIAvailabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+        "localAIItems": 5,
+        "localAIModelAttempted": [
+          false,
+          false,
+          false,
+          false,
+          false
+        ],
+        "benchmarkProcessor": "Apple M1 (Virtual)",
+        "benchmarkMetrics": 6,
+        "benchmarkRepetitions": 3,
+        "benchmarkOCRBackends": [
+          "tesseract",
+          "tesseract",
+          "tesseract",
+          "tesseract"
+        ]
+      }
+    }
+  ],
+  "artifactAccess": {
+    "historicalBlockedHost": "productionresultssa7.blob.core.windows.net",
+    "contentAvailable": true,
+    "recoveredViaPrivateDraftRelease": true,
+    "all32PreviewImagesReviewed": true,
+    "localPreviewGatePassed": true,
+    "ocrOriginalsInspected": true,
+    "ocrOriginalPDFAndJSONCopiedToRepository": false,
+    "noPreviewArtifactForMacOS27": true
+  },
+  "privacyReview": {
+    "textEntriesScanned": 62,
+    "patternMatches": 0,
+    "redactionsApplied": false,
+    "scope": "Token, signed-URL, authorization-header and private-key patterns only; not proof of absence of all potentially sensitive values."
+  },
+  "limitations": [
+    "Ten originals are preserved: the official log ZIP, retained manifest, two native logs and six Vision/AI/benchmark JSONs. No report was reconstructed from logs.",
+    "Nine artifact ZIPs were verified and extracted. The 40 macOS 26 preview originals are available locally, but are not copied into this evidence directory.",
+    "Visual review of all 32 macOS 26 PNGs is separate from the passed automated gate. macOS 27 has no preview files.",
+    "The OCR fixture uses English on Portuguese text. Real errors remain, including accent substitutions at high confidence.",
+    "Both portable smoke runs have 27 passing groups, 11 failing groups and three dependent groups not reached. The cause is not proven here.",
+    "No approval is implied for physical M4 performance, human VoiceOver interaction, actual Apple model generation, external requests, or binary installation/update."
+  ],
+  "verifiedRetainedArtifacts": [
+    {
+      "id": 12575735351,
+      "name": "PDF-macOS-benchmark-xcode-27",
+      "expectedZIPBytes": 2203,
+      "githubZIPDigest": "sha256:0d6ffcbfec24a7f213fbd2030f71d4c1cae58607e8ca657487c2ef1f1ad5ee02",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319847
+    },
+    {
+      "id": 12575406649,
+      "name": "PDF-macOS-preview-macos-26",
+      "expectedZIPBytes": 3284185,
+      "githubZIPDigest": "sha256:74fdf4a489b80973da9f893796d93e9c45131cde3f956f5c1d2d4029b11701ae",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319503
+    },
+    {
+      "id": 12575082002,
+      "name": "PDF-Apple-Vision-capability-macos-26",
+      "expectedZIPBytes": 887,
+      "githubZIPDigest": "sha256:27eaa51f872d069c8ebeedeb732e3c63d1d13e631acd4fab0d6351f3c0d49e90",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319559
+    },
+    {
+      "id": 12575057002,
+      "name": "PDF-native-checks-macos-26",
+      "expectedZIPBytes": 8249,
+      "githubZIPDigest": "sha256:c78c4fe88f79133d1193a6db5d3464eb9f51b5ef753d2dad60df007164140ba1",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319424
+    },
+    {
+      "id": 12575047093,
+      "name": "PDF-local-AI-macos-26",
+      "expectedZIPBytes": 2178,
+      "githubZIPDigest": "sha256:35a198480348938afa39b61853b7cfd2fcfd2fa3826f3715ca7a0a39a063b702",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319591
+    },
+    {
+      "id": 12574589406,
+      "name": "PDF-macOS-benchmark-macos-26",
+      "expectedZIPBytes": 1900,
+      "githubZIPDigest": "sha256:e737a4ac16cb2aecaec23e0408e7c4f4b6e36873441671da5c288be2c916151f",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319634
+    },
+    {
+      "id": 12574509807,
+      "name": "PDF-local-AI-xcode-27",
+      "expectedZIPBytes": 2180,
+      "githubZIPDigest": "sha256:6572fcaf6fadcdd2b645237be9de2d0992a3c23b4a4e3a5dbf37cc6f4e5ea3f7",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319800
+    },
+    {
+      "id": 12574404446,
+      "name": "PDF-native-checks-xcode-27",
+      "expectedZIPBytes": 15034,
+      "githubZIPDigest": "sha256:97fcb1a505918a2a1c2da08431e2981fb0276fab45c77d871f5ba7a2d9c845d6",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319698
+    },
+    {
+      "id": 12573974947,
+      "name": "PDF-Apple-Vision-capability-xcode-27",
+      "expectedZIPBytes": 2079,
+      "githubZIPDigest": "sha256:b4c9b28ea636ff04621453f55783fd8228a4b10c3737023ebae9521701d42cea",
+      "contentDownloaded": true,
+      "digestVerifiedAgainstDownloadedBytes": true,
+      "releaseAssetID": 673319755
+    }
+  ],
+  "retention": {
+    "runID": 40132887159,
+    "releaseID": 422983201,
+    "draftAtRetrieval": true,
+    "publishedAt": null,
+    "tag": "audit-partial-e9af24a1bd9b-40130449411",
+    "targetCommit": "e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+    "partialEvidence": true,
+    "missingArtifactNames": [
+      "PDF-macOS-preview-xcode-27"
+    ],
+    "manifestAssetID": 673319950,
+    "manifestSHA256": "e14b568804c0afca224c112e9a3893def166e82398d267ee3b94ff8215f5f365",
+    "retainedAttemptLogZIPMatchesPreviouslyPreservedOriginal": true
+  },
+  "ocrOriginalReview": {
+    "schemaVersion": 1,
+    "sourceCommit": "e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+    "runID": 40130449411,
+    "runner": "macos-26",
+    "sourceSHA256": "8301dd60cb6104dbafede48acc21b7b7a5f7faf7755ffb4d7ca1d9e936ea27df",
+    "reportSHA256": "8b1265f8ddcc12a36b845a90670c84782d76cb2f01fda2cd985fd58ffc15078a",
+    "reviewDigestMatches": true,
+    "sourceDigestMatches": true,
+    "originalPDFPages": 1,
+    "sourceSelectableTextCharacters": 0,
+    "pagePoints": [
+      1130.0,
+      1600.0
+    ],
+    "embeddedRasterPixels": [
+      [
+        1130,
+        1600
+      ]
+    ],
+    "settings": {
+      "language": "eng",
+      "min_confidence": 0.0,
+      "ocr_deskew": false,
+      "ocr_dpi": 200,
+      "ocr_psm": 3
+    },
+    "words": 60,
+    "uniqueWordIDs": true,
+    "allCoordinatesFiniteInBounds": true,
+    "confidenceRange": [
+      0.51780708,
+      0.97006699
+    ],
+    "lowConfidenceBelow80Percent": [
+      {
+        "text": "informag6es",
+        "confidence": 0.51780708
+      },
+      {
+        "text": "retne",
+        "confidence": 0.57534904
+      },
+      {
+        "text": "conversao",
+        "confidence": 0.6965617399999999
+      },
+      {
+        "text": "realgar.",
+        "confidence": 0.66980042
+      },
+      {
+        "text": "copia",
+        "confidence": 0.7953563699999999
+      },
+      {
+        "text": "demonstragao",
+        "confidence": 0.7666397100000001
+      }
+    ],
+    "visualInspection": {
+      "sourcePDFRendered": true,
+      "originalOCRScreenshotViewed": true,
+      "languagePickerMatchesReport": true,
+      "segmentationPickerMatchesReport": true,
+      "wordBoxesAlignedInVisiblePortion": true,
+      "unreviewedWordsOutsideVisiblePortion": true,
+      "sourceImageUnmodified": true
+    },
+    "limitations": [
+      "Recognition used eng/PSM3 for Portuguese synthetic text; errors remain, including informag6es and retne.",
+      "OCR confidence is not a calibrated correctness guarantee.",
+      "Rendering at 200 DPI resamples the embedded 1130 × 1600 raster; it adds no original detail.",
+      "Original screenshots were not modified; no corrected OCR was substituted into the retained evidence."
+    ]
+  },
+  "visualReview": {
+    "runner": "macos-26",
+    "reviewedOriginalPNGs": 32,
+    "individualReviewRecords": [
+      {
+        "record": "visual-review-macos26-indices00-15.json",
+        "sha256": "eb01a5937675df44131b7d0ed804908437b399f242a442cb9418d74390fd7950",
+        "reviewer": "delivery",
+        "reviewedPNGs": 16,
+        "imageNamesAndHashesVerifiedAgainstExtractedOriginals": true
+      },
+      {
+        "record": "visual-review-macos26-indices16-31.json",
+        "sha256": "dfaf742878244edc6a51cd0f40eac4c7a2ac1b71e77ed74277840e97e9276765",
+        "reviewer": "root",
+        "reviewedPNGs": 16,
+        "imageNamesAndHashesVerifiedAgainstExtractedOriginals": true
+      }
+    ],
+    "fixedControlClippingOrOverlapObserved": false,
+    "copyFinding": {
+      "file": "PDF-preview.biblioteca.png",
+      "observed": "1 versões",
+      "expected": "1 versão",
+      "visibleOccurrences": 2
+    },
+    "limitations": [
+      "Static visible states only; content beyond scroll viewport was not reviewed.",
+      "No macOS27 images, human VoiceOver, animation behavior, functional interaction, or portable package approval."
+    ]
+  }
+}

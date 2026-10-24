@@ -1,0 +1,433 @@
+{
+  "schemaVersion": 1,
+  "kind": "synthetic-qpdf-crypto-diagnosis",
+  "productApproved": false,
+  "commit": "55eab2ed4c2e323b01faa91f1cab4b2bd421f6e1",
+  "complete": true,
+  "causalProofPassed": true,
+  "cases": {
+    "source-plain": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": false,
+      "pid": 4696,
+      "stdoutBytes": 232,
+      "stderr": "",
+      "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+      "inputSHA256": "396a5c61a8497d47d39b78fb4751be67e6193b98ddab14c822f0f71d73707df1"
+    },
+    "source-protected": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": false,
+      "pid": 4699,
+      "stdoutBytes": 694,
+      "stderr": "",
+      "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+      "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+    },
+    "qpdf": {
+      "plain-isolated": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4702,
+        "stdoutBytes": 232,
+        "stderr": "",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "396a5c61a8497d47d39b78fb4751be67e6193b98ddab14c822f0f71d73707df1"
+      },
+      "protected-outside": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": false,
+        "pid": 4705,
+        "stdoutBytes": 694,
+        "stderr": "",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-baseline": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4709,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: unable to load openssl legacy provider\n",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-modules": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4713,
+        "stdoutBytes": 694,
+        "stderr": "",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-empty-modules": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4716,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: unable to load openssl legacy provider\n",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-restored": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4719,
+        "stdoutBytes": 694,
+        "stderr": "",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-unset-after": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4722,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: unable to load openssl legacy provider\n",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "wrong-password": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4725,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: /Users/runner/work/_temp/PDF-qpdf-crypto/fixtures/protected.pdf: invalid password\n",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "encryption": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4728,
+        "stdoutBytes": 710,
+        "stderr": "",
+        "executableSHA256": "545174e306e4f050468e10bb36e3257bb915bd25eeb6c729a6feca815238e521",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681",
+        "encryption": {
+          "encrypted": true,
+          "userpasswordmatched": true,
+          "ownerpasswordmatched": true,
+          "parameters": {
+            "bits": 128,
+            "V": 4,
+            "R": 4,
+            "P": -4,
+            "method": "AESv2",
+            "streammethod": "AESv2",
+            "stringmethod": "AESv2",
+            "filemethod": "AESv2"
+          }
+        }
+      }
+    },
+    "wrapper": {
+      "plain-isolated": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4731,
+        "stdoutBytes": 232,
+        "stderr": "",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "396a5c61a8497d47d39b78fb4751be67e6193b98ddab14c822f0f71d73707df1"
+      },
+      "protected-outside": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": false,
+        "pid": 4738,
+        "stdoutBytes": 694,
+        "stderr": "",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-baseline": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4745,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: unable to load openssl legacy provider\n",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-modules": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4752,
+        "stdoutBytes": 694,
+        "stderr": "",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-empty-modules": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4759,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: unable to load openssl legacy provider\n",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-restored": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4766,
+        "stdoutBytes": 694,
+        "stderr": "",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "protected-unset-after": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4773,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: unable to load openssl legacy provider\n",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "wrong-password": {
+        "exit": 2,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4780,
+        "stdoutBytes": 0,
+        "stderr": "qpdf: /Users/runner/work/_temp/PDF-qpdf-crypto/fixtures/protected.pdf: invalid password\n",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681"
+      },
+      "encryption": {
+        "exit": 0,
+        "errorType": null,
+        "cleanupConfirmed": true,
+        "sandboxed": true,
+        "pid": 4788,
+        "stdoutBytes": 710,
+        "stderr": "",
+        "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+        "inputSHA256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681",
+        "encryption": {
+          "encrypted": true,
+          "userpasswordmatched": true,
+          "ownerpasswordmatched": true,
+          "parameters": {
+            "bits": 128,
+            "V": 4,
+            "R": 4,
+            "P": -4,
+            "method": "AESv2",
+            "streammethod": "AESv2",
+            "stringmethod": "AESv2",
+            "filemethod": "AESv2"
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "A raw PDFKit warning remains a warning and never approves a product output.",
+    "Only qpdf and its actual dependency closure are assembled."
+  ],
+  "workspace": "/private/tmp/pdf-qcrypto-t4o5iccs",
+  "fixture": {
+    "files": [
+      {
+        "bytes": 7512,
+        "emptyPasswordAccepted": false,
+        "encrypted": false,
+        "filename": "plain.pdf",
+        "knownTextMatched": true,
+        "lockedBeforeAuthentication": false,
+        "pageCount": 1,
+        "passwordAccepted": false,
+        "sha256": "396a5c61a8497d47d39b78fb4751be67e6193b98ddab14c822f0f71d73707df1",
+        "wrongPasswordAccepted": false
+      },
+      {
+        "bytes": 8086,
+        "emptyPasswordAccepted": false,
+        "encrypted": true,
+        "filename": "protected.pdf",
+        "knownTextMatched": true,
+        "lockedBeforeAuthentication": true,
+        "pageCount": 1,
+        "passwordAccepted": true,
+        "sha256": "c8e8fc220aa3cd3686b20de76270c1ca1d523ed8c4318797ba98ef1beca4f681",
+        "wrongPasswordAccepted": false
+      }
+    ],
+    "kind": "synthetic-pdfkit-qpdf-crypto-inputs",
+    "schemaVersion": 1
+  },
+  "runtime": {
+    "moved": true,
+    "sourceAbsent": true,
+    "manifestSHA256Before": "81b244076a8954bc9dec3975d2d3424570abc95b341e554441bbf955146ce6b1",
+    "crypto": "vendor/openssl@4/lib/libcrypto.4.dylib",
+    "modules": "vendor/openssl@4/lib/ossl-modules",
+    "cryptoSHA256": "23db8a0e84377ed2194c224e8b454cfd78c43d55ada1d910c8360f4c399d7516",
+    "legacySHA256": "304f484ff59f7f4dc373eedf4104b06de1dd7d54a9577cd5d4731ded334018ea",
+    "manifestSHA256After": "81b244076a8954bc9dec3975d2d3424570abc95b341e554441bbf955146ce6b1",
+    "bytesUnchanged": true,
+    "signaturesAfterVerified": true
+  },
+  "sandboxSHA256": "3574395dca3ead6931d9ba8eb70c2231623d16b616e65dc508f7e6db0bde4e41",
+  "rawPDFKitReferenceStatuses": {
+    "plain": 0,
+    "protected": 0
+  },
+  "normalization": {
+    "exit": 0,
+    "errorType": null,
+    "cleanupConfirmed": true,
+    "sandboxed": true,
+    "pid": 4795,
+    "stdoutBytes": 0,
+    "stderr": "",
+    "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+    "inputSHA256": "396a5c61a8497d47d39b78fb4751be67e6193b98ddab14c822f0f71d73707df1"
+  },
+  "normalizedCheck": {
+    "exit": 0,
+    "errorType": null,
+    "cleanupConfirmed": true,
+    "sandboxed": true,
+    "pid": 4802,
+    "stdoutBytes": 234,
+    "stderr": "",
+    "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+    "inputSHA256": "64cb8c098d00333d3585c9bd6d02eee57248c9f89827b562e18d8b49eeb9e7de"
+  },
+  "aes256": {
+    "create": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": true,
+      "pid": 4809,
+      "stdoutBytes": 0,
+      "stderr": "",
+      "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+      "inputSHA256": "64cb8c098d00333d3585c9bd6d02eee57248c9f89827b562e18d8b49eeb9e7de"
+    },
+    "baseline": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": true,
+      "pid": 4816,
+      "stdoutBytes": 664,
+      "stderr": "",
+      "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+      "inputSHA256": "1d032734002956116aa71c888c5241f55ae7f6f818e6075c016ca15bbed77741"
+    },
+    "candidate": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": true,
+      "pid": 4823,
+      "stdoutBytes": 664,
+      "stderr": "",
+      "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+      "inputSHA256": "1d032734002956116aa71c888c5241f55ae7f6f818e6075c016ca15bbed77741"
+    },
+    "wrong-password": {
+      "exit": 2,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": true,
+      "pid": 4830,
+      "stdoutBytes": 0,
+      "stderr": "qpdf: /Users/runner/work/_temp/PDF-qpdf-crypto/aes256.pdf: invalid password\n",
+      "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+      "inputSHA256": "1d032734002956116aa71c888c5241f55ae7f6f818e6075c016ca15bbed77741"
+    },
+    "encryption": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": true,
+      "pid": 4837,
+      "stdoutBytes": 711,
+      "stderr": "",
+      "executableSHA256": "e2782c03632157d8b703fa8f49067df181f9c453fe9ebd6aedd51152851409f0",
+      "inputSHA256": "1d032734002956116aa71c888c5241f55ae7f6f818e6075c016ca15bbed77741",
+      "encryption": {
+        "encrypted": true,
+        "userpasswordmatched": true,
+        "ownerpasswordmatched": false,
+        "parameters": {
+          "bits": 256,
+          "V": 5,
+          "R": 6,
+          "P": -4,
+          "method": "AESv3",
+          "streammethod": "AESv3",
+          "stringmethod": "AESv3",
+          "filemethod": "AESv3"
+        }
+      }
+    },
+    "independentInspection": {
+      "exit": 0,
+      "errorType": null,
+      "cleanupConfirmed": true,
+      "sandboxed": false,
+      "pid": 4844,
+      "stdoutBytes": 71,
+      "stderr": ""
+    },
+    "pdfkit": {
+      "bytes": 8482,
+      "emptyPasswordAccepted": false,
+      "encrypted": true,
+      "filename": "candidate.pdf",
+      "knownTextMatched": true,
+      "lockedBeforeAuthentication": true,
+      "pageCount": 1,
+      "passwordAccepted": true,
+      "sha256": "1d032734002956116aa71c888c5241f55ae7f6f818e6075c016ca15bbed77741",
+      "wrongPasswordAccepted": false
+    }
+  },
+  "allChildCleanupConfirmed": true,
+  "workspaceRemoved": true
+}

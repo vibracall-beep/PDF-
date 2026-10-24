@@ -10,15 +10,17 @@ import selectors
 import signal
 import stat
 import subprocess
+import tempfile
 import time
 
 OWNER = "native-check-owner-123"
 READER = "native-check-reader-123"
+STAGING = "native-stage-only-456"
 OUTPUT_LIMIT = 128 * 1024
 
 
 def redacted(text):
-    for secret in (OWNER, READER):
+    for secret in (OWNER, READER, STAGING):
         text = text.replace(secret, "[redacted]")
     return re.sub(r"(?im)^(\s*(?:user|owner)\s+password\s*=).*$", r"\1 [redacted]", text)
 
@@ -118,6 +120,49 @@ def completed(result):
     return not result["timedOut"] and not result["outputLimitExceeded"] and result["exitCode"] >= 0
 
 
+def run_job(qpdf, job, directory):
+    # qpdf's --job-json-file does not accept stdin. Match its documented file
+    # interface, keeping credentials in a private file removed after reap.
+    with tempfile.TemporaryDirectory(prefix=".qpdf-cycle-job-", dir=directory) as temporary:
+        path = Path(temporary) / "job.json"
+        descriptor = os.open(path, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+        with os.fdopen(descriptor, "w", encoding="utf-8") as output:
+            json.dump(job, output)
+        return run([str(qpdf), "--job-json-file=" + str(path)])
+
+
+def raw_appearance_token(object_text):
+    """Return only /DA's PDF token, never unrelated AAPL archived metadata."""
+    match = re.search(r"/DA\s+", object_text)
+    if not match:
+        return None
+    start = match.end()
+    if start >= len(object_text):
+        return None
+    if object_text[start] == "(":
+        depth, escaped = 1, False
+        for end in range(start + 1, len(object_text)):
+            char = object_text[end]
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == "(":
+                depth += 1
+            elif char == ")":
+                depth -= 1
+                if not depth:
+                    return object_text[start:end + 1][:4096]
+        return None
+    if object_text[start] == "<" and not object_text.startswith("<<", start):
+        end = object_text.find(">", start + 1)
+        return object_text[start:end + 1][:4096] if end >= 0 else None
+    end = start + 1
+    while end < len(object_text) and object_text[end] not in " \t\r\n()<>[]{}/%":
+        end += 1
+    return object_text[start:end][:4096]
+
+
 def free_text_details(qpdf, source, password):
     """Inspect only synthetic annotation metadata and Form appearance commands.
 
@@ -185,7 +230,7 @@ def free_text_details(qpdf, source, password):
         annotation = record.get("value", {})
         if isinstance(annotation, dict) and (annotation.get("/Type") == "/Annot" or ("/Rect" in annotation and "/Subtype" in annotation)):
             report["annotationScalarKeys"].append({"object": object_name, **{key: annotation[key] for key in
-                ("/Subtype", "/Contents", "/T", "/V", "/DV", "/Opt", "/DA", "/DS") if key in annotation}})
+                ("/Subtype", "/Contents", "/T", "/V", "/DV", "/Opt", "/DA", "/DS", "/Parent", "/Popup", "/Open", "/NM", "/Rect") if key in annotation}})
         if not isinstance(annotation, dict) or annotation.get("/Subtype") != "/FreeText":
             continue
         if len(report["annotations"]) >= 20:
@@ -198,8 +243,13 @@ def free_text_details(qpdf, source, password):
         # JSON's decoded name alone cannot establish the original escaping.
         object_reference = reference(object_name.removeprefix("obj:"))
         if object_reference:
-            item["rawObjectProcess"] = run([str(qpdf), "--password-file=-",
+            raw = run([str(qpdf), "--password-file=-",
                 "--show-object=" + object_reference, str(source)], password, output_limit=16 * 1024)
+            token = raw_appearance_token(raw["stdout"])
+            item["rawObjectByteCount"] = len(raw["stdout"].encode())
+            raw["stdout"] = "/DA " + token if token is not None else ""
+            item["rawObjectProcess"] = raw
+            item["rawDefaultAppearanceToken"] = token
         report["annotations"].append(item)
         normal = dictionary(annotation.get("/AP")).get("/N")
         states = [("normal", normal)] if reference(normal) else list(dictionary(normal).items())[:8]
@@ -217,6 +267,80 @@ def free_text_details(qpdf, source, password):
             else:
                 appearance["commandsSkipped"] = "AP/N is not an indirect Form appearance stream"
     return report
+
+
+def serialization_cycles(executable, qpdf, directory, source, report):
+    report["serializationCycles"] = []
+    original_hash = hashlib.sha256(read_regular(source)).hexdigest()
+    for name in ("altered-widget-plain", "existing-aes256"):
+        cycle = {"name": name, "sourceSHA256": original_hash, "rewrites": []}
+        report["serializationCycles"].append(cycle)
+        input_path = source
+        if name == "altered-widget-plain":
+            cycle["inputCheck"] = run([str(qpdf), "--password-file=-", "--check", str(input_path)])
+        if name == "existing-aes256":
+            input_path = directory / "cycle-input-aes256.pdf"
+            job = {"inputFile": str(source), "outputFile": str(input_path),
+                   "encrypt": {"userPassword": READER, "ownerPassword": OWNER, "256bit": {}}}
+            cycle["encryptInput"] = run_job(qpdf, job, directory)
+            if not input_path.exists():
+                cycle["error"] = "AES256 fixture was not generated"
+                continue
+            cycle["inputCheck"] = run([str(qpdf), "--password-file=-", "--check", str(input_path)], READER)
+            cycle["inputEncryption"] = run([str(qpdf), "--password-file=-", "--show-encryption", str(input_path)], READER)
+        private = directory / (name + "-swift")
+        command = "reserialize-edited" if name == "altered-widget-plain" else "reserialize-protected"
+        cycle["nativeReserialization"] = run([str(executable), command, str(input_path), str(private)], verbose=True)
+        raw = private / ("edited.pdf" if name == "altered-widget-plain" else "protected.pdf")
+        password = "" if name == "altered-widget-plain" else STAGING
+        for key, filename in (("before", "before.json"), ("expected", "expected.json"), ("rawReopened", "after.json"), ("nativeStatus", "status.json")):
+            if (private / filename).exists():
+                cycle[key] = json.loads(read_regular(private / filename, 1024 * 1024))
+        if not raw.exists():
+            cycle["error"] = "Native reserialization did not create a result"
+            print("SERIALIZATION CYCLE " + name + ": " + json.dumps(cycle, ensure_ascii=False, sort_keys=True), flush=True)
+            continue
+        raw_hash = hashlib.sha256(read_regular(raw)).hexdigest()
+        cycle["rawSHA256"] = raw_hash
+        cycle["rawCheck"] = run([str(qpdf), "--password-file=-", "--check", str(raw)], password)
+        cycle["rawEncryption"] = run([str(qpdf), "--password-file=-", "--show-encryption", str(raw)], password)
+        for mode in ("preserve", "default"):
+            normalized = directory / (name + "-" + mode + ".pdf")
+            record = {"mode": mode}
+            cycle["rewrites"].append(record)
+            settings = {"objectStreams": "preserve", "streamData": "preserve"} if mode == "preserve" else {"objectStreams": "disable"}
+            job = {"inputFile": str(raw), "password": password, "outputFile": str(normalized), **settings}
+            if password:
+                job["encrypt"] = {"userPassword": READER, "ownerPassword": OWNER, "256bit": {}}
+            record["rewrite"] = run_job(qpdf, job, directory)
+            if not normalized.exists():
+                continue
+            target_password = READER if password else ""
+            record["check"] = run([str(qpdf), "--password-file=-", "--check", str(normalized)], target_password)
+            record["encryption"] = run([str(qpdf), "--password-file=-", "--show-encryption", str(normalized)], target_password)
+            inspection = directory / (name + "-" + mode + ".json")
+            record["inspectionProcess"] = run([str(executable), "inspect-annotations", str(normalized), str(inspection)], verbose=True)
+            if inspection.exists():
+                record["snapshot"] = json.loads(read_regular(inspection, 1024 * 1024))
+                record["snapshotExactlyEqualsRaw"] = record["snapshot"] == cycle.get("rawReopened")
+                if "expected" in cycle:
+                    record["snapshotExactlyEqualsExpected"] = record["snapshot"] == cycle["expected"]
+        cycle["rawUnchanged"] = hashlib.sha256(read_regular(raw)).hexdigest() == raw_hash
+        cycle["sourceUnchanged"] = hashlib.sha256(read_regular(source)).hexdigest() == original_hash
+        if not cycle["rawUnchanged"] or not cycle["sourceUnchanged"]:
+            raise ValueError("A serialization-cycle original was modified")
+        print("SERIALIZATION CYCLE " + name + ": " + json.dumps(cycle, ensure_ascii=False, sort_keys=True), flush=True)
+
+
+def process_results(value):
+    if isinstance(value, dict):
+        if "exitCode" in value and "timedOut" in value and "outputLimitExceeded" in value:
+            yield value
+        for child in value.values():
+            yield from process_results(child)
+    elif isinstance(value, list):
+        for child in value:
+            yield from process_results(child)
 
 
 def annotation_measurements(executable, qpdf, directory, report):
@@ -322,16 +446,13 @@ def measure(executable, qpdf, directory):
             print(name + ": original qpdf exit " + str(item["originalCheck"]["exitCode"]) +
                   "; normalization exit " + str(item["normalization"]["exitCode"]) +
                   "; normalized qpdf exit " + str(item.get("normalizedCheck", {}).get("exitCode")), flush=True)
+        cycle_source = directory / "normalized-copy.pdf"
+        serialization_cycles(executable, qpdf, directory, cycle_source if cycle_source.exists() else fixtures / "copy.pdf", report)
         report["originalsUnchanged"] = all(hashlib.sha256(read_regular(fixtures / name)).hexdigest() == digest
                                            for name, digest in originals.items())
         if not report["originalsUnchanged"]:
             raise ValueError("An original fixture changed during diagnostic measurement")
-        processes = [report["qpdfVersion"], report["generation"], report["annotationGeneration"]]
-        processes.extend(value for item in report["records"] for value in item.values()
-                         if isinstance(value, dict) and "exitCode" in value)
-        processes.extend(value for item in report["annotationRecords"] for value in item.values()
-                         if isinstance(value, dict) and "exitCode" in value)
-        if not all(completed(result) for result in processes):
+        if not all(completed(result) for result in process_results(report)):
             raise ValueError("A diagnostic subprocess was interrupted, timed out or exceeded its output bound")
         report["measurementComplete"] = True
     except Exception as error:

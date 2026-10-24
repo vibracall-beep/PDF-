@@ -10,6 +10,7 @@ import Darwin
 struct PDFKitDiagnosis {
     private static let ownerPassword = "native-check-owner-123"
     private static let readerPassword = "native-check-reader-123"
+    private static let stagingPassword = "native-stage-only-456"
 
     private struct Inspection: Encodable {
         var schemaVersion = 1
@@ -46,10 +47,18 @@ struct PDFKitDiagnosis {
             case "annotations":
                 guard arguments.count == 3 else { throw failure("invalid-arguments") }
                 try annotationFixtures(URL(fileURLWithPath: arguments[2], isDirectory: true))
+            case "reserialize-protected":
+                guard arguments.count == 4 else { throw failure("invalid-arguments") }
+                try reserializeProtected(URL(fileURLWithPath: arguments[2]), directory: URL(fileURLWithPath: arguments[3], isDirectory: true))
+            case "reserialize-edited":
+                guard arguments.count == 4 else { throw failure("invalid-arguments") }
+                try reserializeEdited(URL(fileURLWithPath: arguments[2]), directory: URL(fileURLWithPath: arguments[3], isDirectory: true))
             case "inspect-annotations":
                 guard arguments.count == 4 else { throw failure("invalid-arguments") }
                 guard let document = PDFDocument(data: try readRegular(URL(fileURLWithPath: arguments[2]))) else { throw failure("annotation-reopen") }
-                if document.isLocked { guard document.unlock(withPassword: readerPassword) else { throw failure("annotation-unlock") } }
+                if document.isLocked {
+                    guard document.unlock(withPassword: readerPassword) || document.unlock(withPassword: stagingPassword) else { throw failure("annotation-unlock") }
+                }
                 let output = URL(fileURLWithPath: arguments[3])
                 try writeJSON(annotationSnapshot(document, progressPrefix: output), to: output)
             default:
@@ -62,6 +71,62 @@ struct PDFKitDiagnosis {
             FileHandle.standardError.write(Data(("PDFKit diagnosis failed: " + code + "\n").utf8))
             exit(1)
         }
+    }
+
+    @MainActor
+    private static func reserializeEdited(_ source: URL, directory: URL) throws {
+        let input = try readRegular(source)
+        guard Darwin.mkdir(directory.path, mode_t(0o700)) == 0 else { throw failure("new-private-directory-required") }
+        guard let document = PDFDocument(data: input), !document.isEncrypted, let page = document.page(at: 0),
+              let widget = page.annotations.first(where: { $0.fieldName == "native-test" }) else { throw failure("plain-edit-input") }
+        let before = directory.appendingPathComponent("before.json")
+        try writeJSON(annotationSnapshot(document, progressPrefix: before), to: before)
+        widget.widgetStringValue = "Altered audit value"
+        for item in page.annotations where (item.type ?? "").replacingOccurrences(of: "/", with: "").lowercased() == "widget" {
+            if item.widgetFieldType == .text || item.widgetFieldType == .choice {
+                let current = item.widgetDefaultStringValue; item.widgetDefaultStringValue = current ?? ""
+            }
+        }
+        let expected = directory.appendingPathComponent("expected.json")
+        try writeJSON(annotationSnapshot(document, progressPrefix: expected), to: expected)
+        trace("altered widget plain PDFKit reserialization begin")
+        guard let bytes = document.dataRepresentation() else { throw failure("plain-edit-serialize") }
+        try writeExclusive(bytes, to: directory.appendingPathComponent("edited.pdf"))
+        trace("altered widget plain PDFKit reserialization end")
+        guard let reopened = PDFDocument(data: bytes), !reopened.isLocked else { throw failure("plain-edit-reopen") }
+        let after = directory.appendingPathComponent("after.json")
+        try writeJSON(annotationSnapshot(reopened, progressPrefix: after), to: after)
+    }
+
+    @MainActor
+    private static func reserializeProtected(_ source: URL, directory: URL) throws {
+        _ = try readRegular(source)
+        guard Darwin.mkdir(directory.path, mode_t(0o700)) == 0 else { throw failure("new-private-directory-required") }
+        // Match opening an existing encrypted file in Workspace, rather than
+        // reconstructing a new document from unencrypted page content.
+        guard let document = PDFDocument(url: source), document.isEncrypted, document.isLocked,
+              !document.unlock(withPassword: ""), document.unlock(withPassword: readerPassword) else {
+            throw failure("aes-input-unlock")
+        }
+        let before = directory.appendingPathComponent("before.json")
+        try writeJSON(annotationSnapshot(document, progressPrefix: before), to: before)
+        let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): stagingPassword,
+            AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): stagingPassword]
+        trace("existing AES256 PDFKit protected reserialization begin")
+        guard let bytes = document.dataRepresentation(options: options) else { throw failure("aes-reserialize") }
+        try writeExclusive(bytes, to: directory.appendingPathComponent("protected.pdf"))
+        trace("existing AES256 PDFKit protected reserialization end")
+        var status: [String: Any] = ["opened": false]
+        if let reopened = PDFDocument(data: bytes) {
+            status["opened"] = true; status["isEncrypted"] = reopened.isEncrypted; status["wasLocked"] = reopened.isLocked
+            let unlocked = !reopened.isLocked || reopened.unlock(withPassword: stagingPassword)
+            status["unlocked"] = unlocked
+            if unlocked {
+                let after = directory.appendingPathComponent("after.json")
+                try writeJSON(annotationSnapshot(reopened, progressPrefix: after), to: after)
+            }
+        }
+        try writeJSON(status, to: directory.appendingPathComponent("status.json"))
     }
 
     @MainActor
@@ -194,8 +259,9 @@ struct PDFKitDiagnosis {
         guard !document.isLocked, document.pageCount == 1, (document.string ?? "").contains("PDF native verification"),
               let page = document.page(at: 0), page.annotations.count <= 20 else { throw failure("synthetic-fixture-required") }
         var records: [[String: Any]] = []
-        for (index, annotation) in page.annotations.enumerated() {
-            let record = annotationRecord(annotation, index: index)
+        let annotations = page.annotations
+        for (index, annotation) in annotations.enumerated() {
+            let record = annotationRecord(annotation, index: index, annotations: annotations)
             try writeJSON(record, to: progressPrefix.appendingPathExtension("annotation-\(index).json"))
             let event: [String: Any] = ["syntheticFixture": true, "phase": progressPrefix.lastPathComponent, "annotation": record]
             var bytes = try JSONSerialization.data(withJSONObject: diagnosticJSON(event), options: [.sortedKeys])
@@ -212,7 +278,7 @@ struct PDFKitDiagnosis {
     }
 
     @MainActor
-    private static func annotationRecord(_ item: PDFAnnotation, index: Int) -> [String: Any] {
+    private static func annotationRecord(_ item: PDFAnnotation, index: Int, annotations: [PDFAnnotation]) -> [String: Any] {
         let subtype = (item.type ?? "").replacingOccurrences(of: "/", with: "").lowercased()
         trace("annotation \(index) \(subtype) common color KVC begin")
         // PDFAnnotation's nonoptional Swift color declaration may conceal an
@@ -224,6 +290,18 @@ struct PDFKitDiagnosis {
             "flags": (item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) as? NSNumber) as Any? ?? NSNull(),
             "color": annotationColor.map(colorRecord) ?? ["absent": true], "rawColor": jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/C"))),
             "borderPresent": item.border != nil, "width": item.border?.lineWidth as Any? ?? NSNull()]
+        let popup = item.popup
+        result["popup"] = annotationRelationship(popup, annotations: annotations)
+        result["rawPopup"] = relationshipValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/Popup")), annotations: annotations)
+        result["parentPopupIndices"] = annotations.indices.filter { annotations[$0].popup === item }
+        let parentValue = item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/Parent"))
+        result["parentValueClass"] = parentValue.map { String(reflecting: type(of: $0)) } as Any? ?? NSNull()
+        result["parent"] = annotationRelationship(parentValue as? PDFAnnotation, annotations: annotations)
+        result["rawParent"] = relationshipValue(parentValue, annotations: annotations)
+        if subtype == "popup" || subtype == "text" {
+            result["isOpen"] = item.isOpen
+            result["rawOpen"] = jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/Open")))
+        }
         if subtype == "freetext" {
             result["rawDefaultAppearance"] = jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/DA")))
             result["fontSize"] = item.font?.pointSize as Any? ?? NSNull()
@@ -248,6 +326,16 @@ struct PDFKitDiagnosis {
         }
         if subtype == "ink" {
             result["pathElementCounts"] = item.paths?.map(\.elementCount) ?? []
+            result["pathsPresent"] = item.paths != nil
+            result["paths"] = (item.paths ?? []).map { path -> [[String: Any]] in
+                (0..<path.elementCount).map { elementIndex -> [String: Any] in
+                    var points = [NSPoint](repeating: .zero, count: 3)
+                    let element = points.withUnsafeMutableBufferPointer { path.element(at: elementIndex, associatedPoints: $0.baseAddress!) }
+                    let count = element == .curveTo ? 3 : element == .closePath ? 0 : 1
+                    return ["index": elementIndex, "type": String(describing: element), "rawValue": element.rawValue,
+                            "points": points.prefix(count).map { [Double($0.x), Double($0.y)] }]
+                }
+            }
         }
         if subtype == "widget" {
             result["field"] = item.fieldName ?? ""; result["fieldType"] = item.widgetFieldType.rawValue
@@ -261,6 +349,26 @@ struct PDFKitDiagnosis {
                 result["buttonState"] = item.buttonWidgetState.rawValue; result["control"] = item.widgetControlType.rawValue
                 result["buttonName"] = item.buttonWidgetStateString
             }
+        }
+        return result
+    }
+
+    private static func annotationRelationship(_ value: PDFAnnotation?, annotations: [PDFAnnotation]) -> [String: Any] {
+        guard let value else { return ["absent": true] }
+        return ["absent": false, "type": value.type as Any? ?? NSNull(),
+                "identityIndex": annotations.firstIndex(where: { $0 === value }) as Any? ?? NSNull(),
+                "equalIndices": annotations.indices.filter { annotations[$0].isEqual(value) },
+                "bounds": rectangle(value.bounds), "contents": value.contents ?? "", "isOpen": value.isOpen,
+                "name": jsonValue(value.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/NM"))),
+                "hasPage": value.page != nil, "samePage": value.page != nil && value.page === annotations.first?.page,
+                "class": String(reflecting: type(of: value))]
+    }
+    private static func relationshipValue(_ value: Any?, annotations: [PDFAnnotation]) -> [String: Any] {
+        guard let value else { return ["absent": true] }
+        if let annotation = value as? PDFAnnotation { return annotationRelationship(annotation, annotations: annotations) }
+        var result: [String: Any] = ["absent": false, "class": String(reflecting: type(of: value))]
+        if let dictionary = value as? NSDictionary {
+            for key in ["/Subtype", "/Contents", "/Rect", "/NM", "/Open"] { result[key] = jsonValue(dictionary[key]) }
         }
         return result
     }

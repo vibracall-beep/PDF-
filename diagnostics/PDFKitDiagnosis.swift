@@ -1,5 +1,6 @@
 import AppKit
 import CoreGraphics
+import CoreText
 import PDFKit
 import Darwin
 
@@ -70,7 +71,7 @@ struct PDFKitDiagnosis {
         // Reuse the exact source-generation and unmodified PDFKit fixture path.
         let baseline = directory.appendingPathComponent("baseline", isDirectory: true)
         try generate(baseline)
-        for scenario in ["smoke", "preview-note", "editable-defaults"] {
+        for scenario in ["smoke", "preview-note", "editable-defaults", "editable-materialized"] {
             guard let document = PDFDocument(url: baseline.appendingPathComponent("source.pdf")), let page = document.page(at: 0) else {
                 throw failure("annotation-source")
             }
@@ -113,6 +114,25 @@ struct PDFKitDiagnosis {
             trace(scenario + " snapshot before")
             let before = directory.appendingPathComponent(scenario + ".before.json")
             try writeJSON(annotationSnapshot(document, progressPrefix: before), to: before)
+            if scenario == "editable-materialized" {
+                // Mirror only the setters currently used by the production
+                // materializeWriterDefaults helper; keep the original above.
+                for item in page.annotations {
+                    let subtype = (item.type ?? "").replacingOccurrences(of: "/", with: "").lowercased()
+                    if subtype == "freetext" {
+                        let font = item.font, fontColor = item.fontColor
+                        if let font { item.font = font }
+                        if let fontColor { item.fontColor = fontColor }
+                        if item.border == nil {
+                            let border = PDFBorder(); border.lineWidth = 0; item.border = border
+                        }
+                    }
+                    if subtype == "widget", item.widgetFieldType == .text || item.widgetFieldType == .choice,
+                       item.widgetDefaultStringValue == nil { item.widgetDefaultStringValue = "" }
+                }
+                let materialized = directory.appendingPathComponent(scenario + ".materialized.json")
+                try writeJSON(annotationSnapshot(document, progressPrefix: materialized), to: materialized)
+            }
             guard let plain = document.dataRepresentation() else { throw failure("annotation-serialize") }
             try writeExclusive(plain, to: directory.appendingPathComponent(scenario + ".pdf"))
             let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): ownerPassword,
@@ -163,6 +183,11 @@ struct PDFKitDiagnosis {
         if subtype == "freetext" {
             result["fontSize"] = item.font?.pointSize as Any? ?? NSNull()
             result["fontName"] = item.font?.fontName as Any? ?? NSNull()
+            if let font = item.font {
+                let graphics = CTFontCopyGraphicsFont(font as CTFont, nil)
+                result["fontCoreTextPostScriptName"] = CTFontCopyPostScriptName(font as CTFont) as String
+                result["fontResolvedPostScriptName"] = graphics.postScriptName.map { $0 as String } as Any? ?? NSNull()
+            }
             trace("annotation \(index) freeText fontColor KVC begin")
             let fontColor = item.value(forKey: "fontColor") as? NSColor
             trace("annotation \(index) freeText fontColor KVC end; absent=\(fontColor == nil)")
@@ -181,6 +206,8 @@ struct PDFKitDiagnosis {
         if subtype == "widget" {
             result["field"] = item.fieldName ?? ""; result["fieldType"] = item.widgetFieldType.rawValue
             result["value"] = item.widgetStringValue ?? ""; result["default"] = item.widgetDefaultStringValue ?? ""
+            result["defaultPresent"] = item.widgetDefaultStringValue != nil
+            result["rawDefault"] = jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/DV")))
             result["readOnly"] = item.isReadOnly
             if item.widgetFieldType == .text { result["multiline"] = item.isMultiline; result["maxLength"] = item.maximumLength }
             if item.widgetFieldType == .choice { result["choices"] = item.choices ?? []; result["choiceValues"] = item.values ?? []; result["list"] = item.isListChoice }

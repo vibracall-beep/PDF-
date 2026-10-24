@@ -128,8 +128,12 @@ def annotation_measurements(executable, qpdf, directory, report):
     if not completed(generated) or generated["exitCode"] != 0:
         print("Annotation generation did not complete: " + generated["stderr"], flush=True)
         raise ValueError("Synthetic annotation generation did not complete successfully")
-    for scenario in ("smoke", "preview-note", "editable-defaults"):
+    for scenario in ("smoke", "preview-note", "editable-defaults", "editable-materialized"):
         before = json.loads(read_regular(fixtures / (scenario + ".before.json"), 1024 * 1024))
+        materialized = None
+        if scenario == "editable-materialized":
+            materialized = json.loads(read_regular(fixtures / (scenario + ".materialized.json"), 1024 * 1024))
+            print("ANNOTATIONS MATERIALIZED " + scenario + ": " + json.dumps(materialized, ensure_ascii=False, sort_keys=True), flush=True)
         # Every value printed here originates exclusively from our generated
         # fixture. The regular inspect mode does not dump annotation contents.
         print("ANNOTATIONS BEFORE " + scenario + ": " + json.dumps(before, ensure_ascii=False, sort_keys=True), flush=True)
@@ -139,6 +143,8 @@ def annotation_measurements(executable, qpdf, directory, report):
             password = READER if protected else ""
             original_hash = hashlib.sha256(read_regular(source)).hexdigest()
             record = {"name": name, "before": before, "originalSHA256": original_hash}
+            if materialized is not None:
+                record["afterMaterialization"] = materialized
             report["annotationRecords"].append(record)
             record["originalCheck"] = run([str(qpdf), "--password-file=-", "--check", str(source)], password)
             original_json = directory / (name + ".annotations-original.json")

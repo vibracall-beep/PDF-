@@ -71,7 +71,8 @@ struct PDFKitDiagnosis {
         // Reuse the exact source-generation and unmodified PDFKit fixture path.
         let baseline = directory.appendingPathComponent("baseline", isDirectory: true)
         try generate(baseline)
-        for scenario in ["smoke", "preview-note", "editable-defaults", "editable-materialized", "editable-resolved-font", "editable-helvetica15"] {
+        for scenario in ["smoke", "preview-note", "editable-defaults", "editable-materialized", "editable-resolved-font", "editable-helvetica15",
+                         "editable-space-da-system13", "editable-space-da-helvetica15", "slash-string-values"] {
             guard let document = PDFDocument(url: baseline.appendingPathComponent("source.pdf")), let page = document.page(at: 0) else {
                 throw failure("annotation-source")
             }
@@ -91,9 +92,14 @@ struct PDFKitDiagnosis {
                 for (index, type) in types.enumerated() {
                     let annotation = PDFAnnotation(bounds: CGRect(x: 60, y: CGFloat(650 - index * 45), width: 140, height: 30), forType: type, withProperties: nil)
                     annotation.contents = "Annotation \(index)"
-                    if scenario == "editable-helvetica15", type == .freeText {
+                    if ["editable-helvetica15", "editable-space-da-helvetica15"].contains(scenario), type == .freeText {
                         guard let font = NSFont(name: "Helvetica", size: 15) else { throw failure("control-font-missing") }
                         annotation.font = font
+                    }
+                    if scenario == "editable-space-da-system13", type == .freeText { annotation.font = NSFont.systemFont(ofSize: 13) }
+                    if scenario == "slash-string-values" {
+                        if type == .text { annotation.contents = "/Note text" }
+                        if type == .freeText { annotation.contents = "/Text" }
                     }
                     if type == .ink {
                         let path = NSBezierPath(); path.move(to: CGPoint(x: 4, y: 5)); path.line(to: CGPoint(x: 35, y: 20))
@@ -114,11 +120,17 @@ struct PDFKitDiagnosis {
                 let checkbox = PDFAnnotation(bounds: CGRect(x: 260, y: 480, width: 25, height: 25), forType: .widget, withProperties: nil)
                 checkbox.widgetFieldType = .button; checkbox.widgetControlType = .checkBoxControl; checkbox.fieldName = "roundtrip-checkbox"
                 checkbox.buttonWidgetStateString = "Yes"; checkbox.buttonWidgetState = PDFWidgetCellState(rawValue: 1)!; page.addAnnotation(checkbox)
+                if scenario == "slash-string-values" {
+                    text.fieldName = "/field"; text.widgetStringValue = "/value"; text.widgetDefaultStringValue = "/default"
+                    choice.choices = ["/First label", "/Second label"]; choice.values = ["/first", "/second"]
+                    choice.widgetStringValue = "/second"
+                }
             }
             trace(scenario + " snapshot before")
             let before = directory.appendingPathComponent(scenario + ".before.json")
             try writeJSON(annotationSnapshot(document, progressPrefix: before), to: before)
-            if ["editable-materialized", "editable-resolved-font", "editable-helvetica15"].contains(scenario) {
+            if ["editable-materialized", "editable-resolved-font", "editable-helvetica15",
+                "editable-space-da-system13", "editable-space-da-helvetica15"].contains(scenario) {
                 // Mirror only the setters currently used by the production
                 // materializeWriterDefaults helper; keep the original above.
                 for item in page.annotations {
@@ -138,6 +150,23 @@ struct PDFKitDiagnosis {
                         if let fontColor { item.fontColor = fontColor }
                         if item.border == nil {
                             let border = PDFBorder(); border.lineWidth = 0; item.border = border
+                        }
+                        if scenario.hasPrefix("editable-space-da-") {
+                            // Public PDFAnnotationKeyDefaultAppearance is /DA,
+                            // a PDF string per PDFAnnotation.h. Test only the
+                            // writer's leading-slash/name classification here.
+                            let key = PDFAnnotationKey(rawValue: "/DA")
+                            let previous = item.value(forAnnotationKey: key)
+                            let original = previous as? String
+                            guard let font = item.font else { throw failure("space-da-font-missing") }
+                            let fallback = "/\(font.fontName) \(font.pointSize) Tf 0 g"
+                            let literal = " " + (original ?? fallback).trimmingCharacters(in: .whitespacesAndNewlines)
+                            let accepted = item.setValue(literal, forAnnotationKey: key)
+                            try writeJSON(["setterAccepted": accepted, "usedFallback": original == nil,
+                                           "before": jsonValue(previous), "requested": literal,
+                                           "after": jsonValue(item.value(forAnnotationKey: key)), "fontBefore": fontIdentity(font),
+                                           "fontAfter": item.font.map(fontIdentity) ?? ["absent": true]],
+                                          to: directory.appendingPathComponent(scenario + ".da-assignment.json"))
                         }
                     }
                     if subtype == "widget", item.widgetFieldType == .text || item.widgetFieldType == .choice {
@@ -196,6 +225,7 @@ struct PDFKitDiagnosis {
             "color": annotationColor.map(colorRecord) ?? ["absent": true], "rawColor": jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/C"))),
             "borderPresent": item.border != nil, "width": item.border?.lineWidth as Any? ?? NSNull()]
         if subtype == "freetext" {
+            result["rawDefaultAppearance"] = jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/DA")))
             result["fontSize"] = item.font?.pointSize as Any? ?? NSNull()
             result["fontName"] = item.font?.fontName as Any? ?? NSNull()
             if let font = item.font {

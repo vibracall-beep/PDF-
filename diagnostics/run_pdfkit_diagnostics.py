@@ -127,7 +127,7 @@ def free_text_details(qpdf, source, password):
     query = run([str(qpdf), "--password-file=-", "--json", "--json-key=qpdf",
                  "--json-stream-data=none", str(source)], password, output_limit=512 * 1024)
     report = {"jsonProcess": {key: value for key, value in query.items() if key != "stdout"},
-              "fontProgramsIncluded": False, "annotations": []}
+              "fontProgramsIncluded": False, "annotations": [], "annotationScalarKeys": []}
     if not completed(query) or query["exitCode"] not in (0, 3):
         report["extractionError"] = "qpdf metadata query did not complete"
         return report
@@ -183,6 +183,9 @@ def free_text_details(qpdf, source, password):
                                if isinstance(record.get("value"), dict) and record["value"].get("/Type") == "/Page"][:4]
     for object_name, record in objects.items():
         annotation = record.get("value", {})
+        if isinstance(annotation, dict) and (annotation.get("/Type") == "/Annot" or ("/Rect" in annotation and "/Subtype" in annotation)):
+            report["annotationScalarKeys"].append({"object": object_name, **{key: annotation[key] for key in
+                ("/Subtype", "/Contents", "/T", "/V", "/DV", "/Opt", "/DA", "/DS") if key in annotation}})
         if not isinstance(annotation, dict) or annotation.get("/Subtype") != "/FreeText":
             continue
         if len(report["annotations"]) >= 20:
@@ -190,6 +193,13 @@ def free_text_details(qpdf, source, password):
             break
         item = {"object": object_name, "DA": annotation.get("/DA"), "DS": annotation.get("/DS"),
                 "DR": resources(annotation.get("/DR")), "appearance": []}
+        # This is the known synthetic FreeText dictionary, never a stream.
+        # Preserve qpdf's PDF token spelling to distinguish #20 from #2320;
+        # JSON's decoded name alone cannot establish the original escaping.
+        object_reference = reference(object_name.removeprefix("obj:"))
+        if object_reference:
+            item["rawObjectProcess"] = run([str(qpdf), "--password-file=-",
+                "--show-object=" + object_reference, str(source)], password, output_limit=16 * 1024)
         report["annotations"].append(item)
         normal = dictionary(annotation.get("/AP")).get("/N")
         states = [("normal", normal)] if reference(normal) else list(dictionary(normal).items())[:8]
@@ -211,7 +221,7 @@ def free_text_details(qpdf, source, password):
 
 def annotation_measurements(executable, qpdf, directory, report):
     fixtures = directory / "annotation-fixtures"
-    # Six fixed synthetic scenarios, including before/after font identity,
+    # Nine fixed synthetic scenarios, including before/after font identity,
     # legitimately exceed the ordinary 128 KiB per-process log bound.
     generated = run([str(executable), "annotations", str(fixtures)], verbose=True, output_limit=1024 * 1024)
     report["annotationGeneration"] = generated
@@ -221,10 +231,12 @@ def annotation_measurements(executable, qpdf, directory, report):
     if not completed(generated) or generated["exitCode"] != 0:
         print("Annotation generation did not complete: " + generated["stderr"], flush=True)
         raise ValueError("Synthetic annotation generation did not complete successfully")
-    for scenario in ("smoke", "preview-note", "editable-defaults", "editable-materialized", "editable-resolved-font", "editable-helvetica15"):
+    for scenario in ("smoke", "preview-note", "editable-defaults", "editable-materialized", "editable-resolved-font", "editable-helvetica15",
+                     "editable-space-da-system13", "editable-space-da-helvetica15", "slash-string-values"):
         before = json.loads(read_regular(fixtures / (scenario + ".before.json"), 1024 * 1024))
         materialized = None
-        if scenario in ("editable-materialized", "editable-resolved-font", "editable-helvetica15"):
+        if scenario in ("editable-materialized", "editable-resolved-font", "editable-helvetica15",
+                        "editable-space-da-system13", "editable-space-da-helvetica15"):
             materialized = json.loads(read_regular(fixtures / (scenario + ".materialized.json"), 1024 * 1024))
             print("ANNOTATIONS MATERIALIZED " + scenario + ": " + json.dumps(materialized, ensure_ascii=False, sort_keys=True), flush=True)
         # Every value printed here originates exclusively from our generated
@@ -241,9 +253,12 @@ def annotation_measurements(executable, qpdf, directory, report):
             if scenario == "editable-resolved-font":
                 record["fontAssignment"] = json.loads(read_regular(fixtures / (scenario + ".font-assignment.json"), 1024 * 1024))
                 print("FONT ASSIGNMENT " + name + ": " + json.dumps(record["fontAssignment"], ensure_ascii=False, sort_keys=True), flush=True)
+            if scenario.startswith("editable-space-da-"):
+                record["appearanceAssignment"] = json.loads(read_regular(fixtures / (scenario + ".da-assignment.json"), 1024 * 1024))
+                print("DA ASSIGNMENT " + name + ": " + json.dumps(record["appearanceAssignment"], ensure_ascii=False, sort_keys=True), flush=True)
             report["annotationRecords"].append(record)
             record["originalCheck"] = run([str(qpdf), "--password-file=-", "--check", str(source)], password)
-            if scenario.startswith("editable-"):
+            if scenario.startswith("editable-") or scenario == "slash-string-values":
                 record["originalFreeText"] = free_text_details(qpdf, source, password)
                 print("FREETEXT ORIGINAL " + name + ": " + json.dumps(record["originalFreeText"], ensure_ascii=False, sort_keys=True), flush=True)
             original_json = directory / (name + ".annotations-original.json")
@@ -255,7 +270,7 @@ def annotation_measurements(executable, qpdf, directory, report):
             record["normalization"] = run([str(qpdf), "--password-file=-", "--object-streams=disable", str(source), str(normalized)], password)
             if normalized.exists():
                 record["normalizedCheck"] = run([str(qpdf), "--password-file=-", "--check", str(normalized)], password)
-                if scenario.startswith("editable-"):
+                if scenario.startswith("editable-") or scenario == "slash-string-values":
                     record["normalizedFreeText"] = free_text_details(qpdf, normalized, password)
                     print("FREETEXT NORMALIZED " + name + ": " + json.dumps(record["normalizedFreeText"], ensure_ascii=False, sort_keys=True), flush=True)
                 normalized_json = directory / (name + ".annotations-normalized.json")

@@ -25,7 +25,9 @@ import time
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / 'scripts'))
+sys.path.insert(0, str(ROOT / 'engine'))
 from package_binary import copy_tree, macho, rewrite_macho, sign_if_needed
+from owned_process import ProcessInterrupted, cooperative_signals
 
 LOG_LIMIT = 2 * 1024 * 1024
 
@@ -477,5 +479,14 @@ def main():
     print('FINAL DIAGNOSTIC REPORT', json.dumps(report, sort_keys=True), flush=True)
 
 
+def run_main():
+    try:
+        with cooperative_signals():
+            main()
+    except ProcessInterrupted as interrupted:
+        return 128 + interrupted.number
+    return 0
+
+
 if __name__ == '__main__':
-    main()
+    raise SystemExit(run_main())

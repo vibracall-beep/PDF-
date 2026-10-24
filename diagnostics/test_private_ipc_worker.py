@@ -9,7 +9,7 @@ import tempfile
 import unittest
 
 
-WORKER = Path(__file__).with_name("private_ipc_worker.py").resolve()
+WORKER = (Path(__file__).resolve().parents[1] / "scripts/private_ipc_worker.py").resolve()
 
 
 class PrivateIPCWorkerTests(unittest.TestCase):

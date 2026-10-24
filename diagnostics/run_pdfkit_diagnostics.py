@@ -20,7 +20,7 @@ STAGING = "native-stage-only-456"
 OUTPUT_LIMIT = 128 * 1024
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "engine"))
-from owned_process import OwnedProcess, OutputLimitExceeded
+from owned_process import OwnedProcess, OutputLimitExceeded, ProcessInterrupted, cooperative_signals
 
 
 def redacted(text):
@@ -466,7 +466,7 @@ def measure(executable, qpdf, directory):
         if not all(completed(result) for result in process_results(report)):
             raise ValueError("A diagnostic subprocess was interrupted, timed out or exceeded its output bound")
         report["measurementComplete"] = True
-    except Exception as error:
+    except (Exception, ProcessInterrupted) as error:
         report["measurementComplete"] = False
         report["measurementError"] = redacted(type(error).__name__ + ": " + str(error))
         raise
@@ -488,7 +488,7 @@ def measure(executable, qpdf, directory):
                                  "; normalized check " + str(item.get("normalizedCheck", {}).get("exitCode")) + "\n")
 
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--qpdf", type=Path, required=True)
@@ -500,3 +500,16 @@ if __name__ == "__main__":
         run_exact(Path(__file__).resolve().parents[1], args.output, args.qpdf.resolve(strict=True))
     else:
         measure(args.executable.resolve(strict=True), args.qpdf.resolve(strict=True), args.output)
+
+
+def run_main():
+    try:
+        with cooperative_signals():
+            main()
+    except ProcessInterrupted as interrupted:
+        return 128 + interrupted.number
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(run_main())

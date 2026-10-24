@@ -170,7 +170,7 @@ def run_private_ipc(executable, base, ipc_probe, output, source_venv, source_bro
                 result = conversion(executable, output / ('office-' + name), policy, fixture,
                                     environment_override=environment, predicted_socket=predicted)
                 report['officeFallback'][name] = result; publish()
-            worker = ROOT / 'diagnostics/private_ipc_worker.py'
+            worker = ROOT / 'scripts/private_ipc_worker.py'
             report['workerSHA256'] = hashlib.sha256(worker.read_bytes()).hexdigest()
             report['workers'] = {}
             for name, browser in [('multiprocessing', None), *browsers.items()]:

@@ -88,10 +88,12 @@ def main():
             assert 'portable Office verification' in pdf[0].get_text()
         with sync_playwright() as playwright:
             browser = playwright.chromium.launch()
-            page = browser.new_page()
-            page.set_content('<h1>PDF portable browser verification</h1>')
-            page.pdf(path=str(root / 'browser.pdf'))
-            browser.close()
+            try:
+                page = browser.new_page()
+                page.set_content('<h1>PDF portable browser verification</h1>')
+                page.pdf(path=str(root / 'browser.pdf'))
+            finally:
+                browser.close()
         with fitz.open(root / 'browser.pdf') as pdf:
             assert 'portable browser verification' in pdf[0].get_text()
         subprocess.run(['qpdf', '--check', str(source)], check=True, capture_output=True)
@@ -113,5 +115,16 @@ def main():
     print('Portable runtime: Python/TLS paths, private fontconfig, Office, browser, Ghostscript, qpdf, OCR and standards passed.', flush=True)
 
 
-if __name__ == '__main__':
-    main()
+def run_main():
+    # The imported engine does not install its CLI cancellation handler. TERM
+    # must unwind its OwnedProcess finally blocks before the outer supervisor
+    # kills this process group and removes the private IPC namespace.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from portable_isolation import ValidationInterrupted, cooperative_signals
+    try:
+        with cooperative_signals(): main()
+    except ValidationInterrupted as error:
+        raise SystemExit(128 + error.number)
+
+
+if __name__ == '__main__': run_main()

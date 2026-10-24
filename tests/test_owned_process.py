@@ -66,7 +66,9 @@ class OwnedProcessTests(unittest.TestCase):
                         began = time.monotonic()
                         if caller == 'owned':
                             child = OwnedProcess(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            self.assertFalse(child.cleanup_confirmed)
                             out, err = child.communicate(3)
+                            self.assertTrue(child.cleanup_confirmed)
                             code = child.returncode
                         elif caller == 'engine':
                             result = _external(command, timeout=3, allowed_returncodes=(7,))
@@ -202,6 +204,9 @@ class OwnedProcessTests(unittest.TestCase):
                 child.communicate(.1)
         self.assertLess(child.returncode, 0)
         self.assertTrue(any('PermissionError' in note for note in caught.exception.__notes__))
+        self.assertFalse(child.cleanup_confirmed)
+        child.close()
+        self.assertFalse(child.cleanup_confirmed,'A reaped leader does not erase a prior signal failure.')
 
     def test_timed_out_collection_remains_pending_and_retry_does_not_signal(self):
         child = OwnedProcess([sys.executable, '-c', 'import time;time.sleep(10)'])
@@ -210,6 +215,7 @@ class OwnedProcessTests(unittest.TestCase):
              mock.patch.object(owned_process, 'signal_owned_group', wraps=owned_process.signal_owned_group) as sent:
             with self.assertRaises(subprocess.TimeoutExpired): child.close()
             self.assertFalse(child.closed)
+            self.assertFalse(child.cleanup_confirmed)
             self.assertTrue(child.signals_finished)
             self.assertEqual(sent.call_count, 2)
         with mock.patch.object(owned_process, 'signal_owned_group') as sent:
@@ -217,6 +223,7 @@ class OwnedProcessTests(unittest.TestCase):
             sent.assert_not_called()
         self.assertTrue(child.closed)
         self.assertLess(child.returncode, 0)
+        self.assertFalse(child.cleanup_confirmed,'A later collection must not hide the initial cleanup failure.')
 
     def test_relocated_wrapper_imports_bundled_helper_without_host_pythonpath(self):
         with tempfile.TemporaryDirectory(prefix='PDF bundle with spaces ') as temporary:
@@ -224,6 +231,13 @@ class OwnedProcessTests(unittest.TestCase):
             engine = resources / 'engine'; distribution = resources / 'distribution'
             engine.mkdir(parents=True); distribution.mkdir()
             shutil.copy2(ROOT / 'engine/owned_process.py', engine / 'owned_process.py')
+            if sys.platform == 'darwin':
+                helper = resources / 'runtime/bin/pdf-process-group-check'
+                helper.parent.mkdir(parents=True)
+                subprocess.run(['/usr/bin/xcrun', 'clang', '-arch', 'arm64', '-mmacosx-version-min=26.0',
+                                '-std=c11', '-Wall', '-Wextra', '-Werror', '-O2',
+                                str(ROOT / 'scripts/ProcessGroupSnapshot.c'), '-lproc', '-o', str(helper)],
+                               check=True, capture_output=True, timeout=60)
             for name in ('run-with-timeout.py', 'bundle_lease.py'):
                 shutil.copy2(ROOT / 'scripts' / name, distribution / name)
             result = subprocess.run([sys.executable, '-I', str(distribution / 'run-with-timeout.py'),

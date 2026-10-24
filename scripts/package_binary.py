@@ -407,6 +407,21 @@ def build(installed, output, commit):
         if path.is_symlink():
             contained_link(path, os.readlink(path), runtime)
     bin_dir = runtime / 'bin'; bin_dir.mkdir()
+    # The verifier must not need Xcode on the destination Mac. Compile the
+    # same synthetic boundary probe used by the approved two-OS IPC diagnosis;
+    # the normal Mach-O/arm64/signature/manifest pass below includes this file.
+    subprocess.run(['/usr/bin/xcrun', 'clang', '-arch', 'arm64', '-mmacosx-version-min=26.0',
+                    '-std=c11', '-Wall', '-Wextra', '-Werror', '-O2',
+                    str(SCRIPTS / 'PortableIPCProbe.c'), '-o', str(bin_dir / 'pdf-ipc-probe')],
+                   check=True, timeout=60)
+    # /bin/ps is setuid and cannot be spawned inside the verified sandbox.
+    # This signed, unprivileged helper reads only the caller-selected process
+    # group; it never signals a process or changes sandbox permissions.
+    subprocess.run(['/usr/bin/xcrun', 'clang', '-arch', 'arm64', '-mmacosx-version-min=26.0',
+                    '-std=c11', '-Wall', '-Wextra', '-Werror', '-O2',
+                    str(SCRIPTS / 'ProcessGroupSnapshot.c'), '-lproc',
+                    '-o', str(bin_dir / 'pdf-process-group-check')],
+                   check=True, timeout=60)
     java = runtime / 'vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/bin/java'
     jar = next((runtime / 'share/verapdf').glob('*.jar'))
     gs_share = runtime / 'vendor/ghostscript/share/ghostscript'
@@ -484,7 +499,8 @@ unset PYTHONPATH PYTHONHOME
                 'optionalSystemIntegrations': ['Apple Pages for Pages conversion', 'compatible scanner', 'Apple Intelligence system model']}
     (runtime / 'portable.json').write_text(json.dumps(portable, indent=2) + '\n')
     distribution = resources / 'distribution'; distribution.mkdir()
-    for filename in ('binary_update.py', 'bundle_lease.py', 'app_intents_metadata.py', 'install_files.py', 'run-with-timeout.py', 'check_runtime.py'):
+    for filename in ('binary_update.py', 'bundle_lease.py', 'app_intents_metadata.py', 'install_files.py',
+                     'run-with-timeout.py', 'check_runtime.py', 'portable_isolation.py', 'private_ipc_worker.py'):
         shutil.copy2(SCRIPTS / filename, distribution / filename)
     shutil.copy2(SCRIPTS / 'install-binary.sh', output / 'install-binary.sh')
     info = json.loads(command('brew', 'info', '--json=v2', '--formula', *formulas))

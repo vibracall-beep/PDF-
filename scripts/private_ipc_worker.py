@@ -183,11 +183,16 @@ def main() -> int:
         return 2
     report = {"schemaVersion": 1, "mode": args.mode, "passed": False, "parentPID": os.getpid()}
     previous_umask = os.umask(0o077)
+    # Shared ownership policy is installed only by this executable entrypoint.
+    # Both checkout scripts/ and bundle Resources/distribution/ have ../engine.
+    sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'engine'))
+    from owned_process import cooperative_signals
     try:
-        if args.mode == "multiprocessing":
-            multiprocessing_probe(ipc, report)
-        else:
-            browser_probe(ipc, args.browser_executable, report)
+        with cooperative_signals():
+            if args.mode == "multiprocessing":
+                multiprocessing_probe(ipc, report)
+            else:
+                browser_probe(ipc, args.browser_executable, report)
         report["passed"] = True
     except BaseException as error:
         report["errorType"] = type(error).__name__

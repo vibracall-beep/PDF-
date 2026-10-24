@@ -31,7 +31,7 @@ jobs:
         run: |
           set -o pipefail
           mkdir -p "$RUNNER_TEMP/PDF-office-probe-build"
-          xcrun clang -arch arm64 -Wall -Wextra -Werror diagnostics/PortableIPCProbe.c -o "$RUNNER_TEMP/PDF-office-probe-build/probe" 2>&1 | tee "$RUNNER_TEMP/PDF-office-probe-build/compile.log"
+          xcrun clang -arch arm64 -Wall -Wextra -Werror scripts/PortableIPCProbe.c -o "$RUNNER_TEMP/PDF-office-probe-build/probe" 2>&1 | tee "$RUNNER_TEMP/PDF-office-probe-build/compile.log"
       - name: Prepare pinned converter and private Python and Chromium fixtures
         env:
           HOMEBREW_NO_AUTO_UPDATE: '1'

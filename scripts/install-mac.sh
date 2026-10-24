@@ -95,7 +95,13 @@ PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
 PDF_STAGE="$(mktemp -d "$PDF_INSTALL_PARENT/.pdf-install.XXXXXXXX")"
 PDF_STAGE_ID="$(stat -f '%d:%i' "$PDF_STAGE")"
 PDF_BUNDLE="$PDF_STAGE/PDF.app"
-mkdir -p "$PDF_BUNDLE/Contents/Resources"
+mkdir -p "$PDF_BUNDLE/Contents/Resources/runtime/bin"
+# Build the unprivileged process-table witness before dependency downloads.
+# Source and portable bundles use the same fixed, application-owned path.
+PDF_PROCESS_GROUP_CHECK="$PDF_BUNDLE/Contents/Resources/runtime/bin/pdf-process-group-check"
+xcrun clang -arch arm64 -mmacosx-version-min=26.0 -std=c11 -Wall -Wextra -Werror -O2 \
+  scripts/ProcessGroupSnapshot.c -lproc -o "$PDF_PROCESS_GROUP_CHECK"
+lipo "$PDF_PROCESS_GROUP_CHECK" -verify_arch arm64
 xcrun swift scripts/make-icon.swift "$PDF_STAGE/PDF.iconset"
 iconutil -c icns "$PDF_STAGE/PDF.iconset" -o "$PDF_BUNDLE/Contents/Resources/PDF.icns"
 # Dependencies remain on this Mac. They are not represented as a portable bundle.
@@ -183,6 +189,8 @@ PLIST
 chmod 444 "$PDF_BUNDLE/Contents/Resources/installation.lock"
 plutil -lint "$PDF_BUNDLE/Contents/Info.plist"
 # Sign innermost application-owned executable, then seal the complete bundle.
+codesign --force --sign - --timestamp=none "$PDF_PROCESS_GROUP_CHECK"
+codesign --verify --strict "$PDF_PROCESS_GROUP_CHECK"
 codesign --force --sign - --timestamp=none "$PDF_BUNDLE/Contents/MacOS/PDF"
 codesign --force --sign - --timestamp=none "$PDF_BUNDLE"
 codesign --verify --deep --strict "$PDF_BUNDLE"

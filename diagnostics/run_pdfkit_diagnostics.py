@@ -39,7 +39,7 @@ def stop(process):
     process.wait()
 
 
-def run(arguments, password="", seconds=30, verbose=False):
+def run(arguments, password="", seconds=30, verbose=False, output_limit=OUTPUT_LIMIT):
     environment = dict(os.environ)
     environment["CG_PDF_VERBOSE"] = "1" if verbose else "0"
     process = subprocess.Popen(arguments, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
@@ -72,7 +72,7 @@ def run(arguments, password="", seconds=30, verbose=False):
                         selector.unregister(key.fileobj)
                         continue
                     buffer = buffers[key.data]
-                    available = OUTPUT_LIMIT - len(buffer)
+                    available = output_limit - len(buffer)
                     buffer.extend(data[:available])
                     if len(data) > available:
                         exceeded = True
@@ -118,9 +118,102 @@ def completed(result):
     return not result["timedOut"] and not result["outputLimitExceeded"] and result["exitCode"] >= 0
 
 
+def free_text_details(qpdf, source, password):
+    """Inspect only synthetic annotation metadata and Form appearance commands.
+
+    qpdf JSON excludes every stream body. Only /AP /N Form streams are then
+    decoded individually; FontFile*, ToUnicode and other streams are never read.
+    """
+    query = run([str(qpdf), "--password-file=-", "--json", "--json-key=qpdf",
+                 "--json-stream-data=none", str(source)], password, output_limit=512 * 1024)
+    report = {"jsonProcess": {key: value for key, value in query.items() if key != "stdout"},
+              "fontProgramsIncluded": False, "annotations": []}
+    if not completed(query) or query["exitCode"] not in (0, 3):
+        report["extractionError"] = "qpdf metadata query did not complete"
+        return report
+    try:
+        payload = json.loads(query["stdout"])
+        objects = payload["qpdf"][1]
+        if not isinstance(objects, dict) or len(objects) > 10_000:
+            raise ValueError("Invalid or excessive diagnostic object table")
+    except (ValueError, KeyError, IndexError, TypeError):
+        report["extractionError"] = "qpdf metadata response was invalid"
+        return report
+    report["objectCount"] = len(objects)
+
+    def reference(value):
+        match = re.fullmatch(r"([1-9][0-9]*) ([0-9]+) R", value) if isinstance(value, str) else None
+        return (match[1] + "," + match[2]) if match else None
+
+    def entry(value):
+        return objects.get("obj:" + value, {}) if reference(value) else {}
+
+    def resolved(value):
+        record = entry(value)
+        return record.get("value", record.get("stream", {}).get("dict", value))
+
+    def dictionary(value):
+        value = resolved(value)
+        return value if isinstance(value, dict) else {}
+
+    def font(value, depth=0):
+        data = dictionary(value)
+        result = {key: data[key] for key in ("/Type", "/Subtype", "/BaseFont", "/Encoding", "/FirstChar", "/LastChar") if key in data}
+        result["reference"] = value if reference(value) else None
+        descriptor = dictionary(data.get("/FontDescriptor"))
+        result["descriptor"] = {key: descriptor[key] for key in (
+            "/FontName", "/Flags", "/FontBBox", "/ItalicAngle", "/Ascent", "/Descent", "/CapHeight", "/StemV",
+            "/FontFile", "/FontFile2", "/FontFile3") if key in descriptor}
+        descendants = resolved(data.get("/DescendantFonts"))
+        if depth < 2 and isinstance(descendants, list):
+            result["descendants"] = [font(item, depth + 1) for item in descendants[:8]]
+        return result
+
+    def resources(value):
+        data = dictionary(value)
+        fonts = dictionary(data.get("/Font"))
+        return {"reference": value if reference(value) else None,
+                "fontCount": len(fonts), "fonts": {name: font(value) for name, value in sorted(fonts.items())[:32]}}
+
+    catalog = next((record.get("value", {}) for record in objects.values()
+                    if isinstance(record.get("value"), dict) and record["value"].get("/Type") == "/Catalog"), {})
+    acro = dictionary(catalog.get("/AcroForm"))
+    report["acroForm"] = {"DA": acro.get("/DA"), "DS": acro.get("/DS"), "DR": resources(acro.get("/DR"))}
+    report["pageResources"] = [resources(record["value"].get("/Resources")) for record in objects.values()
+                               if isinstance(record.get("value"), dict) and record["value"].get("/Type") == "/Page"][:4]
+    for object_name, record in objects.items():
+        annotation = record.get("value", {})
+        if not isinstance(annotation, dict) or annotation.get("/Subtype") != "/FreeText":
+            continue
+        if len(report["annotations"]) >= 20:
+            report["extractionError"] = "Too many synthetic FreeText annotations"
+            break
+        item = {"object": object_name, "DA": annotation.get("/DA"), "DS": annotation.get("/DS"),
+                "DR": resources(annotation.get("/DR")), "appearance": []}
+        report["annotations"].append(item)
+        normal = dictionary(annotation.get("/AP")).get("/N")
+        states = [("normal", normal)] if reference(normal) else list(dictionary(normal).items())[:8]
+        for state, target in states:
+            stream = entry(target).get("stream", {}).get("dict", {})
+            appearance = {"state": state, "reference": target, "dictionary": stream,
+                          "resources": resources(stream.get("/Resources"))}
+            item["appearance"].append(appearance)
+            # Never use --filtered-stream-data on a font program or unknown
+            # object: the permitted target must be the annotation's /AP /N Form.
+            if reference(target) and stream.get("/Subtype") == "/Form":
+                command = run([str(qpdf), "--password-file=-", "--show-object=" + reference(target),
+                               "--filtered-stream-data", str(source)], password, output_limit=32 * 1024)
+                appearance["commandsProcess"] = command
+            else:
+                appearance["commandsSkipped"] = "AP/N is not an indirect Form appearance stream"
+    return report
+
+
 def annotation_measurements(executable, qpdf, directory, report):
     fixtures = directory / "annotation-fixtures"
-    generated = run([str(executable), "annotations", str(fixtures)], verbose=True)
+    # Six fixed synthetic scenarios, including before/after font identity,
+    # legitimately exceed the ordinary 128 KiB per-process log bound.
+    generated = run([str(executable), "annotations", str(fixtures)], verbose=True, output_limit=1024 * 1024)
     report["annotationGeneration"] = generated
     report["annotationRecords"] = []
     if generated["stdout"]:
@@ -128,10 +221,10 @@ def annotation_measurements(executable, qpdf, directory, report):
     if not completed(generated) or generated["exitCode"] != 0:
         print("Annotation generation did not complete: " + generated["stderr"], flush=True)
         raise ValueError("Synthetic annotation generation did not complete successfully")
-    for scenario in ("smoke", "preview-note", "editable-defaults", "editable-materialized"):
+    for scenario in ("smoke", "preview-note", "editable-defaults", "editable-materialized", "editable-resolved-font", "editable-helvetica15"):
         before = json.loads(read_regular(fixtures / (scenario + ".before.json"), 1024 * 1024))
         materialized = None
-        if scenario == "editable-materialized":
+        if scenario in ("editable-materialized", "editable-resolved-font", "editable-helvetica15"):
             materialized = json.loads(read_regular(fixtures / (scenario + ".materialized.json"), 1024 * 1024))
             print("ANNOTATIONS MATERIALIZED " + scenario + ": " + json.dumps(materialized, ensure_ascii=False, sort_keys=True), flush=True)
         # Every value printed here originates exclusively from our generated
@@ -145,8 +238,14 @@ def annotation_measurements(executable, qpdf, directory, report):
             record = {"name": name, "before": before, "originalSHA256": original_hash}
             if materialized is not None:
                 record["afterMaterialization"] = materialized
+            if scenario == "editable-resolved-font":
+                record["fontAssignment"] = json.loads(read_regular(fixtures / (scenario + ".font-assignment.json"), 1024 * 1024))
+                print("FONT ASSIGNMENT " + name + ": " + json.dumps(record["fontAssignment"], ensure_ascii=False, sort_keys=True), flush=True)
             report["annotationRecords"].append(record)
             record["originalCheck"] = run([str(qpdf), "--password-file=-", "--check", str(source)], password)
+            if scenario.startswith("editable-"):
+                record["originalFreeText"] = free_text_details(qpdf, source, password)
+                print("FREETEXT ORIGINAL " + name + ": " + json.dumps(record["originalFreeText"], ensure_ascii=False, sort_keys=True), flush=True)
             original_json = directory / (name + ".annotations-original.json")
             record["originalInspection"] = run([str(executable), "inspect-annotations", str(source), str(original_json)], verbose=True)
             if completed(record["originalInspection"]) and record["originalInspection"]["exitCode"] == 0:
@@ -156,6 +255,9 @@ def annotation_measurements(executable, qpdf, directory, report):
             record["normalization"] = run([str(qpdf), "--password-file=-", "--object-streams=disable", str(source), str(normalized)], password)
             if normalized.exists():
                 record["normalizedCheck"] = run([str(qpdf), "--password-file=-", "--check", str(normalized)], password)
+                if scenario.startswith("editable-"):
+                    record["normalizedFreeText"] = free_text_details(qpdf, normalized, password)
+                    print("FREETEXT NORMALIZED " + name + ": " + json.dumps(record["normalizedFreeText"], ensure_ascii=False, sort_keys=True), flush=True)
                 normalized_json = directory / (name + ".annotations-normalized.json")
                 record["normalizedInspection"] = run([str(executable), "inspect-annotations", str(normalized), str(normalized_json)], verbose=True)
                 if completed(record["normalizedInspection"]) and record["normalizedInspection"]["exitCode"] == 0:

@@ -71,7 +71,7 @@ struct PDFKitDiagnosis {
         // Reuse the exact source-generation and unmodified PDFKit fixture path.
         let baseline = directory.appendingPathComponent("baseline", isDirectory: true)
         try generate(baseline)
-        for scenario in ["smoke", "preview-note", "editable-defaults", "editable-materialized"] {
+        for scenario in ["smoke", "preview-note", "editable-defaults", "editable-materialized", "editable-resolved-font", "editable-helvetica15"] {
             guard let document = PDFDocument(url: baseline.appendingPathComponent("source.pdf")), let page = document.page(at: 0) else {
                 throw failure("annotation-source")
             }
@@ -91,6 +91,10 @@ struct PDFKitDiagnosis {
                 for (index, type) in types.enumerated() {
                     let annotation = PDFAnnotation(bounds: CGRect(x: 60, y: CGFloat(650 - index * 45), width: 140, height: 30), forType: type, withProperties: nil)
                     annotation.contents = "Annotation \(index)"
+                    if scenario == "editable-helvetica15", type == .freeText {
+                        guard let font = NSFont(name: "Helvetica", size: 15) else { throw failure("control-font-missing") }
+                        annotation.font = font
+                    }
                     if type == .ink {
                         let path = NSBezierPath(); path.move(to: CGPoint(x: 4, y: 5)); path.line(to: CGPoint(x: 35, y: 20))
                         path.curve(to: CGPoint(x: 120, y: 15), controlPoint1: CGPoint(x: 50, y: 25), controlPoint2: CGPoint(x: 90, y: 5)); annotation.add(path)
@@ -114,21 +118,32 @@ struct PDFKitDiagnosis {
             trace(scenario + " snapshot before")
             let before = directory.appendingPathComponent(scenario + ".before.json")
             try writeJSON(annotationSnapshot(document, progressPrefix: before), to: before)
-            if scenario == "editable-materialized" {
+            if ["editable-materialized", "editable-resolved-font", "editable-helvetica15"].contains(scenario) {
                 // Mirror only the setters currently used by the production
                 // materializeWriterDefaults helper; keep the original above.
                 for item in page.annotations {
                     let subtype = (item.type ?? "").replacingOccurrences(of: "/", with: "").lowercased()
                     if subtype == "freetext" {
                         let font = item.font, fontColor = item.fontColor
-                        if let font { item.font = font }
+                        if let font {
+                            if scenario == "editable-resolved-font" {
+                                let graphics = CTFontCopyGraphicsFont(font as CTFont, nil)
+                                let replacement = CTFontCreateWithGraphicsFont(graphics, font.pointSize, nil, nil) as NSFont
+                                try writeJSON(["sameInstance": font === replacement, "before": fontIdentity(font),
+                                               "replacement": fontIdentity(replacement)],
+                                              to: directory.appendingPathComponent(scenario + ".font-assignment.json"))
+                                item.font = replacement
+                            } else { item.font = font }
+                        }
                         if let fontColor { item.fontColor = fontColor }
                         if item.border == nil {
                             let border = PDFBorder(); border.lineWidth = 0; item.border = border
                         }
                     }
-                    if subtype == "widget", item.widgetFieldType == .text || item.widgetFieldType == .choice,
-                       item.widgetDefaultStringValue == nil { item.widgetDefaultStringValue = "" }
+                    if subtype == "widget", item.widgetFieldType == .text || item.widgetFieldType == .choice {
+                        let current = item.widgetDefaultStringValue
+                        item.widgetDefaultStringValue = current ?? ""
+                    }
                 }
                 let materialized = directory.appendingPathComponent(scenario + ".materialized.json")
                 try writeJSON(annotationSnapshot(document, progressPrefix: materialized), to: materialized)
@@ -187,6 +202,7 @@ struct PDFKitDiagnosis {
                 let graphics = CTFontCopyGraphicsFont(font as CTFont, nil)
                 result["fontCoreTextPostScriptName"] = CTFontCopyPostScriptName(font as CTFont) as String
                 result["fontResolvedPostScriptName"] = graphics.postScriptName.map { $0 as String } as Any? ?? NSNull()
+                result["fontIdentity"] = fontIdentity(font)
             }
             trace("annotation \(index) freeText fontColor KVC begin")
             let fontColor = item.value(forKey: "fontColor") as? NSColor
@@ -217,6 +233,19 @@ struct PDFKitDiagnosis {
             }
         }
         return result
+    }
+
+    private static func fontIdentity(_ font: NSFont) -> [String: Any] {
+        let ct = font as CTFont, graphics = CTFontCopyGraphicsFont(ct, nil), matrix = CTFontGetMatrix(ct)
+        var variation: [String: Any] = [:]
+        if let entries = CTFontCopyVariation(ct) as? [NSNumber: NSNumber] {
+            for (key, value) in entries { variation[key.stringValue] = value }
+        }
+        return ["fontName": font.fontName, "pointSize": font.pointSize,
+            "coreTextPostScriptName": CTFontCopyPostScriptName(ct) as String,
+            "graphicsPostScriptName": graphics.postScriptName.map { $0 as String } as Any? ?? NSNull(),
+            "symbolicTraits": CTFontGetSymbolicTraits(ct).rawValue, "traits": CTFontCopyTraits(ct) as NSDictionary,
+            "variation": variation, "matrix": [matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty].map { Double($0) }]
     }
 
     @MainActor

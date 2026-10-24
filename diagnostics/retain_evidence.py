@@ -170,7 +170,7 @@ class GitHub:
                 return values
         raise EvidenceFailure('GitHub listing could not be completed.')
 
-    def download(self, route, destination, limit, expected_bytes=None, expected_sha=None):
+    def download(self, route, destination, limit, expected_bytes=None, expected_sha=None, timeout=300):
         # Do not extract ZIPs or execute any downloaded content. Bound the
         # stream before disk exhaustion; discard raw gh errors and signed URLs.
         process = None
@@ -187,7 +187,7 @@ class GitHub:
                 created = True
                 process = subprocess.Popen(self.arguments(route, accept=accept),
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, env=self.environment)
-                deadline = time.monotonic() + 300
+                deadline = time.monotonic() + timeout
                 with selectors.DefaultSelector() as selector:
                     selector.register(process.stdout, selectors.EVENT_READ, 'content')
                     selector.register(process.stderr, selectors.EVENT_READ, 'diagnostic')
@@ -223,12 +223,12 @@ class GitHub:
                     if stream is not None:
                         stream.close()
 
-    def upload(self, tag, path):
+    def upload(self, tag, path, timeout=300):
         # No --clobber: an asset appearing concurrently must make upload fail.
         try:
             result = subprocess.run(['gh', 'release', 'upload', tag, str(path),
                                      '--repo', 'github.com/' + self.repository], stdout=subprocess.DEVNULL,
-                                    stderr=subprocess.DEVNULL, env=self.environment, timeout=300)
+                                    stderr=subprocess.DEVNULL, env=self.environment, timeout=timeout)
         except (OSError, subprocess.SubprocessError):
             raise EvidenceFailure('Draft evidence upload could not complete.') from None
         require(result.returncode == 0, 'Draft evidence upload failed; existing assets were not replaced.')
@@ -254,12 +254,12 @@ def validate_release(release, tag, commit, description):
             'Existing release is published, changed or belongs to another evidence export.')
 
 
-def local_hash(path):
+def local_hash(path, limit=MAX_ARTIFACT):
     descriptor = os.open(path, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
     digest = hashlib.sha256(); count = 0
     with os.fdopen(descriptor, 'rb') as stream:
         before = os.fstat(stream.fileno())
-        require(stat.S_ISREG(before.st_mode) and 0 < before.st_size <= MAX_ARTIFACT,
+        require(stat.S_ISREG(before.st_mode) and 0 < before.st_size <= limit,
                 'Local evidence must be a bounded regular file.')
         for block in iter(lambda: stream.read(1024 * 1024), b''):
             digest.update(block); count += len(block)
@@ -269,19 +269,28 @@ def local_hash(path):
     return {'name': path.name, 'bytes': count, 'sha256': digest.hexdigest()}
 
 
-def compare_existing_asset(api, asset, file, scratch):
-    expected = local_hash(file)
-    require(positive_integer(asset.get('id')) and asset.get('name') == file.name
+def verify_asset_bytes(api, asset, expected, scratch, limit=MAX_ARTIFACT, timeout=300):
+    require(positive_integer(asset.get('id')) and asset.get('name') == expected['name']
             and asset.get('state') == 'uploaded' and asset.get('size') == expected['bytes'],
             'An existing draft asset has a different identity or size.')
     if asset.get('digest') is not None:
         require(asset['digest'] == 'sha256:' + expected['sha256'], 'Existing draft asset digest differs.')
     destination = scratch / ('existing-' + str(asset['id']))
+    downloaded = False
     try:
-        api.download('/releases/assets/' + str(asset['id']), destination, MAX_ARTIFACT,
-                     expected_bytes=expected['bytes'], expected_sha=expected['sha256'])
+        options = {'timeout': timeout} if timeout != 300 else {}
+        api.download('/releases/assets/' + str(asset['id']), destination, limit,
+                     expected_bytes=expected['bytes'], expected_sha=expected['sha256'], **options)
+        downloaded = True
     finally:
-        destination.unlink(missing_ok=True)
+        # download() removes only its own failed partial. If exclusive creation
+        # refused a pre-existing file, this wrapper must preserve that file too.
+        if downloaded:
+            destination.unlink(missing_ok=True)
+
+
+def compare_existing_asset(api, asset, file, scratch):
+    verify_asset_bytes(api, asset, local_hash(file), scratch)
 
 
 def retain(api, run_id, commit, directory):

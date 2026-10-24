@@ -260,6 +260,19 @@ class EvidenceRetentionTests(unittest.TestCase):
         self.assertNotIn('GH_TOKEN', api.environment); self.assertNotIn('GH_DEBUG', api.environment)
         self.assertEqual(arguments[arguments.index('--hostname') + 1], 'github.com')
 
+    def test_asset_verification_preserves_a_preexisting_scratch_file(self):
+        api = object.__new__(gate.GitHub); api.environment = os.environ.copy()
+        api.arguments = lambda *args, **kwargs: [sys.executable, '-c', 'print("download bytes")']
+        expected_file = self.root / 'evidence.zip'; expected_file.write_bytes(b'expected evidence')
+        expected = gate.local_hash(expected_file)
+        asset = {'id': 789, 'name': expected_file.name, 'state': 'uploaded', 'size': expected['bytes'],
+                 'digest': 'sha256:' + expected['sha256']}
+        existing = self.root / 'existing-789'; existing.write_bytes(b'preserve unrelated scratch')
+        before = gate.local_hash(existing)
+        with self.assertRaises(FileExistsError):
+            gate.compare_existing_asset(api, asset, expected_file, self.root)
+        self.assertEqual(gate.local_hash(existing), before)
+
 
 if __name__ == '__main__':
     unittest.main()

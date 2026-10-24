@@ -1,0 +1,88 @@
+name: Retain a cross-tested binary in an owner draft
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful macos.yml run containing both approved platform jobs
+        required: true
+        type: string
+      source_commit:
+        description: Exact 40-character application source commit
+        required: true
+        type: string
+      expected_sha256:
+        description: Independently reviewed SHA-256 of the unchanged macOS 26 tar
+        required: true
+        type: string
+      cross_run_id:
+        description: Successful portable-compatibility.yml run for this exact tar
+        required: true
+        type: string
+      cross_control_commit:
+        description: Exact reviewed 40-character head commit of that cross-platform control
+        required: true
+        type: string
+permissions: {}
+concurrency:
+  group: deliver-binary-${{ inputs.source_run_id }}-${{ inputs.cross_run_id }}
+  cancel-in-progress: false
+jobs:
+  verify-macos-reassembly:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, xcode-27]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    steps:
+      - name: Check out the local reassembly control
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Exercise tiny byte fixtures with the macOS system Bash and utilities
+        run: /usr/bin/sandbox-exec -p '(version 1) (allow default) (deny network*)' /usr/bin/env python3 -m unittest discover -s diagnostics -p 'test_delivery_parts.py' -v
+  retain-owner-draft:
+    needs: verify-macos-reassembly
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    permissions:
+      actions: read
+      contents: write
+    env:
+      PDF_SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      PDF_SOURCE_COMMIT: ${{ inputs.source_commit }}
+      PDF_EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+      PDF_CROSS_RUN_ID: ${{ inputs.cross_run_id }}
+      PDF_CROSS_CONTROL_COMMIT: ${{ inputs.cross_control_commit }}
+    steps:
+      - name: Check out the delivery control only
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Verify delivery gates, archive handling and existing retention contracts
+        run: |
+          python3 -m unittest discover -s diagnostics -p 'test_deliver*.py' -v
+          python3 -m unittest discover -s diagnostics -p 'test_retain_evidence.py' -v
+          python3 -m unittest discover -s diagnostics -p 'test_portable_compatibility.py' -v
+      - name: Retain only the authenticated cross-tested package and original evidence
+        id: delivery
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python3 diagnostics/deliver_binary.py --directory "$RUNNER_TEMP/PDF-owner-delivery"
+      - name: Record the draft and narrowly scoped binary checks
+        env:
+          PDF_RELEASE_ID: ${{ steps.delivery.outputs.release_id }}
+          PDF_RELEASE_TAG: ${{ steps.delivery.outputs.release_tag }}
+          PDF_ARCHIVE_SHA: ${{ steps.delivery.outputs.archive_sha256 }}
+        run: |
+          python3 - <<'PY'
+          import os
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('Binary and original evidence retained in a **draft**, without public publication.\n\n')
+              output.write('Draft ID: ' + os.environ['PDF_RELEASE_ID'] + '\n\n')
+              output.write('Tag: `' + os.environ['PDF_RELEASE_TAG'] + '`\n\n')
+              output.write('Original tar SHA-256: `' + os.environ['PDF_ARCHIVE_SHA'] + '`\n\n')
+              output.write('The source matrix and exact-archive cross-OS checks passed. This does not establish physical M4 performance, Neural Engine usage, human VoiceOver testing or complete coverage of every requested feature. Original reports retain unavailable AI states and other limitations.\n')
+          PY

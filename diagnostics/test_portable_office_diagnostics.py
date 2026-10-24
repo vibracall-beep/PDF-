@@ -11,10 +11,42 @@ import unittest
 from unittest import mock
 
 import portable_office_diagnostics as diagnosis
-from portable_office_diagnostics import ExitObservation, group_has_only_zombies, measure, stop
+from portable_office_diagnostics import ExitObservation, causal_denial, exact_office_profile, group_has_only_zombies, measure, office_socket, probe_expectation, stop
 
 
 class OfficeDiagnosticProcessTests(unittest.TestCase):
+    def test_causal_denial_cannot_be_a_timeout_signal_or_unrelated_error(self):
+        denied = {'exit': 1, 'stoppedBecause': None, 'pdfExists': False, 'conversionPassed': False}
+        self.assertTrue(causal_denial(denied))
+        for changed in ({'stoppedBecause': 'deadline'}, {'stoppedBecause': 'log-limit'},
+                        {'exit': -9}, {'exit': 2}, {'exit': True}, {'pdfExists': True}):
+            with self.subTest(changed=changed):
+                self.assertFalse(causal_denial(dict(denied, **changed)))
+
+    def test_candidate_policy_adds_only_the_calculated_unix_literal(self):
+        with tempfile.TemporaryDirectory(prefix='pdf-lo-profile-') as temporary:
+            profile = Path(temporary).resolve()
+            path = office_socket(profile, os.getuid())
+            base = '(version 1)(allow default)(deny network*)(deny file-read* (subpath "/opt/homebrew"))'
+            candidate = exact_office_profile(base, path)
+            self.assertTrue(candidate.startswith(base + '\n'))
+            self.assertEqual(candidate.count('(allow network-'), 1)
+            self.assertIn('(literal "' + str(path) + '")', candidate)
+            self.assertRegex(path.name, r'^OSL_PIPE_\d+_SingleOfficeIPC_[0-9a-f]{16,32}$')
+            with self.assertRaises(ValueError): exact_office_profile(base, path.parent / 'unrelated')
+            with self.assertRaises(ValueError): exact_office_profile(base, profile / path.name)
+
+    def test_denied_network_requires_bind_eperm_not_an_absent_listener(self):
+        outcome = {'exit': 0, 'stoppedBecause': None}
+        denied = {'socketCreated': True, 'socketErrno': 0, 'bound': False, 'bindErrno': errno.EPERM,
+                  'listening': False, 'listenErrno': 0, 'connected': False, 'connectErrno': 0,
+                  'exchanged': False, 'exchangeErrno': 0}
+        self.assertTrue(probe_expectation(outcome, denied, False))
+        self.assertFalse(probe_expectation(outcome, dict(denied, bindErrno=0, connectErrno=errno.ECONNREFUSED), False))
+        self.assertFalse(probe_expectation(outcome, dict(denied, bindErrno=True), False))
+        self.assertFalse(probe_expectation({'exit': 124}, denied, False))
+        self.assertFalse(probe_expectation(outcome, dict(denied, exchanged=True), False))
+
     def test_normal_exit_remains_unreaped_until_group_cleanup_finishes(self):
         ExitObservation.supported()
         process = subprocess.Popen([sys.executable, '-c', 'raise SystemExit(7)'],

@@ -13,8 +13,10 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
 import select
 import signal
+import stat
 import subprocess
 import sys
 import tempfile
@@ -38,6 +40,67 @@ def production_profile(home):
         ['/bin/bash', '-eu', '-c', lines[0] + '\nprintf "%s" "$PDF_PROFILE"\n'],
         text=True, timeout=10,
         env={'PATH': '/usr/bin:/bin', 'PDF_HOME_QUOTED': json.dumps(str(home / 'Library/Application Support/PDF/runtimes'))})
+
+
+def office_socket(user_installation, uid):
+    # LibreOffice tag libreoffice-26.8.1.1:
+    # desktop/source/deployment/misc/dp_misc.cxx getOfficePipeId hashes the
+    # normalized UserInstallation file URL's UTF-16 code units with MD5, then
+    # appends each byte in hexadecimal WITHOUT two-digit padding. MD5 is only
+    # its IPC naming protocol, never an integrity/security digest here.
+    directory = user_installation.resolve(strict=True)
+    if user_installation.is_symlink() or not directory.is_dir() or type(uid) is not int or uid < 0:
+        raise ValueError('Invalid private Office profile.')
+    uri = directory.as_uri().rstrip('/')
+    digest = hashlib.md5(uri.encode('utf-16-le' if sys.byteorder == 'little' else 'utf-16-be')).digest()
+    name = 'OSL_PIPE_' + str(uid) + '_SingleOfficeIPC_' + ''.join(format(byte, 'x') for byte in digest)
+    # sal/osl/unx/pipe.cxx prefers writable /tmp over /var/tmp and ignores
+    # TMPDIR. The unchanged production profile permits writing /tmp.
+    return Path('/tmp').resolve(strict=True) / name
+
+
+def exact_office_profile(base, socket_path):
+    if not socket_path.is_absolute() or socket_path.parent != Path('/tmp').resolve(strict=True):
+        raise ValueError('The diagnostic exception must name one temporary Unix socket.')
+    if re.fullmatch('OSL_PIPE_' + str(os.getuid()) + r'_SingleOfficeIPC_[0-9a-f]{16,32}', socket_path.name) is None:
+        raise ValueError('The diagnostic exception does not belong to this Office profile.')
+    return base + '\n(allow network-bind network-inbound network-outbound (literal ' + json.dumps(str(socket_path)) + '))\n'
+
+
+def prepare_office_fixture(directory):
+    from docx import Document
+    directory.mkdir(mode=0o700)
+    source = directory / 'office.docx'
+    document = Document(); document.add_paragraph('PDF portable Office verification'); document.save(source)
+    user_installation = directory / 'profile'; user_installation.mkdir(mode=0o700)
+    converted = directory / 'converted'; converted.mkdir(mode=0o700)
+    return source, user_installation, converted
+
+
+def probe_expectation(result, data, allowed):
+    stages = ('socketCreated', 'bound', 'listening', 'connected', 'exchanged')
+    errors = ('socketErrno', 'bindErrno', 'listenErrno', 'connectErrno', 'exchangeErrno')
+    if (result.get('exit') != 0 or result.get('stoppedBecause') is not None
+            or not isinstance(data, dict) or set(data) != set(stages + errors)
+            or any(type(data[key]) is not bool for key in stages)
+            or any(type(data[key]) is not int or data[key] < 0 for key in errors)):
+        return False
+    if allowed:
+        return all(data[key] for key in stages) and all(data[key] == 0 for key in errors)
+    # A refused/absent listener (ECONNREFUSED) proves nothing about policy.
+    # Require an actual denied bind on a newly created socket, and no traffic.
+    return (data['socketCreated'] and data['socketErrno'] == 0 and not data['bound']
+            and data['bindErrno'] == errno.EPERM
+            and not any(data[key] for key in ('listening', 'connected', 'exchanged'))
+            and all(data[key] == 0 for key in ('listenErrno', 'connectErrno', 'exchangeErrno')))
+
+
+def causal_denial(result):
+    # Match the observed LibreOffice failure, not a timeout, signal, malformed
+    # invocation or any other failure that happened to produce no readable PDF.
+    return (type(result.get('exit')) is int and result['exit'] == 1
+            and result.get('stoppedBecause') is None and result.get('pdfExists') is False
+            and result.get('conversionPassed') is False)
 
 
 class ExitObservation:
@@ -160,7 +223,7 @@ def stop(process, observation):
         raise failure
 
 
-def measure(command, directory, environment=None, seconds=90):
+def measure(command, directory, environment=None, seconds=90, observe=None):
     ExitObservation.supported()
     directory.mkdir(mode=0o700)
     stdout = directory / 'stdout.txt'; stderr = directory / 'stderr.txt'
@@ -173,6 +236,7 @@ def measure(command, directory, environment=None, seconds=90):
         try:
             observation = ExitObservation(process.pid)
             while not observation.exited():
+                if observe is not None: observe()
                 if time.monotonic() - began > seconds:
                     reason = 'deadline'; break
                 if max(stdout.stat().st_size, stderr.stat().st_size) > LOG_LIMIT:
@@ -200,21 +264,49 @@ def measure(command, directory, environment=None, seconds=90):
     return result
 
 
-def conversion(executable, directory, profile=None):
+def conversion(executable, directory, profile=None, fixture=None):
     import fitz
-    from docx import Document
     directory.mkdir(mode=0o700)
-    source = directory / 'office.docx'
-    document = Document(); document.add_paragraph('PDF portable Office verification'); document.save(source)
+    source, user_installation, converted = fixture or prepare_office_fixture(directory / 'fixture')
+    generated = converted / 'office.pdf'
+    if os.path.lexists(generated):
+        raise FileExistsError('The synthetic conversion output must be absent before every attempt.')
+    socket_path = office_socket(user_installation, os.getuid())
+    if os.path.lexists(socket_path):
+        raise FileExistsError('The synthetic Office socket already exists; do not connect to or remove it.')
+    socket_observed = False
+    socket_metadata = None
+    def observe():
+        nonlocal socket_observed, socket_metadata
+        try: info = socket_path.lstat()
+        except FileNotFoundError: return
+        if stat.S_ISSOCK(info.st_mode) and info.st_uid == os.getuid():
+            socket_observed = True
+            socket_metadata = {'uid': info.st_uid, 'mode': stat.S_IMODE(info.st_mode), 'device': info.st_dev, 'inode': info.st_ino}
     environment = dict(os.environ)
     environment['PATH'] = '/usr/bin:/bin:/usr/sbin:/sbin'
     # This affects logging only; no bootstrap/profile/IPC workaround is added.
     environment['SAL_LOG'] = '+WARN+INFO'
-    command = [str(executable), '-env:UserInstallation=' + (directory / 'profile').as_uri(),
-               '--headless', '--convert-to', 'pdf', '--outdir', str(directory), str(source)]
+    command = [str(executable), '-env:UserInstallation=' + user_installation.resolve(strict=True).as_uri(),
+               '--headless', '--convert-to', 'pdf', '--outdir', str(converted), str(source)]
+    office_arguments = command[:]
     if profile is not None: command = ['/usr/bin/sandbox-exec', '-p', profile, *command]
-    result = measure(command, directory / 'process', environment)
+    result = measure(command, directory / 'process', environment, observe=observe)
+    result['predictedSocket'] = str(socket_path)
+    result['predictedSocketObserved'] = socket_observed
+    result['socketMetadataWhileRunning'] = socket_metadata
+    result['inputSHA256'] = hashlib.sha256(source.read_bytes()).hexdigest()
+    result['officeArguments'] = office_arguments
+    result['executableSHA256'] = hashlib.sha256(executable.read_bytes()).hexdigest()
     output = directory / 'office.pdf'
+    if os.path.lexists(generated):
+        if not stat.S_ISREG(generated.lstat().st_mode):
+            raise ValueError('The synthetic converter did not create a regular PDF.')
+        # Retain each attempt separately, then free the shared output pathname
+        # so deny/allow/deny use identical arguments without overwriting a PDF.
+        os.link(generated, output, follow_symlinks=False)
+        if not output.samefile(generated): raise RuntimeError('Synthetic PDF identity changed.')
+        generated.unlink()
     result['pdfExists'] = output.is_file()
     result['pdfContainsFixture'] = False
     if output.is_file():
@@ -271,6 +363,7 @@ def main():
     report = {'schemaVersion': 1, 'kind': 'synthetic-portable-office-diagnosis', 'productApproved': False,
               'commit': os.environ.get('GITHUB_SHA'), 'libreOfficeVersion': info.get('CFBundleShortVersionString'),
               'sandboxSHA256': hashlib.sha256(profile.encode()).hexdigest(), 'cases': {}, 'complete': False,
+              'officePipeProtocolSource': 'https://github.com/LibreOffice/core/blob/libreoffice-26.8.1.1/desktop/source/deployment/misc/dp_misc.cxx',
               'limitations': ['Only LibreOffice is copied; the full PDF runtime and its fontconfig environment are not assembled.',
                               'Unisolated cases are diagnostic controls using synthetic input, not a production fallback.',
                               'No result from this workflow approves the complete PDF application.']}
@@ -308,6 +401,21 @@ def main():
             publish()
             report['cases']['private-isolated'] = conversion(executable, output / 'private-isolated', profile)
             publish()
+            # Two attempts use the same signed executable, DOCX bytes and
+            # canonical profile directory. Only the exact socket allow rule
+            # differs; no IP-network or dependency rule is removed.
+            fixture = prepare_office_fixture(output / 'causal-fixture')
+            socket_path = office_socket(fixture[1], os.getuid())
+            limited = exact_office_profile(profile, socket_path)
+            (output / 'exact-socket-sandbox.sb').write_text(limited)
+            report['exactSocket'] = str(socket_path)
+            report['exactSocketSandboxSHA256'] = hashlib.sha256(limited.encode()).hexdigest()
+            report['cases']['causal-denied'] = conversion(executable, output / 'causal-denied', profile, fixture)
+            publish()
+            report['cases']['causal-exact-socket'] = conversion(executable, output / 'causal-exact-socket', limited, fixture)
+            publish()
+            report['cases']['causal-denied-after'] = conversion(executable, output / 'causal-denied-after', profile, fixture)
+            publish()
         with tempfile.TemporaryDirectory(prefix='pdf-lo-ipc-', dir='/tmp') as directory:
             root = Path(directory); probe = root / 'probe'
             subprocess.run(['/usr/bin/xcrun', 'clang', '-arch', 'arm64', '-x', 'c', '-', '-o', str(probe)],
@@ -317,6 +425,33 @@ def main():
                 report['socketProbe'][name] = measure([*prefix, str(probe), str(root / 'ipc')], output / ('socket-' + name), seconds=10)
                 result = output / ('socket-' + name) / 'stdout.txt'
                 report['socketProbe'][name]['result'] = json.loads(result.read_text())
+        # A separate native probe validates byte exchange and the boundaries of
+        # the candidate rule. Only loopback and synthetic Unix endpoints are
+        # attempted; there is no external network destination.
+        with tempfile.TemporaryDirectory(prefix='pdf-lo-boundaries-', dir='/tmp') as directory:
+            root = Path(directory); probe = root / 'probe'
+            subprocess.run(['/usr/bin/xcrun', 'clang', '-arch', 'arm64', '-Wall', '-Wextra', '-Werror',
+                            str(ROOT / 'diagnostics/PortableIPCProbe.c'), '-o', str(probe)],
+                           capture_output=True, check=True, timeout=60)
+            report['exactSocketControls'] = {}
+            cases = [('allowed-unix', ['unix-office', str(socket_path)]),
+                     ('outside-unix', ['unix', str(root.resolve() / 'outside')]),
+                     ('denied-tcp', ['tcp']), ('denied-udp', ['udp'])]
+            for name, arguments in cases:
+                result = measure(['/usr/bin/sandbox-exec', '-p', limited, str(probe), *arguments], output / name, seconds=10)
+                data = json.loads((output / name / 'stdout.txt').read_text())
+                result['result'] = data
+                result['expectationPassed'] = probe_expectation(result, data, name == 'allowed-unix')
+                report['exactSocketControls'][name] = result
+                publish()
+        controls = report['exactSocketControls']
+        denied, allowed, denied_after = (report['cases'][name] for name in ('causal-denied', 'causal-exact-socket', 'causal-denied-after'))
+        report['causalProofPassed'] = (causal_denial(denied) and causal_denial(denied_after) and allowed['conversionPassed']
+            and allowed['predictedSocketObserved'] and denied['inputSHA256'] == allowed['inputSHA256'] == denied_after['inputSHA256']
+            and denied['officeArguments'] == allowed['officeArguments'] == denied_after['officeArguments']
+            and denied['executableSHA256'] == allowed['executableSHA256'] == denied_after['executableSHA256']
+            and all(item['expectationPassed'] for item in controls.values()))
+        report['networkControlInterpretation'] = 'Negative controls require bind() EPERM on fresh endpoints; connection refusal or a missing listener never counts as network isolation.'
         report['complete'] = True
     finally:
         publish()

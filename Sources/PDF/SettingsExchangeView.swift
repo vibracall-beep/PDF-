@@ -146,7 +146,7 @@ struct SettingsExchangeView:View {
     private func reload() {
         guard !busy, ApplicationWork.isAcceptingWork else { return }; busy = true; cancellation = NativeCancellation()
         let token = cancellation
-        ApplicationTask.start(cancel: { token.cancel() }) { defer { busy = false }; do { try Task.checkCancellation(); let values = try await store.configurationSnapshots(); try token.check(); snapshots = values; message = "\(snapshots.count) versões locais disponíveis." } catch { message = error.localizedDescription } }
+        ApplicationTask.start(cancel: { token.cancel() }) { defer { busy = false }; do { try Task.checkCancellation(); let values = try await store.configurationSnapshots(); try token.check(); snapshots = values; message = "\(PortugueseCount.label(snapshots.count, "versão local disponível", "versões locais disponíveis"))." } catch { message = error.localizedDescription } }
     }
     private func inspect(_ item:LibraryConfigurationSnapshot) {
         guard !busy, ApplicationWork.isAcceptingWork else { return }; busy = true; selected = nil; payload = nil; cancellation = NativeCancellation()
@@ -160,14 +160,14 @@ struct SettingsExchangeView:View {
                 var settings = try JSONDecoder().decode(CustomizationSnapshot.self,from:bytes)
                 try settings.appearance.validate(); try settings.reader.validate()
                 if let shortcuts = settings.shortcuts { try AdvancedCustomizationStore.validate(shortcuts) }; try settings.output?.validate()
-                detail = "Tema: \(settings.appearance.colorScheme) · destaque: \(settings.appearance.accentHex) · visualização: \(settings.appearance.layout).\n\(settings.appearance.hiddenTools.count) ferramentas ocultas; \(settings.shortcuts?.bindings.count ?? 0) atalhos personalizados. Revise a pasta de saída depois de aplicar configurações de outro Mac."
+                detail = "Tema: \(settings.appearance.colorScheme) · destaque: \(settings.appearance.accentHex) · visualização: \(settings.appearance.layout).\n\(PortugueseCount.label(settings.appearance.hiddenTools.count, "ferramenta oculta", "ferramentas ocultas")); \(PortugueseCount.label(settings.shortcuts?.bindings.count ?? 0, "atalho personalizado", "atalhos personalizados")). Revise a pasta de saída depois de aplicar configurações de outro Mac."
             case "profiles":
                 let value = try AdvancedCustomizationStore.decodeProfiles(bytes)
                 let existing = Set(preferences.advanced.profiles.map(\.id)),conflicts = value.profiles.filter{existing.contains($0.id)}.count
-                detail = "\(value.profiles.count) perfis recebidos; \(conflicts) identificadores já existem neste Mac.\n"+value.profiles.map(\.name).joined(separator:", ")
+                detail = "\(PortugueseCount.label(value.profiles.count, "perfil recebido", "perfis recebidos")); \(PortugueseCount.label(conflicts, "identificador já existe", "identificadores já existem")) neste Mac.\n"+value.profiles.map(\.name).joined(separator:", ")
             case "bookmarks":
                 let value = try JSONDecoder().decode(PDFReadingExchangeSnapshot.self,from:bytes); try value.validate()
-                detail = "\(value.title) · \(value.pageCount) páginas · \(value.bookmarks.count) marcadores.\nPosição guardada: página \(value.page), zoom \(Int(value.zoom*100))%.\nSHA-256: \(value.documentHash)"
+                detail = "\(value.title) · \(PortugueseCount.label(value.pageCount, "página", "páginas")) · \(PortugueseCount.label(value.bookmarks.count, "marcador", "marcadores")).\nPosição guardada: página \(value.page), zoom \(Int(value.zoom*100))%.\nSHA-256: \(value.documentHash)"
             default: throw PreferenceError.invalid("Tipo de configuração não reconhecido.")
             }
             selected = item; payload = bytes; summary = detail; message = "Integridade verificada. Confira as opções antes de aplicar."
@@ -237,7 +237,7 @@ private struct SettingsExchangeSnapshotRow: View {
     let action: () -> Void
     private var sourceDescription: String {
         let device = String(item.device.uuidString.prefix(8))
-        return "Mac \(device) · \(item.byteCount) bytes"
+        return "Mac \(device) · \(PortugueseCount.label(item.byteCount, "byte", "bytes"))"
     }
     var body: some View {
         Button(action: action) {

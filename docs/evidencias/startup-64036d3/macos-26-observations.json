@@ -1,0 +1,179 @@
+{
+  "schema": 1,
+  "bundle": {
+    "executable_sha256": "586515ec3e1804f63337dcd4024533f4856e550afa4a5eeb2a1a5bc158570148",
+    "info_plist_sha256": "56c581852eca3b7e40820d991b83df2f04cc6d0294a01831c4bf927e51330480"
+  },
+  "bundle_unchanged": true,
+  "launches": [
+    {
+      "status": "window_attached",
+      "markers": {
+        "entry": true,
+        "body": true,
+        "did_finish": true,
+        "main_queue": true,
+        "two_seconds": true,
+        "scene_content": true,
+        "attached": true
+      },
+      "main_queue_responsive": true,
+      "window_observation": "visible",
+      "lifecycle_samples": [
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "0",
+          "visible": "0",
+          "contentViews": "0",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "unknown"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "2",
+          "visible": "1",
+          "contentViews": "2",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "true"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "2",
+          "visible": "1",
+          "contentViews": "2",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "unknown"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "2",
+          "visible": "1",
+          "contentViews": "2",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "true"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "true",
+          "windows": "3",
+          "visible": "1",
+          "contentViews": "3",
+          "key": "true",
+          "main": "true",
+          "defaultLaunch": "true"
+        }
+      ],
+      "product_approval": "not_evaluated",
+      "launch": 1,
+      "seconds": 45.16016695899998,
+      "deadline_seconds": 45.0,
+      "observation_deadline_reached": true,
+      "owned_pid": 28088,
+      "returncode": -15,
+      "cleanup_confirmed": true,
+      "cleanup_error": null,
+      "driver_error": null,
+      "log_sha256": "aa8b7d095f0137658130c7ac38947b6ab3e165975ee22d67541b4e78377b5007",
+      "log_bytes": 3006,
+      "limitation": "Diagnostic copy only. Genuine SwiftUI WindowGroup and normal installer; capture sequence pauses after attachment/activation before fixtures or subprocesses. No PNG, OCR, accessibility, packaging or product approval is inferred."
+    },
+    {
+      "status": "window_attached",
+      "markers": {
+        "entry": true,
+        "body": true,
+        "did_finish": true,
+        "main_queue": true,
+        "two_seconds": true,
+        "scene_content": true,
+        "attached": true
+      },
+      "main_queue_responsive": true,
+      "window_observation": "visible",
+      "lifecycle_samples": [
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "0",
+          "visible": "0",
+          "contentViews": "0",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "unknown"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "2",
+          "visible": "1",
+          "contentViews": "2",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "false"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "2",
+          "visible": "1",
+          "contentViews": "2",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "unknown"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "false",
+          "windows": "2",
+          "visible": "1",
+          "contentViews": "2",
+          "key": "false",
+          "main": "false",
+          "defaultLaunch": "false"
+        },
+        {
+          "policy": "0",
+          "running": "true",
+          "active": "true",
+          "windows": "3",
+          "visible": "1",
+          "contentViews": "3",
+          "key": "true",
+          "main": "true",
+          "defaultLaunch": "false"
+        }
+      ],
+      "product_approval": "not_evaluated",
+      "launch": 2,
+      "seconds": 45.09481670799994,
+      "deadline_seconds": 45.0,
+      "observation_deadline_reached": true,
+      "owned_pid": 29805,
+      "returncode": -15,
+      "cleanup_confirmed": true,
+      "cleanup_error": null,
+      "driver_error": null,
+      "log_sha256": "e755a5771e2639c502e022cba6624a790f9fd35dacce56fe3973736ec9065880",
+      "log_bytes": 3009,
+      "limitation": "Diagnostic copy only. Genuine SwiftUI WindowGroup and normal installer; capture sequence pauses after attachment/activation before fixtures or subprocesses. No PNG, OCR, accessibility, packaging or product approval is inferred."
+    }
+  ],
+  "limitation": "Diagnostic copy only. Genuine SwiftUI WindowGroup and normal installer; capture sequence pauses after attachment/activation before fixtures or subprocesses. No PNG, OCR, accessibility, packaging or product approval is inferred."
+}

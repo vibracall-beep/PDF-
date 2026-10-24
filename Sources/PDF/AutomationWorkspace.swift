@@ -209,7 +209,7 @@ struct AutomationRunRecord:Identifiable {
             let baseline = try await scan(rule.input)
             guard ApplicationWork.isAcceptingWork, !Task.isCancelled, generations[id] == generation,let current = rules.firstIndex(where:{$0.id == id}) else { return }
             trackers[id] = AutomationArrivalTracker(baseline:baseline); rules[current].enabled = true; starting.remove(id)
-            persist(); status = "\(rule.name) ativa. \(baseline.count) PDFs existentes foram ignorados; apenas novas chegadas serão processadas."
+            persist(); status = "\(rule.name) ativa. \(PortugueseCount.label(baseline.count, "PDF existente foi ignorado", "PDFs existentes foram ignorados")); apenas novas chegadas serão processadas."
         } catch is CancellationError { if generations[id] == generation { starting.remove(id) } }
         catch { guard generations[id] == generation, ApplicationWork.isAcceptingWork else { return }; disable(id,error:error.localizedDescription) }
     }
@@ -317,7 +317,7 @@ struct AutomationView:View {
                 }
                 HStack { Text(coordinator.status).font(.callout); Spacer(); if coordinator.activeRuleID != nil { Button("Cancelar execução") { coordinator.cancelCurrent() } } }
                 if coordinator.activeRuleID != nil { ProgressView(value:coordinator.progress) }
-                Text("\(coordinator.pendingCount) arquivos na fila. Falhas pausam a regra; nada é tentado novamente sem reativação. Os resultados recebem uma pasta nova e os originais permanecem intactos.").font(.caption).foregroundStyle(.secondary)
+                Text("\(PortugueseCount.label(coordinator.pendingCount, "arquivo", "arquivos")) na fila. Falhas pausam a regra; nada é tentado novamente sem reativação. Os resultados recebem uma pasta nova e os originais permanecem intactos.").font(.caption).foregroundStyle(.secondary)
                 if !coordinator.history.isEmpty {
                     Text("Execuções desta sessão").font(.headline)
                     ForEach(coordinator.history) { item in

@@ -119,7 +119,7 @@ struct RecoveryDocumentsView:View {
                             ForEach(Array(model.recoveryWarnings.enumerated()),id:\.offset) { _,warning in Text(warning).font(.caption).textSelection(.enabled) }
                         }.frame(maxWidth:.infinity,alignment:.leading)
                     }.frame(maxHeight:120)
-                } label: { Label("\(model.recoveryWarnings.count) avisos: arquivos preservados para revisão",systemImage:"exclamationmark.triangle").foregroundStyle(.orange) }
+                } label: { Label("\(PortugueseCount.label(model.recoveryWarnings.count, "aviso", "avisos")): arquivos preservados para revisão",systemImage:"exclamationmark.triangle").foregroundStyle(.orange) }
                 Button("Abrir o armazenamento de recuperação",systemImage:"folder") { NSWorkspace.shared.open(RecoveryStore.shared.directory) }
             }
             if model.recoveryItems.isEmpty {
@@ -140,7 +140,7 @@ struct RecoveryDocumentsView:View {
                     }.padding(.vertical,6)
                 }.listStyle(.inset)
             }
-            HStack { Button("Atualizar lista",systemImage:"arrow.clockwise") { model.refreshRecovery() }; Spacer(); Text("\(model.recoveryItems.count) cópias locais").font(.caption).foregroundStyle(.secondary) }
+            HStack { Button("Atualizar lista",systemImage:"arrow.clockwise") { model.refreshRecovery() }; Spacer(); Text("\(PortugueseCount.label(model.recoveryItems.count, "cópia local", "cópias locais"))").font(.caption).foregroundStyle(.secondary) }
         }.padding(24).frame(width:720,height:510)
             .onAppear { model.refreshRecovery() }
             .onDisappear { if let id = pendingRestore { model.restoreRecovery(id:id) } }

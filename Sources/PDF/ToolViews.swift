@@ -488,7 +488,7 @@ struct ToolConfigurationView: View {
                 Text("Revise o nome, tipo, página e posição de cada sugestão. Desmarque os campos que não deseja criar.").font(.caption).foregroundStyle(.secondary)
             }
             ForEach(detectedTables) { table in
-                DisclosureGroup("Tabela da página \(table.page) · \(table.rows.count) linhas × \(table.columns) colunas") {
+                DisclosureGroup("Tabela da página \(table.page) · \(PortugueseCount.label(table.rows.count, "linha", "linhas")) × \(PortugueseCount.label(table.columns, "coluna", "colunas"))") {
                     VStack(alignment:.leading,spacing:8) {
                         if let confidence = table.confidence { Text("Evidência do OCR: \(Int((confidence*100).rounded()))% · requer revisão").font(.caption).foregroundStyle(.secondary) }
                         ScrollView(.horizontal) {
@@ -693,8 +693,8 @@ struct ToolConfigurationView: View {
                 fields = reviewed; detectedTables = previews; detectionSettingsChanged = false
                 let ocrPages = reports.filter { ($0["source"] as? String) == "ocr" }.count
                 let lowWords = reports.reduce(0) { $0 + ($1["low_confidence_words"] as? Int ?? 0) }
-                detectionSummary = "\(reports.count) páginas analisadas · \(ocrPages) com OCR · \(reviewed.count) campos · \(previews.count) tabelas"
-                if lowWords > 0 { detectionSummary += " · \(lowWords) palavras para revisão prioritária" }
+                detectionSummary = "\(PortugueseCount.label(reports.count, "página analisada", "páginas analisadas")) · \(ocrPages) com OCR · \(PortugueseCount.label(reviewed.count, "campo", "campos")) · \(PortugueseCount.label(previews.count, "tabela", "tabelas"))"
+                if lowWords > 0 { detectionSummary += " · \(PortugueseCount.label(lowWords, "palavra", "palavras")) para revisão prioritária" }
                 if fields.isEmpty { detectionSummary += ". Nenhum campo sugerido; você pode adicionar campos manualmente." }
             } catch { self.error = error.localizedDescription }
         })

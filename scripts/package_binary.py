@@ -324,6 +324,56 @@ def write_executable(path, content):
     path.chmod(0o755)
 
 
+def qpdf_crypto_dependency(qpdf_root, sources):
+    """Identify qpdf's actual OpenSSL ABI before changing any load commands."""
+    def crypto_loads(path):
+        libraries = set()
+        for value in otool_libraries(command('/usr/bin/otool', '-m', '-L', path)):
+            if re.fullmatch(r'libcrypto(?:\.[0-9]+)*\.dylib', Path(value).name):
+                if not Path(value).is_absolute():
+                    raise ValueError('qpdf crypto dependency must have an explicit source load path.')
+                libraries.add(Path(value).resolve(strict=True))
+        return libraries
+
+    dependencies = set()
+    for path in sorted(qpdf_root.rglob('*')):
+        if macho(path):
+            dependencies.update(crypto_loads(path))
+    if len(dependencies) != 1:
+        raise ValueError('qpdf must identify exactly one OpenSSL crypto library.')
+    crypto = dependencies.pop()
+    owners = [name for name, source in sources.items() if crypto.is_relative_to(source)]
+    if (len(owners) != 1 or not re.fullmatch(r'openssl(?:@[0-9]+)?', owners[0])
+            or not macho(crypto)):
+        raise ValueError('qpdf crypto library must belong to one OpenSSL formula.')
+    owner = owners[0]
+    modules = sources[owner] / 'lib/ossl-modules'
+    legacy = modules / 'legacy.dylib'
+    if (not modules.is_dir() or not modules.resolve(strict=True).is_relative_to(sources[owner])
+            or not legacy.is_file() or not legacy.resolve(strict=True).is_relative_to(sources[owner])
+            or not macho(legacy)):
+        raise ValueError('qpdf requires its own formula-owned OpenSSL legacy provider.')
+    # A provider may resolve OpenSSL symbols from its loader instead of a load
+    # command. Any explicit crypto dependency must use the very same library.
+    provider_loads = crypto_loads(legacy)
+    if provider_loads and provider_loads != {crypto}:
+        raise ValueError('The legacy provider does not match qpdf\'s OpenSSL ABI.')
+    return owner, crypto, modules
+
+
+def write_qpdf_wrapper(runtime, executable, modules):
+    paths = [path.relative_to(runtime).as_posix() for path in (executable, modules)]
+    if any(any(character in value for character in ('"', '`', '$', '\n', '\r'))
+           or '..' in Path(value).parts for value in paths):
+        raise ValueError('The private qpdf runtime path cannot be represented safely.')
+    # The other bundled programs use different OpenSSL ABIs. Never put this
+    # override in environment.sh, which is shared by Python, Java and Office.
+    write_executable(runtime / 'bin/qpdf', '#!/bin/bash\nset -euo pipefail\n'
+        'source "$(dirname "$0")/../environment.sh"\n'
+        'export OPENSSL_MODULES="$PDF_RUNTIME/' + paths[1] + '"\n'
+        'exec "$PDF_RUNTIME/' + paths[0] + '" "$@"\n')
+
+
 def write_ocr_dispatcher(runtime, site_names):
     # macOS multiprocessing imports this file as __mp_main__ in a spawned
     # worker. Rebuild only the private import paths there; invoking the CLI a
@@ -355,12 +405,15 @@ def build(installed, output, commit):
     formulas = sorted(set(roots + command('brew', 'deps', '--formula', '--installed', '--union', *roots).splitlines()))
     maps = {}
     copies = []
+    sources = {}
     for formula in formulas:
         source = Path(command('brew', '--prefix', formula)).resolve(strict=True)
+        sources[formula] = source
         target = runtime / 'vendor' / formula
         maps[source] = target
         maps[Path('/opt/homebrew/opt') / formula] = target
         copies.append((source, target))
+    crypto_formula, source_crypto, source_modules = qpdf_crypto_dependency(sources['qpdf'], sources)
     for source, target in copies:
         copy_tree(source, target)
     register_public_ca(runtime, maps)
@@ -370,6 +423,11 @@ def build(installed, output, commit):
     for source, target in copies:
         relocate_links(source, target, maps)
     completed_framework_links = complete_python_frameworks(runtime, formulas)
+    qpdf_crypto = remap_absolute(source_crypto, maps)
+    qpdf_modules = remap_absolute(source_modules, maps)
+    if (not qpdf_crypto.is_relative_to(runtime) or not qpdf_modules.is_relative_to(runtime)
+            or not macho(qpdf_crypto) or not macho(qpdf_modules / 'legacy.dylib')):
+        raise ValueError('The copied qpdf crypto provider is incomplete or external.')
     python_root = runtime / 'vendor/python@3.12/Frameworks/Python.framework/Versions/3.12'
     python = python_root / 'bin/python3.12'
     if not python.is_file():
@@ -460,7 +518,7 @@ unset PYTHONPATH PYTHONHOME
             raise ValueError('Caminho de runtime inválido.')
         environment += f'export {key}="$PDF_RUNTIME/{value}"\n'
     (runtime / 'environment.sh').write_text(environment)
-    programs = {'python3': rel(python), 'qpdf': 'vendor/qpdf/bin/qpdf',
+    programs = {'python3': rel(python),
                 'tesseract': 'vendor/tesseract/bin/tesseract', 'gs': 'vendor/ghostscript/bin/gs',
                 'fc-match': 'vendor/fontconfig/bin/fc-match', 'fc-conflist': 'vendor/fontconfig/bin/fc-conflist',
                 'java': rel(java), 'soffice': 'LibreOffice.app/Contents/MacOS/soffice'}
@@ -475,6 +533,7 @@ unset PYTHONPATH PYTHONHOME
         if name == 'gs':
             arguments = ' "-sGenericResourceDir=$PDF_RUNTIME/' + rel(gs_resource) + '/" "-sICCProfilesDir=$PDF_RUNTIME/' + rel(gs_resource.parent / 'iccprofiles') + '/"'
         write_executable(bin_dir / name, '#!/bin/bash\nset -euo pipefail\nsource "$(dirname "$0")/../environment.sh"\nexec "$PDF_RUNTIME/' + relative + '"' + arguments + ' "$@"\n')
+    write_qpdf_wrapper(runtime, runtime / 'vendor/qpdf/bin/qpdf', qpdf_modules)
     ocr_env = runtime / 'vendor/ocrmypdf/libexec'
     ocr_site = next((ocr_env / 'lib').glob('python*/site-packages'))
     version = ocr_site.parent.name.removeprefix('python')
@@ -496,6 +555,10 @@ unset PYTHONPATH PYTHONHOME
                 'dependencyFormulae': formulas, 'externalCoreEnginesRequired': False,
                 'removedHostPythonStartupPolicy': isolated_pythons,
                 'completedPythonFrameworkLinks': completed_framework_links,
+                'qpdfCryptography': {'formula': crypto_formula, 'library': rel(qpdf_crypto),
+                                     'providerDirectory': rel(qpdf_modules),
+                                     'legacyProvider': rel(qpdf_modules / 'legacy.dylib'),
+                                     'environmentScope': 'qpdf wrapper only'},
                 'optionalSystemIntegrations': ['Apple Pages for Pages conversion', 'compatible scanner', 'Apple Intelligence system model']}
     (runtime / 'portable.json').write_text(json.dumps(portable, indent=2) + '\n')
     distribution = resources / 'distribution'; distribution.mkdir()

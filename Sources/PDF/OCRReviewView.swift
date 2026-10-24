@@ -89,7 +89,7 @@ struct OCRReviewView: View {
                         Text("< \(Int(confidenceThreshold))%").monospacedDigit()
                     }
                     Spacer()
-                    Text("\(corrections.values.count) correções").foregroundStyle(.secondary)
+                    Text("\(PortugueseCount.label(corrections.values.count, "correção", "correções"))").foregroundStyle(.secondary)
                     Button("Descartar correções") { corrections.reset(); updateSelection() }.disabled(corrections.values.isEmpty)
                 }
                 HSplitView {

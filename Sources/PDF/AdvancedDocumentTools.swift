@@ -367,9 +367,9 @@ private enum AdvancedDecodedAnalysis: Sendable {
                         switch decoded {
                         case .ocr(let value):
                             review = value; ocrReviewURL = url
-                            status = "\(value.words.count) palavras reconhecidas por \(value.backend). Confira a imagem antes de exportar."
+                            status = "\(PortugueseCount.label(value.words.count, "palavra reconhecida", "palavras reconhecidas")) por \(value.backend). Confira a imagem antes de exportar."
                         case .content(let value):
-                            content = value; status = "\(value.objects.count) objetos identificados. Selecione um objeto na página ou na lista."
+                            content = value; status = "\(PortugueseCount.label(value.objects.count, "objeto identificado", "objetos identificados")). Selecione um objeto na página ou na lista."
                             try? FileManager.default.removeItem(at: metadata)
                         }
                         model?.message = status

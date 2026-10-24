@@ -1,0 +1,28 @@
+PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false
+PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false
+PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false
+PDF preview startup: preview session init begin; mainThread=true; swiftTask=false
+PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false
+PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false
+PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false
+PDF preview startup: workspace ready; mainThread=true; swiftTask=false
+PDF preview startup: preview session init end; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false
+PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown
+PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false
+PDF preview startup: window observer creation end; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false
+PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false
+PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=false
+PDF preview phase [2289.248]: real SwiftUI WindowGroup attached
+PDF preview phase [2289.250]: preview regular activation policy accepted=false
+PDF preview startup: diagnostic WindowGroup attached; capture sequence paused; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=unknown
+PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: post-launch two-second observation; mainThread=true; swiftTask=false; policy=0; running=true; active=true; windows=3; visible=1; contentViews=3; key=true; main=true; defaultLaunch=false

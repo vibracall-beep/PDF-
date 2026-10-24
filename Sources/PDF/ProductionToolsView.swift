@@ -222,6 +222,6 @@ struct ProductionToolsView: View {
         let findings = object["findings"] as? [[String: Any]] ?? []
         let codes = ["font-not-embedded": "Fonte não incorporada", "low-image-resolution": "Imagem abaixo da resolução escolhida", "no-distinct-trim": "Área de corte igual à folha"]
         let rows = findings.prefix(200).map { "Página \($0["page"] as? Int ?? 0): \(codes[$0["code"] as? String ?? ""] ?? "Revisão necessária")" }
-        return "\(object["page_count"] as? Int ?? 0) páginas analisadas · \(findings.count) observações.\n" + rows.joined(separator: "\n") + (findings.count > 200 ? "\nAs demais observações estão no relatório exportado." : "")
+        return "\(PortugueseCount.label(object["page_count"] as? Int ?? 0, "página analisada", "páginas analisadas")) · \(PortugueseCount.label(findings.count, "observação", "observações")).\n" + rows.joined(separator: "\n") + (findings.count > 200 ? "\nAs demais observações estão no relatório exportado." : "")
     }
 }

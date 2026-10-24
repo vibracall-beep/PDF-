@@ -1,4 +1,10 @@
-"""Observe startup in an instrumented private checkout; never approve the app."""
+"""Observe the pinned e9af startup baseline; never approve the current app.
+
+Preparation requires a clean checkout at SOURCE_REFERENCE. Tests may read that
+commit from another local Git repository via PDF_STARTUP_BASELINE_REPOSITORY;
+otherwise they use this controller's repository. The historical object must
+already exist locally: this tool never fetches or changes a checkout.
+"""
 from __future__ import annotations
 
 import argparse
@@ -33,6 +39,23 @@ LIMITATION = (
 
 def digest(data):
     return hashlib.sha256(data).hexdigest()
+
+
+def local_git(repository, *arguments):
+    result = subprocess.run(["git", "-C", str(repository), *arguments],
+                            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, timeout=15)
+    if result.returncode != 0:
+        raise ValueError("Required local Git baseline " + SOURCE_REFERENCE
+                         + " is unavailable or the repository cannot be read. Provide a repository"
+                         + " containing that historical object; no automatic fetch is performed.")
+    return result.stdout
+
+
+def baseline_file(repository, relative):
+    allowed = {"Sources/PDF/" + name for name in SOURCE_HASHES} | {"scripts/install-mac.sh"}
+    if relative not in allowed:
+        raise ValueError("Unexpected historical baseline file")
+    return local_git(repository, "show", SOURCE_REFERENCE + ":" + relative)
 
 
 def private_write(path, data):
@@ -90,10 +113,18 @@ def instrument(name, data):
 
 def prepare(repository, output):
     repository = repository.resolve(strict=True)
-    originals = {name: (repository / "Sources/PDF" / name).read_bytes() for name in SOURCE_HASHES}
+    commit = local_git(repository, "rev-parse", "--verify", "HEAD").decode().strip()
+    if commit != SOURCE_REFERENCE:
+        raise ValueError("Startup baseline checkout must be exactly " + SOURCE_REFERENCE
+                         + "; the current HEAD is not the historical baseline. No checkout or fetch is performed.")
+    unchanged = subprocess.run(["git", "-C", str(repository), "diff", "--quiet", "HEAD", "--"],
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=15)
+    if unchanged.returncode != 0:
+        raise ValueError("Historical baseline tracked files are modified or cannot be verified.")
+    originals = {name: baseline_file(repository, "Sources/PDF/" + name) for name in SOURCE_HASHES}
     patched = {name: instrument(name, data).encode() for name, data in originals.items()}
-    commit = subprocess.check_output(["git", "-C", str(repository), "rev-parse", "HEAD"], text=True).strip()
-    tracked = subprocess.check_output(["git", "-C", str(repository), "ls-files", "-z"]).split(b"\0")
+    controller_commit = local_git(ROOT, "rev-parse", "--verify", "HEAD").decode().strip()
+    tracked = local_git(repository, "ls-files", "-z").split(b"\0")
     output.mkdir(mode=0o700)
     source = output / "source"; source.mkdir(mode=0o700)
     evidence = output / "evidence"; evidence.mkdir(mode=0o700)
@@ -118,7 +149,9 @@ def prepare(repository, output):
         diff = "".join(difflib.unified_diff(originals[name].decode().splitlines(True), data.decode().splitlines(True), fromfile="original/" + name, tofile="diagnostic/" + name))
         private_write(evidence / (name + ".patch"), diff.encode())
         changes.append({"path": "Sources/PDF/" + name, "before_sha256": digest(originals[name]), "after_sha256": digest(data)})
-    manifest = {"schema": 1, "checkout_commit": commit, "source_reference": SOURCE_REFERENCE, "changes": changes, "limitation": LIMITATION,
+    manifest = {"schema": 1, "checkout_commit": commit, "baseline_commit": commit,
+                "controller_commit": controller_commit, "controller_sha256": digest(Path(__file__).read_bytes()),
+                "source_reference": SOURCE_REFERENCE, "changes": changes, "limitation": LIMITATION,
                 "installer_sha256": digest((source / "scripts/install-mac.sh").read_bytes()),
                 "run": os.environ.get("GITHUB_RUN_ID"), "attempt": os.environ.get("GITHUB_RUN_ATTEMPT")}
     private_write(evidence / "instrumentation.json", (json.dumps(manifest, indent=2) + "\n").encode())

@@ -435,7 +435,7 @@ enum ReaderAnnotationStyle {
         captureActiveSession()
         let dirty = sessions.filter { $0.refreshDirty() }
         if dirty.isEmpty { return checkpointSynchronously() }
-        let alert = NSAlert(); alert.messageText = "Há alterações em \(dirty.count) documento(s)"
+        let alert = NSAlert(); alert.messageText = "Há alterações em \(PortugueseCount.label(dirty.count, "documento", "documentos"))"
         alert.informativeText = "Você pode manter cópias locais de recuperação para continuar depois. Os arquivos originais permanecem intactos."
         alert.addButton(withTitle: "Voltar"); alert.addButton(withTitle: "Sair mantendo recuperação"); alert.addButton(withTitle: "Descartar alterações")
         switch alert.runModal() {
@@ -1011,7 +1011,7 @@ enum ReaderAnnotationStyle {
         do { try FileManager.default.createDirectory(at:directory,withIntermediateDirectories:false) }
         catch { message = "Não foi possível criar a pasta de resultados: \(error.localizedDescription)"; return }
         func next(_ index:Int) {
-            guard index < inputs.count else { lastOutput = directory; message = "Concluído: \(inputs.count) documentos em \(directory.lastPathComponent)"; return }
+            guard index < inputs.count else { lastOutput = directory; message = "Concluído: \(PortugueseCount.label(inputs.count, "documento", "documentos")) em \(directory.lastPathComponent)"; return }
             let name = String(format:"%03d-",index+1) + inputs[index].deletingPathExtension().lastPathComponent + ".pdf"
             let target = directory.appendingPathComponent(name)
             var itemOptions = options; itemOptions.removeValue(forKey: "input_passwords")
@@ -1019,7 +1019,7 @@ enum ReaderAnnotationStyle {
             execute(operation:operation,inputs:[inputs[index]],output:target,options:itemOptions,title:"\(title) · \(index+1)/\(inputs.count)",completion: { result in
                 switch result {
                 case .success: next(index+1)
-                case .failure(let error): self.lastOutput = directory; self.message = "Lote interrompido após \(index) documentos concluídos. \(error.localizedDescription)"
+                case .failure(let error): self.lastOutput = directory; self.message = "Lote interrompido após \(PortugueseCount.label(index, "documento concluído", "documentos concluídos")). \(error.localizedDescription)"
                 }
             })
         }

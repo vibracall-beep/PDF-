@@ -1,0 +1,161 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "64036d30d51a73eb443f6f221df45a674f3f80ec",
+  "sourceReference": "e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+  "runID": 40133600178,
+  "runAttempt": 1,
+  "runConclusion": "success",
+  "workflowURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40133600178",
+  "collection": "normal authenticated GitHub API; artifact ZIPs verified against GitHub digests, run and head SHA",
+  "originalFiles": [
+    {
+      "file": "attempt-1-logs.zip",
+      "bytes": 156108,
+      "sha256": "25daf99eb98cf71b30fa94ae6d8b80862e7633e83bd22014cc4dbb7d476283a6",
+      "origin": "original GitHub attempt log archive; unchanged bytes",
+      "endpoint": "https://api.github.com/repos/vibracall-beep/PDF-/actions/runs/40133600178/attempts/1/logs",
+      "upstreamDigestAvailable": false
+    },
+    {
+      "file": "macos-26-observations.json",
+      "bytes": 5372,
+      "sha256": "630b8a017a04925038bda4694ccca5567a9ed1d91fdc30c972f972163fa94446",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576396702,
+      "artifactName": "PDF-startup-observation-macos-26",
+      "artifactArchiveBytes": 28113,
+      "artifactArchiveSHA256": "0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "githubDigest": "sha256:0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "member": "observations.json"
+    },
+    {
+      "file": "macos-26-instrumentation.json",
+      "bytes": 1268,
+      "sha256": "0ae670aa3b923ba6cee423faa17ae19aa8cae81694edc3978c7169e1a480e6c9",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576396702,
+      "artifactName": "PDF-startup-observation-macos-26",
+      "artifactArchiveBytes": 28113,
+      "artifactArchiveSHA256": "0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "githubDigest": "sha256:0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "member": "instrumentation.json"
+    },
+    {
+      "file": "macos-26-launch-1-startup.log",
+      "bytes": 3006,
+      "sha256": "aa8b7d095f0137658130c7ac38947b6ab3e165975ee22d67541b4e78377b5007",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576396702,
+      "artifactName": "PDF-startup-observation-macos-26",
+      "artifactArchiveBytes": 28113,
+      "artifactArchiveSHA256": "0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "githubDigest": "sha256:0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "member": "launch-1/startup.log"
+    },
+    {
+      "file": "macos-26-launch-2-startup.log",
+      "bytes": 3009,
+      "sha256": "e755a5771e2639c502e022cba6624a790f9fd35dacce56fe3973736ec9065880",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576396702,
+      "artifactName": "PDF-startup-observation-macos-26",
+      "artifactArchiveBytes": 28113,
+      "artifactArchiveSHA256": "0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "githubDigest": "sha256:0a7510ac7cb60eeb97e90327246b822839b8a1c8033f5272ba6d444198d79f12",
+      "member": "launch-2/startup.log"
+    },
+    {
+      "file": "xcode-27-observations.json",
+      "bytes": 5374,
+      "sha256": "9b5f1f0ddb2634a79d990a7deff11931abe434e3045c8c886a1c2717071209de",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576681540,
+      "artifactName": "PDF-startup-observation-xcode-27",
+      "artifactArchiveBytes": 29207,
+      "artifactArchiveSHA256": "03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "githubDigest": "sha256:03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "member": "observations.json"
+    },
+    {
+      "file": "xcode-27-instrumentation.json",
+      "bytes": 1268,
+      "sha256": "0ae670aa3b923ba6cee423faa17ae19aa8cae81694edc3978c7169e1a480e6c9",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576681540,
+      "artifactName": "PDF-startup-observation-xcode-27",
+      "artifactArchiveBytes": 29207,
+      "artifactArchiveSHA256": "03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "githubDigest": "sha256:03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "member": "instrumentation.json"
+    },
+    {
+      "file": "xcode-27-launch-1-startup.log",
+      "bytes": 3008,
+      "sha256": "127dfad41da340ce242ee5957bd8ce65e931970f5d32a83f29925caf0184462f",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576681540,
+      "artifactName": "PDF-startup-observation-xcode-27",
+      "artifactArchiveBytes": 29207,
+      "artifactArchiveSHA256": "03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "githubDigest": "sha256:03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "member": "launch-1/startup.log"
+    },
+    {
+      "file": "xcode-27-launch-2-startup.log",
+      "bytes": 3011,
+      "sha256": "09d5c02a26d32239cfd7574669c3afe307c6fea5bdd2438f28626621bbae0f60",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12576681540,
+      "artifactName": "PDF-startup-observation-xcode-27",
+      "artifactArchiveBytes": 29207,
+      "artifactArchiveSHA256": "03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "githubDigest": "sha256:03b698ba587936a8761afab0572d4ff0f53527e0fe0a38058f7b6324cf561b9e",
+      "member": "launch-2/startup.log"
+    }
+  ],
+  "independentChecks": [
+    {
+      "runner": "macos-26",
+      "twoObservedLaunchesVerified": true,
+      "visibleResponsiveAtTwoSeconds": true,
+      "firstDefaultLaunchTrueSecondFalse": true,
+      "originalLogHashesMatch": true,
+      "instrumentedBeforeHashesMatchE9Source": true,
+      "bundleUnchanged": true,
+      "cleanupConfirmed": true,
+      "productApproved": false,
+      "failureReproduced": false
+    },
+    {
+      "runner": "xcode-27",
+      "twoObservedLaunchesVerified": true,
+      "visibleResponsiveAtTwoSeconds": true,
+      "firstDefaultLaunchTrueSecondFalse": true,
+      "originalLogHashesMatch": true,
+      "instrumentedBeforeHashesMatchE9Source": true,
+      "bundleUnchanged": true,
+      "cleanupConfirmed": true,
+      "productApproved": false,
+      "failureReproduced": false
+    }
+  ],
+  "privacyReview": {
+    "textEntriesScanned": 32,
+    "patternOccurrences": {
+      "temporary_signed_url": 0,
+      "github_token": 0,
+      "private_key": 0,
+      "authorization_value": 0
+    },
+    "redacted": false,
+    "limitations": "Pattern screening is not a proof of absence of every possible secret."
+  },
+  "limits": [
+    "Instrumented private copy; unchanged real installer, genuine SwiftUI WindowGroup.",
+    "Observation intentionally pauses after attachment/activation and before fixtures, screenshots and subprocesses.",
+    "Startup failure from e9af24a was not reproduced in these four launches; no causal repair demonstrated.",
+    "No PNG, OCR, AX, packaging or product approval.",
+    "45-second observation stop and SIGTERM cleanup are planned diagnostic behavior, not normal application shutdown validation."
+  ]
+}

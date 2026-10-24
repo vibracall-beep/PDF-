@@ -12,8 +12,16 @@ jobs:
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 55
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Check out the current diagnostic controller
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
+          path: control
+          persist-credentials: false
+      - name: Check out the immutable historical startup baseline
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: e9af24a1bd9babe886ec74a9d96e97feb153a2bf
+          path: baseline
           persist-credentials: false
       - name: Record actual platform
         run: |
@@ -21,9 +29,11 @@ jobs:
           sw_vers -productVersion
           xcodebuild -version
       - name: Test diagnostic contracts
-        run: python3 -m unittest discover -s diagnostics -p test_startup_observation.py -v
+        env:
+          PDF_STARTUP_BASELINE_REPOSITORY: ${{ github.workspace }}/baseline
+        run: python3 -m unittest discover -s control/diagnostics -p test_startup_observation.py -v
       - name: Stage verified diagnostic source copy
-        run: python3 diagnostics/startup_observation.py prepare --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/PDF-startup-observation"
+        run: python3 control/diagnostics/startup_observation.py prepare --repository "$GITHUB_WORKSPACE/baseline" --output "$RUNNER_TEMP/PDF-startup-observation"
       - name: Build and validate with the unchanged real installer
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-startup-installed
@@ -32,7 +42,7 @@ jobs:
           set -o pipefail
           bash "$RUNNER_TEMP/PDF-startup-observation/source/scripts/install-mac.sh" 2>&1 | tee "$RUNNER_TEMP/PDF-startup-observation/evidence/installation.log"
       - name: Observe two direct native launches without changing application gates
-        run: python3 diagnostics/startup_observation.py observe --app "$RUNNER_TEMP/pdf-startup-installed/PDF.app" --evidence "$RUNNER_TEMP/PDF-startup-observation/evidence" --seconds 45
+        run: python3 control/diagnostics/startup_observation.py observe --app "$RUNNER_TEMP/pdf-startup-installed/PDF.app" --evidence "$RUNNER_TEMP/PDF-startup-observation/evidence" --seconds 45
       - name: Retain observation evidence regardless of outcome
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

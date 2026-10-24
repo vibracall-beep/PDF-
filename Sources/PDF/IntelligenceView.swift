@@ -366,7 +366,7 @@ struct LocalIntelligenceView: View {
             LazyVStack(alignment: .leading, spacing: 18) {
                 if memory.messages.isEmpty { Text("Busque trechos relacionados à pergunta, inclusive por significado quando houver embeddings no Mac. Buscar fontes funciona sem o modelo gerador.").foregroundStyle(.secondary) }
                 if !foundSources.isEmpty {
-                    DisclosureGroup("Trechos encontrados (\(foundSources.count))") {
+                    DisclosureGroup("\(PortugueseCount.form(foundSources.count, "Trecho encontrado", "Trechos encontrados")) (\(foundSources.count))") {
                         ForEach(foundSources) { excerpt in
                             VStack(alignment: .leading, spacing: 6) {
                                 Button("Abrir página \(excerpt.page) · \(excerpt.id)") { openReference(SourceReference(excerpt: excerpt.id, page: excerpt.page, quote: String(excerpt.text.prefix(240))), sourceKey: foundSourceKey) }
@@ -421,7 +421,7 @@ struct LocalIntelligenceView: View {
     }
     @ViewBuilder private func references(_ items: [SourceReference], sourceKey: String) -> some View {
         if !items.isEmpty {
-            DisclosureGroup("Conferir \(items.count) referência(s)") {
+            DisclosureGroup("Conferir \(PortugueseCount.label(items.count, "referência", "referências"))") {
                 ForEach(items) { reference in
                     VStack(alignment: .leading, spacing: 5) {
                         Button("Abrir página \(reference.page) · \(reference.excerpt)") { openReference(reference, sourceKey: sourceKey) }
@@ -584,7 +584,7 @@ struct LocalIntelligenceView: View {
                 try Task.checkCancellation()
                 guard documentKey == key else { throw CancellationError() }
                 foundSources = context.excerpts; foundSourceKey = key; retrievalMethod = context.method; progress = 1
-                status = context.isEmpty ? "Nenhum trecho correspondente encontrado. Tente uma pergunta mais específica." : "\(context.excerpts.count) trechos encontrados. A busca não gerou uma resposta nem avaliou sua veracidade."
+                status = context.isEmpty ? "Nenhum trecho correspondente encontrado. Tente uma pergunta mais específica." : "\(PortugueseCount.label(context.excerpts.count, "trecho encontrado", "trechos encontrados")). A busca não gerou uma resposta nem avaliou sua veracidade."
             } catch is CancellationError { status = "Busca cancelada." }
             catch { status = "Não foi possível buscar: \(error.localizedDescription)" }
         }
@@ -638,7 +638,7 @@ struct LocalIntelligenceView: View {
                     memory.quiz.append(item)
                     progress = 0.1 + 0.9 * Double(index + 1) / Double(count)
                 }
-                status = "\(memory.quiz.count) questões geradas com gabarito e páginas de origem. Revise antes de aplicar."
+                status = "\(PortugueseCount.label(memory.quiz.count, "questão gerada", "questões geradas")) com gabarito e páginas de origem. Revise antes de aplicar."
             } catch is CancellationError { status = "Geração cancelada. Questões concluídas permanecem disponíveis." }
             catch { status = "Geração interrompida: \(error.localizedDescription)" }
         }
@@ -720,7 +720,7 @@ struct LocalIntelligenceView: View {
                 let chunks = try await preparedChunks(document: document, url: sourceURL, snapshot: needsSnapshot, key: key)
                 try Task.checkCancellation()
                 guard !chunks.isEmpty else { status = "Documento sem texto selecionável. Execute OCR primeiro."; return }
-                status = "Preparando \(chunks.count) trechos…"
+                status = "Preparando \(PortugueseCount.label(chunks.count, "trecho", "trechos"))…"
                 var responses: [String] = []
                 for (index, chunk) in chunks.enumerated() {
                     try Task.checkCancellation()
@@ -773,7 +773,7 @@ struct LocalIntelligenceView: View {
                         }
                     }
                 }
-                status = "Concluído: \(chunks.count) trechos processados. Revise o conteúdo antes de usar."
+                status = "Concluído: \(PortugueseCount.label(chunks.count, "trecho processado", "trechos processados")). Revise o conteúdo antes de usar."
             } catch is CancellationError {
                 status = "Cancelado. Os trechos já concluídos permanecem disponíveis para revisão e exportação."
             } catch {

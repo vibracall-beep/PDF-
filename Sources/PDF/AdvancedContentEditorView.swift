@@ -89,7 +89,7 @@ struct AdvancedContentEditorView: View {
             if let content = controller.content, let document = controller.preview {
                 HStack {
                     Picker("Página", selection: $page) { ForEach(content.pages) { Text("\($0.page)").tag($0.page) } }.frame(width: 160)
-                    Text("\(edits.count) alterações preparadas").foregroundStyle(.secondary)
+                    Text("\(PortugueseCount.label(edits.count, "alteração preparada", "alterações preparadas"))").foregroundStyle(.secondary)
                     Spacer()
                     Button("Descartar alterações") { edits = [:]; select(selection) }.disabled(edits.isEmpty)
                     Button("Exportar cópia…") { export() }.buttonStyle(.borderedProminent).disabled(edits.isEmpty || controller.working || model.busy || loadingAsset)
@@ -107,7 +107,7 @@ struct AdvancedContentEditorView: View {
                                 Image(systemName: item.kind == "paragraph" ? "paragraphsign" : item.isText ? "text.alignleft" : "photo")
                                 VStack(alignment: .leading) {
                                     Text(item.isText ? String((item.text ?? "Texto").prefix(90)) : "Imagem original").lineLimit(2)
-                                    if item.kind == "paragraph" { Text("Parágrafo · \(item.member_ids?.count ?? 0) trechos").font(.caption).foregroundStyle(.secondary) }
+                                    if item.kind == "paragraph" { Text("Parágrafo · \(PortugueseCount.label(item.member_ids?.count ?? 0, "trecho", "trechos"))").font(.caption).foregroundStyle(.secondary) }
                                     if !item.editable { Text("Revisão somente").font(.caption).foregroundStyle(.orange) }
                                     if edits[item.id] != nil { Text("Alteração preparada").font(.caption).foregroundStyle(.green) }
                                 }

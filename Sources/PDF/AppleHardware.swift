@@ -7,7 +7,7 @@ enum AppleHardware {
     static var processorCount: Int { ProcessInfo.processInfo.activeProcessorCount }
     static var memoryGiB: Int { Int(ProcessInfo.processInfo.physicalMemory / 1_073_741_824) }
     static var summary: String {
-        "\(graphicsDevice) · \(processorCount) núcleos disponíveis · \(memoryGiB) GB de memória"
+        "\(graphicsDevice) · \(PortugueseCount.label(processorCount, "núcleo disponível", "núcleos disponíveis")) · \(memoryGiB) GB de memória"
     }
 }
 

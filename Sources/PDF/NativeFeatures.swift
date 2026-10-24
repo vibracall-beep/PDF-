@@ -603,7 +603,7 @@ struct NativeFeaturesView: View {
                 }
             }.frame(minHeight: 90, maxHeight: 170)
             HStack {
-                Text("\(scanner.captures.count) arquivos selecionados").foregroundStyle(.secondary)
+                Text("\(PortugueseCount.label(scanner.captures.count, "arquivo selecionado", "arquivos selecionados"))").foregroundStyle(.secondary)
                 Spacer()
                 Button("Criar PDF…") { assembleScans() }.buttonStyle(.borderedProminent).disabled(scanner.captures.isEmpty || scanner.importingContinuity)
             }
@@ -675,7 +675,7 @@ struct NativeFeaturesView: View {
                 let compatibilityPages = output.pages.filter { $0.backend == "tesseract" }.count
                 let detail = compatibilityPages == 0
                     ? "PDF pesquisável salvo com Apple Vision."
-                    : "PDF pesquisável salvo. Apple Vision: \(applePages) páginas; Tesseract local: \(compatibilityPages) páginas. O Tesseract foi usado nas páginas em que o reconhecimento Apple falhou."
+                    : "PDF pesquisável salvo. Apple Vision: \(PortugueseCount.label(applePages, "página", "páginas")); Tesseract local: \(PortugueseCount.label(compatibilityPages, "página", "páginas")). O Tesseract foi usado nas páginas em que o reconhecimento Apple falhou."
                 DispatchQueue.main.async { running = false; cancellation = nil; result = destination; status = detail + " Revise o reconhecimento antes de compartilhar." }
             } catch is CancellationError {
                 DispatchQueue.main.async { running = false; cancellation = nil; status = "OCR cancelado. Nenhum resultado foi publicado." }

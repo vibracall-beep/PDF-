@@ -9,10 +9,20 @@ import AppKit
         PreviewStartupTrace.record("application delegate initialized")
     }
     func applicationWillFinishLaunching(_ notification: Notification) {
-        PreviewStartupTrace.record("application will finish launching")
+        PreviewStartupTrace.applicationState("application will finish launching")
     }
     func applicationDidFinishLaunching(_ notification: Notification) {
-        PreviewStartupTrace.record("application did finish launching")
+        let defaultLaunch = (notification.userInfo?[NSApplication.launchIsDefaultUserInfoKey] as? NSNumber)?.boolValue
+        PreviewStartupTrace.applicationState("application did finish launching", defaultLaunch: defaultLaunch)
+        if CommandLine.arguments.contains("--render-preview") {
+            DispatchQueue.main.async {
+                PreviewStartupTrace.applicationState("post-launch main queue turn", defaultLaunch: defaultLaunch)
+            }
+            // Observation only: capture does not wait for this callback.
+            DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+                PreviewStartupTrace.applicationState("post-launch two-second observation", defaultLaunch: defaultLaunch)
+            }
+        }
     }
     func applicationShouldTerminate(_ sender:NSApplication) -> NSApplication.TerminateReply {
         if waitingForOperationCleanup { return .terminateLater }

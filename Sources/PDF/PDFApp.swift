@@ -226,6 +226,7 @@ struct PDFApp: App {
     var body: some Scene {
         let _ = PreviewStartupTrace.record("PDFApp body evaluated")
         WindowGroup {
+            let _ = PreviewStartupTrace.record("WindowGroup content builder evaluated")
             Group {
                 if preview.isEnabled { preview.content.id(preview.routeIdentity) }
                 else { ContentView() }
@@ -403,7 +404,7 @@ struct ContentView: View {
                 if (!model.recoveryItems.isEmpty || !model.recoveryWarnings.isEmpty) && model.section != "Favoritos" {
                     HStack(spacing:12) {
                         Image(systemName:"clock.arrow.circlepath").accessibilityHidden(true)
-                        Text(model.recoveryItems.isEmpty ? "Há avisos sobre as cópias de recuperação." : "Há \(model.recoveryItems.count) cópias locais de recuperação.").font(.callout)
+                        Text(model.recoveryItems.isEmpty ? "Há avisos sobre as cópias de recuperação." : "Há \(PortugueseCount.label(model.recoveryItems.count, "cópia local de recuperação", "cópias locais de recuperação")).").font(.callout)
                         Spacer()
                         Button("Revisar cópias…") { showRecovery = true }.accessibilityIdentifier("pdf.recovery.review")
                     }.padding(14).pdfGlass()
@@ -415,12 +416,12 @@ struct ContentView: View {
                         .accessibilityLabel("Categoria de ferramentas").accessibilityIdentifier("pdf.catalog.category")
                 }
                 if model.section == "Favoritos" && hiddenFavoriteCount > 0 {
-                    HStack(spacing:8) { Image(systemName:"eye.slash"); Text("\(hiddenFavoriteCount) favoritos estão ocultos nas preferências."); Button("Personalizar") { showCustomization = true } }.font(.caption).foregroundStyle(.secondary)
+                    HStack(spacing:8) { Image(systemName:"eye.slash"); Text("\(PortugueseCount.label(hiddenFavoriteCount, "favorito está oculto", "favoritos estão ocultos")) nas preferências."); Button("Personalizar") { showCustomization = true } }.font(.caption).foregroundStyle(.secondary)
                 }
                 if orderedTools.isEmpty { emptyToolsState }
                 HStack(alignment:.firstTextBaseline) {
                     Text(model.section == "Favoritos" ? "Suas ferramentas favoritas" : category == "Todas" ? "Todas as ferramentas" : category).font(.title3.weight(.semibold))
-                    Spacer(); Text("\(orderedTools.count) \(hasToolFilters ? "resultados" : "ferramentas")").font(.caption).foregroundStyle(.secondary)
+                    Spacer(); Text(PortugueseCount.label(orderedTools.count, hasToolFilters ? "resultado" : "ferramenta", hasToolFilters ? "resultados" : "ferramentas")).font(.caption).foregroundStyle(.secondary)
                 }
                 if preferences.state.groupByCategory && category == "Todas" {
                     ForEach(AppearanceState.categories,id:\.self) { group in

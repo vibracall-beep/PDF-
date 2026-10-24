@@ -152,7 +152,7 @@ struct BenchmarkReport: Codable, Sendable {
             if input == nil, !text.contains("página \(pages)") { throw failure("A extração não recuperou o conteúdo conhecido da última página da amostra.") }
         }
         let matches = document.findString("benchmark",withOptions:.caseInsensitive).count
-        try record("search","Buscar no documento","Termo fixo: benchmark; \(matches) ocorrências na amostra selecionada.") {
+        try record("search","Buscar no documento","Termo fixo: benchmark; \(PortugueseCount.label(matches, "ocorrência", "ocorrências")) na amostra selecionada.") {
             let count = document.findString("benchmark",withOptions:.caseInsensitive).count
             if input == nil, count != pages { throw failure("A busca não encontrou o termo conhecido em todas as páginas da amostra.") }
         }

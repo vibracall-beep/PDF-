@@ -446,8 +446,8 @@ struct WorkflowView: View {
                     HStack {
                         ProgressView(value: Double(completed), total: Double(max(total, 1)))
                         VStack(alignment: .trailing, spacing: 2) {
-                            Text("\(completed)/\(total) etapas")
-                            Text("\(min(inputs.count, completed / max(preset.stages.count, 1)))/\(inputs.count) arquivos processados")
+                            Text("\(completed)/\(total) \(PortugueseCount.form(total, "etapa", "etapas"))")
+                            Text("\(min(inputs.count, completed / max(preset.stages.count, 1)))/\(inputs.count) \(PortugueseCount.form(inputs.count, "arquivo processado", "arquivos processados"))")
                         }.font(.caption.monospacedDigit())
                         Button("Cancelar") { model.cancel() }
                     }
@@ -514,7 +514,7 @@ struct WorkflowView: View {
     private var documentSelection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack(alignment: .top, spacing: 16) {
-                fileCard(title: "1. Documentos de entrada", filename: inputs.isEmpty ? "Escolha PDFs" : "\(inputs.count) documento(s) selecionado(s)", symbol: "doc.on.doc", action: chooseInput)
+                fileCard(title: "1. Documentos de entrada", filename: inputs.isEmpty ? "Escolha PDFs" : "\(PortugueseCount.label(inputs.count, "documento selecionado", "documentos selecionados"))", symbol: "doc.on.doc", action: chooseInput)
                 Image(systemName: "arrow.right").foregroundStyle(.secondary).padding(.top, 42)
                 fileCard(title: outputIsDirectory ? "2. Nova pasta de saída" : "2. Novo arquivo .\(terminal.outputSuffix)", filename: output?.lastPathComponent ?? "Escolha um novo destino", symbol: outputIsDirectory ? "folder" : "doc.badge.arrow.up", action: chooseOutput)
             }

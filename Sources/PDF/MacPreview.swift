@@ -8,10 +8,10 @@ import Darwin
 /// Startup breadcrumbs precede AppKit's window lifecycle. They are enabled
 /// only for the explicit preview command and contain no paths or document data.
 enum PreviewStartupTrace {
-    static func record(_ phase: StaticString) {
+    static func record(_ phase: StaticString, details: String = "") {
         guard CommandLine.arguments.contains("--render-preview") else { return }
         let hasSwiftTask = withUnsafeCurrentTask { $0 != nil }
-        let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0); swiftTask=\(hasSwiftTask)\n"
+        let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0); swiftTask=\(hasSwiftTask)\(details)\n"
         // No stdout/stdio buffer: a timeout before WindowGroup attachment must
         // still retain the last phase. Failure to log never changes app behavior.
         let bytes = Array(line.utf8)
@@ -25,6 +25,17 @@ enum PreviewStartupTrace {
                 else { break }
             }
         }
+    }
+}
+
+extension PreviewStartupTrace {
+    @MainActor static func applicationState(_ phase: StaticString, defaultLaunch: Bool? = nil) {
+        guard CommandLine.arguments.contains("--render-preview") else { return }
+        guard let app = NSApp else { record(phase, details: "; application=absent"); return }
+        let windows = app.windows
+        // Only lifecycle flags and counts; no window titles, URLs or user data.
+        let details = "; policy=\(app.activationPolicy().rawValue); running=\(app.isRunning); active=\(app.isActive); windows=\(windows.count); visible=\(windows.filter(\.isVisible).count); contentViews=\(windows.filter { $0.contentView != nil }.count); key=\(app.keyWindow != nil); main=\(app.mainWindow != nil); defaultLaunch=\(defaultLaunch.map { String($0) } ?? "unknown")"
+        record(phase, details: details)
     }
 }
 

@@ -1,22 +1,26 @@
 import contextlib
 import io
 import json
+import os
 from pathlib import Path
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 import startup_observation as probe
+
+BASELINE_REPOSITORY = Path(os.environ.get("PDF_STARTUP_BASELINE_REPOSITORY", str(probe.ROOT)))
 
 
 class StartupObservationTests(unittest.TestCase):
     def test_exact_sources_are_required_and_original_bytes_unchanged(self):
         for name, expected in probe.SOURCE_HASHES.items():
-            original = (probe.ROOT / "Sources/PDF" / name).read_bytes()
+            original = probe.baseline_file(BASELINE_REPOSITORY, "Sources/PDF/" + name)
             self.assertEqual(probe.digest(original), expected)
             instrumented = probe.instrument(name, original)
             self.assertNotEqual(original.decode(), instrumented)
-            self.assertEqual((probe.ROOT / "Sources/PDF" / name).read_bytes(), original)
+            self.assertEqual(probe.baseline_file(BASELINE_REPOSITORY, "Sources/PDF/" + name), original)
             with self.assertRaisesRegex(ValueError, "source hash changed"):
                 probe.instrument(name, original + b"\n")
 
@@ -35,26 +39,52 @@ class StartupObservationTests(unittest.TestCase):
             git("config", "user.name", "Diagnostic test"); git("config", "user.email", "test@invalid.local")
             for name in probe.SOURCE_HASHES:
                 target = repository / "Sources/PDF" / name; target.parent.mkdir(parents=True, exist_ok=True)
-                target.write_bytes((probe.ROOT / "Sources/PDF" / name).read_bytes())
+                target.write_bytes(probe.baseline_file(BASELINE_REPOSITORY, "Sources/PDF/" + name))
             installer = repository / "scripts/install-mac.sh"; installer.parent.mkdir()
-            original_installer = (probe.ROOT / "scripts/install-mac.sh").read_bytes()
+            original_installer = probe.baseline_file(BASELINE_REPOSITORY, "scripts/install-mac.sh")
             installer.write_bytes(original_installer); installer.chmod(0o700)
             git("add", "."); git("commit", "-qm", "Fixture")
+            fixture_commit = git("rev-parse", "HEAD").stdout.decode().strip()
             (repository / "untracked-secret.txt").write_text("not part of source")
             output = root / "diagnostic"
-            with contextlib.redirect_stdout(io.StringIO()):
+            with mock.patch.object(probe, "SOURCE_REFERENCE", fixture_commit), contextlib.redirect_stdout(io.StringIO()):
                 probe.prepare(repository, output)
             self.assertFalse((output / "source/untracked-secret.txt").exists())
             self.assertEqual((output / "source/scripts/install-mac.sh").read_bytes(), original_installer)
             self.assertTrue((output / "source/scripts/install-mac.sh").stat().st_mode & 0o100)
             manifest = json.loads((output / "evidence/instrumentation.json").read_text())
+            self.assertEqual(manifest["baseline_commit"], fixture_commit)
+            self.assertEqual(manifest["source_reference"], fixture_commit)
+            self.assertEqual(manifest["controller_commit"], probe.local_git(probe.ROOT, "rev-parse", "HEAD").decode().strip())
+            self.assertEqual(manifest["controller_sha256"], probe.digest(Path(probe.__file__).read_bytes()))
+            self.assertEqual(manifest["installer_sha256"], probe.digest(original_installer))
             self.assertEqual(len(manifest["changes"]), 3)
             for change in manifest["changes"]:
                 self.assertEqual(probe.digest((repository / change["path"]).read_bytes()), change["before_sha256"])
                 self.assertEqual(probe.digest((output / "source" / change["path"]).read_bytes()), change["after_sha256"])
                 self.assertTrue((output / "evidence" / (Path(change["path"]).name + ".patch")).read_text().startswith("--- original/"))
-            with self.assertRaises(FileExistsError):
+            with mock.patch.object(probe, "SOURCE_REFERENCE", fixture_commit), self.assertRaises(FileExistsError):
                 probe.prepare(repository, output)
+            installer.write_bytes(original_installer + b"\n# changed baseline\n")
+            refused = root / "dirty-baseline"
+            with mock.patch.object(probe, "SOURCE_REFERENCE", fixture_commit), self.assertRaisesRegex(ValueError, "tracked files are modified"):
+                probe.prepare(repository, refused)
+            self.assertFalse(refused.exists())
+
+    def test_wrong_baseline_commit_is_rejected_before_creating_output(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            repository = Path(temporary) / "repository"; repository.mkdir()
+            def git(*args):
+                return subprocess.run(["git", "-C", str(repository), *args], check=True, capture_output=True, timeout=15)
+            git("init", "-q")
+            git("-c", "user.name=Diagnostic test", "-c", "user.email=test@invalid.local",
+                "commit", "--allow-empty", "-qm", "Different baseline")
+            output = Path(temporary) / "must-not-be-created"
+            with self.assertRaisesRegex(ValueError, "checkout must be exactly"):
+                probe.prepare(repository, output)
+            self.assertFalse(output.exists())
+            with self.assertRaisesRegex(ValueError, "no automatic fetch"):
+                probe.baseline_file(repository, "Sources/PDF/PDFApp.swift")
 
     def test_launch_completion_alone_never_means_a_window(self):
         report = probe.summarize("PDF preview startup: application did finish launching; windows=0; visible=0\n")

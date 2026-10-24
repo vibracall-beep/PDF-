@@ -1,0 +1,26 @@
+{
+  "schema": 1,
+  "checkout_commit": "64036d30d51a73eb443f6f221df45a674f3f80ec",
+  "source_reference": "e9af24a1bd9babe886ec74a9d96e97feb153a2bf",
+  "changes": [
+    {
+      "path": "Sources/PDF/PDFApp.swift",
+      "before_sha256": "8d8d58fb360bfc2aca1fbb6cf9f77aa214b371af9f7ad0d7f5d517e8619a9982",
+      "after_sha256": "23ee44fab492a1ed12e16a03a3bca6c99ecc8b7f106d670f1dcea7841998332c"
+    },
+    {
+      "path": "Sources/PDF/MacPreview.swift",
+      "before_sha256": "61945246fa6944531807d120bbf19ebef672c3b11a6e1e248ea147d186585c21",
+      "after_sha256": "a1af58960a2a9b429183f35f93b4a248f50bb9834aa26bc24fcd02ceb3e3d5a5"
+    },
+    {
+      "path": "Sources/PDF/WorkspaceLifecycle.swift",
+      "before_sha256": "c03a1a51a2f717d0564684ae054ebc55dfa3970e66cc7d5836bc33c232498ba9",
+      "after_sha256": "3751ebf62dfbaa2e9eb32d84eda1141011a0987066be5c9bc94a64eaced97008"
+    }
+  ],
+  "limitation": "Diagnostic copy only. Genuine SwiftUI WindowGroup and normal installer; capture sequence pauses after attachment/activation before fixtures or subprocesses. No PNG, OCR, accessibility, packaging or product approval is inferred.",
+  "installer_sha256": "01ee549b903108ae434f704f7620a45277e398b83e655ebf48300908beefa78a",
+  "run": "40133600178",
+  "attempt": "1"
+}

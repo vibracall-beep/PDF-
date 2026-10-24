@@ -122,9 +122,9 @@ struct DocumentLibraryView: View {
             Text("Cópias locais, coleções e versões verificadas. Seus arquivos originais permanecem intactos.")
                 .foregroundStyle(.secondary)
             HStack(spacing: 16) {
-                Label("\(documents.count) documentos", systemImage: "doc.on.doc")
-                Label("\(documents.reduce(0) { $0 + $1.revisions.count }) versões", systemImage: "clock.arrow.circlepath")
-                Text("\(selected.count) selecionados")
+                Label("\(PortugueseCount.label(documents.count, "documento", "documentos"))", systemImage: "doc.on.doc")
+                Label("\(PortugueseCount.label(documents.reduce(0) { $0 + $1.revisions.count }, "versão", "versões"))", systemImage: "clock.arrow.circlepath")
+                Text("\(PortugueseCount.label(selected.count, "selecionado", "selecionados"))")
             }.font(.caption).foregroundStyle(.secondary)
         }.padding(22).background(.regularMaterial)
     }
@@ -225,10 +225,10 @@ struct DocumentLibraryView: View {
                     Text(document.current.labels.collection.isEmpty ? "Sem coleção" : document.current.labels.collection).font(.caption).foregroundStyle(.secondary)
                     if !document.current.labels.tags.isEmpty { Text(document.current.labels.tags.joined(separator: " · ")).font(.caption).foregroundStyle(.tint) }
                     HStack {
-                        Text(document.current.pages > 0 ? "\(document.current.pages) páginas" : "Protegido")
+                        Text(document.current.pages > 0 ? "\(PortugueseCount.label(document.current.pages, "página", "páginas"))" : "Protegido")
                         Spacer()
                         if document.heads.count > 1 { Label("\(document.heads.count) ramificações", systemImage: "exclamationmark.triangle") }
-                        else { Text("\(document.revisions.count) versões") }
+                        else { Text("\(PortugueseCount.label(document.revisions.count, "versão", "versões"))") }
                     }.font(.caption2).foregroundStyle(.secondary)
                 }.padding(.vertical, 5).tag(document.id)
             }
@@ -336,7 +336,7 @@ struct DocumentLibraryView: View {
                     if comparisonDocumentCount < 2 {
                         Text("A comparação precisa de trechos de pelo menos dois documentos distintos dentro do contexto da pergunta.").font(.caption).foregroundStyle(.secondary)
                     } else {
-                        DisclosureGroup("Fontes da comparação: \(comparisonDocumentCount) documentos") {
+                        DisclosureGroup("Fontes da comparação: \(PortugueseCount.label(comparisonDocumentCount, "documento", "documentos"))") {
                             Text("Um trecho por documento recebe prioridade antes dos trechos adicionais. Estes são os textos que cabem no contexto enviado à IA.").font(.caption).foregroundStyle(.secondary)
                             ForEach(comparisonExcerpts) { excerpt in
                                 VStack(alignment: .leading, spacing: 4) {
@@ -448,7 +448,7 @@ struct DocumentLibraryView: View {
         library.run("Importando PDFs e verificando duplicados…") { _ in
             let report = try await library.store.importFiles(urls, collection: filter.collection)
             library.catalog = report.catalog
-            return "\(report.imported) importados · \(report.duplicate) cópias idênticas já presentes."
+            return "\(PortugueseCount.label(report.imported, "importado", "importados")) · \(PortugueseCount.label(report.duplicate, "cópia idêntica já presente", "cópias idênticas já presentes"))."
         }
     }
     private func addVersion(_ document: LibraryDocument) {
@@ -465,7 +465,7 @@ struct DocumentLibraryView: View {
         showSync = false
         library.run("Verificando manifestos e sincronizando cópias…") { _ in
             let report = try await library.store.synchronize(with: url); library.catalog = report.catalog
-            return "\(report.received) versões e \(report.configurationsReceived) ajustes recebidos · \(report.conflicts) documentos com ramificações preservadas."
+            return "\(PortugueseCount.label(report.received, "versão", "versões")) e \(PortugueseCount.label(report.configurationsReceived, "ajuste recebido", "ajustes recebidos")) · \(PortugueseCount.label(report.conflicts, "documento", "documentos")) com ramificações preservadas."
         }
     }
     private func export(_ document: LibraryDocument, revision: LibraryRevision) {

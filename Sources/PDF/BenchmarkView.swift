@@ -189,7 +189,7 @@ struct BenchmarkView: View {
                             ForEach(item.checks) { check in
                                 Label(check.detail, systemImage: check.passed ? "checkmark.circle" : "xmark.circle").font(.caption)
                             }
-                            Text("\(item.citations.count) citações · \(Int(item.milliseconds)) ms. IDs, páginas, trechos e SHA-256 estão no relatório exportado.").font(.caption)
+                            Text("\(PortugueseCount.label(item.citations.count, "citação", "citações")) · \(Int(item.milliseconds)) ms. IDs, páginas, trechos e SHA-256 estão no relatório exportado.").font(.caption)
                         } label: {
                             Text("\(item.question) — \(aiStatus(item.status))").font(.callout)
                         }
@@ -215,7 +215,7 @@ struct BenchmarkView: View {
                 VStack(alignment:.leading,spacing:6) {
                     Text(report.processor).font(.title2.bold())
                     Text(report.operatingSystem + " · " + report.architecture).foregroundStyle(.secondary)
-                    Text(report.graphicsDevice + " · \(report.activeProcessorCount) núcleos disponíveis").font(.callout)
+                    Text(report.graphicsDevice + " · \(PortugueseCount.label(report.activeProcessorCount, "núcleo disponível", "núcleos disponíveis"))").font(.callout)
                 }
                 Spacer()
                 VStack(alignment:.trailing) {
@@ -243,7 +243,7 @@ struct BenchmarkView: View {
                     }
                 }.padding(14).background(Color(nsColor:.controlBackgroundColor),in:RoundedRectangle(cornerRadius:12))
             }
-            Text("\(report.pageCount) páginas · \(report.repetitions) medições por operação após aquecimento · mediana em milissegundos.").font(.caption)
+            Text("\(PortugueseCount.label(report.pageCount, "página", "páginas")) · \(PortugueseCount.label(report.repetitions, "medição", "medições")) por operação após aquecimento · mediana em milissegundos.").font(.caption)
             Text(report.methodology).font(.caption).foregroundStyle(.secondary).textSelection(.enabled)
             if let energy = report.energyMeasurement { Text(energy).font(.caption).foregroundStyle(.secondary) }
         }

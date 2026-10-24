@@ -10,6 +10,75 @@ import sys
 import tempfile
 
 
+def check_qpdf_crypto(directory, source, executable):
+    """Exercise password authentication and AES output through private job stdin."""
+    import fitz
+    from owned_process import OwnedProcess
+    from runtime_lease import inherited_fds
+
+    reader = 'portable-synthetic-reader'
+    owner = 'portable-synthetic-owner'
+    wrong = 'portable-synthetic-incorrect'
+    expected_text = 'PDF portable verification'
+
+    def job(options, expected=0):
+        # No password in argv, environment, a retained job file or diagnostics.
+        # A regular anonymous descriptor matches the native serialization path.
+        with tempfile.TemporaryFile(mode='w+b', dir=directory) as request:
+            request.write(json.dumps(options).encode()); request.flush(); request.seek(0)
+            child = OwnedProcess([str(executable), '--job-json-file=/dev/stdin'],
+                                 stdin=request, stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                 pass_fds=inherited_fds())
+            stdout, stderr = child.communicate(30, output_limit=65536)
+        if child.returncode != expected or not child.cleanup_confirmed:
+            raise RuntimeError('Private qpdf crypto verification failed (status '
+                               + str(child.returncode) + ').')
+        if expected == 2 and b'invalid password' not in stderr.lower():
+            raise RuntimeError('qpdf did not reject the incorrect synthetic password as expected.')
+        return stdout
+
+    def inspect(path, bits, revision, version, cipher):
+        options = {'inputFile': str(path), 'password': reader}
+        job(dict(options, check=''))
+        job(dict(options, password=wrong, check=''), expected=2)
+        data = job(dict(options, json='2', jsonKey=['encrypt']))
+        receipt = json.loads(data)
+        encrypted = receipt.get('encrypt', {})
+        parameters = encrypted.get('parameters', {})
+        if (type(receipt.get('version')) is not int or receipt['version'] != 2
+                or encrypted.get('encrypted') is not True
+                or encrypted.get('userpasswordmatched') is not True
+                or encrypted.get('ownerpasswordmatched') is not False
+                or any(type(parameters.get(key)) is not int or parameters[key] != value
+                       for key, value in (('bits', bits), ('R', revision), ('V', version)))
+                or any(parameters.get(key) != cipher
+                       for key in ('method', 'streammethod', 'stringmethod', 'filemethod'))):
+            raise RuntimeError('qpdf did not report the required cipher and password roles.')
+        with fitz.open(path) as document:
+            if (not document.needs_pass or document.authenticate('') != 0
+                    or document.authenticate(wrong) != 0 or document.authenticate(reader) == 0
+                    or document.page_count != 1 or expected_text not in document[0].get_text()):
+                raise RuntimeError('Independent encrypted PDF reopening or text verification failed.')
+
+    protected = directory / 'qpdf-aes128.pdf'
+    upgraded = directory / 'qpdf-aes256.pdf'
+    if os.path.lexists(protected) or os.path.lexists(upgraded):
+        raise RuntimeError('Synthetic qpdf verification refuses an occupied output.')
+    with fitz.open(source) as document:
+        document.save(protected, encryption=fitz.PDF_ENCRYPT_AES_128,
+                      user_pw=reader, owner_pw=owner)
+    protected.chmod(0o600)
+    inspect(protected, 128, 4, 4, 'AESv2')
+    # Upgrade the actual protected input, so both legacy authentication and
+    # modern encryption must work in the same isolated qpdf process.
+    job({'inputFile': str(protected), 'password': reader, 'outputFile': str(upgraded),
+         'encrypt': {'userPassword': reader, 'ownerPassword': owner, '256bit': {}}})
+    upgraded.chmod(0o600)
+    inspect(upgraded, 256, 6, 5, 'AESv3')
+    return {'aes128Authenticated': True, 'aes256Verified': True,
+            'incorrectPasswordsRejected': True, 'independentTextVerified': True}
+
+
 def main():
     app = Path(sys.argv[1]).resolve(strict=True)
     runtime = app / 'Contents/Resources/runtime'
@@ -76,6 +145,8 @@ def main():
         run('rotate', [str(source)], str(root / 'rotated.pdf'), {'degrees': 90})
         with fitz.open(root / 'rotated.pdf') as pdf:
             assert pdf[0].rotation == 90 and 'portable verification' in pdf[0].get_text()
+        check_qpdf_crypto(root, source, runtime / 'bin/qpdf')
+        print('Portable qpdf: AES-128 authentication, incorrect passwords, AES-256 and independent text passed.', flush=True)
         run('validate-pdfua', [str(source)], str(root / 'standards.json'), {})
         report = json.loads((root / 'standards.json').read_text())
         assert report['compliant'] is False and report['counts']['failedRules'] > 0

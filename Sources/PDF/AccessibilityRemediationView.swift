@@ -163,7 +163,7 @@ struct AccessibilityRemediationView: View {
                 if report.has_structure_tree { taggedEditor(report) }
                 else { pageEditor(report) }
                 HStack {
-                    Text("\(edits.count) tag(s) com alterações guardadas").font(.caption).foregroundStyle(.secondary)
+                    Text("\(PortugueseCount.label(edits.count, "tag", "tags")) com alterações guardadas").font(.caption).foregroundStyle(.secondary)
                     Spacer()
                     Button("Salvar cópia com correções…") { save() }
                         .buttonStyle(.borderedProminent)

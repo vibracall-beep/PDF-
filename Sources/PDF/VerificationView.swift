@@ -225,7 +225,7 @@ struct VerificationView: View {
                 Button("Adicionar resposta OCSP…") { selectRevocation(ocsp: true) }
                 Button("Limpar evidências") { crls = []; ocspResponses = [] }
             }
-            Text("\(crls.count) CRL(s) · \(ocspResponses.count) resposta(s) OCSP local(is)").font(.caption)
+            Text("\(PortugueseCount.label(crls.count, "CRL", "CRLs")) · \(PortugueseCount.label(ocspResponses.count, "resposta OCSP local", "respostas OCSP locais"))").font(.caption)
             Toggle("Consultar somente os endpoints HTTPS abaixo", isOn: $allowRevocationNetwork)
             if allowRevocationNetwork {
                 Text("Uma linha por endpoint: crl https://… ou ocsp https://…").font(.caption)
@@ -265,7 +265,7 @@ struct VerificationView: View {
             Divider()
             Text("Resultado da verificação").font(.title3.bold())
             Text(value.summary).font(.headline).textSelection(.enabled)
-            if let count = value.signatureCount { Text("\(count) assinatura(s) digital(is) encontrada(s)").font(.caption) }
+            if let count = value.signatureCount { Text("\(PortugueseCount.label(count, "assinatura digital encontrada", "assinaturas digitais encontradas"))").font(.caption) }
             ForEach(Array((value.signatures ?? []).enumerated()), id: \.offset) { _, signature in
                 VStack(alignment: .leading, spacing: 5) {
                     Text(signature.fieldName).font(.headline)

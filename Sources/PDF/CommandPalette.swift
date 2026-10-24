@@ -83,7 +83,7 @@ struct CommandPaletteView: View {
                     }
                 }.listStyle(.inset).accessibilityLabel("Resultados de comandos")
             }
-            Text("\(commands.count) comandos encontrados").font(.caption).foregroundStyle(.secondary)
+            Text("\(PortugueseCount.label(commands.count, "comando encontrado", "comandos encontrados"))").font(.caption).foregroundStyle(.secondary)
         }.padding(22).frame(width:650,height:550).tint(preferences.accent)
             .onAppear { searching = true; selected = commands.first?.id }
             .onChange(of:query) { selected = commands.first?.id }

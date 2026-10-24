@@ -324,6 +324,19 @@ def write_executable(path, content):
     path.chmod(0o755)
 
 
+def write_ocr_dispatcher(runtime, site_names):
+    # macOS multiprocessing imports this file as __mp_main__ in a spawned
+    # worker. Rebuild only the private import paths there; invoking the CLI a
+    # second time would recursively create a pool during process startup.
+    path = runtime / 'dispatch_ocr.py'
+    path.write_text('import runpy,sys\nfrom pathlib import Path\nroot=Path(__file__).parent\n'
+                    'sys.path[:0]=[str(root/name) for name in ' + repr(site_names) + ']\n'
+                    'if __name__ == "__main__":\n'
+                    '    sys.argv[0]="ocrmypdf"\n'
+                    '    runpy.run_module("ocrmypdf",run_name="__main__")\n')
+    return path
+
+
 def build(installed, output, commit):
     if sys.platform != 'darwin' or command('/usr/bin/uname', '-m') != 'arm64':
         raise ValueError('Empacotamento requer o Mac arm64 de compilação.')
@@ -461,7 +474,7 @@ unset PYTHONPATH PYTHONHOME
                                     if path.is_dir() and not path.is_symlink()
                                     and path.parent.name == 'python' + version and path != ocr_site)
     site_names = [rel(path) for path in ocr_sites]
-    (runtime / 'dispatch_ocr.py').write_text('import runpy,sys\nfrom pathlib import Path\nroot=Path(__file__).parent\nsys.path[:0]=[str(root/name) for name in ' + repr(site_names) + ']\nsys.argv[0]="ocrmypdf"\nrunpy.run_module("ocrmypdf",run_name="__main__")\n')
+    write_ocr_dispatcher(runtime, site_names)
     write_executable(bin_dir / 'ocrmypdf', '#!/bin/bash\nset -euo pipefail\nsource "$(dirname "$0")/../environment.sh"\nexec "$PDF_RUNTIME/' + rel(ocr_python) + '" -I -B "$PDF_RUNTIME/dispatch_ocr.py" "$@"\n')
     portable = {'schemaVersion': 1, 'commit': commit, 'architecture': 'arm64', 'minimumMacOS': '26.0',
                 'applicationVersion': plistlib.loads((app / 'Contents/Info.plist').read_bytes()).get('CFBundleShortVersionString'),

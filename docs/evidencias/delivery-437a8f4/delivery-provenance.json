@@ -1,0 +1,3625 @@
+{
+  "applicationLicenseAdded": false,
+  "archiveStorage": {
+    "bytes": 1448521887,
+    "mode": "single",
+    "name": "PDF-arm64.tar.gz",
+    "parts": [
+      {
+        "bytes": 1448521887,
+        "name": "PDF-arm64.tar.gz",
+        "offset": 0,
+        "sha256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad"
+      }
+    ],
+    "sha256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad"
+  },
+  "binaryArtifact": {
+    "created_at": "2026-10-24T23:07:57Z",
+    "digest": "sha256:cacc3bdb81ae3e74cec1071f7d3bca4785ac2013f2074afb11d4b788ceedf758",
+    "id": 12578358642,
+    "name": "PDF-binary-validated-macos-26",
+    "size_in_bytes": 1444846011
+  },
+  "binaryChecksPassed": {
+    "guiOutsideDependencySandbox": true,
+    "installedBinaryGUIOnMacOS27": true,
+    "sameMacOS26ArchiveInstalledOnMacOS27": true,
+    "sourceMatrix": true
+  },
+  "binaryVerification": {
+    "applicationVersion": "0.6.0",
+    "archiveBytes": 1448521887,
+    "archiveManifestMatched": true,
+    "archiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+    "expectedArchiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+    "manifestEntries": 56817,
+    "manifestSHA256": "638d706bf919c8c689fdac88866d54333d8d5c58521cf715dbfb6503d0633106",
+    "repository": "vibracall-beep/PDF-",
+    "schemaVersion": 1,
+    "sourceArtifactBytes": 1444846011,
+    "sourceArtifactID": 12578358642,
+    "sourceArtifactName": "PDF-binary-validated-macos-26",
+    "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+    "sourceRunID": 40137438618,
+    "sourceRunner": "macos-26",
+    "sourceValidationMatched": true,
+    "sourceWorkflow": ".github/workflows/macos.yml"
+  },
+  "cross": {
+    "attempt": 1,
+    "commit": "6daf46294b10f35ec8252fd473f1d0865cd4bf8f",
+    "conclusion": "success",
+    "id": 40141728214,
+    "jobs": [
+      {
+        "completedAt": "2026-10-24T23:29:14Z",
+        "conclusion": "success",
+        "id": 121014698642,
+        "name": "compatible-binary",
+        "startedAt": "2026-10-24T23:11:53Z"
+      }
+    ],
+    "workflow": ".github/workflows/portable-compatibility.yml"
+  },
+  "crossArtifact": {
+    "created_at": "2026-10-24T23:29:06Z",
+    "digest": "sha256:daa8a6f16902247791a22d668e96bcb5287a5cdab522ff8f9cbd01b806cf114e",
+    "id": 12580060577,
+    "name": "PDF-cross-platform-validated",
+    "size_in_bytes": 3320598
+  },
+  "files": [
+    {
+      "bytes": 980,
+      "kind": "installation-instructions",
+      "name": "INSTALLATION.txt",
+      "sha256": "844c298adf69e1cd8348caa09a288e8541c1d7b775d00f33915d4bfaa5d15dba"
+    },
+    {
+      "bytes": 887,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-Apple-Vision-capability-macos-26.zip",
+      "sha256": "dedeee1aaeefe5a52af64266e50cca0a63c420c6b2f0380731f6cd0c2eed44ab"
+    },
+    {
+      "bytes": 2078,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-Apple-Vision-capability-xcode-27.zip",
+      "sha256": "d6867944fff1a331ee0d6ecc577191a8cc64b1c0ec8e973f0e6868e13997357b"
+    },
+    {
+      "bytes": 1448521887,
+      "kind": "original-binary-tar",
+      "name": "PDF-arm64.tar.gz",
+      "sha256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad"
+    },
+    {
+      "bytes": 83,
+      "kind": "original-binary-artifact-file",
+      "name": "PDF-arm64.tar.gz.sha256",
+      "sha256": "b9e7e8d13b1196a5a6fda207882cc69e090197428be072d906c0d98e3bb9bf61"
+    },
+    {
+      "bytes": 1491,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-cross-gui-before.json",
+      "sha256": "0a505eb906b22f897220d68edc706c53d6b7578e77df1751df1aa8f9d6bed714"
+    },
+    {
+      "bytes": 54345,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-cross-gui-capture.log",
+      "sha256": "9736573ef5d097d9b467b41074b730e55696b597a44bed89aa26c58249716581"
+    },
+    {
+      "bytes": 13464,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-cross-gui-validation.log",
+      "sha256": "8870e7a15211965765baeccddc6513c12bb2ed2d45f7bc0ec68974e1a2c08318"
+    },
+    {
+      "bytes": 8259,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-cross-gui.json",
+      "sha256": "d71ca57e808cc15e1e20d2f620723055403c9915c650c33f9b7966d7c549b1ed"
+    },
+    {
+      "bytes": 27815,
+      "kind": "original-cross-platform-report",
+      "name": "PDF-cross-isolation.log",
+      "sha256": "ce7e6dd37ecdee40efbd8f70e08b21280103a46e55c5b2319c2d38837c8add6b"
+    },
+    {
+      "bytes": 461,
+      "kind": "original-cross-platform-report",
+      "name": "PDF-cross-origin.json",
+      "sha256": "9c8ccd71e877dd0bbd4434f91a0c44711b8402e07bdddd6a0f3a15babef50be5"
+    },
+    {
+      "bytes": 3320598,
+      "kind": "original-cross-platform-artifact-zip",
+      "name": "PDF-cross-platform-validated.zip",
+      "sha256": "daa8a6f16902247791a22d668e96bcb5287a5cdab522ff8f9cbd01b806cf114e"
+    },
+    {
+      "bytes": 1655,
+      "kind": "original-cross-platform-report",
+      "name": "PDF-cross-platform.json",
+      "sha256": "bc6e552992dc9fd190bd8ac36536bb74fb175b27aad2a23d7a641057d2c62706"
+    },
+    {
+      "bytes": 796,
+      "kind": "original-cross-platform-report",
+      "name": "PDF-cross-verified.json",
+      "sha256": "7484376277de336ab30acc9c2b536affe6f7d1f73899903238762a2be99d7548"
+    },
+    {
+      "bytes": 2186,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-local-AI-macos-26.zip",
+      "sha256": "2e5a044f178edb1cc0b564a0634f19f95f1d68f63512a5c386d042ab2c6bdcef"
+    },
+    {
+      "bytes": 2178,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-local-AI-xcode-27.zip",
+      "sha256": "0577f2ec372631837910247febab75872a825a1a2ba84e9ff3795177189a9878"
+    },
+    {
+      "bytes": 1904,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-macOS-benchmark-macos-26.zip",
+      "sha256": "fbc65e626aaabad04b2df148b2a9b3de2fc9577986d6c5403dc6bb6434085ccc"
+    },
+    {
+      "bytes": 2205,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-macOS-benchmark-xcode-27.zip",
+      "sha256": "40604ee5509a49428f37c7e944bda133b54f8161effbb92510752a1648d60989"
+    },
+    {
+      "bytes": 3279109,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-macOS-preview-macos-26.zip",
+      "sha256": "99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182"
+    },
+    {
+      "bytes": 3303763,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-macOS-preview-xcode-27.zip",
+      "sha256": "2b3f7b48eaca36f7fe7b0072938f79c46cdb965d78232be08d55e7c853aa5068"
+    },
+    {
+      "bytes": 8259,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-native-checks-macos-26.zip",
+      "sha256": "e49c233880ebf80e280a5693e58657311b4ac052fe5c6cc06dc733a0f45d08f2"
+    },
+    {
+      "bytes": 15096,
+      "kind": "original-native-evidence-zip",
+      "name": "PDF-native-checks-xcode-27.zip",
+      "sha256": "1b3b605a85975d6803e69b2004ddb663e798e77f540c7289d6d0330c9156e6c9"
+    },
+    {
+      "bytes": 118835,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.abas.png",
+      "sha256": "3c59bd579d278e4c7031241adc2d3b3ba831ed2ed553ee0adb29b2ca35a5aa9b"
+    },
+    {
+      "bytes": 105277,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.accessibility.json",
+      "sha256": "50187adf2d1130a4bbf72db77194c1bbb5c055d6c0b8bc98288f644d1e6f1a73"
+    },
+    {
+      "bytes": 137697,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.anotacoes.accessibility.json",
+      "sha256": "185b3c1ea3a073c33964bcd35930d32f66ed8ab2e5901af8dd167fd117f4f5e9"
+    },
+    {
+      "bytes": 150895,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.anotacoes.png",
+      "sha256": "ba8dac1de38e834125821c3c1c738e596a981d405394a3fdc558b16db1a4b6b8"
+    },
+    {
+      "bytes": 78056,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.arquivos.png",
+      "sha256": "27ad5c15667c27f46c74d34d1b61ba53e42827e0ff4a71d0dcc7b68a2684c2eb"
+    },
+    {
+      "bytes": 86312,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.assinatura-digital.png",
+      "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee"
+    },
+    {
+      "bytes": 76354,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.atalhos.png",
+      "sha256": "13595f1fad59b708e7df632ae6abf3a4540a39fd69a607ce2458ce73b05d5b5b"
+    },
+    {
+      "bytes": 71581,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.auditar-pdfua.png",
+      "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+    },
+    {
+      "bytes": 96109,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.automacao.png",
+      "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d"
+    },
+    {
+      "bytes": 52456,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.biblioteca.accessibility.json",
+      "sha256": "1b1a841fe7c058e6a9c00cf43738668da708ad8bd65686c8dc873943029f3a1c"
+    },
+    {
+      "bytes": 114493,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.biblioteca.png",
+      "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c"
+    },
+    {
+      "bytes": 89948,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.configuracao-ferramenta.png",
+      "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+    },
+    {
+      "bytes": 47868,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+      "sha256": "29a37a5580530898048090ab8983512f94687b73639f6de80a4d386d1da9d859"
+    },
+    {
+      "bytes": 95873,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.corrigir-acessibilidade.png",
+      "sha256": "091d5db62e5d9c34ae2c7b9ab81e4daa1e5999a59e7a76b24e163e57000690f1"
+    },
+    {
+      "bytes": 117364,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.editor-conteudo.png",
+      "sha256": "041f1226a9e60c18cfbfd26b50a914d2daafc95476e50a0a8c25edfea7400385"
+    },
+    {
+      "bytes": 402042,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.escuro.png",
+      "sha256": "5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3"
+    },
+    {
+      "bytes": 88478,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.ferramentas.png",
+      "sha256": "9f470902372e83a498221c409ca57bebb570625ac1ada7c404b90dab4bd18b0e"
+    },
+    {
+      "bytes": 107998,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.fluxo-lote.png",
+      "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735"
+    },
+    {
+      "bytes": 144199,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.lado-a-lado.accessibility.json",
+      "sha256": "1b408c4aabfa425184e24ac4a7ac487473d06e3605bbed42cdd4c73a44eae08b"
+    },
+    {
+      "bytes": 132666,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.lado-a-lado.png",
+      "sha256": "6fecbd1db5447e2e41c1a3289d88ea0c775dddac9b96bafa14207b7439a2af70"
+    },
+    {
+      "bytes": 107516,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.leitor.accessibility.json",
+      "sha256": "df6638a976ba525bd711e8da4f4a0534e3299cb18fb7fe366aab70cde11a7234"
+    },
+    {
+      "bytes": 116322,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.leitor.png",
+      "sha256": "a67f3600b8a5592c2633ca3ce09da3ddc31024fc6a75afd2323d1734daf634ab"
+    },
+    {
+      "bytes": 92678,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.lista.png",
+      "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86"
+    },
+    {
+      "bytes": 80824,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.navegacao.png",
+      "sha256": "537617001faa314590e8413f556e0cb076d5cac0cf6306fae2e028d4151ff9d4"
+    },
+    {
+      "bytes": 86073,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.opcoes-leitura.png",
+      "sha256": "c4a1d2928a751c79d1666d18332eb10c7e1682aaf11925569a833606fa39887c"
+    },
+    {
+      "bytes": 64592,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.paleta.png",
+      "sha256": "b4c2eaaab899010e8c2e899ecc5b0f4001e9b451d9caf44d2e0035e46323452a"
+    },
+    {
+      "bytes": 63468,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.perfis.png",
+      "sha256": "38d7d6e96ae37cc8088b1c827c1818269c7651b3a8a70c8a8756177c89aedeef"
+    },
+    {
+      "bytes": 101022,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.personalizar.png",
+      "sha256": "612ee7933e6ea2fe39eda5324c665b82439024aa47b651afcde1df3fb1bc5372"
+    },
+    {
+      "bytes": 348641,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.png",
+      "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b"
+    },
+    {
+      "bytes": 66392,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.producao-bates.png",
+      "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f"
+    },
+    {
+      "bytes": 76071,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.producao-measure.png",
+      "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae"
+    },
+    {
+      "bytes": 73685,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.producao-pdfx.png",
+      "sha256": "968c0ba8aeedbbc3fd36337f35ec7ae234d4a0ba994c0d96d3be14eeab4343fc"
+    },
+    {
+      "bytes": 65432,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.producao-print-preflight.png",
+      "sha256": "73ed8272ca10cf933d29fe5ec6df6c257ad30bba698c790a77ddb1b01db9d5aa"
+    },
+    {
+      "bytes": 69250,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.recuperacao.png",
+      "sha256": "d747d85b0e04d81a07b24b5705cc67d985ae7ff45342b21e4f1da54ab0cb682b"
+    },
+    {
+      "bytes": 10098,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.revisao-ocr.analysis.json",
+      "sha256": "32cb5bd9df697a4ecee212f2f7c36576e56a8a896cfa0f48f2bc358ec2b952e7"
+    },
+    {
+      "bytes": 133312,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.revisao-ocr.png",
+      "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207"
+    },
+    {
+      "bytes": 121931,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.revisao-ocr.source.pdf",
+      "sha256": "00248660436e5b6cc0888bc619f8877ffd8f20e973088f390c4451a6c9b6158f"
+    },
+    {
+      "bytes": 100763,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.solicitar-assinaturas.png",
+      "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5"
+    },
+    {
+      "bytes": 64131,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.validar-pdfa.png",
+      "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+    },
+    {
+      "bytes": 74744,
+      "kind": "original-cross-platform-gui-evidence",
+      "name": "PDF-preview.verificar-assinaturas.png",
+      "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17"
+    },
+    {
+      "bytes": 10535683,
+      "kind": "original-source-artifact-file",
+      "name": "PDF-source.tar.gz",
+      "sha256": "dcd4821a0c81d215ef12856e16b7d269ad047d9fb2d6341c7d1d6996115a71a6"
+    },
+    {
+      "bytes": 84,
+      "kind": "original-source-artifact-file",
+      "name": "PDF-source.tar.gz.sha256",
+      "sha256": "f8a14d747bfd168b3e5c0a962a7367aea6ebd89944db4b6c565f035ed47cd02b"
+    },
+    {
+      "bytes": 78586,
+      "kind": "original-complete-attempt-logs-zip",
+      "name": "cross-run-40141728214-attempt-1-logs.zip",
+      "sha256": "8bf7fb32b21fc0b2223bd74510dc506e5c724014298ca1a312929329098e7d5e"
+    },
+    {
+      "bytes": 12261315,
+      "kind": "original-binary-artifact-file",
+      "name": "distribution-manifest.json",
+      "sha256": "ac5fe9b8cb68c3520a72b0df696f1989417c4b7efd4f8f8ecaccc36bc42150bc"
+    },
+    {
+      "bytes": 667,
+      "kind": "original-binary-artifact-file",
+      "name": "distribution-validation.json",
+      "sha256": "1f36de7e4d8b8d33334ffa5ac084314eef465bbb9da2fbb971fd8e3b08e6b9db"
+    },
+    {
+      "bytes": 3344,
+      "kind": "original-binary-artifact-file",
+      "name": "install-binary.sh",
+      "sha256": "53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211"
+    },
+    {
+      "bytes": 886935,
+      "kind": "original-complete-attempt-logs-zip",
+      "name": "source-run-40137438618-attempt-1-logs.zip",
+      "sha256": "590164ffd2c14af2182f83a8be2724b002628124be813a7b96af0f9ba9e78b97"
+    }
+  ],
+  "limitations": "Os checks comprovam instala\u00e7\u00e3o e isolamento do pacote nos runners identificados; n\u00e3o comprovam desempenho em M4 f\u00edsico, uso da Neural Engine ou auditoria humana com VoiceOver. IA local pode permanecer indispon\u00edvel, conforme os relat\u00f3rios originais. Recursos com escopo parcial e integra\u00e7\u00f5es opcionais continuam descritos nos fontes e relat\u00f3rios. Assinatura ad hoc, sem notariza\u00e7\u00e3o Apple; pol\u00edticas do Gatekeeper permanecem ativas.",
+  "logs": [
+    {
+      "bytes": 886935,
+      "digestProvenance": "calculated-from-original-download; no upstream digest supplied",
+      "name": "source-run-40137438618-attempt-1-logs.zip",
+      "sha256": "590164ffd2c14af2182f83a8be2724b002628124be813a7b96af0f9ba9e78b97",
+      "sourceAPIPath": "/actions/runs/40137438618/attempts/1/logs"
+    },
+    {
+      "bytes": 78586,
+      "digestProvenance": "calculated-from-original-download; no upstream digest supplied",
+      "name": "cross-run-40141728214-attempt-1-logs.zip",
+      "sha256": "8bf7fb32b21fc0b2223bd74510dc506e5c724014298ca1a312929329098e7d5e",
+      "sourceAPIPath": "/actions/runs/40141728214/attempts/1/logs"
+    }
+  ],
+  "nativeArtifacts": [
+    {
+      "created_at": "2026-10-24T22:31:39Z",
+      "digest": "sha256:e49c233880ebf80e280a5693e58657311b4ac052fe5c6cc06dc733a0f45d08f2",
+      "id": 12578098852,
+      "name": "PDF-native-checks-macos-26",
+      "size_in_bytes": 8259
+    },
+    {
+      "created_at": "2026-10-24T22:33:15Z",
+      "digest": "sha256:99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+      "id": 12578054234,
+      "name": "PDF-macOS-preview-macos-26",
+      "size_in_bytes": 3279109
+    },
+    {
+      "created_at": "2026-10-24T22:33:22Z",
+      "digest": "sha256:dedeee1aaeefe5a52af64266e50cca0a63c420c6b2f0380731f6cd0c2eed44ab",
+      "id": 12577689564,
+      "name": "PDF-Apple-Vision-capability-macos-26",
+      "size_in_bytes": 887
+    },
+    {
+      "created_at": "2026-10-24T22:33:24Z",
+      "digest": "sha256:2e5a044f178edb1cc0b564a0634f19f95f1d68f63512a5c386d042ab2c6bdcef",
+      "id": 12577479896,
+      "name": "PDF-local-AI-macos-26",
+      "size_in_bytes": 2186
+    },
+    {
+      "created_at": "2026-10-24T22:33:36Z",
+      "digest": "sha256:fbc65e626aaabad04b2df148b2a9b3de2fc9577986d6c5403dc6bb6434085ccc",
+      "id": 12577534759,
+      "name": "PDF-macOS-benchmark-macos-26",
+      "size_in_bytes": 1904
+    },
+    {
+      "created_at": "2026-10-24T22:28:29Z",
+      "digest": "sha256:1b3b605a85975d6803e69b2004ddb663e798e77f540c7289d6d0330c9156e6c9",
+      "id": 12577813858,
+      "name": "PDF-native-checks-xcode-27",
+      "size_in_bytes": 15096
+    },
+    {
+      "created_at": "2026-10-24T22:29:34Z",
+      "digest": "sha256:2b3f7b48eaca36f7fe7b0072938f79c46cdb965d78232be08d55e7c853aa5068",
+      "id": 12577629061,
+      "name": "PDF-macOS-preview-xcode-27",
+      "size_in_bytes": 3303763
+    },
+    {
+      "created_at": "2026-10-24T22:29:38Z",
+      "digest": "sha256:d6867944fff1a331ee0d6ecc577191a8cc64b1c0ec8e973f0e6868e13997357b",
+      "id": 12577519341,
+      "name": "PDF-Apple-Vision-capability-xcode-27",
+      "size_in_bytes": 2078
+    },
+    {
+      "created_at": "2026-10-24T22:29:39Z",
+      "digest": "sha256:0577f2ec372631837910247febab75872a825a1a2ba84e9ff3795177189a9878",
+      "id": 12577689046,
+      "name": "PDF-local-AI-xcode-27",
+      "size_in_bytes": 2178
+    },
+    {
+      "created_at": "2026-10-24T22:29:47Z",
+      "digest": "sha256:40604ee5509a49428f37c7e944bda133b54f8161effbb92510752a1648d60989",
+      "id": 12577539226,
+      "name": "PDF-macOS-benchmark-xcode-27",
+      "size_in_bytes": 2205
+    }
+  ],
+  "originalCrossReport": {
+    "appIntentsMetadataVerified": true,
+    "appleNotarized": false,
+    "applicationVersion": "0.6.0",
+    "architecture": "arm64",
+    "archiveBytes": 1448521887,
+    "archiveManifestMatched": true,
+    "archiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+    "crossOSTestPassed": true,
+    "developerToolsOnDestinationRequired": false,
+    "expectedArchiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+    "freshInstallPassed": true,
+    "guiCaptureAttempts": 1,
+    "guiCaptureDeadlineSeconds": 300,
+    "guiOriginalOCRFileCount": 2,
+    "guiOutsideDependencySandbox": true,
+    "guiOwnWindowAXCount": 6,
+    "guiPNGCount": 32,
+    "guiReceiptSHA256": "d71ca57e808cc15e1e20d2f620723055403c9915c650c33f9b7966d7c549b1ed",
+    "humanVoiceOverTested": false,
+    "installedBinaryGUIPassed": true,
+    "isolatedRuntimePassed": true,
+    "manifestEntries": 56817,
+    "manifestSHA256": "638d706bf919c8c689fdac88866d54333d8d5c58521cf715dbfb6503d0633106",
+    "nativeSmokePassed": true,
+    "neuralEngineMeasured": false,
+    "physicalM4Measured": false,
+    "rebuiltOnDestination": false,
+    "repository": "vibracall-beep/PDF-",
+    "schemaVersion": 1,
+    "signing": "ad-hoc",
+    "sourceArtifactBytes": 1444846011,
+    "sourceArtifactID": 12578358642,
+    "sourceArtifactName": "PDF-binary-validated-macos-26",
+    "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+    "sourceRunID": 40137438618,
+    "sourceRunner": "macos-26",
+    "sourceValidationMatched": true,
+    "sourceWorkflow": ".github/workflows/macos.yml",
+    "targetLogicalCPUs": 3,
+    "targetOperatingSystem": "27.0.1",
+    "targetProcessor": "Apple M1 (Virtual)",
+    "targetRunner": "xcode-27"
+  },
+  "originalNoticeEntriesPreservedInTar": {
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "78b12c3a81360b357002334f0e70ea0e92eebf7a9b358805c03c48484945f3bb",
+      "size": 13809,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/certifi/LICENSE": {
+      "mode": 420,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/distro/LICENSE": {
+      "mode": 420,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/idna/LICENSE.md": {
+      "mode": 420,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/msgpack/COPYING": {
+      "mode": 420,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/packaging/LICENSE": {
+      "mode": 420,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 420,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 420,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 420,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/pygments/LICENSE": {
+      "mode": 420,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 420,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/requests/LICENSE": {
+      "mode": 420,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 420,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/rich/LICENSE": {
+      "mode": 420,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/tomli/LICENSE": {
+      "mode": 420,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 420,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/truststore/LICENSE": {
+      "mode": 420,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/autocommand-2.2.2.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "ade78d04982d69972d444a8e14a94f87a2334dd3855cc80348ea8e240aa0df2d",
+      "size": 7634,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/backports.tarfile-1.2.0.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/importlib_metadata-8.0.0.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/inflect-7.3.1.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/jaraco.collections-5.1.0.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/jaraco.context-5.3.0.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/jaraco.functools-4.0.1.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/jaraco.text-3.12.1.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/more_itertools-10.3.0.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "09f1c8c9e941af3e584d59641ea9b87d83c0cb0fd007eb5ef391a7e2643c1a46",
+      "size": 1053,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/packaging-24.2.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/packaging-24.2.dist-info/LICENSE.APACHE": {
+      "mode": 420,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/packaging-24.2.dist-info/LICENSE.BSD": {
+      "mode": 420,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/platformdirs-4.2.2.dist-info/licenses/LICENSE": {
+      "mode": 420,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/tomli-2.0.1.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/typeguard-4.3.0.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "6163f7987dfb38d6bc320ce2b70b2f02b862bc41126516d552ef1cd43247e758",
+      "size": 1130,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/typing_extensions-4.12.2.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/wheel-0.45.1.dist-info/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "30c23618679108f3e8ea1d2a658c7ca417bdfc891c98ef1a89fa4ff0c9828654",
+      "size": 1107,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/wheel/vendored/packaging/LICENSE": {
+      "mode": 420,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/wheel/vendored/packaging/LICENSE.APACHE": {
+      "mode": 420,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/wheel/vendored/packaging/LICENSE.BSD": {
+      "mode": 420,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/_vendor/zipp-3.19.2.dist-info/LICENSE": {
+      "mode": 420,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/config/NOTICE": {
+      "mode": 420,
+      "sha256": "2dddf08818297a3b89d43d95ff659d8da85741108c9136dfa3a4d856c0623bd8",
+      "size": 493,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Frameworks/LibreOfficePython.framework/Versions/3.13/lib/python3.13/site-packages/setuptools/config/_validate_pyproject/NOTICE": {
+      "mode": 420,
+      "sha256": "5d300dbfa643138b013b75ac9caeee591f951b8b0ee24288c34ccd926c4780c8",
+      "size": 18737,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/LICENSE": {
+      "mode": 420,
+      "sha256": "4b720686b5c8f88af5eb67e36c12ff3295e9f9b25d335d1ceda08156e4ac484a",
+      "size": 489966,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/LICENSE.html": {
+      "mode": 420,
+      "sha256": "d12febd2a8879512229c7fffb3fd8bbf36e937b304853675b73132459003c296",
+      "size": 562856,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/NOTICE": {
+      "mode": 420,
+      "sha256": "8d34210ebbfaee4ba258ef7b30c3044170f356ab82c8259c81b53860bcdeef7b",
+      "size": 1859,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/extensions/dict-en/license.txt": {
+      "mode": 420,
+      "sha256": "df84246204e3c54cd24aebbc23714235f5fc41d754d53b65444a2afbf070130f",
+      "size": 15122,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/extensions/dict-es/LICENSE.md": {
+      "mode": 420,
+      "sha256": "2b70fd5cb8d3b34cc6ae322c969557a2270b99017594addb2531ef5ffd9e1b17",
+      "size": 991,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/extensions/nlpsolver/registration/LICENSE": {
+      "mode": 420,
+      "sha256": "4b720686b5c8f88af5eb67e36c12ff3295e9f9b25d335d1ceda08156e4ac484a",
+      "size": 489966,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/help/media/icon-themes/COPYING-ICONS": {
+      "mode": 420,
+      "sha256": "ccf0394ceab00fe2967c914ecde84192b6dd364d70b97c528093833c8d9a3baf",
+      "size": 524,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/xpdfimport/poppler_data/COPYING": {
+      "mode": 420,
+      "sha256": "36f27791549113cecd00013233101026452c872f79215a93d33a4a9bd0678672",
+      "size": 1560,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/xpdfimport/poppler_data/COPYING.adobe": {
+      "mode": 420,
+      "sha256": "4d367131f33e9f0daa6acf84ccc20e6468aa379bc053f5fa72dab201ec017b39",
+      "size": 1565,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/LibreOffice.app/Contents/Resources/xpdfimport/poppler_data/COPYING.gpl2": {
+      "mode": 420,
+      "sha256": "ab15fd526bd8dd18a9e77ebc139656bf4d33e97fc7238cd11bf60e2b9b8666c6",
+      "size": 17987,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/THIRD-PARTY.json": {
+      "mode": 420,
+      "sha256": "2e991c07e19e950d20803573748583278ff40b38ea50b0a33f45f0f430d1bd84",
+      "size": 450294,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/THIRD-PARTY.txt": {
+      "mode": 420,
+      "sha256": "296e14d0c1faab59e25985d753f91891f29b3b635bd301b5cb6108a4c0e29fbd",
+      "size": 439,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/browsers/ffmpeg-1011/COPYING.LGPLv2.1": {
+      "mode": 384,
+      "sha256": "b634ab5640e258563c536e658cad87080553df6f34f62269a21d554844e58bfe",
+      "size": 26526,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/aom/LICENSE": {
+      "mode": 384,
+      "sha256": "4764a286d8b2faeaf42f4418e7d7a28d58fc8fd4d00a3d0a7f44b0a4099de7f2",
+      "size": 1316,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/brotli/LICENSE": {
+      "mode": 420,
+      "sha256": "3d180008e36922a4e8daec11c34c7af264fed5962d07924aea928c38e8663c94",
+      "size": 1084,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cairo/COPYING": {
+      "mode": 420,
+      "sha256": "67228a9f7c5f9b67c58f556f1be178f62da4d9e2e6285318d8c74d567255abdf",
+      "size": 1576,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cairo/COPYING-LGPL-2.1": {
+      "mode": 420,
+      "sha256": "9e9e8608c4cdda51a78cc3a385f4ec9a2e4c96d5ecad74ac8bca5fca3e563b7d",
+      "size": 26533,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cairo/COPYING-MPL-1.1": {
+      "mode": 420,
+      "sha256": "53692a2ed6c6a2c6ec9b32dd0b820dfae91e0a1fcdf625ca9ed0bdf8705fcc4f",
+      "size": 25755,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cffi/LICENSE": {
+      "mode": 420,
+      "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63",
+      "size": 1123,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cffi/lib/python3.14/site-packages/cffi-2.1.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63",
+      "size": 1123,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cffi/lib/python3.15/site-packages/cffi-2.1.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63",
+      "size": 1123,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/LICENSE": {
+      "mode": 420,
+      "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/LICENSE.APACHE": {
+      "mode": 420,
+      "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+      "size": 11360,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/LICENSE.BSD": {
+      "mode": 420,
+      "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+      "size": 1532,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/lib/python3.14/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/lib/python3.14/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": {
+      "mode": 292,
+      "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+      "size": 11360,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/lib/python3.14/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": {
+      "mode": 292,
+      "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+      "size": 1532,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/lib/python3.15/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/lib/python3.15/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": {
+      "mode": 292,
+      "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+      "size": 11360,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/cryptography/lib/python3.15/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": {
+      "mode": 292,
+      "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+      "size": 1532,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/dav1d/COPYING": {
+      "mode": 384,
+      "sha256": "dd92c3c2247c5651606fc23a5e2d6a1ebc5ace9a3e49cbde0e12f05ad1cb1ee5",
+      "size": 1317,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ffmpeg/COPYING.GPLv2": {
+      "mode": 384,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ffmpeg/COPYING.GPLv3": {
+      "mode": 384,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ffmpeg/COPYING.LGPLv2.1": {
+      "mode": 384,
+      "sha256": "246041b6ecf9bc32d718a62c57877c78b5eb397b6467e74ed7ae2626ab189c30",
+      "size": 26517,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ffmpeg/COPYING.LGPLv3": {
+      "mode": 384,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "size": 7651,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ffmpeg/LICENSE.md": {
+      "mode": 384,
+      "sha256": "2e1d16c72fd74e12063776371da757322f8b77589386532f4fd8634bde7de1af",
+      "size": 4346,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/fontconfig/COPYING": {
+      "mode": 420,
+      "sha256": "51a51aa9823704fd90bccc616cdd17ebabb5b2b3e9cbde886ca02c7002288067",
+      "size": 8616,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/freetype/LICENSE.TXT": {
+      "mode": 420,
+      "sha256": "bd36c8b474855fa294c2ec5c184544478ef3720aad37d65a6296a4f264fd2d3b",
+      "size": 2149,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/fribidi/COPYING": {
+      "mode": 384,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "size": 26419,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/gettext/COPYING": {
+      "mode": 420,
+      "sha256": "e79e9c8a0c85d735ff98185918ec94ed7d175efc377012787aebcf3b80f0d90b",
+      "size": 35151,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ghostscript/LICENSE": {
+      "mode": 384,
+      "sha256": "8ce064f423b7c24a011b6ebf9431b8bf9861a5255e47c84bfb23fc526d030a8b",
+      "size": 1976,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ghostscript/share/doc/ghostscript/COPYING": {
+      "mode": 384,
+      "sha256": "57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6",
+      "size": 34520,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ghostscript/share/ghostscript/fonts/COPYING": {
+      "mode": 384,
+      "sha256": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670",
+      "size": 17992,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/giflib/COPYING": {
+      "mode": 420,
+      "sha256": "ed5d90cb4a041bddad679470a071302ab05ae5d0ec2cf8f9c97ad7b2708751e6",
+      "size": 1039,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/graphite2/COPYING": {
+      "mode": 420,
+      "sha256": "2c272829ff23f182c8bf7ea12fedea69b0ae148663123ed5240c117cb129c9c1",
+      "size": 1235,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/graphite2/LICENSE": {
+      "mode": 420,
+      "sha256": "cab46cd45adbfea4b1d0f14b033c70062c73074fa0b56532c2f351576ddf455e",
+      "size": 29228,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/harfbuzz/COPYING": {
+      "mode": 420,
+      "sha256": "ba8f810f2455c2f08e2d56bb49b72f37fcf68f1f4fade38977cfd7372050ad64",
+      "size": 1971,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/icu4c@78/LICENSE": {
+      "mode": 420,
+      "sha256": "e55522d81edc687a341a4411e0776e54ca654e90147f354a90458aaced4116af",
+      "size": 27718,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/icu4c@78/license.html": {
+      "mode": 420,
+      "sha256": "c62d7697c03979f5056d28b338fafc7a1152820f7b379adf4a9d88cd37160f96",
+      "size": 622,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/icu4c@78/share/icu/78.3/LICENSE": {
+      "mode": 420,
+      "sha256": "e55522d81edc687a341a4411e0776e54ca654e90147f354a90458aaced4116af",
+      "size": 27718,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/LICENSE": {
+      "mode": 384,
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+      "size": 7652,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/libexec/lib/python3.15/site-packages/img2pdf-0.6.3.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+      "size": 7652,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/libexec/lib/python3.15/site-packages/lxml-6.1.3.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "8fc2b568133516e46845d2147917adeee1648e70ae9ab5ed6c5417afef4ce855",
+      "size": 1507,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/libexec/lib/python3.15/site-packages/packaging-26.3.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/libexec/lib/python3.15/site-packages/packaging-26.3.dist-info/licenses/LICENSE.APACHE": {
+      "mode": 384,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/libexec/lib/python3.15/site-packages/packaging-26.3.dist-info/licenses/LICENSE.BSD": {
+      "mode": 384,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/img2pdf/libexec/lib/python3.15/site-packages/pikepdf-10.16.0.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "size": 16725,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/jbig2dec/COPYING": {
+      "mode": 384,
+      "sha256": "57c8ff33c9c0cfc3ef00e650a1cc910d7ee479a8bc509f6c9209a7c2a11399d6",
+      "size": 34520,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/jbig2dec/LICENSE": {
+      "mode": 384,
+      "sha256": "1bf5258afe453934484fd0cea97508b72301633a6a78b0ae8a9ee44ac78f26d9",
+      "size": 1170,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/jbig2enc/COPYING": {
+      "mode": 384,
+      "sha256": "20dd03d14dc9afbbb048b50ce00f40e4e854fabef4f6b45942e5915e783fa24d",
+      "size": 674,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/jbig2enc/share/doc/jbig2enc-0.32/COPYING": {
+      "mode": 384,
+      "sha256": "20dd03d14dc9afbbb048b50ce00f40e4e854fabef4f6b45942e5915e783fa24d",
+      "size": 674,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/jpeg-turbo/LICENSE.md": {
+      "mode": 420,
+      "sha256": "ba6bceebcba0fdd35488477c2cca8c4632ce82c74dbfbc87d886ce6fc4433579",
+      "size": 6077,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/jpeg-turbo/share/doc/libjpeg-turbo/LICENSE.md": {
+      "mode": 420,
+      "sha256": "ba6bceebcba0fdd35488477c2cca8c4632ce82c74dbfbc87d886ce6fc4433579",
+      "size": 6077,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/json-c/COPYING": {
+      "mode": 420,
+      "sha256": "74c1e6ca5eba76b54d0ad00d4815c8315c1b3bc45ff99de61d103dc92486284c",
+      "size": 2205,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/lame/COPYING": {
+      "mode": 384,
+      "sha256": "e64f9c5a18f56828c10a575df13ade641aa3af4512a7afe6c411256943b57aaf",
+      "size": 25281,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/lame/LICENSE": {
+      "mode": 384,
+      "sha256": "5c1f8d44f1eacbea3e1c31ff6ee11a4e1690ccbed4ee4af16de3b6eb61dc69a8",
+      "size": 503,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libarchive/COPYING": {
+      "mode": 384,
+      "sha256": "30e556b3959e3985d66efefec5eaac51d4995053caa1d3cffe6eb916f146f229",
+      "size": 3089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libavif/LICENSE": {
+      "mode": 384,
+      "sha256": "165abf92cc04b39e80d29cadea7a6a7e8fddf59407d4ad2616507a7ebe8216f9",
+      "size": 20415,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libb2/COPYING": {
+      "mode": 384,
+      "sha256": "6a1ee543e5282cd9061881edf462e6fdab181f328da71fc2c9a6950a80e94d01",
+      "size": 6556,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libdatrie/COPYING": {
+      "mode": 384,
+      "sha256": "a9bdde5616ecdd1e980b44f360600ee8783b1f99b8cc83a2beb163a0a390e861",
+      "size": 26527,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libde265/COPYING": {
+      "mode": 384,
+      "sha256": "02cc1585a20677992e0ba578fa692635dc193735f2691dc81de924b51c4e8020",
+      "size": 44339,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libheif/COPYING": {
+      "mode": 384,
+      "sha256": "fa81ce652315b013359d6e8e4744335f31a50c7c192907176d3632f78a3b4596",
+      "size": 44366,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libidn/COPYING": {
+      "mode": 384,
+      "sha256": "e6037104443f9a7829b2aa7c5370d0789a7bda3ca65a0b904cdc0c2e285d9195",
+      "size": 35150,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libidn/COPYING.LESSERv2": {
+      "mode": 384,
+      "sha256": "dc626520dcd53a22f727af3ee42c770e56c97a64fe3adb063799d8ab032fe551",
+      "size": 26530,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libidn/COPYING.LESSERv3": {
+      "mode": 384,
+      "sha256": "da7eabb7bafdf7d3ae5e9f223aa5bdc1eece45ac569dc21b3b037520b4464768",
+      "size": 7651,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libimagequant/COPYRIGHT": {
+      "mode": 384,
+      "sha256": "6c131d200c9d383334c764474935faee2707164674be04e3ef7650731cbe7c9b",
+      "size": 33306,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libpng/LICENSE": {
+      "mode": 420,
+      "sha256": "bdb0a645ea18c60507d0368379b1ac5474b92255fcc2d115e07486a7672ba526",
+      "size": 5345,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libraqm/COPYING": {
+      "mode": 384,
+      "sha256": "f6baa5c872ed0c35cde377735f930d97a23e08065d87cf34d766b3aad5beed1e",
+      "size": 1180,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libthai/COPYING": {
+      "mode": 384,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "size": 26419,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libtiff/LICENSE.md": {
+      "mode": 420,
+      "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "size": 2416,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libtiff/share/doc/tiff-4.7.2/LICENSE.md": {
+      "mode": 420,
+      "sha256": "0e27c2382d7b8147972bbb746e04059a1152c8d0fda9d03ef1399d1a433c4ade",
+      "size": 2416,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libtiff/share/doc/tiff-4.7.2/manual/_sources/project/license.rst.txt": {
+      "mode": 420,
+      "sha256": "02e86af3b805e0f2075ebb5ac512831f6ab2a97ddeb186de076c418956418ba1",
+      "size": 1181,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libtiff/share/doc/tiff-4.7.2/manual/project/license.html": {
+      "mode": 420,
+      "sha256": "6c9436f8e9f58a79e044949e360291b9c910715fad31cdaed66bc61b0dcf33e6",
+      "size": 5663,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libunistring/COPYING": {
+      "mode": 420,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "size": 35149,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libunistring/COPYING.LIB": {
+      "mode": 420,
+      "sha256": "a853c2ffec17057872340eee242ae4d96cbf2b520ae27d903e1b2fef1a5f9d1c",
+      "size": 7639,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libvmaf/LICENSE": {
+      "mode": 384,
+      "sha256": "a6fdb51d02b9dfe198e55534bb8047fe6d756eda117f4ff83de98f92c1952710",
+      "size": 2833,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libvpx/LICENSE": {
+      "mode": 384,
+      "sha256": "8267348d5af1262c11d1a08de2f5afc77457755f1ac658627dd9acf71011d615",
+      "size": 1537,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libx11/COPYING": {
+      "mode": 420,
+      "sha256": "eda0c2ed1cae0280c7fe79762eaad8ad31c044afc64e71e92ef2c6f3cd7bc395",
+      "size": 45013,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libxau/COPYING": {
+      "mode": 420,
+      "sha256": "56abe29bb1d9806a9e04fa9f80fed2c0f18027594df3f098148d814aef6bddfa",
+      "size": 1148,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libxcb/COPYING": {
+      "mode": 420,
+      "sha256": "c5ffbfeaa501071ceeb97b7de2c0d703fdaa35de01c0fb6cbac1c28453a3e9fd",
+      "size": 1337,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libxdmcp/COPYING": {
+      "mode": 420,
+      "sha256": "8a3c3f35b0dbcb60a4e242b9e4394a352a65bb27deb2938ea1e2e62a626e16e9",
+      "size": 1178,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libxext/COPYING": {
+      "mode": 420,
+      "sha256": "fd62910be4b13829d94e76c1447cf840953f0e225c4dc6c79349c84dd0557f22",
+      "size": 11101,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/libxrender/COPYING": {
+      "mode": 420,
+      "sha256": "bbe1db89c48816c48248796adac91defd8fbde1141b145f01511781ab87f29a1",
+      "size": 2164,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/little-cms2/LICENSE": {
+      "mode": 420,
+      "sha256": "6dbd60437f8ef91d8de1f08ad75882547fd4931bfcc3566a0735f28db1484d31",
+      "size": 1080,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/lz4/LICENSE": {
+      "mode": 420,
+      "sha256": "4bc9c403f6b679cc076dee210e0e21c27b4e8f6d3fb43d85364c76657bfaaac5",
+      "size": 646,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/lzo/COPYING": {
+      "mode": 420,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/lzo/share/doc/lzo/COPYING": {
+      "mode": 420,
+      "sha256": "8177f97513213526df2cf6184d8ff986c675afb514d4e68a404010521b880643",
+      "size": 18092,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/mpdecimal/COPYRIGHT.txt": {
+      "mode": 420,
+      "sha256": "dba079e24a0286052f9f36a5e0b4f6cc95bc83ada657eb26bef8c0b6473f6512",
+      "size": 1285,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/mpdecimal/share/doc/mpdecimal/COPYRIGHT.txt": {
+      "mode": 420,
+      "sha256": "8d99282e76b6de2247323d6fe7cc45700872b9b761f9a644ba8db7c15a984c49",
+      "size": 2943,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/mpg123/COPYING": {
+      "mode": 384,
+      "sha256": "c22482728a634a8dfdb4ff72a96d4c1ed64cd8f3e79335c401751ac591609366",
+      "size": 40718,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/LICENSE": {
+      "mode": 384,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "size": 16725,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/attrs-26.1.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f",
+      "size": 1109,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/charset_normalizer-3.5.2.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "6d0d41bfe170ac6c7dc248c9a63e254d0fb45a60d50a8257d0af92c6e249b887",
+      "size": 1071,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/defusedxml-0.7.1.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "b80ce9da8c42a1f91079627fbbe2bf27210ae108a0ffe5f077d5b08e076c24c8",
+      "size": 2409,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/fonttools-4.66.1.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "6787208f83f659ccbc2223b2fde952ffa6f7e8aca62f1a8a2bf5bc51bb1b2383",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/fonttools-4.66.1.dist-info/licenses/LICENSE.external": {
+      "mode": 384,
+      "sha256": "94a83aaee0729a0f302d34acc4acecbd9d58366f262429075fe557e4a54b2e69",
+      "size": 20022,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/fpdf2-2.8.9.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "f97bc4bb9b7ae8a653941073678b5c7775e8de44a01c3bcc21e7cdc148b90e61",
+      "size": 7632,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/img2pdf-0.6.3.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "e3a994d82e644b03a792a930f574002658412f62407f5fee083f2555c5f23118",
+      "size": 7652,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/jsonschema-4.26.0.dist-info/licenses/COPYING": {
+      "mode": 384,
+      "sha256": "4f92a015a13c4d1a040bef018aa13430b4f1bc73b41b16bb846c346766de7439",
+      "size": 1057,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/jsonschema_specifications-2025.9.1.dist-info/licenses/COPYING": {
+      "mode": 384,
+      "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c",
+      "size": 1057,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/lxml-6.1.3.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "8fc2b568133516e46845d2147917adeee1648e70ae9ab5ed6c5417afef4ce855",
+      "size": 1507,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/markdown_it_py-4.2.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "4a2260d6e2cd0f5a151a1e86dbfe7d3ed552b1e2beabf9941c1ba5c49cbce484",
+      "size": 1078,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/markdown_it_py-4.2.0.dist-info/licenses/LICENSE.markdown-it": {
+      "mode": 384,
+      "sha256": "792c48c5a849a15fdf9e37e8bcf9e6d1dd13b32b46c642a748a0a46a9919d473",
+      "size": 1073,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/mdurl-0.1.2.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "7c605df6e28667a9603118e98274f64a49ce3eed0d26fccce9534a345e0ef955",
+      "size": 2338,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/ocrmypdf-17.13.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "size": 16725,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/packaging-26.3.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/packaging-26.3.dist-info/licenses/LICENSE.APACHE": {
+      "mode": 384,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/packaging-26.3.dist-info/licenses/LICENSE.BSD": {
+      "mode": 384,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/pdfminer_six-20260107.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "f01e5d699a33766b5caf4a5099f2856aba4f3f75ea1df05dc0572b34b4bea8f2",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/pikepdf-10.16.0.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "1f256ecad192880510e84ad60474eab7589218784b9a50bc7ceee34c2b91f1d5",
+      "size": 16725,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/pluggy-1.6.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "d6b65e6c213a5d0b577911d34d6e5949b9f59d76c238c5071a2f3fc16cfb2606",
+      "size": 1110,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/pygments-2.21.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/referencing-0.37.0.dist-info/licenses/COPYING": {
+      "mode": 384,
+      "sha256": "42dcd63495f87b4eb7c7757afa379bb55a53f94afd7a5f657d9adf57236e515c",
+      "size": 1057,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/rich-15.0.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/ocrmypdf/libexec/lib/python3.15/site-packages/uharfbuzz-0.56.3.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4",
+      "size": 11357,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/LICENSE": {
+      "mode": 384,
+      "sha256": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726",
+      "size": 19274,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.base/LICENSE": {
+      "mode": 256,
+      "sha256": "4b9abebc4338048a7c2dc184e9f800deb349366bdf28eb23c2677a77b4c87726",
+      "size": 19274,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.compiler/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.datatransfer/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.desktop/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.instrument/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.logging/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.management.rmi/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.management/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.naming/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.net.http/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.prefs/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.rmi/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.scripting/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.se/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.security.jgss/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.security.sasl/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.smartcardio/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.sql.rowset/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.sql/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.transaction.xa/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.xml.crypto/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/java.xml/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.accessibility/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.attach/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.charsets/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.compiler/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.crypto.cryptoki/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.crypto.ec/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.dynalink/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.editpad/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.hotspot.agent/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.httpserver/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.incubator.vector/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.ed/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.jvmstat/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.le/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.opt/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.vm.ci/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.vm.compiler.management/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.internal.vm.compiler/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jartool/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.javadoc/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jcmd/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jconsole/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jdeps/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jdi/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jdwp.agent/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jfr/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jlink/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jpackage/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jshell/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jsobject/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.jstatd/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.localedata/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.management.agent/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.management.jfr/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.management/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.naming.dns/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.naming.rmi/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.net/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.nio.mapmode/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.random/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.sctp/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.security.auth/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.security.jgss/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.unsupported.desktop/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.unsupported/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.xml.dom/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjdk@21/libexec/openjdk.jdk/Contents/Home/legal/jdk.zipfs/LICENSE": {
+      "target": "../java.base/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openjpeg/LICENSE": {
+      "mode": 384,
+      "sha256": "a6af136f3e15038a666b61f376612a07d9a4e48cb7c01adbf3e33b3f14ab49b6",
+      "size": 2112,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openssl@3/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "size": 10175,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/openssl@4/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "7d5450cb2d142651b8afa315b5f238efc805dad827d91ba367d8516bc9d49e7a",
+      "size": 10175,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/opus/COPYING": {
+      "mode": 384,
+      "sha256": "01e1167d54a096d123cf6dfbbeb19587278845c6481d2d66d545669846079551",
+      "size": 1945,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pango/COPYING": {
+      "mode": 384,
+      "sha256": "d245807f90032872d1438d741ed21e2490e1175dc8aa3afa5ddb6c8e529b58e5",
+      "size": 25292,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pcre2/COPYING": {
+      "mode": 420,
+      "sha256": "99272c55f3dcfa07a8a7e15a5c1a33096e4727de74241d65fa049fccfdd59507",
+      "size": 97,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pcre2/LICENCE.md": {
+      "mode": 420,
+      "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+      "size": 4011,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pcre2/share/doc/pcre2/COPYING": {
+      "mode": 420,
+      "sha256": "99272c55f3dcfa07a8a7e15a5c1a33096e4727de74241d65fa049fccfdd59507",
+      "size": 97,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pcre2/share/doc/pcre2/LICENCE.md": {
+      "mode": 420,
+      "sha256": "197d8a73ffee0d6b09adba2f9c677b5f5aede24edf89258a68e48248d010d811",
+      "size": 4011,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pillow/LICENSE": {
+      "mode": 384,
+      "sha256": "15181e7363dca9aed78b79bebebc7fde7f1814b8bd311ea3b87ae8ccadfc185b",
+      "size": 1457,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pillow/lib/python3.14/site-packages/pillow-13.0.0.dist-info/licenses/LICENSE": {
+      "mode": 256,
+      "sha256": "15181e7363dca9aed78b79bebebc7fde7f1814b8bd311ea3b87ae8ccadfc185b",
+      "size": 1457,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pillow/lib/python3.15/site-packages/pillow-13.0.0.dist-info/licenses/LICENSE": {
+      "mode": 256,
+      "sha256": "15181e7363dca9aed78b79bebebc7fde7f1814b8bd311ea3b87ae8ccadfc185b",
+      "size": 1457,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pixman/COPYING": {
+      "mode": 420,
+      "sha256": "fac9270f0987b96ff4533fca3548c633e02083cbba4a0172a3b149b2e4019793",
+      "size": 2087,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pngquant/COPYRIGHT": {
+      "mode": 384,
+      "sha256": "e4f467f7abf860b4e620f5f60fdd88bc3a63a0fdb98a481fb002b5e511c9b826",
+      "size": 35621,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pybind11/LICENSE": {
+      "mode": 384,
+      "sha256": "83965b843b98f670d3a85bd041ed4b372c8ec50d7b4a5995a83ac697ba675dcb",
+      "size": 1684,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pybind11/lib/python3.14/site-packages/pybind11-3.1.0.dist-info/licenses/LICENSE": {
+      "mode": 256,
+      "sha256": "83965b843b98f670d3a85bd041ed4b372c8ec50d7b4a5995a83ac697ba675dcb",
+      "size": 1684,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pybind11/lib/python3.15/site-packages/pybind11-3.1.0.dist-info/licenses/LICENSE": {
+      "mode": 256,
+      "sha256": "83965b843b98f670d3a85bd041ed4b372c8ec50d7b4a5995a83ac697ba675dcb",
+      "size": 1684,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pycparser/LICENSE": {
+      "mode": 420,
+      "sha256": "0a9e78156ae8b96caf1b4f11ac2df424b83de29736f9e757630548a6272fdf90",
+      "size": 1543,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pycparser/lib/python3.12/site-packages/pycparser-3.11.dist-info/licenses/LICENSE": {
+      "target": "../../../../python3.15/site-packages/pycparser-3.11.dist-info/licenses/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pycparser/lib/python3.13/site-packages/pycparser-3.11.dist-info/licenses/LICENSE": {
+      "target": "../../../../python3.15/site-packages/pycparser-3.11.dist-info/licenses/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pycparser/lib/python3.14/site-packages/pycparser-3.11.dist-info/licenses/LICENSE": {
+      "target": "../../../../python3.15/site-packages/pycparser-3.11.dist-info/licenses/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pycparser/lib/python3.15/site-packages/pycparser-3.11.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "0a9e78156ae8b96caf1b4f11ac2df424b83de29736f9e757630548a6272fdf90",
+      "size": 1543,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pycparser/lib/python3.15t/site-packages/pycparser-3.11.dist-info/licenses/LICENSE": {
+      "target": "../../../../python3.15/site-packages/pycparser-3.11.dist-info/licenses/LICENSE",
+      "type": "symlink"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/LICENSE": {
+      "mode": 420,
+      "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3",
+      "size": 1129,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.14/site-packages/annotated_types-0.8.0.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d",
+      "size": 1083,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.14/site-packages/pydantic-2.14.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3",
+      "size": 1129,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.14/site-packages/pydantic_core-2.50.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a",
+      "size": 1080,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.14/site-packages/typing_extensions-4.16.0.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.14/site-packages/typing_inspection-0.4.4.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3",
+      "size": 1090,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.15/site-packages/annotated_types-0.8.0.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "fe1049884b1a0d9342901e88e07f32925d24b3121d9972b6a6805fb9824b095d",
+      "size": 1083,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.15/site-packages/pydantic-2.14.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "a9e186f3ca16b5eef84318e7a701721351a00cb7b8ae3a4394b67b49e3529ef3",
+      "size": 1129,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.15/site-packages/pydantic_core-2.50.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "2afdd30d54b4d62b6f488a6bcc1546e84ec5061f13f4209c03d012348783795a",
+      "size": 1080,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.15/site-packages/typing_extensions-4.16.0.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/pydantic/lib/python3.15/site-packages/typing_inspection-0.4.4.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "804b59b25f2c31bd278f9202a19ae49a3945aa2664387e2d0a128c7cacc61ec3",
+      "size": 1090,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/aiohappyeyeballs-2.7.1.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/aiohttp-3.14.5.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "2e4be5fc6c4c72a466fcb665d726e049a6891981fe536c4f04b6366749461d23",
+      "size": 11313,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/aiohttp-3.14.5.dist-info/licenses/vendor/llhttp/LICENSE": {
+      "mode": 384,
+      "sha256": "628168d68bb5a8a17e0bbefb3bd74e326e1edc20583d76f52f457c82c921867d",
+      "size": 1069,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/aiosignal-1.4.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "6fd5243e92dd7f98ec69c7ac377728e74905709ff527a5bf98d6d0263c04f5b6",
+      "size": 11332,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/asn1crypto-1.5.1.dist-info/LICENSE": {
+      "mode": 384,
+      "sha256": "29c3425e5da53ab842273e5f2f2f068ce2e35df4260f7fa156aa1ac6bed02433",
+      "size": 1075,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/attrs-26.1.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "882115c95dfc2af1eeb6714f8ec6d5cbcabf667caff8729f42420da63f714e9f",
+      "size": 1109,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/certifi-2026.10.23.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/cffi-2.1.1.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "5ba24ddc57067f9249add644c3afc41a5d6dc37e23433ef759d95df370b0af63",
+      "size": 1123,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "3e0c7c091a948b82533ba98fd7cbb40432d6f1a9acbf85f5922d2f99a93ae6bb",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.APACHE": {
+      "mode": 384,
+      "sha256": "aac73b3148f6d1d7111dbca32099f68d26c644c6813ae1e4f05f6579aa2663fe",
+      "size": 11360,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/cryptography-50.0.2.dist-info/licenses/LICENSE.BSD": {
+      "mode": 384,
+      "sha256": "602c4c7482de6479dd2e9793cda275e5e63d773dacd1eca689232ab7008fb4fb",
+      "size": 1532,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/et_xmlfile-2.0.0.dist-info/LICENCE.python": {
+      "mode": 384,
+      "sha256": "4ccdaaebc0f44b83720ec0399bb7ab329adce067dd62f73c5535a2dc05628ab2",
+      "size": 14688,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/et_xmlfile-2.0.0.dist-info/LICENCE.rst": {
+      "mode": 384,
+      "sha256": "0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e",
+      "size": 1131,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/frozenlist-1.8.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "6fd5243e92dd7f98ec69c7ac377728e74905709ff527a5bf98d6d0263c04f5b6",
+      "size": 11332,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/greenlet-3.5.6.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "769831d6e5dfaf2c20802faccff1fafb4c2025dd8f6253dfa47fcad59d4d0979",
+      "size": 1434,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/greenlet-3.5.6.dist-info/licenses/LICENSE.PSF": {
+      "mode": 384,
+      "sha256": "e5ff3c23c110e494cd7d736c10fd96d462457bafeca310840db6527298c7d46b",
+      "size": 2424,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/idna-3.20.dist-info/licenses/LICENSE.md": {
+      "mode": 384,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/lxml-6.1.3.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "8fc2b568133516e46845d2147917adeee1648e70ae9ab5ed6c5417afef4ce855",
+      "size": 1507,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/multidict-7.1.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "2e4be5fc6c4c72a466fcb665d726e049a6891981fe536c4f04b6366749461d23",
+      "size": 11313,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/openpyxl-3.1.5.dist-info/LICENCE.rst": {
+      "mode": 384,
+      "sha256": "0c84bb42f5d367e5ebf9fc2dde35b16141df5ee0fdc189250858bc6c5560f69e",
+      "size": 1131,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/oscrypto-1.3.0.dist-info/LICENSE": {
+      "mode": 384,
+      "sha256": "29c3425e5da53ab842273e5f2f2f068ce2e35df4260f7fa156aa1ac6bed02433",
+      "size": 1075,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pillow-12.0.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "30178bf7aff9f8dc82afed35086cd378a9064e77fcb4380485f38b5da3377052",
+      "size": 68061,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/certifi/LICENSE": {
+      "mode": 384,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/distro/LICENSE": {
+      "mode": 384,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md": {
+      "mode": 384,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/msgpack/COPYING": {
+      "mode": 384,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE": {
+      "mode": 384,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 384,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 384,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 384,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 384,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pygments/LICENSE": {
+      "mode": 384,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 384,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/requests/LICENSE": {
+      "mode": 384,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 384,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/rich/LICENSE": {
+      "mode": 384,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/tomli/LICENSE": {
+      "mode": 384,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 384,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/truststore/LICENSE": {
+      "mode": 384,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/certifi/LICENSE": {
+      "mode": 384,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/distro/LICENSE": {
+      "mode": 384,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/idna/LICENSE.md": {
+      "mode": 384,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/msgpack/COPYING": {
+      "mode": 384,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE": {
+      "mode": 384,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 384,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 384,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 384,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 384,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/pygments/LICENSE": {
+      "mode": 384,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 384,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/requests/LICENSE": {
+      "mode": 384,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 384,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/rich/LICENSE": {
+      "mode": 384,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/tomli/LICENSE": {
+      "mode": 384,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 384,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/truststore/LICENSE": {
+      "mode": 384,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/playwright-1.56.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "7fab1461b41970ff376f1c9303a637076bfaaeb71cd12dd3a1c44aaf59a1a2b9",
+      "size": 11399,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/playwright/driver/LICENSE": {
+      "mode": 384,
+      "sha256": "e991d81497a85bb24fc6bffae0a3637a6accd6c6bc5ce1f2c5698bd555cf9d49",
+      "size": 143299,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/playwright/driver/package/LICENSE": {
+      "mode": 384,
+      "sha256": "45873d00a0dd243596deb4aa23b2493b3d1f0671921bf2538ea431d7380220eb",
+      "size": 11601,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/playwright/driver/package/NOTICE": {
+      "mode": 384,
+      "sha256": "6d602191187b35b9b01d2cffa01c8469c2c8d9de8a96f1bf868e0f264f51c81d",
+      "size": 254,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/propcache-0.5.4.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/propcache-0.5.4.dist-info/licenses/NOTICE": {
+      "mode": 384,
+      "sha256": "56d6ac6c8105c0a51304c21db060e361af9a8ea0af9a75c239c28b5d13693838",
+      "size": 609,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pycparser-3.12.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "0a9e78156ae8b96caf1b4f11ac2df424b83de29736f9e757630548a6272fdf90",
+      "size": 1543,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pyee-13.0.1.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "1ff556ca206b107f10e1c562ae454d3292e0296c3510eb90eb7f114caee32a66",
+      "size": 1080,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pyhanko-0.38.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "a697e75ab287bc6bc4886da62198a2b9930a62f1ad34c191f58d556d8625c062",
+      "size": 1080,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pyhanko-0.38.0.dist-info/licenses/src/pyhanko/pdf_utils/LICENSE.PyPDF2": {
+      "mode": 384,
+      "sha256": "f04bd89131d1346a34bd4d94b2927da1ef925bdcf29e0dd3c630d610a6d08505",
+      "size": 1726,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pyhanko_certvalidator-0.33.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "69a81f57c51fd024f52712b1fa538187c251df9cc9ee5658ff9884ab4f409ccd",
+      "size": 1151,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/pymupdf-1.26.5.dist-info/COPYING": {
+      "mode": 384,
+      "sha256": "40e60697600535eabfb5ae05f72829d88cfe8d02dd4792f5a754f6f51dabe55b",
+      "size": 64,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/python_docx-1.2.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "7652f271e46d0d533e9dc463f3b5fcbdcacf4d6a9c8d6b554d15efd0f37f6132",
+      "size": 1104,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/python_pptx-1.0.2.dist-info/LICENSE": {
+      "mode": 384,
+      "sha256": "7652f271e46d0d533e9dc463f3b5fcbdcacf4d6a9c8d6b554d15efd0f37f6132",
+      "size": 1104,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/typing_extensions-4.16.0.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/tzlocal-5.4.5.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "d99ab209aeb16aad2c25c90ffd83c1a981e290ffff76a420a2ab03e03f041b8c",
+      "size": 1060,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/uritools-6.1.3.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "28c000b52b0ee27138a68ef778227e4057046e86b65f62f1cacb99b0cc49e0d2",
+      "size": 1085,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/xlsxwriter-3.3.0.dist-info/licenses/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "79cd3a88b65ecd9996f4bbfb7f3adf0a75df366aa1d3bbb7fe150b9e43d5b4c7",
+      "size": 1349,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/yarl-1.25.1.dist-info/licenses/LICENSE": {
+      "mode": 384,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/site-packages/yarl-1.25.1.dist-info/licenses/NOTICE": {
+      "mode": 384,
+      "sha256": "56d6ac6c8105c0a51304c21db060e361af9a8ea0af9a75c239c28b5d13693838",
+      "size": 609,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/share/doc/python3.12/examples/Tools/msi/bundle/bootstrap/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f",
+      "size": 3273,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/LICENSE": {
+      "mode": 384,
+      "sha256": "3b2f81fe21d181c499c59a256c8e1968455d6689d269aa85373bfb6af41da3bf",
+      "size": 13936,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/certifi/LICENSE": {
+      "mode": 256,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/distro/LICENSE": {
+      "mode": 256,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md": {
+      "mode": 256,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/msgpack/COPYING": {
+      "mode": 256,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE": {
+      "mode": 256,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 256,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 256,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 256,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 256,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pygments/LICENSE": {
+      "mode": 256,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 256,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/requests/LICENSE": {
+      "mode": 256,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 256,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/rich/LICENSE": {
+      "mode": 256,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/tomli/LICENSE": {
+      "mode": 256,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 256,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/truststore/LICENSE": {
+      "mode": 256,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/certifi/LICENSE": {
+      "mode": 256,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/distro/LICENSE": {
+      "mode": 256,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/idna/LICENSE.md": {
+      "mode": 256,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/msgpack/COPYING": {
+      "mode": 256,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE": {
+      "mode": 256,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 256,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 256,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 256,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 256,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/pygments/LICENSE": {
+      "mode": 256,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 256,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/requests/LICENSE": {
+      "mode": 256,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 256,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/rich/LICENSE": {
+      "mode": 256,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/tomli/LICENSE": {
+      "mode": 256,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 256,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/truststore/LICENSE": {
+      "mode": 256,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.12/lib/python3.12/site-packages/wheel-0.48.0.dist-info/licenses/LICENSE.txt": {
+      "mode": 256,
+      "sha256": "30c23618679108f3e8ea1d2a658c7ca417bdfc891c98ef1a89fa4ff0c9828654",
+      "size": 1107,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/Frameworks/Python.framework/Versions/3.15/lib/python3.15/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231",
+      "size": 13804,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/Frameworks/Python.framework/Versions/3.15/share/doc/python3.15/examples/Tools/msi/bundle/bootstrap/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "cb95daf98edda8e08a242e1060691b6941f0911692bf468a3f9c5e4b58c09b8f",
+      "size": 3273,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/LICENSE": {
+      "mode": 420,
+      "sha256": "b0e25a78cffb43f4d92de8b61ccfa1f1f98ecbc22330b54b5251e7b6ba010231",
+      "size": 13804,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "634300a669d49aeae65b12c6c48c924c51a4cdf3d1ff086dc3456dc8bcaa2104",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/certifi/LICENSE": {
+      "mode": 292,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/distro/LICENSE": {
+      "mode": 292,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/idna/LICENSE.md": {
+      "mode": 292,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/msgpack/COPYING": {
+      "mode": 292,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE": {
+      "mode": 292,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 292,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 292,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 292,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 292,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pygments/LICENSE": {
+      "mode": 292,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 292,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/requests/LICENSE": {
+      "mode": 292,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 292,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/rich/LICENSE": {
+      "mode": 292,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/tomli/LICENSE": {
+      "mode": 292,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 292,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/truststore/LICENSE": {
+      "mode": 292,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip-26.2.2.dist-info/licenses/src/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/cachecontrol/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "86eeee87be2a43f3ff1f56496f451f69243926f025fedbb033666c304c4c161b",
+      "size": 558,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/certifi/LICENSE": {
+      "mode": 292,
+      "sha256": "e93716da6b9c0d5a4a1df60fe695b370f0695603d21f6f83f053e42cfc10caf7",
+      "size": 989,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/distlib/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "808e10c8a6ab8deb149ff9b3fb19f447a808094606d712a9ca57fead3552599d",
+      "size": 14531,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/distro/LICENSE": {
+      "mode": 292,
+      "sha256": "cb5e8e7e5f4a3988e1063c142c60dc2df75605f4c46515e776e3aca6df976e14",
+      "size": 11325,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/idna/LICENSE.md": {
+      "mode": 292,
+      "sha256": "1a9a4f0e3d479a27240ddd59a9137a66ab4a0f9dfdc8ca6188cc0bfd85187f04",
+      "size": 1541,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/msgpack/COPYING": {
+      "mode": 292,
+      "sha256": "492dedba85da5872f78e6091bcd1fea474d660d35acb4dee964b8aab3f007427",
+      "size": 614,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/packaging/LICENSE": {
+      "mode": 292,
+      "sha256": "cad1ef5bd340d73e074ba614d26f7deaca5c7940c3d8c34852e65c4909686c48",
+      "size": 197,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/packaging/LICENSE.APACHE": {
+      "mode": 292,
+      "sha256": "0d542e0c8804e39aa7f37eb00da5a762149dc682d7829451287e11b938e94594",
+      "size": 10174,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/packaging/LICENSE.BSD": {
+      "mode": 292,
+      "sha256": "b70e7e9b742f1cc6f948b34c16aa39ffece94196364bc88ff0d2180f0028fac5",
+      "size": 1344,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/pkg_resources/LICENSE": {
+      "mode": 292,
+      "sha256": "86da0f01aeae46348a3c3d465195dc1ceccde79f79e87769a64b8da04b2a4741",
+      "size": 1023,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/platformdirs/LICENSE": {
+      "mode": 292,
+      "sha256": "29e0fd62e929850e86eb28c3fdccf0cefdf4fa94879011cffb3d0d4bed6d4db6",
+      "size": 1089,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/pygments/LICENSE": {
+      "mode": 292,
+      "sha256": "a9d66f1d526df02e29dce73436d34e56e8632f46c275bbdffc70569e882f9f17",
+      "size": 1331,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/pyproject_hooks/LICENSE": {
+      "mode": 292,
+      "sha256": "1b22b049b5267d6dfc23a67bf4a84d8ec04b9fdfb1a51d360e42b4342c8b4154",
+      "size": 1081,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/requests/LICENSE": {
+      "mode": 292,
+      "sha256": "09e8a9bcec8067104652c168685ab0931e7868f9c8284b66f5ae6edae5f1130b",
+      "size": 10142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/resolvelib/LICENSE": {
+      "mode": 292,
+      "sha256": "f388fd38cad13112c1dc0f669bbe80e7f84541edbafb72f3030d2ca7642c3c9d",
+      "size": 751,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/rich/LICENSE": {
+      "mode": 292,
+      "sha256": "deed7c17a4318158190a3ea239cc879a5a50271cebb98ae7025f48fbe58dca15",
+      "size": 1056,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/tomli/LICENSE": {
+      "mode": 292,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/tomli_w/LICENSE": {
+      "mode": 292,
+      "sha256": "b80816b0d530b8accb4c2211783790984a6e3b61922c2b5ee92f3372ab2742fe",
+      "size": 1072,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/truststore/LICENSE": {
+      "mode": 292,
+      "sha256": "33be7b7e8fa4fd19b1760e1a8ed8a668bdab852c91b692dd41424bcb725a9fca",
+      "size": 1086,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/python@3.15/lib/python3.15/site-packages/pip/_vendor/urllib3/LICENSE.txt": {
+      "mode": 292,
+      "sha256": "130e3a64d5fdd5d096a752694634a7d9df284469de86e5732100268041e3d686",
+      "size": 1093,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/qpdf/LICENSE.txt": {
+      "mode": 420,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/qpdf/NOTICE.md": {
+      "mode": 420,
+      "sha256": "b207f65a9e5491195ded63b2941199b19a4d30148871f2742c88eae7bfc513a6",
+      "size": 2729,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/readline/COPYING": {
+      "mode": 420,
+      "sha256": "8ceb4b9ee5adedde47b31e975c1d90c73ad27b6b165a1dcd80c7c545eb65b903",
+      "size": 35147,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/rpds-py/LICENSE": {
+      "mode": 420,
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909",
+      "size": 1057,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/rpds-py/lib/python3.14/site-packages/rpds_py-2026.9.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909",
+      "size": 1057,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/rpds-py/lib/python3.15/site-packages/rpds_py-2026.9.1.dist-info/licenses/LICENSE": {
+      "mode": 292,
+      "sha256": "314e4e91be3baa93c0fb4bccc9e4e97cd643eb839b065af921782c2175fe9909",
+      "size": 1057,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/sdl2-compat/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "0164aec3168ca9606c1f6066e879b4e8c7f2e46a838391f284348ab0aa1eabf2",
+      "size": 875,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/sdl2-compat/share/licenses/sdl2-compat/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "0164aec3168ca9606c1f6066e879b4e8c7f2e46a838391f284348ab0aa1eabf2",
+      "size": 875,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/sdl3/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "1c040b8271b37e5076359f8fd54240e371114112924d2df81ef87c7d6a1dfdfd",
+      "size": 884,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/sdl3/share/licenses/SDL3/LICENSE.txt": {
+      "mode": 384,
+      "sha256": "1c040b8271b37e5076359f8fd54240e371114112924d2df81ef87c7d6a1dfdfd",
+      "size": 884,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/svt-av1/LICENSE-BSD2.md": {
+      "mode": 384,
+      "sha256": "c582fcbeb9cf972a60d298bfaf41dc5adff2dd14208946edcb9bb56a281e8438",
+      "size": 1316,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/svt-av1/LICENSE.md": {
+      "mode": 384,
+      "sha256": "0acc2fcb27472bdc9aaf8b71f37055bbdac4f54671b7d922f241bd7fcd0dd3e6",
+      "size": 1709,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/tesseract-lang/share/tessdata/LICENSE": {
+      "mode": 384,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/tesseract/LICENSE": {
+      "mode": 384,
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "size": 11358,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/webp/COPYING": {
+      "mode": 420,
+      "sha256": "5aec868f669e384a22372a4e8a1a6cd7d44c64cd451f960ca69cc170d1e13acf",
+      "size": 1496,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/x264/COPYING": {
+      "mode": 384,
+      "sha256": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670",
+      "size": 17992,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/x265/COPYING": {
+      "mode": 384,
+      "sha256": "d8afb1bcc7a2cfc603683b168d6987ef0a48e59e0da3693bf55c5d33b67e2b49",
+      "size": 18120,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-applewmproto": {
+      "mode": 420,
+      "sha256": "aacd931f191b610902aee1e526090c2858aabc07969441fa2537ffd3e7049555",
+      "size": 1275,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-bigreqsproto": {
+      "mode": 420,
+      "sha256": "dabc025f93129a0eb2d17f37c719dbe5ecbcb5bc8f7bc7f4ce89fe04576cc0c2",
+      "size": 1136,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-compositeproto": {
+      "mode": 420,
+      "sha256": "3e980a770506b448897638632974bbcbdf2da3b99191dd0a03d3770097a46738",
+      "size": 2206,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-damageproto": {
+      "mode": 420,
+      "sha256": "f67a18cb46c4c203c5122b4a901cfcc3178b2a62f83f31ca5fef5bdca3966094",
+      "size": 1134,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-dmxproto": {
+      "mode": 420,
+      "sha256": "819e8dcd3dd2a44850c350331aa492230f86bccb0983dd739dec5ba36d7d2b8e",
+      "size": 1138,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-dri2proto": {
+      "mode": 420,
+      "sha256": "0c306691492c4d7a8cda1ec3847668b797887dddcd7e986b4c166ae27619af7d",
+      "size": 1519,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-dri3proto": {
+      "mode": 420,
+      "sha256": "64a579d1a0b3347301d87c94698a58ea7933d0ae6ca7e8fdd702fde2ea376301",
+      "size": 1128,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-evieproto": {
+      "mode": 420,
+      "sha256": "9936421f7516f7a17ae560b6989636b493e55c01128b543c7e72441568c3cba4",
+      "size": 1106,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-fixesproto": {
+      "mode": 420,
+      "sha256": "fb361c7c4322e4919ae193c5a20055d5190c23aa50480fd0a41f4d439cae2bc6",
+      "size": 2240,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-fontcacheproto": {
+      "mode": 420,
+      "sha256": "1ab381e978bff63d68be2e4f235d51935f3f16f3ba3bebf83afa99a70c0484a2",
+      "size": 1386,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-fontsproto": {
+      "mode": 420,
+      "sha256": "f4af05774b02ae149357cc26f7bf5ef1116c2e09373c2492081a3a1892c58417",
+      "size": 4305,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-glproto": {
+      "mode": 420,
+      "sha256": "823deb4673d3f26aa8c90e704888299648f00be3262f9363eaeecedcd65b936d",
+      "size": 1483,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-inputproto": {
+      "mode": 420,
+      "sha256": "5e083a2ace0215a6084c877c023a6079952ba803d692488203ba4269196debe3",
+      "size": 3230,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-kbproto": {
+      "mode": 420,
+      "sha256": "883f26ebeffb29f955c1e2becdee284bce16c7139b1410f6f7331d3bd59bfc78",
+      "size": 1164,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-lg3dproto": {
+      "mode": 420,
+      "sha256": "2467132d97b75edba05d908604124be2f46ee113954f848c99bcd938055e8e4b",
+      "size": 1149,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-pmproto": {
+      "mode": 420,
+      "sha256": "8442b5f22f2fb13017a4302a906e7dedc899267b41f613558970941120170128",
+      "size": 1136,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-presentproto": {
+      "mode": 420,
+      "sha256": "64a579d1a0b3347301d87c94698a58ea7933d0ae6ca7e8fdd702fde2ea376301",
+      "size": 1128,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-printproto": {
+      "mode": 420,
+      "sha256": "46f599055002bbf3e6ce244bde8d9ebe5ec24ae7906836db186773a9791d0b75",
+      "size": 1550,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-randrproto": {
+      "mode": 420,
+      "sha256": "41c13dcd09147ed2440286f2fb8151df8ebee06deee4ed78ddf094601c216d3d",
+      "size": 1252,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-recordproto": {
+      "mode": 420,
+      "sha256": "e37891ac36e827611d6e7ae51ddb14a9cc9ba56f6cc87c55b6ce3b6d76cd2bf4",
+      "size": 986,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-renderproto": {
+      "mode": 420,
+      "sha256": "e0ca4f1d27a95ef7552ccdfce7e95ddf1e8b10ac713a05b49e8bd82713d7914b",
+      "size": 1095,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-resourceproto": {
+      "mode": 420,
+      "sha256": "403e7be948674530ad40669b1e3a31adeddb656502f3b0ef810d5d3cc35d0b52",
+      "size": 1280,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-scrnsaverproto": {
+      "mode": 420,
+      "sha256": "fcbd3c628bf4d28ee3e6032054bf44bbe58f3b1a944dad856a8d3eb6b37ea412",
+      "size": 1315,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-trapproto": {
+      "mode": 420,
+      "sha256": "2c1807ecb78dddba1a9cd612a11bfdbc013b77144880ec3c268241495cb022dd",
+      "size": 974,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-videoproto": {
+      "mode": 420,
+      "sha256": "f8f49bbad61967ebc890fb79fff5bfb7cfc1c341aa8f8dee13eb3fb534040b47",
+      "size": 3430,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-windowswmproto": {
+      "mode": 420,
+      "sha256": "eb183a00c61bb47992f096b6993ed7ec17518bea9c285fe87efff7f622cc6c12",
+      "size": 1125,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-x11proto": {
+      "mode": 420,
+      "sha256": "da835951edc6e3b8d168d6afe7447c65d0b9a99937293cf3f288bba8244a9f86",
+      "size": 5256,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xcmiscproto": {
+      "mode": 420,
+      "sha256": "5531d18cfcc944dab39991f63f182cbbce3fe493ba0c7cf08a25c0d01ee84482",
+      "size": 1142,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xextproto": {
+      "mode": 420,
+      "sha256": "9ce418e7d81cb230d8a53b07a7d9d705fc830dd095c104ba5d9405dc98be8357",
+      "size": 9020,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xf86bigfontproto": {
+      "mode": 420,
+      "sha256": "3591964e01a9cdfc9cc4149a847a431a3f3d98328cc9e5864c7a7831b29c4058",
+      "size": 1247,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xf86dgaproto": {
+      "mode": 420,
+      "sha256": "3591964e01a9cdfc9cc4149a847a431a3f3d98328cc9e5864c7a7831b29c4058",
+      "size": 1247,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xf86driproto": {
+      "mode": 420,
+      "sha256": "4a05d06752388d9db71ee1006f371d4fb2c316a821fc2fc272db90b3ef978334",
+      "size": 1187,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xf86miscproto": {
+      "mode": 420,
+      "sha256": "3591964e01a9cdfc9cc4149a847a431a3f3d98328cc9e5864c7a7831b29c4058",
+      "size": 1247,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xf86rushproto": {
+      "mode": 420,
+      "sha256": "3591964e01a9cdfc9cc4149a847a431a3f3d98328cc9e5864c7a7831b29c4058",
+      "size": 1247,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xf86vidmodeproto": {
+      "mode": 420,
+      "sha256": "942bb46a3503a708948491699171b00b9e0dfb47818d9268b160bccc5f51a4b9",
+      "size": 1275,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xineramaproto": {
+      "mode": 420,
+      "sha256": "b2d8cda803e900915ce10f0ba735ff2c033b39c7cc5a8a436667ca583d4066fa",
+      "size": 2455,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xorgproto/COPYING-xwaylandproto": {
+      "mode": 420,
+      "sha256": "309bd89bc2b30c6e3d3eb78f5377fa576475499e0ba936a9c3cba50ba5d6375c",
+      "size": 1125,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/COPYING": {
+      "mode": 420,
+      "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+      "size": 3119,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/COPYING.0BSD": {
+      "mode": 420,
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "size": 607,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/COPYING.GPLv2": {
+      "mode": 420,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "size": 17984,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/COPYING.GPLv3": {
+      "mode": 420,
+      "sha256": "3972dc9744f6499f0f9b2dbf76696f2ae7ad8af9b23dde66d6af86c9dfb36986",
+      "size": 35149,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/COPYING.LGPLv2.1": {
+      "mode": 420,
+      "sha256": "20e50fe7aae3e56378ebf0417d9de904f55a0e61e4df315333e632a4d3555d95",
+      "size": 26419,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/share/doc/xz/COPYING": {
+      "mode": 420,
+      "sha256": "616a3ad264ce29b8f1cb97e53037b139d406899ca8d1f799651e17bfa09830b8",
+      "size": 3119,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/share/doc/xz/COPYING.0BSD": {
+      "mode": 420,
+      "sha256": "0b01625d853911cd0e2e088dcfb743261034a091bb379246cb25a14cc4c74bf1",
+      "size": 607,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/xz/share/doc/xz/COPYING.GPLv2": {
+      "mode": 420,
+      "sha256": "edaef632cbb643e4e7a221717a6c441a4c1a7c918e6e4d56debc3d8739b233f6",
+      "size": 17984,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/zstd/COPYING": {
+      "mode": 420,
+      "sha256": "f9c375a1be4a41f7b70301dd83c91cb89e41567478859b77eef375a52d782505",
+      "size": 18091,
+      "type": "file"
+    },
+    "PDF.app/Contents/Resources/runtime/vendor/zstd/LICENSE": {
+      "mode": 420,
+      "sha256": "7055266497633c9025b777c78eb7235af13922117480ed5c674677adc381c9d8",
+      "size": 1549,
+      "type": "file"
+    }
+  },
+  "originalSourceValidation": {
+    "appIntentsMetadataVerified": true,
+    "appleNotarized": false,
+    "applicationVersion": "0.6.0",
+    "commit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+    "developerToolsOnDestinationRequired": false,
+    "energyMeasured": false,
+    "freshInstallPassed": true,
+    "humanVoiceOverTested": false,
+    "isolatedRuntimePassed": true,
+    "localAIGenerationSamplePassed": false,
+    "localAIStatus": "unavailable",
+    "manifestEntries": 56817,
+    "neuralEngineMeasured": false,
+    "physicalM4Measured": false,
+    "preferencesPreserved": true,
+    "runner": "macos-26",
+    "schemaVersion": 1,
+    "signing": "ad-hoc",
+    "transactionalUpdatePassed": true,
+    "wrongChecksumRejected": true
+  },
+  "otherPlatformBinaryArtifact": {
+    "created_at": "2026-10-24T22:56:36Z",
+    "digest": "sha256:6e833546e66fb2a468649625ab6a072093052c7c39ed62444f6a0dc792e40081",
+    "id": 12578502165,
+    "name": "PDF-binary-validated-xcode-27",
+    "size_in_bytes": 1442866110
+  },
+  "publicRelease": false,
+  "purpose": "owner-binary-delivery-after-specified-checks",
+  "repository": "vibracall-beep/PDF-",
+  "schemaVersion": 1,
+  "source": {
+    "attempt": 1,
+    "commit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+    "conclusion": "success",
+    "id": 40137438618,
+    "jobs": [
+      {
+        "completedAt": "2026-10-24T23:08:18Z",
+        "conclusion": "success",
+        "id": 121001851126,
+        "name": "native-application (macos-26)",
+        "startedAt": "2026-10-24T22:10:58Z"
+      },
+      {
+        "completedAt": "2026-10-24T22:56:50Z",
+        "conclusion": "success",
+        "id": 121001851239,
+        "name": "native-application (xcode-27)",
+        "startedAt": "2026-10-24T22:10:58Z"
+      }
+    ],
+    "workflow": ".github/workflows/macos.yml"
+  },
+  "sourceAndInstallerVerification": {
+    "additionalSourceFiles": {
+      "scripts/binary_update.py": {
+        "bytes": 17323,
+        "sha256": "3639c1ec0a7f6ce5be814297a81f5349cab1958e53ab814987f9249dca05de2a"
+      },
+      "scripts/check_accessibility_report.py": {
+        "bytes": 4010,
+        "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+      },
+      "scripts/check_preview_artifacts.py": {
+        "bytes": 10210,
+        "sha256": "89c39cb041862f77b134327d605290f28bd2942e29287194183da64dab64d120"
+      },
+      "scripts/run-with-timeout.py": {
+        "bytes": 4709,
+        "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+      }
+    },
+    "installerBytes": 3344,
+    "installerSHA256": "53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211",
+    "sourceArchiveBytes": 10535683,
+    "sourceArchiveSHA256": "dcd4821a0c81d215ef12856e16b7d269ad047d9fb2d6341c7d1d6996115a71a6",
+    "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+    "sourceFileCount": 459,
+    "sourceManifestVerified": true,
+    "sourceUncompressedBytes": 26378240,
+    "sourceWorkingTreeDirty": false
+  },
+  "sourceArtifact": {
+    "created_at": "2026-10-24T23:08:01Z",
+    "digest": "sha256:3d78a25035b4859f7dfc91a9f04deb4b64eab2883cb616c09d7a159f4b4e2ece",
+    "id": 12578548557,
+    "name": "PDF-source-macos-26",
+    "size_in_bytes": 10541898
+  }
+}

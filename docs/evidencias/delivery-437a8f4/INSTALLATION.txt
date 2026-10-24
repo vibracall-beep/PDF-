@@ -1,0 +1,7 @@
+Pacote de instalação: bytes originais testados em macOS 26 e 27.
+Baixe os assets deste rascunho pelo GitHub autenticado. Confira os hashes antes de executar scripts.
+SHA-256 do instalador: 53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211
+SHA-256 do tar completo: 7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad
+Instale com: bash install-binary.sh /caminho/PDF-arm64.tar.gz 7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad
+O destino não exige Xcode, Homebrew, Git ou Python do sistema.
+Os checks comprovam instalação e isolamento do pacote nos runners identificados; não comprovam desempenho em M4 físico, uso da Neural Engine ou auditoria humana com VoiceOver. IA local pode permanecer indisponível, conforme os relatórios originais. Recursos com escopo parcial e integrações opcionais continuam descritos nos fontes e relatórios. Assinatura ad hoc, sem notarização Apple; políticas do Gatekeeper permanecem ativas.

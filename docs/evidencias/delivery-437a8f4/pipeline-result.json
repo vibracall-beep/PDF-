@@ -1,0 +1,11 @@
+{
+  "archiveSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+  "binaryChecksPassed": true,
+  "crossRunID": 40141728214,
+  "draft": true,
+  "limitations": "Os checks comprovam instala\u00e7\u00e3o e isolamento do pacote nos runners identificados; n\u00e3o comprovam desempenho em M4 f\u00edsico, uso da Neural Engine ou auditoria humana com VoiceOver. IA local pode permanecer indispon\u00edvel, conforme os relat\u00f3rios originais. Recursos com escopo parcial e integra\u00e7\u00f5es opcionais continuam descritos nos fontes e relat\u00f3rios. Assinatura ad hoc, sem notariza\u00e7\u00e3o Apple; pol\u00edticas do Gatekeeper permanecem ativas.",
+  "releaseID": 423043552,
+  "sourceRunID": 40137438618,
+  "tag": "delivery-437a8f4d6bb6-40137438618-40141728214",
+  "verifiedAssets": 71
+}

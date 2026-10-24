@@ -1,0 +1,59 @@
+[
+  {
+    "jobLog": "collector-job-121018731276.log",
+    "zipMember": "2_verify-macos-reassembly (macos-26).txt",
+    "bytes": 15281,
+    "sha256": "5e5a5c1404c40ee6a7c97ce57a2490d5cc895560058583a6e2d45fd08b5736b4",
+    "equalsZIPMember": true,
+    "suites": [
+      {
+        "count": 16,
+        "seconds": 1.132,
+        "line": 139,
+        "resultLine": "2026-10-24T23:31:43.4804490Z OK"
+      }
+    ]
+  },
+  {
+    "jobLog": "collector-job-121018731365.log",
+    "zipMember": "1_verify-macos-reassembly (xcode-27).txt",
+    "bytes": 15282,
+    "sha256": "a390322b8de99ce5742b1b62511e28176f76418509e207b13b017978df8c98cb",
+    "equalsZIPMember": true,
+    "suites": [
+      {
+        "count": 16,
+        "seconds": 1.684,
+        "line": 139,
+        "resultLine": "2026-10-24T23:31:44.4106840Z OK"
+      }
+    ]
+  },
+  {
+    "jobLog": "collector-job-121018774642.log",
+    "zipMember": "0_retain-owner-draft.txt",
+    "bytes": 48898,
+    "sha256": "6b46ab66f7e9ea4f7b1ae85a9cb99d94fb6fffd0526777557493b8ab012409b5",
+    "equalsZIPMember": true,
+    "suites": [
+      {
+        "count": 41,
+        "seconds": 3.756,
+        "line": 208,
+        "resultLine": "2026-10-24T23:31:58.7048045Z OK"
+      },
+      {
+        "count": 14,
+        "seconds": 0.202,
+        "line": 397,
+        "resultLine": "2026-10-24T23:31:58.9995133Z OK"
+      },
+      {
+        "count": 9,
+        "seconds": 0.018,
+        "line": 411,
+        "resultLine": "2026-10-24T23:31:59.1002485Z OK"
+      }
+    ]
+  }
+]

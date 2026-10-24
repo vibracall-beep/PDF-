@@ -1,0 +1,192 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "deliveryRunID": 40143091839,
+  "deliveryAttempt": 1,
+  "deliveryControllerSHA": "3c81e0bb9d3407f9b3cca5e51cc2b8dd1b130a1f",
+  "deliveryConclusion": "success",
+  "workflowURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40143091839",
+  "sourceRunID": 40137438618,
+  "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "crossRunID": 40141728214,
+  "crossControllerSHA": "6daf46294b10f35ec8252fd473f1d0865cd4bf8f",
+  "releaseID": 423043552,
+  "ownerDraftURL": "https://github.com/vibracall-beep/PDF-/releases/tag/untagged-46d8b6e9889cc9181621",
+  "tag": "delivery-437a8f4d6bb6-40137438618-40141728214",
+  "draft": true,
+  "publiclyPublished": false,
+  "tarSHA256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+  "tarBytes": 1448521887,
+  "assetCount": 71,
+  "pipelineReadbackVerifiedAssets": 71,
+  "smallControlsDownloadedIndependently": 5,
+  "assetsMatchedEarlierAuthenticatedLocalBytes": 65,
+  "noLargeTarDownloadedAgain": true,
+  "preservedFiles": [
+    {
+      "file": "attempt-1-logs.zip",
+      "bytes": 41707,
+      "sha256": "e14b789d779f6c2b072f3f19d6ea73da834755bb93381297b7ffd09060ab7764",
+      "kind": "original",
+      "origin": "official GitHub attempt log archive; unchanged bytes",
+      "upstreamDigestAvailable": false
+    },
+    {
+      "file": "release-original.json",
+      "bytes": 121830,
+      "sha256": "69d211be64c75bf7c96a01c607c5c151c391dfdc7eb315514977237ec8dfc16c",
+      "kind": "original",
+      "origin": "original authenticated GitHub release API response; unchanged bytes"
+    },
+    {
+      "file": "delivery-provenance.json",
+      "bytes": 162577,
+      "sha256": "44b053192569c6d46b24bb84c4153589e6a9c018e7be791f610d7e724735c35d",
+      "kind": "original",
+      "origin": "release asset downloaded and compared with GitHub digest and authenticated delivery checksum inventory",
+      "assetID": 673589140,
+      "githubDigest": "sha256:44b053192569c6d46b24bb84c4153589e6a9c018e7be791f610d7e724735c35d"
+    },
+    {
+      "file": "DELIVERY-SHA256SUMS",
+      "bytes": 6698,
+      "sha256": "cdd94465a7064abfb4046848ab89bc625c8f111a8731d1ef7aee18991d69299b",
+      "kind": "original",
+      "origin": "release asset downloaded and compared with GitHub digest and authenticated delivery checksum inventory",
+      "assetID": 673589170,
+      "githubDigest": "sha256:cdd94465a7064abfb4046848ab89bc625c8f111a8731d1ef7aee18991d69299b"
+    },
+    {
+      "file": "distribution-validation.json",
+      "bytes": 667,
+      "sha256": "1f36de7e4d8b8d33334ffa5ac084314eef465bbb9da2fbb971fd8e3b08e6b9db",
+      "kind": "original",
+      "origin": "release asset downloaded and compared with GitHub digest and authenticated delivery checksum inventory",
+      "assetID": 673585124,
+      "githubDigest": "sha256:1f36de7e4d8b8d33334ffa5ac084314eef465bbb9da2fbb971fd8e3b08e6b9db"
+    },
+    {
+      "file": "install-binary.sh",
+      "bytes": 3344,
+      "sha256": "53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211",
+      "kind": "original",
+      "origin": "release asset downloaded and compared with GitHub digest and authenticated delivery checksum inventory",
+      "assetID": 673584998,
+      "githubDigest": "sha256:53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211"
+    },
+    {
+      "file": "INSTALLATION.txt",
+      "bytes": 980,
+      "sha256": "844c298adf69e1cd8348caa09a288e8541c1d7b775d00f33915d4bfaa5d15dba",
+      "kind": "original",
+      "origin": "release asset downloaded and compared with GitHub digest and authenticated delivery checksum inventory",
+      "assetID": 673589117,
+      "githubDigest": "sha256:844c298adf69e1cd8348caa09a288e8541c1d7b775d00f33915d4bfaa5d15dba"
+    },
+    {
+      "file": "local-verification.json",
+      "bytes": 4858,
+      "sha256": "a1989545c2356dde3a5c11a5771e517ff22237b3d29ba62605419ec5f453a008",
+      "kind": "derived",
+      "origin": "local read-only verification or extraction from the unmodified official logs"
+    },
+    {
+      "file": "final-counts.json",
+      "bytes": 1501,
+      "sha256": "2f9ab575ce4ef602526b25844b3bab8de24fed3e7e440274be711154b2457314",
+      "kind": "derived",
+      "origin": "local read-only verification or extraction from the unmodified official logs"
+    },
+    {
+      "file": "pipeline-result.json",
+      "bytes": 815,
+      "sha256": "692262a777b6e1f12d00ba164608f061b335d1df6be04aedd04acf2b35c62d4e",
+      "kind": "derived",
+      "origin": "local read-only verification or extraction from the unmodified official logs"
+    },
+    {
+      "file": "asset-inventory.json",
+      "bytes": 23316,
+      "sha256": "7bc4f4fa4117e9e3a0a784096ae40d259be2f9ffbbd5cd9619dccdcf5ca1e85f",
+      "kind": "derived",
+      "origin": "selected identity and size/digest fields of original authenticated asset API responses; no content transformed"
+    }
+  ],
+  "actualCounts": [
+    {
+      "jobLog": "collector-job-121018731276.log",
+      "zipMember": "2_verify-macos-reassembly (macos-26).txt",
+      "bytes": 15281,
+      "sha256": "5e5a5c1404c40ee6a7c97ce57a2490d5cc895560058583a6e2d45fd08b5736b4",
+      "equalsZIPMember": true,
+      "suites": [
+        {
+          "count": 16,
+          "seconds": 1.132,
+          "line": 139,
+          "resultLine": "2026-10-24T23:31:43.4804490Z OK"
+        }
+      ]
+    },
+    {
+      "jobLog": "collector-job-121018731365.log",
+      "zipMember": "1_verify-macos-reassembly (xcode-27).txt",
+      "bytes": 15282,
+      "sha256": "a390322b8de99ce5742b1b62511e28176f76418509e207b13b017978df8c98cb",
+      "equalsZIPMember": true,
+      "suites": [
+        {
+          "count": 16,
+          "seconds": 1.684,
+          "line": 139,
+          "resultLine": "2026-10-24T23:31:44.4106840Z OK"
+        }
+      ]
+    },
+    {
+      "jobLog": "collector-job-121018774642.log",
+      "zipMember": "0_retain-owner-draft.txt",
+      "bytes": 48898,
+      "sha256": "6b46ab66f7e9ea4f7b1ae85a9cb99d94fb6fffd0526777557493b8ab012409b5",
+      "equalsZIPMember": true,
+      "suites": [
+        {
+          "count": 41,
+          "seconds": 3.756,
+          "line": 208,
+          "resultLine": "2026-10-24T23:31:58.7048045Z OK"
+        },
+        {
+          "count": 14,
+          "seconds": 0.202,
+          "line": 397,
+          "resultLine": "2026-10-24T23:31:58.9995133Z OK"
+        },
+        {
+          "count": 9,
+          "seconds": 0.018,
+          "line": 411,
+          "resultLine": "2026-10-24T23:31:59.1002485Z OK"
+        }
+      ]
+    }
+  ],
+  "privacyReview": {
+    "textEntriesScanned": 33,
+    "patternOccurrences": {
+      "temporary_signed_url": 0,
+      "github_token": 0,
+      "private_key": 0,
+      "authorization_value": 0
+    },
+    "redacted": false,
+    "limits": "Pattern screening does not establish absence of every kind of sensitive data. Original draft API metadata remains authenticated-owner information, without access tokens or temporary signed URLs."
+  },
+  "limits": [
+    "The successful delivery pipeline authenticated and read back all 71 uploaded assets. This local collector independently downloaded five small controls, checked the complete inventory and compared 65 existing local originals; it did not download the large tar again.",
+    "The release remains an owner draft, not a publicly published release. The supplied html_url is the real authenticated-owner URL, not a fabricated tag URL.",
+    "This is byte retention after the specified matrix and cross-OS tests; it adds no physical M4, Neural Engine, energy, human VoiceOver or live external service validation.",
+    "Ad-hoc signing remains without Apple notarization. Source reports retain AI unavailable and OCR limitations.",
+    "The original official log ZIP is preserved; locally extracted pipeline JSON and inventories are explicitly marked derived."
+  ]
+}

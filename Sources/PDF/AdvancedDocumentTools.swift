@@ -237,7 +237,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
     private var ocrReviewURL: URL?
     deinit { cancellation?.cancel(); assetCancellations.values.forEach { $0.cancel() }; task?.cancel(); if let source { try? FileManager.default.removeItem(at: source.directory) } }
     @discardableResult func load(model: Workspace, ocr: Bool, language: String = "por+eng", deskew: Bool = false) -> Bool {
-        guard !working, !model.busy else { return false }
+        guard !working, !model.busy, ApplicationWork.isAcceptingWork else { return false }
         NSApp.keyWindow?.makeFirstResponder(nil)
         guard let document = model.document, let url = model.savedDocumentURL ?? model.url, !document.isLocked else {
             status = "Abra e desbloqueie um PDF no leitor primeiro."; return false
@@ -246,11 +246,14 @@ private enum AdvancedDecodedAnalysis: Sendable {
         clear(); closed = false; working = true; status = "Preparando uma cópia privada da versão salva…"
         let token = NativeCancellation(), current = UUID(), secret = model.activeSession?.password
         cancellation = token; generation = current; originalURL = url; sourceName = url.lastPathComponent; password = secret
-        task = Task { [weak self] in
+        task = ApplicationTask.start(cancel: { token.cancel() }) { [weak self] in
             do {
+                try Task.checkCancellation()
                 let captured = try await withTaskCancellationHandler(operation: {
                     try await Task.detached(priority: .userInitiated) { try AdvancedSourceCapture.create(source: url, password: secret, cancellation: token) }.value
                 }, onCancel: { token.cancel() })
+                do { try token.check(); try Task.checkCancellation() }
+                catch { try? FileManager.default.removeItem(at: captured.directory); throw error }
                 guard let self else { try? FileManager.default.removeItem(at: captured.directory); return }
                 guard self.generation == current, !self.closed else { try? FileManager.default.removeItem(at: captured.directory); return }
                 self.source = captured
@@ -282,9 +285,10 @@ private enum AdvancedDecodedAnalysis: Sendable {
             switch result {
             case .failure(let error): status = error.localizedDescription; working = false
             case .success(let url):
-                task = Task {
+                task = ApplicationTask.start {
                     defer { working = false; task = nil }
                     do {
+                        try Task.checkCancellation()
                         let decoding = Task.detached(priority: .userInitiated) {
                             try AdvancedDecodedAnalysis.read(url: url, digest: source.digest, ocr: ocr)
                         }
@@ -305,7 +309,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
         })
     }
     func apply(model: Workspace, edits: [[String: Any]], corrections: [[String: Any]]? = nil) {
-        guard !working, !model.busy, let source, let originalURL else { return }
+        guard !working, !model.busy, ApplicationWork.isAcceptingWork, let source, let originalURL else { return }
         let ocr = corrections != nil
         guard ocr ? review != nil : content != nil else { return }
         guard let destination = NativeOutput.destination(model: model, toolName: ocr ? "OCR revisado" : "Conteúdo editado", originalURL: originalURL) else { return }
@@ -329,10 +333,12 @@ private enum AdvancedDecodedAnalysis: Sendable {
         if ownsEngine { model.cancel() }
     }
     func stageAsset(_ origin: URL, maximumBytes: Int) async throws -> URL {
-        guard let source, !closed else { throw AdvancedDocumentValidation.failure("Carregue o documento antes de selecionar um recurso.") }
+        guard let source, !closed, ApplicationWork.isAcceptingWork else { throw AdvancedDocumentValidation.failure("Carregue o documento antes de selecionar um recurso.") }
         guard (1...67_108_864).contains(maximumBytes) else { throw AdvancedDocumentValidation.failure("O limite do recurso é inválido.") }
         let current = generation
         let assetID = UUID(), assetCancellation = NativeCancellation()
+        let ticket = ApplicationWork.begin { assetCancellation.cancel() }
+        defer { ticket.finish() }
         assetCancellations[assetID] = assetCancellation
         defer { assetCancellations.removeValue(forKey: assetID) }
         let suffix = origin.pathExtension.lowercased().filter { $0.isASCII && $0.isLetter }
@@ -358,7 +364,9 @@ private enum AdvancedDecodedAnalysis: Sendable {
             try assetCancellation.check()
             try NativeOutput.write(data, to: target)
         }.value
-        guard generation == current, !closed else { try? FileManager.default.removeItem(at: target); throw CancellationError() }
+        do { try assetCancellation.check(); try Task.checkCancellation() }
+        catch { try? FileManager.default.removeItem(at: target); throw error }
+        guard generation == current, !closed, !Task.isCancelled else { try? FileManager.default.removeItem(at: target); throw CancellationError() }
         return target
     }
     func close(model: Workspace) {

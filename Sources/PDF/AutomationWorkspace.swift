@@ -128,6 +128,8 @@ struct AutomationRunRecord:Identifiable {
     private var generations:[UUID:UUID] = [:]
     private var queue:[(ruleID:UUID,path:String,stamp:AutomationFileStamp)] = []
     private var polling = false
+    private var suspendedForTermination = false
+    private var lifetimeObservers: [NSObjectProtocol] = []
     init(defaults:UserDefaults = .standard) {
         self.defaults = defaults
         if let data = defaults.data(forKey:Self.storageKey),data.count <= 16_777_216 {
@@ -138,11 +140,48 @@ struct AutomationRunRecord:Identifiable {
                 rules = loaded
             } catch { status = "Não foi possível carregar as regras: "+error.localizedDescription }
         }
+        lifetimeObservers = [
+            NotificationCenter.default.addObserver(forName: .applicationWorkStopping, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.suspendForTermination() }
+            },
+            NotificationCenter.default.addObserver(forName: .applicationWorkResumed, object: nil, queue: .main) { [weak self] _ in
+                MainActor.assumeIsolated { self?.resumeAfterRefusedTermination() }
+            }
+        ]
     }
+    deinit { for observer in lifetimeObservers { NotificationCenter.default.removeObserver(observer) }; timer?.invalidate() }
     func attach(model:Workspace) {
         guard self.model == nil else { return }; self.model = model
-        timer = Timer.scheduledTimer(withTimeInterval:3,repeats:true) { [weak self] _ in Task { @MainActor [weak self] in await self?.poll() } }
-        for rule in rules where rule.enabled { Task { await setEnabled(true,id:rule.id) } }
+        startTimer()
+        for rule in rules where rule.enabled { ApplicationTask.start { await setEnabled(true,id:rule.id) } }
+    }
+    private func startTimer() {
+        guard timer == nil, model != nil, ApplicationWork.isAcceptingWork else { return }
+        timer = Timer.scheduledTimer(withTimeInterval:3,repeats:true) { [weak self] _ in
+            Task { @MainActor [weak self] in await self?.poll() }
+        }
+    }
+    private func suspendForTermination() {
+        suspendedForTermination = true
+        timer?.invalidate(); timer = nil
+        for id in starting { generations[id] = UUID() }
+        starting.removeAll()
+        // Keep enabled preferences, stable arrivals and the pending queue. A
+        // refused quit must not silently disable rules or replay old files.
+    }
+    private func resumeAfterRefusedTermination() {
+        guard ApplicationWork.isAcceptingWork else { return }
+        suspendedForTermination = false
+        startTimer()
+        for rule in rules where rule.enabled && trackers[rule.id] == nil {
+            ApplicationTask.start { await setEnabled(true, id: rule.id) }
+        }
+    }
+    private func scan(_ folder: URL) async throws -> [String: AutomationFileStamp] {
+        try await ApplicationTask.run {
+            let worker = Task.detached(priority: .utility) { try AutomationFolderInspector.scan(folder) }
+            return try await withTaskCancellationHandler(operation: { try await worker.value }, onCancel: { worker.cancel() })
+        }
     }
     func add(name:String,input:URL,output:URL,workflow:AutomationWorkflow) throws {
         let name = name.trimmingCharacters(in:.whitespacesAndNewlines)
@@ -156,6 +195,7 @@ struct AutomationRunRecord:Identifiable {
         persist(); status = "Regra criada desativada. Ative quando estiver pronta para processar novos PDFs."
     }
     func setEnabled(_ enabled:Bool,id:UUID) async {
+        guard ApplicationWork.isAcceptingWork, !Task.isCancelled else { return }
         guard let index = rules.firstIndex(where:{$0.id == id}) else { return }
         let generation = UUID(); generations[id] = generation
         if !enabled {
@@ -166,11 +206,12 @@ struct AutomationRunRecord:Identifiable {
         let rule = rules[index]; starting.insert(id)
         do {
             try AutomationFolderInspector.validate(input:rule.input,output:rule.output); _ = try AutomationWorkflowBridge.options(rule.workflow)
-            let baseline = try await Task.detached(priority:.utility) { try AutomationFolderInspector.scan(rule.input) }.value
-            guard generations[id] == generation,let current = rules.firstIndex(where:{$0.id == id}) else { return }
+            let baseline = try await scan(rule.input)
+            guard ApplicationWork.isAcceptingWork, !Task.isCancelled, generations[id] == generation,let current = rules.firstIndex(where:{$0.id == id}) else { return }
             trackers[id] = AutomationArrivalTracker(baseline:baseline); rules[current].enabled = true; starting.remove(id)
             persist(); status = "\(rule.name) ativa. \(baseline.count) PDFs existentes foram ignorados; apenas novas chegadas serão processadas."
-        } catch { guard generations[id] == generation else { return }; disable(id,error:error.localizedDescription) }
+        } catch is CancellationError { if generations[id] == generation { starting.remove(id) } }
+        catch { guard generations[id] == generation, ApplicationWork.isAcceptingWork else { return }; disable(id,error:error.localizedDescription) }
     }
     func remove(_ id:UUID) {
         guard activeRuleID != id else { status = "Cancele ou aguarde a execução antes de excluir a regra."; return }
@@ -186,21 +227,23 @@ struct AutomationRunRecord:Identifiable {
         status = "Automação pausada: "+error; persist()
     }
     private func poll() async {
-        guard !polling else { return }; polling = true; defer { polling = false }
+        guard !polling, !suspendedForTermination, ApplicationWork.isAcceptingWork, !Task.isCancelled else { return }; polling = true; defer { polling = false }
         for rule in rules where rule.enabled && trackers[rule.id] != nil {
             let generation = generations[rule.id]
             do {
-                let files = try await Task.detached(priority:.utility) { try AutomationFolderInspector.scan(rule.input) }.value
+                let files = try await scan(rule.input)
+                guard ApplicationWork.isAcceptingWork, !suspendedForTermination, !Task.isCancelled else { return }
                 guard generation == generations[rule.id],var tracker = trackers[rule.id] else { continue }
                 let arrived = tracker.observe(files); trackers[rule.id] = tracker
                 guard queue.count+arrived.count <= 200 else { disable(rule.id,error:"Fila acima de 200 PDFs; revise a pasta e reative a regra."); continue }
                 for (path,stamp) in arrived { queue.append((rule.id,path,stamp)) }
-            } catch { if generation == generations[rule.id] { disable(rule.id,error:error.localizedDescription) } }
+            } catch is CancellationError { return }
+            catch { if ApplicationWork.isAcceptingWork, generation == generations[rule.id] { disable(rule.id,error:error.localizedDescription) } }
         }
         pendingCount = queue.count; runNext()
     }
     private func runNext() {
-        guard let model,!model.busy,activeRuleID == nil,!queue.isEmpty else { return }
+        guard ApplicationWork.isAcceptingWork, !suspendedForTermination, let model,!model.busy,activeRuleID == nil,!queue.isEmpty else { return }
         let job = queue.removeFirst(); pendingCount = queue.count
         guard let rule = rules.first(where:{$0.id == job.ruleID && $0.enabled}) else { return }
         let input = URL(fileURLWithPath:job.path)
@@ -217,7 +260,11 @@ struct AutomationRunRecord:Identifiable {
                 guard let self else { return }; self.activeRuleID = nil
                 switch result {
                 case .success(let url): self.progress = 1; self.status = "Concluído: "+input.lastPathComponent; self.record(rule:rule,input:input,result:"Concluído",output:url)
-                case .failure(let error): self.record(rule:rule,input:input,result:error.localizedDescription,output:nil); self.disable(rule.id,error:error.localizedDescription)
+                case .failure(let error):
+                    self.record(rule:rule,input:input,result:error.localizedDescription,output:nil)
+                    if self.suspendedForTermination || !ApplicationWork.isAcceptingWork {
+                        self.status = "Automação interrompida para encerrar o aplicativo. A preferência da regra foi preservada."
+                    } else { self.disable(rule.id,error:error.localizedDescription) }
                 }
             })
         } catch { record(rule:rule,input:input,result:error.localizedDescription,output:nil); disable(rule.id,error:error.localizedDescription) }
@@ -297,14 +344,16 @@ struct AutomationView:View {
     weak var model:Workspace?
     static func install(model:Workspace) { shared.model = model; NSApp.servicesProvider = shared; NSUpdateDynamicServices() }
     @objc func openPDF(_ pasteboard:NSPasteboard,userData:String?,error:AutoreleasingUnsafeMutablePointer<NSString?>) {
+        guard ApplicationWork.isAcceptingWork else { error.pointee = "O PDF está encerrando as operações em andamento."; return }
         guard let model else { error.pointee = "O PDF ainda não está pronto para abrir documentos."; return }
         var urls = (pasteboard.readObjects(forClasses:[NSURL.self],options:[.urlReadingFileURLsOnly:true]) as? [NSURL] ?? []).map { $0 as URL }
         if urls.isEmpty,let paths = pasteboard.propertyList(forType:NSPasteboard.PasteboardType("NSFilenamesPboardType")) as? [String] { urls = paths.map { URL(fileURLWithPath:$0) } }
         urls = urls.filter { $0.isFileURL && $0.pathExtension.lowercased() == "pdf" }
         guard !urls.isEmpty,urls.count <= 50 else { error.pointee = "Selecione entre 1 e 50 arquivos PDF no Finder."; return }
         NSApp.activate(ignoringOtherApps:true)
-        Task { @MainActor in
+        ApplicationTask.start {
             for url in urls {
+                guard !Task.isCancelled, ApplicationWork.isAcceptingWork else { break }
                 model.open(url:url); await model.waitForPendingOpen()
                 if model.needsPassword { model.message = "Informe a senha deste documento. Os arquivos restantes podem ser abertos depois."; break }
             }

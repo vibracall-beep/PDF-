@@ -97,26 +97,28 @@ enum TesseractPageRecognizer {
         let runtimeLease = try BundleRuntimeLease.configureRuntimeChild(process)
         defer { try? runtimeLease?.close() }
         try checkCancellation(cancellation)
-        do { try process.run() }
+        let child: OwnedChildProcess
+        do { child = try OwnedChildProcess(configuration: process) }
         catch { throw failure(5, "Não foi possível iniciar o motor local de OCR. Execute novamente o instalador completo.") }
-        // Reap the exact child before removing the directory it may still use.
-        defer { stopAndReap(process) }
+        // Allow the Python engine to clean its own converter groups before
+        // escalating only this exact unreaped child.
+        defer { child.cancel(grace: 10, signal: SIGTERM); _ = try? child.waitUntilExit() }
         // Internal audit hook: the production call omits it. Installing cleanup
         // first makes cancellation here exercise a child which really started.
-        onLaunch?(process.processIdentifier)
+        onLaunch?(child.processIdentifier)
         let deadline = ProcessInfo.processInfo.systemUptime + 90
-        while process.isRunning {
+        while try child.isRunning() {
             try checkCancellation(cancellation)
             guard ProcessInfo.processInfo.systemUptime < deadline else {
                 throw failure(6, "O OCR local excedeu 90 segundos e foi encerrado.")
             }
             Thread.sleep(forTimeInterval: 0.03)
         }
-        process.waitUntilExit()
+        let exit = try child.waitUntilExit()
         try checkCancellation(cancellation)
-        guard process.terminationReason == .exit, process.terminationStatus == 0 else {
-            if process.terminationReason == .exit && process.terminationStatus == 130 { throw CancellationError() }
-            throw failure(7, "O Tesseract não concluiu o reconhecimento (status \(process.terminationStatus)). Verifique o motor local e os idiomas instalados.")
+        guard !exit.signalled, exit.status == 0 else {
+            if !exit.signalled && exit.status == 130 { throw CancellationError() }
+            throw failure(7, "O Tesseract não concluiu o reconhecimento (status \(exit.status)). Verifique o motor local e os idiomas instalados.")
         }
         let result = try decodeResponse(readPrivateResponse(output), language: language, width: image.width, height: image.height)
         try checkCancellation(cancellation)
@@ -199,19 +201,6 @@ enum TesseractPageRecognizer {
     private static func checkCancellation(_ cancellation: NativeCancellation) throws {
         try cancellation.check()
         if Task.isCancelled { throw CancellationError() }
-    }
-
-    private static func stopAndReap(_ process: Process) {
-        if process.isRunning {
-            // Python handles SIGTERM and gives its own Tesseract process group
-            // up to three seconds to exit, then kills and reaps it. Killing
-            // Python immediately could strand that grandchild.
-            process.terminate()
-            let grace = ProcessInfo.processInfo.systemUptime + 6
-            while process.isRunning && ProcessInfo.processInfo.systemUptime < grace { Thread.sleep(forTimeInterval: 0.02) }
-            if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
-        }
-        process.waitUntilExit()
     }
 
     private static func failure(_ code: Int, _ message: String) -> NSError {

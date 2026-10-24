@@ -785,21 +785,25 @@ enum QPDFStructuralAudit {
         // cancelled before returning publishable bytes.
         for waitForExit in [false, true] {
             let token = NativeCancellation()
-            var child: Int32 = 0, launchCount = 0, folder: URL?, completed = false
+            var child: Int32 = 0, launchCount = 0, folder: URL?, completed = false, observerFailed = false
             let started = ProcessInfo.processInfo.systemUptime
             do {
                 _ = try NativePDFSerialization.finish(prepared, cancellation: token, onLaunch: { process, directory in
                     child = process.processIdentifier; launchCount += 1; folder = directory
                     if waitForExit {
                         let deadline = ProcessInfo.processInfo.systemUptime + 5
-                        while process.isRunning && ProcessInfo.processInfo.systemUptime < deadline { Thread.sleep(forTimeInterval: 0.01) }
-                        completed = !process.isRunning
+                        do {
+                            while try process.isRunning(), ProcessInfo.processInfo.systemUptime < deadline {
+                                Thread.sleep(forTimeInterval: 0.01)
+                            }
+                            completed = try !process.isRunning()
+                        } catch { observerFailed = true }
                     }
                     token.cancel()
                 })
                 throw failure("O cancelamento durante a verificação retornou bytes publicáveis.")
             } catch is CancellationError { /* Cancellation must remain cancellation. */ }
-            try require(launchCount == 1 && child > 0 && (!waitForExit || completed),
+            try require(launchCount == 1 && child > 0 && !observerFailed && (!waitForExit || completed),
                         "O cenário de cancelamento não atingiu a fase real do processo esperada.")
             try require(ProcessInfo.processInfo.systemUptime - started < 8,
                         "O cancelamento da gravação não encerrou o processo no prazo limitado.")
@@ -817,7 +821,7 @@ enum QPDFStructuralAudit {
         do {
             _ = try NativePDFSerialization.finish(prepared, onLaunch: { process, directory in
                 timedChild = process.processIdentifier; timedFolder = directory
-                paused = Darwin.kill(timedChild, SIGSTOP) == 0
+                paused = (try? process.signalOwned(SIGSTOP)) == true
             }, timeout: 0.1)
         } catch {
             timedOut = !(error is CancellationError) &&
@@ -876,7 +880,7 @@ enum QPDFStructuralAudit {
                         reachedPatch += 1; child = process.processIdentifier; directory = folder
                         patchFile = URL(fileURLWithPath: path)
                         try inspectPrivatePatch(URL(fileURLWithPath: path))
-                        if enforceTimeout { suspended = Darwin.kill(child, SIGSTOP) == 0 }
+                        if enforceTimeout { suspended = try process.signalOwned(SIGSTOP) }
                         else { cancellation.cancel() }
                     } catch { observerFailed = true; cancellation.cancel() }
                 }, timeout: enforceTimeout ? 2 : 60)
@@ -899,7 +903,7 @@ enum QPDFStructuralAudit {
         log("typed-string patch guards: real repair, encrypted PDFs, private bounded JSON, cancellation/timeout cleanup verified")
     }
 
-    private static func inspectPrivacy(_ process: Process, directory: URL, password: String, inputPassword: String) throws -> Data? {
+    private static func inspectPrivacy(_ process: OwnedChildProcess, directory: URL, password: String, inputPassword: String) throws -> Data? {
         let attributes = try FileManager.default.attributesOfItem(atPath: directory.path)
         try require((attributes[.posixPermissions] as? NSNumber)?.intValue == 0o700,
                     "A pasta temporária da gravação não é privada.")
@@ -911,7 +915,7 @@ enum QPDFStructuralAudit {
                         (metadata[.posixPermissions] as? NSNumber)?.intValue == 0o600,
                         "Um arquivo temporário não é regular e privado.")
         }
-        let arguments = process.arguments ?? []
+        let arguments = process.configuration.arguments ?? []
         try require(try privateJobArguments(process) == ["--job-json-file=/dev/stdin"] &&
                     !arguments.contains(where: { $0.contains(password) || $0.contains(inputPassword) }),
                     "O processo não usou o canal privado de senha.")
@@ -939,7 +943,7 @@ enum QPDFStructuralAudit {
             throw failure("O job não usou AES-256 e uma credencial independente para o proprietário.")
         }
         try require(!arguments.contains(where: { $0.contains(owner) }) &&
-                    !(process.environment?.values.contains(where: {
+                    !(process.configuration.environment?.values.contains(where: {
                         $0.contains(password) || $0.contains(inputPassword) || $0.contains(owner)
                     }) ?? false),
                     "Uma credencial de publicação foi exposta por argumentos ou ambiente.")
@@ -948,9 +952,9 @@ enum QPDFStructuralAudit {
 
     /// pread leaves the offset shared with qpdf untouched, even if the child
     /// has already consumed the job. Never log or interpolate parsed values.
-    private static func observedJob(_ process: Process) throws -> [String: Any] {
+    private static func observedJob(_ process: OwnedChildProcess) throws -> [String: Any] {
         guard try privateJobArguments(process) == ["--job-json-file=/dev/stdin"],
-              let input = process.standardInput as? FileHandle else {
+              let input = process.configuration.standardInput as? FileHandle else {
             throw failure("O processo não recebeu o job pelo descritor privado esperado.")
         }
         var metadata = stat()
@@ -969,11 +973,11 @@ enum QPDFStructuralAudit {
     /// Installed applications retain their bundle lease through a fixed Python
     /// bootstrap that execs qpdf in-place. Accept only that exact installation's
     /// prefix; the private job and all secret checks still apply to the child.
-    private static func privateJobArguments(_ process: Process) throws -> [String] {
-        let arguments = process.arguments ?? []
+    private static func privateJobArguments(_ process: OwnedChildProcess) throws -> [String] {
+        let arguments = process.configuration.arguments ?? []
         let bundle = Bundle.main.bundleURL
         guard bundle.pathExtension.lowercased() == "app" else {
-            try require(process.executableURL?.standardizedFileURL == executable.standardizedFileURL,
+            try require(process.configuration.executableURL?.standardizedFileURL == executable.standardizedFileURL,
                         "O job de desenvolvimento não foi encaminhado ao qpdf esperado.")
             return arguments
         }
@@ -983,7 +987,7 @@ enum QPDFStructuralAudit {
         let expected = ["-E", "-s", "-B", bootstrap.path, "--qpdf", executable.path,
                         "--job-json-file=/dev/stdin"]
         var metadata = stat()
-        try require(process.executableURL?.standardizedFileURL == python.standardizedFileURL &&
+        try require(process.configuration.executableURL?.standardizedFileURL == python.standardizedFileURL &&
                     arguments == expected && lstat(bootstrap.path, &metadata) == 0 &&
                     metadata.st_mode & S_IFMT == S_IFREG &&
                     (metadata.st_uid == 0 || metadata.st_uid == getuid()) &&

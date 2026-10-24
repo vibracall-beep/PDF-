@@ -8,13 +8,13 @@ import Darwin
 /// process are never terminated; only this application's osascript child is.
 private final class PagesProcessControl: @unchecked Sendable {
     private let lock = NSLock()
-    private var process: Process?
+    private var process: OwnedChildProcess?
     private var cancelled = false
     private var exceededTime = false
     private var launched = false
     var didLaunch: Bool { lock.lock(); defer { lock.unlock() }; return launched }
 
-    func attach(_ value: Process) {
+    func attach(_ value: OwnedChildProcess) {
         lock.lock(); process = value; launched = true; let stop = cancelled || exceededTime; lock.unlock()
         if stop { terminate(value) }
     }
@@ -32,11 +32,8 @@ private final class PagesProcessControl: @unchecked Sendable {
         if stopped { throw CancellationError() }
         if timedOut { throw PagesConversionError.timeout }
     }
-    private func terminate(_ value: Process) {
-        if value.isRunning { value.terminate() }
-        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 2) {
-            if value.isRunning { kill(value.processIdentifier, SIGKILL) }
-        }
+    private func terminate(_ value: OwnedChildProcess) {
+        value.cancel(grace: 2, signal: SIGTERM)
     }
 }
 
@@ -158,7 +155,7 @@ private enum PagesExporter {
             guard control.didLaunch else { throw error }
             if let failure = error as? PagesConversionError, case .automation = failure { throw error }
             do {
-                try script(cleanupScript, arguments: [copied.path], directory: temporary, timeout: 6, control: PagesProcessControl())
+                try script(cleanupScript, arguments: [copied.path], directory: temporary, timeout: 6, control: PagesProcessControl(), completingCleanup: true)
             } catch {
                 // Pages can still own an in-flight AppleEvent after its sender
                 // exits. Keep its backing copy when closure cannot be confirmed.
@@ -180,7 +177,7 @@ private enum PagesExporter {
         return destination
     }
 
-    private static func script(_ source: String, arguments: [String], directory: URL, timeout: TimeInterval, control: PagesProcessControl) throws {
+    private static func script(_ source: String, arguments: [String], directory: URL, timeout: TimeInterval, control: PagesProcessControl, completingCleanup: Bool = false) throws {
         try control.check()
         let scriptURL = directory.appendingPathComponent("\(UUID().uuidString).applescript")
         try Data(source.utf8).write(to: scriptURL, options: .withoutOverwriting)
@@ -192,22 +189,22 @@ private enum PagesExporter {
         let output = Pipe()
         process.standardOutput = output
         process.standardError = output
-        try process.run()
-        control.attach(process)
+        let child = try OwnedChildProcess(configuration: process, completingCleanup: completingCleanup)
+        control.attach(child)
         let timeoutAction = DispatchWorkItem { control.timeout() }
         DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + timeout, execute: timeoutAction)
         defer {
             timeoutAction.cancel()
-            if process.isRunning { control.cancel(); process.waitUntilExit() }
+            child.cancel(grace: 2, signal: SIGTERM); _ = try? child.waitUntilExit()
+            try? output.fileHandleForReading.close()
             control.detach()
         }
         var log = Data()
-        while let chunk = try output.fileHandleForReading.read(upToCount: 8192), !chunk.isEmpty {
+        let exit = try child.collectOutput(from: output.fileHandleForReading) { chunk in
             if log.count < 65_536 { log.append(chunk.prefix(65_536 - log.count)) }
         }
-        process.waitUntilExit()
         try control.check()
-        if process.terminationStatus != 0 {
+        if exit.status != 0 || exit.signalled {
             let details = String(data: log, encoding: .utf8) ?? "Erro desconhecido."
             if details.contains("-1743") || details.localizedCaseInsensitiveContains("not authorized") { throw PagesConversionError.automation }
             throw PagesConversionError.export(details.trimmingCharacters(in: .whitespacesAndNewlines))
@@ -222,7 +219,7 @@ private enum PagesExporter {
     private var control: PagesProcessControl?
 
     func run(source: URL, destination: URL, completion: @escaping (Result<URL, Error>) -> Void) {
-        guard !running else { return }
+        guard !running, ApplicationWork.isAcceptingWork else { completion(.failure(CancellationError())); return }
         guard NSWorkspace.shared.urlForApplication(withBundleIdentifier: "com.apple.iWork.Pages") != nil else {
             error = PagesConversionError.pagesMissing.localizedDescription
             completion(.failure(PagesConversionError.pagesMissing))
@@ -230,8 +227,9 @@ private enum PagesExporter {
         }
         let token = PagesProcessControl()
         control = token; running = true; result = nil; error = ""
-        Task { @MainActor in
+        ApplicationTask.start(cancel: { token.cancel() }) {
             do {
+                try Task.checkCancellation()
                 let output = try await Task.detached(priority: .userInitiated) {
                     try PagesExporter.convert(source: source, destination: destination, control: token)
                 }.value

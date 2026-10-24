@@ -5,23 +5,12 @@ import Darwin
 
 private final class BenchmarkJob: @unchecked Sendable {
     private let lock = NSLock()
-    private var process:Process?
+    private var process:OwnedChildProcess?
     private var cancelled = false
     private var timedOut = false
     func cancel(deadline:Bool = false) {
         lock.lock(); cancelled = true; timedOut = deadline || timedOut; let current = process; lock.unlock()
-        if let current, current.isRunning {
-            current.terminate()
-            // A stuck framework must not keep a private input copy and the
-            // parent worker alive indefinitely after cancellation.
-            DispatchQueue.global(qos:.utility).asyncAfter(deadline:.now()+10) { [weak self] in
-                guard let self else { return }
-                self.lock.lock(); defer { self.lock.unlock() }
-                if self.process === current, current.isRunning {
-                    Darwin.kill(current.processIdentifier,SIGKILL)
-                }
-            }
-        }
+        current?.cancel(grace: 10, signal: SIGTERM)
     }
     func run(executable:URL,input:URL?,pages:Int,aiAudit:Bool = false) throws -> Data {
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-benchmark-job-" + UUID().uuidString,isDirectory:true)
@@ -38,37 +27,26 @@ private final class BenchmarkJob: @unchecked Sendable {
         defer { try? bundleLease?.close() }
         lock.lock()
         if cancelled { lock.unlock(); throw CancellationError() }
-        process = child
-        do { try child.run(); lock.unlock() }
+        let owned: OwnedChildProcess
+        do { owned = try OwnedChildProcess(configuration: child); process = owned; lock.unlock() }
         catch { process = nil; lock.unlock(); throw error }
         defer {
-            // A pipe/read/decoding failure must also stop the worker before its
-            // private directory is removed by the outer cleanup.
-            if child.isRunning {
-                child.terminate()
-                let deadline = ProcessInfo.processInfo.systemUptime + 10
-                while child.isRunning && ProcessInfo.processInfo.systemUptime < deadline { Thread.sleep(forTimeInterval: 0.03) }
-                if child.isRunning { Darwin.kill(child.processIdentifier,SIGKILL) }
-            }
-            child.waitUntilExit()
+            owned.cancel(grace: 10, signal: SIGTERM); _ = try? owned.waitUntilExit()
             try? pipe.fileHandleForReading.close()
             lock.lock(); process = nil; lock.unlock()
         }
-        DispatchQueue.global(qos:.utility).asyncAfter(deadline:.now()+600) { [weak self] in
-            guard let self else { return }
-            self.lock.lock(); let stillRunning = self.process?.isRunning == true; self.lock.unlock()
-            if stillRunning { self.cancel(deadline:true) }
-        }
+        let deadline = DispatchWorkItem { [weak self] in self?.cancel(deadline: true) }
+        DispatchQueue.global(qos: .utility).asyncAfter(deadline: .now() + 600, execute: deadline)
+        defer { deadline.cancel() }
         var diagnostic = Data()
-        while let chunk = try pipe.fileHandleForReading.read(upToCount:16_384),!chunk.isEmpty {
+        let exit = try owned.collectOutput(from: pipe.fileHandleForReading) { chunk in
             if diagnostic.count < 65_536 { diagnostic.append(chunk.prefix(65_536-diagnostic.count)) }
         }
-        child.waitUntilExit()
         lock.lock(); let wasCancelled = cancelled, expired = timedOut; lock.unlock()
         if expired { throw NSError(domain:"PDF.Benchmark",code:2,userInfo:[NSLocalizedDescriptionKey:aiAudit ? "A avaliação de IA ultrapassou 10 minutos e foi encerrada. Nenhuma aprovação de qualidade foi produzida." : "O benchmark ultrapassou 10 minutos e foi encerrado."]) }
         if wasCancelled { throw CancellationError() }
-        guard child.terminationStatus == 0 else {
-            throw NSError(domain:"PDF.Benchmark",code:Int(child.terminationStatus),userInfo:[NSLocalizedDescriptionKey:String(data:diagnostic,encoding:.utf8) ?? "O benchmark não pôde ser concluído."])
+        guard exit.status == 0, !exit.signalled else {
+            throw NSError(domain:"PDF.Benchmark",code:Int(exit.status),userInfo:[NSLocalizedDescriptionKey:String(data:diagnostic,encoding:.utf8) ?? "O benchmark não pôde ser concluído."])
         }
         let attributes = try output.resourceValues(forKeys:[.isRegularFileKey,.fileSizeKey])
         guard attributes.isRegularFile == true,(attributes.fileSize ?? Int.max) <= 1_048_576 else { throw RecoveryError.invalidRecord }
@@ -84,11 +62,12 @@ private final class BenchmarkJob: @unchecked Sendable {
     private var task:Task<Void,Never>?
     private var data:Data?
     func start(input:URL?,pages:Int) {
-        guard !busy,let executable = Bundle.main.executableURL else { return }
+        guard !busy, ApplicationWork.isAcceptingWork, let executable = Bundle.main.executableURL else { return }
         busy = true; message = "Medindo abertura, busca, renderização, processamento e OCR…"; report = nil; data = nil
         let job = BenchmarkJob(); self.job = job
-        task = Task {
+        task = ApplicationTask.start(cancel: { job.cancel() }) {
             do {
+                try Task.checkCancellation()
                 let bytes = try await Task.detached(priority:.userInitiated) { try job.run(executable:executable,input:input,pages:pages) }.value
                 let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
                 let value = try decoder.decode(BenchmarkReport.self,from:bytes)
@@ -117,13 +96,14 @@ private final class BenchmarkJob: @unchecked Sendable {
     private var job: BenchmarkJob?
     private var data: Data?
     func start() {
-        guard !busy, let executable = Bundle.main.executableURL else { return }
+        guard !busy, ApplicationWork.isAcceptingWork, let executable = Bundle.main.executableURL else { return }
         busy = true; report = nil; data = nil
         message = "Consultando o modelo local com cinco casos em português…"
         let job = BenchmarkJob(); self.job = job
-        Task {
+        ApplicationTask.start(cancel: { job.cancel() }) {
             defer { busy = false; self.job = nil }
             do {
+                try Task.checkCancellation()
                 let bytes = try await Task.detached(priority: .userInitiated) { try job.run(executable: executable, input: nil, pages: 0, aiAudit: true) }.value
                 let decoder = JSONDecoder(); decoder.dateDecodingStrategy = .iso8601
                 let value = try decoder.decode(LocalAIReport.self, from: bytes)

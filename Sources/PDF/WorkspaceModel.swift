@@ -107,7 +107,9 @@ enum ReaderAnnotationStyle {
     private var openingWorker: Task<NativePDFSerialization.Opening, Error>?
     private var openingCancellation: NativeCancellation?
     private var ownsOpeningBusy = false
-    private var process: Process?
+    private var process: OwnedChildProcess?
+    private var executionTask: Task<Void, Never>?
+    private var preparingForTermination = false
     private var cancelled = false
     private var activeJob: UUID?
     private var originalWidgetState = ""
@@ -150,6 +152,7 @@ enum ReaderAnnotationStyle {
     }
     deinit {
         recoveryTimer?.invalidate(); openingCancellation?.cancel(); openingWorker?.cancel(); openingTask?.cancel()
+        process?.cancel()
         if let transientDefaultsSuite { defaults.removePersistentDomain(forName: transientDefaultsSuite) }
     }
     func open() {
@@ -507,6 +510,7 @@ enum ReaderAnnotationStyle {
     }
     private var recoveryEnabled: Bool { automaticRecoveryPermitted && (defaults.object(forKey: "recoveryEnabled") as? Bool ?? true) }
     private func pollSessions() {
+        guard ApplicationWork.isAcceptingWork else { return }
         captureActiveSession()
         for session in sessions { session.refreshDirty(); scheduleRecovery(session) }
     }
@@ -528,7 +532,7 @@ enum ReaderAnnotationStyle {
         // The pending marker prevents the polling timer from perpetually resetting debounce.
         if session.recoveryTask != nil { return }
         let token = session.beginRecoveryTask()
-        session.recoveryTask = Task { @MainActor [weak self, weak session] in
+        session.recoveryTask = ApplicationTask.start { [weak self, weak session] in
             defer { session?.finishRecoveryTask(token) }
             do {
                 try await Task.sleep(for: .milliseconds(650)); try Task.checkCancellation()
@@ -594,9 +598,17 @@ enum ReaderAnnotationStyle {
         }
     }
     func refreshRecovery() {
+        guard ApplicationWork.isAcceptingWork else { return }
         let store = recoveryStore
-        Task { @MainActor [weak self] in
-            do { let records = try await Task.detached(priority: .utility) { try store.list() }.value; self?.recoveryItems = records; self?.recoveryWarnings = store.warnings }
+        ApplicationTask.start { [weak self] in
+            do {
+                try Task.checkCancellation()
+                let worker = Task.detached(priority: .utility) { try Task.checkCancellation(); return try store.list() }
+                let records = try await withTaskCancellationHandler { try await worker.value } onCancel: { worker.cancel() }
+                try Task.checkCancellation()
+                self?.recoveryItems = records; self?.recoveryWarnings = store.warnings
+            }
+            catch is CancellationError { }
             catch { self?.message = "Não foi possível listar recuperações: \(error.localizedDescription)" }
         }
     }
@@ -883,11 +895,33 @@ enum ReaderAnnotationStyle {
     }
     func cancel() {
         if let externalCancellation { message = "Cancelando…"; externalCancellation(); return }
-        guard let process, process.isRunning else { return }
-        cancelled = true; message = "Cancelando…"; process.interrupt()
+        guard let process else { return }
+        cancelled = true; message = "Cancelando…"; process.cancel()
+    }
+    /// Called only after the existing save/discard/recovery decision. Do not
+    /// reply to AppKit until the owned engine and document-open tasks finished.
+    func prepareForTermination(externalDeadline: TimeInterval = 30) async -> Bool {
+        preparingForTermination = true
+        cancelDocumentOpenings()
+        cancel()
+        ApplicationWork.cancelAll()
+        let interval = externalDeadline.isFinite ? min(30, max(0, externalDeadline)) : 30
+        let deadline = ProcessInfo.processInfo.systemUptime + interval
+        while ProcessInfo.processInfo.systemUptime < deadline {
+            if executionTask == nil && openingTask == nil && retiredOpeningTasks.isEmpty && !busy && ApplicationWork.activeCount == 0 { break }
+            try? await Task.sleep(for: .milliseconds(50))
+        }
+        guard !busy, executionTask == nil, process == nil, openingTask == nil,
+              retiredOpeningTasks.isEmpty, ApplicationWork.activeCount == 0 else {
+            preparingForTermination = false
+            ApplicationWork.resumeAcceptingWork()
+            message = "A operação auxiliar ainda não confirmou o encerramento. O PDF permanece aberto; aguarde sua conclusão antes de sair."
+            return false
+        }
+        return true
     }
     func executeBatch(operation:String, inputs:[URL], directory:URL, options:[String:Any], title:String) {
-        guard !busy, !inputs.isEmpty else { return }
+        guard !preparingForTermination, !busy, !inputs.isEmpty else { return }
         let individualPasswords: [String]?
         if let raw = options["input_passwords"] {
             guard let values = raw as? [String], values.count == inputs.count else {
@@ -914,6 +948,7 @@ enum ReaderAnnotationStyle {
     }
     func execute(operation:String, inputs:[URL], output:URL, options:[String:Any], title:String, progress:((Int,Int)->Void)? = nil, completion:((Result<URL,Error>)->Void)? = nil) {
         func fail(_ detail:String) { message = detail; completion?(.failure(NSError(domain:"PDF.Engine",code:1,userInfo:[NSLocalizedDescriptionKey:detail]))) }
+        guard !preparingForTermination else { fail("O PDF está encerrando as operações em andamento."); return }
         guard !busy else { fail("Aguarde a operação atual terminar ou cancele-a."); return }
         guard !inputs.isEmpty else { fail("Selecione ao menos um arquivo de entrada."); return }
         guard !FileManager.default.fileExists(atPath:output.path) else { fail("O destino já existe. Escolha um novo nome."); return }
@@ -942,49 +977,64 @@ enum ReaderAnnotationStyle {
         let runtimeLease: FileHandle?
         do { runtimeLease = try BundleRuntimeLease.configureRuntimeChild(task) }
         catch { input.close(); busy = false; fail("Não foi possível manter o bloqueio do motor: \(error.localizedDescription)"); return }
-        process = task
-        do { try task.run() }
+        let child: OwnedChildProcess
+        do { child = try OwnedChildProcess(configuration: task) }
         catch { try? runtimeLease?.close(); input.close(); busy = false; process = nil; fail("Não foi possível iniciar o motor: \(error.localizedDescription)"); return }
-        // Drain the pipe before waiting; external converters can emit enough logs to fill it.
-        DispatchQueue.global(qos:.userInitiated).async { [weak self] in
+        process = child
+        // The worker is explicitly awaited during application termination.
+        // Output is bounded and nonblocking, so an inherited pipe cannot delay
+        // completion forever after this exact engine child has exited.
+        let worker = Task.detached(priority: .userInitiated) { [weak self] () -> (OwnedChildProcess.Exit?, String, Error?) in
             defer { try? runtimeLease?.close(); input.close(); try? log.fileHandleForReading.close() }
             var tail = Data(), pending = Data()
-            while let chunk = try? log.fileHandleForReading.read(upToCount: 16_384), !chunk.isEmpty {
-                tail.append(chunk); if tail.count > 131_072 { tail = Data(tail.suffix(131_072)) }
-                pending.append(chunk)
-                while let end = pending.firstIndex(of: 10) {
-                    let line = Data(pending[..<end]); pending.removeSubrange(...end)
-                    guard let event = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any],
-                          event["event"] as? String == "workflow_progress", let completed = event["completed"] as? Int,
-                          let total = event["total"] as? Int, total > 0, completed >= 0, completed <= total else { continue }
-                    DispatchQueue.main.async { [weak self] in
-                        guard self?.activeJob == job, self?.cancelled == false else { return }
-                        progress?(completed, total)
+            do {
+                let exit = try child.collectOutput(from: log.fileHandleForReading) { chunk in
+                    tail.append(chunk); if tail.count > 131_072 { tail = Data(tail.suffix(131_072)) }
+                    pending.append(chunk)
+                    while let end = pending.firstIndex(of: 10) {
+                        let line = Data(pending[..<end]); pending.removeSubrange(...end)
+                        guard let event = (try? JSONSerialization.jsonObject(with: line)) as? [String: Any],
+                              event["event"] as? String == "workflow_progress", let completed = event["completed"] as? Int,
+                              let total = event["total"] as? Int, total > 0, completed >= 0, completed <= total else { continue }
+                        DispatchQueue.main.async { [weak self] in
+                            guard self?.activeJob == job, self?.cancelled == false else { return }
+                            progress?(completed, total)
+                        }
                     }
+                    if pending.count > 262_144 { pending = Data(pending.suffix(262_144)) }
                 }
-                if pending.count > 262_144 { pending = Data(pending.suffix(262_144)) }
+                return (exit, String(data: tail, encoding: .utf8) ?? "Falha sem detalhes.", nil)
+            } catch {
+                child.cancel()
+                do {
+                    let exit = try child.waitUntilExit()
+                    return (exit, "Não foi possível acompanhar o motor: \(error.localizedDescription)", error)
+                } catch { return (nil, "Não foi possível confirmar o encerramento do motor.", error) }
             }
-            task.waitUntilExit()
-            let raw = String(data:tail,encoding:.utf8) ?? "Falha sem detalhes."
-            DispatchQueue.main.async {
-                guard let self, self.activeJob == job else { return }
-                self.busy = false; self.process = nil
-                if task.terminationStatus == 0 && FileManager.default.fileExists(atPath:output.path) {
-                    self.lastOutput = output; self.message = "Concluído: \(output.lastPathComponent)"
-                    completion?(.success(output))
-                } else if self.cancelled {
-                    if FileManager.default.fileExists(atPath: output.path) {
-                        self.lastOutput = output; self.message = "Cancelamento solicitado. Há um resultado no destino; verifique o arquivo antes de continuar."
-                    } else { self.message = "Operação cancelada. Os arquivos de origem foram preservados." }
-                    completion?(.failure(NSError(domain:NSCocoaErrorDomain,code:NSUserCancelledError)))
-                } else {
-                    let lastJSON = raw.split(separator:"\n").reversed().compactMap { line -> [String:Any]? in
-                        guard let data = String(line).data(using:.utf8) else { return nil }
-                        return (try? JSONSerialization.jsonObject(with:data)) as? [String:Any]
-                    }.first
-                    self.message = lastJSON?["error"] as? String ?? String(raw.suffix(2000))
-                    completion?(.failure(NSError(domain:"PDF.Engine",code:Int(task.terminationStatus),userInfo:[NSLocalizedDescriptionKey:self.message])))
-                }
+        }
+        executionTask = Task { @MainActor [weak self] in
+            let (exit, raw, executionError) = await worker.value
+            guard let self, self.activeJob == job else { return }
+            self.executionTask = nil; self.activeJob = nil
+            // An ownership/reap failure must not turn into permission to quit.
+            // Keep the blocker visible instead of losing the child reference.
+            self.busy = exit == nil
+            if exit != nil { self.process = nil }
+            if executionError == nil, exit?.status == 0, exit?.signalled == false, FileManager.default.fileExists(atPath: output.path) {
+                self.lastOutput = output; self.message = "Concluído: \(output.lastPathComponent)"
+                completion?(.success(output))
+            } else if self.cancelled && executionError == nil {
+                if FileManager.default.fileExists(atPath: output.path) {
+                    self.lastOutput = output; self.message = "Cancelamento solicitado. Há um resultado no destino; verifique o arquivo antes de continuar."
+                } else { self.message = "Operação cancelada. Os arquivos de origem foram preservados." }
+                completion?(.failure(NSError(domain: NSCocoaErrorDomain, code: NSUserCancelledError)))
+            } else {
+                let lastJSON = raw.split(separator: "\n").reversed().compactMap { line -> [String: Any]? in
+                    guard let data = String(line).data(using: .utf8) else { return nil }
+                    return (try? JSONSerialization.jsonObject(with: data)) as? [String: Any]
+                }.first
+                self.message = lastJSON?["error"] as? String ?? String(raw.suffix(2000))
+                completion?(.failure(NSError(domain: "PDF.Engine", code: Int(exit?.status ?? 1), userInfo: [NSLocalizedDescriptionKey: self.message])))
             }
         }
     }

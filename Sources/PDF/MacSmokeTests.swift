@@ -75,6 +75,8 @@ enum MacSmokeTests {
         audit("Pages isolated copy") { try PagesPrivateCopyAuditChecks.run(in: directory) }
         audit("Capture import and orientation") { try CaptureImportAuditChecks.run(in: directory) }
         audit("Preview WindowServer geometry consistency") { try MacPreview.runGeometryAuditChecks() }
+        await auditAsync("Owned child processes and termination recovery") { try await OwnedChildProcessAudit.run() }
+        await auditAsync("Application task cancellation and cleanup ownership") { try await ApplicationTaskAuditChecks.run() }
         audit("Typed-string repair graph and Unicode parser") { try NativePDFStringRepair.runAuditChecks() }
         audit("Native serialization editable annotation and form roundtrips") {
             try QPDFStructuralAudit.verifyEditableRoundTrips()

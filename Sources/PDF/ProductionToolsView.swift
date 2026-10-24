@@ -197,8 +197,11 @@ struct ProductionToolsView: View {
             case .failure(let failure): error = failure.localizedDescription
             case .success(let url):
                 if selectedMode.report {
-                    Task {
-                        let message = await Task.detached(priority: .utility) { Self.describeReport(url, mode: selectedMode) }.value
+                    ApplicationTask.start {
+                        guard !Task.isCancelled else { return }
+                        let worker = Task.detached(priority: .utility) { Self.describeReport(url, mode: selectedMode) }
+                        let message = await withTaskCancellationHandler(operation: { await worker.value }, onCancel: { worker.cancel() })
+                        guard !Task.isCancelled else { return }
                         if generation == token, inputs == submittedInputs, reportSettings == submittedSettings { report = message }
                     }
                 } else { report = selectedMode == .conversion ? "Relatório criado. Abra comparison.html na pasta do resultado para comparar os documentos." : "Cópia criada. Abra o resultado para revisar a aparência final." }
@@ -206,6 +209,7 @@ struct ProductionToolsView: View {
         })
     }
     nonisolated private static func describeReport(_ url: URL, mode: ProductionMode) -> String {
+        guard !Task.isCancelled else { return "" }
         guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 64 * 1024 * 1024,
               let data = try? Data(contentsOf: url), let object = (try? JSONSerialization.jsonObject(with: data)) as? [String: Any] else {
             return "Relatório salvo. Não foi possível carregar a prévia."

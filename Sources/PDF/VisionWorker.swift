@@ -148,23 +148,23 @@ enum VisionWorker {
         let bundleLease = try BundleRuntimeLease.configureChild(process)
         defer { try? bundleLease?.close() }
         try cancellation.check()
-        try process.run()
-        // Stop/reap this exact child before the enclosing defer removes its files.
-        defer { stop(process) }
+        let child = try OwnedChildProcess(configuration: process)
+        // Only this owner can signal/reap the child before private-file cleanup.
+        defer { child.cancel(grace: 1, signal: SIGTERM); _ = try? child.waitUntilExit() }
         let deadline = ProcessInfo.processInfo.systemUptime + 60
-        while process.isRunning {
+        while try child.isRunning() {
             try cancellation.check()
             guard ProcessInfo.processInfo.systemUptime < deadline else { throw failure(10, "O processo isolado do Vision excedeu 60 segundos e foi encerrado.") }
             Thread.sleep(forTimeInterval: 0.03)
         }
-        process.waitUntilExit()
+        let exit = try child.waitUntilExit()
         try cancellation.check()
         let response: Response
         do { response = try JSONDecoder().decode(Response.self, from: readRegularFile(output, limit: outputLimit)) }
-        catch { throw failure(12, "O processo isolado do Vision terminou sem um resultado válido (status \(process.terminationStatus)).") }
+        catch { throw failure(12, "O processo isolado do Vision terminou sem um resultado válido (status \(exit.status)).") }
         let values = try validateResponse(response, language: language, width: image.width, height: image.height,
-                                          successfulExit: process.terminationReason == .exit && process.terminationStatus == 0,
-                                          runtimeFailureExit: process.terminationReason == .exit && process.terminationStatus == 1)
+                                          successfulExit: !exit.signalled && exit.status == 0,
+                                          runtimeFailureExit: !exit.signalled && exit.status == 1)
         try cancellation.check()
         return values
     }
@@ -186,15 +186,6 @@ enum VisionWorker {
         return values
     }
 
-    private static func stop(_ process: Process) {
-        if process.isRunning {
-            process.terminate()
-            let grace = ProcessInfo.processInfo.systemUptime + 1
-            while process.isRunning && ProcessInfo.processInfo.systemUptime < grace { Thread.sleep(forTimeInterval: 0.02) }
-            if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
-        }
-        process.waitUntilExit()
-    }
 
     static func readRegularFile(_ url: URL, limit: Int) throws -> Data {
         guard limit > 0, limit <= inputLimit else { throw failure(22, "Limite inválido para leitura do reconhecimento.") }

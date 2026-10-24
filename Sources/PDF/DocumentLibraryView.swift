@@ -18,13 +18,13 @@ import UniformTypeIdentifiers
     init(directory: URL? = nil) { store = DocumentLibraryStore(directory: directory ?? DocumentLibraryStore.defaultDirectory) }
     deinit { task?.cancel(); cancellation?.cancel() }
     func run(_ title: String, opensReader: Bool = false, action: @escaping @MainActor (NativeCancellation) async throws -> String) {
-        guard !busy else { return }
+        guard !busy, ApplicationWork.isAcceptingWork else { return }
         busy = true; message = title; openingReader = opensReader
         let cancellation = NativeCancellation(); self.cancellation = cancellation
-        task = Task { [weak self] in
+        task = ApplicationTask.start(cancel: { cancellation.cancel() }) { [weak self] in
             guard let self else { return }
             defer { self.busy = false; self.task = nil; self.cancellation = nil; self.openingReader = false }
-            do { self.message = try await action(cancellation) }
+            do { try Task.checkCancellation(); self.message = try await action(cancellation) }
             catch is CancellationError { self.message = "Operação cancelada. A última versão completa continua disponível." }
             catch { self.message = error.localizedDescription }
         }
@@ -99,7 +99,7 @@ struct DocumentLibraryView: View {
         .onDisappear {
             if !library.openingReader { library.cancel() }
             passwords = [:]; library.result = nil; library.answer = nil; library.comparison = nil
-            Task { await library.store.clearSearchCache() }
+            ApplicationTask.start { await library.store.clearSearchCache() }
         }
         .sheet(item: $editing) { document in metadataSheet(document) }
         .sheet(isPresented: $showSync) { syncSheet }
@@ -392,7 +392,7 @@ struct DocumentLibraryView: View {
                 ForEach(Array(result.skipped.enumerated()), id: \.offset) { _, notice in Text(notice).font(.caption).foregroundStyle(.secondary) }
                 Button("Limpar trechos da memória") {
                     library.result = nil; library.answer = nil; library.comparison = nil; question = ""; passwords = [:]
-                    Task { await library.store.clearSearchCache() }
+                    ApplicationTask.start { await library.store.clearSearchCache() }
                 }.controlSize(.small).disabled(library.busy)
             }
         }

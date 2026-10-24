@@ -107,6 +107,7 @@ let tools: [Tool] = [
         }
         PreviewStartupTrace.record("bundle lease ready; dispatch CLI workers")
         if BundleRuntimeLeaseAudit.handleCommandLineIfNeeded() { return }
+        if OwnedChildProcessAudit.handleCommandLineIfNeeded() { return }
         VisionWorker.handleCommandLineIfNeeded()
         if await CrashRecoveryAudit.handleCommandLineIfNeeded() { return }
         if CommandLine.arguments.contains("--ai-audit") {

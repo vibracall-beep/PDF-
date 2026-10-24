@@ -461,15 +461,17 @@ struct LocalIntelligenceView: View {
     }
 
     private func export(type: UTType, fileExtension: String) {
+        guard ApplicationWork.isAcceptingWork else { return }
         guard !working else { return }
         let toolName = mode == "chat" ? "Conversa com IA" : mode == "quiz" ? "Questões com IA" : translation ? "Tradução" : "Resumo"
         guard let destination = NativeOutput.destination(model: model, toolName: toolName, extension: fileExtension) else { return }
         let text = exportText
         let cancellation = NativeCancellation()
         working = true; progress = 0; status = "Preparando exportação…"
-        operation = Task { @MainActor in
+        operation = ApplicationTask.start {
             defer { working = false; operation = nil }
             do {
+                try Task.checkCancellation()
                 try await withTaskCancellationHandler {
                     let worker = Task.detached(priority: .userInitiated) {
                         try cancellation.check()
@@ -524,6 +526,7 @@ struct LocalIntelligenceView: View {
     }
 
     private func askDocument() {
+        guard ApplicationWork.isAcceptingWork else { return }
         NSApp.keyWindow?.makeFirstResponder(nil)
         let questionText = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !working, !questionText.isEmpty, let document = model.document, modelAvailable() else { return }
@@ -535,9 +538,10 @@ struct LocalIntelligenceView: View {
         let history = String(memory.messages.suffix(4).map { ($0.user ? "Usuário: " : "PDF: ") + String($0.text.prefix(250)) }.joined(separator: "\n").suffix(1_000))
         memory.messages.append(PDFChatMessage(user: true, text: questionText))
         question = ""; working = true; progress = 0; status = "Buscando evidências no documento…"; saved = nil
-        operation = Task { @MainActor in
+        operation = ApplicationTask.start {
             defer { working = false; operation = nil }
             do {
+                try Task.checkCancellation()
                 let chunks = try await preparedChunks(document: document, url: source, snapshot: snapshot, key: key)
                 let lookup = questionText + " " + String(previousQuestion.suffix(300))
                 let context = try await LocalSemanticIndex.shared.retrieve(question: lookup, chunks: chunks, source: key)
@@ -563,6 +567,7 @@ struct LocalIntelligenceView: View {
     }
 
     private func searchSources() {
+        guard ApplicationWork.isAcceptingWork else { return }
         NSApp.keyWindow?.makeFirstResponder(nil)
         let lookup = question.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !working, !lookup.isEmpty, let document = model.document, !document.isLocked else { return }
@@ -570,9 +575,10 @@ struct LocalIntelligenceView: View {
         let key = documentKey, source = model.savedDocumentURL ?? model.url
         let snapshot = model.hasUnsavedChanges || document.isEncrypted
         working = true; status = "Buscando fontes locais…"; progress = 0; foundSources = []
-        operation = Task { @MainActor in
+        operation = ApplicationTask.start {
             defer { working = false; operation = nil }
             do {
+                try Task.checkCancellation()
                 let chunks = try await preparedChunks(document: document, url: source, snapshot: snapshot, key: key)
                 let context = try await LocalSemanticIndex.shared.retrieve(question: lookup, chunks: chunks, source: key)
                 try Task.checkCancellation()
@@ -585,6 +591,7 @@ struct LocalIntelligenceView: View {
     }
 
     private func generateQuiz() {
+        guard ApplicationWork.isAcceptingWork else { return }
         NSApp.keyWindow?.makeFirstResponder(nil)
         guard !working, let document = model.document, modelAvailable() else { return }
         guard !document.isLocked else { status = "Desbloqueie o documento no leitor."; return }
@@ -592,9 +599,10 @@ struct LocalIntelligenceView: View {
         let count = quizCount, style = quizStyle, difficulty = quizDifficulty, topic = String(quizTopic.prefix(500))
         memory.prepare(key: key); memory.quiz = []
         working = true; progress = 0; status = "Preparando fontes das questões…"; saved = nil
-        operation = Task { @MainActor in
+        operation = ApplicationTask.start {
             defer { working = false; operation = nil }
             do {
+                try Task.checkCancellation()
                 let chunks = try await preparedChunks(document: document, url: source, snapshot: snapshot, key: key)
                 for index in 0..<count {
                     try Task.checkCancellation()
@@ -637,6 +645,7 @@ struct LocalIntelligenceView: View {
     }
 
     private func translateLayout() {
+        guard ApplicationWork.isAcceptingWork else { return }
         NSApp.keyWindow?.makeFirstResponder(nil)
         guard let document = model.document, let source = model.savedDocumentURL ?? model.url else { return }
         guard !document.isEncrypted, !document.isLocked else { status = "Desbloqueie uma cópia explicitamente antes de traduzir um PDF protegido."; return }
@@ -646,9 +655,10 @@ struct LocalIntelligenceView: View {
         let targetLanguage = String(language.prefix(80))
         let key = documentKey
         working = true; translation = true; progress = 0; result = ""; status = "Lendo blocos do documento…"; saved = nil; resultReferences = []; resultSourceKey = key
-        operation = Task { @MainActor in
+        operation = ApplicationTask.start {
             defer { working = false; operation = nil }
             do {
+                try Task.checkCancellation()
                 let blocks = try await LayoutExtraction.blocks(from: source)
                 guard !blocks.isEmpty else { status = "Nenhum bloco de texto encontrado. Execute OCR primeiro."; return }
                 var edits: [[String: Any]] = []
@@ -684,6 +694,7 @@ struct LocalIntelligenceView: View {
     }
 
     private func generate(translation: Bool) {
+        guard ApplicationWork.isAcceptingWork else { return }
         NSApp.keyWindow?.makeFirstResponder(nil)
         guard let document = model.document else { return }
         switch SystemLanguageModel.default.availability {
@@ -699,9 +710,10 @@ struct LocalIntelligenceView: View {
         let key = documentKey
         self.translation = translation
         working = true; result = ""; status = "Preparando leitura do documento…"; progress = 0; saved = nil; resultReferences = []; resultSourceKey = key
-        operation = Task { @MainActor in
+        operation = ApplicationTask.start {
             defer { working = false; operation = nil }
             do {
+                try Task.checkCancellation()
                 // Let the UI display progress/cancellation before capturing an edited document.
                 await Task.yield()
                 try Task.checkCancellation()
@@ -783,11 +795,11 @@ struct TranslationLayoutBlock: Codable {
 
 private final class LayoutExtractionCancellation: @unchecked Sendable {
     private let lock = NSLock()
-    private var process: Process?
+    private var process: OwnedChildProcess?
     private var cancelled = false
-    func install(_ process: Process) {
+    func install(_ process: OwnedChildProcess) {
         lock.lock(); self.process = process; let value = cancelled; lock.unlock()
-        if value && process.isRunning { process.terminate() }
+        if value { process.cancel() }
     }
     func clear() { lock.lock(); process = nil; lock.unlock() }
     func check() throws {
@@ -796,7 +808,7 @@ private final class LayoutExtractionCancellation: @unchecked Sendable {
     }
     func cancel() {
         lock.lock(); cancelled = true; let process = process; lock.unlock()
-        if let process, process.isRunning { process.terminate() }
+        process?.cancel()
     }
 }
 
@@ -832,13 +844,25 @@ private enum LayoutExtraction {
                         process.standardInput = input.handle; process.standardOutput = log; process.standardError = log
                         let runtimeLease = try BundleRuntimeLease.configureRuntimeChild(process)
                         defer { try? runtimeLease?.close() }
-                        try cancellation.check(); try process.run(); cancellation.install(process)
-                        defer { cancellation.clear() }
-                        let bytes = log.fileHandleForReading.readDataToEndOfFile(); process.waitUntilExit()
                         try cancellation.check()
-                        guard process.terminationStatus == 0 else {
+                        let child = try OwnedChildProcess(configuration: process)
+                        cancellation.install(child)
+                        defer { child.cancel(); _ = try? child.waitUntilExit(); cancellation.clear() }
+                        let deadline = ProcessInfo.processInfo.systemUptime + 120
+                        var bytes = Data()
+                        let exit = try child.collectOutput(from: log.fileHandleForReading, check: {
+                            try cancellation.check()
+                            guard ProcessInfo.processInfo.systemUptime < deadline else {
+                                throw NSError(domain: "PDF", code: 4, userInfo: [NSLocalizedDescriptionKey: "A extração dos blocos excedeu dois minutos."])
+                            }
+                        }, chunk: { chunk in
+                            bytes.append(chunk)
+                            if bytes.count > 65_536 { bytes = Data(bytes.suffix(65_536)) }
+                        })
+                        try cancellation.check()
+                        guard exit.status == 0, !exit.signalled else {
                             let raw = String(data: bytes, encoding: .utf8) ?? "Falha na extração de blocos."
-                            throw NSError(domain: "PDF", code: Int(process.terminationStatus), userInfo: [NSLocalizedDescriptionKey: String(raw.suffix(2_000))])
+                            throw NSError(domain: "PDF", code: Int(exit.status), userInfo: [NSLocalizedDescriptionKey: String(raw.suffix(2_000))])
                         }
                         let blocks = try JSONDecoder().decode([TranslationLayoutBlock].self, from: Data(contentsOf: output))
                         continuation.resume(returning: blocks)

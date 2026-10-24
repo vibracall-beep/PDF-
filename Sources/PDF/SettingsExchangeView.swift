@@ -144,14 +144,14 @@ struct SettingsExchangeView:View {
         }
     }
     private func reload() {
-        guard !busy else { return }; busy = true; cancellation = NativeCancellation()
+        guard !busy, ApplicationWork.isAcceptingWork else { return }; busy = true; cancellation = NativeCancellation()
         let token = cancellation
-        Task { defer { busy = false }; do { let values = try await store.configurationSnapshots(); try token.check(); snapshots = values; message = "\(snapshots.count) versões locais disponíveis." } catch { message = error.localizedDescription } }
+        ApplicationTask.start(cancel: { token.cancel() }) { defer { busy = false }; do { try Task.checkCancellation(); let values = try await store.configurationSnapshots(); try token.check(); snapshots = values; message = "\(snapshots.count) versões locais disponíveis." } catch { message = error.localizedDescription } }
     }
     private func inspect(_ item:LibraryConfigurationSnapshot) {
-        guard !busy else { return }; busy = true; selected = nil; payload = nil; cancellation = NativeCancellation()
+        guard !busy, ApplicationWork.isAcceptingWork else { return }; busy = true; selected = nil; payload = nil; cancellation = NativeCancellation()
         let token = cancellation
-        Task { defer { busy = false }; do {
+        ApplicationTask.start(cancel: { token.cancel() }) { defer { busy = false }; do { try Task.checkCancellation();
             let bytes = try await store.loadConfiguration(item)
             try token.check()
             let detail:String
@@ -174,9 +174,9 @@ struct SettingsExchangeView:View {
         } catch { message = error.localizedDescription } }
     }
     private func publish() {
-        guard !busy else { return }; busy = true; cancellation = NativeCancellation()
+        guard !busy, ApplicationWork.isAcceptingWork else { return }; busy = true; cancellation = NativeCancellation()
         let chosenKind = kind, token = cancellation
-        Task { defer { busy = false }; do {
+        ApplicationTask.start(cancel: { token.cancel() }) { defer { busy = false }; do { try Task.checkCancellation();
             let bytes:Data
             switch chosenKind {
             case "preferences":bytes = try preferences.exportData()
@@ -194,9 +194,9 @@ struct SettingsExchangeView:View {
         } catch { message = error.localizedDescription } }
     }
     private func applySelected() {
-        guard !busy,let item = selected,let bytes = payload else { return }; busy = true; cancellation = NativeCancellation()
+        guard !busy,ApplicationWork.isAcceptingWork,let item = selected,let bytes = payload else { return }; busy = true; cancellation = NativeCancellation()
         let token = cancellation, replaceProfiles = replaceProfiles,replaceBookmarks = replaceBookmarks,restorePosition = restorePosition
-        Task { defer { busy = false }; do {
+        ApplicationTask.start(cancel: { token.cancel() }) { defer { busy = false }; do { try Task.checkCancellation();
             // Re-read the immutable record rather than trusting a stale selection.
             guard try await store.loadConfiguration(item) == bytes else { throw PreferenceError.invalid("A versão mudou durante a revisão.") }
             try token.check()

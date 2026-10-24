@@ -102,7 +102,7 @@ enum NativePDFSerialization {
         }
         return URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
     }
-    typealias LaunchObserver = (Process, URL) -> Void
+    typealias LaunchObserver = (OwnedChildProcess, URL) -> Void
 
     /// Read-only opening of the exact supplied bytes. Run this synchronous work
     /// off the UI queue; finishOpen constructs the PDFDocument on its owner queue.
@@ -773,19 +773,13 @@ enum NativePDFSerialization {
         process.standardInput = stdin; process.standardOutput = stdout ?? FileHandle.nullDevice; process.standardError = FileHandle.nullDevice
         let runtimeLease = try BundleRuntimeLease.configureQPDFChild(process)
         defer { try? runtimeLease?.close() }
-        do { try process.run() } catch { throw failure("Não foi possível iniciar o verificador PDF.") }
-        defer {
-            if process.isRunning {
-                process.terminate()
-                let grace = ProcessInfo.processInfo.systemUptime + 1
-                while process.isRunning && ProcessInfo.processInfo.systemUptime < grace { Thread.sleep(forTimeInterval: 0.02) }
-                if process.isRunning { _ = Darwin.kill(process.processIdentifier, SIGKILL) }
-            }
-            process.waitUntilExit()
-        }
-        onLaunch?(process, directory)
+        let child: OwnedChildProcess
+        do { child = try OwnedChildProcess(configuration: process) }
+        catch { throw failure("Não foi possível iniciar o verificador PDF.") }
+        defer { child.cancel(grace: 1, signal: SIGTERM); _ = try? child.waitUntilExit() }
+        onLaunch?(child, directory)
         let deadline = ProcessInfo.processInfo.systemUptime + timeout
-        while process.isRunning {
+        while try child.isRunning() {
             try checkCancellation(cancellation)
             guard ProcessInfo.processInfo.systemUptime < deadline else { throw failure("O verificador PDF excedeu o prazo de execução. Nenhum arquivo foi publicado.") }
             if let stdout {
@@ -796,10 +790,10 @@ enum NativePDFSerialization {
             }
             Thread.sleep(forTimeInterval: 0.02)
         }
-        process.waitUntilExit()
+        let exit = try child.waitUntilExit()
         try checkCancellation(cancellation)
-        guard process.terminationReason == .exit else { throw failure("O verificador PDF terminou por sinal. Nenhum arquivo foi publicado.") }
-        return process.terminationStatus
+        guard !exit.signalled else { throw failure("O verificador PDF terminou por sinal. Nenhum arquivo foi publicado.") }
+        return exit.status
     }
 
     private static func readPrivate(_ url: URL, cancellation: NativeCancellation, limit: Int = maximumBytes) throws -> Data {

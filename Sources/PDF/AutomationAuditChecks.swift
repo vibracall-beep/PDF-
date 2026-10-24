@@ -107,6 +107,21 @@ import Darwin
         await reopened.setEnabled(true,id:ruleID)
         await reopened.scanNow(); await reopened.scanNow(); await reopened.scanNow()
         try check(reopened.pendingCount == 0,"reinício deve estabelecer nova baseline sem replay")
+        // Quit cancellation pauses scheduling without silently changing the
+        // user's opt-in. A refused quit resumes the same stable-arrival state.
+        let resumedFile = input.appendingPathComponent("arrival-after-refused-quit.pdf")
+        ApplicationWork.cancelAll()
+        do {
+            try original.write(to: resumedFile)
+            await coordinator.scanNow(); await coordinator.scanNow(); await coordinator.scanNow()
+            try check(coordinator.pendingCount == 0 && coordinator.rules.first?.enabled == true,
+                      "encerrar deve suspender a fila sem desativar a preferência da regra")
+        } catch { ApplicationWork.resumeAcceptingWork(); throw error }
+        ApplicationWork.resumeAcceptingWork()
+        await coordinator.scanNow(); await coordinator.scanNow(); await coordinator.scanNow()
+        try check(coordinator.pendingCount == 1 && coordinator.rules.first?.enabled == true,
+                  "recusar a saída deve retomar chegadas estáveis sem repetir arquivos antigos")
+        await coordinator.setEnabled(false, id: ruleID)
         let unchanged = try Data(contentsOf:old)
         try check(unchanged == original && FileManager.default.contentsOfDirectory(atPath:output.path).isEmpty,"planejamento e estabilização não podem alterar originais nem publicar saídas")
         var protected = raw; protected["stages"] = [["id":stage.uuidString,"operation":"protect"]]

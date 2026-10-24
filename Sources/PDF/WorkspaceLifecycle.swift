@@ -3,15 +3,16 @@ import AppKit
 
 @MainActor final class PDFApplicationDelegate:NSObject,NSApplicationDelegate {
     weak var model:Workspace?
-    private var waitingForOpeningCleanup = false
+    private var waitingForOperationCleanup = false
     func applicationShouldTerminate(_ sender:NSApplication) -> NSApplication.TerminateReply {
-        if waitingForOpeningCleanup { return .terminateLater }
+        if waitingForOperationCleanup { return .terminateLater }
         guard model?.confirmDiscardEdits() != false else { return .terminateCancel }
         guard let model else { return .terminateNow }
-        model.cancelDocumentOpenings(); waitingForOpeningCleanup = true
+        waitingForOperationCleanup = true
         Task { @MainActor in
-            await model.waitForPendingOpen()
-            sender.reply(toApplicationShouldTerminate: true)
+            let ready = await model.prepareForTermination()
+            waitingForOperationCleanup = false
+            sender.reply(toApplicationShouldTerminate: ready)
         }
         return .terminateLater
     }

@@ -126,6 +126,9 @@ struct PDFShortcutInput: Sendable {
         }
     }
     func open(_ file: IntentFile) async throws -> String {
+        try await ApplicationTask.run { try await self.openRegistered(file) }
+    }
+    private func openRegistered(_ file: IntentFile) async throws -> String {
         let model = try await workspace()
         let input = try await Task.detached(priority: .userInitiated) { try PDFShortcutInput.prepare(file) }.value
         defer { input.remove() }
@@ -149,6 +152,9 @@ struct PDFShortcutInput: Sendable {
         return revision.labels.title
     }
     func run(_ file: IntentFile, workflowID: UUID) async throws -> URL {
+        try await ApplicationTask.run { try await self.runRegistered(file, workflowID: workflowID) }
+    }
+    private func runRegistered(_ file: IntentFile, workflowID: UUID) async throws -> URL {
         let model = try await workspace()
         guard !model.busy, activeExecution == nil else { throw PreferenceError.invalid("Aguarde a tarefa atual do PDF terminar antes de executar outro Atalho.") }
         guard let workflow = try AutomationWorkflowBridge.saved().first(where: { $0.id == workflowID }) else { throw PreferenceError.invalid("O fluxo selecionado foi removido. Escolha novamente um fluxo salvo no Atalhos.") }

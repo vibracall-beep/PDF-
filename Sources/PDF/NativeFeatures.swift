@@ -388,6 +388,13 @@ enum ScannerPDF {
     @Published var importingContinuity = false
     private let browser = ICDeviceBrowser()
     private var started = false
+    private var viewActive = false
+    private weak var panel: IKScannerDeviceView?
+    private var sessionDevices: [ObjectIdentifier: ICScannerDevice] = [:]
+    private var sessionTickets: [ObjectIdentifier: ApplicationWork.Ticket] = [:]
+    private var closingSessions = Set<ObjectIdentifier>()
+    private var stoppingObserver: NSObjectProtocol?
+    private var resumedObserver: NSObjectProtocol?
     @Published private(set) var folder: URL?
     var selected: ICScannerDevice? { devices.first { identity($0) == selectedID } }
     override init() {
@@ -395,10 +402,24 @@ enum ScannerPDF {
         browser.delegate = self
         let mask = ICDeviceTypeMask.scanner.rawValue | ICDeviceLocationTypeMask.local.rawValue | ICDeviceLocationTypeMask.bonjour.rawValue | ICDeviceLocationTypeMask.shared.rawValue
         browser.browsedDeviceTypeMask = ICDeviceTypeMask(rawValue: mask)!
+        stoppingObserver = NotificationCenter.default.addObserver(forName: .applicationWorkStopping, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { self?.stopDevices() }
+        }
+        resumedObserver = NotificationCenter.default.addObserver(forName: .applicationWorkResumed, object: nil, queue: .main) { [weak self] _ in
+            MainActor.assumeIsolated { if self?.viewActive == true { self?.startDiscovery() } }
+        }
+    }
+    deinit {
+        if let stoppingObserver { NotificationCenter.default.removeObserver(stoppingObserver) }
+        if let resumedObserver { NotificationCenter.default.removeObserver(resumedObserver) }
     }
     func identity(_ device: ICScannerDevice) -> String { device.uuidString ?? String(describing: ObjectIdentifier(device)) }
     func start() {
-        guard !started else { return }
+        viewActive = true
+        startDiscovery()
+    }
+    private func startDiscovery() {
+        guard !started, ApplicationWork.isAcceptingWork else { return }
         if folder == nil {
             do {
                 let base = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
@@ -410,7 +431,53 @@ enum ScannerPDF {
         guard folder != nil else { return }
         started = true; browser.start()
     }
-    func stop() { guard started else { return }; started = false; browser.stop(); devices = []; selectedID = "" }
+    func stop() {
+        viewActive = false
+        stopDevices()
+    }
+    private func stopDevices() {
+        if started { started = false; browser.stop() }
+        panel?.scannerDevice = nil
+        devices = []; selectedID = ""
+        for device in Array(sessionDevices.values) { closeSession(device) }
+    }
+    func attach(_ view: IKScannerDeviceView, device: ICScannerDevice?) {
+        panel = view
+        guard ApplicationWork.isAcceptingWork else { view.scannerDevice = nil; return }
+        if let previous = view.scannerDevice, previous !== device { view.scannerDevice = nil; closeSession(previous) }
+        guard let device else { view.scannerDevice = nil; return }
+        let id = ObjectIdentifier(device)
+        guard !closingSessions.contains(id) else { view.scannerDevice = nil; return }
+        if sessionTickets[id] == nil {
+            sessionDevices[id] = device
+            sessionTickets[id] = ApplicationWork.begin { [self] in
+                Task { @MainActor in
+                    if panel?.scannerDevice === device { panel?.scannerDevice = nil }
+                    closeSession(device)
+                }
+            }
+        }
+        if view.scannerDevice !== device { view.scannerDevice = device }
+    }
+    private func closeSession(_ device: ICScannerDevice) {
+        let id = ObjectIdentifier(device)
+        guard sessionTickets[id] != nil, closingSessions.insert(id).inserted else { return }
+        device.cancelScan()
+        // ImageKit remains the device delegate. The public completion confirms
+        // release; a missing/failed callback retains the ticket and refuses quit.
+        device.requestCloseSession(options: nil) { [self] failure in
+            let detail = failure?.localizedDescription
+            Task { @MainActor in
+                closingSessions.remove(id)
+                guard detail == nil, !device.hasOpenSession else {
+                    error = detail ?? "O scanner ainda está encerrando a captura. Aguarde antes de sair."
+                    return
+                }
+                sessionDevices[id] = nil
+                sessionTickets.removeValue(forKey: id)?.finish()
+            }
+        }
+    }
     nonisolated func deviceBrowser(_ browser: ICDeviceBrowser, didAdd device: ICDevice, moreComing: Bool) {
         DispatchQueue.main.async { [weak self] in self?.addDevice(device) }
     }
@@ -430,7 +497,10 @@ enum ScannerPDF {
     @objc(scannerDeviceView:didScanToURL:fileData:error:)
     nonisolated func scannerDeviceView(_ scannerDeviceView: IKScannerDeviceView!, didScanTo url: URL!, fileData data: Data!, error: Error!) {
         let message = error?.localizedDescription
-        DispatchQueue.main.async { [weak self] in self?.receiveCapture(url: url, data: data, error: message) }
+        // A delivered scan is already acquired data. Keep its publication and
+        // cleanup alive even if quit arrives between this callback and MainActor.
+        let ticket = ApplicationWork.begin {}
+        DispatchQueue.main.async { [self] in defer { ticket.finish() }; receiveCapture(url: url, data: data, error: message) }
     }
     private func receiveCapture(url: URL?, data: Data?, error message: String?) {
         if let message { self.error = message; return }
@@ -470,7 +540,7 @@ struct ScannerDevicePanel: NSViewRepresentable {
     func updateNSView(_ view: IKScannerDeviceView, context: Context) {
         view.delegate = controller; view.downloadsDirectory = controller.folder
         view.documentName = "PDF-captura"
-        if view.scannerDevice !== controller.selected { view.scannerDevice = controller.selected }
+        controller.attach(view, device: controller.selected)
     }
     static func dismantleNSView(_ view: IKScannerDeviceView, coordinator: ()) {
         view.scannerDevice = nil; view.delegate = nil
@@ -557,12 +627,14 @@ struct NativeFeaturesView: View {
         }
     }
     private func assembleScans() {
-        guard !running, !scanner.importingContinuity, !scanner.captures.isEmpty else { return }
+        guard !running, !scanner.importingContinuity, !scanner.captures.isEmpty, ApplicationWork.isAcceptingWork else { return }
         guard let destination = NativeOutput.destination(model: model, toolName: "Digitalização", originalURL: scanner.captures.first) else { return }
         let captures = scanner.captures
         let token = NativeCancellation(); cancellation = token
+        let ticket = ApplicationWork.begin { token.cancel() }
         running = true; progress = 0; status = "Montando páginas digitalizadas…"; result = nil
         DispatchQueue.global(qos: .userInitiated).async {
+            defer { ticket.finish() }
             do {
                 let output = try ScannerPDF.assemble(urls: captures, cancellation: token) { completed, total in
                     DispatchQueue.main.async { progress = Double(completed) / Double(total); status = "Arquivo \(completed) de \(total)" }
@@ -579,7 +651,7 @@ struct NativeFeaturesView: View {
     }
     private func startOCR() {
         NSApp.keyWindow?.makeFirstResponder(nil)
-        guard !running else { return }
+        guard !running, ApplicationWork.isAcceptingWork else { return }
         guard let document = model.document else { return }
         guard !document.isEncrypted else { status = "Desbloqueie uma cópia explicitamente antes de usar OCR nativo em um documento protegido."; return }
         // This snapshot stays in memory and is only input to CoreGraphics. The
@@ -587,10 +659,12 @@ struct NativeFeaturesView: View {
         guard document.pageCount > 0, let data = document.dataRepresentation() else { status = "Não foi possível obter as páginas."; return }
         guard let destination = NativeOutput.destination(model: model, toolName: "OCR") else { return }
         let token = NativeCancellation(); cancellation = token
+        let ticket = ApplicationWork.begin { token.cancel() }
         let selectedLanguage = language
         let enhance = enhanceContrast
         running = true; progress = 0; status = "Reconhecendo texto…"; result = nil
         DispatchQueue.global(qos: .userInitiated).async {
+            defer { ticket.finish() }
             do {
                 let output = try LocalOCRPDF.create(data: data, language: selectedLanguage, enhanceContrast: enhance, cancellation: token) { completed, total in
                     DispatchQueue.main.async { progress = Double(completed) / Double(total); status = "Página \(completed) de \(total)" }

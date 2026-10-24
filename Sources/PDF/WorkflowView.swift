@@ -647,9 +647,13 @@ struct WorkflowView: View {
         let stages = preset.stages.map { ["operation": $0.operation.rawValue] }
         guard let data = try? JSONSerialization.data(withJSONObject: stages) else { return }
         checkingDependencies = true; dependencyError = ""
-        dependencyTask = Task { @MainActor in
+        let cancellation = NativeCancellation()
+        dependencyTask = ApplicationTask.start(cancel: { cancellation.cancel() }) {
             do {
-                try await Task.detached { try WorkflowDependencies.check(data) }.value
+                let worker = Task.detached { try WorkflowDependencies.check(data, cancellation: cancellation) }
+                try await withTaskCancellationHandler { try await worker.value } onCancel: {
+                    cancellation.cancel(); worker.cancel()
+                }
                 guard !Task.isCancelled else { return }
                 checkingDependencies = false
                 status = "Fluxo validado; dependências das etapas disponíveis. Os dados e idiomas OCR serão verificados durante a execução."
@@ -823,7 +827,7 @@ private struct WorkflowStageEditor: View {
 }
 
 private enum WorkflowDependencies {
-    static func check(_ data: Data) throws {
+    static func check(_ data: Data, cancellation: NativeCancellation) throws {
         let files = FileManager.default
         let resources = Bundle.main.resourceURL ?? URL(fileURLWithPath: files.currentDirectoryPath)
         let project = URL(fileURLWithPath: files.currentDirectoryPath)
@@ -842,15 +846,24 @@ private enum WorkflowDependencies {
         process.standardInput = input.handle; process.standardOutput = log; process.standardError = log
         let runtimeLease = try BundleRuntimeLease.configureRuntimeChild(process)
         defer { try? runtimeLease?.close() }
-        try process.run()
-        // Dependency checks only inspect installed modules/executables and produce
-        // a bounded error. A timeout still protects against a broken Python runtime.
+        try cancellation.check()
+        let child = try OwnedChildProcess(configuration: process)
+        defer { child.cancel(); _ = try? child.waitUntilExit() }
+        // Drain output while checking cancellation/deadline; never block in
+        // readDataToEndOfFile after the checker has already exited.
         let deadline = ProcessInfo.processInfo.systemUptime + 8
-        while process.isRunning && ProcessInfo.processInfo.systemUptime < deadline { Thread.sleep(forTimeInterval: 0.05) }
-        if process.isRunning { process.terminate(); if process.processIdentifier > 0 { kill(process.processIdentifier, SIGKILL) } }
-        process.waitUntilExit()
-        let output = log.fileHandleForReading.readDataToEndOfFile()
-        guard process.terminationStatus == 0 else {
+        var output = Data()
+        let exit = try child.collectOutput(from: log.fileHandleForReading, check: {
+            try cancellation.check()
+            guard ProcessInfo.processInfo.systemUptime < deadline else {
+                throw WorkflowError.invalid("A verificação de dependências excedeu oito segundos.")
+            }
+        }, chunk: { chunk in
+            output.append(chunk)
+            if output.count > 65_536 { output = Data(output.suffix(65_536)) }
+        })
+        try cancellation.check()
+        guard exit.status == 0, !exit.signalled else {
             let detail = String(decoding: output, as: UTF8.self).split(separator: "\n").last.map(String.init) ?? "O motor local não respondeu."
             throw WorkflowError.invalid("Dependências do fluxo: \(detail)")
         }

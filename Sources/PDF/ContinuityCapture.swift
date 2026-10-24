@@ -151,6 +151,7 @@ struct ContinuityCaptureView: NSViewRepresentable {
     }
 
     @discardableResult private func enqueue(_ payloads: [Payload]) -> Bool {
+        guard ApplicationWork.isAcceptingWork else { return false }
         let incomingBytes = payloads.reduce(0) { $0 + $1.retainedBytes }
         guard pending.count + payloads.count + (processing == nil ? 0 : 1) <= 32,
               retainedBytes + incomingBytes <= ContinuityCaptureFile.maximumBytes else {
@@ -164,7 +165,7 @@ struct ContinuityCaptureView: NSViewRepresentable {
         onBusyChanged(true)
         // A single task drains one explicit FIFO. Actor serialization alone does
         // not guarantee that separately created tasks preserve pasteboard order.
-        processing = Task { @MainActor [self] in
+        processing = ApplicationTask.start { [self] in
             var successes = 0
             var failures = 0
             defer {

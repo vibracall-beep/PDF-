@@ -1,0 +1,11 @@
+# Diagnóstico de IPC privado — c2ecff7
+
+[Execução 40125812418](https://github.com/vibracall-beep/PDF-/actions/runs/40125812418), tentativa 1, fonte `c2ecff71c160461962e3a1a7676c6cf2238b46e9`. Os dois jobs concluíram com sucesso; os relatórios confirmam `complete`, `causalProofPassed` e `privateIPC.passed`. **Este diagnóstico não aprova o aplicativo completo nem o instalador.**
+
+O [ZIP oficial de logs](actions-attempt-1-logs.zip) foi preservado sem alteração. Os JSONs [macOS 26](macos-26.report.json) e [macOS 27](xcode-27.report.json) conservam os bytes após o marcador único `FINAL DIAGNOSTIC REPORT` no log de cada job, com uma quebra de linha final; não são downloads do artefato JSON. [Procedência, membros ZIP, tamanhos e SHA-256](provenance.json).
+
+Em ambos os sistemas, Office demonstrou bloqueio → permissão privada → bloqueio, com os mesmos argumentos, entrada e executável por sistema; somente a permissão produziu o PDF com o texto esperado e o socket previsto foi observado. O ensaio recusou escrita nos diretórios raiz `/tmp` e `/var/tmp` para o conversor escolher `OSL_SOCKET_PATH`, mantendo escrita no subdiretório privado. Esse mecanismo corresponde ao protocolo de LibreOffice 26.8.1.1 identificado nos relatórios.
+
+Os controles nativos confirmaram troca de bytes pelo socket Unix interno e recusa `EPERM` ao fazer bind TCP, UDP, Unix externo e escape por link simbólico. O multiprocessing Python produziu 42 em três processos distintos e encerrou o manager/removou o socket. Chromium completo produziu PDF de uma página com texto conferido e fechou o navegador. **O headless-shell já passava no perfil anterior:** seu sucesso posterior confirma compatibilidade, sem atribuir uma correção causal a esse caso.
+
+O runtime de diagnóstico contém Python e Chromium, foi movido inteiro, verificou a assinatura da raiz `.app` depois da mudança e das operações e manteve o manifesto de arquivos inalterado. A assinatura ad hoc não é notarização. É um runtime focal, sem toda a montagem/fontconfig de produção. O hardware foi M1 Virtual, nos sistemas macOS 26.6.2 e 27.0.1; não mede M4, energia ou Neural Engine. A promoção ao pacote PDF exige nova execução de todos os testes de produção, isolamento, instalação e atualização.

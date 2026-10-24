@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "workflow": ".github/workflows/portable-office-diagnostics.yml",
+  "runID": 40125812418,
+  "attempt": 1,
+  "sourceCommit": "c2ecff71c160461962e3a1a7676c6cf2238b46e9",
+  "conclusion": "success",
+  "productApproved": false,
+  "files": [
+    {
+      "path": "macos-26.report.json",
+      "bytes": 24027,
+      "sha256": "ff81b6269f57300776a922d287bf97a62d8b7fdf6ece2c6f16de57630768a213",
+      "sourceZIPMember": "1_synthetic-office-measurement (macos-26).txt",
+      "extraction": "Exact UTF-8 bytes after the unique FINAL DIAGNOSTIC REPORT marker, plus a final newline; timestamps and marker excluded."
+    },
+    {
+      "path": "xcode-27.report.json",
+      "bytes": 24045,
+      "sha256": "2cc98196cd4e105a3cf28ad8c07d7eda20de1e30f1107f4c945b64315cf7ae7a",
+      "sourceZIPMember": "0_synthetic-office-measurement (xcode-27).txt",
+      "extraction": "Exact UTF-8 bytes after the unique FINAL DIAGNOSTIC REPORT marker, plus a final newline; timestamps and marker excluded."
+    },
+    {
+      "path": "actions-attempt-1-logs.zip",
+      "bytes": 101848,
+      "sha256": "7ed0ea45faf342f4c935131bb39b6c49964fa5f9cfeabd18fa038bb1a0a30d44",
+      "extraction": "Original GitHub Actions attempt logs ZIP, unchanged."
+    }
+  ]
+}

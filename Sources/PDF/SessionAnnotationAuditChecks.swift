@@ -32,6 +32,7 @@ import SwiftUI
         workspace.open(url: firstURL)
         await workspace.waitForPendingOpen()
         guard let firstSession = workspace.activeSession, let openedPage = workspace.document?.page(at: 0) else { throw NSError(domain: "PDF.SessionAudit", code: 5) }
+        try require(workspace.message == "2 páginas · first.pdf", "A abertura não identificou a primeira sessão no rodapé.")
         try require(firstSession.zoom == 1.5 && !firstSession.autoScale,
                     "Uma nova sessão ignorou o zoom e o ajuste automático escolhidos nas preferências.")
         let view = PDFView(frame: CGRect(x: 0, y: 0, width: 800, height: 600)); view.document = workspace.document
@@ -42,12 +43,27 @@ import SwiftUI
         workspace.open(url: secondURL)
         await workspace.waitForPendingOpen()
         guard let secondSession = workspace.activeSession else { throw NSError(domain: "PDF.SessionAudit", code: 6) }
+        try require(workspace.message == "1 página · second.pdf", "A abertura da segunda sessão manteve a identidade da primeira no rodapé.")
         try require(secondSession.zoom == 2.25 && secondSession.autoScale && !firstSession.autoScale,
                     "As preferências de uma nova aba sobrescreveram o estado da aba já aberta.")
         try require(workspace.sessions.count == 2 && firstSession.isDirty && !secondSession.isDirty, "Abrir outra aba perdeu o documento ou alterações de formulário.")
         try require(firstSession.page == 2 && abs(firstSession.zoom - 1.75) < 0.01 && firstSession.bookmarks == [2], "A primeira aba perdeu página, zoom ou marcas.")
         workspace.activateSession(firstSession.id)
         try require(workspace.document === firstSession.document && workspace.currentPage == 2 && workspace.hasUnsavedChanges, "Selecionar a aba não restaurou documento e alterações.")
+        try require(workspace.message == "2 páginas · first.pdf", "Reativar a primeira aba deixou o nome do documento anterior no rodapé.")
+        workspace.busy = true; workspace.message = "Convertendo documento de teste…"
+        workspace.activateSession(secondSession.id)
+        try require(workspace.busy && workspace.message == "Convertendo documento de teste…", "Trocar aba substituiu a mensagem da operação em andamento.")
+        workspace.busy = false; workspace.lastOutput = secondURL; workspace.message = "Concluído: resultado de teste.pdf"
+        workspace.activateSession(firstSession.id)
+        try require(workspace.message == "Concluído: resultado de teste.pdf" && workspace.lastOutput == secondURL,
+                    "Trocar aba apagou a mensagem ou o destino de uma operação concluída.")
+        workspace.message = "Não foi possível exportar o documento de teste."
+        workspace.activateSession(secondSession.id)
+        try require(workspace.message == "Não foi possível exportar o documento de teste.", "Trocar aba ocultou uma mensagem de erro.")
+        workspace.message = ""; workspace.lastOutput = nil
+        workspace.activateSession(firstSession.id)
+        try require(workspace.message == "2 páginas · first.pdf", "Um rodapé vazio não retomou a identidade da aba ativa.")
         workspace.comparisonSessionID = secondSession.id
         secondSession.page = 1; secondSession.zoom = 2.1; secondSession.autoScale = false
         try require(workspace.currentPage == 2 && firstSession.zoom != secondSession.zoom, "O documento de referência alterou a navegação principal.")
@@ -130,6 +146,11 @@ import SwiftUI
         try require(searchWorkspace.sessions.isEmpty && searchWorkspace.document == nil && !searchWorkspace.hasSearchResources &&
                     !searchWorkspace.searching && !searchWorkspace.hasUnsavedChanges,
                     "Fechar a última aba reteve recursos de busca ou deixou um estado de formulário modificado sem documento.")
+        let statusWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        statusWorkspace.open(url: secondURL); await statusWorkspace.waitForPendingOpen()
+        guard let statusSession = statusWorkspace.activeSession else { throw NSError(domain: "PDF.SessionAudit", code: 20) }
+        statusWorkspace.closeSession(statusSession.id, discardChanges: true)
+        try require(statusWorkspace.message.isEmpty, "Fechar a última aba manteve uma identidade de documento inexistente no rodapé.")
 
         // These spellings have equal UTF-8 lengths and compare equal as Swift
         // Strings, but changing their codepoint order is still a real edit.

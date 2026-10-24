@@ -22,9 +22,9 @@ import sys
 import tarfile
 import xml.parsers.expat
 from binary_update import contained_link, copy_regular_file, regular_bytes
+from macho_format import is_macho as macho
 
 SCRIPTS = Path(__file__).resolve().parent
-MAGICS = {b'\xfe\xed\xfa\xce', b'\xce\xfa\xed\xfe', b'\xfe\xed\xfa\xcf', b'\xcf\xfa\xed\xfe', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca', b'\xca\xfe\xba\xbf', b'\xbf\xba\xfe\xca'}
 SYSTEM = ('/System/Library/', '/usr/lib/')
 FONTCONFIG_DEFAULTS = (
     '05-macos.conf', '10-hinting-slight.conf', '10-scale-bitmap-fonts.conf',
@@ -39,13 +39,6 @@ FONTCONFIG_DEFAULTS = (
 
 def command(*args):
     return subprocess.check_output([str(value) for value in args], text=True).strip()
-
-
-def macho(path):
-    if not path.is_file() or path.is_symlink():
-        return False
-    with path.open('rb') as stream:
-        return stream.read(4) in MAGICS
 
 
 def copy_tree(source, destination):
@@ -80,8 +73,18 @@ def register_public_ca(runtime, maps, homebrew_prefix=Path('/opt/homebrew')):
             raise ValueError('A trust store pública mudou durante a leitura.')
     if b'PRIVATE KEY' in data:
         raise ValueError('Material privado recusado na trust store pública.')
+    begin = b'-----BEGIN CERTIFICATE-----'
+    end = b'-----END CERTIFICATE-----'
+    blocks = re.findall(re.escape(begin) + rb'.*?' + re.escape(end), data, re.DOTALL)
+    if not blocks or data.count(begin) != len(blocks) or data.count(end) != len(blocks):
+        raise ValueError('A trust store pública contém blocos PEM ausentes ou incompletos.')
     trust = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
-    trust.load_verify_locations(cadata=data.decode('ascii'))
+    # Mozilla's public store can contain UTF-8 certificate descriptions outside
+    # PEM blocks. Keep the original bytes, but pass only each ASCII certificate
+    # to Python's cadata interface, which rejects non-ASCII comment strings.
+    # Validate every block independently so a bad later entry cannot be ignored.
+    for block in blocks:
+        trust.load_verify_locations(cadata=block.decode('ascii'))
     if trust.cert_store_stats()['x509'] == 0:
         raise ValueError('A trust store pública não contém certificados válidos.')
     maps[homebrew_prefix / 'etc/ca-certificates/cert.pem'] = public

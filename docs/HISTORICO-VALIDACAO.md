@@ -265,3 +265,25 @@ A auditoria ampliou o isolamento do pacote: a política `sitecustomize.py` gerad
 A prévia de validação/assinatura passa a rejeitar callbacks após alteração de contexto ou saída da tela. PDF→Excel conserva valores como `=1+1`, `-12`, `+55` e texto Unicode como strings, sem apóstrofos adicionais e sem fórmulas no XML. Foram aprovados 14 testes focados e três integrações reais LibreOffice (38,613 s); uma nova integração de ida e volta amplia o conjunto de 45 para 46 casos, ainda sem execução agregada macOS deste snapshot.
 
 A comparação entre PDFs seleciona documentos distintos antes de trechos adicionais de uma mesma fonte, preservando o ranking de busca/resposta comum. Interface, geração e validação usam o mesmo contexto efetivamente incluído no orçamento de 4.500 caracteres. A auditoria nativa acrescenta o cenário de oito trechos dominantes de A e um relevante de B, truncamento e referências indevidas. Parser e revisão independente passaram; a execução dessas regressões nativas ainda depende da próxima matriz.
+
+## 73c9863 — aplicação ampliada passa nos dois sistemas; pacote portátil reprovado
+
+A execução [40106710898](https://github.com/vibracall-beep/PDF-/actions/runs/40106710898), do commit `73c98630e50e4b978f0bebeeb7965613c2d4536f`, compilou, instalou e ativou o aplicativo por fontes nos dois sistemas. Cada job aprovou **401 casos Python distintos: 400 executados e aprovados, um ignorado**, e todos os **37 grupos nativos nas três execuções**. O caso ignorado depende de `/dev/full` do Linux; HFS+ realmente cheio e interrupções por SIGKILL passaram no Mac. Repetições dos mesmos grupos não foram somadas como casos novos.
+
+| Conjunto | macOS 26.6.2 | macOS 27.0.1 |
+|---|---:|---:|
+| Núcleo Python | 268 aprovados · 74,062 s | 268 aprovados · 74,056 s |
+| Integrações Python | 46 aprovadas · 50,320 s | 46 aprovadas · 49,618 s |
+| Scripts | 86 aprovados + 1 skip · 15,753 s | 86 aprovados + 1 skip · 18,657 s |
+| Fases nativas | 37 × três, nenhuma falha | 37 × três, nenhuma falha |
+| Gate de capturas/AX | 32 PNGs + cinco relatórios AX aprovados | 32 PNGs + cinco relatórios AX aprovados |
+| Vision estrito | Dois checks aprovados | Dois checks reprovados, razões preservadas |
+| Modelo Apple | `unavailable`, sem geração | `unavailable`, sem geração |
+
+Os gates das capturas passaram nos dois sistemas, e os arquivos foram recebidos normalmente. Isso comprova os critérios automáticos aplicados; não equivale a uma sessão humana com VoiceOver. As imagens não foram incorporadas a esta pasta de evidência. Os [oito relatórios/logs originais](evidencias/73c9863/README.md), com tamanho, hashes e IDs dos artefatos, conservam um smoke completo de 37 grupos e Vision/IA/benchmark de cada sistema. A contagem de três smokes vem dos logs completos dos jobs identificados no manifesto.
+
+O benchmark aprovou seis operações, com aquecimento e três amostras em Apple M1 Virtual, três CPUs e 7 GiB. O corpus tem 100 páginas; contraste/OCR usam só a primeira. As quatro chamadas OCR usaram Vision no26 e Tesseract no27, com a causa do fallback registrada. Ambos os relatórios de IA contêm cinco itens `unavailable`/`modelAttempted=false` por `deviceNotEligible`; a etapa produz um relatório válido, sem aprovar geração que não ocorreu. M4 físico, energia, uso do Neural Engine e serviços/dispositivos externos continuam fora desta evidência.
+
+**A matriz global reprovou na montagem do pacote portátil.** No macOS 26, a lista pública Mozilla continha comentários UTF-8, mas a validação decodificava o arquivo inteiro como ASCII (`UnicodeDecodeError`). No27, o arquivo Java `gettext/share/gettext/javaversion.class` compartilha a assinatura inicial `CAFEBABE` com um contêiner Mach-O; o classificador de quatro bytes o enviou ao `lipo -verify_arch arm64`, que terminou com SIGSEGV. As etapas de isolamento sem dependências/rede e de instalação/atualização do binário **não foram executadas**. O aplicativo instalado por fontes não foi apresentado como distribuição portátil validada.
+
+As correções posteriores validam cada bloco PEM individualmente sem alterar comentários/bytes originais e distinguem estruturalmente contêineres Mach-O de arquivos Java, mantendo as verificações obrigatórias de arquitetura, carregamento e assinatura. Elas precisam de nova execução; a aprovação funcional desta rodada não aprova essas alterações nem o pacote resultante.

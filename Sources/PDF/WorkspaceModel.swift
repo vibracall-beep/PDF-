@@ -75,7 +75,9 @@ enum ReaderAnnotationStyle {
 @MainActor final class Workspace: ObservableObject {
     @Published var document: PDFDocument?
     @Published var url: URL?
-    @Published var message = ""
+    @Published var message = "" {
+        didSet { showsDocumentIdentity = false }
+    }
     @Published var busy = false
     @Published var section = "Início"
     @Published var recentURLs: [URL] = []
@@ -109,6 +111,9 @@ enum ReaderAnnotationStyle {
     private var cancelled = false
     private var activeJob: UUID?
     private var originalWidgetState = ""
+    // Only identity messages follow tab changes. Progress, results, recovery
+    // notices and errors keep their meaning until another action replaces them.
+    private var showsDocumentIdentity = false
     private var searchDocument: PDFDocument?
     private var searchObservers: [NSObjectProtocol] = []
     private var searchID = UUID()
@@ -193,6 +198,7 @@ enum ReaderAnnotationStyle {
                     if pdfView?.document === existing.document, let target = existing.document.page(at: page - 1) { pdfView?.go(to: target) }
                 }
             }
+            refreshDocumentIdentityMessage()
             startNextOpening(); return
         }
         var metadata = stat()
@@ -389,7 +395,7 @@ enum ReaderAnnotationStyle {
         recentURLs.removeAll { $0.standardizedFileURL == url.standardizedFileURL }; recentURLs.insert(url, at:0)
         recentURLs = Array(recentURLs.prefix(20))
         defaults.set(recentURLs.map(\.path), forKey:"recentDocuments")
-        message = "\(doc.pageCount) páginas · \(url.lastPathComponent)"
+        refreshDocumentIdentityMessage(replacingPrevious: true)
         scheduleRecovery(session)
     }
     private var bookmarkKey:String { "bookmarks:" + (url?.standardizedFileURL.path ?? "") }
@@ -457,6 +463,15 @@ enum ReaderAnnotationStyle {
         currentPage = min(max(1, session.page), max(1, session.document.pageCount)); bookmarks = session.bookmarks
         hasEdits = session.hasEdits; annotationRevision = session.annotationRevision; originalWidgetState = session.originalWidgetState
         thumbnails.removeAllObjects(); section = "Leitor"
+        refreshDocumentIdentityMessage()
+    }
+    private func refreshDocumentIdentityMessage(replacingPrevious: Bool = false) {
+        guard !busy || (replacingPrevious && ownsOpeningBusy),
+              replacingPrevious || showsDocumentIdentity || message.isEmpty else { return }
+        guard let session = activeSession else { message = ""; return }
+        let count = session.document.pageCount
+        message = "\(count) \(count == 1 ? "página" : "páginas") · \(session.title)"
+        showsDocumentIdentity = true
     }
     func activateSession(_ id: UUID) {
         guard id != activeSessionID, let session = sessions.first(where: { $0.id == id }) else { return }
@@ -483,7 +498,10 @@ enum ReaderAnnotationStyle {
         if activeSessionID == id {
             activeSessionID = nil; selectedAnnotation = nil; cancelSearch()
             if let next = sessions.last { loadSession(next) }
-            else { document = nil; url = nil; savedDocumentURL = nil; hasEdits = false; originalWidgetState = ""; currentPage = 1; bookmarks = []; section = "Início" }
+            else {
+                document = nil; url = nil; savedDocumentURL = nil; hasEdits = false; originalWidgetState = ""; currentPage = 1; bookmarks = []; section = "Início"
+                refreshDocumentIdentityMessage()
+            }
         }
         refreshRecovery()
     }

@@ -7,9 +7,10 @@ Aplicativo nativo macOS, em português, com **71 ferramentas e leitor permanente
 ## Estado verificável
 
 - **Implementação:** catálogo com 71 entradas, mantendo todos os 54 IDs anteriores. Leitor com abas, comparação lado a lado, pesquisa, miniaturas, marcadores, anotações e recuperação.
-- **Validação da ampliação:** `73c9863` passou compilação e instalação por fontes nos dois sistemas: cada um aprovou 400 testes Python, com um caso Linux ignorado, e 37 grupos nativos em três execuções. Os gates de 32 capturas/cinco AX passaram por sistema; as 64 imagens foram revisadas. [Relatórios originais](docs/evidencias/73c9863/README.md) e [VALIDACAO.md](docs/VALIDACAO.md) delimitam essa aprovação funcional, que não inclui o pacote portátil.
+- **Base visual conferida:** `cbb3298` aprovou compilação/instalação por fontes, 411 casos Python (410 aprovados/um skip) e 37 grupos nativos × três por sistema. Os 64 PNGs foram revisados sem nova regressão visual; o pacote reprovou no `otool`. [Originais históricos recuperados](docs/evidencias/cbb3298/README.md).
 - **Última base inteiramente aprovada no CI:** `5a11c07`, [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), macOS 26.6.2 e 27.0.1. Essa base é anterior às 17 ampliações.
-- **Estado atual:** a [rodada 40109285584](https://github.com/vibracall-beep/PDF-/actions/runs/40109285584), `cbb3298`, terminou com falha de empacotamento nos dois sistemas. A API informa sucesso das etapas anteriores, mas logs e artefatos estão bloqueados para download; o diagnóstico e a revisão das capturas continuam pendentes. Não há novos tempos/contagens conferidos nem pacote portátil validado.
+- **Última rodada:** `4ac9d26`, [40114980785](https://github.com/vibracall-beep/PDF-/actions/runs/40114980785), **reprovada**. Foram registrados 428 casos Python (427 aprovados/um skip) e 38 grupos nativos × três por sistema. Falharam o AX Scope no macOS 26, a captura no macOS 27 por timeout e a assinatura do framework Python em ambos. [Originais](docs/evidencias/4ac9d26/README.md). Ajustes locais aguardam nova validação; não há pacote portátil aprovado.
+- **Candidata em validação:** `0bd707d4023ce764a2e0121a1b93dcb0ca69fc1d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), está **em execução**, com ajustes de rótulos AX, descoberta do framework Python e diagnóstico de inicialização. Ainda não há aprovação dessa candidata ou do pacote portátil.
 - **Alcance:** runners M1 virtualizados não medem M4 físico, energia ou Neural Engine; inspeção AX automática não substitui uso humano com VoiceOver.
 
 A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs/FERRAMENTAS.md), as [dez primeiras melhorias](docs/MELHORIAS.md) e a [auditoria histórica](docs/AUDITORIA-FERRAMENTAS.md) permanecem disponíveis.
@@ -18,7 +19,7 @@ A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs
 
 ![Captura histórica do menu principal do PDF](docs/imagens/menu-principal.png)
 
-Esta é uma **captura real da base `5a11c07`**, em macOS 27.0.1; não representa as novas telas da versão 0.6. A [galeria histórica](docs/imagens/README.md) conserva procedência e hashes. A ampliação `73c9863` produziu 32 capturas reais e cinco relatórios AX aprovados em cada sistema, e suas 64 imagens foram revisadas. A galeria acima continua histórica; a atualização aguarda acesso e revisão das capturas de `cbb3298`, com o ajuste mais recente do rodapé; o download dessa rodada está bloqueado.
+Esta é uma **captura real da base `5a11c07`**, em macOS 27.0.1; não representa as novas telas da versão 0.6. A [galeria histórica](docs/imagens/README.md) conserva procedência e hashes. Os 64 originais de `cbb3298` foram recuperados e revisados individualmente sem nova regressão visual, incluindo o rodapé corrigido. Essa revisão não altera a origem da imagem acima. Em `4ac9d26`, os 32 PNGs do macOS 26 também foram revisados sem nova regressão visual, incluindo o TH preenchido. O sexto AX, porém, detectou Scope sem nome; o macOS 27 não produziu capturas antes do timeout. Essas revisões não aprovam os gates reprovados nem o pacote.
 
 O ambiente oferece busca, favoritos, categorias, nomes e ícones personalizados, ordem e visibilidade de ferramentas, aparência, densidade, opções de leitura e saída. A ampliação inclui arraste com alternativa por teclado, atalhos editáveis com verificação de conflitos, paleta de comandos e perfis de trabalho. Animações acompanham as mudanças e respeitam Reduzir Movimento. Veja [PERSONALIZACAO.md](docs/PERSONALIZACAO.md) e a [matriz atual](docs/AMPLIACOES-2026-10.md).
 
@@ -55,6 +56,8 @@ O pacote do GitHub Actions tem retenção limitada; isso não equivale a uma pub
 Pages continua requerendo o aplicativo Pages e autorização de Automação. EPUB não remove DRM. Edição/conversão produz novos bytes, que não preservam a validade criptográfica de assinaturas sobre o original. Os limites completos e a correspondência com testes estão na [matriz atual](docs/AMPLIACOES-2026-10.md).
 
 ## Desenvolvimento e verificações
+
+Na rodada `4ac9d26`, cada Mac aprovou 281 testes de núcleo, 46 integrações e 100 de 101 testes de scripts; o skip depende de `/dev/full` do Linux. O teste real de relocação de executáveis com parênteses passou. Os 12 testes de acessibilidade e 19 de produção já pertencem ao núcleo; reexecuções focais não são somadas. Isso não sobrepõe as falhas de captura/AX e montagem do pacote.
 
 Use o checkout existente em `/workspace/PDF-`, sem criar worktrees salvo pedido explícito.
 

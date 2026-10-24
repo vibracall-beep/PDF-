@@ -260,7 +260,17 @@
         "accessibilityReportCount": 5,
         "ciGate": "passed",
         "copiedHere": false,
-        "manualVisualReview": "pending"
+        "manualVisualReview": "completed-no-new-visual-regression",
+        "manualVisualReviewEvidence": {
+          "reviewer": "UI agent",
+          "imagesInspected": 32,
+          "source": "original artifact PNG files",
+          "scope": "rodapé do documento ativo, abas/inspector, rótulos e estados capturados",
+          "excludes": [
+            "VoiceOver humano",
+            "prévia TH preenchida e sexto AX adicionados depois de cbb3298"
+          ]
+        }
       },
       "vision": {
         "appleVisionPassed": true,
@@ -498,7 +508,17 @@
         "accessibilityReportCount": 5,
         "ciGate": "passed",
         "copiedHere": false,
-        "manualVisualReview": "pending"
+        "manualVisualReview": "completed-no-new-visual-regression",
+        "manualVisualReviewEvidence": {
+          "reviewer": "UI agent",
+          "imagesInspected": 32,
+          "source": "original artifact PNG files",
+          "scope": "rodapé do documento ativo, abas/inspector, rótulos e estados capturados",
+          "excludes": [
+            "VoiceOver humano",
+            "prévia TH preenchida e sexto AX adicionados depois de cbb3298"
+          ]
+        }
       },
       "vision": {
         "appleVisionPassed": false,
@@ -691,7 +711,7 @@
   "limitations": [
     "A execução global reprovou em Assemble nos dois sistemas; isolamento e instalação/atualização do pacote binário não foram executados.",
     "O log nativo preservado contém um smoke; os três smokes são contados nos logs completos do job, identificados pelo ZIP original.",
-    "As capturas e os cinco relatórios AX por sistema foram recuperados, mas não são copiados nesta pasta; a revisão visual individual ainda estava pendente neste registro.",
+    "As capturas e os cinco relatórios AX por sistema foram recuperados, mas não são copiados nesta pasta; a revisão individual dos 64 originais foi concluída, sem nova regressão visual; não substitui uso humano com VoiceOver.",
     "Modelo Apple indisponível nos dois sistemas: nenhum caso de geração foi executado.",
     "M4 físico, energia, NPU e VoiceOver humano não foram avaliados; as amostras de benchmark têm SHA diferentes entre os sistemas.",
     "Esta evidência não aprova correções posteriores ao commit cbb32987409a3911de29650e79a83840b670bdd7."

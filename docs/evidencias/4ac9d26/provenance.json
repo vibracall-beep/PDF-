@@ -1,0 +1,445 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "commit": "4ac9d264473fd5440df4d67bfa6cf2e702d8d3bf",
+  "runID": 40114980785,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785",
+  "overallConclusion": "failure",
+  "binaryDistributionApproved": false,
+  "evidenceDateUTC": "2026-10-24",
+  "retrieval": "GitHub API standard artifact endpoint, metadata workflow_run.head_sha and digest/size verified; no signed storage URL persisted.",
+  "artifactArchives": [
+    {
+      "artifactID": 12570365171,
+      "name": "PDF-local-AI-macos-26.zip",
+      "bytes": 2175,
+      "sha256": "3a9d940f6f03cf75734728bbdfb8e2d76babf8eae35a3ba7f1f0d01c2384546b",
+      "githubDigest": "sha256:3a9d940f6f03cf75734728bbdfb8e2d76babf8eae35a3ba7f1f0d01c2384546b"
+    },
+    {
+      "artifactID": 12570320358,
+      "name": "PDF-macOS-benchmark-xcode-27.zip",
+      "bytes": 2207,
+      "sha256": "157c028a1ef803212dd546221da2f5ab9128800a0818c73417229cd453d454b5",
+      "githubDigest": "sha256:157c028a1ef803212dd546221da2f5ab9128800a0818c73417229cd453d454b5"
+    },
+    {
+      "artifactID": 12570250045,
+      "name": "PDF-native-checks-macos-26.zip",
+      "bytes": 8043,
+      "sha256": "e560a4ff274e97b11efb7df2bd48e56bb1ec33d7a481b20ec5b519dd5322cd3a",
+      "githubDigest": "sha256:e560a4ff274e97b11efb7df2bd48e56bb1ec33d7a481b20ec5b519dd5322cd3a"
+    },
+    {
+      "artifactID": 12570065199,
+      "name": "PDF-Apple-Vision-capability-macos-26.zip",
+      "bytes": 885,
+      "sha256": "b5e332b0de3a505454cc42bc238b3b3f11a02a2feabdbc4f47380c36c180a4fe",
+      "githubDigest": "sha256:b5e332b0de3a505454cc42bc238b3b3f11a02a2feabdbc4f47380c36c180a4fe"
+    },
+    {
+      "artifactID": 12569660236,
+      "name": "PDF-macOS-preview-macos-26.zip",
+      "bytes": 3180823,
+      "sha256": "2613172d3b99a239b06524da5ab378783deee75c4575c2bcff0fd582b4bf8ddc",
+      "githubDigest": "sha256:2613172d3b99a239b06524da5ab378783deee75c4575c2bcff0fd582b4bf8ddc"
+    },
+    {
+      "artifactID": 12569625428,
+      "name": "PDF-local-AI-xcode-27.zip",
+      "bytes": 2176,
+      "sha256": "562eec06bdadb47d166b9572a9c179f72aac81df44cda892d1fd464a1e26e391",
+      "githubDigest": "sha256:562eec06bdadb47d166b9572a9c179f72aac81df44cda892d1fd464a1e26e391"
+    },
+    {
+      "artifactID": 12569440303,
+      "name": "PDF-macOS-benchmark-macos-26.zip",
+      "bytes": 1888,
+      "sha256": "29d348d1cfd7f8b7ee286a5c5e387031d2b9e6dab49ff0ccbfc32391ca0d519f",
+      "githubDigest": "sha256:29d348d1cfd7f8b7ee286a5c5e387031d2b9e6dab49ff0ccbfc32391ca0d519f"
+    },
+    {
+      "artifactID": 12569295508,
+      "name": "PDF-Apple-Vision-capability-xcode-27.zip",
+      "bytes": 2074,
+      "sha256": "e487697696b9973e555f0213e8c07ec4a16ad8a79db9710a2125638f6cc303c7",
+      "githubDigest": "sha256:e487697696b9973e555f0213e8c07ec4a16ad8a79db9710a2125638f6cc303c7"
+    },
+    {
+      "artifactID": 12568452821,
+      "name": "PDF-native-checks-xcode-27.zip",
+      "bytes": 13661,
+      "sha256": "23c452608db5b4cb096754acba1e280e4afaa9a4dc8760efe08c19aa4f050a1d",
+      "githubDigest": "sha256:23c452608db5b4cb096754acba1e280e4afaa9a4dc8760efe08c19aa4f050a1d"
+    }
+  ],
+  "attemptLogArchive": {
+    "name": "attempt-1-logs.zip",
+    "bytes": 485990,
+    "sha256": "56ff863ae28d7f1497e491a439f473967fec9d3ef63b4bee1fd7159c59e2e478",
+    "sourceAPIPath": "/actions/runs/40114980785/attempts/1/logs",
+    "upstreamDigestSupplied": false,
+    "regenerationNote": "GitHub regenerated this ZIP: partial step entries and archive bytes differed from a prior download. Only the two complete top-level job logs, with independent hashes below, are used for counts. The initial API step arrays were incomplete; later official endpoint snapshots converged to all 26 completed steps per failed job."
+  },
+  "originalFiles": [
+    {
+      "path": "macos-26/PDF-native-checks.log",
+      "bytes": 81142,
+      "sha256": "74d0c540bd704be66826662083948d312110d0b204b3ab6ca9359333f0816c25",
+      "artifactID": 12570250045,
+      "artifactName": "PDF-native-checks-macos-26",
+      "githubArchiveDigest": "sha256:e560a4ff274e97b11efb7df2bd48e56bb1ec33d7a481b20ec5b519dd5322cd3a",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12570250045"
+    },
+    {
+      "path": "macos-26/PDF-vision-audit.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "artifactID": 12570065199,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "githubArchiveDigest": "sha256:b5e332b0de3a505454cc42bc238b3b3f11a02a2feabdbc4f47380c36c180a4fe",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12570065199"
+    },
+    {
+      "path": "macos-26/PDF-local-ai.json",
+      "bytes": 7659,
+      "sha256": "e0ad0e7fb8170066829b88ffda1411e749ed389b7d76a7bef5053c514accffd6",
+      "artifactID": 12570365171,
+      "artifactName": "PDF-local-AI-macos-26",
+      "githubArchiveDigest": "sha256:3a9d940f6f03cf75734728bbdfb8e2d76babf8eae35a3ba7f1f0d01c2384546b",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12570365171"
+    },
+    {
+      "path": "macos-26/PDF-benchmark.json",
+      "bytes": 4902,
+      "sha256": "4e1c76b7e7e3e72895ca39f4bdf2486f8e9ff304e1fd78589455188ec4dc0b53",
+      "artifactID": 12569440303,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "githubArchiveDigest": "sha256:29d348d1cfd7f8b7ee286a5c5e387031d2b9e6dab49ff0ccbfc32391ca0d519f",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12569440303"
+    },
+    {
+      "path": "jobs/macos-26.log",
+      "bytes": 965005,
+      "sha256": "a83f09e0d5da330fd19248a06960b0b72e5afa90f4c06d6b1a241105b9b1c57d",
+      "sourceZIP": "attempt-1-logs.zip",
+      "sourceZIPEntry": "0_native-application (macos-26).txt"
+    },
+    {
+      "path": "xcode-27/PDF-native-checks.log",
+      "bytes": 300384,
+      "sha256": "993c618efb25a71fc4a4faa337efd36c0d2c8a19a24a82104320fcd85c728f5c",
+      "artifactID": 12568452821,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "githubArchiveDigest": "sha256:23c452608db5b4cb096754acba1e280e4afaa9a4dc8760efe08c19aa4f050a1d",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12568452821"
+    },
+    {
+      "path": "xcode-27/PDF-vision-audit.json",
+      "bytes": 1621,
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "artifactID": 12569295508,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "githubArchiveDigest": "sha256:e487697696b9973e555f0213e8c07ec4a16ad8a79db9710a2125638f6cc303c7",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12569295508"
+    },
+    {
+      "path": "xcode-27/PDF-local-ai.json",
+      "bytes": 7663,
+      "sha256": "5e61817f2263626420aa21bf7087211d327d3a5e755a3032ee0e8f9e2c275e08",
+      "artifactID": 12569625428,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "githubArchiveDigest": "sha256:562eec06bdadb47d166b9572a9c179f72aac81df44cda892d1fd464a1e26e391",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12569625428"
+    },
+    {
+      "path": "xcode-27/PDF-benchmark.json",
+      "bytes": 8292,
+      "sha256": "3e63e92a99419b025e380d7c1200a9f2680a4699d86dabc5ecf9fabce355c91b",
+      "artifactID": 12570320358,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "githubArchiveDigest": "sha256:157c028a1ef803212dd546221da2f5ab9128800a0818c73417229cd453d454b5",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40114980785/artifacts/12570320358"
+    },
+    {
+      "path": "jobs/xcode-27.log",
+      "bytes": 2146159,
+      "sha256": "c6063fc6339833f2f2cc2f485e4dc71dd74c9b77526b6c2033fab9c18453c9a2",
+      "sourceZIP": "attempt-1-logs.zip",
+      "sourceZIPEntry": "1_native-application (xcode-27).txt"
+    },
+    {
+      "path": "macos-26/PDF-preview.corrigir-acessibilidade.accessibility.json",
+      "bytes": 49385,
+      "sha256": "8fd747ab90094bbbfb78497f86c7e26fcc85c1580f679923957a70b3a849d6ac",
+      "artifactID": 12569660236,
+      "artifactName": "PDF-macOS-preview-macos-26",
+      "githubArchiveDigest": "sha256:2613172d3b99a239b06524da5ab378783deee75c4575c2bcff0fd582b4bf8ddc"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "fullLog": {
+        "name": "0_native-application (macos-26).txt",
+        "bytes": 965005,
+        "sha256": "a83f09e0d5da330fd19248a06960b0b72e5afa90f4c06d6b1a241105b9b1c57d"
+      },
+      "python": [
+        {
+          "suite": "scripts",
+          "cases": 101,
+          "passed": 100,
+          "skipped": 1,
+          "seconds": 26.817,
+          "logLine": 265
+        },
+        {
+          "suite": "core",
+          "cases": 281,
+          "passed": 281,
+          "skipped": 0,
+          "seconds": 77.252,
+          "logLine": 1077
+        },
+        {
+          "suite": "integration",
+          "cases": 46,
+          "passed": 46,
+          "skipped": 0,
+          "seconds": 68.648,
+          "logLine": 1129
+        }
+      ],
+      "pythonDistinctCases": 428,
+      "pythonPassed": 427,
+      "pythonSkipped": 1,
+      "native": {
+        "distinctGroups": 38,
+        "executionsEach": 3,
+        "passedExecutions": 114,
+        "failedExecutions": 0
+      },
+      "literalMachORegressionPassed": true,
+      "previewPNGCountFromLog": 32,
+      "vision": {
+        "appleVisionPassed": true,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "passed"
+          },
+          {
+            "id": "isolated-process",
+            "status": "passed"
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "modelAttempts": 0,
+        "items": 5,
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis."
+      },
+      "benchmark": {
+        "operations": 6,
+        "repetitions": 3,
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 26.6.2 (Build 25G83)",
+        "pageCount": 100,
+        "sourceSHA256": "18108bad3ed6c07d11fb351b43154eb84da9c1eb9db2dadb8d018d802ce70888",
+        "processPeakMemoryBytes": 301613056,
+        "ocrBackendsIncludingWarmup": [
+          "apple-vision",
+          "apple-vision",
+          "apple-vision",
+          "apple-vision"
+        ]
+      },
+      "preview": {
+        "pngs": 32,
+        "axReports": 6,
+        "gate": "failed",
+        "reason": "Scope control has no accessible name in both inspection channels; four checker failures describe two nodes.",
+        "manualVisualReview": "completed-no-new-visual-regression",
+        "manualVisualReviewEvidence": {
+          "reviewer": "UI agent",
+          "imagesInspected": 32,
+          "scope": "Capturas originais individuais: controles fixos sem nova sobreposição/corte, rodapé por aba e TH populado legíveis.",
+          "excludes": [
+            "AX Scope que continuou reprovado",
+            "VoiceOver humano",
+            "pacote portátil",
+            "rótulos do candidato posterior"
+          ]
+        }
+      },
+      "packaging": {
+        "conclusion": "failure",
+        "component": "runtime/vendor/python@3.12/Frameworks/Python.framework",
+        "error": "bundle format unrecognized, invalid, or unsuitable",
+        "codesignExit": 1,
+        "portableIsolationAndBinaryInstallation": "not executed"
+      }
+    },
+    {
+      "runner": "xcode-27",
+      "fullLog": {
+        "name": "1_native-application (xcode-27).txt",
+        "bytes": 2146159,
+        "sha256": "c6063fc6339833f2f2cc2f485e4dc71dd74c9b77526b6c2033fab9c18453c9a2"
+      },
+      "python": [
+        {
+          "suite": "scripts",
+          "cases": 101,
+          "passed": 100,
+          "skipped": 1,
+          "seconds": 19.297,
+          "logLine": 263
+        },
+        {
+          "suite": "core",
+          "cases": 281,
+          "passed": 281,
+          "skipped": 0,
+          "seconds": 69.602,
+          "logLine": 1113
+        },
+        {
+          "suite": "integration",
+          "cases": 46,
+          "passed": 46,
+          "skipped": 0,
+          "seconds": 39.903,
+          "logLine": 1165
+        }
+      ],
+      "pythonDistinctCases": 428,
+      "pythonPassed": 427,
+      "pythonSkipped": 1,
+      "native": {
+        "distinctGroups": 38,
+        "executionsEach": 3,
+        "passedExecutions": 114,
+        "failedExecutions": 0
+      },
+      "literalMachORegressionPassed": true,
+      "previewPNGCountFromLog": 0,
+      "vision": {
+        "appleVisionPassed": false,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "failed",
+            "errorDomain": "PDF.VisionRuntimeUnavailable",
+            "errorCode": 1
+          },
+          {
+            "id": "isolated-process",
+            "status": "failed",
+            "errorDomain": "PDF.VisionWorker.RuntimeFailure",
+            "errorCode": 1
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "modelAttempts": 0,
+        "items": 5,
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis."
+      },
+      "benchmark": {
+        "operations": 6,
+        "repetitions": 3,
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 27.0.1 (Build 26A434)",
+        "pageCount": 100,
+        "sourceSHA256": "4b46c853345e2ed40842ca37a9cfc5fc6522ff8d35cd3599dd72d68368ad80be",
+        "processPeakMemoryBytes": 149716992,
+        "ocrBackendsIncludingWarmup": [
+          "tesseract",
+          "tesseract",
+          "tesseract",
+          "tesseract"
+        ]
+      },
+      "preview": {
+        "pngs": 0,
+        "axReports": 0,
+        "gate": "capture-timeout",
+        "reason": "Capture exceeded300seconds before anyPNG; stack sampling also timed out.",
+        "manualVisualReview": "not possible: no images generated"
+      },
+      "packaging": {
+        "conclusion": "failure",
+        "component": "runtime/vendor/python@3.12/Frameworks/Python.framework",
+        "error": "bundle format unrecognized, invalid, or unsuitable",
+        "codesignExit": 1,
+        "portableIsolationAndBinaryInstallation": "not executed"
+      }
+    }
+  ],
+  "limitations": [
+    "Os 38 grupos nativos e as suítes Python aprovados não sobrepõem as falhas de captura/AX e empacotamento.",
+    "No macOS 26 foram gerados 32 PNGs/seis AX; o relatório populado de acessibilidade reprovou. No macOS 27 não houve captura antes do timeout; nenhuma aprovação visual é alegada.",
+    "Apple Intelligence indisponível nos dois runners: nenhuma geração tentada. M1 virtual não mede M4 físico, energia, ocupação da NPU ou VoiceOver humano.",
+    "Ajustes posteriores de rótulos, descoberta do framework Python e diagnóstico de inicialização ainda não são aprovados por esta rodada.",
+    "Somente os artefatos identificados foram baixados; fontes marcados unvalidated não são entrega aprovada."
+  ],
+  "apiTimelineFollowup": {
+    "checkedAtUTC": "2026-10-24T17:57:19.156929+00:00",
+    "completeSnapshotHTTPDate": "2026-10-24T17:54:23Z",
+    "initialSnapshotWasIncomplete": true,
+    "currentTimelineComplete": true,
+    "currentBlocker": false,
+    "observedJobs": [
+      {
+        "jobID": 120934289236,
+        "oldStepCount": 3,
+        "newStepCount": 26,
+        "singleJobStepCount": 26,
+        "missingRequiredSteps": [],
+        "conclusion": "failure",
+        "allStepsNowCompleted": true
+      },
+      {
+        "jobID": 120934289426,
+        "oldStepCount": 5,
+        "newStepCount": 26,
+        "singleJobStepCount": 26,
+        "missingRequiredSteps": [],
+        "conclusion": "failure",
+        "allStepsNowCompleted": true
+      }
+    ],
+    "countSourceUnchanged": "Complete top-level job logs only",
+    "snapshots": [
+      {
+        "name": "4ac-latest-jobs.json",
+        "bytes": 11286,
+        "sha256": "60f1188486483ac96e5c37385123c90cb7c179999404b49dced61fcedb5ce63c",
+        "preservedInThisFolder": false
+      },
+      {
+        "name": "4ac-attempt-jobs.json",
+        "bytes": 11286,
+        "sha256": "60f1188486483ac96e5c37385123c90cb7c179999404b49dced61fcedb5ce63c",
+        "preservedInThisFolder": false
+      },
+      {
+        "name": "4ac-job-120934289236.json",
+        "bytes": 5629,
+        "sha256": "5b7a2b8dc1c17d1db86748b15376176024d6f24746bc4aebbfe5eb2007e573e7",
+        "preservedInThisFolder": false
+      },
+      {
+        "name": "4ac-job-120934289426.json",
+        "bytes": 5629,
+        "sha256": "9900f07403c836ff8eb044f5b98ccf12d5c3ba2763235fb27fc37e3d079ef34d",
+        "preservedInThisFolder": false
+      }
+    ]
+  }
+}

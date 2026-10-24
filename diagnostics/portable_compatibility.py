@@ -128,6 +128,11 @@ def collect_origin(run_id, commit, expected_sha, repository):
     return result
 
 
+def manifest_digest(manifest):
+    return hashlib.sha256(json.dumps(manifest, sort_keys=True, separators=(',', ':'),
+                                     ensure_ascii=True, allow_nan=False).encode('utf-8')).hexdigest()
+
+
 def verify_archive(directory, origin):
     commit = origin['sourceCommit']
     expected_sha = origin['expectedArchiveSHA256']
@@ -179,11 +184,14 @@ def verify_archive(directory, origin):
             'Source validation claims are inconsistent.')
     return dict(origin, archiveSHA256=expected_sha, archiveBytes=before.st_size,
                 archiveManifestMatched=True, sourceValidationMatched=True,
+                manifestSHA256=manifest_digest(manifest),
                 manifestEntries=len(manifest['files']),
                 applicationVersion=validation.get('applicationVersion'))
 
 
-def report(verified, destination):
+def report(verified, destination, gui_directory):
+    import cross_gui_evidence as gui
+    gui.verify_receipt(gui_directory, verified)
     def value(*arguments):
         return subprocess.check_output(arguments, text=True, timeout=30).strip()
     require(value('/usr/bin/uname', '-m') == 'arm64', 'Target must execute natively on arm64.')
@@ -195,6 +203,10 @@ def report(verified, destination):
                   targetLogicalCPUs=int(value('/usr/sbin/sysctl', '-n', 'hw.ncpu')),
                   architecture='arm64', freshInstallPassed=True, isolatedRuntimePassed=True,
                   appIntentsMetadataVerified=True, nativeSmokePassed=True,
+                  installedBinaryGUIPassed=True, guiOutsideDependencySandbox=True,
+                  guiCaptureAttempts=1, guiCaptureDeadlineSeconds=300,
+                  guiPNGCount=32, guiOwnWindowAXCount=6, guiOriginalOCRFileCount=2,
+                  guiReceiptSHA256=gui.hashed_file(gui_directory / gui.RECEIPT, 32768)['sha256'],
                   rebuiltOnDestination=False, developerToolsOnDestinationRequired=False,
                   appleNotarized=False, signing='ad-hoc', physicalM4Measured=False,
                   neuralEngineMeasured=False, humanVoiceOverTested=False)
@@ -222,7 +234,7 @@ def main():
             write_json(args.output, result)
             print('Authenticated source archive SHA-256:', result['archiveSHA256'])
         else:
-            report(regular_json(args.input, 32768), args.output)
+            report(regular_json(args.input, 32768), args.output, args.directory)
     except (OSError, ValueError, KeyError, TypeError, tarfile.TarError, subprocess.SubprocessError) as error:
         parser.exit(1, 'Cross-OS evidence rejected: ' + str(error) + '\n')
 

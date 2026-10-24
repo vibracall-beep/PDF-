@@ -11,6 +11,7 @@ import re
 import shutil
 import subprocess
 
+import cross_gui_evidence as gui
 import delivery_archives
 import delivery_parts
 import portable_compatibility as portable
@@ -40,6 +41,9 @@ CROSS_STEPS = (
     'Verify the independent hash and both internal and published evidence',
     'Install the unchanged macOS 26 binary on macOS 27',
     'Deny host dependencies and validate runtime, metadata and native operations',
+    'Bind the installed GUI to the unchanged authenticated archive',
+    'Capture the installed binary GUI once outside the dependency sandbox',
+    'Validate and bind all original GUI artifacts',
     'Publish the exact cross-OS measurement and target hardware identity',
     'Retain evidence without relabeling a failed installation',
 )
@@ -50,7 +54,7 @@ SOURCE_CONTENTS = {'PDF-source.tar.gz': 128 * 1024 ** 2, 'PDF-source.tar.gz.sha2
                    'PDF-vision-audit.json': 1024 ** 2, 'PDF-benchmark.json': 1024 ** 2,
                    'PDF-local-ai.json': 1024 ** 2}
 CROSS_CONTENTS = {'PDF-cross-origin.json': 32768, 'PDF-cross-verified.json': 32768,
-                  'PDF-cross-isolation.log': evidence.MAX_LOG, 'PDF-cross-platform.json': 32768}
+                  'PDF-cross-isolation.log': evidence.MAX_LOG, 'PDF-cross-platform.json': 32768, **gui.GUI_CONTENTS}
 LIMITATIONS = (
     'Os checks comprovam instalação e isolamento do pacote nos runners identificados; '
     'não comprovam desempenho em M4 físico, uso da Neural Engine ou auditoria humana com VoiceOver. '
@@ -159,7 +163,7 @@ def collect_origins(api, source_id, commit, expected_sha, cross_id, cross_commit
             'crossJobs': cross_jobs, 'crossArtifact': cross_artifact, 'origin': origin}
 
 
-def verify_cross_reports(directory, origin, verified):
+def verify_cross_reports(directory, origin, verified, manifest, source_verified):
     original = portable.regular_json(directory / 'PDF-cross-origin.json', 32768)
     intermediate = portable.regular_json(directory / 'PDF-cross-verified.json', 32768)
     report = portable.regular_json(directory / 'PDF-cross-platform.json', 32768)
@@ -181,6 +185,19 @@ def verify_cross_reports(directory, origin, verified):
             'Cross-test execution or signature claims are inconsistent.')
     require(bool(portable.regular_bytes(directory / 'PDF-cross-isolation.log', evidence.MAX_LOG)),
             'The original isolation log is missing.')
+    try:
+        receipt = gui.verify_receipt(directory, verified, manifest)
+        require(receipt['sourceScripts'] == {name: source_verified['additionalSourceFiles'].get('scripts/' + name)
+                                            for name in gui.SCRIPT_NAMES},
+                'GUI scripts differ from the authenticated original source archive.')
+        require(report.get('installedBinaryGUIPassed') is True and report.get('guiOutsideDependencySandbox') is True
+                and report.get('guiReceiptSHA256') == gui.hashed_file(directory / gui.RECEIPT, 32768)['sha256'],
+                'Cross report does not bind the mandatory installed-binary GUI evidence.')
+        for key, expected in (('guiCaptureAttempts', 1), ('guiCaptureDeadlineSeconds', 300),
+                              ('guiPNGCount', 32), ('guiOwnWindowAXCount', 6), ('guiOriginalOCRFileCount', 2)):
+            require(type(report.get(key)) is int and report[key] == expected, 'Invalid cross GUI contract: ' + key)
+    except (OSError, ValueError, KeyError, TypeError) as error:
+        raise evidence.EvidenceFailure('Cross GUI evidence rejected: ' + str(error)) from error
     return report
 
 
@@ -248,8 +265,9 @@ def prepare(api, origins, directory):
     manifest = portable.regular_json(binary_dir / 'distribution-manifest.json')
     validation = portable.regular_json(binary_dir / 'distribution-validation.json', 1024 ** 2)
     source_verified = delivery_archives.verify_source_and_installer(payload / 'sourceArtifact', binary_dir,
-                                                                  origins['source']['head_sha'], manifest)
-    cross_report = verify_cross_reports(payload / 'crossArtifact', origins['origin'], verified)
+                                                                  origins['source']['head_sha'], manifest,
+                                                                  required_source_files=tuple('scripts/' + name for name in gui.SCRIPT_NAMES))
+    cross_report = verify_cross_reports(payload / 'crossArtifact', origins['origin'], verified, manifest, source_verified)
     original = binary_dir / portable.ARCHIVE
     plan = delivery_parts.plan_parts(original)
     require(plan['sha256'] == origins['origin']['expectedArchiveSHA256'] == verified['archiveSHA256']
@@ -260,7 +278,7 @@ def prepare(api, origins, directory):
     for name in ('PDF-source.tar.gz', 'PDF-source.tar.gz.sha256'):
         add(extracted['sourceArtifact'][name], 'original-source-artifact-file')
     for path in extracted['crossArtifact'].values():
-        add(path, 'original-cross-platform-report')
+        add(path, 'original-cross-platform-gui-evidence' if path.name in gui.GUI_CONTENTS else 'original-cross-platform-report')
     if plan['mode'] == 'single':
         add(original, 'original-binary-tar', {'name': portable.ARCHIVE, 'bytes': plan['bytes'], 'sha256': plan['sha256']})
     else:
@@ -310,7 +328,8 @@ def prepare(api, origins, directory):
                   'binaryVerification': verified, 'sourceAndInstallerVerification': source_verified,
                   'originalSourceValidation': validation, 'originalCrossReport': cross_report,
                   'archiveStorage': plan, 'logs': logs, 'originalNoticeEntriesPreservedInTar': notices,
-                  'binaryChecksPassed': {'sourceMatrix': True, 'sameMacOS26ArchiveInstalledOnMacOS27': True},
+                  'binaryChecksPassed': {'sourceMatrix': True, 'sameMacOS26ArchiveInstalledOnMacOS27': True,
+                                         'installedBinaryGUIOnMacOS27': True, 'guiOutsideDependencySandbox': True},
                   'limitations': LIMITATIONS, 'publicRelease': False, 'applicationLicenseAdded': False,
                   'files': [records[name] for name in sorted(records)]}
     path = payload / PROVENANCE; write_json(path, provenance); add(path, 'delivery-provenance')

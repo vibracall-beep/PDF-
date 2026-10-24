@@ -30,7 +30,7 @@
   "preservation": "Bytes PNG originais; sem recorte, redimensionamento, retoque ou recomposição.",
   "visualReview": {
     "scope": "32 PNGs originais do macOS 26 revisados individualmente; seleção de 11 nesta galeria. Zero imagens do macOS 27: captura falhou e artefato não foi produzido.",
-    "result": "Não foram observados cortes ou sobreposições dos controles fixos nos 32 estados capturados.",
+    "result": "A segunda inspeção confirmou um corte no topo do título Palavras reconhecidas do painel OCR, não identificado na primeira revisão. Os pixels originais permanecem intactos.",
     "findings": [
       "A revisão OCR mostra erros reais no texto português, como informag6es e retne.",
       "Biblioteca, fora desta seleção, exibe 1 versões em dois pontos. A correção posterior não integra este snapshot."
@@ -41,7 +41,16 @@
       "A matriz foi reprovada: o smoke portátil falhou nos dois sistemas e a captura falhou no macOS 27.",
       "Nenhum instalador ou pacote binário desta revisão está aprovado para entrega por estas imagens.",
       "Correções posteriores ao commit indicado não aparecem nesta galeria."
-    ]
+    ],
+    "subsequentReviewCorrection": {
+      "reviewedDuringCommit": "352ae6fa8790ee51b547c93efc88f2f5c1956ebd",
+      "dateUTC": "2026-10-24",
+      "file": "PDF-preview.revisao-ocr.png",
+      "finding": "The upper edge of the UI heading Palavras reconhecidas is clipped by the right inspector viewport. Confirmed in the original e9af macOS 26 PNG and both 352ae6f platform PNGs. This is a layout defect distinct from OCR recognition errors.",
+      "initialInspectionDidNotIdentifyClipping": true,
+      "originalPixelsModified": false,
+      "correctionValidationPending": true
+    }
   },
   "ocrEvidence": {
     "backend": "tesseract",

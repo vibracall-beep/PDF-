@@ -13,6 +13,7 @@ import zipfile
 import deliver_binary as gate
 import delivery_archives
 import retain_evidence as evidence
+from test_cross_gui_evidence import source_scripts, synthetic_gui_files, record
 
 
 def encoded(value):
@@ -36,7 +37,7 @@ def zip_bytes(files):
 
 
 def source_files(installer, commit, dirty=False):
-    files = {'scripts/install-binary.sh': installer,
+    files = {**source_scripts(), 'scripts/install-binary.sh': installer,
              'BUILD-INFO.json': encoded({'source_archive_format': 1, 'commit': commit, 'working_tree_dirty': dirty})}
     sums = ''.join(hashlib.sha256(data).hexdigest() + '  ' + name + '\n' for name, data in files.items())
     archive = tar_bytes(dict({'PDF/' + name: data for name, data in files.items()},
@@ -68,6 +69,8 @@ class MemoryGitHub:
             self.payloads['/actions/runs/' + str(identifier) + '/attempts/1/logs'] = zip_bytes({'original.log': b'complete original log'})
         self.installer = b'#!/bin/bash\n# original reviewed installer\nexit 0\n'
         original_files = {'install-binary.sh': self.installer,
+                         'PDF.app/Contents/MacOS/PDF': b'Synthetic executable fixture',
+                         'PDF.app/Contents/Info.plist': b'Synthetic identity fixture',
                          'PDF.app/Contents/Resources/runtime/THIRD-PARTY.json': b'{}',
                          'PDF.app/Contents/Resources/runtime/THIRD-PARTY.txt': b'Original notices retained.\n'}
         self.manifest = {'schemaVersion': 1, 'architecture': 'arm64', 'commit': self.commit,
@@ -93,7 +96,8 @@ class MemoryGitHub:
         origin = gate.portable.validate_origin(self.runs[123], self.jobs[123], self.artifacts[123], '123', self.commit, self.repository)
         origin['expectedArchiveSHA256'] = self.sha
         verified = dict(origin, archiveSHA256=self.sha, archiveBytes=len(self.tar), archiveManifestMatched=True,
-                        sourceValidationMatched=True, manifestEntries=len(self.manifest['files']), applicationVersion='0.6.0')
+                        sourceValidationMatched=True, manifestSHA256=gate.portable.manifest_digest(self.manifest),
+                        manifestEntries=len(self.manifest['files']), applicationVersion='0.6.0')
         report = dict(verified, crossOSTestPassed=True, targetRunner='xcode-27', targetOperatingSystem='27.0.1',
             targetProcessor='Apple Silicon runner', targetLogicalCPUs=6, architecture='arm64',
             freshInstallPassed=True, isolatedRuntimePassed=True, appIntentsMetadataVerified=True,
@@ -102,6 +106,12 @@ class MemoryGitHub:
             neuralEngineMeasured=False, humanVoiceOverTested=False)
         self.cross_files = {'PDF-cross-origin.json': encoded(origin), 'PDF-cross-verified.json': encoded(verified),
                             'PDF-cross-platform.json': encoded(report), 'PDF-cross-isolation.log': b'Original complete isolation log\n'}
+        self.cross_files.update(synthetic_gui_files(verified, self.manifest))
+        report.update(installedBinaryGUIPassed=True, guiOutsideDependencySandbox=True,
+                      guiCaptureAttempts=1, guiCaptureDeadlineSeconds=300, guiPNGCount=32,
+                      guiOwnWindowAXCount=6, guiOriginalOCRFileCount=2,
+                      guiReceiptSHA256=record(self.cross_files[gate.gui.RECEIPT])['sha256'])
+        self.cross_files['PDF-cross-platform.json'] = encoded(report)
         self.add_artifact(456, 'PDF-cross-platform-validated', zip_bytes(self.cross_files))
         self.release = None; self.assets = []; self.upload_count = 0; self.create_count = 0
 
@@ -166,7 +176,7 @@ class DeliveryTests(unittest.TestCase):
 
     def test_exact_binary_original_sources_and_limits_are_retained_in_a_draft(self):
         result = self.deliver()
-        self.assertTrue(result['draft']); self.assertEqual(result['verifiedAssets'], 27)
+        self.assertTrue(result['draft']); self.assertEqual(result['verifiedAssets'], 71)
         self.assertEqual(result['archiveSHA256'], self.api.sha)
         self.assertNotIn('applicationApproved', result)
         provenance = json.loads((self.root / 'delivery/payload' / gate.PROVENANCE).read_text())
@@ -196,7 +206,9 @@ class DeliveryTests(unittest.TestCase):
 
     def test_cross_report_cannot_relabel_another_binary_or_rebuild(self):
         for field, value in [('archiveSHA256', '0' * 64), ('archiveBytes', 1), ('sourceArtifactID', 999),
-                             ('rebuiltOnDestination', True), ('targetOperatingSystem', '26.0'), ('nativeSmokePassed', False)]:
+                             ('rebuiltOnDestination', True), ('targetOperatingSystem', '26.0'), ('nativeSmokePassed', False),
+                             ('installedBinaryGUIPassed', False), ('guiOutsideDependencySandbox', False),
+                             ('guiCaptureAttempts', 2), ('guiPNGCount', 31), ('guiReceiptSHA256', '0' * 64)]:
             with self.subTest(field=field):
                 api = copy.deepcopy(self.api)
                 report = json.loads(api.cross_files['PDF-cross-platform.json']); report[field] = value
@@ -204,6 +216,35 @@ class DeliveryTests(unittest.TestCase):
                 api.replace_artifact(456, 'PDF-cross-platform-validated', zip_bytes(api.cross_files))
                 with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, field)
                 self.assertEqual(api.create_count, 0)
+
+    def test_gui_gates_originals_receipt_and_source_scripts_are_mandatory_before_draft(self):
+        variants = []
+        for step in gate.CROSS_STEPS[7:10]:
+            api = copy.deepcopy(self.api)
+            next(item for item in api.jobs[456][0]['steps'] if item['name'] == step)['conclusion'] = 'skipped'
+            variants.append(api)
+        for name in (gate.gui.RECEIPT, gate.gui.BEFORE, gate.gui.PNG_NAMES[0], gate.gui.AX_NAMES[0], gate.gui.OCR_JSON):
+            api = copy.deepcopy(self.api); del api.cross_files[name]
+            api.replace_artifact(456, 'PDF-cross-platform-validated', zip_bytes(api.cross_files)); variants.append(api)
+        for name, data in ((gate.gui.PNG_NAMES[0], b'corrupt PNG'), ('extra.json', b'{}')):
+            api = copy.deepcopy(self.api); api.cross_files[name] = data
+            api.replace_artifact(456, 'PDF-cross-platform-validated', zip_bytes(api.cross_files)); variants.append(api)
+        api = copy.deepcopy(self.api)
+        receipt = json.loads(api.cross_files[gate.gui.RECEIPT])
+        before = json.loads(api.cross_files[gate.gui.BEFORE])
+        receipt['sourceScripts'][gate.gui.SCRIPT_NAMES[0]]['sha256'] = '0' * 64
+        before['sourceScripts'] = receipt['sourceScripts']
+        api.cross_files[gate.gui.BEFORE] = encoded(before)
+        receipt['beforeSHA256'] = record(api.cross_files[gate.gui.BEFORE])['sha256']
+        api.cross_files[gate.gui.RECEIPT] = encoded(receipt)
+        report = json.loads(api.cross_files['PDF-cross-platform.json'])
+        report['guiReceiptSHA256'] = record(api.cross_files[gate.gui.RECEIPT])['sha256']
+        api.cross_files['PDF-cross-platform.json'] = encoded(report)
+        api.replace_artifact(456, 'PDF-cross-platform-validated', zip_bytes(api.cross_files)); variants.append(api)
+        for index, api in enumerate(variants):
+            with self.subTest(index=index), self.assertRaises((evidence.EvidenceFailure, delivery_archives.ArchiveFailure)):
+                self.deliver(api, 'gui-' + str(index))
+            self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
 
     def test_installer_and_dirty_sources_cannot_be_delivered(self):
         api = copy.deepcopy(self.api); api.binary_files['install-binary.sh'] = b'altered installer\n'
@@ -217,20 +258,20 @@ class DeliveryTests(unittest.TestCase):
 
     def test_idempotent_rerun_compares_bytes_and_published_or_changed_assets_are_refused(self):
         first = self.deliver(); second = self.deliver(name='second')
-        self.assertEqual(first, second); self.assertEqual(self.api.upload_count, 27)
+        self.assertEqual(first, second); self.assertEqual(self.api.upload_count, 71)
         api = copy.deepcopy(self.api); api.release['draft'] = False
         with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, 'published')
-        self.assertEqual(api.upload_count, 27)
+        self.assertEqual(api.upload_count, 71)
         api = copy.deepcopy(self.api); asset = api.assets[0]; asset.pop('digest')
         api.payloads['/releases/assets/' + str(asset['id'])] = b'x' * asset['size']
         with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, 'tampered')
-        self.assertEqual(api.upload_count, 27)
+        self.assertEqual(api.upload_count, 71)
 
     def test_interrupted_draft_is_completed_without_replacing_existing_assets(self):
         self.deliver(); missing = self.api.assets.pop()
         self.api.payloads.pop('/releases/assets/' + str(missing['id']))
         self.deliver(name='resumed')
-        self.assertEqual(self.api.upload_count, 28); self.assertEqual(len(self.api.assets), 27)
+        self.assertEqual(self.api.upload_count, 72); self.assertEqual(len(self.api.assets), 71)
 
     def test_state_changed_during_final_download_is_not_reported_as_a_draft(self):
         original = self.api.download

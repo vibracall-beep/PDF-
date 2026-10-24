@@ -571,7 +571,7 @@
         "imageNamesAndHashesVerifiedAgainstExtractedOriginals": true
       }
     ],
-    "fixedControlClippingOrOverlapObserved": false,
+    "fixedControlClippingOrOverlapObserved": true,
     "copyFinding": {
       "file": "PDF-preview.biblioteca.png",
       "observed": "1 versões",
@@ -581,6 +581,15 @@
     "limitations": [
       "Static visible states only; content beyond scroll viewport was not reviewed.",
       "No macOS27 images, human VoiceOver, animation behavior, functional interaction, or portable package approval."
-    ]
+    ],
+    "subsequentReviewCorrection": {
+      "reviewedDuringCommit": "352ae6fa8790ee51b547c93efc88f2f5c1956ebd",
+      "dateUTC": "2026-10-24",
+      "file": "PDF-preview.revisao-ocr.png",
+      "finding": "The upper edge of the UI heading Palavras reconhecidas is clipped by the right inspector viewport. Confirmed in the original e9af macOS 26 PNG and both 352ae6f platform PNGs. This is a layout defect distinct from OCR recognition errors.",
+      "initialInspectionDidNotIdentifyClipping": true,
+      "originalPixelsModified": false,
+      "correctionValidationPending": true
+    }
   }
 }

@@ -36,8 +36,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
+          set -euo pipefail
+          mkdir -m 700 "$RUNNER_TEMP/PDF-cross-evidence"
           python3 -m unittest discover -s compatibility-control/diagnostics -p 'test_portable_compatibility.py' -v
-          python3 compatibility-control/diagnostics/portable_compatibility.py origin --output "$RUNNER_TEMP/PDF-cross-origin.json"
+          python3 -m unittest discover -s compatibility-control/diagnostics -p 'test_cross_gui_evidence.py' -v
+          python3 compatibility-control/diagnostics/portable_compatibility.py origin --output "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-origin.json"
       - name: Check out only the authenticated source commit for installation checks
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
@@ -56,9 +59,9 @@ jobs:
       - name: Verify the independent hash and both internal and published evidence
         run: |
           python3 compatibility-control/diagnostics/portable_compatibility.py archive \
-            --input "$RUNNER_TEMP/PDF-cross-origin.json" \
+            --input "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-origin.json" \
             --directory "$RUNNER_TEMP/PDF-source-binary" \
-            --output "$RUNNER_TEMP/PDF-cross-verified.json"
+            --output "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-verified.json"
       - name: Install the unchanged macOS 26 binary on macOS 27
         id: install
         run: |
@@ -76,22 +79,51 @@ jobs:
           # The package's own Python/engines are exercised under sandbox-exec,
           # with host Homebrew, Xcode, LibreOffice and network access denied.
           bash source/scripts/check-portable.sh "$RUNNER_TEMP/pdf-cross-installed/PDF.app" \
-            2>&1 | tee "$RUNNER_TEMP/PDF-cross-isolation.log"
+            2>&1 | tee "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-isolation.log"
+      - name: Bind the installed GUI to the unchanged authenticated archive
+        id: gui_origin
+        run: |
+          python3 compatibility-control/diagnostics/cross_gui_evidence.py prepare \
+            --directory "$RUNNER_TEMP/PDF-cross-evidence" --source "$GITHUB_WORKSPACE/source" \
+            --app "$RUNNER_TEMP/pdf-cross-installed/PDF.app" \
+            --archive "$RUNNER_TEMP/PDF-source-binary/PDF-arm64.tar.gz" \
+            --manifest "$RUNNER_TEMP/PDF-source-binary/distribution-manifest.json" \
+            --verified "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-verified.json"
+      - name: Capture the installed binary GUI once outside the dependency sandbox
+        id: gui_capture
+        run: |
+          set -euo pipefail
+          # GUI/window-server capture is intentionally outside the dependency
+          # sandbox. Runtime isolation passed separately above. No rebuild,
+          # retry, host dependency installation or replacement executable.
+          python3 source/scripts/run-with-timeout.py --seconds 300 -- \
+            "$RUNNER_TEMP/pdf-cross-installed/PDF.app/Contents/MacOS/PDF" \
+            --render-preview "$RUNNER_TEMP/PDF-cross-evidence/PDF-preview.png" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-gui-capture.log"
+      - name: Validate and bind all original GUI artifacts
+        id: gui_validate
+        run: |
+          set -euo pipefail
+          python3 source/scripts/check_preview_artifacts.py "$RUNNER_TEMP/PDF-cross-evidence" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-gui-validation.log"
+          python3 compatibility-control/diagnostics/cross_gui_evidence.py finish \
+            --directory "$RUNNER_TEMP/PDF-cross-evidence" --source "$GITHUB_WORKSPACE/source" \
+            --app "$RUNNER_TEMP/pdf-cross-installed/PDF.app" \
+            --archive "$RUNNER_TEMP/PDF-source-binary/PDF-arm64.tar.gz" \
+            --manifest "$RUNNER_TEMP/PDF-source-binary/distribution-manifest.json" \
+            --verified "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-verified.json"
       - name: Publish the exact cross-OS measurement and target hardware identity
         id: report
         run: |
           python3 compatibility-control/diagnostics/portable_compatibility.py report \
-            --input "$RUNNER_TEMP/PDF-cross-verified.json" \
-            --output "$RUNNER_TEMP/PDF-cross-platform.json"
+            --input "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-verified.json" \
+            --directory "$RUNNER_TEMP/PDF-cross-evidence" \
+            --output "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-platform.json"
       - name: Retain evidence without relabeling a failed installation
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.install.outcome == 'success' && steps.isolated.outcome == 'success' && steps.report.outcome == 'success' && 'PDF-cross-platform-validated' || 'PDF-cross-platform-unvalidated' }}
-          path: |
-            ${{ runner.temp }}/PDF-cross-origin.json
-            ${{ runner.temp }}/PDF-cross-verified.json
-            ${{ runner.temp }}/PDF-cross-isolation.log
-            ${{ runner.temp }}/PDF-cross-platform.json
+          name: ${{ steps.install.outcome == 'success' && steps.isolated.outcome == 'success' && steps.gui_origin.outcome == 'success' && steps.gui_capture.outcome == 'success' && steps.gui_validate.outcome == 'success' && steps.report.outcome == 'success' && 'PDF-cross-platform-validated' || 'PDF-cross-platform-unvalidated' }}
+          path: ${{ runner.temp }}/PDF-cross-evidence
           if-no-files-found: ignore
           retention-days: 7

@@ -207,7 +207,7 @@ def _json(data):
     return json.loads(data, object_pairs_hook=pairs)
 
 
-def _verify_source_and_installer(source_directory, binary_directory, commit, distribution_manifest) -> dict:
+def _verify_source_and_installer(source_directory, binary_directory, commit, distribution_manifest, required_source_files=()) -> dict:
     """Inspect/hash the source TAR in memory streams; never extract or execute it."""
     require(isinstance(commit, str) and re.fullmatch('[0-9a-f]{40}', commit) is not None,
             'An exact source commit is required.')
@@ -217,7 +217,7 @@ def _verify_source_and_installer(source_directory, binary_directory, commit, dis
     require(match is not None, 'Source archive checksum sidecar is invalid.')
     archive_hash = match.group(1).decode('ascii')
     stream, before = _open_regular(source_directory / 'PDF-source.tar.gz', MAX_SOURCE)
-    hashes = {}; normalized = set(); captured = {}; count = 0; member_end = 0
+    hashes = {}; sizes = {}; normalized = set(); captured = {}; count = 0; member_end = 0
     with stream:
         digest = hashlib.sha256()
         for block in iter(lambda: stream.read(CHUNK), b''):
@@ -247,6 +247,7 @@ def _verify_source_and_installer(source_directory, binary_directory, commit, dis
                             if keep: pieces.append(block)
                     require(length == item.size, 'Source TAR member is truncated.')
                     hashes[name] = content_hash.hexdigest()
+                    if name in required_source_files: sizes[name] = length
                     if keep: captured[name] = b''.join(pieces)
                     member_end = item.offset_data + ((item.size + 511) // 512) * 512
         # TarFile may prefetch past its first zero header, and may silently stop
@@ -298,15 +299,17 @@ def _verify_source_and_installer(source_directory, binary_directory, commit, dis
     installer_hash = hashlib.sha256(installer).hexdigest()
     require(installer == captured['scripts/install-binary.sh'] and len(installer) == entry['size']
             and installer_hash == entry['sha256'], 'External installer differs from authenticated source or binary manifest.')
-    return {'sourceArchiveSHA256': archive_hash, 'sourceArchiveBytes': before.st_size,
+    require(set(sizes) == set(required_source_files), 'Source archive lacks required GUI validation scripts.')
+    return {'additionalSourceFiles': {name: {'bytes': sizes[name], 'sha256': hashes[name]} for name in sizes},
+            'sourceArchiveSHA256': archive_hash, 'sourceArchiveBytes': before.st_size,
             'installerSHA256': installer_hash, 'installerBytes': len(installer),
             'sourceCommit': commit, 'sourceFileCount': count,
             'sourceUncompressedBytes': expanded, 'sourceManifestVerified': True, 'sourceWorkingTreeDirty': False}
 
 
-def verify_source_and_installer(source_directory, binary_directory, commit, distribution_manifest) -> dict:
+def verify_source_and_installer(source_directory, binary_directory, commit, distribution_manifest, *, required_source_files=()) -> dict:
     """Validate source/installer with controlled diagnostics for malformed archives."""
     try:
-        return _verify_source_and_installer(source_directory, binary_directory, commit, distribution_manifest)
+        return _verify_source_and_installer(source_directory, binary_directory, commit, distribution_manifest, required_source_files)
     except (tarfile.TarError, gzip.BadGzipFile, EOFError, zlib.error, UnicodeError, json.JSONDecodeError, RecursionError):
         raise ArchiveFailure('Source TAR, gzip stream or build metadata is invalid.') from None

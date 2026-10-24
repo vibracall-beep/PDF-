@@ -249,9 +249,18 @@ struct OutputCustomizationControls:View {
     @AppStorage("recoveryEnabled") private var recoveryEnabled = true
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
-            TextField("Modelo do nome dos resultados",text:$template).textFieldStyle(.roundedBorder)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Modelo do nome dos resultados").font(.callout)
+                TextField("Ex.: {original} · {ferramenta}", text: $template).textFieldStyle(.roundedBorder)
+                    .accessibilityLabel("Modelo do nome dos resultados")
+                    .accessibilityIdentifier("pdf.output.filenameTemplate")
+            }
             Text("Use {original}, {ferramenta}, {data} e {hora} para formar o nome automaticamente. Deixe vazio para usar o nome alternativo.").font(.caption).foregroundStyle(.secondary)
-            TextField("Nome alternativo",text:$outputPrefix).textFieldStyle(.roundedBorder)
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Nome alternativo").font(.callout)
+                TextField("Nome alternativo", text: $outputPrefix).textFieldStyle(.roundedBorder)
+                    .accessibilityIdentifier("pdf.output.filenamePrefix")
+            }
             HStack {
                 Text(outputDirectory.isEmpty ? "Usar a última pasta do seletor" : outputDirectory).font(.caption).lineLimit(3)
                 Spacer(); Button("Escolher pasta…") { let panel = NSOpenPanel(); panel.canChooseDirectories = true; panel.canChooseFiles = false; if panel.runModal() == .OK { outputDirectory = panel.url?.path ?? "" } }

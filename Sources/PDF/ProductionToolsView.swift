@@ -77,9 +77,11 @@ struct ProductionToolsView: View {
                                 }
                             }
                         }
-                        SecureField("Senha dos arquivos protegidos, se houver", text: $password)
+                        LabeledContent("Senha, se houver") { SecureField("Senha dos arquivos protegidos", text: $password).labelsHidden() }
                         if mode == .dossier { Text("Nesta tela, os PDFs protegidos precisam usar a mesma senha. O conjunto preserva a interseção das permissões e inclui índice com links e marcadores.").font(.caption).foregroundStyle(.secondary) }
-                        else if !mode.report && mode != .pdfx && mode != .conversion { TextField("Páginas: todas ou, por exemplo, 1,3-5", text: $pages) }
+                        else if !mode.report && mode != .pdfx && mode != .conversion {
+                            LabeledContent("Páginas") { TextField("Todas ou, por exemplo, 1,3-5", text: $pages).labelsHidden() }
+                        }
                     }.padding(10)
                 }
                 .disabled(model.busy)
@@ -108,19 +110,19 @@ struct ProductionToolsView: View {
             VStack(alignment: .leading, spacing: 12) {
                 switch mode {
                 case .preflight:
-                    TextField("Resolução mínima de imagens, em DPI", value: $minimumDPI, format: .number)
+                    LabeledContent("Resolução mínima de imagens, em DPI") { TextField("Resolução mínima de imagens, em DPI", value: $minimumDPI, format: .number).labelsHidden() }
                     Text("Verifica fontes incorporadas, resolução efetiva das imagens e caixas da página. O relatório não certifica PDF/X nem a fidelidade das cores.").font(.callout)
                 case .prepare:
-                    TextField("Margem de corte em pontos", value: $inset, format: .number)
-                    TextField("Sangria em pontos", value: $bleed, format: .number)
+                    LabeledContent("Margem de corte em pontos") { TextField("Margem de corte em pontos", value: $inset, format: .number).labelsHidden() }
+                    LabeledContent("Sangria em pontos") { TextField("Sangria em pontos", value: $bleed, format: .number).labelsHidden() }
                     Text("Define corte, sangria e marcas dentro da folha existente. O conteúdo não é reposicionado; confira se textos e imagens respeitam a área final. 72 pontos equivalem a uma polegada.").font(.callout)
                 case .pdfx:
                     Button(profile?.lastPathComponent ?? "Escolher perfil ICC CMYK da gráfica…") { chooseProfile() }
-                    TextField("Condição de impressão (ASCII)", text: $condition)
+                    LabeledContent("Condição de impressão (ASCII)") { TextField("Condição de impressão (ASCII)", text: $condition).labelsHidden() }
                     Text("Gera uma cópia PDF/X-3:2002 com Ghostscript e o perfil escolhido. Cores e transparências podem ser convertidas. Confirme o resultado com a gráfica; este conversor não substitui uma certificação independente.").font(.callout)
                 case .bates:
-                    TextField("Prefixo", text: $prefix)
-                    TextField("Número inicial", value: $start, format: .number)
+                    LabeledContent("Prefixo") { TextField("Prefixo", text: $prefix).labelsHidden() }
+                    LabeledContent("Número inicial") { TextField("Número inicial", value: $start, format: .number).labelsHidden() }
                     Stepper("Dígitos: \(digits)", value: $digits, in: 1...16)
                     Text("Identificadores consecutivos no rodapé direito das páginas selecionadas.").font(.caption)
                 case .dossier:
@@ -128,18 +130,18 @@ struct ProductionToolsView: View {
                 case .conversion:
                     Text("Escolha primeiro o PDF original e depois o arquivo DOCX, XLSX, PPTX, ODT ou RTF convertido. O resultado inclui comparação visual HTML, PDF reexportado e relatório de texto, imagens, páginas e objetos editáveis. Diferenças são indicadores para revisão, sem promessa de equivalência perfeita.")
                 case .stamp:
-                    TextField("Texto do carimbo", text: $stamp)
+                    LabeledContent("Texto do carimbo") { TextField("Texto do carimbo", text: $stamp).labelsHidden() }
                     Text("O carimbo será inserido na região superior esquerda. Use o editor para posicionamentos e estilos adicionais.").font(.caption)
                 case .measure:
-                    TextField("Página", value: $page, format: .number)
-                    TextField("Escala: 1 para…", value: $scale, format: .number)
+                    LabeledContent("Página") { TextField("Página", value: $page, format: .number).labelsHidden() }
+                    LabeledContent("Escala: 1 para…") { TextField("Escala: 1 para…", value: $scale, format: .number).labelsHidden() }
                     Picker("Unidade", selection: $unit) { Text("Milímetros").tag("mm"); Text("Centímetros").tag("cm"); Text("Metros").tag("m") }
                     Toggle("Fechar polígono e calcular área", isOn: $closed)
                     Text("Coordenadas em pontos, a partir do canto superior esquerdo da página sem rotação. Confira a escala usando uma distância conhecida.").font(.caption)
                     ForEach($points) { $point in
                         HStack {
-                            TextField("X", value: $point.x, format: .number)
-                            TextField("Y", value: $point.y, format: .number)
+                            LabeledContent("X") { TextField("X", value: $point.x, format: .number).labelsHidden() }
+                            LabeledContent("Y") { TextField("Y", value: $point.y, format: .number).labelsHidden() }
                             Button("Remover") { points.removeAll { $0.id == point.id } }.disabled(points.count <= 2)
                         }
                     }

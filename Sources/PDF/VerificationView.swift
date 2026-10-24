@@ -135,12 +135,24 @@ struct VerificationView: View {
                 Spacer()
                 Button("Escolher certificado…") { selectCertificate() }
             }
-            SecureField("PIN ou senha do certificado", text: $certificatePIN).textFieldStyle(.roundedBorder)
+            LabeledContent("PIN ou senha do certificado") {
+                SecureField("PIN ou senha", text: $certificatePIN).textFieldStyle(.roundedBorder)
+                    .accessibilityLabel("PIN ou senha do certificado")
+            }
             Text("O PIN segue somente pela entrada privada do processo e não é salvo em configurações ou histórico. A chave privada permanece no certificado local e na memória durante a assinatura.")
                 .font(.caption).foregroundStyle(.secondary)
-            TextField("Motivo da assinatura (opcional)", text: $reason).textFieldStyle(.roundedBorder)
-            TextField("Local (opcional)", text: $location).textFieldStyle(.roundedBorder)
-            TextField("Nome único do campo", text: $fieldName).textFieldStyle(.roundedBorder)
+            LabeledContent("Motivo da assinatura") {
+                TextField("Opcional", text: $reason).textFieldStyle(.roundedBorder)
+                    .accessibilityLabel("Motivo da assinatura, opcional")
+            }
+            LabeledContent("Local") {
+                TextField("Opcional", text: $location).textFieldStyle(.roundedBorder)
+                    .accessibilityLabel("Local da assinatura, opcional")
+            }
+            LabeledContent("Nome único do campo") {
+                TextField("Nome do campo", text: $fieldName).textFieldStyle(.roundedBorder)
+                    .accessibilityLabel("Nome único do campo de assinatura")
+            }
             Picker("Perfil PAdES", selection: $signatureProfile) {
                 Text("B-B · assinatura").tag("B-B")
                 Text("B-T · carimbo do tempo").tag("B-T")
@@ -148,7 +160,10 @@ struct VerificationView: View {
                 Text("B-LTA · preservação com carimbo documental").tag("B-LTA")
             }
             if signatureProfile != "B-B" {
-                TextField("https://servidor-da-sua-tsa", text: $timestampURL).textFieldStyle(.roundedBorder)
+                LabeledContent("URL do carimbo do tempo (TSA)") {
+                    TextField("https://servidor-da-sua-tsa", text: $timestampURL).textFieldStyle(.roundedBorder)
+                        .accessibilityLabel("URL do servidor de carimbo do tempo TSA")
+                }
                 Text("Somente o resumo criptográfico RFC 3161 será enviado ao endereço informado. A TSA pode exigir contratação; redirecionamentos e credenciais na URL são recusados. Nenhum documento ou PIN é enviado.")
                     .font(.caption).foregroundStyle(.secondary)
             }
@@ -190,6 +205,7 @@ struct VerificationView: View {
             if allowRevocationNetwork {
                 Text("Uma linha por endpoint: crl https://… ou ocsp https://…").font(.caption)
                 TextEditor(text: $endpoints).font(.body.monospaced()).frame(height: 80).border(.quaternary)
+                    .accessibilityLabel("Endpoints HTTPS autorizados, uma linha por CRL ou OCSP")
                 Text("OCSP transmite identificadores do certificado; CRL baixa listas de revogação. URLs presentes no certificado não são consultadas sem sua seleção explícita. Não há redirecionamentos automáticos.").font(.caption).foregroundStyle(.secondary)
             }
         }

@@ -5,6 +5,7 @@ import json
 import os
 from pathlib import Path
 import plistlib
+import re
 import signal
 import subprocess
 import sys
@@ -17,6 +18,39 @@ import binary_update as updater
 from package_binary import write_manifest
 
 SCRIPTS = Path(__file__).resolve().parent
+
+
+def detach_fixture_image(image, device):
+    """Retry transient busy only for our exact synthetic image; never force."""
+    if re.fullmatch(r'/dev/disk[0-9]+', device) is None:
+        raise ValueError('Invalid fixture device identity.')
+    for attempt in range(4):
+        inspection = subprocess.run(['/usr/bin/hdiutil', 'info', '-plist'],
+                                    check=True, capture_output=True, timeout=15)
+        images = plistlib.loads(inspection.stdout).get('images', [])
+        owned = [item for item in images
+                 if Path(item.get('image-path', '')).resolve() == image.resolve()]
+        if not owned:
+            return  # The synthetic image is already detached; touch no device.
+        if len(owned) != 1 or device not in {item.get('dev-entry') for item in owned[0].get('system-entities', [])}:
+            raise RuntimeError('Fixture image device changed; unrelated devices were preserved.')
+        result = subprocess.run(['/usr/bin/hdiutil', 'detach', device],
+                                capture_output=True, timeout=15)
+        if result.returncode == 0:
+            return
+        if result.returncode != errno.EBUSY or attempt == 3:
+            diagnostic = result.stderr.decode('utf-8', errors='replace')[:2048].strip()
+            raise RuntimeError(f'Fixture detach failed with status {result.returncode}: {diagnostic}')
+        time.sleep(2 ** attempt)
+
+
+def cleanup_fixture_image(image, device, primary_error=None):
+    try:
+        detach_fixture_image(image, device)
+    except Exception as cleanup_error:
+        if primary_error is None:
+            raise
+        primary_error.add_note('Synthetic HFS cleanup also failed: ' + str(cleanup_error))
 
 
 def fixture_app(path, version):
@@ -195,17 +229,67 @@ class BinaryUpdateTests(unittest.TestCase):
         backup = next(self.parent.glob('PDF.previous.*.app'))
         self.assertEqual((backup / 'Contents/MacOS/PDF').read_text(), 'old')
 
+    def test_fixture_cleanup_retries_busy_only_on_the_owned_image(self):
+        image = self.root / 'fixture.dmg'; image.touch()
+        device = '/dev/disk912'
+        info = plistlib.dumps({'images': [{'image-path': str(image),
+                            'system-entities': [{'dev-entry': device}]}]})
+        attempts = []
+        def run(command, **kwargs):
+            if command[1] == 'info':
+                return subprocess.CompletedProcess(command, 0, info, b'')
+            attempts.append(command)
+            return subprocess.CompletedProcess(command, errno.EBUSY if len(attempts) == 1 else 0,
+                                                b'', b'hdiutil: resource busy')
+        with patch.object(subprocess, 'run', run), patch.object(time, 'sleep') as delay:
+            detach_fixture_image(image, device)
+        self.assertEqual(attempts, [['/usr/bin/hdiutil', 'detach', device]] * 2)
+        delay.assert_called_once_with(1)
+        with patch.object(subprocess, 'run', return_value=subprocess.CompletedProcess([], 0, info, b'')) as runner:
+            with self.assertRaisesRegex(RuntimeError, 'device changed'):
+                detach_fixture_image(image, '/dev/disk913')
+            self.assertEqual(runner.call_count, 1)  # No unrelated detach is issued.
+
+    def test_fixture_cleanup_preserves_failures_and_never_ignores_persistent_busy(self):
+        image = self.root / 'fixture.dmg'; image.touch()
+        device = '/dev/disk912'
+        info = plistlib.dumps({'images': [{'image-path': str(image),
+                            'system-entities': [{'dev-entry': device}]}]})
+        attempts = []
+        def run(command, **kwargs):
+            if command[1] == 'info':
+                return subprocess.CompletedProcess(command, 0, info, b'')
+            attempts.append(command)
+            return subprocess.CompletedProcess(command, errno.EBUSY, b'', b'fixture remains busy')
+        with patch.object(subprocess, 'run', run), patch.object(time, 'sleep'):
+            with self.assertRaisesRegex(RuntimeError, 'status 16: fixture remains busy'):
+                cleanup_fixture_image(image, device)
+        self.assertEqual(len(attempts), 4)
+        primary = AssertionError('original update recovery assertion')
+        with patch(__name__ + '.detach_fixture_image', side_effect=RuntimeError('cleanup failed')):
+            cleanup_fixture_image(image, device, primary)
+        self.assertEqual(str(primary), 'original update recovery assertion')
+        self.assertIn('cleanup failed', primary.__notes__[0])
+
     @unittest.skipUnless(sys.platform == 'darwin', 'real bounded macOS disk image full-disk test')
     def test_real_full_disk_during_update_can_recover_after_space_is_freed(self):
         image = self.root / 'bounded-full-disk.dmg'
         mount = self.root / 'volume'; mount.mkdir()
         subprocess.run(['/usr/bin/hdiutil', 'create', '-size', '32m', '-fs', 'HFS+', '-volname', 'PDFFaultFixture', str(image)],
                        check=True, capture_output=True, timeout=60)
-        attached = False
+        device = None
         try:
-            subprocess.run(['/usr/bin/hdiutil', 'attach', '-nobrowse', '-mountpoint', str(mount), str(image)],
-                           check=True, capture_output=True, timeout=60)
-            attached = True
+            attachment = subprocess.run(['/usr/bin/hdiutil', 'attach', '-plist', '-nobrowse',
+                                         '-mountpoint', str(mount), str(image)],
+                                        check=True, capture_output=True, timeout=60)
+            entities = plistlib.loads(attachment.stdout)['system-entities']
+            devices = [item['dev-entry'] for item in entities
+                       if re.fullmatch(r'/dev/disk[0-9]+', item.get('dev-entry', ''))]
+            self.assertEqual(len(devices), 1, 'fixture must identify its exact attached disk')
+            device = devices[0]
+            self.assertTrue(any(Path(item.get('mount-point', '')).resolve() == mount.resolve()
+                                for item in entities), 'fixture mount must belong to the attached image')
+            (mount / '.metadata_never_index').touch()
             volume = os.statvfs(mount)
             self.assertLess(volume.f_blocks * volume.f_frsize, 64 * 1024 ** 2)
             parent = mount / 'Applications'; parent.mkdir(); fixture_app(parent / 'PDF.app', 'old')
@@ -227,8 +311,8 @@ class BinaryUpdateTests(unittest.TestCase):
                 updater.recover(parent)
             self.assertEqual((parent / 'PDF.app/Contents/MacOS/PDF').read_text(), 'old')
         finally:
-            if attached:
-                subprocess.run(['/usr/bin/hdiutil', 'detach', str(mount)], check=True, capture_output=True, timeout=60)
+            if device is not None:
+                cleanup_fixture_image(image, device, sys.exc_info()[1])
 
 
 if __name__ == '__main__':

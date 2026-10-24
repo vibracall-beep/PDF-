@@ -155,11 +155,12 @@ struct AdvancedContentEditorView: View {
                     if item.isText {
                         TextEditor(text: draft.text).font(.body).frame(minHeight: 100).border(.quaternary)
                             .accessibilityLabel("Texto substituto do objeto")
-                        HStack {
-                            TextField("Fonte (pt)", value: draft.fontSize, format: .number).frame(width: 100)
-                            Picker("Alinhamento", selection: draft.alignment) {
-                                Text("Esquerda").tag("left"); Text("Centro").tag("center"); Text("Direita").tag("right"); Text("Justificado").tag("justify")
-                            }
+                        LabeledContent("Tamanho da fonte (pt)") {
+                            TextField("Pontos", value: draft.fontSize, format: .number).frame(width: 100)
+                                .accessibilityLabel("Tamanho da fonte em pontos")
+                        }
+                        Picker("Alinhamento", selection: draft.alignment) {
+                            Text("Esquerda").tag("left"); Text("Centro").tag("center"); Text("Direita").tag("right"); Text("Justificado").tag("justify")
                         }
                         if item.kind == "paragraph" {
                             HStack {

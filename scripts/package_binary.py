@@ -15,6 +15,7 @@ import plistlib
 import re
 import shlex
 import shutil
+import ssl
 import stat
 import subprocess
 import sys
@@ -42,7 +43,7 @@ def copy_tree(source, destination):
 
 
 def remap_absolute(value, maps):
-    value = Path(value)
+    value = Path(os.path.normpath(value))
     for original, replacement in sorted(maps.items(), key=lambda item: len(str(item[0])), reverse=True):
         if value == original or value.is_relative_to(original):
             return replacement / value.relative_to(original)
@@ -51,6 +52,29 @@ def remap_absolute(value, maps):
     if resolved != value:
         return remap_absolute(resolved, maps)
     raise ValueError('Dependência externa não empacotada: ' + str(value))
+
+
+def register_public_ca(runtime, maps, homebrew_prefix=Path('/opt/homebrew')):
+    # Homebrew's global cert.pem merges certificates from the build machine's
+    # system keychain. Do not redistribute that local trust policy. The formula
+    # also ships the public Mozilla store in its keg; use only that known file.
+    public = runtime / 'vendor/ca-certificates/share/ca-certificates/cacert.pem'
+    descriptor = os.open(public, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+    with os.fdopen(descriptor, 'rb') as stream:
+        before = os.fstat(stream.fileno())
+        if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 2 * 1024 ** 2:
+            raise ValueError('A trust store pública deve ser um PEM regular de tamanho limitado.')
+        data = stream.read(2 * 1024 ** 2 + 1)
+        after = os.fstat(stream.fileno())
+        if len(data) != before.st_size or before.st_mtime_ns != after.st_mtime_ns:
+            raise ValueError('A trust store pública mudou durante a leitura.')
+    if b'PRIVATE KEY' in data:
+        raise ValueError('Material privado recusado na trust store pública.')
+    trust = ssl.SSLContext(ssl.PROTOCOL_TLS_CLIENT)
+    trust.load_verify_locations(cadata=data.decode('ascii'))
+    if trust.cert_store_stats()['x509'] == 0:
+        raise ValueError('A trust store pública não contém certificados válidos.')
+    maps[homebrew_prefix / 'etc/ca-certificates/cert.pem'] = public
 
 
 def relocate_links(original, copied, maps):
@@ -69,11 +93,15 @@ def relocate_links(original, copied, maps):
                 if name in dirs:
                     dirs.remove(name)
                 continue
-            target = old.resolve(strict=True)
+            # Map the lexical link target before resolving host-global files.
+            # This preserves the exact CA exception above even when the host's
+            # merged trust store itself is a symlink to a custom local file.
+            link = Path(os.readlink(old))
+            target = link if link.is_absolute() else old.parent / link
             mapped = remap_absolute(target, maps)
             relative = os.path.relpath(mapped, path.parent)
             path.unlink()
-            path.symlink_to(relative, target_is_directory=target.is_dir())
+            path.symlink_to(relative, target_is_directory=mapped.is_dir())
             if name in dirs:
                 dirs.remove(name)
 
@@ -145,7 +173,7 @@ def build(installed, output, commit):
     runtime = resources / 'runtime'
     shutil.rmtree(runtime)
     (runtime / 'vendor').mkdir(parents=True)
-    roots = ['python@3.12', 'qpdf', 'tesseract', 'tesseract-lang', 'ghostscript', 'openjdk@21', 'ocrmypdf']
+    roots = ['python@3.12', 'qpdf', 'tesseract', 'tesseract-lang', 'ghostscript', 'openjdk@21', 'ocrmypdf', 'ca-certificates']
     formulas = sorted(set(roots + command('brew', 'deps', '--formula', '--installed', '--union', *roots).splitlines()))
     maps = {}
     copies = []
@@ -157,6 +185,7 @@ def build(installed, output, commit):
         copies.append((source, target))
     for source, target in copies:
         copy_tree(source, target)
+    register_public_ca(runtime, maps)
     # All dependencies are known before remapping cross-formula symlinks.
     for source, target in copies:
         relocate_links(source, target, maps)

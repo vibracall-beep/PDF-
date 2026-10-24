@@ -83,8 +83,16 @@ struct SignatureRequestView: View {
                     Label(source?.lastPathComponent ?? "Escolha um PDF salvo", systemImage: "doc.richtext")
                     Spacer(); Button("Escolher PDF…") { choose() }
                 }
-                TextField("Título no serviço", text: $title).textFieldStyle(.roundedBorder)
-                TextField("Assunto do email", text: $subject).textFieldStyle(.roundedBorder)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Título no serviço").font(.caption).foregroundStyle(.secondary)
+                    TextField("Título no serviço", text: $title).textFieldStyle(.roundedBorder)
+                        .accessibilityLabel("Título no serviço")
+                }
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("Assunto do email").font(.caption).foregroundStyle(.secondary)
+                    TextField("Assunto do email", text: $subject).textFieldStyle(.roundedBorder)
+                        .accessibilityLabel("Assunto do email")
+                }
                 TextField("Mensagem aos destinatários", text: $message, axis: .vertical).lineLimit(2...5).textFieldStyle(.roundedBorder)
                 Toggle("Modo de teste do provedor", isOn: $testMode)
                 Text("O modo de teste não produz assinatura juridicamente vinculante segundo o provedor, mas ainda pode enviar emails reais aos destinatários.").font(.caption).foregroundStyle(.secondary)

@@ -12,7 +12,7 @@ from package_binary import register_public_ca, relocate_links
 class BinaryCertificateRelocationTests(unittest.TestCase):
     def setUp(self):
         self.temporary = tempfile.TemporaryDirectory(prefix='pdf-binary-ca-')
-        self.root = Path(self.temporary.name)
+        self.root = Path(self.temporary.name).resolve()
         self.addCleanup(self.temporary.cleanup)
         self.prefix = self.root / 'host-prefix'
         self.original = self.prefix / 'Cellar/openssl/fixture'; self.original.mkdir(parents=True)
@@ -39,6 +39,7 @@ class BinaryCertificateRelocationTests(unittest.TestCase):
         link = self.copied / 'cert.pem'
         self.assertFalse(os.path.isabs(os.readlink(link)))
         self.assertEqual(link.resolve(), self.public)
+        self.assertTrue(link.samefile(self.public))
         self.assertEqual(link.read_bytes(), self.public_bytes)
         self.assertEqual(self.local_policy.read_bytes(), b'PRIVATE HOST POLICY MUST NOT BE COPIED')
         self.assertFalse(any(path.name == self.local_policy.name for path in self.runtime.rglob('*')))

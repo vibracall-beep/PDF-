@@ -1,0 +1,33 @@
+{
+  "commit": "fcac3db3448762185f6c09f106dd995d252f54db",
+  "run": 40101147782,
+  "scope": "SDK extraction and metadata validation; no Shortcuts interaction approval",
+  "runners": {
+    "macos-26": {
+      "files": {
+        "extract.actionsdata": {
+          "bytes": 5645,
+          "sha256": "19bf0fdc850d4a659ed656c23250fa9119d5c788e1237b4c139f613c9b906f21"
+        },
+        "version.json": {
+          "bytes": 52,
+          "sha256": "6c610c2d346f595bd7c5a8513a62e02f76557fa5d8b046a63ef82ac801f34f93"
+        }
+      },
+      "result": "passed"
+    },
+    "xcode-27": {
+      "files": {
+        "extract.actionsdata": {
+          "bytes": 5714,
+          "sha256": "637cac7305bdc111618e19a232887f0defa29f57697c9e5befde8746b3f84f45"
+        },
+        "version.json": {
+          "bytes": 53,
+          "sha256": "9734d5bb42c949505a719cbca76baa9736fb9678e638b43ff527c200d3d9dea1"
+        }
+      },
+      "result": "passed"
+    }
+  }
+}

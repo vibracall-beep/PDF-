@@ -317,6 +317,8 @@ struct DocumentLibraryView: View {
                 Text(result.response).font(.callout)
                 Text(result.method).font(.caption).foregroundStyle(.secondary)
                 if !result.sources.isEmpty {
+                    let comparisonExcerpts = (try? LibraryAnswering.comparisonExcerpts(result)) ?? []
+                    let comparisonDocumentCount = Set(comparisonExcerpts.map { $0.source.documentID }).count
                     Button("Responder em português com IA local") {
                         library.answer = nil; library.comparison = nil
                         library.run("Elaborando resposta com as fontes desta consulta…") { _ in
@@ -330,8 +332,20 @@ struct DocumentLibraryView: View {
                             library.comparison = try await LibraryAnswering.compare(result)
                             return "Comparação concluída. Citações verificadas; revise contexto, datas e versões nas duas fontes."
                         }
-                    }.disabled(unavailable || LibraryAnswering.availabilityMessage != nil || result.question.count > 800 || Set(result.sources.map(\.documentID)).count < 2)
-                    if Set(result.sources.map(\.documentID)).count < 2 { Text("Para comparar possíveis divergências, consulte trechos de pelo menos dois documentos distintos.").font(.caption).foregroundStyle(.secondary) }
+                    }.disabled(unavailable || LibraryAnswering.availabilityMessage != nil || comparisonDocumentCount < 2)
+                    if comparisonDocumentCount < 2 {
+                        Text("A comparação precisa de trechos de pelo menos dois documentos distintos dentro do contexto da pergunta.").font(.caption).foregroundStyle(.secondary)
+                    } else {
+                        DisclosureGroup("Fontes da comparação: \(comparisonDocumentCount) documentos") {
+                            Text("Um trecho por documento recebe prioridade antes dos trechos adicionais. Estes são os textos que cabem no contexto enviado à IA.").font(.caption).foregroundStyle(.secondary)
+                            ForEach(comparisonExcerpts) { excerpt in
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Button(excerpt.source.title + " · página \(excerpt.source.page)") { openCitation(excerpt.source) }
+                                    Text(excerpt.quote).font(.caption).textSelection(.enabled)
+                                }.padding(.vertical, 4)
+                            }
+                        }
+                    }
                     if result.question.count > 800 { Text("Para a resposta com IA, use uma pergunta de até 800 caracteres.").font(.caption).foregroundStyle(.secondary) }
                     if let reason = LibraryAnswering.availabilityMessage { Text(reason).font(.caption).foregroundStyle(.secondary) }
                 }

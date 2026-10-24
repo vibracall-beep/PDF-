@@ -4,6 +4,7 @@ import json
 import os
 from pathlib import Path
 import shutil
+import ssl
 import subprocess
 import sys
 import tempfile
@@ -14,15 +15,45 @@ def main():
     runtime = app / 'Contents/Resources/runtime'
     if not sys.prefix.startswith(str(runtime) + os.sep):
         raise RuntimeError('Python escaped the bundled runtime: ' + sys.prefix)
+    helpers = Path(__file__).resolve().parent
+    allowed_import_roots = (runtime, helpers, app / 'Contents/Resources/engine')
+    for entry in sys.path:
+        # A non-existent stdlib zip path is normal, but it must still resolve
+        # under this bundle. Empty entries would enable imports from cwd.
+        if not entry or not any(Path(entry).resolve().is_relative_to(root) for root in allowed_import_roots):
+            raise RuntimeError('Python retained an external import path: ' + str(entry))
+    for location in (sys.base_prefix, sys.exec_prefix, sys.base_exec_prefix, sys.executable):
+        if not Path(location).resolve().is_relative_to(runtime):
+            raise RuntimeError('Python retained an external runtime location: ' + str(location))
+    trust_paths = ssl.get_default_verify_paths()
+    for location in (trust_paths.cafile, trust_paths.capath):
+        if not location or not Path(location).resolve().is_relative_to(runtime):
+            raise RuntimeError('Python TLS trust escaped the bundled runtime.')
+    if ssl.create_default_context().cert_store_stats()['x509'] == 0:
+        raise RuntimeError('Bundled TLS trust store contains no valid certificates.')
     # -I intentionally omits the script directory; permit only this signed
     # distribution helper directory, without restoring cwd or host packages.
-    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    sys.path.insert(0, str(helpers))
     from app_intents_metadata import verify
     verify(app / 'Contents/Resources')
-    for name in ('qpdf', 'gs', 'ocrmypdf', 'tesseract', 'soffice', 'java'):
+    for name in ('qpdf', 'gs', 'ocrmypdf', 'tesseract', 'soffice', 'java', 'fc-match', 'fc-conflist'):
         executable = shutil.which(name)
         if not executable or not Path(executable).is_relative_to(runtime):
             raise RuntimeError('External or missing executable: ' + name)
+    fontconfig = runtime / 'share/fontconfig'
+    if (os.environ.get('FONTCONFIG_FILE') != str(fontconfig / 'fonts.conf')
+            or os.environ.get('FONTCONFIG_PATH') != str(fontconfig)):
+        raise RuntimeError('Fontconfig did not use its private configuration.')
+    configurations = subprocess.check_output(['fc-conflist'], text=True, timeout=60)
+    allowed_configurations = [fontconfig / 'fonts.conf', *(fontconfig / 'conf.d').glob('*.conf')]
+    active = [line for line in configurations.splitlines() if line.startswith('+ ')]
+    if not active or any(not any(line.startswith('+ ' + str(path) + ':')
+                                for path in allowed_configurations) for line in active):
+        raise RuntimeError('Fontconfig loaded an external configuration.')
+    matched_font = subprocess.check_output(['fc-match', '--format=%{file}', 'sans-serif'],
+                                           text=True, timeout=60).strip()
+    if not matched_font or not Path(matched_font).is_file():
+        raise RuntimeError('Private fontconfig could not find an installed font.')
     import fitz
     from PIL import Image, ImageDraw, ImageFont
     from docx import Document
@@ -79,7 +110,7 @@ def main():
                         '-l', 'eng', str(root / 'scan.pdf'), str(root / 'ocr.pdf')], check=True, capture_output=True, timeout=180)
         with fitz.open(root / 'ocr.pdf') as pdf:
             assert 'verification' in pdf[0].get_text().lower()
-    print('Portable runtime: Python, Office, browser, Ghostscript, qpdf, OCR and standards passed.', flush=True)
+    print('Portable runtime: Python/TLS paths, private fontconfig, Office, browser, Ghostscript, qpdf, OCR and standards passed.', flush=True)
 
 
 if __name__ == '__main__':

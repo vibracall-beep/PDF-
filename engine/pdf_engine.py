@@ -1322,7 +1322,8 @@ def _excel(doc,pages,output,options=None):
             for row in rows:
                 values=[spreadsheet_text(value) for value in row]
                 for column,value in enumerate(values,1):
-                    sheet.cell(cursor,column,"'"+value if value.startswith(('=','+','-','@')) else value)
+                    cell=sheet.cell(cursor,column,value)
+                    cell.data_type='s'  # Preserve literal text without creating formulas or adding visible punctuation.
                 cursor+=1
             if is_table:
                 for merge in group.get('merges',[]):

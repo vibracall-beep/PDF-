@@ -1,0 +1,1239 @@
+::notice title=PDF native validation::Starting: Workflow presets and credentials
+Native check starting: Workflow presets and credentials
+Native check passed: Workflow presets and credentials
+::notice title=PDF native validation::Starting: Pages isolated copy
+Native check starting: Pages isolated copy
+Native check passed: Pages isolated copy
+::notice title=PDF native validation::Starting: Capture import and orientation
+Native check starting: Capture import and orientation
+CTLD took 5.6982e-05 seconds
+CTLD took 1.00136e-05 seconds
+CTLD took 6.10352e-05 seconds
+CTLD took 1.70469e-05 seconds
+Native check passed: Capture import and orientation
+::notice title=PDF native validation::Starting: Typed-string repair graph and Unicode parser
+Native check starting: Typed-string repair graph and Unicode parser
+Native check passed: Typed-string repair graph and Unicode parser
+::notice title=PDF native validation::Starting: Native serialization editable annotation and form roundtrips
+Native check starting: Native serialization editable annotation and form roundtrips
+CTLD took 0.000974059 seconds
+PDF structure audit: raw PDFKit editable defaults unencrypted: valid; qpdf --check exit 0; diagnostic only, not the product output
+CTLD took 0.000945091 seconds
+PDF structure audit: published editable annotations and fields: begin
+PDF structure audit: published editable annotations and fields: passed; qpdf --check exit 0
+CTLD took 0.000254989 seconds
+CTLD took 0.00041306 seconds
+PDF structure audit: changed exported list selection: begin
+PDF structure audit: changed exported list selection: passed; qpdf --check exit 0
+CTLD took 0.000696063 seconds
+PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output
+CTLD took 0.000540972 seconds
+PDF structure audit: published editable annotations and fields: begin
+PDF structure audit: published editable annotations and fields: passed; qpdf --check exit 0
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000146985 seconds
+CTLD took 0.00076592 seconds
+Object key: 14 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 60 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 60 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 23 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 23 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 23 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 23 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 20 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 21 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 22 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 23 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 23 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 24 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 25 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 26 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 27 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 28 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 6 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 7 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 5 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 14 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 60 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 60 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 2 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 2 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 2 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 31 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 63 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 61 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 30 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 17 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 14 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 51 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 78 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 52 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 53 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 54 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 55 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 74 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 74 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 56 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 57 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 58 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 59 <6661aac2c28d31c7e03269968fb0f2910e4f7efe583b24b1df7c59fd09033522>
+Object key: 19 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 71 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 71 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000cPDF structure audit: changed exported list selection: begin
+PDF structure audit: changed exported list selection: passed; qpdf --check exit 0
+CTLD took 0.00049603 seconds
+CTLD took 0.000123978 seconds
+CTLD took 0.000808954 seconds
+PDF structure audit: explicit font, reset defaults and independent popup: begin
+PDF structure audit: explicit font, reset defaults and independent popup: passed; qpdf --check exit 0
+CTLD took 0.000129938 seconds
+CTLD took 0.000681043 seconds
+PDF structure audit: changed text reset default: begin
+PDF structure audit: changed text reset default: passed; qpdf --check exit 0
+CTLD took 0.000367045 seconds
+CTLD took 0.000123978 seconds
+CTLD took 0.000494003 seconds
+PDF structure audit: changed choice reset default: begin
+PDF structure audit: changed choice reset default: passed; qpdf --check exit 0
+CTLD took 0.000169039 seconds
+CTLD took 0.000121951 seconds
+CTLD took 0.000406981 seconds
+PDF structure audit: changed font family at same size: begin
+PDF structure audit: changed font family at same size: passed; qpdf --check exit 0
+CTLD took 0.000181913 seconds
+CTLD took 0.000172019 seconds
+CTLD took 0.000469089 seconds
+PDF structure audit: changed font color: begin
+PDF structure audit: changed font color: passed; qpdf --check exit 0
+CTLD took 0.000571966 seconds
+CTLD took 0.000126004 seconds
+CTLD took 0.000874043 seconds
+PDF structure audit: changed explicit border: begin
+PDF structure audit: changed explicit border: passed; qpdf --check exit 0
+CTLD took 0.000435114 seconds
+CTLD took 0.000508904 seconds
+CTLD took 0.000778079 seconds
+PDF structure audit: moved note anchor: begin
+PDF structure audit: moved note anchor: passed; qpdf --check exit 0
+CTLD took 0.000375986 seconds
+CTLD took 0.00027895 seconds
+CTLD took 0.000476956 seconds
+PDF structure audit: changed note color: begin
+PDF structure audit: changed note color: passed; qpdf --check exit 0
+CTLD took 0.000426054 seconds
+CTLD took 0.000349998 seconds
+CTLD took 0.000426054 seconds
+PDF structure audit: changed ink vertex: begin
+PDF structure audit: changed ink vertex: passed; qpdf --check exit 0
+CTLD took 0.000481009 seconds
+CTLD took 0.000126004 seconds
+CTLD took 0.000745893 seconds
+PDF structure audit: removed independent popup: begin
+PDF structure audit: removed independent popup: passed; qpdf --check exit 0
+CTLD took 0.000663042 seconds
+CTLD took 0.000120044 seconds
+CTLD took 0.000432014 seconds
+PDF structure audit: closed independent popup: begin
+PDF structure audit: closed independent popup: passed; qpdf --check exit 0
+CTLD took 0.000207067 seconds
+CTLD took 0.000133991 seconds
+CTLD took 0.000416994 seconds
+PDF structure audit: changed independent popup raw flags: begin
+PDF structure audit: changed independent popup raw flags: passed; qpdf --check exit 0
+CTLD took 0.00079906 seconds
+PDF structure audit: explicit fidelity guards: real changed defaults, font family/color, border, note anchor/color, ink vertex and independent popup rejected
+PDF structure audit: editable roundtrip: all 9 supported annotation types and text/choice/checkbox preserved, plain and encrypted
+Native check passed: Native serialization editable annotation and form roundtrips
+::notice title=PDF native validation::Starting: Unicode field identity and byte-exact fidelity
+Native check starting: Unicode field identity and byte-exact fidelity
+CTLD took 0.000207901 seconds
+CTLD took 0.00030303 seconds
+PDF structure audit: byte-exact Unicode field identities: begin
+PDF structure audit: byte-exact Unicode field identities: passed; qpdf --check exit 0
+CTLD took 0.000255942 seconds
+PDF structure audit: byte-exact Unicode field identities: begin
+PDF structure audit: byte-exact Unicode field identities: passed; qpdf --check exit 0
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000126004 seconds
+CTLD took 0.00049293 seconds
+PDF structure audit: Unicode value decomposition changed: begin
+PDF structure audit: Unicode value decomposition changed: passed; qpdf --check exit 0
+CTLD took 0.000393033 seconds
+CTLD took 0.000293016 seconds
+CTLD took 0.000321984 seconds
+PDF structure audit: Unicode reset decomposition changed: begin
+PDF structure audit: Unicode reset decomposition changed: passed; qpdf --check exit 0
+CTLD took 0.000466943 seconds
+PDF structure audit: Unicode field guard: NFC/NFD names, values and defaults preserved byte-for-byte; real decomposition changes rejected
+Native check passed: Unicode field identity and byte-exact fidelity
+::notice title=PDF native validation::Starting: Unsupported ink curve loss is refused
+Native check starting: Unsupported ink curve loss is refused
+CTLD took 0.000320077 seconds
+CTLD took 0.000230074 seconds
+CTLD took 0.000301957 seconds
+PDF structure audit: structurally valid PDFKit ink curve loss control: begin
+PDF structure audit: structurally valid PDFKit ink curve loss control: passed; qpdf --check exit 0
+CTLD took 0.00027597 seconds
+CTLD took 0.000218987 seconds
+PDF structure audit: ink curve guard: real PDFKit control-point loss rejected; pen polylines remain strictly preserved
+Native check passed: Unsupported ink curve loss is refused
+::notice title=PDF native validation::Starting: Native AES-256 and Unicode credentials
+Native check starting: Native AES-256 and Unicode credentials
+CTLD took 0.00016892 seconds
+CTLD took 0.000157952 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 9.89437e-05 seconds
+CTLD took 3.80278e-05 seconds
+CTLD took 0.000179052 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000229955 seconds
+PDF structure audit: AES-256 credential guards: cipher, distinct owner and 127-byte Unicode boundary verified
+Native check passed: Native AES-256 and Unicode credentials
+::notice title=PDF native validation::Starting: Native AES-256 and original permissions
+Native check starting: Native AES-256 and original permissions
+CTLD took 0.000295997 seconds
+CTLD took 0.00030303 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000216961 seconds
+CTLD took 0.000102043 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000145912 seconds
+CTLD took 0.00019002 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000167966 seconds
+CTLD took 0.000316024 seconds
+CTLD took 0.00018394 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000285029 seconds
+CTLD took 8.40425e-05 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000351906 seconds
+CTLD took 0.000174999 seconds
+PDF structure audit: AES-256 permission guards: user/owner access, intrinsic flags and incompatible legacy restriction verified
+Native check passed: Native AES-256 and original permissions
+::notice title=PDF native validation::Starting: Typed-string repair privacy and interruption
+Native check starting: Typed-string repair privacy and interruption
+CTLD took 0.000115037 seconds
+CTLD took 0.000138998 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+PDF structure audit: typed-string patch guards: real repair, encrypted PDFs, private bounded JSON, cancellation/timeout cleanup verified
+Native check passed: Typed-string repair privacy and interruption
+::notice title=PDF native validation::Starting: PDFKit, capture encoding, AI text helpers and protected output
+Native check starting: PDFKit, capture encoding, AI text helpers and protected output
+CTLD took 0.000200987 seconds
+::notice title=PDF native validation::Starting: Independent stream-length rejection and repair
+Native check starting: Independent stream-length rejection and repair
+PDF structure audit: stream-length control fixture: begin
+PDF structure audit: stream-length control fixture: passed; qpdf --check exit 0
+PDF structure audit: invalid stream-length control: begin
+PDF structure audit: invalid stream-length control: correctly rejected with status 3
+invalid stream length 0; should be 59.
+CTLD took 0.000299931 seconds
+CTLD took 0.000268936 seconds
+PDF structure audit: production normalization of recoverable stream length: begin
+PDF structure audit: production normalization of recoverable stream length: passed; qpdf --check exit 0
+CTLD took 0.000267982 seconds
+CTLD took 0.000118017 seconds
+Native check passed: Independent stream-length rejection and repair
+PDF structure audit: raw PDFKit unencrypted framework serialization: valid; qpdf --check exit 0; diagnostic only, not the product output
+CTLD took 0.000303984 seconds
+::notice title=PDF native validation::Starting: Published native copy structural integrity
+Native check starting: Published native copy structural integrity
+PDF structure audit: published unencrypted copy: begin
+PDF structure audit: published unencrypted copy: passed; qpdf --check exit 0
+Native check passed: Published native copy structural integrity
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+::notice title=PDF native validation::Starting: Core Image processing
+Native check starting: Core Image processing
+Native check passed: Core Image processing
+CTLD took 4.29153e-05 seconds
+CGPDFImage(0xab3107c60): Creating image with subsample_factor = 1
+
+CTLD took 2.30074e-05 seconds
+::notice title=PDF native validation::Starting: Product searchable PDF
+Native check starting: Product searchable PDF
+CGPDFImage(0xab408c1c0): Creating image with subsample_factor = 1
+
+CTLD took 0.000113964 seconds
+CTLD took 0.000272989 seconds
+CTLD took 0.000185013 seconds
+Product OCR page 1 backend: apple-vision
+Native check passed: Product searchable PDF
+::notice title=PDF native validation::Starting: Tesseract installed runtime and transport
+Native check starting: Tesseract installed runtime and transport
+Direct OCR backend: tesseract; language: pt
+Native check passed: Tesseract installed runtime and transport
+Native PDF fixture: AI PDF export begin
+CTLD took 7.49826e-05 seconds
+CTLD took 9.20296e-05 seconds
+CTLD took 4.39882e-05 seconds
+Native PDF fixture: AI PDF export and reopen end
+Native PDF fixture: capture PDF import begin
+Native PDF fixture: capture PDF import and reopen end
+Native PDF fixture: capture image import begin
+Native PDF fixture: capture image import and reopen end
+Native PDF fixture: invalid capture rejection begin
+Native PDF fixture: invalid capture rejection end
+Native PDF fixture: protected serialize begin
+CTLD took 9.90629e-05 seconds
+PDF structure audit: raw PDFKit encrypted framework serialization: valid; qpdf --check exit 0; diagnostic only, not the product output
+CTLD took 0.000455022 seconds
+Native PDF fixture: protected serialize end
+::notice title=PDF native validation::Starting: Published protected copy structural integrity
+Native check starting: Published protected copy structural integrity
+PDF structure audit: published protected copy: begin
+PDF structure audit: published protected copy: passed; qpdf --check exit 0
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+Native check passed: Published protected copy structural integrity
+Native PDF fixture: protected open begin
+Native PDF fixture: protected open end
+Native PDF fixture: protected empty-password rejection begin
+Native PDF fixture: protected empty-password rejection end
+Native PDF fixture: protected unlock begin
+Native PDF fixture: protected unlock end
+Native PDF fixture: protected content integrity begin
+CTLD took 0.000261068 seconds
+3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 28 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 28 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 28 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 5 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 5 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 5 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 19 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 71 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 71 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 24 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 25 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 26 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 27 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 28 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 28 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 28 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 29 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 30 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 31 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 32 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 33 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 7 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 5 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 5 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 5 <491b327a04eda37be1000c3b3b89adc82fdf930a5c38b19aca0dc5355966ff91>
+Object key: 6 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 16 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 16 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 8 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 9 <f89daccacd64fe2cad5fa1267b4911e6e8fca10e668287bb97a007f2939ba7b9>
+Object key: 5 <7a961b7a36d7b433f1e1c1e94e230e8093a18d782cad0b0e717bf9cff2be7342>
+Object key: 9 <7a961b7a36d7b433f1e1c1e94e230e8093a18d782cad0b0e717bf9cff2be7342>
+Object key: 9 <7a961b7a36d7b433f1e1c1e94e230e8093a18d782cad0b0e717bf9cff2be7342>
+Object key: 5 <7a961b7a36d7b433f1e1c1e94e230e8093a18d782cad0b0e717bf9cff2be7342>
+Object key: 9 <7a961b7a36d7b433f1e1c1e94e230e8093a18d782cad0b0e717bf9cff2be7342>
+Object key: 9 <7a961b7a36d7b433f1e1c1e94e230e8093a18d782cad0b0e717bf9cff2be7342>
+Object key: 5 <a297a72ccd73e77c3c7aa2962dfe0674c6e663db40b5404aabad98e170501ab6>
+Object key: 9 <a297a72ccd73e77c3c7aa2962dfe0674c6e663db40b5404aabad98e170501ab6>
+Object key: 9 <a297a72ccd73e77c3c7aa2962dfe0674c6e663db40b5404aabad98e170501ab6>
+Object key: 5 <4036cfdf9c1e142a6744867506b825bd50bd2f92cee2d84873bd77d950ee1e55>
+Object key: 9 <4036cfdf9c1e142a6744867506b825bd50bd2f92cee2d84873bd77d950ee1e55>
+Object key: 9 <4036cfdf9c1e142a6744867506b825bd50bd2f92cee2d84873bd77d950ee1e55>
+Object key: 4 <52efd380a29e16856463a96a15982c1e>
+Object key: 4 <128ff471aac2585ecf9fc2ffca3472cd87e8d5f45922e1885afc7bc928966ab8>
+Object key: 4 <52efd380a29e16856463a96a15982c1e>
+Object key: 4 <52efd380a29e16856463a96a15982c1e>
+Object key: 5 <b5f7bc706f6522beb3c2e37c1ecdbc591bcb0bf239667f3830e518d129c07f10>
+Object key: 9 <b5f7bc706f6522beb3c2e37c1ecdbc591bcb0bf239667f3830e518d129c07f10>
+Object key: 9 <b5f7bc706f6522beb3c2e37c1ecdbc591bcb0bf239667f3830e518d129c07f10>
+Object key: 4 <52efd380a29e16856463a96a15982c1e>
+Object key: 4 <52efd380a29e16856463a96a15982c1e>
+Object key: 5 <97de7c6ab947b4f70345ac943d8ff39ec46c13782bf7bd2a9033b91d0899e57c>
+Object key: 9 <97de7c6ab947b4f70345ac943d8ff39ec46c13782bf7bd2a9033b91d0899e57c>
+Object key: 9 <97de7c6ab947b4f70345ac943d8ff39ec46c13782bf7bd2a9033b91d0899e57c>
+Object key: 4 <52efd380a29e16856463a96a15982c1e>
+Object key: 6 <e11f58f1b7c633bebc45744b07114e23>
+Object key: 4 <1da62e8bf5997d44c302e100be1111dcffff121e4bd8f5af2c29f6f0449f1a9b>
+Object key: 6 <e11f58f1b7c633bebc45744b07114e23>
+Object key: 6 <e11f58f1b7c633bebc45744b07114e23>
+Object key: 5 <9fa576690abc6b551448eb38d12317d4e33661d6ba51376133ceead4c6150090>
+Object key: 9 <9fa576690abc6b551448eb38d12317d4e33661d6ba51376133ceead4c6150090>
+Object key: 9 <9fa576690abc6b551448eb38d12317d4e33661d6ba51376133ceead4c6150090>
+Object key: 6 <13b5a0616e8e81177dd4a88cc9c3ba18>
+Object key: 6 <13b5a0616e8e81177dd4a88cc9c3ba18>
+Object key: 6 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 13 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 13 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Object key: 8 <10862f8cc4b93294ef4a3da8b0777f564d732de4348d7bccab5cf7f3304fe52a>
+Vision OCR configuration: revision=3; accurate=true; automaticLanguage=false; languages=en-US; cpuOnly=false; image=2262x3200; bitsPerComponent=8; bitsPerPixel=32; bitmapInfo=16385; colorSpace=kCGColorSpaceSRGB; alpha=1; orientation=up
+Object key: 6 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 17 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 21 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 21 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 6 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 17 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 21 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 21 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object keNative PDF fixture: protected content integrity end
+::notice title=PDF native validation::Starting: Native serialization fidelity and encryption guards
+Native check starting: Native serialization fidelity and encryption guards
+CTLD took 0.00020206 seconds
+CTLD took 0.000138998 seconds
+CTLD took 0.00010705 seconds
+CTLD took 0.000251055 seconds
+PDF structure audit: valid PDF with deliberately changed widget: begin
+PDF structure audit: valid PDF with deliberately changed widget: passed; qpdf --check exit 0
+CTLD took 0.000422955 seconds
+CTLD took 0.000344992 seconds
+CTLD took 0.000236034 seconds
+PDF structure audit: valid PDF with deliberately changed CropBox: begin
+PDF structure audit: valid PDF with deliberately changed CropBox: passed; qpdf --check exit 0
+CTLD took 0.000205994 seconds
+CTLD took 0.000120044 seconds
+CTLD took 0.000117064 seconds
+CTLD took 8.49962e-05 seconds
+PDF structure audit: valid PDF with deliberately changed text: begin
+PDF structure audit: valid PDF with deliberately changed text: passed; qpdf --check exit 0
+CTLD took 9.31025e-05 seconds
+PDF structure audit: fidelity guards: changed text, CropBox, widget and encryption correctly rejected
+Native check passed: Native serialization fidelity and encryption guards
+::notice title=PDF native validation::Starting: Native serialization private process and cancellation
+Native check starting: Native serialization private process and cancellation
+CTLD took 0.000332952 seconds
+CTLD took 0.000244021 seconds
+PDF structure audit: private process guards: password on stdin, permissions, cancellation and timeout verified
+Native check passed: Native serialization private process and cancellation
+Native check passed: PDFKit, capture encoding, AI text helpers and protected output
+::notice title=PDF native validation::Starting: Tool presets
+Native check starting: Tool presets
+Native check passed: Tool presets
+::notice title=PDF native validation::Starting: Native regression audit
+Native check starting: Native regression audit
+CTLD took 2.00272e-05 seconds
+CTLD took 7.98702e-06 seconds
+CGPDFImage(0xab7a20e00): Creating image with subsample_factor = 1
+
+CGPDFImage(0xab7a20ee0): Creating image with subsample_factor = 1
+
+CTLD took 6.30617e-05 seconds
+CTLD took 4.50611e-05 seconds
+CGPDFImage(0xab7a20700): Creating image with subsample_factor = 1
+
+CTLD took 0.000182986 seconds
+CTLD took 8.39233e-05 seconds
+CTLD took 0.000291109 seconds
+Native check passed: Native regression audit
+::notice title=PDF native validation::Starting: Appearance and reader preferences
+Native check starting: Appearance and reader preferences
+Native check passed: Appearance and reader preferences
+::notice title=PDF native validation::Starting: Recovery storage and encryption
+Native check starting: Recovery storage and encryption
+CTLD took 7.79629e-05 seconds
+2026-10-24 14:53:11.893 PDF[34317:90758] Drawing a PDFPage when its PDFDocument is nil is unsupported.
+CTLD took 9.59635e-05 seconds
+CTLD took 7.79629e-05 seconds
+CTLD took 8.51154e-05 seconds
+CTLD took 8.89301e-05 seconds
+CTLD took 0.000195026 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000215054 seconds
+Native check passed: Recovery storage and encryption
+::notice title=PDF native validation::Starting: Reader sessions and annotation editing
+Native check starting: Reader sessions and annotation editing
+CTLD took 7.60555e-05 seconds
+CTLD took 0.00018096 seconds
+CTLD took 0.000146985 seconds
+CTLD took 0.000272989 seconds
+CTLD took 0.000182986 seconds
+CTLD took 7.99894e-05 seconds
+CTLD took 0.000117064 seconds
+CTLD took 4.60148e-05 seconds
+CTLD took 0.000174999 seconds
+CTLD took 9.20296e-05 seconds
+CTLD took 9.50098e-05 seconds
+CTLD took 5.10216e-05 seconds
+CTLD took 0.000367999 seconds
+CTLD took 0.000223041 seconds
+CTLD took 0.000205994 seconds
+CTLD took 0.000151992 seconds
+CTLD took 0.000205994 seconds
+CTLD took 9.799e-05 seconds
+CTLD took 0.000367999 seconds
+CTLD took 9.90629e-05 seconds
+CTLD took 0.000159025 seconds
+CTLD took 0.000131011 seconds
+CTLD took 0.000231981 seconds
+CTLD took 0.000137925 seconds
+CTLD took 0.000193954 seconds
+CTLD took 8.80957e-05 seconds
+CTLD took 0.000222921 seconds
+CTLD took 9.40561e-05 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000240088 seconds
+CTLD took 0.000115037 seconds
+CTLD took 0.000195026 seconds
+CTLD took 8.90493e-05 seconds
+CTLD took 0.000239015 seconds
+CTLD took 0.00011003 seconds
+CTLD took 0.000227928 seconds
+CTLD took 0.000141978 seconds
+CTLD took 0.00029397 seconds
+CTLD took 0.000129104 seconds
+CTLD took 0.000127077 seconds
+CTLD took 4.50611e-05 seconds
+CTLD took 0.000131011 seconds
+CTLD took 0.000169992 seconds
+CTLD took 0.000254989 seconds
+CTLD took 0.000124097 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.00027597 seconds
+CTLD took 0.000102997 seconds
+CTLD took 0.00052309 seconds
+y: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 6 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 17 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 21 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 21 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 8 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 9 <29b143adbad9260f9ed051ad94219a56b8a8341600f4733dc0f3ee1add43b76e>
+Object key: 6 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 17 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 21 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 21 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 8 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 8 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 8 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 9 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 9 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 9 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 9 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 9 <8c52f5300e2d100177bb03746c0567f0300123342ff532d6add4f791d2128cd0>
+Object key: 6 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 17 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 21 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 21 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 8 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 8 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 8 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 9 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 9 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 9 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 9 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Object key: 9 <b7117b9079908c4aece6ce73bafa0b926a0a4f4f6409c2a43ad5a6901a8c4172>
+Tool preset audit passed: persistence, defaults, update, privacy, import validation, legacy OCR compatibility, OCR bounds, removal and recovery
+Native audit: naming, private atomic publication, TIFF pages/orientation, protected imports, cancellation, reader settings, AI source metadata passed
+Appearance audit: isolated persistence, complete snapshot round-trip, atomic rejection, catalog normalization, reader reset and motion accessibility passed
+Object key: 5 <953c5c6e87354cedd018c9763cc0a362fc626389f73682f965dfdc035000be8c>
+Object key: 9 <953c5c6e87354cedd018c9763cc0a362fc626389f73682f965dfdc035000be8c>
+Object key: 11 <953c5c6e87354cedd018c9763cc0a362fc626389f73682f965dfdc035000be8c>
+Object key: 11 <953c5c6e87354cedd018c9763cc0a362fc626389f73682f965dfdc035000be8c>
+Object key: 5 <081212ea6624341454ad15767c2e5918db7a93f5896bee308cc07a87f23a8037>
+Object key: 9 <081212ea6624341454ad15767c2e5918db7a93f5896bee308cc07a87f23a8037>
+Object key: 11 <081212ea6624341454ad15767c2e5918db7a93f5896bee308cc07a87f23a8037>
+Object key: 11 <081212ea6624341454ad15767c2e5918db7a93f5896bee308cc07a87f23a8037>
+Recovery audit passed: atomic generations, state, encryption, original preservation, corruption and links
+Object key: 7 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 15 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 18 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 18 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 9 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 11 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 7 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 15 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 18 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 18 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 9 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 2 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 2 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 2 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 7 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 17 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 22 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 9 <ccb6c654b07f18a94e160aec926cf966f12855def98e8da0c366bc8799234820>
+Object key: 7 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 17 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 20 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 20 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 11 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 11 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 11 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 11 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 11 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 9 <963c718f129d28fa782333bbd558b88d8cc14e88b97d23b34c4b9aa5ecb24640>
+Object key: 7 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 15 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 18 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 18 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 9 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 11 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 7 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 15 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 18 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 18 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 9 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 2 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 2 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 2 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 7 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 17 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 22 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 9 <36829e6c69ae9c8de02a565c52e2e19840906b1ef051d5a9e425eb76179f75c4>
+Object key: 7 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 17 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 20 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 20 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 9 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 7 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 17 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 20 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 20 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 9 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 7 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 17 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 20 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 20 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 11 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 11 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 11 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 11 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 11 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 9 <e3afa568a6d64ab05846011e77265a8653314f63a3a3b078bcf4538bae49392a>
+Object key: 7 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 17 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 20 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 20 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 11 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 9 <af340b1e645fd6371eb4209e3810e6bac0ce1e1a41365c7d4a4ead2be6f0f74f>
+Object key: 7 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 17 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 20 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 20 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 11 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 11 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 11 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 11 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 11 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 9 <0f53f1ded6066e399d1181bc2ca6ced9df0e9c20dac64ee926ab7b651c4e450d>
+Object key: 7 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 15 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 18 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 18 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 11 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 11 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 11 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 11 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 11 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 9 <413f0c622c1473dbee3793da5f3e79e78033ea250a0c07617c143cc407ad7617>
+Object key: 11 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 11 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 11 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 11 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 11 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 7 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 15 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 18 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 18 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 9 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 2 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 2 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 2 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 7 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 17 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 22 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 9 <b621fe0d2d12c3b40cbcbd0deb9f6d3e0e60318a2b248076c2e9edf5f8fb72d2>
+Object key: 7 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 17 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 20 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 20 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 11 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 11 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 11 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 11 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+OCTLD took 0.000161052 seconds
+PDF structure audit: AES-256 output structure: begin
+PDF structure audit: AES-256 output structure: passed; qpdf --check exit 0
+CTLD took 0.000146985 seconds
+CTLD took 8.40425e-05 seconds
+QuadPoints audit: non-markup properties
+QuadPoints audit: markup /Highlight
+QuadPoints audit: markup /Underline
+QuadPoints audit: markup /StrikeOut
+QuadPoints audit: serialize and inspect PDF dictionaries
+QuadPoints audit: numeric serialization and reopened geometry verified
+Native check passed: Reader sessions and annotation editing
+::notice title=PDF native validation::Starting: Semantic retrieval and verifiable citations
+Native check starting: Semantic retrieval and verifiable citations
+Native check passed: Semantic retrieval and verifiable citations
+::notice title=PDF native validation::Starting: Performance measurement harness
+Native check starting: Performance measurement harness
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+.notdef: no mapping.
+
+CTLD took 0.000969052 seconds
+CTLD took 0.000748992 seconds
+CTLD took 0.000943065 seconds
+CTLD took 0.000797987 seconds
+Native check passed: Performance measurement harness
+::notice title=PDF native validation::Starting: Adaptive resource limits
+Native check starting: Adaptive resource limits
+Native check passed: Adaptive resource limits
+::notice title=PDF native validation::Starting: Private engine input and cleanup
+Native check starting: Private engine input and cleanup
+Native check passed: Private engine input and cleanup
+::notice title=PDF native validation::Starting: Advanced editing and OCR review contracts
+Native check starting: Advanced editing and OCR review contracts
+CTLD took 9.799e-05 seconds
+CTLD took 9.09567e-05 seconds
+CTLD took 0.000149965 seconds
+CTLD took 8.18968e-05 seconds
+CTLD took 8.49962e-05 seconds
+Native check passed: Advanced editing and OCR review contracts
+::notice title=PDF native validation::Starting: Command palette shortcuts and workspace profiles
+Native check starting: Command palette shortcuts and workspace profiles
+Native check passed: Command palette shortcuts and workspace profiles
+::notice title=PDF native validation::Starting: Opt-in folder automation
+Native check starting: Opt-in folder automation
+Native check passed: Opt-in folder automation
+::notice title=PDF native validation::Starting: Library revisions synchronization and Portuguese sources
+Native check starting: Library revisions synchronization and Portuguese sources
+CTLD took 8.29697e-05 seconds
+CTLD took 7.79629e-05 seconds
+CTLD took 0.000154018 seconds
+CTLD took 9.20296e-05 seconds
+CTLD took 0.000212073 seconds
+CTLD took 0.000211954 seconds
+CTLD took 0.000102997 seconds
+CTLD took 5.90086e-05 seconds
+CTLD took 0.00019598 seconds
+CTLD took 0.000111938 seconds
+CTLD took 9.0003e-05 seconds
+CTLD took 8.70228e-05 seconds
+CTLD took 4.49419e-05 seconds
+Native check passed: Library revisions synchronization and Portuguese sources
+::notice title=PDF native validation::Starting: Real crash and recovery
+Native check starting: Real crash and recovery
+CTLD took 7.90358e-05 seconds
+CTLD took 0.000164032 seconds
+CTLD took 0.000162005 seconds
+CTLD took 0.000109076 seconds
+CTLD took 0.000259042 seconds
+CTLD took 0.000148892 seconds
+CTLD took 0.000510931 seconds
+CTLD took 0.000162959 seconds
+Native check passed: Real crash and recovery
+::notice title=PDF native validation::Starting: Runtime lease across native process termination
+Native check starting: Runtime lease across native process termination
+Native check passed: Runtime lease across native process termination
+::notice title=PDF native validation::Starting: Explicit settings and bookmark exchange
+Native check starting: Explicit settings and bookmark exchange
+Native check passed: Explicit settings and bookmark exchange
+::notice title=PDF native validation::Starting: App Intents input and private temporary files
+Native check starting: App Intents input and private temporary files
+Native check passed: App Intents input and private temporary files
+::notice title=PDF native validation::Starting: Portuguese AI experiment acceptance criteria
+Native check starting: Portuguese AI experiment acceptance criteria
+Native check passed: Portuguese AI experiment acceptance criteria
+bject key: 11 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 9 <5bd9193308dbe38e6e313ff94c48910cb10c55ff4d127ac830270793cd9ce62a>
+Object key: 11 <415f1b7b053fee84cd8f63024480b9ddbdfab543386c393409b787f010eef1d8>
+Object key: 11 <415f1b7b053fee84cd8f63024480b9ddbdfab543386c393409b787f010eef1d8>
+Object key: 11 <415f1b7b053fee84cd8f63024480b9ddbdfab543386c393409b787f010eef1d8>
+Object key: 11 <415f1b7b053fee84cd8f63024480b9ddbdfab543386c393409b787f010eef1d8>
+Object key: 11 <415f1b7b053fee84cd8f63024480b9ddbdfab543386c393409b787f010eef1d8>
+Object key: 11 <fdda536b18370c4cf41bd88903f15c917fa5d7acf12f449bdbc693d5d9b42c92>
+Object key: 11 <fdda536b18370c4cf41bd88903f15c917fa5d7acf12f449bdbc693d5d9b42c92>
+Object key: 11 <fdda536b18370c4cf41bd88903f15c917fa5d7acf12f449bdbc693d5d9b42c92>
+Object key: 11 <fdda536b18370c4cf41bd88903f15c917fa5d7acf12f449bdbc693d5d9b42c92>
+Object key: 11 <fdda536b18370c4cf41bd88903f15c917fa5d7acf12f449bdbc693d5d9b42c92>
+Object key: 11 <27f0060fa8c4083d0bd9ccef519b31f643c3065da6ad517c740f2b5c4a4a3edb>
+Object key: 11 <27f0060fa8c4083d0bd9ccef519b31f643c3065da6ad517c740f2b5c4a4a3edb>
+Object key: 11 <27f0060fa8c4083d0bd9ccef519b31f643c3065da6ad517c740f2b5c4a4a3edb>
+Object key: 11 <27f0060fa8c4083d0bd9ccef519b31f643c3065da6ad517c740f2b5c4a4a3edb>
+Object key: 11 <27f0060fa8c4083d0bd9ccef519b31f643c3065da6ad517c740f2b5c4a4a3edb>
+Session audit: independent tabs/page/zoom/forms, safe recovery, encrypted snapshots, named annotation groups/edit/undo/redo/persistence passed
+PDF SEMANTIC MODEL: pt não executado; recurso/vetor ausente ou idioma não reconhecido (modo: indisponível). Busca por termos testada separadamente.
+PDF SEMANTIC MODEL: en:sentence executado; fonte relacionada priorizada, sem pontuação de confiança da resposta.
+PDF SEMANTIC AUDIT: 39 verificações aprovadas; 1/2 testes de idiomas com embeddings Apple realmente executados. Geração de respostas exige validação separada no Mac com Apple Intelligence.
+Benchmark harness audit passed; processor: Apple M1 (Virtual); Virtualização detectada nos indicadores do sistema.
+Object key: 5 <541f0ec60e9200d05821a1e7d85a250de12e18a91a79511d9379f6fff9ef8d7c>
+Object key: 9 <541f0ec60e9200d05821a1e7d85a250de12e18a91a79511d9379f6fff9ef8d7c>
+Object key: 11 <541f0ec60e9200d05821a1e7d85a250de12e18a91a79511d9379f6fff9ef8d7c>
+Object key: 11 <541f0ec60e9200d05821a1e7d85a250de12e18a91a79511d9379f6fff9ef8d7c>
+Object key: 5 <af22f45cb679ac98ce99c8a35b2b1840a049629b0cba5cdb56dfe213c0694c48>
+Object key: 9 <af22f45cb679ac98ce99c8a35b2b1840a049629b0cba5cdb56dfe213c0694c48>
+Object key: 11 <af22f45cb679ac98ce99c8a35b2b1840a049629b0cba5cdb56dfe213c0694c48>
+Object key: 11 <af22f45cb679ac98ce99c8a35b2b1840a049629b0cba5cdb56dfe213c0694c48>
+Advanced customization audit passed: shortcut conflicts, persistence, profiles, ordering and atomic legacy import
+Automation path diagnostic: legacyCount=1, rawLookup=false, canonicalLookup=true, rootHasAlias=true
+Automation audit passed: explicit opt-in, existing-file baseline, stable arrivals, deduplication, pause, restart, links and password refusal
+Object key: 6 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 12 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 14 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 14 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 8 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 6 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 12 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 14 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 14 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 8 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 6 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 12 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 14 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 14 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+Object key: 8 <6f4331b5617075cd2f93e5c83f8774b0cab6d1414991e05d7acd3b17873fc218>
+PDF LIBRARY: 93 verificações de cópias, coleções, histórico, fontes, conflitos, integridade e caminhos concluídas.
+Object key: 7 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 15 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 18 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 18 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 11 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 11 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 11 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 11 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 11 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 9 <e7265486cc9b3680c26e5fc2eaff95d41f7695b84b7d2edb3bc114baa10138d9>
+Object key: 5 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 5 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 5 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 5 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 5 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 17 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 17 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 17 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 17 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 18 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 18 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 12 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 23 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 33 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 33 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+Object key: 14 <895a3ac0cb64b147c1e0e9920a34f18a6c536fa69bd772584855c9efa563b9ef>
+[Crash recovery] real automatic checkpoint + SIGKILL + authenticated reader restore: PASS
+[Bundle lease] two native exec levels, foreign descriptor refusal, SIGKILL/reap and release: PASS
+Settings exchange audit passed: explicit conflict policy, canonical profiles, SHA-bound bookmarks, session race and unchanged PDF bytes
+App Intents input audit passed: bounded Unicode names, exact bytes, source preservation, private permissions, invalid input and symlink refusal; OS discovery requires metadata verification
+Local AI evaluator criteria passed with negative fixtures; no model was invoked and no AI quality claim is made
+Native checks hardware: Apple Paravirtual device · 3 núcleos disponíveis · 7 GB de memória
+PDF native smoke tests passed

@@ -1,0 +1,6 @@
+arm64
+26.6.2
+Xcode 26.6
+Build version 17F113
+26.5
+/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor

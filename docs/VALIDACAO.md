@@ -1,27 +1,27 @@
 # Evidências de validação
 
-## Revisão 0.6 — auditoria local concluída; gate nativo pendente
+## Revisão 0.6 — aplicativo validado parcialmente; pacote portátil pendente
 
-A implementação ampliada **ainda não está aprovada para instalação final**. A [matriz das 17 ampliações](AMPLIACOES-2026-10.md) identifica cada caminho, teste e limite. As 54 ferramentas anteriores foram preservadas e o catálogo passou a 71 entradas, além do leitor.
+A implementação ampliada **ainda não está aprovada para instalação final**. A [matriz das 17 ampliações](AMPLIACOES-2026-10.md) identifica cada caminho, teste e limite. As 54 ferramentas anteriores foram preservadas e o catálogo passou a 71 entradas, além do leitor. O acesso ao GitHub foi restabelecido; o HTTP 401 anterior não é um bloqueio ativo.
 
-Código auditado: **`7205dd106c07002ec1c5ed8fd2ebbef448cf9f3a`**, preservado em commit local e ainda não enviado ao GitHub. A rodada consolidada passou com **388 testes executados e um ignorado, em 389 casos distintos**: 268 de núcleo (36,888 s), 45 integrações reais (94,387 s) e 76 de scripts (75 aprovados, um HFS+ exclusivo de macOS ignorado, 3,006 s). Chromium foi selecionado por `PDF_CHROMIUM_EXECUTABLE=/usr/bin/chromium`. [Logs, ambiente, comandos e manifesto SHA-256](evidencias/0.6-auditoria-local/README.md) identificam o snapshot efetivamente verificado.
-
-O parser aprovou a sintaxe dos 70 fontes Swift; oito scripts Bash e três workflows passaram suas verificações sintáticas, incluindo referências de etapas. A comparação dos catálogos confirmou 71 IDs únicos e todos os 54 anteriores preservados. Essas verificações **não compilam APIs Apple nem aprovam a execução do aplicativo**. Repetições focadas dos mesmos testes não foram somadas ao total.
-
-Histórico desta ampliação:
-
-| Revisão / execução | Resultado observado e correção |
+| Código / execução | Resultado observado |
 |---|---|
-| `4cd755c` / [40062813526](https://github.com/vibracall-beep/PDF-/actions/runs/40062813526) | Compilação passou nos dois SDKs; falha em expectativas antigas de tabela que supunham cabeçalho em A1. Corrigidas para conferir conteúdo e tabela sem descartar prosa. Ensaios reais HFS+ cheio/SIGKILL do atualizador passaram, sem aprovação do bundle portátil |
-| `662edfe` / [40063951872](https://github.com/vibracall-beep/PDF-/actions/runs/40063951872) | SwiftUI excedeu capacidade de type-check em SettingsExchangeView; tela dividida em subviews. Execução substituída pela seguinte |
-| `e1e8e0a` / [40064237569](https://github.com/vibracall-beep/PDF-/actions/runs/40064237569) | Compilação aprovada nos dois SDKs, 233 testes de núcleo e 37/38 integrações por sistema. Falha restante: descoberta do ICC no novo layout Ghostscript Homebrew. Localização corrigida no teste e no empacotador; integração Linux reexecutada com sucesso |
-| Metadados App Intents | Extração real comprovada em um diagnóstico SDK26; tentativas seguintes não produziram o artefato completo nos dois SDKs. O gate foi endurecido para exigir arquivo, ações, tipos, parâmetros e provedor reais; a versão corrigida aguarda execução |
+| `fcac3db` / [40101134318](https://github.com/vibracall-beep/PDF-/actions/runs/40101134318) | Ambos os sistemas compilaram e passaram 268 testes de núcleo, 45 integrações e 75/76 testes de scripts; o único skip exige `/dev/full` do Linux. HFS+ cheio e SIGKILL passaram. Primeiro smoke: 35/37 grupos aprovados, com falhas em perfis e automação. Instalação não ativada |
+| `fcac3db` / [40101147782](https://github.com/vibracall-beep/PDF-/actions/runs/40101147782) | Diagnóstico SDK aprovado no 26 e no 27: extração real e verificação completa dos metadados App Intents. [Originais, hashes e procedência](evidencias/fcac3db-sdk/README.md) |
+| `d0fda92` / [40103086558](https://github.com/vibracall-beep/PDF-/actions/runs/40103086558) | No macOS 26: compilação, instalação por fontes, 389 casos Python (388 aprovados/um skip), 37 grupos nativos × três execuções, 32 PNGs/cinco AX e seis operações de benchmark aprovados. As 32 capturas foram revisadas. A matriz **reprovou**: mac27 parou na desmontagem HFS+ do teste; mac26 recusou dependência CA externa durante o empacotamento portátil |
+| `766fe59` / [40105444603](https://github.com/vibracall-beep/PDF-/actions/runs/40105444603) | Ambos pararam **antes de compilar**: 81 testes de scripts, 79 aprovados, um skip e uma falha por comparar `/var` com `/private/var` no teste CA. HFS+ real passou nos dois. A correção desse teste e o isolamento de caminhos Python aguardam nova matriz |
 
-A integração do GitHub passou a retornar **HTTP 401 — Bad credentials**, bloqueando novos envios e execuções. A reconexão foi solicitada ao usuário, sem pedir tokens no chat. Isso é bloqueio de autenticação, não aprovação de testes nem motivo para reutilizar a aprovação histórica.
+No `d0fda92`/mac26, núcleo: **268/268 em 79,374 s**; integrações: **45/45 em 57,702 s**; scripts: **75 aprovados/um skip em 17,212 s**. Os 37 grupos nativos passaram antes da ativação, depois dela e na verificação final do aplicativo instalado. Recuperação real após SIGKILL, herança de bloqueio da instalação, biblioteca, perfis, automação, entradas App Intents, contratos de edição/OCR, proteção Unicode e permissões fazem parte dessas fases. O [relatório original do último smoke](evidencias/d0fda92-macos26/README.md) foi preservado com Vision, IA e benchmark. Repetir um caso em três execuções ou outro sistema não cria novos casos distintos.
 
-O workflow atual prepara compilação em macOS 26/27, testes completos, recuperação real após SIGKILL, herança de bloqueio da instalação, 32 capturas reais/cinco relatórios AX, benchmark, ensaio de IA portuguesa com modelo real ou indisponibilidade explícita, pacote portátil isolado e duas instalações. **Etapa preparada não significa etapa executada.** Capturas e artefatos antigos abaixo são históricos.
+Vision passou os dois checks nessa amostra26. O ensaio de IA registrou **`unavailable` / `deviceNotEligible`**: nenhum dos cinco casos executou geração. O benchmark mediu seis operações em **Apple M1 Virtual**, com corpus sintético de 100 páginas; OCR e contraste usam só a primeira. Isso não mede M4 físico, energia ou ocupação do Neural Engine. A auditoria AX automática e a revisão de capturas não substituem uso humano com VoiceOver.
 
-A avaliação em M4 físico, consumo de energia, uso de Neural Engine, interação humana com VoiceOver e entrega real por serviço de assinaturas continuam dependentes de equipamento/modelo/serviço. Cinco consultas sintéticas de IA não estimam qualidade geral; `unavailable` não é aprovação da geração.
+A falha de perfis combinava uma expectativa antiga de primeiro cartão com uma restauração que não mudava a ordem; a revisão também corrigiu a gravação da normalização validada. A automação registrou `legacyCount=1`, `rawLookup=false`, `canonicalLookup=true`, `rootHasAlias=true`, confirmando o alias da pasta no acesso pela chave. Os testes corrigidos conservam as verificações de filtragem, identidade e persistência. A revisão visual de `d0fda92` encontrou rótulos preenchidos pouco claros; as correções em `766fe59` ainda precisam de novas capturas. Detalhes e tempos anteriores ficam no [histórico](HISTORICO-VALIDACAO.md).
+
+O empacotador passou a selecionar a lista pública Mozilla, sem copiar certificados privados/Keychains do host. O teste CA foi corrigido para conferir identidade real do arquivo sob aliases. **Ainda não houve aprovação da distribuição portátil em isolamento, instalação nova, segunda atualização ou compatibilidade do mesmo binário entre sistemas.** Os gates permanecem obrigatórios; o próximo resultado não é antecipado por testes locais.
+
+A auditoria Linux consolidada anterior, do código `7205dd106c07002ec1c5ed8fd2ebbef448cf9f3a`, continua preservada: 268 testes de núcleo (36,888 s), 45 integrações (94,387 s), 76 de scripts (75 aprovados/um HFS+ exclusivo de macOS ignorado, 3,006 s). São **389 casos distintos, 388 executados e aprovados, um ignorado**. [Logs, ambiente, comandos e manifesto SHA-256](evidencias/0.6-auditoria-local/README.md) identificam esse snapshot, sem aprovar alterações posteriores. O parser dos 70 fontes Swift, as verificações Bash/YAML e a comparação dos 71 IDs foram checks estáticos separados.
+
+Certificados/TSA/serviço de assinaturas de produção, Pages, scanner/Continuidade, dois Macs físicos e modelo Apple instalado ainda precisam dos componentes correspondentes. As matrizes aprovam amostras e cenários declarados; não demonstram fidelidade universal nem ausência de erros.
 
 ## Base histórica 0.5 aprovada — escopo separado
 
@@ -92,7 +92,7 @@ Nas rodadas anteriores, macOS 27.0.1/Xcode 27.1 apresentou erro do compilador in
 
 - Compilação release arm64 e 39 testes dos scripts.
 - 19 capturas reais da janela pelo ScreenCaptureKit e quatro relatórios AX. O cliente AX público inspeciona somente o próprio processo e complementa a inspeção da árvore nativa; identificadores obrigatórios ausentes reprovam a etapa.
-- Instalação completa do runtime, núcleo e integrações, assinatura ad hoc e verificações antes/depois da ativação. O CI atual usa um destino novo; a restauração de uma instalação anterior é implementada pelo instalador e coberta por testes do helper, sem ensaio integral de rollback em Mac.
+- Instalação completa do runtime, núcleo e integrações, assinatura ad hoc e verificações antes/depois da ativação. Na base 0.5, o CI usou um destino novo; a restauração de uma instalação anterior era coberta pelos testes do helper. Os ensaios novos de atualização são descritos no estado 0.6 acima.
 - Smoke do aplicativo instalado: PDFKit, leitura, formulários, OCR local, Core Image, recuperação criptografada, sessões, anotações/desfazer, preferências, citações semânticas e benchmark.
 - Estrutura dos PDFs publicados com qpdf status 0; os bytes finais são reabertos e comparados ao estado anterior à gravação. A auditoria cobre campos, defaults, escolhas, texto, geometria, fontes, cores, traços, links e anotações. Vínculos só são corrigidos quando os dicionários completos identificam uma única duplicata. Unicode é comparado por bytes UTF-8.
 - Cópias protegidas com AES-256, revisão 6, proprietário distinto e permissões verificadas. Senhas Unicode no limite de 127 bytes, recusa de restrições incompatíveis, processos interrompidos, limpeza normal e ausência de PDFs temporários desprotegidos têm casos próprios.
@@ -115,8 +115,8 @@ A auditoria automática AX não executa uma sessão humana com **VoiceOver**. A 
 
 Geração de respostas pelo Foundation Models, scanner físico, Câmera de Continuidade e exportação pelo Pages dependem de modelos, dispositivos e aplicativos que não foram exercitados integralmente no runner. Embeddings disponíveis e validação de citações têm testes próprios; isso não comprova a qualidade de todas as respostas de IA.
 
-Assinaturas são criptográficas e os testes usam certificados temporários reais. A verificação é offline, com raízes explícitas, sem confirmação OCSP/CRL. Certificado do usuário, TSA adotada e validade jurídica precisam de avaliação própria. Conversões e OCR não prometem fidelidade perfeita em qualquer documento.
+Assinaturas são criptográficas e os testes usam certificados temporários reais. A base 0.5 verificava offline com raízes explícitas. A versão 0.6 acrescenta OCSP/CRL e PAdES LT/LTA, exercitados com PKI/HTTPS/TSA locais controlados; certificado do usuário, serviços de produção e validade jurídica precisam de avaliação própria. Conversões e OCR não prometem fidelidade perfeita em qualquer documento.
 
-A recuperação tem testes de gerações, corrupção, gravação, cancelamento e restauração em nova sessão. Encerramento forçado e reabertura do processo real ainda não foram exercitados integralmente. Interrupções abruptas também podem deixar locks/estágios do instalador, conforme [INSTALACAO.md](INSTALACAO.md).
+A recuperação tem testes de gerações, corrupção, gravação, cancelamento e restauração em nova sessão. A ampliação passou a interromper um processo real por SIGKILL depois de um checkpoint completo e a restaurar seu documento protegido; esse grupo passou em `d0fda92`/mac26. Isso não cobre interrupção em cada instrução de uma escrita incompleta. Interrupções abruptas também podem deixar locks/estágios do instalador, conforme [INSTALACAO.md](INSTALACAO.md).
 
-A entrega é de fontes com instalação local verificável, sem assinatura Apple paga. O bundle tem assinatura ad hoc e runtime específico do Mac: não é portátil nem notarizado. Nenhuma suíte demonstra ausência universal de erros ou superioridade sobre todos os concorrentes.
+A instalação por fontes usa runtime específico do Mac. A distribuição autocontida 0.6 está implementada, mas ainda sem aprovação completa de isolamento, instalação e atualização. Ambos os caminhos usam assinatura ad hoc, sem notarização Apple. Nenhuma suíte demonstra ausência universal de erros ou superioridade sobre todos os concorrentes.

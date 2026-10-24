@@ -22,10 +22,32 @@ struct LibrarySearchResult: Sendable {
     let sources: [LibraryExcerpt]
     let method: String
     let skipped: [String]
+    let comparisonSources: [LibraryExcerpt]
+    init(question: String, sources: [LibraryExcerpt], method: String, skipped: [String], comparisonSources: [LibraryExcerpt]? = nil) {
+        self.question = question; self.sources = sources; self.method = method; self.skipped = skipped
+        self.comparisonSources = comparisonSources ?? sources
+    }
     var response: String {
         sources.isEmpty
             ? "Não encontrei trechos de apoio nos documentos consultados. Reformule a busca, selecione outras fontes ou faça OCR nos arquivos digitalizados."
             : "Trechos encontrados nas fontes selecionadas. As citações abaixo reproduzem o texto extraído; a proximidade na busca não comprova uma conclusão."
+    }
+}
+
+/// Comparison needs distinct documents before additional excerpts from one
+/// document. Ranking within each pass is preserved; no unranked source is added.
+enum LibraryComparisonSources {
+    static func prioritized(_ ranked: [LibraryExcerpt]) -> [LibraryExcerpt] {
+        var selected: [LibraryExcerpt] = [], documents = Set<UUID>(), identifiers = Set<String>()
+        for source in ranked where documents.insert(source.documentID).inserted {
+            selected.append(source); identifiers.insert(source.id)
+            if selected.count == 8 { return selected }
+        }
+        for source in ranked where identifiers.insert(source.id).inserted {
+            selected.append(source)
+            if selected.count == 8 { break }
+        }
+        return selected
     }
 }
 
@@ -101,13 +123,17 @@ actor LibraryRetrieval {
             candidates.append(.init(excerpt: SourceExcerpt(id: excerpt.id, page: excerpt.page, text: excerpt.text), vector: vector))
         }
         let ranked = SemanticRanking.rank(question: query, vector: queryVector, candidates: candidates)
-        var selected: [LibraryExcerpt] = [], characters = 0
+        var originals: [LibraryExcerpt] = []
         for match in ranked {
+            try Task.checkCancellation()
             guard let original = index[match.id], original.text == match.text, original.page == match.page else { throw LibraryFailure.corrupt }
-            if selected.count == 8 || characters + original.text.count > 7_200 { break }
-            selected.append(original); characters += original.text.count
+            originals.append(original)
         }
+        // Eight excerpts of at most 900 characters retain the existing 7,200
+        // character search budget and ordering for ordinary answers.
+        let selected = Array(originals.prefix(8))
+        let comparison = LibraryComparisonSources.prioritized(originals)
         let method = embedded > 0 ? "Termos pt-BR + NaturalLanguage local (até 2.000 trechos com vetores)" : "Termos pt-BR · sem modelo semântico nesta consulta"
-        return LibrarySearchResult(question: query, sources: selected, method: method, skipped: source.skipped)
+        return LibrarySearchResult(question: query, sources: selected, method: method, skipped: source.skipped, comparisonSources: comparison)
     }
 }

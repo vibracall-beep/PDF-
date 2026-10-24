@@ -1,0 +1,27 @@
+{
+  "commit": "d0fda928678a52b545302dd17f99992abce5aa93",
+  "run_id": 40103086558,
+  "runner": "macos-26",
+  "files": [
+    {
+      "path": "PDF-native-checks.log",
+      "sha256": "f783910e97c34b27e4395568e8ed79cb9e6579b1d1da6109bbe2604f1c38476b",
+      "artifact_id": 12564232072
+    },
+    {
+      "path": "PDF-vision-audit.json",
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "artifact_id": 12564366597
+    },
+    {
+      "path": "PDF-local-ai.json",
+      "sha256": "614f8abc68e5689db0e3c9eaa1155b7f3c2e7029f9085bc38074121980833d9d",
+      "artifact_id": 12564271829
+    },
+    {
+      "path": "PDF-benchmark.json",
+      "sha256": "179490c52e64161e472e43d5afd6e7799c59395a0b4759c7e4d01f6204ee6045",
+      "artifact_id": 12564187347
+    }
+  ]
+}

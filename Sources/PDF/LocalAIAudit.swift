@@ -130,12 +130,13 @@ struct LocalAIReport: Codable, Sendable {
             if let unavailable {
                 return item(question, status: "unavailable", attempted: false, started: started, result: search, error: unavailable)
             }
-            try Task.checkCancellation(); attempted = true
+            try Task.checkCancellation()
             let text: String
             let citations: [LibraryAnswerCitation]
             var checks: [LocalAICheck]
             if question.id == "divergencia" {
-                guard Set(search.sources.map(\.documentID)).count == 2 else { throw PreferenceError.invalid("A busca não recuperou ambos os documentos para a comparação.") }
+                guard LibraryAnswering.comparisonDocumentCount(search) == 2 else { throw PreferenceError.invalid("O contexto final não contém ambos os documentos para a comparação.") }
+                attempted = true
                 let response = try await LibraryAnswering.compare(search)
                 text = response.pairs.map { "\($0.topic): \($0.first.claim) / \($0.second.claim)" }.joined(separator: "\n")
                 citations = response.pairs.flatMap { [$0.first.citation, $0.second.citation] }
@@ -147,11 +148,12 @@ struct LocalAIReport: Codable, Sendable {
                 }
                 checks = [.init(id: "golden-divergence-attribution", passed: expected, detail: question.expectation)]
             } else {
+                attempted = true
                 let response = try await LibraryAnswering.respond(to: search)
                 text = response.text; citations = response.citations
                 checks = answerChecks(question, answer: response)
             }
-            let evidence = citations.map { citation in Self.evidence(citation, search: search, source: source) }
+            let evidence = citations.map { citation in Self.evidence(citation, search: search, source: source, comparison: question.id == "divergencia") }
             checks.append(.init(id: "citation-identities-and-literal", passed: evidence.allSatisfy(\.literalAfterWhitespaceNormalization), detail: "Todas as referências pertencem à consulta e ao texto extraído da página/hash indicados; somente espaços e NFC são normalizados."))
             let language = detectedLanguage(text)
             if text.count >= 60 { checks.append(.init(id: "portuguese-language", passed: language == "pt", detail: "Idioma dominante identificado automaticamente em texto com pelo menos 60 caracteres: \(language ?? "indeterminado").")) }
@@ -214,17 +216,29 @@ struct LocalAIReport: Codable, Sendable {
         let written = value.range(of: "\\bquarenta e oito mil\\b", options: .regularExpression) != nil
         return (written || expected.contains(true)) && (!requireOnlyExpectedNumbers || expected.allSatisfy { $0 })
     }
-    private static func evidence(_ citation: LibraryAnswerCitation, search: LibrarySearchResult, source: LibrarySearchSource) -> LocalAICitationEvidence {
-        let known = source.excerpts.contains(citation.source) && search.sources.contains(citation.source)
-        let literal = SemanticEvidence.normalized(citation.source.text).contains(SemanticEvidence.normalized(citation.quote)) && citation.quote.count >= 12
+    private static func evidence(_ citation: LibraryAnswerCitation, search: LibrarySearchResult, source: LibrarySearchSource, comparison: Bool = false) -> LocalAICitationEvidence {
+        let known: Bool, literal: Bool
+        if comparison {
+            let final = (try? LibraryAnswering.comparisonExcerpts(search)) ?? []
+            let included = final.first { $0.source == citation.source }
+            known = source.excerpts.contains(citation.source) && included != nil
+            literal = included.map { Data($0.quote.utf8).range(of: Data(citation.quote.utf8)) != nil } == true && citation.quote.count >= 12
+        } else {
+            known = source.excerpts.contains(citation.source) && search.sources.contains(citation.source)
+            literal = SemanticEvidence.normalized(citation.source.text).contains(SemanticEvidence.normalized(citation.quote)) && citation.quote.count >= 12
+        }
         return LocalAICitationEvidence(sourceID: citation.source.id, documentID: citation.source.documentID,
             revisionID: citation.source.revisionID, documentSHA256: citation.source.fingerprint, title: citation.source.title,
             page: citation.source.page, quote: citation.quote, literalAfterWhitespaceNormalization: known && literal)
     }
     private static func item(_ question: Question, status: String, attempted: Bool, started: Double, result: LibrarySearchResult?, response: String? = nil, language: String? = nil, citations: [LocalAICitationEvidence] = [], checks: [LocalAICheck] = [], error: String? = nil) -> LocalAIAuditItem {
-        LocalAIAuditItem(id: question.id, question: question.text, expectation: question.expectation, status: status,
+        let retrieved: [String]
+        if question.id == "divergencia", let result {
+            retrieved = ((try? LibraryAnswering.comparisonExcerpts(result)) ?? []).map { $0.source.id }
+        } else { retrieved = result?.sources.map(\.id) ?? [] }
+        return LocalAIAuditItem(id: question.id, question: question.text, expectation: question.expectation, status: status,
             modelAttempted: attempted, milliseconds: (ProcessInfo.processInfo.systemUptime-started)*1_000,
-            retrievalMethod: result?.method ?? "Busca não concluída", retrievedSourceIDs: result?.sources.map(\.id) ?? [],
+            retrievalMethod: result?.method ?? "Busca não concluída", retrievedSourceIDs: retrieved,
             response: response, detectedLanguage: language, citations: citations, checks: checks, error: error)
     }
     private static func expectedDate(_ text: String, day: String) -> Bool {

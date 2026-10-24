@@ -325,19 +325,29 @@ class AdvancedEngineTests(unittest.TestCase):
 
     def test_excel_formula_text_is_not_executable(self):
         from openpyxl import load_workbook
+        import xml.etree.ElementTree as ET
+        import zipfile
         source = self.output('formulas.pdf')
+        expected=['=HYPERLINK("https://example.invalid")','=1+1','-12','+55','@user','+ação Ω 世界']
         with fitz.open() as doc:
             page = doc.new_page()
-            page.insert_text((40, 60), '=HYPERLINK("https://example.invalid")')
+            page.insert_font(fontname='literalunicode',fontbuffer=fitz.Font('cjk').buffer)
+            for index,value in enumerate(expected):
+                page.insert_text((40,60+index*30),value,fontname='literalunicode',fontsize=12)
+            self.assertEqual(page.get_text().splitlines(),expected)
             doc.save(source)
         target = self.output('formulas.xlsx')
         run('excel', [source], target)
         book = load_workbook(target)
         try:
-            self.assertTrue(book.worksheets[0]['A1'].value.startswith("'="))
-            self.assertNotEqual(book.worksheets[0]['A1'].data_type, 'f')
+            values=[cell.value for row in book.worksheets[0] for cell in row if cell.value is not None]
+            self.assertEqual(values,expected)
+            self.assertTrue(all(cell.data_type=='s' for row in book.worksheets[0] for cell in row if cell.value is not None))
         finally:
             book.close()
+        with zipfile.ZipFile(target) as archive:
+            sheet=ET.fromstring(archive.read('xl/worksheets/sheet1.xml'))
+        self.assertEqual(sheet.findall('.//{http://schemas.openxmlformats.org/spreadsheetml/2006/main}f'),[])
 
 
     def test_unicode_overlay_watermark_and_replacement_preserve_characters(self):

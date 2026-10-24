@@ -1,6 +1,6 @@
 # Instalação do PDF por comando
 
-**Estado da versão 0.6:** o instalador autocontido e o atualizador estão implementados, mas o pacote portátil desta revisão ainda não foi aprovado na matriz macOS. A integração GitHub retornou HTTP 401 e bloqueou novos envios. Este documento descreve os procedimentos preparados; não é uma solicitação de teste de uma versão incompleta pelo usuário. Consulte [VALIDACAO.md](VALIDACAO.md) antes de identificar qualquer pacote como entrega final.
+**Estado da versão 0.6:** o instalador autocontido e o atualizador estão implementados, mas o pacote portátil desta revisão ainda não foi aprovado na matriz macOS. O acesso ao GitHub foi restabelecido. O aplicativo por fontes passou os três smokes no macOS 26 em `d0fda92`, mas o empacotamento portátil recusou uma referência externa de certificados; o job27 parou na desmontagem do volume HFS+ de teste. A rodada `766fe59` reprovou antes da compilação numa comparação de aliases de caminho do teste de certificados. As correções ainda precisam da matriz completa. Este documento descreve os procedimentos preparados; não é uma solicitação de teste de uma versão incompleta pelo usuário. Consulte [VALIDACAO.md](VALIDACAO.md) antes de identificar qualquer pacote como entrega final.
 
 ## Requisitos comuns
 
@@ -29,7 +29,7 @@ bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE "$HOM
 
 Os valores acima são parâmetros documentais, **não um link ou checksum de uma versão já aprovada**. O script verifica SHA-256 antes de extrair, valida a assinatura do bundle e usa o Python incluído para conferir o manifesto e instalar. A assinatura ad hoc não identifica um publicador Apple; a origem confiável do checksum continua necessária.
 
-O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` testa com rede, Homebrew, LibreOffice externo e ferramentas de desenvolvimento bloqueados. **A existência desses checks não significa que o pacote atual já passou.**
+O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` testa com rede, Homebrew, LibreOffice externo e ferramentas de desenvolvimento bloqueados. **A existência desses checks não significa que o pacote atual já passou.** A correção do empacotamento usa a lista pública Mozilla do keg de certificados, sem copiar a lista local mesclada com Keychains. A ausência de dependências externas, instalação e atualização do bundle ainda não foi aprovada.
 
 ## Atualização, recuperação e retorno à versão anterior
 
@@ -42,7 +42,7 @@ O atualizador:
 3. Prepara e valida uma cópia, grava um diário durável e preserva `PDF.previous.<identificador>.app`.
 4. Ativa a cópia e repete verificações. Falha tratada restaura a anterior; uma interrupção pode deixar diário para recuperação na próxima execução.
 
-Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
+Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. HFS+ realmente cheio e recuperação após SIGKILL passaram nos dois sistemas em `fcac3db`; a desmontagem HFS+ corrigida também passou nos dois jobs de `766fe59`. Isso valida esses cenários do helper, sem aprovar o pacote portátil completo. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
 
 Para **voltar deliberadamente** a uma versão, use novamente o instalador com o pacote anterior aprovado e seu checksum original. Isso preserva a instalação que está sendo substituída. Não mova bundles manualmente enquanto houver aplicativo, tarefas ou instalador em execução. Não apague cópias anteriores e runtimes durante a investigação de uma interrupção.
 

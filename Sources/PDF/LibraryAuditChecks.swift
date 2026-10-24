@@ -137,7 +137,45 @@ enum LibraryAuditChecks {
         let absentAnswer = try await LibraryAnswering.respond(to: absent)
         try require(absentAnswer.citations.isEmpty && absentAnswer.text.contains("não fornecem"), "Uma pergunta sem fontes chegou à geração de resposta.")
         let empty = try await retrieval.search(question: "de o a e", source: searchSource, useEmbeddings: false)
-        try require(empty.sources.isEmpty, "Termos vazios selecionaram fontes arbitrárias.")
+        try require(empty.sources.isEmpty && empty.comparisonSources.isEmpty && LibraryAnswering.comparisonDocumentCount(empty) == 0, "Termos vazios selecionaram fontes arbitrárias.")
+        let dominantDocument = UUID(), otherDocument = UUID(), comparisonRevision = UUID()
+        let dominantSources = (0..<8).map { index in
+            LibraryExcerpt(documentID: dominantDocument, revisionID: comparisonRevision, fingerprint: initial.fingerprint,
+                           title: "Fonte A", page: index + 1, part: 0,
+                           text: "Prazo pagamento em trinta dias. " + String(repeating: "Contexto literal. ", count: 45) + " Final A\(index).")
+        }
+        let lowerRankedSource = LibraryExcerpt(documentID: otherDocument, revisionID: UUID(), fingerprint: initial.fingerprint,
+                                               title: "Fonte B", page: 1, part: 0,
+                                               text: "Pagamento em sessenta dias. " + String(repeating: "Contexto literal. ", count: 45) + " Final B.")
+        let irrelevantSource = LibraryExcerpt(documentID: UUID(), revisionID: UUID(), fingerprint: initial.fingerprint,
+                                              title: "Fonte sem apoio", page: 1, part: 0, text: "A astronomia observa galáxias distantes.")
+        let comparisonInput = dominantSources + [lowerRankedSource, irrelevantSource]
+        let diverseResult = try await retrieval.search(question: "prazo pagamento", source: .init(excerpts: comparisonInput, skipped: []), useEmbeddings: false)
+        try require(diverseResult.sources == dominantSources, "A seleção de comparação alterou os oito resultados normais ou sua ordem de relevância.")
+        try require(diverseResult.comparisonSources.count == 8 && diverseResult.comparisonSources.first == dominantSources[0]
+                    && diverseResult.comparisonSources[1] == lowerRankedSource && diverseResult.comparisonSources.allSatisfy { comparisonInput.contains($0) }
+                    && !diverseResult.comparisonSources.contains(irrelevantSource), "A comparação perdeu uma fonte relevante, reordenou sua prioridade ou inventou apoio de outro documento.")
+        let diverseContext = try LibraryAnswering.comparisonContext(diverseResult)
+        let ordinaryContext = try LibraryAnswering.context(diverseResult)
+        let visibleComparison = try LibraryAnswering.comparisonExcerpts(diverseResult)
+        let contextCharacters = diverseContext.excerpts.reduce(0) { $0 + $1.text.count + $1.id.count + 60 }
+        try require(contextCharacters <= 4_500 && diverseContext.excerpts.count < diverseResult.comparisonSources.count
+                    && LibraryAnswering.comparisonDocumentCount(diverseResult) == 2
+                    && visibleComparison[0].quote == dominantSources[0].text && visibleComparison[1].quote == lowerRankedSource.text
+                    && visibleComparison[1].source == lowerRankedSource && !ordinaryContext.excerpts.contains(where: { $0.id == diverseContext.excerpts[1].id }), "O corte de contexto eliminou a segunda fonte, excedeu o orçamento ou mudou o contexto da resposta comum.")
+        let diversePair = LibraryComparisonResponse.Pair(topic: "Possível diferença de prazo",
+            first: .init(claim: "Prazo pagamento em trinta dias.", excerpt: diverseContext.excerpts[0].id, quote: "Prazo pagamento em trinta dias."),
+            second: .init(claim: "Pagamento em sessenta dias.", excerpt: diverseContext.excerpts[1].id, quote: "Pagamento em sessenta dias."))
+        let diverseValidated = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [diversePair]), result: diverseResult)
+        try require(diverseValidated.pairs.first?.second.citation.source == lowerRankedSource, "A validação não encontrou a proveniência da fonte adicional de comparação.")
+        let ordinaryAnswerLeak = await rejects {
+            _ = try LibraryAnswering.validate(.init(supported: true, answer: "Pagamento em sessenta dias.", citations: [.init(excerpt: diverseContext.excerpts[1].id, quote: "Pagamento em sessenta dias.")]), result: diverseResult)
+        }
+        let duplicateComparisonSources = LibrarySearchResult(question: diverseResult.question, sources: diverseResult.sources, method: diverseResult.method, skipped: [], comparisonSources: [lowerRankedSource, lowerRankedSource])
+        let duplicateComparisonRejected = await rejects { _ = try LibraryAnswering.comparisonContext(duplicateComparisonSources) }
+        let excessiveComparisonSources = LibrarySearchResult(question: diverseResult.question, sources: diverseResult.sources, method: diverseResult.method, skipped: [], comparisonSources: dominantSources + [lowerRankedSource])
+        let excessiveComparisonRejected = await rejects { _ = try LibraryAnswering.comparisonContext(excessiveComparisonSources) }
+        try require(ordinaryAnswerLeak && duplicateComparisonRejected && excessiveComparisonRejected, "As fontes de comparação escaparam para a resposta normal ou fontes malformadas desapareceram pela truncagem.")
         guard let firstSource = result.sources.first, let secondPDF = PDFDocument(url: changedB), let secondText = secondPDF.page(at: 0)?.string else { throw LibraryFailure.invalidPDF }
         let secondSource = LibraryExcerpt(documentID: UUID(), revisionID: UUID(), fingerprint: LibraryFiles.hash(try Data(contentsOf: changedB)),
                                            title: "Outra fonte real", page: 1, part: 0, text: secondText)
@@ -204,6 +242,8 @@ enum LibraryAuditChecks {
         let longResult = LibrarySearchResult(question: "Comparar as condições", sources: longSources, method: "Contrato sintético do limite de contexto", skipped: [])
         let endpoints = try LibraryAnswering.context(.init(question: longResult.question, sources: [longSources[0], longSources[5]], method: longResult.method, skipped: []))
         let outsideContext = LibraryComparisonResponse.Pair(topic: "Trecho não enviado", first: .init(claim: "Conteúdo de contexto limitado.", excerpt: endpoints.excerpts[0].id, quote: "Conteúdo de contexto limitado."), second: .init(claim: "Fim exclusivo da fonte 5.", excerpt: endpoints.excerpts[1].id, quote: "Fim exclusivo da fonte 5."))
+        let limitedComparisonContext = try LibraryAnswering.comparisonContext(longResult)
+        try require(!limitedComparisonContext.excerpts.contains(where: { $0.id == endpoints.excerpts[1].id && $0.text.contains("Fim exclusivo da fonte 5.") }), "A fixture de limite deixou a citação negativa dentro do contexto enviado.")
         let omittedContext = await rejects { _ = try LibraryAnswering.validateComparison(.init(supported: true, pairs: [outsideContext]), result: longResult) }
         try require(omittedContext, "A comparação aceitou uma citação da consulta que não foi enviada ao modelo por limite de contexto.")
 

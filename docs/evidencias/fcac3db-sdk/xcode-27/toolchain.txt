@@ -1,0 +1,6 @@
+arm64
+27.0.1
+Xcode 27.1
+Build version 27A9275
+27.0
+/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor

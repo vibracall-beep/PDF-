@@ -45,13 +45,34 @@ enum LibraryAnswering {
         "s" + LibraryFiles.hash(Data((source.id + ":" + source.fingerprint).utf8))
     }
     static func context(_ result: LibrarySearchResult) throws -> SemanticContext {
+        try context(result, sources: result.sources)
+    }
+    static func comparisonContext(_ result: LibrarySearchResult) throws -> SemanticContext {
+        // Validate before reordering: malformed or excessive supplied sources
+        // must not disappear through the eight-excerpt selection limit.
+        _ = try context(result, sources: result.comparisonSources)
+        return try context(result, sources: LibraryComparisonSources.prioritized(result.comparisonSources))
+    }
+    static func comparisonDocumentCount(_ result: LibrarySearchResult) -> Int {
+        guard let excerpts = try? comparisonExcerpts(result) else { return 0 }
+        return Set(excerpts.map { $0.source.documentID }).count
+    }
+    static func comparisonExcerpts(_ result: LibrarySearchResult) throws -> [LibraryAnswerCitation] {
+        let context = try comparisonContext(result)
+        let sources = Dictionary(uniqueKeysWithValues: result.comparisonSources.map { (sourceID($0), $0) })
+        return try context.excerpts.map { excerpt in
+            guard let source = sources[excerpt.id], source.page == excerpt.page else { throw LibraryFailure.corrupt }
+            return LibraryAnswerCitation(source: source, quote: excerpt.text)
+        }
+    }
+    private static func context(_ result: LibrarySearchResult, sources: [LibraryExcerpt]) throws -> SemanticContext {
         guard !result.question.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              result.question.count <= 800, result.question.utf8.count <= 4_096, result.sources.count <= 8,
-              Set(result.sources.map(\.id)).count == result.sources.count,
-              result.sources.allSatisfy({ LibraryFiles.validHash($0.fingerprint) && $0.page > 0 && !$0.text.isEmpty && $0.text.count <= 900 && $0.text.utf8.count <= 8_192 }) else {
+              result.question.count <= 800, result.question.utf8.count <= 4_096, sources.count <= 8,
+              Set(sources.map(\.id)).count == sources.count,
+              sources.allSatisfy({ LibraryFiles.validHash($0.fingerprint) && $0.page > 0 && !$0.text.isEmpty && $0.text.count <= 900 && $0.text.utf8.count <= 8_192 }) else {
             throw SemanticEvidence.failure("A resposta local exige uma pergunta de até 800 caracteres e fontes válidas desta consulta.")
         }
-        let excerpts = result.sources.map { SourceExcerpt(id: sourceID($0), page: $0.page, text: $0.text) }
+        let excerpts = sources.map { SourceExcerpt(id: sourceID($0), page: $0.page, text: $0.text) }
         guard Set(excerpts.map(\.id)).count == excerpts.count else { throw LibraryFailure.corrupt }
         return SemanticEvidence.bounded(excerpts, budget: 4_500, method: result.method)
     }
@@ -66,12 +87,12 @@ enum LibraryAnswering {
         return LibraryGeneratedAnswer(text: text, citations: citations)
     }
     static func validateComparison(_ response: LibraryComparisonResponse, result: LibrarySearchResult) throws -> LibraryComparisonResult {
-        let context = try context(result)
+        let context = try comparisonContext(result)
         guard response.supported else {
             guard response.pairs.isEmpty else { throw SemanticEvidence.failure("Uma comparação sem apoio apresentou pares inconsistentes.") }
             return LibraryComparisonResult(explanation: "Não há apoio suficiente nos trechos consultados para indicar uma possível divergência. Isso não comprova que os documentos concordam.", pairs: [])
         }
-        let sources = Dictionary(uniqueKeysWithValues: result.sources.map { (sourceID($0), $0) })
+        let sources = Dictionary(uniqueKeysWithValues: result.comparisonSources.map { (sourceID($0), $0) })
         let available = Dictionary(uniqueKeysWithValues: context.excerpts.map { ($0.id, $0) })
         guard Set(context.excerpts.compactMap { sources[$0.id]?.documentID }).count >= 2,
               (1...4).contains(response.pairs.count) else {
@@ -112,8 +133,8 @@ enum LibraryAnswering {
 
     @MainActor static func compare(_ result: LibrarySearchResult) async throws -> LibraryComparisonResult {
         try Task.checkCancellation()
-        let context = try context(result)
-        let sources = Dictionary(uniqueKeysWithValues: result.sources.map { (sourceID($0), $0) })
+        let context = try comparisonContext(result)
+        let sources = Dictionary(uniqueKeysWithValues: result.comparisonSources.map { (sourceID($0), $0) })
         guard Set(context.excerpts.compactMap { sources[$0.id]?.documentID }).count >= 2 else {
             return LibraryComparisonResult(explanation: "Selecione pelo menos dois documentos com trechos de apoio. Não há fontes distintas suficientes para comparar possíveis divergências.", pairs: [])
         }

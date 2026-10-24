@@ -215,3 +215,53 @@ O diagnóstico [40055470424](https://github.com/vibracall-beep/PDF-/actions/runs
 ## 5a11c07 — matriz completa aprovada nos dois sistemas
 
 A execução [40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), do commit `5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`, terminou aprovada em ambos os jobs. Cada sistema aprovou 224 casos Python distintos e 26 grupos nativos em três execuções, instalação/ativação e benchmark com seis operações. Os dois conjuntos de 19 imagens/quatro AX foram recebidos, validados e seus 38 estados revisados. Os quatro JSONs originais de Vision/benchmark e os dois pacotes de fontes também foram recebidos normalmente. A capacidade Apple Vision passou no26 e falhou nos dois checks do27, onde o OCR funcional e as quatro chamadas do benchmark usaram Tesseract. Medições, procedência, limites e comandos fixados estão em [VALIDACAO.md](VALIDACAO.md) e [INSTALACAO.md](INSTALACAO.md).
+
+## Primeiras rodadas 0.6 — falhas anteriores à reconexão GitHub
+
+| Revisão / execução | Resultado observado e correção |
+|---|---|
+| `4cd755c` / [40062813526](https://github.com/vibracall-beep/PDF-/actions/runs/40062813526) | Compilação passou nos dois SDKs; falha em expectativas antigas de tabela que supunham cabeçalho em A1. Corrigidas para conferir conteúdo e tabela sem descartar prosa. Ensaios reais HFS+ cheio/SIGKILL do atualizador passaram, sem aprovação do bundle portátil |
+| `662edfe` / [40063951872](https://github.com/vibracall-beep/PDF-/actions/runs/40063951872) | SwiftUI excedeu capacidade de type-check em SettingsExchangeView; tela dividida em subviews. A execução foi substituída pela seguinte |
+| `e1e8e0a` / [40064237569](https://github.com/vibracall-beep/PDF-/actions/runs/40064237569) | Compilação aprovada nos dois SDKs, 233 testes de núcleo e 37/38 integrações por sistema. Falha restante: descoberta do ICC no novo layout Ghostscript Homebrew. Localização corrigida no teste e no empacotador; integração Linux reexecutada com sucesso |
+
+Um diagnóstico SDK26 já havia extraído metadados App Intents, mas as tentativas seguintes não completaram os dois SDKs. O gate foi endurecido para conferir ações, tipos, parâmetros e provider reais. A autenticação GitHub posteriormente retornou HTTP 401 e suspendeu novos envios; o acesso foi restabelecido antes das rodadas `fcac3db` abaixo. O bloqueio temporário não foi tratado como aprovação de qualquer código.
+
+## fcac3db — ampliação compila nos dois sistemas; duas verificações nativas reprovadas
+
+A matriz [40101134318](https://github.com/vibracall-beep/PDF-/actions/runs/40101134318), do commit `fcac3db3448762185f6c09f106dd995d252f54db`, compilou o aplicativo e aprovou os testes Python em ambos os sistemas. Cada job registrou **389 casos distintos: 388 executados e aprovados, um ignorado**. O caso ignorado depende de `/dev/full` do Linux; o teste de volume HFS+ realmente cheio passou no Mac, assim como os testes de interrupção por SIGKILL.
+
+| Conjunto | macOS 26 | macOS 27 |
+|---|---:|---:|
+| Núcleo Python | 268 aprovados · 74,452 s | 268 aprovados · 83,861 s |
+| Integrações Python | 45 aprovadas · 47,809 s | 45 aprovadas · 67,321 s |
+| Scripts | 75 aprovados + 1 ignorado · 16,781 s | 75 aprovados + 1 ignorado · 17,002 s |
+| Fases nativas iniciadas no primeiro smoke | 37 | 37 |
+| Fases nativas aprovadas / reprovadas | 35 / 2 | 35 / 2 |
+
+As duas falhas foram iguais nos sistemas: `Command palette shortcuts and workspace profiles` recusou a expectativa de reordenação do perfil; `Opt-in folder automation` recusou a asserção conjunta de filtragem e chave de caminho. As demais fases continuaram e seus resultados foram preservados. Passaram, entre outras, recuperação real após SIGKILL, retenção do lease em processos nativos, biblioteca/revisões/sincronização, transporte privado, contratos de edição/OCR e as verificações de serialização, senhas Unicode e permissões originais. O resultado global continuou **reprovado**, e o instalador parou antes da ativação. Essa rodada não aprovou os smokes posteriores, as 32 capturas/cinco relatórios AX previstos, o benchmark, o ensaio com o modelo Apple nem a distribuição portátil.
+
+Em paralelo, o diagnóstico [40101147782](https://github.com/vibracall-beep/PDF-/actions/runs/40101147782), do mesmo commit, extraiu metadados App Intents reais com sucesso nos SDKs 26 e 27. Os artefatos originais foram baixados, e os JSONs `extract.actionsdata`/`version.json` passaram também pelo validador completo de produção: duas ações, entrada de arquivo PDF, fluxo obrigatório, provider, frases e consulta da entidade. Os identificadores de ferramentas foram `17F113` e `27A9275`. Os [bytes originais e a procedência](evidencias/fcac3db-sdk/README.md) preservam a prova. Extração válida não comprova, por si só, registro ou interação pelo aplicativo Atalhos.
+
+## d0fda92 — aplicativo aprovado no macOS 26; empacotamento e teste HFS+ reprovados
+
+O commit `d0fda928678a52b545302dd17f99992abce5aa93` corrige a auditoria de perfis: mover OCR **antes de Juntar PDF** não o torna o primeiro cartão quando `conversion-audit` já precede ambos. O teste antigo também não alterava efetivamente a ordem antes de restaurar. A nova auditoria exige a ordem completa de ferramentas e navegação, inverte ambas antes da aplicação, reabre as preferências e confere os bytes persistidos do perfil. A revisão do código encontrou ainda normalização descartada por uma segunda decodificação; o perfil passa a gravar o snapshot validado. IDs removidos ou duplicados são tratados sem perder a identidade dos cartões, com negativos de migração preservados.
+
+Na automação, a asserção anterior combinava quantidade e presença de uma chave não canônica. O diagnóstico da nova rodada confirmou `legacyCount=1`, `rawLookup=false`, `canonicalLookup=true`, `rootHasAlias=true`: a filtragem produzia um único arquivo, mas o acesso pela chave divergia sob `/var` e `/private/var`. A correção canonicaliza somente a pasta após conferir tipo e identidade; cada folha continua passando por `lstat`, sem resolver links. A auditoria separa quantidade e chave exata, registra apenas indicadores booleanos de caminhos e acrescenta aliases ancestrais, ausência de replay, regra duplicada, diretório com extensão PDF, FIFO, links quebrados, troca de arquivo por link e cancelamento. Não aceita uma filtragem mais permissiva para fazer o teste passar.
+
+Os ajustes receberam revisão independente de código. Na matriz [40103086558](https://github.com/vibracall-beep/PDF-/actions/runs/40103086558), o macOS 26 aprovou compilação, instalação/ativação por fontes e todos os **37 grupos nativos nas três execuções**. Os testes Python passaram: 268 de núcleo em 79,374 s; 45 integrações em 57,702 s; 75 testes de scripts e um skip Linux em 17,212 s. São 389 casos distintos, 388 aprovados e um ignorado. As 32 capturas reais/cinco relatórios AX passaram; as 32 imagens foram revisadas manualmente. Os seis testes de benchmark passaram em Apple M1 Virtual, com corpus sintético de 100 páginas; OCR/contraste medem só a primeira página. Os dois checks Vision passaram. O ensaio Apple registrou `unavailable`/`deviceNotEligible`, sem tentativa de geração em nenhum dos cinco casos. Os [quatro relatórios originais](evidencias/d0fda92-macos26/README.md) conservam hashes e procedência.
+
+**A execução global reprovou.** O job27 parou antes de compilar porque `hdiutil detach` retornou 16 (`busy`) ao desmontar o volume HFS+ da fixture depois do corpo do teste. O job26 chegou pela primeira vez ao empacotamento portátil, que recusou `/opt/homebrew/etc/ca-certificates/cert.pem` como referência externa. Isso não aprova relocação, isolamento, instalação ou atualização do pacote autocontido. A revisão visual também encontrou títulos preenchidos sem rótulos persistentes nos painéis; ajustes preservando bindings/ações foram incluídos no snapshot seguinte.
+
+## 766fe59 — HFS+ corrigido; fixture CA reprovada por alias de caminho
+
+O commit `766fe59459b79f279d41803e9602995497bf0153`, [40105444603](https://github.com/vibracall-beep/PDF-/actions/runs/40105444603), inclui rótulos persistentes, limpeza do volume de teste e seleção da lista pública Mozilla no bundle. A desmontagem valida imagem/dispositivo antes de cada tentativa, repete somente erro `busy` e não usa força; uma falha de cleanup não apaga o erro original. O empacotador não copia a lista de certificados do host mesclada com Keychains e mantém a recusa de outras referências externas.
+
+Nos dois sistemas, o teste HFS+ real passou. A etapa de scripts teve **81 casos: 79 aprovados, um reprovado e um skip**; tempos 16,578 s no26 e 16,485 s no27. A falha comparou `/var` com `/private/var` no teste CA; não demonstrou divergência no certificado selecionado. A fixture foi corrigida com raiz canônica e `samefile`; seus três casos focais passaram localmente em 0,174 s. Como a etapa de integridade reprovou, **não houve compilação nem nova validação visual/nativa deste snapshot**. O isolamento Python e as correções aguardam nova matriz; pacote portátil, M4 físico, modelo Apple e VoiceOver humano não recebem aprovação por antecipação.
+
+## Correções posteriores a 766fe59 — aguardando nova matriz
+
+A auditoria ampliou o isolamento do pacote: a política `sitecustomize.py` gerada pelo Homebrew é retirada somente das cópias, com o texto original preservado fora do caminho de importação; nenhum `.pth` do host deve executar. A trust store e o diretório TLS passam a ser internos. Fontconfig usa configurações públicas selecionadas, fontes do sistema/usuário e cache fora do bundle assinado; o verificador exige configurações internas e descoberta de fonte real. Os 87 testes de scripts passaram localmente com 86 executados e um HFS+ exclusivo de macOS ignorado (2,510 s). Isso não substitui isolamento do pacote no Mac.
+
+A prévia de validação/assinatura passa a rejeitar callbacks após alteração de contexto ou saída da tela. PDF→Excel conserva valores como `=1+1`, `-12`, `+55` e texto Unicode como strings, sem apóstrofos adicionais e sem fórmulas no XML. Foram aprovados 14 testes focados e três integrações reais LibreOffice (38,613 s); uma nova integração de ida e volta amplia o conjunto de 45 para 46 casos, ainda sem execução agregada macOS deste snapshot.
+
+A comparação entre PDFs seleciona documentos distintos antes de trechos adicionais de uma mesma fonte, preservando o ranking de busca/resposta comum. Interface, geração e validação usam o mesmo contexto efetivamente incluído no orçamento de 4.500 caracteres. A auditoria nativa acrescenta o cenário de oito trechos dominantes de A e um relevante de B, truncamento e referências indevidas. Parser e revisão independente passaram; a execução dessas regressões nativas ainda depende da próxima matriz.

@@ -20,11 +20,21 @@ import stat
 import subprocess
 import sys
 import tarfile
-from binary_update import contained_link, copy_regular_file
+import xml.parsers.expat
+from binary_update import contained_link, copy_regular_file, regular_bytes
 
 SCRIPTS = Path(__file__).resolve().parent
 MAGICS = {b'\xfe\xed\xfa\xce', b'\xce\xfa\xed\xfe', b'\xfe\xed\xfa\xcf', b'\xcf\xfa\xed\xfe', b'\xca\xfe\xba\xbe', b'\xbe\xba\xfe\xca', b'\xca\xfe\xba\xbf', b'\xbf\xba\xfe\xca'}
 SYSTEM = ('/System/Library/', '/usr/lib/')
+FONTCONFIG_DEFAULTS = (
+    '05-macos.conf', '10-hinting-slight.conf', '10-scale-bitmap-fonts.conf',
+    '10-sub-pixel-none.conf', '10-yes-antialias.conf', '11-lcdfilter-default.conf',
+    '20-unhint-small-vera.conf', '30-metric-aliases.conf', '40-nonlatin.conf',
+    '45-generic.conf', '45-latin.conf', '48-guessfamily.conf', '48-spacing.conf',
+    '49-sansserif.conf', '60-generic.conf', '60-latin.conf', '65-fonts-persian.conf',
+    '65-nonlatin.conf', '69-unifont.conf', '70-no-bitmaps-except-emoji.conf',
+    '80-delicious.conf', '90-synthetic.conf',
+)
 
 
 def command(*args):
@@ -75,6 +85,91 @@ def register_public_ca(runtime, maps, homebrew_prefix=Path('/opt/homebrew')):
     if trust.cert_store_stats()['x509'] == 0:
         raise ValueError('A trust store pública não contém certificados válidos.')
     maps[homebrew_prefix / 'etc/ca-certificates/cert.pem'] = public
+
+
+def isolate_python_startups(runtime, formulas):
+    """Remove only Homebrew's global-site startup policy from copied Pythons."""
+    preserved = []
+    evidence = runtime / 'share/python-startup-provenance'
+    for formula in sorted(formulas):
+        match = re.fullmatch(r'python@(\d+\.\d+)', formula)
+        if match is None:
+            continue
+        version = match.group(1)
+        stdlib = runtime / ('vendor/' + formula + '/Frameworks/Python.framework/Versions/'
+                           + version + '/lib/python' + version)
+        startup = stdlib / 'sitecustomize.py'
+        descriptor = os.open(startup, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+        with os.fdopen(descriptor, 'rb') as stream:
+            before = os.fstat(stream.fileno())
+            if not stat.S_ISREG(before.st_mode) or not 0 < before.st_size <= 256 * 1024:
+                raise ValueError('A política Python da fórmula não é um arquivo regular limitado.')
+            data = stream.read(256 * 1024 + 1)
+            after = os.fstat(stream.fileno())
+            if len(data) != before.st_size or before.st_mtime_ns != after.st_mtime_ns:
+                raise ValueError('A política Python mudou durante a leitura.')
+        if b'# This file is created by Homebrew and is executed on each python startup.' not in data:
+            raise ValueError('Política de startup Python desconhecida; arquivo preservado para revisão.')
+        # copy_tree already omits bytecode. Refuse unexpected executable caches
+        # rather than leaving a sourceless copy of this policy active.
+        if (stdlib / 'sitecustomize.pyc').exists() or any((stdlib / '__pycache__').glob('sitecustomize.*.pyc')):
+            raise ValueError('Bytecode inesperado da política Python; pacote recusado.')
+        evidence.mkdir(parents=True, exist_ok=True)
+        original = evidence / (formula + '-sitecustomize.txt')
+        with original.open('xb') as stream:
+            stream.write(data)
+        original.chmod(0o644)
+        startup.unlink()
+        preserved.append(formula)
+    if not preserved:
+        raise ValueError('Nenhum runtime Python conhecido foi isolado.')
+    return preserved
+
+
+def configure_private_fontconfig(runtime):
+    """Use public keg defaults, never the build Mac's /opt/homebrew/etc/fonts."""
+    vendor = runtime / 'vendor/fontconfig/share'
+    destination = runtime / 'share/fontconfig'
+    destination.mkdir(parents=True)
+    defaults = destination / 'conf.d'; defaults.mkdir()
+    for name in FONTCONFIG_DEFAULTS:
+        data = regular_bytes(vendor / 'fontconfig/conf.avail' / name, 1024 * 1024)
+        parser = xml.parsers.expat.ParserCreate()
+        roots = []
+        def element(tag, attributes):
+            roots.append(tag)
+            if tag.rsplit(':', 1)[-1] in ('include', 'dir', 'cachedir'):
+                raise ValueError('Regra fontconfig pública passou a importar configuração externa.')
+        def entity(*arguments):
+            raise ValueError('Entidade externa ou personalizada recusada na regra fontconfig.')
+        parser.StartElementHandler = element
+        parser.EntityDeclHandler = entity
+        parser.ExternalEntityRefHandler = entity
+        parser.SetParamEntityParsing(xml.parsers.expat.XML_PARAM_ENTITY_PARSING_NEVER)
+        # Fontconfig uses Expat without XML namespace processing. Its official
+        # 48-guessfamily.conf contains xsi:nil without an xmlns declaration;
+        # parse with the same namespace semantics, without loading the DTD.
+        parser.Parse(data, True)
+        # The omitted 50-user/51-local rules import private configuration.
+        # Even a future change to an allowed public rule cannot silently add a
+        # new config/font/cache location outside this reviewed root document.
+        if not roots or roots[0] != 'fontconfig':
+            raise ValueError('Regra pública fontconfig inválida.')
+        (defaults / name).write_bytes(data)
+    (destination / 'fonts.dtd').write_bytes(regular_bytes(vendor / 'xml/fontconfig/fonts.dtd', 1024 * 1024))
+    (destination / 'fonts.conf').write_text('''<?xml version="1.0"?>
+<!DOCTYPE fontconfig SYSTEM "urn:fontconfig:fonts.dtd">
+<fontconfig>
+  <description>PDF private font configuration using public fontconfig defaults</description>
+  <dir>/System/Library/Fonts</dir>
+  <dir>/Library/Fonts</dir>
+  <dir>~/Library/Fonts</dir>
+  <include ignore_missing="no">conf.d</include>
+  <cachedir>~/Library/Caches/PDF/fontconfig</cachedir>
+  <config><rescan><int>30</int></rescan></config>
+</fontconfig>
+''')
+    return destination
 
 
 def relocate_links(original, copied, maps):
@@ -186,6 +281,8 @@ def build(installed, output, commit):
     for source, target in copies:
         copy_tree(source, target)
     register_public_ca(runtime, maps)
+    isolated_pythons = isolate_python_startups(runtime, formulas)
+    configure_private_fontconfig(runtime)
     # All dependencies are known before remapping cross-formula symlinks.
     for source, target in copies:
         relocate_links(source, target, maps)
@@ -253,6 +350,9 @@ unset PYTHONPATH PYTHONHOME
 '''
     for key, value in {'PDF_JAVA': rel(java), 'PDF_VERAPDF_JAR': rel(jar),
                        'SSL_CERT_FILE': rel(site / 'certifi/cacert.pem'),
+                       'SSL_CERT_DIR': 'vendor/ca-certificates/share/ca-certificates',
+                       'FONTCONFIG_FILE': 'share/fontconfig/fonts.conf',
+                       'FONTCONFIG_PATH': 'share/fontconfig',
                        'REQUESTS_CA_BUNDLE': rel(site / 'certifi/cacert.pem'),
                        'PLAYWRIGHT_BROWSERS_PATH': 'browsers', 'TESSDATA_PREFIX': rel(tessdata),
                        'GS_LIB': rel(gs_resource / 'Init') + ':$PDF_RUNTIME/' + rel(gs_resource / 'Font') + ':$PDF_RUNTIME/' + rel(gs_resource.parent / 'lib')}.items():
@@ -263,6 +363,7 @@ unset PYTHONPATH PYTHONHOME
     (runtime / 'environment.sh').write_text(environment)
     programs = {'python3': rel(python), 'qpdf': 'vendor/qpdf/bin/qpdf',
                 'tesseract': 'vendor/tesseract/bin/tesseract', 'gs': 'vendor/ghostscript/bin/gs',
+                'fc-match': 'vendor/fontconfig/bin/fc-match', 'fc-conflist': 'vendor/fontconfig/bin/fc-conflist',
                 'java': rel(java), 'soffice': 'LibreOffice.app/Contents/MacOS/soffice'}
     for name, formula in (('jbig2', 'jbig2enc'), ('pngquant', 'pngquant'), ('unpaper', 'unpaper'), ('ffmpeg', 'ffmpeg')):
         candidate = runtime / 'vendor' / formula / 'bin' / name
@@ -294,6 +395,7 @@ unset PYTHONPATH PYTHONHOME
     portable = {'schemaVersion': 1, 'commit': commit, 'architecture': 'arm64', 'minimumMacOS': '26.0',
                 'applicationVersion': plistlib.loads((app / 'Contents/Info.plist').read_bytes()).get('CFBundleShortVersionString'),
                 'dependencyFormulae': formulas, 'externalCoreEnginesRequired': False,
+                'removedHostPythonStartupPolicy': isolated_pythons,
                 'optionalSystemIntegrations': ['Apple Pages for Pages conversion', 'compatible scanner', 'Apple Intelligence system model']}
     (runtime / 'portable.json').write_text(json.dumps(portable, indent=2) + '\n')
     distribution = resources / 'distribution'; distribution.mkdir()

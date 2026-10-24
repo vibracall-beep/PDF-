@@ -41,6 +41,22 @@ class IntegrationTests(unittest.TestCase):
             self.assertIn('Oranges', text)
             self.assertIn('42', text)
 
+    def test_pdf_excel_roundtrip_keeps_formula_like_values_literal(self):
+        source=self.root/'literals.pdf';workbook=self.root/'literals.xlsx';rendered=self.root/'literals-roundtrip.pdf'
+        expected=['=1+1','-12','+55','@user','+ação']
+        with fitz.open() as doc:
+            page=doc.new_page()
+            for index,value in enumerate(expected):page.insert_text((40,60+index*30),value,fontsize=12)
+            doc.save(source)
+        source_bytes=source.read_bytes()
+        run('excel',[source],workbook,{'source':'vector'})
+        workbook_bytes=workbook.read_bytes()
+        run('office',[workbook],rendered,{'fit_width':True})
+        with fitz.open(rendered) as doc:
+            actual=[line.strip() for page in doc for line in page.get_text().splitlines() if line.strip()]
+        self.assertEqual(actual,expected)
+        self.assertEqual(source.read_bytes(),source_bytes);self.assertEqual(workbook.read_bytes(),workbook_bytes)
+
     def test_powerpoint_to_pdf(self):
         from pptx import Presentation
         source = self.root / 'source.pptx'

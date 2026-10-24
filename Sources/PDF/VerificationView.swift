@@ -2,6 +2,20 @@ import SwiftUI
 import AppKit
 import UniformTypeIdentifiers
 
+private struct VerificationContext: Equatable {
+    let mode: String
+    let source: URL?
+    let roots: [URL]
+    let requireRevocation: Bool
+    let crls: [URL]
+    let ocspResponses: [URL]
+    let endpoints: String
+    let allowRevocationNetwork: Bool
+    let validateLTA: Bool
+    let archiveProfile: String
+    let accessibilityProfile: String
+}
+
 /// Certificate secrets deliberately have no AppStorage, preset or history model.
 struct VerificationView: View {
     @EnvironmentObject private var model: Workspace
@@ -28,6 +42,7 @@ struct VerificationView: View {
     @State private var endpoints = ""
     @State private var allowRevocationNetwork = false
     @State private var validateLTA = false
+    @State private var verificationGeneration = UUID()
 
     init(initialMode: String = "sign", sourceURL: URL? = nil) {
         _mode = State(initialValue: ["sign", "verify", "pdfa", "pdfua"].contains(initialMode) ? initialMode : "sign")
@@ -44,6 +59,12 @@ struct VerificationView: View {
     }
     private var operation: String {
         ["sign": "digital-sign", "verify": "verify-signatures", "pdfa": "validate-pdfa", "pdfua": "validate-pdfua"][mode] ?? "verify-signatures"
+    }
+    private var validationContext: VerificationContext {
+        VerificationContext(mode: mode, source: source, roots: roots, requireRevocation: requireRevocation,
+            crls: crls, ocspResponses: ocspResponses, endpoints: endpoints,
+            allowRevocationNetwork: allowRevocationNetwork, validateLTA: validateLTA,
+            archiveProfile: archiveProfile, accessibilityProfile: accessibilityProfile)
     }
 
     var body: some View {
@@ -106,7 +127,11 @@ struct VerificationView: View {
         .onChange(of: source) { _, _ in
             report = nil; reportURL = nil; signedURL = nil; error = ""
         }
-        .onDisappear { certificatePIN = "" }
+        .onChange(of: validationContext) { _, _ in
+            verificationGeneration = UUID()
+            report = nil; reportURL = nil; error = ""
+        }
+        .onDisappear { certificatePIN = ""; verificationGeneration = UUID() }
     }
 
     private var sourceSection: some View {
@@ -329,8 +354,13 @@ struct VerificationView: View {
         }
         guard let output = NativeOutput.destination(model: model, toolName: title,
             extension: signing ? "pdf" : "json", originalURL: source) else { return }
+        let submittedContext = validationContext
+        let token = UUID(); verificationGeneration = token
         certificatePIN = ""; report = nil; reportURL = nil
         model.execute(operation: operation, inputs: [source], output: output, options: options, title: title, completion: { result in
+            // A completed result remains a valid saved artifact, but belongs in
+            // this view only while its source and validation options still match.
+            guard verificationGeneration == token && validationContext == submittedContext else { return }
             switch result {
             case .success(let url):
                 if signing { signedURL = url }

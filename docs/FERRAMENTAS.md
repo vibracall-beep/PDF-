@@ -2,7 +2,7 @@
 
 O [catálogo atual](../Sources/PDF/PDFApp.swift) contém **71 cartões: 54 preservados da base anterior e 17 novos**, além do leitor permanente. Cartões de biblioteca, histórico, pesquisa e sincronização abrem o mesmo espaço de trabalho, onde ficam suas ações; a quantidade de cartões não equivale à quantidade de mecanismos independentes.
 
-**A versão 0.6 está em validação.** A aprovação macOS da base anterior não aprova as novas ferramentas. O acesso à integração GitHub retornou `401 — Bad credentials`, bloqueando novos envios e o teste nativo final deste snapshot. Veja [AMPLIACOES-2026-10.md](AMPLIACOES-2026-10.md) para cobertura e limites por requisito e [VALIDACAO.md](VALIDACAO.md) para evidências datadas.
+**A versão 0.6 está em validação.** A autenticação GitHub foi restabelecida. `d0fda92` aprovou no macOS 26 os testes Python, três smokes de 37 grupos, 32 capturas e cinco relatórios AX; a matriz global reprovou no instalador/empacotamento. A rodada `766fe59` também reprovou antes da compilação, num teste de caminhos de certificados. A aprovação parcial não aprova o pacote portátil nem o conjunto atual nos dois sistemas. Veja [AMPLIACOES-2026-10.md](AMPLIACOES-2026-10.md) para cobertura e limites por requisito e [VALIDACAO.md](VALIDACAO.md) para evidências datadas.
 
 ## Os 17 cartões acrescentados
 
@@ -24,7 +24,7 @@ O [catálogo atual](../Sources/PDF/PDFApp.swift) contém **71 cartões: 54 prese
 | Conjunto de documentos | Reúne até 500 PDFs com índice navegável e marcadores. A composição não conserva a validade criptográfica de assinaturas feitas sobre bytes anteriores. |
 | Carimbo personalizado | Aplica carimbo gráfico de revisão ou identificação; não equivale a assinatura certificada. |
 | Medir com escala | Calcula distância, perímetro e área com a escala informada pelo usuário. Não faz calibração física automática. |
-| Automação do Mac | [Regras de pastas monitoradas](../Sources/PDF/AutomationWorkspace.swift) com fluxos salvos, fila e ativação explícita, além dos Serviços do Finder. Requer app aberto; não instala daemon. App Intents para abrir PDF e executar fluxo estão implementados, com descoberta/execução macOS ainda pendentes. |
+| Automação do Mac | [Regras de pastas monitoradas](../Sources/PDF/AutomationWorkspace.swift) com fluxos salvos, fila e ativação explícita, além dos Serviços do Finder. Requer app aberto; não instala daemon. App Intents para abrir PDF e executar fluxo têm metadados reais aprovados nos SDKs 26/27 e testes de entrada aprovados no macOS 26; a interação pela interface do Atalhos ainda não foi comprovada. |
 
 ## Correspondência histórica com a terceira imagem
 

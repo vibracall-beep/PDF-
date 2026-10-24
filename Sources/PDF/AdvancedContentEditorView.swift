@@ -71,6 +71,8 @@ struct AdvancedContentEditorView: View {
     private var selected: ContentObjectDescriptor? { controller.content?.objects.first { $0.id == selection } }
     private var pageObjects: [ContentObjectDescriptor] { controller.content?.objects.filter { $0.page == page } ?? [] }
     var body: some View {
+        GeometryReader { geometry in
+        ScrollView {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
                 VStack(alignment: .leading) {
@@ -94,14 +96,16 @@ struct AdvancedContentEditorView: View {
                     Button("Descartar alterações") { edits = [:]; select(selection) }.disabled(edits.isEmpty)
                     Button("Exportar cópia…") { export() }.buttonStyle(.borderedProminent).disabled(edits.isEmpty || controller.working || model.busy || loadingAsset)
                 }
-                HSplitView {
+                ContentReviewWorkspace(availableHeight: geometry.size.height,
+                                       inspectorLabel: "Objetos da página e opções de edição") {
                     ContentPagePreview(document: document, page: content.pages[page - 1], regions: pageObjects.map {
                         ContentPreviewRegion(id: $0.id, rect: $0.rect,
                             label: $0.isText ? ($0.kind == "paragraph" ? "Parágrafo: " : "Texto: ") + String(($0.text ?? "").prefix(100)) : "Imagem da página \(page)",
                             changed: edits[$0.id] != nil, warning: !$0.editable)
-                    }, selection: $selection).frame(minWidth: 320, minHeight: 320)
+                    }, selection: $selection)
+                } inspector: {
                     VStack(alignment: .leading, spacing: 10) {
-                        Text("Objetos da página").font(.headline)
+                        Text("Objetos da página").font(.headline).fixedSize(horizontal: false, vertical: true)
                         List(pageObjects, selection: $selection) { item in
                             HStack(alignment: .top) {
                                 Image(systemName: item.kind == "paragraph" ? "paragraphsign" : item.isText ? "text.alignleft" : "photo")
@@ -112,13 +116,13 @@ struct AdvancedContentEditorView: View {
                                     if edits[item.id] != nil { Text("Alteração preparada").font(.caption).foregroundStyle(.green) }
                                 }
                             }.tag(item.id)
-                        }.frame(minHeight: 100, idealHeight: 170, maxHeight: 220)
+                        }.frame(height: 180).accessibilityLabel("Objetos da página")
                         if let item = selected, let draft {
                             inspector(item, draft: Binding(get: { self.draft ?? draft }, set: { self.draft = $0 }))
                         } else {
                             ContentUnavailableView("Selecione um objeto", systemImage: "cursorarrow.click", description: Text("Clique em um retângulo na página ou em um item da lista."))
                         }
-                    }.padding(12).frame(minWidth: 300, idealWidth: 370, maxWidth: 460)
+                    }
                 }
             } else {
                 ContentUnavailableView("Carregue um documento", systemImage: "doc.text.magnifyingglass", description: Text("A análise identifica objetos existentes e informa quais podem ser modificados com segurança."))
@@ -132,14 +136,15 @@ struct AdvancedContentEditorView: View {
                 if controller.working { Button("Cancelar") { controller.stop(model: model) } }
                 if let output = controller.output { Button("Abrir resultado") { model.open(url: output) } }
             }
-        }.padding(24).onChange(of: selection) { _, value in select(value) }
+        }.padding(24)
+        }
+        }.onChange(of: selection) { _, value in select(value) }
             .onAppear { selectFirstObject() }
             .onChange(of: controller.content?.source_sha256) { _, _ in selectFirstObject() }
             .onChange(of: page) { _, _ in selection = nil; draft = nil; selectFirstObject() }
             .onDisappear { controller.close(model: model) }
     }
     @ViewBuilder private func inspector(_ item: ContentObjectDescriptor, draft: Binding<ContentEditDraft>) -> some View {
-        ScrollView {
             VStack(alignment: .leading, spacing: 12) {
                 Text(item.kind == "paragraph" ? "Parágrafo original" : item.isText ? "Trecho original" : "Imagem original").font(.headline)
                 ForEach(Array(item.limitations.enumerated()), id: \.offset) { _, limitation in Text(explanation(limitation)).font(.caption).foregroundStyle(.secondary) }
@@ -153,7 +158,7 @@ struct AdvancedContentEditorView: View {
                 }
                 if draft.wrappedValue.action != "delete" {
                     if item.isText {
-                        TextEditor(text: draft.text).font(.body).frame(minHeight: 100).border(.quaternary)
+                        TextEditor(text: draft.text).font(.body).frame(height: 120).border(.quaternary)
                             .accessibilityLabel("Texto substituto do objeto")
                         LabeledContent("Tamanho da fonte (pt)") {
                             TextField("Pontos", value: draft.fontSize, format: .number).frame(width: 100)
@@ -208,7 +213,6 @@ struct AdvancedContentEditorView: View {
                         draft.wrappedValue.width = item.rect[2] - item.rect[0]; draft.wrappedValue.height = item.rect[3] - item.rect[1]
                     }
                 }
-        }
     }
     private func select(_ id: String?) {
         validation = ""

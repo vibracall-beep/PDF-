@@ -43,7 +43,10 @@ while IFS= read -r PDF_MEMBER; do
   [[ "$PDF_MEMBER" == PDF-distribution || "$PDF_MEMBER" == PDF-distribution/* ]] || fail 'Estrutura do pacote inválida.'
   [[ "/$PDF_MEMBER/" != */../* && "/$PDF_MEMBER/" != */./* ]] || fail 'Caminho inseguro no pacote.'
 done < "$PDF_EXTRACT/members.txt"
-/usr/bin/tar -xzf "$PDF_ARCHIVE" -C "$PDF_EXTRACT"
+# The private extraction directory remains 0700. Preserve authenticated file
+# modes inside it: applying umask 077 to 0644/0755 would invalidate the exact
+# manifest and executable permissions. Do not restore the build user's owner.
+/usr/bin/tar -xzpf "$PDF_ARCHIVE" --no-same-owner -C "$PDF_EXTRACT"
 PDF_DISTRIBUTION="$PDF_EXTRACT/PDF-distribution"
 PDF_APP="$PDF_DISTRIBUTION/PDF.app"
 /usr/bin/codesign --verify --deep --strict "$PDF_APP"

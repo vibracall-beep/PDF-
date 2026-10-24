@@ -44,6 +44,7 @@ struct OCRReviewView: View {
         controller.review.map { recognition != $0.recognitionConfiguration } ?? false
     }
     var body: some View {
+        GeometryReader { geometry in
         ScrollView {
         VStack(alignment: .leading, spacing: 14) {
             HStack {
@@ -81,25 +82,30 @@ struct OCRReviewView: View {
             Text("Use um PDF digitalizado sem texto selecionável. Confira cada trecho contra a imagem. A exportação mantém a página original e aplica uma camada de texto invisível; a imagem impressa não muda com as correções.")
                 .font(.callout).foregroundStyle(.secondary)
             if let review = controller.review, let document = controller.preview {
-                HStack {
+                ContentReviewActions {
                     Picker("Página", selection: $page) { ForEach(review.pages) { Text("\($0.page)").tag($0.page) } }.frame(width: 150)
                     Toggle("Mostrar apenas baixa confiança", isOn: $lowConfidenceOnly)
                     if lowConfidenceOnly {
-                        Slider(value: $confidenceThreshold, in: 0...100, step: 5).frame(width: 110).accessibilityLabel("Limite de confiança OCR")
-                        Text("< \(Int(confidenceThreshold))%").monospacedDigit()
+                        HStack {
+                            Slider(value: $confidenceThreshold, in: 0...100, step: 5).frame(width: 110).accessibilityLabel("Limite de confiança OCR")
+                            Text("< \(Int(confidenceThreshold))%").monospacedDigit()
+                        }
                     }
-                    Spacer()
-                    Text("\(PortugueseCount.label(corrections.values.count, "correção", "correções"))").foregroundStyle(.secondary)
-                    Button("Descartar correções") { corrections.reset(); updateSelection() }.disabled(corrections.values.isEmpty)
+                    ContentReviewActions {
+                        Text("\(PortugueseCount.label(corrections.values.count, "correção", "correções"))").foregroundStyle(.secondary)
+                        Button("Descartar correções") { corrections.reset(); updateSelection() }.disabled(corrections.values.isEmpty)
+                    }
                 }
-                HSplitView {
+                ContentReviewWorkspace(availableHeight: geometry.size.height,
+                                       inspectorLabel: "Palavras reconhecidas e correções OCR") {
                     ContentPagePreview(document: document, page: review.pages[page - 1], regions: visibleWords.map {
                         ContentPreviewRegion(id: $0.id, rect: $0.rect,
                             label: "OCR: \($0.text), confiança \(Int($0.confidence * 100)) por cento",
                             changed: corrections.values[$0.id] != nil, warning: $0.confidence * 100 < confidenceThreshold)
-                    }, selection: $selection).frame(minWidth: 320, minHeight: 330)
+                    }, selection: $selection)
+                } inspector: {
                     VStack(alignment: .leading, spacing: 12) {
-                        Text("Palavras reconhecidas").font(.headline)
+                        Text("Palavras reconhecidas").font(.headline).fixedSize(horizontal: false, vertical: true)
                         Text("Análise: \(review.recognitionConfiguration.languageTitle) · \(review.recognitionConfiguration.layoutTitle)")
                             .font(.caption).foregroundStyle(.secondary)
                         Text("Motor: \(review.backend)" + (review.recognitionConfiguration.deskew ? " · compensação de inclinação solicitada" : ""))
@@ -113,19 +119,20 @@ struct OCRReviewView: View {
                                 Spacer()
                                 Text("\(Int(word.confidence * 100))%").font(.caption.monospacedDigit()).foregroundStyle(word.confidence * 100 < confidenceThreshold ? Color.orange : Color.secondary)
                             }.tag(word.id)
-                        }.frame(minHeight: 160)
+                        }.frame(height: 180).accessibilityLabel("Palavras reconhecidas da página")
                         if let selected {
                             Text("Original: \(selected.text)").font(.callout).textSelection(.enabled)
-                            TextEditor(text: $replacement).frame(minHeight: 60, maxHeight: 120).border(.quaternary)
+                                .fixedSize(horizontal: false, vertical: true)
+                            TextEditor(text: $replacement).frame(height: 120).border(.quaternary)
                                 .accessibilityLabel("Correção do trecho OCR selecionado")
-                            HStack {
+                            ContentReviewActions {
                                 Button("Guardar correção") { saveCorrection(selected) }.buttonStyle(.borderedProminent)
                                 Button("Restaurar original") { corrections.remove(selected.id); updateSelection() }
                                     .disabled(corrections.values[selected.id] == nil)
                             }.disabled(controller.working)
                         } else { Text("Selecione uma palavra na lista ou na página para corrigir o texto.").foregroundStyle(.secondary) }
-                    }.padding(12).frame(minWidth: 310, idealWidth: 380, maxWidth: 500)
-                }.frame(height: 420)
+                    }
+                }
             } else {
                 ContentUnavailableView("Imagem e texto sob revisão", systemImage: "text.viewfinder",
                     description: Text("O reconhecimento acontece neste Mac. A confiança do OCR ajuda a localizar erros; ela não substitui a conferência visual."))
@@ -140,6 +147,7 @@ struct OCRReviewView: View {
                 if let output = controller.output { Button("Abrir resultado") { model.open(url: output) } }
             }
         }.padding(24)
+        }
         }.onChange(of: selection) { _, _ in updateSelection() }
             .onAppear { selectFirstWord() }
             .onChange(of: controller.review?.recognitionConfiguration) { _, value in

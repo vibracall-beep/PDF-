@@ -352,9 +352,13 @@ int main(int argc,char **argv) {
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--ipc-probe', type=Path, required=True)
     args = parser.parse_args()
     if sys.platform != 'darwin': raise ValueError('This diagnosis requires macOS.')
     os.umask(0o077)
+    ipc_probe = args.ipc_probe.resolve(strict=True)
+    if not ipc_probe.is_file() or not os.access(ipc_probe, os.X_OK):
+        raise ValueError('The separately compiled IPC control is unavailable.')
     output = args.output.absolute(); output.mkdir(mode=0o700)
     source = Path('/Applications/LibreOffice.app')
     info = plistlib.loads((source / 'Contents/Info.plist').read_bytes())
@@ -364,6 +368,7 @@ def main():
               'commit': os.environ.get('GITHUB_SHA'), 'libreOfficeVersion': info.get('CFBundleShortVersionString'),
               'sandboxSHA256': hashlib.sha256(profile.encode()).hexdigest(), 'cases': {}, 'complete': False,
               'officePipeProtocolSource': 'https://github.com/LibreOffice/core/blob/libreoffice-26.8.1.1/desktop/source/deployment/misc/dp_misc.cxx',
+              'ipcProbeSHA256': hashlib.sha256(ipc_probe.read_bytes()).hexdigest(),
               'limitations': ['Only LibreOffice is copied; the full PDF runtime and its fontconfig environment are not assembled.',
                               'Unisolated cases are diagnostic controls using synthetic input, not a production fallback.',
                               'No result from this workflow approves the complete PDF application.']}
@@ -429,16 +434,13 @@ def main():
         # the candidate rule. Only loopback and synthetic Unix endpoints are
         # attempted; there is no external network destination.
         with tempfile.TemporaryDirectory(prefix='pdf-lo-boundaries-', dir='/tmp') as directory:
-            root = Path(directory); probe = root / 'probe'
-            subprocess.run(['/usr/bin/xcrun', 'clang', '-arch', 'arm64', '-Wall', '-Wextra', '-Werror',
-                            str(ROOT / 'diagnostics/PortableIPCProbe.c'), '-o', str(probe)],
-                           capture_output=True, check=True, timeout=60)
+            root = Path(directory)
             report['exactSocketControls'] = {}
             cases = [('allowed-unix', ['unix-office', str(socket_path)]),
                      ('outside-unix', ['unix', str(root.resolve() / 'outside')]),
                      ('denied-tcp', ['tcp']), ('denied-udp', ['udp'])]
             for name, arguments in cases:
-                result = measure(['/usr/bin/sandbox-exec', '-p', limited, str(probe), *arguments], output / name, seconds=10)
+                result = measure(['/usr/bin/sandbox-exec', '-p', limited, str(ipc_probe), *arguments], output / name, seconds=10)
                 data = json.loads((output / name / 'stdout.txt').read_text())
                 result['result'] = data
                 result['expectationPassed'] = probe_expectation(result, data, name == 'allowed-unix')

@@ -3,6 +3,12 @@
  * The caller must reject incomplete/denied results except its specific EPERM
  * negative controls. A five-second hard deadline exits 124 without a report.
  */
+/* Darwin keeps O_NOFOLLOW behind its extension feature gate even with
+ * X/Open 700. Enable the public Darwin declarations; never drop the no-follow
+ * check to make this diagnostic compile. Linux keeps its existing feature set. */
+#ifdef __APPLE__
+#define _DARWIN_C_SOURCE 1
+#endif
 #define _XOPEN_SOURCE 700
 #include <sys/types.h>
 #include <sys/socket.h>

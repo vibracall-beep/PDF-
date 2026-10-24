@@ -23,6 +23,11 @@ jobs:
           xcodebuild -version
       - name: Verify owned process lifecycle before conversion
         run: python3 -m unittest discover -s diagnostics -p test_portable_office_diagnostics.py -v
+      - name: Compile IPC controls before downloading the converter
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/PDF-office-probe-build"
+          xcrun clang -arch arm64 -Wall -Wextra -Werror diagnostics/PortableIPCProbe.c -o "$RUNNER_TEMP/PDF-office-probe-build/probe" 2>&1 | tee "$RUNNER_TEMP/PDF-office-probe-build/compile.log"
       - name: Install only the converter and synthetic fixture tools
         env:
           HOMEBREW_NO_AUTO_UPDATE: '1'
@@ -32,12 +37,14 @@ jobs:
           "$RUNNER_TEMP/pdf-office-diagnostic-tools/bin/python3" -m pip install PyMuPDF==1.26.5 python-docx==1.2.0
       - name: Measure original, copied, signed and isolated conversion
         run: |
-          "$RUNNER_TEMP/pdf-office-diagnostic-tools/bin/python3" diagnostics/portable_office_diagnostics.py --output "$RUNNER_TEMP/PDF-office-diagnostics"
+          "$RUNNER_TEMP/pdf-office-diagnostic-tools/bin/python3" diagnostics/portable_office_diagnostics.py --output "$RUNNER_TEMP/PDF-office-diagnostics" --ipc-probe "$RUNNER_TEMP/PDF-office-probe-build/probe"
       - name: Retain synthetic diagnostic evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: PDF-office-diagnostics-${{ matrix.runner }}
-          path: ${{ runner.temp }}/PDF-office-diagnostics/
+          path: |
+            ${{ runner.temp }}/PDF-office-diagnostics/
+            ${{ runner.temp }}/PDF-office-probe-build/
           if-no-files-found: warn
           retention-days: 7

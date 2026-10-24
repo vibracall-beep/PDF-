@@ -60,6 +60,9 @@ enum MacSmokeTests {
         audit("Workflow presets and credentials") { try WorkflowAuditChecks.run(in: directory) }
         audit("Pages isolated copy") { try PagesPrivateCopyAuditChecks.run(in: directory) }
         audit("Capture import and orientation") { try CaptureImportAuditChecks.run(in: directory) }
+        audit("Native serialization editable annotation and form roundtrips") {
+            try QPDFStructuralAudit.verifyEditableRoundTrips()
+        }
 
         audit("PDFKit, capture encoding, AI text helpers and protected output") {
             let source = directory.appendingPathComponent("source.pdf")
@@ -77,6 +80,7 @@ enum MacSmokeTests {
             NSGraphicsContext.restoreGraphicsState()
             context.endPDFPage()
             context.closePDF()
+            let originalBytes = try Data(contentsOf: source)
 
             guard let document = PDFDocument(url: source), let page = document.page(at: 0) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 3,
@@ -97,13 +101,16 @@ enum MacSmokeTests {
             field.fieldName = "native-test"
             field.widgetStringValue = "PDF"
             page.addAnnotation(field)
-            let copy = directory.appendingPathComponent("copy.pdf")
-            try require(document.write(to: copy), "Gravação de cópia falhou.")
-            audit("PDFKit unencrypted structural integrity") {
-                try QPDFStructuralAudit.check(Data(contentsOf: copy), phase: "PDFKit unencrypted copy")
-            }
-            audit("Independent stream-length rejection") {
+            audit("Independent stream-length rejection and repair") {
                 try QPDFStructuralAudit.verifyCorruptionDetection()
+            }
+            let copy = directory.appendingPathComponent("copy.pdf")
+            let copyPrepared = try NativePDFSerialization.prepare(document: document)
+            try QPDFStructuralAudit.recordRawPDFKit(copyPrepared.data, phase: "unencrypted framework serialization")
+            let copyBytes = try NativePDFSerialization.finish(copyPrepared)
+            try NativeOutput.write(copyBytes, to: copy)
+            audit("Published native copy structural integrity") {
+                try QPDFStructuralAudit.check(Data(contentsOf: copy), phase: "published unencrypted copy")
             }
             guard let restored = PDFDocument(url: copy), let restoredPage = restored.page(at: 0) else {
                 throw NSError(domain: "PDF.NativeChecks", code: 4,
@@ -252,18 +259,18 @@ enum MacSmokeTests {
             try require(refusedInvalidCapture, "Uma captura PDF inválida foi aceita.")
             trace("invalid capture rejection end")
 
-            let protectedOptions: [AnyHashable: Any] = [
-                AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): "native-check-owner-123",
-                AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): "native-check-reader-123"
-            ]
+            let password = "native-check-reader-123"
             trace("protected serialize begin")
-            guard let protectedData = restored.dataRepresentation(options: protectedOptions) else {
-                throw NSError(domain: "PDF.NativeChecks", code: 8,
-                              userInfo: [NSLocalizedDescriptionKey: "A exportação PDFKit protegida falhou."])
-            }
+            let protectedPrepared = try NativePDFSerialization.prepare(document: restored, password: password)
+            try QPDFStructuralAudit.recordRawPDFKit(protectedPrepared.data, password: password,
+                                                    phase: "encrypted framework serialization")
+            let protectedData = try NativePDFSerialization.finish(protectedPrepared)
             trace("protected serialize end")
-            audit("PDFKit encrypted structural integrity") {
-                try QPDFStructuralAudit.check(protectedData, password: "native-check-reader-123", phase: "PDFKit protected copy")
+            let protectedFile = directory.appendingPathComponent("protected-copy.pdf")
+            try NativeOutput.write(protectedData, to: protectedFile)
+            audit("Published protected copy structural integrity") {
+                try QPDFStructuralAudit.check(Data(contentsOf: protectedFile), password: password,
+                                              phase: "published protected copy")
             }
             trace("protected open begin")
             guard let protectedCopy = PDFDocument(data: protectedData) else {
@@ -276,7 +283,7 @@ enum MacSmokeTests {
             try require(!protectedCopy.unlock(withPassword: ""), "A cópia nativa aceitou senha vazia.")
             trace("protected empty-password rejection end")
             trace("protected unlock begin")
-            try require(protectedCopy.unlock(withPassword: "native-check-reader-123"), "A senha da cópia nativa não funciona.")
+            try require(protectedCopy.unlock(withPassword: password), "A senha da cópia nativa não funciona.")
             trace("protected unlock end")
             trace("protected content integrity begin")
             try require(!protectedCopy.isLocked && protectedCopy.pageCount == 1 &&
@@ -288,6 +295,15 @@ enum MacSmokeTests {
                 $0.fieldName == "native-test" && $0.widgetStringValue == "PDF"
             } == true, "A cópia protegida perdeu o campo preenchido após desbloquear.")
             trace("protected content integrity end")
+            audit("Native serialization fidelity and encryption guards") {
+                try QPDFStructuralAudit.verifyFidelityGuards(copy: copyBytes, prepared: copyPrepared,
+                                                            protected: protectedData, protectedPrepared: protectedPrepared)
+            }
+            audit("Native serialization private process and cancellation") {
+                try QPDFStructuralAudit.verifyProcessGuards(prepared: protectedPrepared, password: password)
+            }
+            let sourceAfterSerialization = try Data(contentsOf: source)
+            try require(sourceAfterSerialization == originalBytes, "A gravação de cópias modificou o PDF original.")
             let atomic = directory.appendingPathComponent("atomic.txt")
             try NativeOutput.write(Data("original".utf8), to: atomic)
             var refusedOverwrite = false

@@ -14,6 +14,8 @@ plutil -lint "$PDF_APP/Contents/Info.plist"
 lipo "$PDF_EXECUTABLE" -verify_arch arm64
 codesign --verify --deep --strict "$PDF_APP"
 export PATH="/opt/homebrew/bin:$PATH"
+[[ -x /opt/homebrew/bin/qpdf ]] || { printf '%s\n' 'O verificador qpdf está ausente em /opt/homebrew/bin; execute novamente o instalador completo.' >&2; exit 1; }
+/opt/homebrew/bin/qpdf --version
 command -v ocrmypdf >/dev/null
 command -v tesseract >/dev/null
 command -v gs >/dev/null
@@ -67,4 +69,4 @@ PY
 # Apple-only capability audit is reported separately by CI, never substituted
 # for this mandatory product smoke check or for the installer's rollback.
 "$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/run-with-timeout.py" --seconds 180 -- "$PDF_EXECUTABLE" --smoke-test
-printf '%s\n' 'Bundle arm64, assinatura local, dependências, OCR local e verificações do aplicativo: OK'
+printf '%s\n' 'Bundle arm64, assinatura local, qpdf, dependências, OCR local e verificações do aplicativo: OK'

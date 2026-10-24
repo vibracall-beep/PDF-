@@ -60,20 +60,16 @@ import PDFKit
         if isDirty != value { isDirty = value }
         return value
     }
-    func recoveryData() throws -> Data {
+    func recoveryPrepared() throws -> NativePDFSerialization.Prepared {
         guard !document.isLocked else { throw recoveryError("Desbloqueie o documento para manter uma recuperação das alterações.") }
-        let result: Data?
         if document.isEncrypted {
             guard let password, !password.isEmpty else { throw recoveryError("Salve uma cópia protegida com senha para habilitar a recuperação deste PDF. Nenhuma cópia sem proteção será gravada.") }
-            result = document.dataRepresentation(options: [AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): password,
-                AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): password])
-            guard let result, let verified = PDFDocument(data: result), verified.isEncrypted, verified.isLocked,
-                  !verified.unlock(withPassword: ""), verified.unlock(withPassword: password) else {
-                throw recoveryError("Não foi possível confirmar a criptografia da recuperação. O original permanece intacto.")
-            }
-        } else { result = document.dataRepresentation() }
-        guard let result else { throw recoveryError("Não foi possível capturar o documento para recuperação.") }
-        return result
+            return try NativePDFSerialization.prepare(document: document, password: password)
+        }
+        return try NativePDFSerialization.prepare(document: document)
+    }
+    func recoveryData() throws -> Data {
+        try NativePDFSerialization.finish(recoveryPrepared())
     }
     private func recoveryError(_ description: String) -> NSError { NSError(domain: "PDF.Recovery", code: 20, userInfo: [NSLocalizedDescriptionKey: description]) }
 }

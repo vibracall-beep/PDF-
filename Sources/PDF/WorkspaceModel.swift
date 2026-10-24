@@ -290,15 +290,18 @@ enum ReaderAnnotationStyle {
                       self.sessions.contains(where: { $0.id == session.id }), self.recoveryEnabled else { return }
                 let captured = self.fingerprint(session), content = self.contentFingerprint(session), state = self.recoveryState(session)
                 let previous = content == session.recoveryContentFingerprint ? session.recoveryRecord : nil
-                let data: Data? = previous == nil ? try session.recoveryData() : nil
+                let prepared = previous == nil ? try session.recoveryPrepared() : nil
                 let source = session.savedURL ?? session.sourceURL
                 let id = session.id, encrypted = session.document.isEncrypted, title = session.title
                 let store = self.recoveryStore
-                // Atomic publication stays off the UI thread; capture uses the reader's actor.
+                // Capture uses the reader's actor; structural normalization,
+                // fidelity checks and atomic publication run on the worker.
                 let write = Task<RecoveryRecord?, Error>.detached(priority: .utility) {
                     try Task.checkCancellation()
                     if let previous { return try store.updateState(record: previous, state: state) }
-                    guard let data else { throw RecoveryError.invalidDocument }
+                    guard let prepared else { throw RecoveryError.invalidDocument }
+                    let data = try NativePDFSerialization.finish(prepared)
+                    try Task.checkCancellation()
                     return try store.save(documentData: data, sourceURL: source, sessionID: id, encrypted: encrypted, title: title, state: state)
                 }
                 session.recoveryWrite = write
@@ -422,7 +425,6 @@ enum ReaderAnnotationStyle {
         NSApp.keyWindow?.makeFirstResponder(nil)
         (pdfView as? DrawingPDFView)?.finishStroke()
         guard let document else { return }
-        let bytes:Data?
         var newPassword: String?
         if document.isEncrypted {
             let alert = NSAlert(); alert.messageText = "Salvar cópia protegida"
@@ -436,22 +438,22 @@ enum ReaderAnnotationStyle {
             guard secret.count >= 8,secret == second.stringValue else { message = "Use senhas iguais, com pelo menos 8 caracteres."; return }
             first.stringValue = ""; second.stringValue = ""
             newPassword = secret
-            let options:[AnyHashable:Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue):secret,AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue):secret]
-            bytes = document.dataRepresentation(options:options)
-            guard let data = bytes,let verification = PDFDocument(data:data),verification.isEncrypted,verification.isLocked,!verification.unlock(withPassword:""),verification.unlock(withPassword:secret) else {
-                message = "Não foi possível confirmar a proteção da cópia. Nenhum arquivo foi salvo."; return
-            }
-        } else { bytes = document.dataRepresentation() }
-        guard let bytes else { message = "Não foi possível criar uma cópia do documento. Nenhum arquivo foi salvo."; return }
+        }
         guard let target = selectOutput(toolName: "Cópia") else { return }
         do {
-            try publishSavedCopy(bytes, to: target, password: newPassword)
+            let prepared = try NativePDFSerialization.prepare(document: document, password: newPassword)
+            let checked = try NativePDFSerialization.finish(prepared)
+            try commitSavedCopy(checked, to: target, password: newPassword)
         } catch { message = "Não foi possível salvar: \(error.localizedDescription)" }
     }
     /// The destination is committed before the in-memory recovery password or
     /// saved/dirty state can change. Cancelled panels never reach this method.
     func publishSavedCopy(_ bytes: Data, to target: URL, password: String?) throws {
-        try NativeOutput.write(bytes, to: target)
+        let checked = try NativePDFSerialization.normalize(data: bytes, password: password)
+        try commitSavedCopy(checked, to: target, password: password)
+    }
+    private func commitSavedCopy(_ checked: Data, to target: URL, password: String?) throws {
+        try NativeOutput.write(checked, to: target)
         ensureSession()
         if let password { activeSession?.password = password }
         lastOutput = target; savedDocumentURL = target; hasEdits = false; originalWidgetState = widgetState()

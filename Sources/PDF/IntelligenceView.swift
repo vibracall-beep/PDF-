@@ -167,7 +167,8 @@ enum IntelligenceText {
         return try JSONDecoder().decode(type, from: Data(value[start...end].utf8))
     }
 
-    static func PDF(_ text: String) throws -> Data {
+    static func PDF(_ text: String, cancellation: NativeCancellation = NativeCancellation()) throws -> Data {
+        try cancellation.check()
         guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
             throw NSError(domain: "PDF.Intelligence", code: 27, userInfo: [NSLocalizedDescriptionKey: "Não há texto para exportar."])
         }
@@ -176,11 +177,14 @@ enum IntelligenceText {
               let context = CGContext(consumer: consumer, mediaBox: nil, nil) else {
             throw NSError(domain: "PDF", code: 1, userInfo: [NSLocalizedDescriptionKey: "Não foi possível criar o PDF."])
         }
+        var closed = false
+        defer { if !closed { context.closePDF() } }
         let style = NSMutableParagraphStyle(); style.lineSpacing = 4; style.paragraphSpacing = 8
         let attributed = NSAttributedString(string: text, attributes: [.font: NSFont.systemFont(ofSize: 12), .paragraphStyle: style])
         let framesetter = CTFramesetterCreateWithAttributedString(attributed as CFAttributedString)
         var offset = 0
         while offset < attributed.length {
+            try cancellation.check()
             var bounds = CGRect(x: 0, y: 0, width: 595, height: 842)
             let media = Data(bytes: &bounds, count: MemoryLayout<CGRect>.size)
             context.beginPDFPage([kCGPDFContextMediaBox as String: media] as CFDictionary)
@@ -191,13 +195,14 @@ enum IntelligenceText {
             let length = CTFrameGetVisibleStringRange(frame).length
             context.endPDFPage()
             guard length > 0 else {
-                context.closePDF()
                 throw NSError(domain: "PDF", code: 2, userInfo: [NSLocalizedDescriptionKey: "O texto não coube na página de saída."])
             }
             offset += length
         }
         context.closePDF()
-        return buffer as Data
+        closed = true
+        try cancellation.check()
+        return try NativePDFSerialization.normalize(data: buffer as Data, cancellation: cancellation)
     }
 }
 
@@ -456,12 +461,29 @@ struct LocalIntelligenceView: View {
     }
 
     private func export(type: UTType, fileExtension: String) {
+        guard !working else { return }
         guard let destination = NativeOutput.destination(name: (mode == "chat" ? "Conversa-PDF" : mode == "quiz" ? "Questoes-PDF" : translation ? "Traducao" : "Resumo") + "." + fileExtension, type: type) else { return }
-        do {
-            let data = fileExtension == "pdf" ? try IntelligenceText.PDF(exportText) : Data(exportText.utf8)
-            try NativeOutput.write(data, to: destination)
-            saved = destination; status = "Exportado: \(destination.lastPathComponent)"
-        } catch { status = "Falha na exportação: \(error.localizedDescription)" }
+        let text = exportText
+        let cancellation = NativeCancellation()
+        working = true; progress = 0; status = "Preparando exportação…"
+        operation = Task { @MainActor in
+            defer { working = false; operation = nil }
+            do {
+                try await withTaskCancellationHandler {
+                    let worker = Task.detached(priority: .userInitiated) {
+                        try cancellation.check()
+                        let data = fileExtension == "pdf" ? try IntelligenceText.PDF(text, cancellation: cancellation) : Data(text.utf8)
+                        try cancellation.check()
+                        try NativeOutput.write(data, to: destination)
+                    }
+                    try await worker.value
+                } onCancel: { cancellation.cancel() }
+                // Publication is atomic. A cancellation arriving after the link
+                // committed must not hide the successfully exported file.
+                saved = destination; progress = 1; status = "Exportado: \(destination.lastPathComponent)"
+            } catch is CancellationError { status = "Exportação cancelada. Nenhum resultado foi publicado." }
+            catch { status = "Falha na exportação: \(error.localizedDescription)" }
+        }
     }
 
     private func modelAvailable() -> Bool {
@@ -477,6 +499,10 @@ struct LocalIntelligenceView: View {
         await Task.yield(); try Task.checkCancellation()
         // Use the reader's exact document snapshot: a file changed externally
         // must not produce citations for a different version than the reader.
+        // Keep this representation exclusively in memory, including unlocked
+        // encrypted documents. Normalizing it through an external process would
+        // create a decrypted temporary file. Only final user-requested exports
+        // pass through the output serializer.
         guard let data = document.dataRepresentation() else {
             throw NSError(domain: "PDF", code: 21, userInfo: [NSLocalizedDescriptionKey: "Não foi possível capturar o documento aberto."])
         }

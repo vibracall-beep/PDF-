@@ -262,14 +262,17 @@ struct ContinuityCaptureView: NSViewRepresentable {
 /// Serial decoding avoids allocating several full-resolution scans at once.
 private actor ContinuityCaptureProcessor {
     static let shared = ContinuityCaptureProcessor()
-    func save(_ data: Data, isPDF: Bool, directory: URL) throws -> URL {
-        try autoreleasepool { try ContinuityCaptureFile.save(data, isPDF: isPDF, directory: directory) }
+    func save(_ data: Data, isPDF: Bool, directory: URL) async throws -> URL {
+        let cancellation = NativeCancellation()
+        return try await withTaskCancellationHandler {
+            try autoreleasepool { try ContinuityCaptureFile.save(data, isPDF: isPDF, directory: directory, cancellation: cancellation) }
+        } onCancel: { cancellation.cancel() }
     }
-    func importFile(_ url: URL, directory: URL) throws -> URL {
+    func importFile(_ url: URL, directory: URL) async throws -> URL {
         try Task.checkCancellation()
         let data = try CaptureImageDecoder.readData(from: url, maximumBytes: ContinuityCaptureFile.maximumBytes)
         let isPDF = data.prefix(1024).range(of: Data("%PDF-".utf8)) != nil
-        return try save(data, isPDF: isPDF, directory: directory)
+        return try await save(data, isPDF: isPDF, directory: directory)
     }
 }
 
@@ -277,8 +280,9 @@ private actor ContinuityCaptureProcessor {
 /// incoming PDF/image path without pretending to have a paired iPhone.
 enum ContinuityCaptureFile {
     static let maximumBytes = 128 * 1024 * 1024
-    static func save(_ data: Data, isPDF: Bool, directory: URL) throws -> URL {
+    static func save(_ data: Data, isPDF: Bool, directory: URL, cancellation: NativeCancellation = NativeCancellation()) throws -> URL {
         try Task.checkCancellation()
+        try cancellation.check()
         guard !data.isEmpty, data.count <= maximumBytes else { throw CaptureError.size }
         let payload: Data
         let ext: String
@@ -288,6 +292,8 @@ enum ContinuityCaptureFile {
             // PDFKit still validates the complete document and its protection.
             guard data.prefix(1024).range(of: Data("%PDF-".utf8)) != nil else { throw CaptureError.pdf }
             guard let document = PDFDocument(data: data), document.pageCount > 0, !document.isEncrypted else { throw CaptureError.pdf }
+            // Import an existing PDF byte for byte; rewriting it could invalidate
+            // its signatures. PDFs generated from image frames are normalized below.
             payload = data
             ext = "pdf"
         } else {
@@ -310,6 +316,7 @@ enum ContinuityCaptureFile {
                 var closed = false
                 defer { if !closed { context.closePDF() } }
                 for index in 0..<count {
+                    try cancellation.check()
                     try autoreleasepool {
                         let image = try CaptureImageDecoder.frame(source, index: index)
                         var bounds = CGRect(origin: .zero, size: CaptureImageDecoder.pageSize(source, index: index, image: image))
@@ -322,11 +329,13 @@ enum ContinuityCaptureFile {
                 }
                 context.closePDF(); closed = true
                 guard encoded.length <= 512 * 1024 * 1024 else { throw CaptureError.outputSize }
-                payload = encoded as Data
+                payload = try NativePDFSerialization.normalize(data: encoded as Data, cancellation: cancellation)
+                guard payload.count <= 512 * 1024 * 1024 else { throw CaptureError.outputSize }
                 ext = "pdf"
             }
         }
         try Task.checkCancellation()
+        try cancellation.check()
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: [.posixPermissions: 0o700])
         let output = directory.appendingPathComponent("Captura-\(UUID().uuidString)").appendingPathExtension(ext)
         try NativeOutput.write(payload, to: output)

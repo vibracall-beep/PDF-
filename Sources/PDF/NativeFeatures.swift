@@ -343,7 +343,9 @@ enum SearchablePDFRenderer {
         context.closePDF()
         closed = true
         try cancellation.check()
-        return OCRPDFResult(data: buffer as Data, pages: evidence)
+        let normalized = try NativePDFSerialization.normalize(data: buffer as Data, cancellation: cancellation)
+        try cancellation.check()
+        return OCRPDFResult(data: normalized, pages: evidence)
     }
 }
 
@@ -380,7 +382,8 @@ enum ScannerPDF {
             progress(fileIndex + 1, urls.count)
         }
         try cancellation.check()
-        guard document.pageCount > 0, let data = document.dataRepresentation() else { throw NativePDFError.output }
+        guard document.pageCount > 0 else { throw NativePDFError.output }
+        let data = try NativePDFSerialization.serialize(document: document, cancellation: cancellation)
         try cancellation.check()
         return data
     }
@@ -588,6 +591,8 @@ struct NativeFeaturesView: View {
         guard !running else { return }
         guard let document = model.document else { return }
         guard !document.isEncrypted else { status = "Desbloqueie uma cópia explicitamente antes de usar OCR nativo em um documento protegido."; return }
+        // This snapshot stays in memory and is only input to CoreGraphics. The
+        // complete OCR output is normalized before it can be published.
         guard document.pageCount > 0, let data = document.dataRepresentation() else { status = "Não foi possível obter as páginas."; return }
         guard let destination = NativeOutput.destination(name: "Documento-OCR.pdf", type: .pdf) else { return }
         let token = NativeCancellation(); cancellation = token

@@ -100,7 +100,9 @@ iconutil -c icns "$PDF_STAGE/PDF.iconset" -o "$PDF_BUNDLE/Contents/Resources/PDF
 # Dependencies remain on this Mac. They are not represented as a portable bundle.
 export NONINTERACTIVE=1
 export HOMEBREW_NO_AUTO_UPDATE=1
-brew install python@3.12 ocrmypdf tesseract-lang openjdk@21
+brew install python@3.12 qpdf ocrmypdf tesseract-lang openjdk@21
+[[ -x /opt/homebrew/bin/qpdf ]] || fail 'O verificador qpdf não foi instalado em /opt/homebrew/bin. Nenhum aplicativo novo será ativado.'
+/opt/homebrew/bin/qpdf --version
 if [[ ! -x /Applications/LibreOffice.app/Contents/MacOS/soffice ]] && ! command -v soffice >/dev/null 2>&1; then
   brew install --cask libreoffice
 fi

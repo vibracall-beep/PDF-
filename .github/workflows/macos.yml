@@ -45,9 +45,18 @@ jobs:
         run: |
           echo "::add-matcher::.github/swift-problem-matcher.json"
           xcrun swift build -c release --arch arm64 --jobs 3
+      - name: Install native PDF structural checker
+        id: qpdf
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          brew list --versions qpdf || brew install qpdf
+          test -x /opt/homebrew/bin/qpdf
+          /opt/homebrew/bin/qpdf --version
       - name: Capture native window preview
         id: preview
-        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' }}
         run: |
           PDF_BINARY_DIR="$(xcrun swift build -c release --arch arm64 --show-bin-path)"
           python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$PDF_BINARY_DIR/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
@@ -226,7 +235,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256

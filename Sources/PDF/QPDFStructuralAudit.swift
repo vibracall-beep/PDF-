@@ -491,7 +491,16 @@ enum QPDFStructuralAudit {
         let matches = try liveAnnotations(data).filter {
             $0["/Subtype"] as? String == "/Popup" && $0["/Contents"] as? String == "u:Independent popup contents"
         }
-        guard matches.count == 1, let flag = matches.first?["/Open"] as? NSNumber,
+        guard matches.count == 1, let popup = matches.first else {
+            throw failure("A auditoria não encontrou o único Popup independente esperado.")
+        }
+        // /Open is optional and defaults to false. macOS 26 omits it when
+        // closing this popup; a present numeric 0/1 is still not a PDF boolean.
+        guard let raw = popup["/Open"] else {
+            try require(!expected, "O Popup aberto perdeu o estado /Open=true obrigatório.")
+            return
+        }
+        guard let flag = raw as? NSNumber,
               CFGetTypeID(flag) == CFBooleanGetTypeID(), flag.boolValue == expected else {
             throw failure("O Popup independente não preservou /Open como booleano PDF com o estado esperado.")
         }

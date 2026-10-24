@@ -1,0 +1,43 @@
+name: Native WindowGroup startup observation
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  observe-real-windowgroup:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, xcode-27]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Record actual platform
+        run: |
+          uname -m
+          sw_vers -productVersion
+          xcodebuild -version
+      - name: Test diagnostic contracts
+        run: python3 -m unittest discover -s diagnostics -p test_startup_observation.py -v
+      - name: Stage verified diagnostic source copy
+        run: python3 diagnostics/startup_observation.py prepare --repository "$GITHUB_WORKSPACE" --output "$RUNNER_TEMP/PDF-startup-observation"
+      - name: Build and validate with the unchanged real installer
+        env:
+          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-startup-installed
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          set -o pipefail
+          bash "$RUNNER_TEMP/PDF-startup-observation/source/scripts/install-mac.sh" 2>&1 | tee "$RUNNER_TEMP/PDF-startup-observation/evidence/installation.log"
+      - name: Observe two direct native launches without changing application gates
+        run: python3 diagnostics/startup_observation.py observe --app "$RUNNER_TEMP/pdf-startup-installed/PDF.app" --evidence "$RUNNER_TEMP/PDF-startup-observation/evidence" --seconds 45
+      - name: Retain observation evidence regardless of outcome
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-startup-observation-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-startup-observation/evidence/
+          if-no-files-found: warn
+          retention-days: 7

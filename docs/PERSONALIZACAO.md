@@ -28,7 +28,7 @@ As seções da barra lateral permitem renomear, escolher ícones, reordenar por 
 
 Em **Atalhos**, atribua uma tecla ou seta combinada com Command; Shift, Option e Control são opcionais. O editor recusa colisões entre ações e combinações reservadas de edição/macOS. É possível remover uma combinação ou restaurar os padrões. Os atalhos configurados aparecem nos menus e na paleta; não são atalhos globais que interceptam outros aplicativos.
 
-Em **Perfis**, guarde até **30 espaços de trabalho nomeados**, contendo aparência, menus, ordem das ferramentas, atalhos, opções do leitor e preferências de saída. Aplicar um perfil preserva documentos abertos, posições de leitura, histórico e recuperações. Atualizar um perfil existente exige a confirmação apresentada na tela. Os perfis são diferentes das três predefinições visuais mencionadas acima.
+Em **Perfis**, guarde até **30 espaços de trabalho nomeados**, contendo aparência, menus, ordem das ferramentas, atalhos, opções do leitor e preferências de saída. Aplicar um perfil preserva documentos abertos, páginas e zoom das abas, histórico e recuperações. O zoom guardado no perfil é o padrão para novas abas; os controles explícitos de zoom e encaixe ajustam a aba ativa e esse padrão. Gestos nativos mantêm o ajuste da sessão correspondente. Atualizar um perfil existente exige a confirmação apresentada na tela. Os perfis são diferentes das três predefinições visuais mencionadas acima.
 
 Implementação: [personalização](../Sources/PDF/CustomizationView.swift), [atalhos e perfis](../Sources/PDF/AdvancedCustomization.swift), [paleta](../Sources/PDF/CommandPalette.swift).
 

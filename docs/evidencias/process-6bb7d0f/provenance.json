@@ -1,0 +1,199 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceCommit": "6bb7d0fd843c3da2df89ac48a6cd8e23e06d1bf2",
+  "runID": 40128200878,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40128200878",
+  "sourceWorkflow": ".github/workflows/process-ownership-diagnostics.yml",
+  "diagnosticConclusion": "success",
+  "productApproved": false,
+  "javaIntegrationApproved": false,
+  "binaryDistributionApproved": false,
+  "retrieval": "Official Actions artifact ZIP and attempt log ZIP APIs. Source commit, artifact IDs, sizes and GitHub artifact digests verified independently.",
+  "archives": [
+    {
+      "artifactID": 12574065323,
+      "name": "PDF-process-ownership-xcode-27",
+      "bytes": 18219,
+      "sha256": "008eefb04eb2600f4c81a3f8b42f4509f3036ec046e5cb6db2ac04679f37ab18",
+      "githubDigest": "sha256:008eefb04eb2600f4c81a3f8b42f4509f3036ec046e5cb6db2ac04679f37ab18",
+      "nativeExecutableCopiedToRepository": false
+    },
+    {
+      "artifactID": 12572764854,
+      "name": "PDF-process-ownership-macos-26",
+      "bytes": 18207,
+      "sha256": "461fde6d8400ae39c78f406121d7095a6264fcc4bf4cfbb102132abfb5820a33",
+      "githubDigest": "sha256:461fde6d8400ae39c78f406121d7095a6264fcc4bf4cfbb102132abfb5820a33",
+      "nativeExecutableCopiedToRepository": false
+    }
+  ],
+  "originalFiles": [
+    {
+      "path": "xcode-27/report.json",
+      "bytes": 32404,
+      "sha256": "61dfa618347ad475fceecf6690f89cbd36daca9ae572589fb7b2bad920d16299",
+      "artifactID": 12574065323,
+      "artifactName": "PDF-process-ownership-xcode-27",
+      "archiveDigest": "sha256:008eefb04eb2600f4c81a3f8b42f4509f3036ec046e5cb6db2ac04679f37ab18"
+    },
+    {
+      "path": "macos-26/report.json",
+      "bytes": 32244,
+      "sha256": "032944ee60624609fd7fcb3655d3cd6b66c2721906918e2bbf6b705513498fba",
+      "artifactID": 12572764854,
+      "artifactName": "PDF-process-ownership-macos-26",
+      "archiveDigest": "sha256:461fde6d8400ae39c78f406121d7095a6264fcc4bf4cfbb102132abfb5820a33"
+    },
+    {
+      "path": "actions-attempt-1-logs.zip",
+      "bytes": 34602,
+      "sha256": "23368173ea654ed1fb48ff2c4e7a4cf2a76c0771f4b9c2eacea60cc810e5d7b5",
+      "sourceAPIPath": "/repos/vibracall-beep/PDF-/actions/runs/40128200878/attempts/1/logs",
+      "upstreamDigestSupplied": false
+    }
+  ],
+  "controls": [
+    {
+      "runner": "xcode-27",
+      "jobID": 120974061559,
+      "psMetadata": {
+        "gid": 0,
+        "mode": 2541,
+        "setgid": false,
+        "setuid": true,
+        "uid": 0
+      },
+      "probeSHA256": "f8c1e501817e9243cc359029e28485d71652f612c9bd0bf07323564e6cd86ba7",
+      "policyArgumentSHA256": "ee07a36da91b0211376e1e4d4b804847d92ed0f34a0e4f88ec68d76fac97a388",
+      "policyArtifactSHA256": "abddcf25ada4e9b12b6f007ffcc72333ee83550ddbfba19b63316825e746a9ca",
+      "policyArtifactHasAppendedNewline": true,
+      "cases": [
+        {
+          "name": "production-sandbox-live",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": false,
+          "psSpawnErrno": 1,
+          "termErrno": 0,
+          "killErrno": 0,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        },
+        {
+          "name": "production-sandbox-solo",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": true,
+          "psSpawnErrno": 1,
+          "termErrno": 1,
+          "killErrno": 1,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        },
+        {
+          "name": "unrestricted-live",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": false,
+          "psSpawnErrno": 0,
+          "termErrno": 0,
+          "killErrno": 0,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        },
+        {
+          "name": "unrestricted-solo",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": true,
+          "psSpawnErrno": 0,
+          "termErrno": 1,
+          "killErrno": 1,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        }
+      ]
+    },
+    {
+      "runner": "macos-26",
+      "jobID": 120974061756,
+      "psMetadata": {
+        "gid": 0,
+        "mode": 2541,
+        "setgid": false,
+        "setuid": true,
+        "uid": 0
+      },
+      "probeSHA256": "d9737a750a1b37aae7df9ab12f11181491f87eb1c88e87cdbe4270f423ab2da6",
+      "policyArgumentSHA256": "ee07a36da91b0211376e1e4d4b804847d92ed0f34a0e4f88ec68d76fac97a388",
+      "policyArtifactSHA256": "abddcf25ada4e9b12b6f007ffcc72333ee83550ddbfba19b63316825e746a9ca",
+      "policyArtifactHasAppendedNewline": true,
+      "cases": [
+        {
+          "name": "production-sandbox-live",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": false,
+          "psSpawnErrno": 1,
+          "termErrno": 0,
+          "killErrno": 0,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        },
+        {
+          "name": "production-sandbox-solo",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": true,
+          "psSpawnErrno": 1,
+          "termErrno": 1,
+          "killErrno": 1,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        },
+        {
+          "name": "unrestricted-live",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": false,
+          "psSpawnErrno": 0,
+          "termErrno": 0,
+          "killErrno": 0,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        },
+        {
+          "name": "unrestricted-solo",
+          "candidateControlMatched": true,
+          "nativeMembersMatchedExternalQuery": true,
+          "initialAllZombies": true,
+          "psSpawnErrno": 0,
+          "termErrno": 1,
+          "killErrno": 1,
+          "pipeClosedAfterKill": true,
+          "leaderExitCode": 7
+        }
+      ]
+    }
+  ],
+  "independentReview": {
+    "controlCount": 8,
+    "nativeQueriesMatchedExternalMembership": true,
+    "rawReportsUnmodified": true,
+    "executablesCopied": false
+  },
+  "privacyReview": {
+    "textEntriesScanned": 50,
+    "patternMatches": 0,
+    "redactionsApplied": false,
+    "scope": "Tokens, signed URLs, authorization headers and private keys; pattern scan does not prove absence of every possible sensitive value."
+  },
+  "limitations": [
+    "Controles sintéticos: não executaram Java/veraPDF nem validaram o aplicativo.",
+    "EPERM sozinho não comprova ausência de processo vivo; grupos incompletos, inacessíveis ou com membros vivos continuam sendo recusados.",
+    "As APIs candidatas foram medidas neste commit; integração posterior exige testes reais e matriz completa.",
+    "Não foram copiados executáveis Mach-O, URLs assinadas nem capturas inexistentes."
+  ]
+}

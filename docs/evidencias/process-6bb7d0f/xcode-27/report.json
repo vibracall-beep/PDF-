@@ -1,0 +1,1179 @@
+{
+  "cases": {
+    "production-sandbox-live": {
+      "candidateControlMatched": true,
+      "exit": 0,
+      "expectedCandidateAllZombies": false,
+      "externalBeforeSignals": {
+        "complete": true,
+        "exit": 0,
+        "members": [
+          {
+            "pgid": 23004,
+            "pid": 23004,
+            "status": "Z<"
+          },
+          {
+            "pgid": 23004,
+            "pid": 23005,
+            "status": "S<"
+          }
+        ],
+        "requestedPGID": 23004,
+        "stdoutBytes": 10676
+      },
+      "measurementComplete": true,
+      "mode": "live",
+      "observedAllZombies": {
+        "libproc": false,
+        "sysctl": false
+      },
+      "probePID": 23003,
+      "records": [
+        {
+          "descendantPID": 23005,
+          "event": "ready",
+          "exitObservedWithoutReap": true,
+          "leaderPGID": 23004,
+          "leaderPID": 23004,
+          "leaderSID": 23004,
+          "mode": "live",
+          "observationErrno": 0,
+          "observed": 1,
+          "owned": true,
+          "probePGID": 23003,
+          "probePID": 23003,
+          "psStat": {
+            "gid": 0,
+            "mode": 2541,
+            "result": 0,
+            "setgid": false,
+            "setuid": true,
+            "uid": 0
+          },
+          "registered": 0,
+          "registrationErrno": 0,
+          "sdk": {
+            "bsdPGIDOffset": 100,
+            "bsdStatusOffset": 4,
+            "kinfoProcSize": 648,
+            "procBSDInfoSize": 136,
+            "zombieState": 5
+          },
+          "snapshot": {
+            "libproc": {
+              "allZombies": false,
+              "bytes": 8,
+              "estimateErrno": 0,
+              "estimatedBytes": 2588,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23005,
+                    "status": 2
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23005,
+                    "status": 2
+                  },
+                  "requestedPID": 23005
+                },
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23004,
+                    "status": 5
+                  },
+                  "requestedPID": 23004
+                }
+              ],
+              "secondBytes": 8,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 0,
+              "complete": false,
+              "members": [],
+              "spawnErrno": 1,
+              "waitStatus": -1
+            },
+            "sysctl": {
+              "allZombies": false,
+              "bytes": 1296,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 4536,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 23004,
+                  "pid": 23005,
+                  "status": 2
+                },
+                {
+                  "pgid": 23004,
+                  "pid": 23004,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "acknowledged": true,
+          "errno": 0,
+          "event": "after-term",
+          "result": 0,
+          "snapshot": {
+            "libproc": {
+              "allZombies": false,
+              "bytes": 8,
+              "estimateErrno": 0,
+              "estimatedBytes": 2588,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23005,
+                    "status": 2
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23005,
+                    "status": 2
+                  },
+                  "requestedPID": 23005
+                },
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23004,
+                    "status": 5
+                  },
+                  "requestedPID": 23004
+                }
+              ],
+              "secondBytes": 8,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 0,
+              "complete": false,
+              "members": [],
+              "spawnErrno": 1,
+              "waitStatus": -1
+            },
+            "sysctl": {
+              "allZombies": false,
+              "bytes": 1296,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 4536,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 23004,
+                  "pid": 23005,
+                  "status": 2
+                },
+                {
+                  "pgid": 23004,
+                  "pid": 23004,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "errno": 0,
+          "event": "after-kill",
+          "livenessPipeClosed": true,
+          "result": 0,
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 23004,
+                    "pid": 23004,
+                    "status": 5
+                  },
+                  "requestedPID": 23004
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 0,
+              "complete": false,
+              "members": [],
+              "spawnErrno": 1,
+              "waitStatus": -1
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 23004,
+                  "pid": 23004,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "event": "reaped",
+          "exitCode": 7,
+          "interrupted": 0,
+          "pid": 23004,
+          "signal": 0,
+          "waitStatus": 1792
+        }
+      ],
+      "sandboxed": true,
+      "stderrBytes": 0,
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSHA256": "c7317421050b036400635323e54287c24829ce5cf3cf4d8ab981bfe8e3245459"
+    },
+    "production-sandbox-solo": {
+      "candidateControlMatched": true,
+      "exit": 0,
+      "expectedCandidateAllZombies": true,
+      "externalBeforeSignals": {
+        "complete": true,
+        "exit": 0,
+        "members": [
+          {
+            "pgid": 22996,
+            "pid": 22996,
+            "status": "Z<"
+          }
+        ],
+        "requestedPGID": 22996,
+        "stdoutBytes": 10659
+      },
+      "measurementComplete": true,
+      "mode": "solo",
+      "observedAllZombies": {
+        "libproc": true,
+        "sysctl": true
+      },
+      "probePID": 22995,
+      "records": [
+        {
+          "descendantPID": 0,
+          "event": "ready",
+          "exitObservedWithoutReap": true,
+          "leaderPGID": 22996,
+          "leaderPID": 22996,
+          "leaderSID": 22996,
+          "mode": "solo",
+          "observationErrno": 0,
+          "observed": 1,
+          "owned": true,
+          "probePGID": 22995,
+          "probePID": 22995,
+          "psStat": {
+            "gid": 0,
+            "mode": 2541,
+            "result": 0,
+            "setgid": false,
+            "setuid": true,
+            "uid": 0
+          },
+          "registered": 0,
+          "registrationErrno": 0,
+          "sdk": {
+            "bsdPGIDOffset": 100,
+            "bsdStatusOffset": 4,
+            "kinfoProcSize": 648,
+            "procBSDInfoSize": 136,
+            "zombieState": 5
+          },
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22996,
+                    "pid": 22996,
+                    "status": 5
+                  },
+                  "requestedPID": 22996
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 0,
+              "complete": false,
+              "members": [],
+              "spawnErrno": 1,
+              "waitStatus": -1
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22996,
+                  "pid": 22996,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "acknowledged": true,
+          "errno": 1,
+          "event": "after-term",
+          "result": -1,
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22996,
+                    "pid": 22996,
+                    "status": 5
+                  },
+                  "requestedPID": 22996
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 0,
+              "complete": false,
+              "members": [],
+              "spawnErrno": 1,
+              "waitStatus": -1
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22996,
+                  "pid": 22996,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "errno": 1,
+          "event": "after-kill",
+          "livenessPipeClosed": true,
+          "result": -1,
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2588,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22996,
+                    "pid": 22996,
+                    "status": 5
+                  },
+                  "requestedPID": 22996
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 0,
+              "complete": false,
+              "members": [],
+              "spawnErrno": 1,
+              "waitStatus": -1
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22996,
+                  "pid": 22996,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "event": "reaped",
+          "exitCode": 7,
+          "interrupted": 0,
+          "pid": 22996,
+          "signal": 0,
+          "waitStatus": 1792
+        }
+      ],
+      "sandboxed": true,
+      "stderrBytes": 0,
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSHA256": "b2cf06b5ac21293eb2f7ee777e54295a754edf835679b7d1cfb4e68e8a64feb1"
+    },
+    "unrestricted-live": {
+      "candidateControlMatched": true,
+      "exit": 0,
+      "expectedCandidateAllZombies": false,
+      "externalBeforeSignals": {
+        "complete": true,
+        "exit": 0,
+        "members": [
+          {
+            "pgid": 22986,
+            "pid": 22986,
+            "status": "Z<"
+          },
+          {
+            "pgid": 22986,
+            "pid": 22987,
+            "status": "S<"
+          }
+        ],
+        "requestedPGID": 22986,
+        "stdoutBytes": 10676
+      },
+      "measurementComplete": true,
+      "mode": "live",
+      "observedAllZombies": {
+        "libproc": false,
+        "sysctl": false
+      },
+      "probePID": 22985,
+      "records": [
+        {
+          "descendantPID": 22987,
+          "event": "ready",
+          "exitObservedWithoutReap": true,
+          "leaderPGID": 22986,
+          "leaderPID": 22986,
+          "leaderSID": 22986,
+          "mode": "live",
+          "observationErrno": 0,
+          "observed": 1,
+          "owned": true,
+          "probePGID": 22985,
+          "probePID": 22985,
+          "psStat": {
+            "gid": 0,
+            "mode": 2541,
+            "result": 0,
+            "setgid": false,
+            "setuid": true,
+            "uid": 0
+          },
+          "registered": 0,
+          "registrationErrno": 0,
+          "sdk": {
+            "bsdPGIDOffset": 100,
+            "bsdStatusOffset": 4,
+            "kinfoProcSize": 648,
+            "procBSDInfoSize": 136,
+            "zombieState": 5
+          },
+          "snapshot": {
+            "libproc": {
+              "allZombies": false,
+              "bytes": 8,
+              "estimateErrno": 0,
+              "estimatedBytes": 2588,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22987,
+                    "status": 2
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22987,
+                    "status": 2
+                  },
+                  "requestedPID": 22987
+                },
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22986,
+                    "status": 5
+                  },
+                  "requestedPID": 22986
+                }
+              ],
+              "secondBytes": 8,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 10676,
+              "complete": true,
+              "members": [
+                {
+                  "pgid": 22986,
+                  "pid": 22986,
+                  "status": "Z<"
+                },
+                {
+                  "pgid": 22986,
+                  "pid": 22987,
+                  "status": "S<"
+                }
+              ],
+              "spawnErrno": 0,
+              "waitStatus": 0
+            },
+            "sysctl": {
+              "allZombies": false,
+              "bytes": 1296,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 4536,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22986,
+                  "pid": 22987,
+                  "status": 2
+                },
+                {
+                  "pgid": 22986,
+                  "pid": 22986,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "acknowledged": true,
+          "errno": 0,
+          "event": "after-term",
+          "result": 0,
+          "snapshot": {
+            "libproc": {
+              "allZombies": false,
+              "bytes": 8,
+              "estimateErrno": 0,
+              "estimatedBytes": 2588,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22987,
+                    "status": 2
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22987,
+                    "status": 2
+                  },
+                  "requestedPID": 22987
+                },
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22986,
+                    "status": 5
+                  },
+                  "requestedPID": 22986
+                }
+              ],
+              "secondBytes": 8,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 10676,
+              "complete": true,
+              "members": [
+                {
+                  "pgid": 22986,
+                  "pid": 22986,
+                  "status": "Z<"
+                },
+                {
+                  "pgid": 22986,
+                  "pid": 22987,
+                  "status": "S<"
+                }
+              ],
+              "spawnErrno": 0,
+              "waitStatus": 0
+            },
+            "sysctl": {
+              "allZombies": false,
+              "bytes": 1296,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 4536,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22986,
+                  "pid": 22987,
+                  "status": 2
+                },
+                {
+                  "pgid": 22986,
+                  "pid": 22986,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "errno": 0,
+          "event": "after-kill",
+          "livenessPipeClosed": true,
+          "result": 0,
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22986,
+                    "pid": 22986,
+                    "status": 5
+                  },
+                  "requestedPID": 22986
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 10659,
+              "complete": true,
+              "members": [
+                {
+                  "pgid": 22986,
+                  "pid": 22986,
+                  "status": "Z<"
+                }
+              ],
+              "spawnErrno": 0,
+              "waitStatus": 0
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22986,
+                  "pid": 22986,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "event": "reaped",
+          "exitCode": 7,
+          "interrupted": 0,
+          "pid": 22986,
+          "signal": 0,
+          "waitStatus": 1792
+        }
+      ],
+      "sandboxed": false,
+      "stderrBytes": 0,
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSHA256": "fec28c2b46b9cd518644a969cddc53dd79830713e04ea301f8986b241f4493ed"
+    },
+    "unrestricted-solo": {
+      "candidateControlMatched": true,
+      "exit": 0,
+      "expectedCandidateAllZombies": true,
+      "externalBeforeSignals": {
+        "complete": true,
+        "exit": 0,
+        "members": [
+          {
+            "pgid": 22978,
+            "pid": 22978,
+            "status": "Z<"
+          }
+        ],
+        "requestedPGID": 22978,
+        "stdoutBytes": 10659
+      },
+      "measurementComplete": true,
+      "mode": "solo",
+      "observedAllZombies": {
+        "libproc": true,
+        "sysctl": true
+      },
+      "probePID": 22977,
+      "records": [
+        {
+          "descendantPID": 0,
+          "event": "ready",
+          "exitObservedWithoutReap": true,
+          "leaderPGID": 22978,
+          "leaderPID": 22978,
+          "leaderSID": 22978,
+          "mode": "solo",
+          "observationErrno": 0,
+          "observed": 1,
+          "owned": true,
+          "probePGID": 22977,
+          "probePID": 22977,
+          "psStat": {
+            "gid": 0,
+            "mode": 2541,
+            "result": 0,
+            "setgid": false,
+            "setuid": true,
+            "uid": 0
+          },
+          "registered": 0,
+          "registrationErrno": 0,
+          "sdk": {
+            "bsdPGIDOffset": 100,
+            "bsdStatusOffset": 4,
+            "kinfoProcSize": 648,
+            "procBSDInfoSize": 136,
+            "zombieState": 5
+          },
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22978,
+                    "pid": 22978,
+                    "status": 5
+                  },
+                  "requestedPID": 22978
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 10659,
+              "complete": true,
+              "members": [
+                {
+                  "pgid": 22978,
+                  "pid": 22978,
+                  "status": "Z<"
+                }
+              ],
+              "spawnErrno": 0,
+              "waitStatus": 0
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22978,
+                  "pid": 22978,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "acknowledged": true,
+          "errno": 1,
+          "event": "after-term",
+          "result": -1,
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22978,
+                    "pid": 22978,
+                    "status": 5
+                  },
+                  "requestedPID": 22978
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 10659,
+              "complete": true,
+              "members": [
+                {
+                  "pgid": 22978,
+                  "pid": 22978,
+                  "status": "Z<"
+                }
+              ],
+              "spawnErrno": 0,
+              "waitStatus": 0
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22978,
+                  "pid": 22978,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "errno": 1,
+          "event": "after-kill",
+          "livenessPipeClosed": true,
+          "result": -1,
+          "snapshot": {
+            "libproc": {
+              "allZombies": true,
+              "bytes": 4,
+              "estimateErrno": 0,
+              "estimatedBytes": 2584,
+              "leaderPresent": true,
+              "listErrno": 0,
+              "members": [
+                {
+                  "arg0": {
+                    "bytes": 0,
+                    "errno": 3,
+                    "pgid": 0,
+                    "pid": 0,
+                    "status": 0
+                  },
+                  "arg1": {
+                    "bytes": 136,
+                    "errno": 0,
+                    "pgid": 22978,
+                    "pid": 22978,
+                    "status": 5
+                  },
+                  "requestedPID": 22978
+                }
+              ],
+              "secondBytes": 4,
+              "secondErrno": 0,
+              "stable": true
+            },
+            "ps": {
+              "bytes": 10659,
+              "complete": true,
+              "members": [
+                {
+                  "pgid": 22978,
+                  "pid": 22978,
+                  "status": "Z<"
+                }
+              ],
+              "spawnErrno": 0,
+              "waitStatus": 0
+            },
+            "sysctl": {
+              "allZombies": true,
+              "bytes": 648,
+              "complete": true,
+              "errno": 0,
+              "estimateErrno": 0,
+              "estimateResult": 0,
+              "estimatedBytes": 3888,
+              "leaderPresent": true,
+              "members": [
+                {
+                  "pgid": 22978,
+                  "pid": 22978,
+                  "status": 5
+                }
+              ],
+              "result": 0
+            }
+          }
+        },
+        {
+          "event": "reaped",
+          "exitCode": 7,
+          "interrupted": 0,
+          "pid": 22978,
+          "signal": 0,
+          "waitStatus": 1792
+        }
+      ],
+      "sandboxed": false,
+      "stderrBytes": 0,
+      "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdoutSHA256": "6a23ec3ccd5e622b01cc2206a60aca1cd64a586f1e078c06d34ef2c59b9b9da0"
+    }
+  },
+  "commit": "6bb7d0fd843c3da2df89ac48a6cd8e23e06d1bf2",
+  "kind": "synthetic-process-ownership-diagnosis",
+  "limitations": [
+    "No Java or application validation is executed by these synthetic controls.",
+    "An inaccessible, empty, partial or live group never counts as proof that all members are zombies.",
+    "Candidate APIs are measured, not installed as a production fallback."
+  ],
+  "measurementComplete": true,
+  "policySHA256": "ee07a36da91b0211376e1e4d4b804847d92ed0f34a0e4f88ec68d76fac97a388",
+  "probeSHA256": "f8c1e501817e9243cc359029e28485d71652f612c9bd0bf07323564e6cd86ba7",
+  "productApproved": false,
+  "psMetadata": {
+    "gid": 0,
+    "mode": 2541,
+    "setgid": false,
+    "setuid": true,
+    "uid": 0
+  },
+  "schemaVersion": 1
+}

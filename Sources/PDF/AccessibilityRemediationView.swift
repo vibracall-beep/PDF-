@@ -133,7 +133,7 @@ struct AccessibilityRemediationView: View {
         do {
             let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-accessibility-" + UUID().uuidString, isDirectory: true)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
-            model.execute(operation: "accessibility-inspect", inputs: [source], output: directory.appendingPathComponent("tree.json"), options: [:], title: "Inspecionando tags") { outcome in
+            model.execute(operation: "accessibility-inspect", inputs: [source], output: directory.appendingPathComponent("tree.json"), options: [:], title: "Inspecionando tags", completion: { outcome in
                 defer { try? FileManager.default.removeItem(at: directory) }
                 do {
                     let url = try outcome.get()
@@ -150,7 +150,7 @@ struct AccessibilityRemediationView: View {
                     pageRoles = Array(repeating: "P", count: value.pages); pageAlternatives = Array(repeating: "", count: value.pages)
                     reviewedPages = false; edits = [:]; selection = nil; result = nil
                 } catch { self.error = error.localizedDescription }
-            }
+            })
         } catch { self.error = error.localizedDescription }
     }
     private func loadSelection() {
@@ -195,8 +195,8 @@ struct AccessibilityRemediationView: View {
             options["create_page_tags"] = (0..<report.pages).map { ["page": $0 + 1, "role": pageRoles[$0], "alt": pageAlternatives[$0]] as [String: Any] }
         }
         error = ""
-        model.execute(operation: "accessibility-remediate", inputs: [source], output: output, options: options, title: "Corrigindo tags") { outcome in
+        model.execute(operation: "accessibility-remediate", inputs: [source], output: output, options: options, title: "Corrigindo tags", completion: { outcome in
             switch outcome { case .success(let url): result = url; case .failure(let failure): error = failure.localizedDescription }
-        }
+        })
     }
 }

@@ -1,7 +1,10 @@
 import Foundation
+import Darwin
 
 /// Seekable private stdin prevents a cancelled/failed child from trapping a
 /// writer in a full pipe or delivering SIGPIPE to the application process.
+/// Unlink immediately after opening: process loss then releases the anonymous
+/// descriptor without leaving an options pathname containing credentials.
 final class EngineInputTransport: @unchecked Sendable {
     let directory: URL
     let file: URL
@@ -18,7 +21,12 @@ final class EngineInputTransport: @unchecked Sendable {
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         do {
             try NativeOutput.write(data, to: file)
-            handle = try FileHandle(forReadingFrom: file)
+            let input = try FileHandle(forReadingFrom: file)
+            do {
+                try FileManager.default.removeItem(at: file)
+                try FileManager.default.removeItem(at: directory)
+            } catch { try? input.close(); throw error }
+            handle = input
         } catch {
             try? FileManager.default.removeItem(at: directory)
             throw error
@@ -38,9 +46,10 @@ enum EngineInputAuditChecks {
         let payload = Data(("{\"text\":\"" + String(repeating: "áΩ", count: 300_000) + "\"}").utf8)
         let input = try EngineInputTransport(data: payload)
         defer { input.close() }
-        let directoryMode = try FileManager.default.attributesOfItem(atPath: input.directory.path)[.posixPermissions] as? NSNumber
-        let fileMode = try FileManager.default.attributesOfItem(atPath: input.file.path)[.posixPermissions] as? NSNumber
-        guard directoryMode?.intValue == 0o700, fileMode?.intValue == 0o600,
+        var metadata = stat()
+        guard fstat(input.handle.fileDescriptor, &metadata) == 0,
+              metadata.st_mode & 0o777 == 0o600, metadata.st_nlink == 0,
+              !FileManager.default.fileExists(atPath: input.directory.path),
               try input.handle.readToEnd() == payload else {
             throw NSError(domain: "PDF.EngineInputAudit", code: 1,
                           userInfo: [NSLocalizedDescriptionKey: "O transporte das opções não preservou bytes ou permissões privadas."])

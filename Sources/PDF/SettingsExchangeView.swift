@@ -65,39 +65,16 @@ struct SettingsExchangeView:View {
     @State private var replaceBookmarks = false
     @State private var restorePosition = false
     @State private var cancellation = NativeCancellation()
+    private var filteredSnapshots: [LibraryConfigurationSnapshot] { snapshots.filter { $0.kind == kind } }
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
-            HStack { Text("Ajustes entre seus Macs").font(.title2.bold()); Spacer(); Button("Concluir") { dismiss() }.disabled(busy) }
-            Text("Guarde uma versão e use Sincronizar na biblioteca para trocá-la pela pasta escolhida. Versões recebidas ficam disponíveis para revisão; seus ajustes só mudam quando você aplicar uma delas.").font(.callout).foregroundStyle(.secondary)
-            Picker("Conteúdo",selection:$kind) { Text("Preferências").tag("preferences"); Text("Perfis nomeados").tag("profiles"); Text("Marcadores e leitura").tag("bookmarks") }.pickerStyle(.segmented).disabled(busy)
-                .onChange(of:kind) { selected = nil; payload = nil; summary = "" }
-            HStack {
-                Button("Guardar versão deste Mac") { publish() }.disabled(busy)
-                Button("Atualizar recebidas") { reload() }.disabled(busy)
-                Spacer(); if busy { ProgressView().controlSize(.small); Button("Cancelar leitura") { cancellation.cancel() } }
-            }
+            header
+            contentPicker
+            actions
             if kind == "bookmarks" { Text("Abra o mesmo PDF salvo no leitor. A associação usa SHA-256 dos bytes do arquivo, incluindo a proteção original; nomes e caminhos de outro Mac não são usados para escolher documentos.").font(.caption).foregroundStyle(.secondary) }
             if !message.isEmpty { Text(message).font(.callout).foregroundStyle(.secondary).textSelection(.enabled) }
-            ScrollView {
-                VStack(alignment:.leading,spacing:10) {
-                    ForEach(snapshots.filter{$0.kind == kind}) { item in
-                        Button { inspect(item) } label: {
-                            HStack {
-                                VStack(alignment:.leading,spacing:3) { Text(item.created,style:.date); Text("Mac "+String(item.device.uuidString.prefix(8))+" · "+String(item.byteCount)+" bytes").font(.caption).foregroundStyle(.secondary) }
-                                Spacer(); if selected?.id == item.id { Image(systemName:"checkmark.circle.fill") }
-                            }.padding(12).contentShape(Rectangle()).background(Color.primary.opacity(0.035),in:RoundedRectangle(cornerRadius:12))
-                        }.buttonStyle(.plain).disabled(busy)
-                    }
-                    if snapshots.filter({$0.kind == kind}).isEmpty { Text("Nenhuma versão desta categoria está disponível na biblioteca local.").foregroundStyle(.secondary).padding(.vertical) }
-                }
-            }.frame(maxHeight:220)
-            if selected != nil,payload != nil {
-                Divider(); Text("Revisão antes de aplicar").font(.headline)
-                Text(summary).font(.callout).textSelection(.enabled)
-                if kind == "profiles" { Toggle("Substituir perfis com o mesmo identificador",isOn:$replaceProfiles); Text("Desativado: conflitos são guardados como novas cópias com nomes distintos.").font(.caption).foregroundStyle(.secondary) }
-                if kind == "bookmarks" { Toggle("Substituir os marcadores atuais",isOn:$replaceBookmarks); Toggle("Restaurar também página e zoom",isOn:$restorePosition); Text("Desativados: os marcadores são unidos e sua posição de leitura permanece atual.").font(.caption).foregroundStyle(.secondary) }
-                Button("Aplicar versão escolhida…") { confirmApply = true }.buttonStyle(.borderedProminent).disabled(busy)
-            }
+            snapshotList
+            if selected != nil,payload != nil { review }
             Spacer(minLength:0)
         }.padding(24).frame(width:760,height:690)
             .onAppear { reload() }.onDisappear { cancellation.cancel() }
@@ -105,6 +82,66 @@ struct SettingsExchangeView:View {
                 Button("Aplicar") { applySelected() }
                 Button("Cancelar",role:.cancel) { }
             } message: { Text(kind == "preferences" ? "As preferências visuais, de leitura, atalhos e saída serão substituídas. Perfis nomeados e documentos permanecem guardados." : "Serão usadas as opções de conflito e posição que você escolheu nesta tela.") }
+    }
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            HStack {
+                Text("Ajustes entre seus Macs").font(.title2.bold())
+                Spacer()
+                Button("Concluir") { dismiss() }.disabled(busy)
+            }
+            Text("Guarde uma versão e use Sincronizar na biblioteca para trocá-la pela pasta escolhida. Versões recebidas ficam disponíveis para revisão; seus ajustes só mudam quando você aplicar uma delas.")
+                .font(.callout).foregroundStyle(.secondary)
+        }
+    }
+    private var contentPicker: some View {
+        Picker("Conteúdo", selection: $kind) {
+            Text("Preferências").tag("preferences")
+            Text("Perfis nomeados").tag("profiles")
+            Text("Marcadores e leitura").tag("bookmarks")
+        }.pickerStyle(.segmented).disabled(busy)
+            .onChange(of: kind) { selected = nil; payload = nil; summary = "" }
+    }
+    private var actions: some View {
+        HStack {
+            Button("Guardar versão deste Mac") { publish() }.disabled(busy)
+            Button("Atualizar recebidas") { reload() }.disabled(busy)
+            Spacer()
+            if busy {
+                ProgressView().controlSize(.small)
+                Button("Cancelar leitura") { cancellation.cancel() }
+            }
+        }
+    }
+    private var snapshotList: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 10) {
+                ForEach(filteredSnapshots) { item in
+                    SettingsExchangeSnapshotRow(item: item, selected: selected?.id == item.id, busy: busy) { inspect(item) }
+                }
+                if filteredSnapshots.isEmpty {
+                    Text("Nenhuma versão desta categoria está disponível na biblioteca local.")
+                        .foregroundStyle(.secondary).padding(.vertical)
+                }
+            }
+        }.frame(maxHeight: 220)
+    }
+    private var review: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Divider()
+            Text("Revisão antes de aplicar").font(.headline)
+            Text(summary).font(.callout).textSelection(.enabled)
+            if kind == "profiles" {
+                Toggle("Substituir perfis com o mesmo identificador", isOn: $replaceProfiles)
+                Text("Desativado: conflitos são guardados como novas cópias com nomes distintos.").font(.caption).foregroundStyle(.secondary)
+            }
+            if kind == "bookmarks" {
+                Toggle("Substituir os marcadores atuais", isOn: $replaceBookmarks)
+                Toggle("Restaurar também página e zoom", isOn: $restorePosition)
+                Text("Desativados: os marcadores são unidos e sua posição de leitura permanece atual.").font(.caption).foregroundStyle(.secondary)
+            }
+            Button("Aplicar versão escolhida…") { confirmApply = true }.buttonStyle(.borderedProminent).disabled(busy)
+        }
     }
     private func reload() {
         guard !busy else { return }; busy = true; cancellation = NativeCancellation()
@@ -190,5 +227,29 @@ struct SettingsExchangeView:View {
     }
     private func verifyCurrent(_ selection:ReadingSelection,source:ReadingSourceIdentity) throws {
         guard model.activeSessionID == selection.id,let session = model.activeSession,(session.savedURL ?? session.sourceURL)?.standardizedFileURL == selection.url,session.document.pageCount == selection.pages,!model.hasUnsavedChanges,source.stillMatchesFile() else { throw PreferenceError.invalid("O documento ou a aba mudou durante a verificação. Selecione a versão novamente.") }
+    }
+}
+
+private struct SettingsExchangeSnapshotRow: View {
+    let item: LibraryConfigurationSnapshot
+    let selected: Bool
+    let busy: Bool
+    let action: () -> Void
+    private var sourceDescription: String {
+        let device = String(item.device.uuidString.prefix(8))
+        return "Mac \(device) · \(item.byteCount) bytes"
+    }
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                VStack(alignment: .leading, spacing: 3) {
+                    Text(item.created, style: .date)
+                    Text(sourceDescription).font(.caption).foregroundStyle(.secondary)
+                }
+                Spacer()
+                if selected { Image(systemName: "checkmark.circle.fill") }
+            }.padding(12).contentShape(Rectangle())
+                .background(Color.primary.opacity(0.035), in: RoundedRectangle(cornerRadius: 12))
+        }.buttonStyle(.plain).disabled(busy)
     }
 }

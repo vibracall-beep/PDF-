@@ -160,7 +160,7 @@ struct SignatureRequestView: View {
         }
         let options: [String: Any] = ["title": title, "subject": subject, "message": message, "test_mode": testMode, "signers": signers, "fields": fields]
         error = ""; draft = nil
-        model.execute(operation: "signature-request-prepare", inputs: [source], output: output, options: options, title: "Preparando solicitação local") { outcome in
+        model.execute(operation: "signature-request-prepare", inputs: [source], output: output, options: options, title: "Preparando solicitação local", completion: { outcome in
             do {
                 let url = try outcome.get(); let data = try Data(contentsOf: url)
                 guard data.count <= 2 * 1024 * 1024, let value = try JSONSerialization.jsonObject(with: data) as? [String: Any], let digest = value["input_sha256"] as? String,
@@ -170,7 +170,7 @@ struct SignatureRequestView: View {
                 attemptRecord = url.deletingLastPathComponent().appendingPathComponent(".pdf-signature-attempt-" + draftID + ".json")
                 reviewedSummary = "\(source.lastPathComponent)\n\(configuration["subject"] as? String ?? "")\n" + people.map { "\($0["name"] as? String ?? "") <\($0["email_address"] as? String ?? "")>" }.joined(separator: "\n") + "\nModo de teste: \((configuration["test_mode"] as? Bool) == true ? "sim" : "não")"
             } catch { self.error = error.localizedDescription }
-        }
+        })
     }
     private func send() {
         guard let source, let draft else { return }
@@ -183,9 +183,9 @@ struct SignatureRequestView: View {
             var options: [String: Any] = ["draft": draft.path, "confirm_send": true, "confirmed_sha256": sourceHash, "confirmed_draft_sha256": draftHash]
             if let key = try credential() { options["api_key"] = key }
             apiKey = ""; error = ""
-            model.execute(operation: "signature-request-send", inputs: [source], output: output, options: options, title: "Enviando solicitação") { outcome in
+            model.execute(operation: "signature-request-send", inputs: [source], output: output, options: options, title: "Enviando solicitação", completion: { outcome in
                 handle(outcome, sending: true)
-            }
+            })
         } catch { self.error = error.localizedDescription }
     }
     private func status() {
@@ -194,7 +194,7 @@ struct SignatureRequestView: View {
             var options: [String: Any] = ["request_id": requestID]
             if let key = try credential() { options["api_key"] = key }
             apiKey = ""; error = ""
-            model.execute(operation: "signature-request-status", inputs: [source ?? URL(fileURLWithPath: "/dev/null")], output: output, options: options, title: "Consultando solicitação") { outcome in handle(outcome, sending: false) }
+            model.execute(operation: "signature-request-status", inputs: [source ?? URL(fileURLWithPath: "/dev/null")], output: output, options: options, title: "Consultando solicitação", completion: { outcome in handle(outcome, sending: false) })
         } catch { self.error = error.localizedDescription }
     }
     private func handle(_ outcome: Result<URL, Error>, sending: Bool) {

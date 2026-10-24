@@ -189,7 +189,7 @@ struct ProductionToolsView: View {
         let submittedInputs = inputs, submittedSettings = reportSettings
         let token = UUID(); generation = token
         error = ""; report = ""
-        model.execute(operation: mode.rawValue, inputs: inputs, output: output, options: options, title: mode.title) { result in
+        model.execute(operation: mode.rawValue, inputs: inputs, output: output, options: options, title: mode.title, completion: { result in
             guard generation == token, inputs == submittedInputs, reportSettings == submittedSettings else { return }
             switch result {
             case .failure(let failure): error = failure.localizedDescription
@@ -201,7 +201,7 @@ struct ProductionToolsView: View {
                     }
                 } else { report = selectedMode == .conversion ? "Relatório criado. Abra comparison.html na pasta do resultado para comparar os documentos." : "Cópia criada. Abra o resultado para revisar a aparência final." }
             }
-        }
+        })
     }
     nonisolated private static func describeReport(_ url: URL, mode: ProductionMode) -> String {
         guard let size = try? url.resourceValues(forKeys: [.fileSizeKey]).fileSize, size <= 64 * 1024 * 1024,

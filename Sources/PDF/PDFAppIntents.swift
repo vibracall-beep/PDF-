@@ -46,7 +46,7 @@ struct RunSavedPDFWorkflowIntent: AppIntent {
     @Parameter(title: "Fluxo") var workflow: PDFWorkflowEntity
 
     @MainActor func perform() async throws -> some IntentResult & ProvidesDialog {
-        try await requestConfirmation(result: .result(dialog: "Executar o fluxo \(workflow.name)? O PDF solicitará uma nova pasta de resultados. O documento original será preservado."))
+        try await requestConfirmation(conditions: [], actionName: .continue, dialog: "Executar o fluxo \(workflow.name)? O PDF solicitará uma nova pasta de resultados. O documento original será preservado.")
         let output = try await PDFShortcutsRuntime.shared.run(document, workflowID: workflow.id)
         return .result(dialog: "Fluxo concluído. Resultados em \(output.lastPathComponent).")
     }

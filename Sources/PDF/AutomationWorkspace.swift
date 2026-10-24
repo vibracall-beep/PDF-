@@ -201,7 +201,7 @@ struct AutomationView:View {
     @State private var input:URL?
     @State private var output:URL?
     @State private var message = ""
-    init(coordinator:AutomationCoordinator = .shared) { self.coordinator = coordinator }
+    @MainActor init(coordinator: AutomationCoordinator? = nil) { self.coordinator = coordinator ?? .shared }
     var body:some View {
         ScrollView {
             VStack(alignment:.leading,spacing:20) {

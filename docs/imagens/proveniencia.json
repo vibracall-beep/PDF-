@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "commit": "5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad",
+  "run_id": 40055682837,
+  "run_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837",
+  "artifact": {
+    "id": 12545860080,
+    "name": "PDF-macOS-preview-xcode-27",
+    "created_at": "2026-10-24T02:52:03Z",
+    "github_archive_sha256": "90f9a14794be7ec70e88e8d7c7056d32c0b22d9787d790f5ee8fd0b9bc0c5ba6"
+  },
+  "capture_method": "ScreenCaptureKit own-window capture of production SwiftUI WindowGroup",
+  "copy_method": "Original bytes copied without image transformations",
+  "images": [
+    {
+      "title": "Menu principal",
+      "filename": "menu-principal.png",
+      "original_filename": "PDF-preview.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 345116,
+      "sha256": "8c83e3b412d30a1acb7136783dc97f8e7fd5a5635678c773854df53cc996e179"
+    },
+    {
+      "title": "Leitor de PDF",
+      "filename": "leitor.png",
+      "original_filename": "PDF-preview.leitor.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 115536,
+      "sha256": "7e996c3a14608598c2a842366f0c8b6859fa1a263bdd58e96391b57194b21fc5"
+    },
+    {
+      "title": "Abas de documentos",
+      "filename": "abas.png",
+      "original_filename": "PDF-preview.abas.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 118043,
+      "sha256": "39a7bc423d963b99dec37ae12e3968ac553bc69bdcbc6c9854176c8b554e72bc"
+    },
+    {
+      "title": "Leitura lado a lado",
+      "filename": "leitura-lado-a-lado.png",
+      "original_filename": "PDF-preview.lado-a-lado.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 131871,
+      "sha256": "dd05962e4447d0e970736a32e05a9ec736221dddcc3d72c3052e1676de36e804"
+    },
+    {
+      "title": "Inspector de anotações",
+      "filename": "anotacoes.png",
+      "original_filename": "PDF-preview.anotacoes.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 150729,
+      "sha256": "45d0ad32e758eabc31f0980910427de225b4e4e9e1455d27b4b47142542a0379"
+    },
+    {
+      "title": "Recuperação de documentos",
+      "filename": "recuperacao.png",
+      "original_filename": "PDF-preview.recuperacao.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 69482,
+      "sha256": "9f676ffc5139277424e2918cc4478340a7eddff918a119bb24faa3ac4ae6a5af"
+    },
+    {
+      "title": "Personalização da aparência",
+      "filename": "personalizacao-aparencia.png",
+      "original_filename": "PDF-preview.personalizar.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 98830,
+      "sha256": "5a6afc43174d53b36488211867cb843e692da7208c54fb0f54560e72a975b90d"
+    },
+    {
+      "title": "Personalização das ferramentas",
+      "filename": "personalizacao-ferramentas.png",
+      "original_filename": "PDF-preview.ferramentas.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 86054,
+      "sha256": "a215b22e8845fe4c06bc7d523bcf9c6a16a3c4665cb4b2a28a96ba557f1ebf1e"
+    },
+    {
+      "title": "Personalização da navegação",
+      "filename": "personalizacao-navegacao.png",
+      "original_filename": "PDF-preview.navegacao.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 79502,
+      "sha256": "d100f5a9a6903041279d54005a56c9f3db0faed35d38a345294f8db708de223a"
+    },
+    {
+      "title": "Personalização do leitor",
+      "filename": "personalizacao-leitor.png",
+      "original_filename": "PDF-preview.opcoes-leitura.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 82613,
+      "sha256": "fc35443ed23ccd3fcfdff7b49058e1e807d9bb0abe6bf2947582db56a9165712"
+    },
+    {
+      "title": "Personalização dos arquivos",
+      "filename": "personalizacao-arquivos.png",
+      "original_filename": "PDF-preview.arquivos.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 74255,
+      "sha256": "3649bd2e251c191a5f1033aa8b878329b5352ff34cdf05498dc1a2afb9be8d8e"
+    },
+    {
+      "title": "Menu no tema escuro",
+      "filename": "menu-escuro.png",
+      "original_filename": "PDF-preview.escuro.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 399301,
+      "sha256": "825229549e6d71551d0f31f0cf27ef809ce2de9328686fc0418de570b32ab320"
+    },
+    {
+      "title": "Menu em lista",
+      "filename": "menu-lista.png",
+      "original_filename": "PDF-preview.lista.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 90877,
+      "sha256": "9cb397431faf131f72b71e72180be36e2d3bf620a9e242be1d2dc0a8d3ec7d5c"
+    },
+    {
+      "title": "Configuração de marca d’água",
+      "filename": "configuracao-ferramenta.png",
+      "original_filename": "PDF-preview.configuracao-ferramenta.png",
+      "width": 1050,
+      "height": 772,
+      "bytes": 89948,
+      "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+    },
+    {
+      "title": "Fluxo de trabalho em lote",
+      "filename": "fluxo-lote.png",
+      "original_filename": "PDF-preview.fluxo-lote.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 108533,
+      "sha256": "0d7ac2a82652a87c93fd28ea340acdf53df44d0f8f7670bf62d7d73609a77316"
+    },
+    {
+      "title": "Assinatura digital",
+      "filename": "assinatura-digital.png",
+      "original_filename": "PDF-preview.assinatura-digital.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 86067,
+      "sha256": "f8ec88cf8fbf9203607b43eaf28095c6abf9c893fc9d81fcfb592cc95f4f89b8"
+    },
+    {
+      "title": "Verificação de assinaturas",
+      "filename": "verificar-assinaturas.png",
+      "original_filename": "PDF-preview.verificar-assinaturas.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 68002,
+      "sha256": "0aec8e9e1b328f41a395001795624d88f3c9b3a37205a2c648f6ace995a12125"
+    },
+    {
+      "title": "Validação PDF/A",
+      "filename": "validar-pdfa.png",
+      "original_filename": "PDF-preview.validar-pdfa.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 64131,
+      "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+    },
+    {
+      "title": "Auditoria PDF/UA",
+      "filename": "auditar-pdfua.png",
+      "original_filename": "PDF-preview.auditar-pdfua.png",
+      "width": 1050,
+      "height": 752,
+      "bytes": 71581,
+      "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+    }
+  ],
+  "accessibility_reports": [
+    {
+      "filename": "menu-principal.accessibility.json",
+      "original_filename": "PDF-preview.accessibility.json",
+      "bytes": 102420,
+      "sha256": "18cbe17b56dd950d96ac1917f3ca83f0a4bad28cb12bacbdc32d1b8d2ec8771b",
+      "captured_at": "2026-10-24T02:51:27Z",
+      "nodes": 413,
+      "missing_required_identifiers": []
+    },
+    {
+      "filename": "leitor.accessibility.json",
+      "original_filename": "PDF-preview.leitor.accessibility.json",
+      "bytes": 104786,
+      "sha256": "ae1409331485b83853bd952c234d1abdb90ab146141d2391b112a1af40f0f61b",
+      "captured_at": "2026-10-24T02:51:29Z",
+      "nodes": 446,
+      "missing_required_identifiers": []
+    },
+    {
+      "filename": "leitura-lado-a-lado.accessibility.json",
+      "original_filename": "PDF-preview.lado-a-lado.accessibility.json",
+      "bytes": 141468,
+      "sha256": "9c62eb59e55a8b263ce184b5ec56f67d0f794368438c3a72868e963947b80990",
+      "captured_at": "2026-10-24T02:51:33Z",
+      "nodes": 609,
+      "missing_required_identifiers": []
+    },
+    {
+      "filename": "anotacoes.accessibility.json",
+      "original_filename": "PDF-preview.anotacoes.accessibility.json",
+      "bytes": 135024,
+      "sha256": "f4a42a85484bf2a2ebc392936dd69d6cfbb0bbc6c54ee09480ebf984d67a7ef5",
+      "captured_at": "2026-10-24T02:51:35Z",
+      "nodes": 578,
+      "missing_required_identifiers": []
+    }
+  ],
+  "validation": {
+    "artifact_gate": "19 PNGs + 4 required AX reports passed for both CI jobs",
+    "visual_review": "All 19 images inspected from both xcode-27 and macos-26 artifacts; no new clipping found",
+    "other_reviewed_artifact": {
+      "id": 12545476345,
+      "name": "PDF-macOS-preview-macos-26",
+      "created_at": "2026-10-24T02:52:23Z",
+      "github_archive_sha256": "f679d1445d14d28df181ac71f4434655b97868a492088bb031e34caebf1b7681"
+    },
+    "functional_approval": "Passed: both macos-26 and xcode-27 completed the full build, installation and functional validation jobs successfully. This result does not imply that the separate strict Apple Vision audit passed; functional OCR may use the reported Tesseract fallback.",
+    "complete_run_conclusion": "success",
+    "jobs": [
+      {
+        "name": "native-application (macos-26)",
+        "conclusion": "success"
+      },
+      {
+        "name": "native-application (xcode-27)",
+        "conclusion": "success"
+      }
+    ],
+    "functional_status_verified_at": "2026-10-24T03:04:56Z"
+  }
+}

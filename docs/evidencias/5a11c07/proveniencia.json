@@ -1,0 +1,123 @@
+{
+  "schemaVersion": 1,
+  "run_id": 40055682837,
+  "run_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837",
+  "source_commit": "5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad",
+  "run_status": "completed",
+  "run_conclusion": "success",
+  "run_updated_at": "2026-10-24T03:04:49Z",
+  "download_method": "gh run download (normal GitHub artifact download)",
+  "original_report_downloaded": true,
+  "report_files": [
+    {
+      "file": "benchmark-macos26.json",
+      "sha256": "ac7a3080a99424b0974e4480b3744542eea736afbfc2c9d88eca50eb3771a131",
+      "size_bytes": 3216,
+      "original_artifact_member": "PDF-benchmark.json",
+      "artifact": {
+        "id": 12544919197,
+        "name": "PDF-macOS-benchmark-macos-26",
+        "size_in_bytes": 1500,
+        "digest": "sha256:949fe5c762006a5a821876f998411d3378fac3e2bd339186214524a16d03c89a",
+        "created_at": "2026-10-24T03:04:42Z"
+      },
+      "artifact_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12544919197",
+      "copied_byte_for_byte": true
+    },
+    {
+      "file": "vision-macos26.json",
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "size_bytes": 432,
+      "original_artifact_member": "PDF-vision-audit.json",
+      "artifact": {
+        "id": 12545631497,
+        "name": "PDF-Apple-Vision-capability-macos-26",
+        "size_in_bytes": 887,
+        "digest": "sha256:64fb26098b035ebb46635c5d1511ad16571583599bd1e9c77a9b699383b5c733",
+        "created_at": "2026-10-24T03:04:34Z"
+      },
+      "artifact_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12545631497",
+      "copied_byte_for_byte": true
+    },
+    {
+      "file": "benchmark-macos27.json",
+      "sha256": "1c20940def31430e23cbcfc9ce5add347a98d967ef924be44c83b0b76b27ca78",
+      "size_bytes": 6568,
+      "original_artifact_member": "PDF-benchmark.json",
+      "artifact": {
+        "id": 12546230213,
+        "name": "PDF-macOS-benchmark-xcode-27",
+        "size_in_bytes": 1796,
+        "digest": "sha256:0b42e1982e3dc7ff10b9d9a0fccef56b7ceafcf25f460545e7f18c4dc0bf94c4",
+        "created_at": "2026-10-24T03:04:37Z"
+      },
+      "artifact_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12546230213",
+      "copied_byte_for_byte": true
+    },
+    {
+      "file": "vision-macos27.json",
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "size_bytes": 1621,
+      "original_artifact_member": "PDF-vision-audit.json",
+      "artifact": {
+        "id": 12546165721,
+        "name": "PDF-Apple-Vision-capability-xcode-27",
+        "size_in_bytes": 2082,
+        "digest": "sha256:5feb37c7f0639eaddcad080374c4eeb754e48d791399d1c2d8617a3ac13c6a6a",
+        "created_at": "2026-10-24T03:04:27Z"
+      },
+      "artifact_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12546165721",
+      "copied_byte_for_byte": true
+    }
+  ],
+  "source_archives": [
+    {
+      "artifact_name": "PDF-source-macos-26",
+      "tar_gz_sha256": "e7b036f9d2277235b94758703c5fb4c789306573f4dca12a24a9aa138d253619",
+      "tar_gz_size_bytes": 879944,
+      "members": 106,
+      "manifest_entries": 105,
+      "manifest_verified": true,
+      "build_info": {
+        "commit": "5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad",
+        "source_archive_format": 1,
+        "working_tree_dirty": false
+      },
+      "diagnostics_included": true,
+      "private_key_filename_patterns_absent": true,
+      "artifact": {
+        "id": 12545312794,
+        "name": "PDF-source-macos-26",
+        "size_in_bytes": 882401,
+        "digest": "sha256:09f3a0eede68fca248705b40ff0d68af08ed3e781f51bdc26ec2c4b00b15ba5b",
+        "created_at": "2026-10-24T03:04:44Z"
+      },
+      "artifact_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12545312794"
+    },
+    {
+      "artifact_name": "PDF-source-ocr-compatibility-xcode-27",
+      "tar_gz_sha256": "e7b036f9d2277235b94758703c5fb4c789306573f4dca12a24a9aa138d253619",
+      "tar_gz_size_bytes": 879944,
+      "members": 106,
+      "manifest_entries": 105,
+      "manifest_verified": true,
+      "build_info": {
+        "commit": "5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad",
+        "source_archive_format": 1,
+        "working_tree_dirty": false
+      },
+      "diagnostics_included": true,
+      "private_key_filename_patterns_absent": true,
+      "artifact": {
+        "id": 12545304284,
+        "name": "PDF-source-ocr-compatibility-xcode-27",
+        "size_in_bytes": 882973,
+        "digest": "sha256:bb03f42a66f0047cf7750e749ee9c0b6298e8b522136df3fbd2bec6518441272",
+        "created_at": "2026-10-24T03:04:39Z"
+      },
+      "artifact_url": "https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12545304284"
+    }
+  ],
+  "github_artifact_digest_scope": "ZIP digest supplied by GitHub metadata; the ZIP container was not retained for an independent local digest comparison. Report and source tarball hashes were calculated locally.",
+  "created_at_utc": "2026-10-24T03:07:37.199769+00:00"
+}

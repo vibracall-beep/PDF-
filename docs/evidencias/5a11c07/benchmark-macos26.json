@@ -1,0 +1,96 @@
+{
+  "activeProcessorCount" : 3,
+  "applicationVersion" : "0.5.0",
+  "architecture" : "arm64",
+  "createdAt" : "2026-10-24T03:04:40Z",
+  "fixture" : "text-and-vector-v1",
+  "graphicsDevice" : "Apple Paravirtual device",
+  "methodology" : "Processo dedicado pelo aplicativo; arquivo de entrada copiado para pasta privada e removido ao terminar; uma execução de aquecimento e repetições sequenciais. Não limpa caches. Pico de RSS inclui geração\/leitura da amostra, aquecimento e todas as operações. A amostra sintética contém texto e vetores; use o mesmo arquivo e SHA-256 para comparações entre Macs. O nome da GPU identifica disponibilidade, não mede ocupação nem uso do Neural Engine. Erros de uma operação são registrados, não convertidos em tempos zero.",
+  "metrics" : [
+    {
+      "detail" : "Abrir o arquivo e resolver primeira e última página; cache do sistema preservado.",
+      "id" : "open",
+      "name" : "Abrir documento",
+      "samplesMilliseconds" : [
+        0.172208,
+        0.151584,
+        0.1355
+      ]
+    },
+    {
+      "detail" : "Percorrer o texto de todas as páginas.",
+      "id" : "extract",
+      "name" : "Extrair texto",
+      "samplesMilliseconds" : [
+        4.816417,
+        5.685125,
+        5.066958
+      ]
+    },
+    {
+      "detail" : "Termo fixo: benchmark; 100 ocorrências na amostra selecionada.",
+      "id" : "search",
+      "name" : "Buscar no documento",
+      "samplesMilliseconds" : [
+        1.103875,
+        1.103042,
+        1.122
+      ]
+    },
+    {
+      "detail" : "Primeira, central e última página; miniatura de até 1.200 × 1.600 pontos.",
+      "id" : "render",
+      "name" : "Renderizar páginas",
+      "samplesMilliseconds" : [
+        3.915875,
+        3.825584,
+        3.547958
+      ]
+    },
+    {
+      "detail" : "Core Image com contexto Metal quando disponível; mesma primeira página.",
+      "id" : "contrast",
+      "name" : "Processar imagem",
+      "samplesMilliseconds" : [
+        9.104583,
+        9.068167,
+        8.987208
+      ]
+    },
+    {
+      "detail" : "OCR local na primeira página, inglês. Cada amostra identifica o motor usado. O tempo inclui tentativas e processos auxiliares; a memória é somente do processo principal, sem somar os filhos. Não mede utilização da NPU.",
+      "id" : "ocr",
+      "name" : "Reconhecer texto",
+      "ocrSamples" : [
+        {
+          "backend" : "apple-vision"
+        },
+        {
+          "backend" : "apple-vision"
+        },
+        {
+          "backend" : "apple-vision"
+        }
+      ],
+      "ocrWarmup" : {
+        "backend" : "apple-vision"
+      },
+      "samplesMilliseconds" : [
+        1521.020333,
+        1448.468625,
+        1420.471959
+      ]
+    }
+  ],
+  "operatingSystem" : "Version 26.6.2 (Build 25G83)",
+  "pageCount" : 100,
+  "physicalMemoryBytes" : 7516192768,
+  "processPeakMemoryBytes" : 301023232,
+  "processor" : "Apple M1 (Virtual)",
+  "repetitions" : 3,
+  "schemaVersion" : 1,
+  "sourceBytes" : 198313,
+  "sourceName" : "Amostra sintética PDF v1",
+  "sourceSHA256" : "5b48ea5abffcafae17e0e9983d791e40c9189c0ad7a33f044024bd755344cf2f",
+  "virtualization" : "Virtualização detectada nos indicadores do sistema."
+}

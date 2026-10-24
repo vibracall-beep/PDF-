@@ -40,17 +40,141 @@ enum MacPreview {
         NSError(domain: "PDF.Preview", code: code, userInfo: [NSLocalizedDescriptionKey: message])
     }
 
-    fileprivate static func capture(_ window: NSWindow, to destination: URL) async throws {
+    private struct WindowGeometry: Equatable {
+        var id: Int
+        var frame: CGRect
+        var contentBounds: CGRect
+        var contentLayout: CGRect
+        var backingScale: CGFloat
+    }
+
+    private struct CaptureGeometry: Equatable {
+        var window: WindowGeometry
+        var serverFrame: CGRect
+        var filterRect: CGRect
+        var pixelScale: CGFloat
+        var onScreen: Bool
+
+        var isAligned: Bool {
+            let rectangles = [window.frame, window.contentBounds, window.contentLayout, serverFrame, filterRect]
+            guard onScreen, window.id > 0,
+                  rectangles.allSatisfy({ rect in
+                      [rect.minX, rect.minY, rect.width, rect.height].allSatisfy(\.isFinite)
+                          && rect.width > 100 && rect.height > 100
+                  }),
+                  pixelScale.isFinite, pixelScale > 0,
+                  window.backingScale.isFinite, window.backingScale > 0,
+                  abs(pixelScale - window.backingScale) < 0.01 else { return false }
+            // NSWindow and SCWindow origins use different screen coordinate
+            // systems. Compare their sizes; retain both full frames to detect
+            // movement between metadata samples without inventing an offset.
+            for size in [serverFrame.size, filterRect.size] {
+                guard abs(size.width - window.frame.width) < 0.01,
+                      abs(size.height - window.frame.height) < 0.01 else { return false }
+            }
+            return [filterRect.width * pixelScale, filterRect.height * pixelScale].allSatisfy {
+                $0.isFinite && $0 > 100 && $0 < CGFloat(Int.max)
+            }
+        }
+
+        func agrees(with other: CaptureGeometry) -> Bool {
+            isAligned && other.isAligned && self == other
+        }
+    }
+
+    private struct CaptureSample {
+        let geometry: CaptureGeometry
+        let filter: SCContentFilter
+    }
+
+    private static func windowGeometry(_ window: NSWindow) throws -> WindowGeometry {
         guard window.isVisible, window.windowNumber > 0 else {
             throw failure(3, "A janela da prévia não foi registrada no WindowServer.")
         }
-        window.contentView?.layoutSubtreeIfNeeded()
-        window.displayIfNeeded()
-        CATransaction.flush()
         guard let content = window.contentView, content.bounds.width > 100, content.bounds.height > 100 else {
             throw failure(4, "A janela da prévia ainda não possui uma área de conteúdo válida.")
         }
-        let logicalFrame = window.frame
+        return WindowGeometry(id: window.windowNumber, frame: window.frame,
+            contentBounds: content.bounds, contentLayout: window.contentLayoutRect,
+            backingScale: window.backingScaleFactor)
+    }
+
+    private static func captureSample(_ window: NSWindow) async throws -> CaptureSample? {
+        let before = try windowGeometry(window)
+        // Fresh metadata is necessary after a SwiftUI route changes window chrome.
+        // This API is restricted to our process and does not request global access.
+        let available: SCShareableContent
+        do { available = try await SCShareableContent.currentProcess }
+        catch {
+            let error = error as NSError
+            throw failure(11, "O sistema não disponibilizou as janelas capturáveis deste processo. ScreenCaptureKit \(error.domain) código \(error.code): \(error.localizedDescription)")
+        }
+        try Task.checkCancellation()
+        let current = try windowGeometry(window)
+        guard before == current else {
+            trace("window geometry changed while acquiring WindowServer metadata")
+            return nil
+        }
+        guard let ownWindow = available.windows.first(where: { $0.windowID == CGWindowID(current.id) }) else {
+            trace("current window not yet present in current-process capture metadata")
+            return nil
+        }
+        if let owner = ownWindow.owningApplication, owner.processID != ProcessInfo.processInfo.processIdentifier {
+            throw failure(15, "O WindowServer associou o ID selecionado a outro processo. A captura foi recusada.")
+        }
+        let filter = SCContentFilter(desktopIndependentWindow: ownWindow)
+        let geometry = CaptureGeometry(window: current, serverFrame: ownWindow.frame,
+            filterRect: filter.contentRect, pixelScale: CGFloat(filter.pointPixelScale), onScreen: ownWindow.isOnScreen)
+        guard geometry.isAligned else {
+            trace("waiting for matching capture geometry: window=\(current.frame.size); server=\(ownWindow.frame.size); filter=\(filter.contentRect.size); backingScale=\(current.backingScale); filterScale=\(geometry.pixelScale); onScreen=\(geometry.onScreen)")
+            return nil
+        }
+        return CaptureSample(geometry: geometry, filter: filter)
+    }
+
+    /// Uses the observed 0bd macOS 26 mismatch and post-capture changes as
+    /// negative fixtures. This checks geometry acceptance, not image sharpness.
+    static func runGeometryAuditChecks() throws {
+        func require(_ value: Bool, _ message: String) throws {
+            guard value else { throw failure(42, "Geometria da prévia: " + message) }
+        }
+        let frame = CGRect(x: 20, y: 80, width: 1050, height: 772)
+        let bounds = CGRect(x: 0, y: 0, width: 1050, height: 772)
+        let window = WindowGeometry(id: 30, frame: frame, contentBounds: bounds,
+            contentLayout: CGRect(x: 0, y: 0, width: 1050, height: 720), backingScale: 1)
+        let stable = CaptureGeometry(window: window,
+            serverFrame: CGRect(x: 20, y: 30, width: 1050, height: 772),
+            filterRect: bounds, pixelScale: 1, onScreen: true)
+        try require(stable.isAligned && stable.agrees(with: stable), "geometria consistente recusada")
+        var stale = stable
+        stale.filterRect.size.height = 752
+        try require(!stale.isAligned && !stable.agrees(with: stale), "filtro antigo 1050×752 aceito para janela 1050×772")
+        stale = stable; stale.serverFrame.size.height = 752
+        try require(!stale.isAligned, "frame antigo do WindowServer aceito")
+        var afterCapture = stable
+        afterCapture.window.frame.size.height = 792
+        afterCapture.window.contentBounds.size.height = 792
+        afterCapture.window.contentLayout.size.height = 740
+        afterCapture.serverFrame.size.height = 792
+        afterCapture.filterRect.size.height = 792
+        try require(afterCapture.isAligned && !stable.agrees(with: afterCapture), "redimensionamento durante a captura aceito")
+        afterCapture = stable; afterCapture.window.frame.origin.x += 10
+        afterCapture.serverFrame.origin.x += 10
+        try require(afterCapture.isAligned && !stable.agrees(with: afterCapture), "movimento durante a captura aceito")
+        afterCapture = stable; afterCapture.window.id += 1
+        try require(!stable.agrees(with: afterCapture), "troca de identidade durante a captura aceita")
+        for scale in [CGFloat(0), -1, .nan, .infinity, 2] {
+            var invalid = stable; invalid.pixelScale = scale
+            try require(!invalid.isAligned, "escala inválida ou divergente aceita")
+        }
+        var retina = stable; retina.window.backingScale = 2; retina.pixelScale = 2
+        try require(retina.isAligned && !stable.agrees(with: retina), "escala Retina consistente recusada ou troca de tela ignorada")
+        var hidden = stable; hidden.onScreen = false
+        try require(!hidden.isAligned, "janela fora da tela aceita")
+    }
+
+    fileprivate static func capture(_ window: NSWindow, to destination: URL) async throws {
+        _ = try windowGeometry(window)
         let folder = destination.deletingLastPathComponent()
         try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
         let probe = folder.appendingPathComponent("PDF-write-probe-\(UUID().uuidString).tmp")
@@ -61,47 +185,75 @@ enum MacPreview {
             throw failure(10, "O diretório de saída não aceitou uma gravação de diagnóstico: \(error.localizedDescription)")
         }
         let globalAccess = CGPreflightScreenCaptureAccess()
-        print("PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=\(globalAccess); captureScope=currentProcess; frame=\(Int(logicalFrame.width))x\(Int(logicalFrame.height)); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); backingScale=\(window.backingScaleFactor)")
-        // This public API exposes only content the current process may capture
-        // under the operating system's own-process rules. It neither asks for
-        // global capture access nor changes TCC settings or enumerates other apps.
-        let available: SCShareableContent
-        do { available = try await SCShareableContent.currentProcess }
-        catch {
-            let error = error as NSError
-            throw failure(11, "O sistema não disponibilizou as janelas capturáveis deste processo. ScreenCaptureKit \(error.domain) código \(error.code): \(error.localizedDescription)")
+        let deadline = ProcessInfo.processInfo.systemUptime + 6
+        var previous: CaptureGeometry?
+        var attempts = 0
+        while ProcessInfo.processInfo.systemUptime < deadline {
+            try Task.checkCancellation()
+            attempts += 1
+            window.contentView?.layoutSubtreeIfNeeded()
+            window.displayIfNeeded()
+            CATransaction.flush()
+            guard let current = try await captureSample(window) else {
+                previous = nil
+                if ProcessInfo.processInfo.systemUptime < deadline { try await Task.sleep(for: .milliseconds(100)) }
+                continue
+            }
+            guard ProcessInfo.processInfo.systemUptime < deadline else { break }
+            if previous?.agrees(with: current.geometry) != true {
+                let wasChanging = previous != nil
+                previous = current.geometry
+                // A matching first sample needs a second fresh metadata read,
+                // not a fixed delay. Only observed changes wait for another turn.
+                if wasChanging { try await Task.sleep(for: .milliseconds(100)) }
+                continue
+            }
+            let geometry = current.geometry
+            let configuration = SCStreamConfiguration()
+            configuration.width = Int(ceil(geometry.filterRect.width * geometry.pixelScale))
+            configuration.height = Int(ceil(geometry.filterRect.height * geometry.pixelScale))
+            configuration.showsCursor = false
+            configuration.includeChildWindows = false
+            configuration.ignoreShadowsSingleWindow = true
+            configuration.scalesToFit = false
+            print("PDF preview diagnostics: destinationWritable=true; globalCapturePreflight=\(globalAccess); captureScope=currentProcess; frame=\(Int(geometry.window.frame.width))x\(Int(geometry.window.frame.height)); content=\(Int(geometry.window.contentBounds.width))x\(Int(geometry.window.contentBounds.height)); backingScale=\(geometry.window.backingScale)")
+            print("PDF preview own-window filter: window=\(geometry.window.id); onScreen=\(geometry.onScreen); points=\(Int(geometry.filterRect.width))x\(Int(geometry.filterRect.height)); requestedPixels=\(configuration.width)x\(configuration.height)")
+            let image: CGImage
+            do { image = try await SCScreenshotManager.captureImage(contentFilter: current.filter, configuration: configuration) }
+            catch {
+                let error = error as NSError
+                throw failure(13, "A captura da própria janela falhou. ScreenCaptureKit \(error.domain) código \(error.code): \(error.localizedDescription)")
+            }
+            try Task.checkCancellation()
+            guard ProcessInfo.processInfo.systemUptime < deadline else { break }
+            // Do not encode or publish an image made with geometry that changed
+            // during capture. Obtain another current-process filter to verify it.
+            guard let after = try await captureSample(window), geometry.agrees(with: after.geometry) else {
+                trace("discarded capture after geometry changed; destination untouched")
+                previous = nil
+                if ProcessInfo.processInfo.systemUptime < deadline { try await Task.sleep(for: .milliseconds(100)) }
+                continue
+            }
+            guard ProcessInfo.processInfo.systemUptime < deadline else { break }
+            guard image.width == configuration.width, image.height == configuration.height, image.width > 100, image.height > 100 else {
+                throw failure(14, "O WindowServer retornou dimensões incompatíveis com o filtro da própria janela: \(image.width)x\(image.height).")
+            }
+            let bitmap = NSBitmapImageRep(cgImage: image)
+            guard let data = bitmap.representation(using: .png, properties: [:]) else {
+                throw failure(7, "A captura real da janela não pôde ser codificada como PNG.")
+            }
+            try Task.checkCancellation()
+            guard ProcessInfo.processInfo.systemUptime < deadline else { break }
+            guard geometry.window == (try windowGeometry(window)) else {
+                trace("discarded capture before publication after window geometry changed")
+                previous = nil
+                continue
+            }
+            try NativeOutput.write(data, to: destination)
+            print("PDF preview captured from WindowServer via ScreenCaptureKit: \(destination.lastPathComponent); window=\(geometry.window.id); content=\(Int(geometry.window.contentBounds.width))x\(Int(geometry.window.contentBounds.height)); pixels=\(image.width)x\(image.height); geometrySamples=\(attempts)")
+            return
         }
-        guard let ownWindow = available.windows.first(where: { $0.windowID == CGWindowID(window.windowNumber) }) else {
-            throw failure(12, "A própria janela PDF não consta no conteúdo que o sistema autoriza este processo a capturar. Não foi realizada captura de outra janela.")
-        }
-        if let owner = ownWindow.owningApplication, owner.processID != ProcessInfo.processInfo.processIdentifier {
-            throw failure(15, "O WindowServer associou o ID selecionado a outro processo. A captura foi recusada.")
-        }
-        let filter = SCContentFilter(desktopIndependentWindow: ownWindow)
-        let configuration = SCStreamConfiguration()
-        let scale = CGFloat(filter.pointPixelScale)
-        configuration.width = max(1, Int(ceil(filter.contentRect.width * scale)))
-        configuration.height = max(1, Int(ceil(filter.contentRect.height * scale)))
-        configuration.showsCursor = false
-        configuration.includeChildWindows = false
-        configuration.ignoreShadowsSingleWindow = true
-        configuration.scalesToFit = false
-        print("PDF preview own-window filter: window=\(ownWindow.windowID); onScreen=\(ownWindow.isOnScreen); points=\(Int(filter.contentRect.width))x\(Int(filter.contentRect.height)); requestedPixels=\(configuration.width)x\(configuration.height)")
-        let image: CGImage
-        do { image = try await SCScreenshotManager.captureImage(contentFilter: filter, configuration: configuration) }
-        catch {
-            let error = error as NSError
-            throw failure(13, "A captura da própria janela falhou. ScreenCaptureKit \(error.domain) código \(error.code): \(error.localizedDescription)")
-        }
-        guard image.width == configuration.width, image.height == configuration.height, image.width > 100, image.height > 100 else {
-            throw failure(14, "O WindowServer retornou dimensões incompatíveis com o filtro da própria janela: \(image.width)x\(image.height).")
-        }
-        let bitmap = NSBitmapImageRep(cgImage: image)
-        guard let data = bitmap.representation(using: .png, properties: [:]) else {
-            throw failure(7, "A captura real da janela não pôde ser codificada como PNG.")
-        }
-        try NativeOutput.write(data, to: destination)
-        print("PDF preview captured from WindowServer via ScreenCaptureKit: \(destination.lastPathComponent); window=\(window.windowNumber); content=\(Int(content.bounds.width))x\(Int(content.bounds.height)); pixels=\(image.width)x\(image.height)")
+        throw failure(41, "A geometria da janela e do WindowServer não permaneceu consistente durante os 6 segundos de verificação. Nenhum PNG foi gravado.")
     }
 
     fileprivate static func sampleDocument(title:String = "Um espaço para seus documentos.") throws -> PDFDocument {

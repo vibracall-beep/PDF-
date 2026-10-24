@@ -74,6 +74,7 @@ enum MacSmokeTests {
         audit("Workflow presets and credentials") { try WorkflowAuditChecks.run(in: directory) }
         audit("Pages isolated copy") { try PagesPrivateCopyAuditChecks.run(in: directory) }
         audit("Capture import and orientation") { try CaptureImportAuditChecks.run(in: directory) }
+        audit("Preview WindowServer geometry consistency") { try MacPreview.runGeometryAuditChecks() }
         audit("Typed-string repair graph and Unicode parser") { try NativePDFStringRepair.runAuditChecks() }
         audit("Native serialization editable annotation and form roundtrips") {
             try QPDFStructuralAudit.verifyEditableRoundTrips()

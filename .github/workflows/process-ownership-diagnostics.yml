@@ -1,0 +1,43 @@
+name: Native process ownership diagnosis
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  synthetic-process-measurement:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-26, xcode-27]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - name: Record actual platform
+        run: |
+          uname -m
+          sw_vers -productVersion
+          sysctl -n machdep.cpu.brand_string
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
+      - name: Compile the unprivileged ownership probe
+        run: |
+          set -o pipefail
+          mkdir -p "$RUNNER_TEMP/PDF-process-probe-build"
+          xcrun clang -arch arm64 -mmacosx-version-min=26.0 -std=c11 -Wall -Wextra -Werror -O2 diagnostics/ProcessOwnershipProbe.c -lproc -o "$RUNNER_TEMP/PDF-process-probe" 2>&1 | tee "$RUNNER_TEMP/PDF-process-probe-build/compile.log"
+      - name: Measure owned groups and process-table access
+        run: |
+          python3 diagnostics/process_ownership_diagnostics.py --probe "$RUNNER_TEMP/PDF-process-probe" --output "$RUNNER_TEMP/PDF-process-ownership"
+      - name: Retain synthetic measurement evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-process-ownership-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-process-ownership/
+            ${{ runner.temp }}/PDF-process-probe-build/
+            ${{ runner.temp }}/PDF-process-probe
+          if-no-files-found: warn
+          retention-days: 7

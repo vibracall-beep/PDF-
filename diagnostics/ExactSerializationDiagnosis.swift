@@ -43,9 +43,10 @@ enum ExactAuditCapture {
         let record = try MainActor.assumeIsolated { try PDFKitDiagnosis.annotationSnapshot(document, progressPrefix: url) }
         try NativeOutput.write(JSONSerialization.data(withJSONObject: PDFKitDiagnosis.diagnosticJSON(record), options: [.prettyPrinted, .sortedKeys]), to: url)
         let keys: Set<String> = ["index", "type", "contents", "bounds", "flags", "isOpen", "rawOpen", "parent", "rawParent",
-                                 "popup", "rawPopup", "field", "fieldType", "value", "default", "choices", "choiceValues", "list"]
+                                 "popup", "rawPopup", "field", "fieldType", "value", "default", "choices", "choiceValues", "list",
+                                 "color", "fontColor", "fontName", "fontSize", "rawDefaultAppearance"]
         let selected = (record["annotations"] as? [[String: Any]] ?? []).filter {
-            ["text", "popup", "widget"].contains(($0["type"] as? String ?? "").replacingOccurrences(of: "/", with: "").lowercased())
+            ["text", "popup", "widget", "freetext"].contains(($0["type"] as? String ?? "").replacingOccurrences(of: "/", with: "").lowercased())
         }.map { $0.filter { keys.contains($0.key) } }
         let summary: [String: Any] = ["syntheticSnapshot": url.lastPathComponent, "annotations": selected]
         FileHandle.standardOutput.write(try JSONSerialization.data(withJSONObject: PDFKitDiagnosis.diagnosticJSON(summary), options: [.sortedKeys]) + Data([10]))

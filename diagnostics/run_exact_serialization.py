@@ -27,11 +27,11 @@ def private_write(path, data):
 
 def annotation_metadata(objects):
     keys = {"/Type", "/Subtype", "/Open", "/F", "/Rect", "/Contents", "/Parent", "/Popup", "/NM",
-            "/FT", "/T", "/V", "/DV", "/Opt", "/Ff"}
+            "/FT", "/T", "/V", "/DV", "/Opt", "/Ff", "/DA", "/C"}
     rows = []
     for reference, wrapped in objects.items():
         value = wrapped.get("value") if isinstance(wrapped, dict) else None
-        if isinstance(value, dict) and value.get("/Subtype") in ("/Text", "/Popup", "/Widget"):
+        if isinstance(value, dict) and value.get("/Subtype") in ("/Text", "/Popup", "/Widget", "/FreeText"):
             rows.append({"object": reference, "dictionary": {key: entry for key, entry in value.items() if key in keys}})
     if len(rows) > 256:
         raise ValueError("Synthetic annotation report exceeded 256 objects")

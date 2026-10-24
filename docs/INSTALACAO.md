@@ -5,11 +5,11 @@
 ## Requisitos comuns
 
 - Mac Apple Silicon nativo, sem Rosetta, com macOS 26 ou posterior. O alvo solicitado é M4 e superior; aceitar arm64 não demonstra ganho de desempenho numa geração específica.
-- Espaço para pacote, instalação e cópia anterior. O runtime completo inclui conversores e pode ocupar vários gigabytes; clones APFS reduzem cópias físicas quando disponíveis, sem eliminar o requisito de espaço.
+- Reserve **15 GB livres além do download** para instalação ou atualização. No pacote macOS 26 de `437a8f4`, o tar tem 1.448.521.887 bytes e `PDF.app` ocupa 3.487.890.655 bytes lógicos. A recomendação dá margem sobre cerca de 8,437 GB adicionais sem clones APFS; cada backup preservado acrescenta cerca de 3,49 GB lógicos. Clones APFS podem reduzir as cópias físicas. **O instalador não faz pré-checagem de espaço livre.**
 - Para geração de IA: Apple Intelligence disponível, habilitada e com modelo instalado. A ausência do modelo deve aparecer como indisponibilidade; ela não é substituída por resposta fictícia.
 - Pages, scanner, Continuidade, certificado, TSA e serviço de assinaturas dependem dos componentes/contas próprios quando essas ferramentas forem usadas.
 
-Não é necessária assinatura paga de desenvolvedor Apple. A assinatura é **ad hoc, sem Developer ID nem notarização Apple**. O instalador mantém Gatekeeper, TLS e verificação de assinaturas ativos. Isso pode exigir a autorização normal do macOS para um aplicativo obtido fora da App Store; não há promessa de instalação silenciosa em qualquer política de segurança.
+Não é necessária assinatura paga de desenvolvedor Apple. A assinatura é **ad hoc, sem Developer ID nem notarização Apple**. O instalador mantém Gatekeeper, TLS e verificação de assinaturas ativos. Pode ser necessária a autorização normal do macOS, inclusive para executar o runtime antes da ativação do aplicativo. A cadeia específica de download no navegador, aplicação de quarentena e primeira execução não foi exercitada no GitHub Actions; não há promessa de instalação silenciosa em qualquer política de segurança.
 
 ## Pacote autocontido — caminho de entrega preparado
 
@@ -21,7 +21,7 @@ Após a conclusão das etapas de entrega e a disponibilização do SHA-256 por u
 bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE
 ```
 
-O primeiro argumento também aceita URL HTTPS. O terceiro argumento opcional define a pasta de aplicativos:
+O primeiro argumento também aceita URL HTTPS. Na entrega em rascunho privado, será usado o arquivo local baixado pelo navegador autenticado: o modo HTTPS do instalador usa `curl` e não herda a sessão do navegador. O terceiro argumento opcional define a pasta de aplicativos:
 
 ```bash
 bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE "$HOME/Applications/Documentos"
@@ -47,6 +47,8 @@ Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e dest
 Para **voltar deliberadamente** a uma versão, use novamente o instalador com o pacote anterior aprovado e seu checksum original. Isso preserva a instalação que está sendo substituída. Não mova bundles manualmente enquanto houver aplicativo, tarefas ou instalador em execução. Não apague cópias anteriores e runtimes durante a investigação de uma interrupção.
 
 Uma instalação antiga sem `Contents/Resources/installation.lock` não pode ser substituída automaticamente por este protocolo. Nesse caso, escolha outra pasta de destino; a versão anterior e suas configurações são preservadas. O instalador não mata aplicações do usuário para forçar a atualização.
+
+No instalador **binário**, um SIGKILL antes da gravação do diário pode deixar `.pdf-download.*` ou `.pdf-incoming.*.app`. Não há limpeza automática universal desses resíduos. Uma transação com diário pode ser recuperada na próxima execução do instalador; essa recuperação não abrange todos os temporários criados antes do diário.
 
 O caminho **por fontes** conserva seu mecanismo de limpeza e tem limites distintos: SIGKILL pode deixar `.pdf-install.lock`, estágio e runtime. Um lock residual impede nova instalação até investigação; não há recuperação universal desses resíduos. O diário transacional novo pertence ao instalador binário.
 

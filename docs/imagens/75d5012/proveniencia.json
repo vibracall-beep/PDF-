@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "75d5012cc31032bd953e2075dacf2e81c541a591",
+  "runID": 40121275705,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40121275705",
+  "runConclusion": "failure",
+  "platform": "macos-26",
+  "captureMethod": "ScreenCaptureKit; janela real do aplicativo, documentos de demonstração e preferências isoladas",
+  "artifact": {
+    "id": 12571732833,
+    "name": "PDF-macOS-preview-macos-26",
+    "createdAt": "2026-10-24T18:53:36Z",
+    "archiveBytes": 3181026,
+    "archiveSHA256": "68fabdb56d927f4da7939a88b54ab99391e1431f781ad49edc6549ab0be22b06",
+    "githubDigest": "sha256:68fabdb56d927f4da7939a88b54ab99391e1431f781ad49edc6549ab0be22b06"
+  },
+  "retrieval": {
+    "method": "original artifact ZIP preserved in private draft; local bytes verified against GitHub artifact digest",
+    "retentionRunID": 40123290389,
+    "draftReleaseID": 422923712,
+    "assetID": 673054683
+  },
+  "preservation": "Bytes PNG originais; sem recorte, redimensionamento, retoque ou recomposição.",
+  "visualReview": {
+    "scope": "64 PNG originais revisados: 32 macOS 26 e 32 macOS 27; esta galeria seleciona 10 do macOS 26.",
+    "result": "Nenhum novo corte ou sobreposição dos controles fixos observado. O tema escuro no macOS 26 tem 1050 × 772 pixels e está nítido.",
+    "limits": [
+      "A revisão visual não valida interações, VoiceOver humano ou todos os estados possíveis.",
+      "A tela de revisão OCR mostra palavras reconhecidas incorretamente e resultado eng enquanto o seletor exibe Português + inglês; a captura não comprova precisão do OCR nem concordância de configuração. A ressalva está em investigação.",
+      "O gate automático de 32 PNGs e seis relatórios AX passou em cada sistema; não equivale a uma auditoria humana com VoiceOver.",
+      "O isolamento do Office falhou nos dois sistemas; esta galeria não aprova o instalador ou a distribuição do pacote.",
+      "As correções posteriores ao commit indicado não estão nestas imagens."
+    ]
+  },
+  "files": [
+    {
+      "file": "PDF-preview.png",
+      "originalArtifactPath": "PDF-preview.png",
+      "title": "Menu inicial",
+      "bytes": 348722,
+      "sha256": "62893e26f35752155b3741b92a4459e95b15bb53c7509b3904083e47bac0828c",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.escuro.png",
+      "originalArtifactPath": "PDF-preview.escuro.png",
+      "title": "Menu no tema escuro",
+      "bytes": 399127,
+      "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.lista.png",
+      "originalArtifactPath": "PDF-preview.lista.png",
+      "title": "Menu em lista",
+      "bytes": 94729,
+      "sha256": "7124ad2c0e5754d2e414f3a8efd47691c45ec6a73f351d6530f0183eea24eadd",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.personalizar.png",
+      "originalArtifactPath": "PDF-preview.personalizar.png",
+      "title": "Personalização da aparência",
+      "bytes": 99903,
+      "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.ferramentas.png",
+      "originalArtifactPath": "PDF-preview.ferramentas.png",
+      "title": "Personalização das ferramentas",
+      "bytes": 87460,
+      "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.navegacao.png",
+      "originalArtifactPath": "PDF-preview.navegacao.png",
+      "title": "Personalização da navegação",
+      "bytes": 79859,
+      "sha256": "8fca986791c33c27ecc98157d27b947a980ebcddb7008199b3e40bbc30740f52",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.opcoes-leitura.png",
+      "originalArtifactPath": "PDF-preview.opcoes-leitura.png",
+      "title": "Personalização do leitor",
+      "bytes": 79823,
+      "sha256": "d8b6a76d502a62cfed5ad8f25248d06f2b01d0f4374d3cba9cfb707721bb9324",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.arquivos.png",
+      "originalArtifactPath": "PDF-preview.arquivos.png",
+      "title": "Personalização dos arquivos",
+      "bytes": 76968,
+      "sha256": "d6a11402aa67a249680170df6ece1851e48663291d796efc8188de896baa1cfe",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.atalhos.png",
+      "originalArtifactPath": "PDF-preview.atalhos.png",
+      "title": "Personalização dos atalhos",
+      "bytes": 75242,
+      "sha256": "0897d14e2e9e1b9a7f53e0e63cb27d21300ffcb630950475df1cb596993a854e",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.perfis.png",
+      "originalArtifactPath": "PDF-preview.perfis.png",
+      "title": "Perfis de trabalho",
+      "bytes": 59535,
+      "sha256": "384f7eafe888a143e59623d14dea4d1e703de98a2f9ded28be1d9424a03e0e9c",
+      "width": 1050,
+      "height": 752
+    }
+  ]
+}

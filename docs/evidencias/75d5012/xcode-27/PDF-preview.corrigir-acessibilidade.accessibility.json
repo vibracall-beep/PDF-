@@ -1,0 +1,1669 @@
+{
+  "capturedAt" : "2026-10-24T18:52:26Z",
+  "client" : {
+    "attributeErrors" : {
+      "-25205" : 52,
+      "-25212" : 134
+    },
+    "durationSeconds" : 0.015945916666623816,
+    "matchingWindowCount" : 1,
+    "ownWindowCount" : 1,
+    "processID" : 67247,
+    "processTrusted" : true,
+    "status" : "own-window-read",
+    "traversalLimited" : false
+  },
+  "findings" : [
+    {
+      "code" : "unnamed-control-review",
+      "detail" : "Interactive element has no exposed label, title, placeholder, or text child.",
+      "node" : 41
+    },
+    {
+      "code" : "unnamed-control-review",
+      "detail" : "Interactive element has no exposed label, title, placeholder, or text child.",
+      "node" : 49
+    },
+    {
+      "code" : "unnamed-control-review",
+      "detail" : "Interactive element has no exposed label, title, placeholder, or text child.",
+      "node" : 50
+    },
+    {
+      "code" : "unnamed-control-review",
+      "detail" : "Interactive element has no exposed label, title, placeholder, or text child.",
+      "node" : 54
+    }
+  ],
+  "keyboardViewOrder" : [
+    "_TtGC7SwiftUIP10$1d76c196c23AppKitWindowHostingViewGVS_15ModifiedContentGVS_8LazyViewGS1_GS1_GS1_GVS_P10$1d7697dac17SceneBridgeReaderGVS_16SubscriptionViewGC7Combine18PassthroughSubjectP_Os5Never_GS1_GS1_GS1_GS1_GS1_GS1_GVS_5GroupGVS_19_ConditionalContentGVS_6IDViewGS9_GS9_GS9_GS9_V3PDF11ContentViewVS11_17CustomizationView_GS9_VS11_21RecoveryDocumentsViewGSqVS11_21ToolConfigurationView___GS9_GS9_VS11_12WorkflowViewVS11_16VerificationView_GS9_VS11_18CommandPaletteViewVS11_19ProductionToolsView___GS9_GS9_GS9_VS11_25AdvancedContentEditorViewVS11_13OCRReviewView_GS9_VS11_19DocumentLibraryViewVS11_28AccessibilityRemediationView__GS9_VS11_20SignatureRequestViewVS11_14AutomationView___SS_S12___GVS_30_EnvironmentKeyWritingModifierGSqCS11_9Workspace___GS26_GSqCS11_21AppearancePreferences___GS26_CSo14NSUserDefaults__GS26_GSqVS_13AnyShapeStyle___GVS_26_PreferenceWritingModifierVS_23PreferredColorSchemeKey__VS_16_FlexFrameLayout___GVS_19_BackgroundModifierGS1_VS11_20WorkspaceWindowGuardVS_12_FrameLayout___GS34_GS1_VS11_24MacPreviewWindowObserverS36____VS_25_AppearanceActionModifier__VS_12RootModifier__"
+  ],
+  "manualChecks" : [
+    "VoiceOver spoken output and interaction",
+    "Contrast in all user-selected colors",
+    "Semantic correctness and reading order of the PDF",
+    "Keyboard traversal through all lazy and off-screen content"
+  ],
+  "missingRequiredIdentifiers" : [
+
+  ],
+  "nodes" : [
+    {
+      "index" : 0,
+      "name" : "Ferramentas avançadas — PDF",
+      "nativeClass" : "SwiftUI.AppKitWindow",
+      "origin" : "window",
+      "role" : "AXWindow"
+    },
+    {
+      "index" : 1,
+      "name" : "Estrutura e acessibilidade",
+      "nativeClass" : "_TtGC7SwiftUIP10$1d76c196c23AppKitWindowHostingViewGVS_15ModifiedContentGVS_8LazyViewGS1_GS1_GS1_GVS_P10$1d7697dac17SceneBridgeReaderGVS_16SubscriptionViewGC7Combine18PassthroughSubjectP_Os5Never_GS1_GS1_GS1_GS1_GS1_GS1_GVS_5GroupGVS_19_ConditionalContentGVS_6IDViewGS9_GS9_GS9_GS9_V3PDF11ContentViewVS11_17CustomizationView_GS9_VS11_21RecoveryDocumentsViewGSqVS11_21ToolConfigurationView___GS9_GS9_VS11_12WorkflowViewVS11_16VerificationView_GS9_VS11_18CommandPaletteViewVS11_19ProductionToolsView___GS9_GS9_GS9_VS11_25AdvancedContentEditorViewVS11_13OCRReviewView_GS9_VS11_19DocumentLibraryViewVS11_28AccessibilityRemediationView__GS9_VS11_20SignatureRequestViewVS11_14AutomationView___SS_S12___GVS_30_EnvironmentKeyWritingModifierGSqCS11_9Workspace___GS26_GSqCS11_21AppearancePreferences___GS26_CSo14NSUserDefaults__GS26_GSqVS_13AnyShapeStyle___GVS_26_PreferenceWritingModifierVS_23PreferredColorSchemeKey__VS_16_FlexFrameLayout___GVS_19_BackgroundModifierGS1_VS11_20WorkspaceWindowGuardVS_12_FrameLayout___GS34_GS1_VS11_24MacPreviewWindowObserverS36____VS_25_AppearanceActionModifier__VS_12RootModifier__",
+      "origin" : "accessibility-child",
+      "parent" : 0,
+      "role" : "AXGroup"
+    },
+    {
+      "identifier" : "",
+      "index" : 2,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 3,
+      "name" : "Escolher PDF…",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 4,
+      "name" : "Inspecionar tags",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 5,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 6,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 7,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 8,
+      "name" : "Idioma do documento (BCP 47)",
+      "nativeClass" : "_TtC7SwiftUIP33_C58093E7172B0A541A997680E343D0D520_SystemTextFieldCell",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXTextField"
+    },
+    {
+      "index" : 9,
+      "name" : "",
+      "nativeClass" : "SwiftUI.ListCoreScrollView",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXScrollArea"
+    },
+    {
+      "index" : 10,
+      "name" : "Document",
+      "nativeClass" : "SwiftUI.SwiftUIOutlineListView",
+      "origin" : "accessibility-child",
+      "parent" : 9,
+      "role" : "AXOutline"
+    },
+    {
+      "index" : 11,
+      "name" : "Document",
+      "nativeClass" : "NSOutlineRow",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 12,
+      "name" : "Document",
+      "nativeClass" : "NSTableViewCellMockElement",
+      "origin" : "accessibility-child",
+      "parent" : 11,
+      "role" : "AXCell"
+    },
+    {
+      "identifier" : "",
+      "index" : 13,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 12,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 14,
+      "name" : "TH · página 1",
+      "nativeClass" : "NSOutlineRow",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 15,
+      "name" : "TH · página 1",
+      "nativeClass" : "NSTableViewCellMockElement",
+      "origin" : "accessibility-child",
+      "parent" : 14,
+      "role" : "AXCell"
+    },
+    {
+      "identifier" : "",
+      "index" : 16,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 15,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 17,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 15,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 18,
+      "name" : "P · página 2",
+      "nativeClass" : "NSOutlineRow",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 19,
+      "name" : "P · página 2",
+      "nativeClass" : "NSTableViewCellMockElement",
+      "origin" : "accessibility-child",
+      "parent" : 18,
+      "role" : "AXCell"
+    },
+    {
+      "identifier" : "",
+      "index" : 20,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 19,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "ListColumn",
+      "index" : 21,
+      "name" : "",
+      "nativeClass" : "NSTableColumn",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXColumn"
+    },
+    {
+      "index" : 22,
+      "name" : "Document",
+      "nativeClass" : "NSOutlineRow",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 23,
+      "name" : "Document",
+      "nativeClass" : "NSTableViewCellMockElement",
+      "origin" : "accessibility-child",
+      "parent" : 22,
+      "role" : "AXCell"
+    },
+    {
+      "index" : 24,
+      "name" : "TH · página 1",
+      "nativeClass" : "NSOutlineRow",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 25,
+      "name" : "TH · página 1",
+      "nativeClass" : "NSTableViewCellMockElement",
+      "origin" : "accessibility-child",
+      "parent" : 24,
+      "role" : "AXCell"
+    },
+    {
+      "index" : 26,
+      "name" : "P · página 2",
+      "nativeClass" : "NSOutlineRow",
+      "origin" : "accessibility-child",
+      "parent" : 10,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 27,
+      "name" : "P · página 2",
+      "nativeClass" : "NSTableViewCellMockElement",
+      "origin" : "accessibility-child",
+      "parent" : 26,
+      "role" : "AXCell"
+    },
+    {
+      "index" : 28,
+      "name" : "Papel",
+      "nativeClass" : "SwiftUI.HostingScrollView",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXScrollArea"
+    },
+    {
+      "identifier" : "",
+      "index" : 29,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 30,
+      "name" : "Papel da tag",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXPopUpButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 31,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.title",
+      "index" : 32,
+      "name" : "Título da tag",
+      "nativeClass" : "_TtC7SwiftUIP33_C58093E7172B0A541A997680E343D0D520_SystemTextFieldCell",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXTextField"
+    },
+    {
+      "identifier" : "",
+      "index" : 33,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.alt",
+      "index" : 34,
+      "name" : "Texto alternativo",
+      "nativeClass" : "_TtC7SwiftUIP33_C58093E7172B0A541A997680E343D0D520_SystemTextFieldCell",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXTextField"
+    },
+    {
+      "identifier" : "",
+      "index" : 35,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.actual-text",
+      "index" : 36,
+      "name" : "Texto de substituição (ActualText)",
+      "nativeClass" : "_TtC7SwiftUIP33_C58093E7172B0A541A997680E343D0D520_SystemTextFieldCell",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXTextField"
+    },
+    {
+      "identifier" : "",
+      "index" : 37,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.language",
+      "index" : 38,
+      "name" : "Idioma da tag (opcional)",
+      "nativeClass" : "_TtC7SwiftUIP33_C58093E7172B0A541A997680E343D0D520_SystemTextFieldCell",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXTextField"
+    },
+    {
+      "identifier" : "",
+      "index" : 39,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.scope",
+      "index" : 40,
+      "name" : "Escopo do cabeçalho da tabela",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXPopUpButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 41,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXMenuButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 42,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 43,
+      "name" : "Guardar alteração desta tag",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 44,
+      "name" : "Ler antes",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 45,
+      "name" : "Ler depois",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXButton"
+    },
+    {
+      "identifier" : "",
+      "index" : 46,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 28,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 47,
+      "name" : "",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "",
+      "index" : 48,
+      "name" : "Salvar cópia com correções…",
+      "nativeClass" : "SwiftUI.AccessibilityNode",
+      "origin" : "accessibility-child",
+      "parent" : 1,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 49,
+      "name" : "",
+      "nativeClass" : "_NSThemeCloseWidgetCell",
+      "origin" : "accessibility-child",
+      "parent" : 0,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 50,
+      "name" : "",
+      "nativeClass" : "_NSThemeZoomWidgetCell",
+      "origin" : "accessibility-child",
+      "parent" : 0,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 51,
+      "name" : "",
+      "nativeClass" : "NSThemeWidgetZoomMenuRemoteView",
+      "origin" : "accessibility-child",
+      "parent" : 50,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 52,
+      "name" : "",
+      "nativeClass" : "NSAccessibilityRemoteUIElement",
+      "origin" : "accessibility-child",
+      "parent" : 51,
+      "role" : "unknown"
+    },
+    {
+      "index" : 53,
+      "name" : "",
+      "nativeClass" : "NSAccessibilityRemoteUIElement",
+      "origin" : "accessibility-child",
+      "parent" : 51,
+      "role" : "unknown"
+    },
+    {
+      "index" : 54,
+      "name" : "",
+      "nativeClass" : "_NSThemeWidgetCell",
+      "origin" : "accessibility-child",
+      "parent" : 0,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 55,
+      "name" : "",
+      "nativeClass" : "NSAccessibilityReparentingCellProxy",
+      "origin" : "accessibility-child",
+      "parent" : 0,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 56,
+      "name" : "",
+      "nativeClass" : "NSAccessibilityReparentingCellProxy",
+      "origin" : "accessibility-child",
+      "parent" : 0,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 57,
+      "name" : "Estrutura e acessibilidade",
+      "nativeClass" : "NSThemeFrame",
+      "origin" : "native-view-provider",
+      "parent" : 0,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 58,
+      "name" : "",
+      "nativeClass" : "NSVisualEffectView",
+      "origin" : "native-view-provider",
+      "parent" : 57,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 59,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B12BackdropView",
+      "origin" : "native-view-provider",
+      "parent" : 57,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 60,
+      "name" : "",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorV3PDF24MacPreviewWindowObserver__",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 61,
+      "name" : "",
+      "nativeClass" : "_TtCV3PDF24MacPreviewWindowObserver14WindowObserver",
+      "origin" : "native-view-provider",
+      "parent" : 60,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 62,
+      "name" : "",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorV3PDF20WorkspaceWindowGuard__",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 63,
+      "name" : "",
+      "nativeClass" : "_TtCV3PDF20WorkspaceWindowGuard9GuardView",
+      "origin" : "native-view-provider",
+      "parent" : 62,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 64,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 65,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 66,
+      "name" : "Idioma do documento (BCP 47)",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorVS_P10$1d76f7fec24PlatformTextFieldAdaptor__",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 67,
+      "name" : "Idioma do documento (BCP 47)",
+      "nativeClass" : "SwiftUI.AppKitTextField",
+      "origin" : "native-view-provider",
+      "parent" : 66,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 68,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15AppKitTextField_",
+      "origin" : "native-view-provider",
+      "parent" : 67,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 69,
+      "name" : "",
+      "nativeClass" : "AppKit.NSSimpleLabel",
+      "origin" : "native-view-provider",
+      "parent" : 67,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 70,
+      "name" : "",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_24OutlineListRepresentableGOS_19SelectionManagerBoxSS___",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 71,
+      "name" : "",
+      "nativeClass" : "_NSScrollViewContentBackgroundView",
+      "origin" : "native-view-provider",
+      "parent" : 9,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 72,
+      "name" : "",
+      "nativeClass" : "NSVisualEffectView",
+      "origin" : "native-view-provider",
+      "parent" : 71,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 73,
+      "name" : "",
+      "nativeClass" : "SwiftUI.ListCoreClipView",
+      "origin" : "native-view-provider",
+      "parent" : 9,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 74,
+      "name" : "Document",
+      "nativeClass" : "SwiftUI.ListTableRowView",
+      "origin" : "native-view-provider",
+      "parent" : 10,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 75,
+      "name" : "",
+      "nativeClass" : "_NSTableRowSeparatorDrawingView",
+      "origin" : "native-view-provider",
+      "parent" : 74,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 76,
+      "name" : "Document",
+      "nativeClass" : "SwiftUI.ListTableCellView",
+      "origin" : "native-view-provider",
+      "parent" : 74,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 77,
+      "name" : "Document",
+      "nativeClass" : "_TtGC7SwiftUI15CellHostingViewGVS_15ModifiedContentVS_14_ViewList_ViewVS_19CellContentModifier__",
+      "origin" : "native-view-provider",
+      "parent" : 76,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 78,
+      "name" : "TH · página 1",
+      "nativeClass" : "SwiftUI.ListTableRowView",
+      "origin" : "native-view-provider",
+      "parent" : 10,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 79,
+      "name" : "",
+      "nativeClass" : "_NSTableRowSeparatorDrawingView",
+      "origin" : "native-view-provider",
+      "parent" : 78,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 80,
+      "name" : "TH · página 1",
+      "nativeClass" : "SwiftUI.ListTableCellView",
+      "origin" : "native-view-provider",
+      "parent" : 78,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 81,
+      "name" : "TH · página 1",
+      "nativeClass" : "_TtGC7SwiftUI15CellHostingViewGVS_15ModifiedContentVS_14_ViewList_ViewVS_19CellContentModifier__",
+      "origin" : "native-view-provider",
+      "parent" : 80,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 82,
+      "name" : "P · página 2",
+      "nativeClass" : "SwiftUI.ListTableRowView",
+      "origin" : "native-view-provider",
+      "parent" : 10,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 83,
+      "name" : "",
+      "nativeClass" : "_NSTableRowSeparatorDrawingView",
+      "origin" : "native-view-provider",
+      "parent" : 82,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 84,
+      "name" : "P · página 2",
+      "nativeClass" : "SwiftUI.ListTableCellView",
+      "origin" : "native-view-provider",
+      "parent" : 82,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 85,
+      "name" : "P · página 2",
+      "nativeClass" : "_TtGC7SwiftUI15CellHostingViewGVS_15ModifiedContentVS_14_ViewList_ViewVS_19CellContentModifier__",
+      "origin" : "native-view-provider",
+      "parent" : 84,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 86,
+      "name" : "",
+      "nativeClass" : "NSScroller",
+      "origin" : "native-view-provider",
+      "parent" : 9,
+      "role" : "AXScrollBar"
+    },
+    {
+      "index" : 87,
+      "name" : "Papel",
+      "nativeClass" : "_TtCC7SwiftUI17HostingScrollView17PlatformContainer",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 88,
+      "name" : "Papel",
+      "nativeClass" : "SwiftUI.HostingClipView",
+      "origin" : "native-view-provider",
+      "parent" : 28,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 89,
+      "name" : "Papel",
+      "nativeClass" : "_TtC7SwiftUIP33_6B9589E2B2301F373BAB5CF17408C38412DocumentView",
+      "origin" : "native-view-provider",
+      "parent" : 88,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 90,
+      "name" : "Papel",
+      "nativeClass" : "_TtCC7SwiftUI17HostingScrollView22PlatformGroupContainer",
+      "origin" : "native-view-provider",
+      "parent" : 89,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 91,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 92,
+      "name" : "Título da tag",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorVS_P10$1d76f7fec24PlatformTextFieldAdaptor__",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 93,
+      "name" : "Título da tag",
+      "nativeClass" : "SwiftUI.AppKitTextField",
+      "origin" : "native-view-provider",
+      "parent" : 92,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 94,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15AppKitTextField_",
+      "origin" : "native-view-provider",
+      "parent" : 93,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 95,
+      "name" : "",
+      "nativeClass" : "AppKit.NSSimpleLabel",
+      "origin" : "native-view-provider",
+      "parent" : 93,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 96,
+      "name" : "Texto alternativo",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorVS_P10$1d76f7fec24PlatformTextFieldAdaptor__",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 97,
+      "name" : "Texto alternativo",
+      "nativeClass" : "SwiftUI.AppKitTextField",
+      "origin" : "native-view-provider",
+      "parent" : 96,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 98,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15AppKitTextField_",
+      "origin" : "native-view-provider",
+      "parent" : 97,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 99,
+      "name" : "",
+      "nativeClass" : "AppKit.NSSimpleLabel",
+      "origin" : "native-view-provider",
+      "parent" : 97,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 100,
+      "name" : "Texto de substituição (ActualText)",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorVS_P10$1d76f7fec24PlatformTextFieldAdaptor__",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 101,
+      "name" : "Texto de substituição (ActualText)",
+      "nativeClass" : "SwiftUI.AppKitTextField",
+      "origin" : "native-view-provider",
+      "parent" : 100,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 102,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15AppKitTextField_",
+      "origin" : "native-view-provider",
+      "parent" : 101,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 103,
+      "name" : "",
+      "nativeClass" : "AppKit.NSSimpleLabel",
+      "origin" : "native-view-provider",
+      "parent" : 101,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 104,
+      "name" : "Idioma da tag (opcional)",
+      "nativeClass" : "_TtGC7SwiftUI22AppKitPlatformViewHostGVS_P10$1d76ad81832PlatformViewRepresentableAdaptorVS_P10$1d76f7fec24PlatformTextFieldAdaptor__",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 105,
+      "name" : "Idioma da tag (opcional)",
+      "nativeClass" : "SwiftUI.AppKitTextField",
+      "origin" : "native-view-provider",
+      "parent" : 104,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 106,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15AppKitTextField_",
+      "origin" : "native-view-provider",
+      "parent" : 105,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 107,
+      "name" : "",
+      "nativeClass" : "AppKit.NSSimpleLabel",
+      "origin" : "native-view-provider",
+      "parent" : 105,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 108,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 109,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 110,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 111,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 112,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 90,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 113,
+      "name" : "",
+      "nativeClass" : "NSScroller",
+      "origin" : "native-view-provider",
+      "parent" : 28,
+      "role" : "AXScrollBar"
+    },
+    {
+      "index" : 114,
+      "name" : "",
+      "nativeClass" : "_TtC7SwiftUIP33_B9E8471D77A01696E0731B43A95A934614_FocusRingView",
+      "origin" : "native-view-provider",
+      "parent" : 1,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 115,
+      "name" : "",
+      "nativeClass" : "NSTitlebarContainerView",
+      "origin" : "native-view-provider",
+      "parent" : 57,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 116,
+      "name" : "",
+      "nativeClass" : "NSTitlebarBackgroundView",
+      "origin" : "native-view-provider",
+      "parent" : 115,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 117,
+      "name" : "",
+      "nativeClass" : "NSScrollPocket",
+      "origin" : "native-view-provider",
+      "parent" : 116,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 118,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B10PocketMask",
+      "origin" : "native-view-provider",
+      "parent" : 117,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 119,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 118,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 120,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 119,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 121,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B10PocketBlur",
+      "origin" : "native-view-provider",
+      "parent" : 117,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 122,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B10PortalView",
+      "origin" : "native-view-provider",
+      "parent" : 121,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 123,
+      "name" : "",
+      "nativeClass" : "NSHardPocketView",
+      "origin" : "native-view-provider",
+      "parent" : 117,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 124,
+      "name" : "",
+      "nativeClass" : "_TtC6AppKitP33_EC3F85FAB7755D56E669206D2B17725B26_NSLayerBasedFillColorView",
+      "origin" : "native-view-provider",
+      "parent" : 123,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 125,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B19LuminanceAdjustment",
+      "origin" : "native-view-provider",
+      "parent" : 117,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 126,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 125,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 127,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 126,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 128,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B12BackdropView",
+      "origin" : "native-view-provider",
+      "parent" : 127,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 129,
+      "name" : "",
+      "nativeClass" : "_NSScrollViewContentBackgroundView",
+      "origin" : "native-view-provider",
+      "parent" : 127,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 130,
+      "name" : "",
+      "nativeClass" : "NSVisualEffectView",
+      "origin" : "native-view-provider",
+      "parent" : 129,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 131,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 126,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 132,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 131,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 133,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 131,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 134,
+      "name" : "",
+      "nativeClass" : "_TtCC6AppKit14NSScrollPocketP33_EC3F85FAB7755D56E669206D2B17725B10PortalView",
+      "origin" : "native-view-provider",
+      "parent" : 125,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 135,
+      "name" : "",
+      "nativeClass" : "NSTitlebarView",
+      "origin" : "native-view-provider",
+      "parent" : 115,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 136,
+      "name" : "",
+      "nativeClass" : "NSView",
+      "origin" : "native-view-provider",
+      "parent" : 135,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 137,
+      "name" : "Ferramentas avançadas — PDF",
+      "nativeClass" : "NSTextField",
+      "origin" : "native-view-provider",
+      "parent" : 135,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 138,
+      "name" : "",
+      "nativeClass" : "NSTextFieldCell",
+      "origin" : "accessibility-child",
+      "parent" : 137,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 139,
+      "name" : "",
+      "nativeClass" : "_TtC6AppKitP33_72EBFCF981BE77E1C6F26FD717D0893922NSTextFieldSimpleLabel",
+      "origin" : "native-view-provider",
+      "parent" : 137,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 140,
+      "name" : "",
+      "nativeClass" : "_NSThemeCloseWidget",
+      "origin" : "native-view-provider",
+      "parent" : 135,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 141,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15ThemeWidgetView_",
+      "origin" : "native-view-provider",
+      "parent" : 140,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 142,
+      "name" : "",
+      "nativeClass" : "_NSThemeZoomWidget",
+      "origin" : "native-view-provider",
+      "parent" : 135,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 143,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15ThemeWidgetView_",
+      "origin" : "native-view-provider",
+      "parent" : 142,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 144,
+      "name" : "",
+      "nativeClass" : "NSRemoteView",
+      "origin" : "native-view-provider",
+      "parent" : 51,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 145,
+      "name" : "",
+      "nativeClass" : "_NSThemeWidget",
+      "origin" : "native-view-provider",
+      "parent" : 135,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 146,
+      "name" : "",
+      "nativeClass" : "_TtGC6AppKit18_NSCoreHostingViewVS_15ThemeWidgetView_",
+      "origin" : "native-view-provider",
+      "parent" : 145,
+      "role" : "AXUnknown"
+    },
+    {
+      "index" : 147,
+      "name" : "",
+      "nativeClass" : "_NSTitlebarDecorationView",
+      "origin" : "native-view-provider",
+      "parent" : 115,
+      "role" : "AXUnknown"
+    },
+    {
+      "identifier" : "SwiftUI.WindowGroup<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d7697dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>-1-AppWindow-1",
+      "index" : 148,
+      "name" : "Ferramentas avançadas — PDF",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "role" : "AXWindow"
+    },
+    {
+      "index" : 149,
+      "name" : "Estrutura e acessibilidade",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 148,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 150,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 151,
+      "name" : "Escolher PDF…",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 152,
+      "name" : "Inspecionar tags",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 153,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 154,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 155,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 156,
+      "name" : "Idioma do documento (BCP 47)",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXTextField"
+    },
+    {
+      "index" : 157,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXScrollArea"
+    },
+    {
+      "index" : 158,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 157,
+      "role" : "AXOutline"
+    },
+    {
+      "index" : 159,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 158,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 160,
+      "name" : "Document",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 159,
+      "role" : "AXCell"
+    },
+    {
+      "index" : 161,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 160,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 162,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 158,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 163,
+      "name" : "TH · página 1",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 162,
+      "role" : "AXCell"
+    },
+    {
+      "index" : 164,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 163,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 165,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 163,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 166,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 158,
+      "role" : "AXRow"
+    },
+    {
+      "index" : 167,
+      "name" : "P · página 2",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 166,
+      "role" : "AXCell"
+    },
+    {
+      "index" : 168,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 167,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "ListColumn",
+      "index" : 169,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 158,
+      "role" : "AXColumn"
+    },
+    {
+      "index" : 170,
+      "name" : "Papel",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXScrollArea"
+    },
+    {
+      "index" : 171,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 172,
+      "name" : "Papel da tag",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXPopUpButton"
+    },
+    {
+      "index" : 173,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.title",
+      "index" : 174,
+      "name" : "Título da tag",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXTextField"
+    },
+    {
+      "index" : 175,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.alt",
+      "index" : 176,
+      "name" : "Texto alternativo",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXTextField"
+    },
+    {
+      "index" : 177,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.actual-text",
+      "index" : 178,
+      "name" : "Texto de substituição (ActualText)",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXTextField"
+    },
+    {
+      "index" : 179,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.language",
+      "index" : 180,
+      "name" : "Idioma da tag (opcional)",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXTextField"
+    },
+    {
+      "index" : 181,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "identifier" : "pdf.accessibility.tag.scope",
+      "index" : 182,
+      "name" : "Escopo do cabeçalho da tabela",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXPopUpButton"
+    },
+    {
+      "index" : 183,
+      "name" : "Remover atributo…",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXMenuButton"
+    },
+    {
+      "index" : 184,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 185,
+      "name" : "Guardar alteração desta tag",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 186,
+      "name" : "Ler antes",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 187,
+      "name" : "Ler depois",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 188,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 170,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 189,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXStaticText"
+    },
+    {
+      "index" : 190,
+      "name" : "Salvar cópia com correções…",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 149,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 191,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 148,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 192,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 148,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 193,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 192,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 194,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 193,
+      "role" : "AXGroup"
+    },
+    {
+      "index" : 195,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 148,
+      "role" : "AXButton"
+    },
+    {
+      "index" : 196,
+      "name" : "",
+      "nativeClass" : "AXUIElement",
+      "origin" : "public-ax-client-own-process",
+      "parent" : 148,
+      "role" : "AXStaticText"
+    }
+  ],
+  "scope" : "current-process-own-window",
+  "traversal" : "own-process-public-ax-client-and-own-window-native-view-providers",
+  "traversalLimited" : false,
+  "version" : 1,
+  "windowTitle" : "Ferramentas avançadas — PDF"
+}

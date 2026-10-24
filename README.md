@@ -9,16 +9,17 @@ Aplicativo nativo macOS, em português, com **71 ferramentas e leitor permanente
 - **Implementação:** catálogo com 71 entradas, mantendo todos os 54 IDs anteriores. Leitor com abas, comparação lado a lado, pesquisa, miniaturas, marcadores, anotações e recuperação.
 - **Base visual conferida:** `cbb3298` aprovou compilação/instalação por fontes, 411 casos Python (410 aprovados/um skip) e 37 grupos nativos × três por sistema. Os 64 PNGs foram revisados sem nova regressão visual; o pacote reprovou no `otool`. [Originais históricos recuperados](docs/evidencias/cbb3298/README.md).
 - **Última base inteiramente aprovada no CI:** `5a11c07`, [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), macOS 26.6.2 e 27.0.1. Essa base é anterior às 17 ampliações.
-- **Última rodada:** `0bd707d`, [40118132309](https://github.com/vibracall-beep/PDF-/actions/runs/40118132309), **reprovada no isolamento do Office**. Foram registrados 434 casos Python (433 aprovados/um skip), 38 grupos nativos × três, 32 PNGs/seis AX e montagem/assinatura aprovados por sistema. O Office retornou 1 sem detalhe; a causa segue em investigação. Instalação/atualização do binário ainda não passaram. [Originais](docs/evidencias/0bd707d/README.md).
+- **Última auditoria funcional completada:** `75d5012`, [40121275705](https://github.com/vibracall-beep/PDF-/actions/runs/40121275705), **reprovada no isolamento do Office nos dois sistemas**. Foram registrados 436 casos Python (435 aprovados/um skip), 39 grupos nativos × três, 32 PNGs/seis AX e montagem/assinatura aprovados por sistema. O Office retornou 1 sem detalhe; a causa segue em investigação. Instalação/atualização do binário ainda não passaram. [Originais](docs/evidencias/75d5012/README.md).
+- **Tentativa posterior:** `f9958a3`, [40123759689](https://github.com/vibracall-beep/PDF-/actions/runs/40123759689), **reprovada na compilação Swift**. As correções estão em andamento; essa tentativa não fornece validação funcional das mudanças posteriores nem substitui as capturas de `75d5012`.
 - **Alcance:** runners M1 virtualizados não medem M4 físico, energia ou Neural Engine; inspeção AX automática não substitui uso humano com VoiceOver.
 
 A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs/FERRAMENTAS.md), as [dez primeiras melhorias](docs/MELHORIAS.md) e a [auditoria histórica](docs/AUDITORIA-FERRAMENTAS.md) permanecem disponíveis.
 
 ## Menu e personalização
 
-![Menu principal do PDF — captura real 4ac9d26, macOS 26](docs/imagens/4ac9d26/PDF-preview.png)
+![Menu principal do PDF — captura real 75d5012, macOS 26](docs/imagens/75d5012/PDF-preview.png)
 
-Esta é uma **captura real de `4ac9d26`, no macOS 26**. Veja o [tema escuro, a lista e os sete painéis de personalização](docs/imagens/4ac9d26/README.md), com bytes originais, procedência e hashes. Os 32 PNGs dessa rodada foram revisados sem nova regressão visual; porém, o gate AX detectou Scope sem nome, o macOS 27 não produziu capturas antes do timeout e o pacote portátil reprovou. A galeria não aprova essas etapas nem mostra as correções posteriores. A [galeria histórica `5a11c07`](docs/imagens/README.md) permanece preservada.
+Esta é uma **captura real de `75d5012`, no macOS 26**. Veja o [tema escuro, a lista e os sete painéis de personalização](docs/imagens/75d5012/README.md), com bytes originais, procedência e hashes. Os 64 PNGs dessa rodada foram revisados sem novo corte ou sobreposição dos controles fixos. A tela de revisão OCR, fora desta seleção, apresenta palavras reconhecidas incorretamente e resultado `eng` enquanto o seletor exibe Português + inglês; essa ressalva está em investigação. Os gates automáticos de capturas e AX passaram nos dois sistemas, mas o isolamento do Office reprovou. A galeria não aprova o instalador ou VoiceOver humano nem mostra correções posteriores. As galerias históricas [4ac9d26](docs/imagens/4ac9d26/README.md) e [5a11c07](docs/imagens/README.md) permanecem preservadas.
 
 O ambiente oferece busca, favoritos, categorias, nomes e ícones personalizados, ordem e visibilidade de ferramentas, aparência, densidade, opções de leitura e saída. A ampliação inclui arraste com alternativa por teclado, atalhos editáveis com verificação de conflitos, paleta de comandos e perfis de trabalho. Animações acompanham as mudanças e respeitam Reduzir Movimento. Veja [PERSONALIZACAO.md](docs/PERSONALIZACAO.md) e a [matriz atual](docs/AMPLIACOES-2026-10.md).
 
@@ -56,7 +57,7 @@ Pages continua requerendo o aplicativo Pages e autorização de Automação. EPU
 
 ## Desenvolvimento e verificações
 
-Na rodada `0bd707d`, cada Mac aprovou 281 testes de núcleo, 46 integrações e 106 de 107 testes de scripts; o skip depende de `/dev/full` do Linux. O teste real de relocação de executáveis com parênteses passou. Os 12 testes de acessibilidade e 19 de produção já pertencem ao núcleo; reexecuções focais não são somadas. Isso não sobrepõe a falha do Office no teste isolado do pacote.
+Na rodada `75d5012`, cada Mac aprovou 281 testes de núcleo, 46 integrações e 108 de 109 testes de scripts; o skip depende de `/dev/full` do Linux. O teste real de relocação de executáveis com parênteses passou. Os 12 testes de acessibilidade e 19 de produção já pertencem ao núcleo; reexecuções focais não são somadas. Isso não sobrepõe a falha do Office no teste isolado do pacote.
 
 Use o checkout existente em `/workspace/PDF-`, sem criar worktrees salvo pedido explícito.
 

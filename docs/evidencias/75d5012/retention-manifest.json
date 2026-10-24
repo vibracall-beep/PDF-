@@ -1,0 +1,171 @@
+{
+  "applicationApproved": false,
+  "archiveContentsExtractedOrExecuted": false,
+  "binaryDistributionApproved": false,
+  "files": [
+    {
+      "artifactID": 12571577803,
+      "artifactName": "PDF-native-checks-macos-26",
+      "bytes": 8119,
+      "githubDigest": "sha256:a0cafc11c6132ffec3b57a84a05949e729ba968a01a00afaabf2cc38066dae08",
+      "kind": "original-artifact-zip",
+      "name": "PDF-native-checks-macos-26.zip",
+      "sha256": "a0cafc11c6132ffec3b57a84a05949e729ba968a01a00afaabf2cc38066dae08"
+    },
+    {
+      "artifactID": 12571732833,
+      "artifactName": "PDF-macOS-preview-macos-26",
+      "bytes": 3181026,
+      "githubDigest": "sha256:68fabdb56d927f4da7939a88b54ab99391e1431f781ad49edc6549ab0be22b06",
+      "kind": "original-artifact-zip",
+      "name": "PDF-macOS-preview-macos-26.zip",
+      "sha256": "68fabdb56d927f4da7939a88b54ab99391e1431f781ad49edc6549ab0be22b06"
+    },
+    {
+      "artifactID": 12571687664,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "bytes": 884,
+      "githubDigest": "sha256:ea4b5ca297f8f959ea039d57ad00edcc933dcba50687cecb3169180f46d01d7c",
+      "kind": "original-artifact-zip",
+      "name": "PDF-Apple-Vision-capability-macos-26.zip",
+      "sha256": "ea4b5ca297f8f959ea039d57ad00edcc933dcba50687cecb3169180f46d01d7c"
+    },
+    {
+      "artifactID": 12571422985,
+      "artifactName": "PDF-local-AI-macos-26",
+      "bytes": 2181,
+      "githubDigest": "sha256:f53bf7fde5d83b99594ec71e27a85c35bd491e216276a59ad3b2a38c83137d57",
+      "kind": "original-artifact-zip",
+      "name": "PDF-local-AI-macos-26.zip",
+      "sha256": "f53bf7fde5d83b99594ec71e27a85c35bd491e216276a59ad3b2a38c83137d57"
+    },
+    {
+      "artifactID": 12571463188,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "bytes": 1890,
+      "githubDigest": "sha256:5ba9b7a009360b60bb6aa1289c7ada0e8ae5384f2046897e03dfa2a8b8658f70",
+      "kind": "original-artifact-zip",
+      "name": "PDF-macOS-benchmark-macos-26.zip",
+      "sha256": "5ba9b7a009360b60bb6aa1289c7ada0e8ae5384f2046897e03dfa2a8b8658f70"
+    },
+    {
+      "artifactID": 12572475268,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "bytes": 14507,
+      "githubDigest": "sha256:4602f70eb34b8751b2982181bf8fe2aed409a8c058ef2aab269a3d42c96cb688",
+      "kind": "original-artifact-zip",
+      "name": "PDF-native-checks-xcode-27.zip",
+      "sha256": "4602f70eb34b8751b2982181bf8fe2aed409a8c058ef2aab269a3d42c96cb688"
+    },
+    {
+      "artifactID": 12572005718,
+      "artifactName": "PDF-macOS-preview-xcode-27",
+      "bytes": 3206056,
+      "githubDigest": "sha256:6ddfaf0b6a8703e167ef534cd34e2eadecb3e1c380d73282ae271b119389c0f0",
+      "kind": "original-artifact-zip",
+      "name": "PDF-macOS-preview-xcode-27.zip",
+      "sha256": "6ddfaf0b6a8703e167ef534cd34e2eadecb3e1c380d73282ae271b119389c0f0"
+    },
+    {
+      "artifactID": 12572385429,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "bytes": 2076,
+      "githubDigest": "sha256:f5db45c2ac60d0d6fca75f622716afc51529d097940e73061e46422568be170b",
+      "kind": "original-artifact-zip",
+      "name": "PDF-Apple-Vision-capability-xcode-27.zip",
+      "sha256": "f5db45c2ac60d0d6fca75f622716afc51529d097940e73061e46422568be170b"
+    },
+    {
+      "artifactID": 12571930780,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "bytes": 2180,
+      "githubDigest": "sha256:e1908ed191bc6c9b81e990343a607abca6c6a5d45b3dbb66cc780b04a1654c23",
+      "kind": "original-artifact-zip",
+      "name": "PDF-local-AI-xcode-27.zip",
+      "sha256": "e1908ed191bc6c9b81e990343a607abca6c6a5d45b3dbb66cc780b04a1654c23"
+    },
+    {
+      "artifactID": 12571797578,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "bytes": 2214,
+      "githubDigest": "sha256:139a47e147c7aab930125d9e68a4928b8e11937aa457d95e79a2fa9a1a791500",
+      "kind": "original-artifact-zip",
+      "name": "PDF-macOS-benchmark-xcode-27.zip",
+      "sha256": "139a47e147c7aab930125d9e68a4928b8e11937aa457d95e79a2fa9a1a791500"
+    },
+    {
+      "bytes": 731223,
+      "digestProvenance": "calculated-from-original-download; no upstream digest supplied",
+      "jobIDs": [
+        120953128543,
+        120953128335
+      ],
+      "kind": "original-complete-attempt-logs-zip",
+      "name": "source-run-40121275705-attempt-1-logs.zip",
+      "sha256": "2b9a2fdbf4ba2dbc91ed250050572b077e651621369ff2d9d5a2c900cfd386d2",
+      "sourceAPIPath": "/actions/runs/40121275705/attempts/1/logs",
+      "sourceRunAttempt": 1,
+      "sourceRunID": 40121275705
+    }
+  ],
+  "jobs": [
+    {
+      "conclusion": "failure",
+      "failedSteps": [
+        "Validate portable app without host dependencies or network"
+      ],
+      "id": 120953128543,
+      "requiredNativeGatesPassed": [
+        "Verify installer integrity",
+        "Compile native application",
+        "Install native PDF structural checker",
+        "Build, install and validate complete application",
+        "Validate installed application and local OCR",
+        "Retain native diagnostic log",
+        "Capture native window preview",
+        "Validate all native previews and accessibility reports",
+        "Retain native preview artifact",
+        "Record Apple Vision capability independently",
+        "Retain Apple Vision capability report",
+        "Evaluate Portuguese answers with the actual local Apple model",
+        "Retain local AI experiment and explicit availability",
+        "Benchmark the installed application with OCR",
+        "Retain native benchmark artifact"
+      ],
+      "runner": "macos-26"
+    },
+    {
+      "conclusion": "failure",
+      "failedSteps": [
+        "Validate portable app without host dependencies or network"
+      ],
+      "id": 120953128335,
+      "requiredNativeGatesPassed": [
+        "Verify installer integrity",
+        "Compile native application",
+        "Install native PDF structural checker",
+        "Build, install and validate complete application",
+        "Validate installed application and local OCR",
+        "Retain native diagnostic log",
+        "Capture native window preview",
+        "Validate all native previews and accessibility reports",
+        "Retain native preview artifact",
+        "Record Apple Vision capability independently",
+        "Retain Apple Vision capability report",
+        "Evaluate Portuguese answers with the actual local Apple model",
+        "Retain local AI experiment and explicit availability",
+        "Benchmark the installed application with OCR",
+        "Retain native benchmark artifact"
+      ],
+      "runner": "xcode-27"
+    }
+  ],
+  "purpose": "original-evidence-retention-only",
+  "repository": "vibracall-beep/PDF-",
+  "schemaVersion": 2,
+  "sourceCommit": "75d5012cc31032bd953e2075dacf2e81c541a591",
+  "sourceConclusion": "failure",
+  "sourceRunAttempt": 1,
+  "sourceRunID": 40121275705,
+  "sourceWorkflow": ".github/workflows/macos.yml"
+}

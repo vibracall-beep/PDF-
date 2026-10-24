@@ -350,3 +350,28 @@ São **434 casos Python distintos por sistema: 433 aprovados e um skip Linux**. 
 Os [13 originais preservados](evidencias/0bd707d/README.md) incluem o manifesto da retenção, dois logs completos, dois smokes, seis JSONs Vision/IA/benchmark e os dois AX da tela de acessibilidade. A [retenção 40120146837](https://github.com/vibracall-beep/PDF-/actions/runs/40120146837), release privada `422903642`, recuperou os dez ZIPs e o ZIP de logs após o bloqueio dos downloads diretos. IDs, SHA da fonte, digests e tamanhos foram conferidos; a retenção não muda o resultado do produto.
 
 Vision passou no26 e falhou no27, cujo OCR funcional e benchmark usaram Tesseract identificado. IA ficou `unavailable`/`deviceNotEligible` em ambos, com cinco itens sem tentativa de geração. Seis operações foram medidas em M1 Virtual; não há aprovação de M4 físico, energia/NPU, modelo Apple instalado, VoiceOver humano ou correções posteriores.
+
+
+## 75d5012 — captura sincronizada; Office isolado ainda falha
+
+A [matriz 40121275705](https://github.com/vibracall-beep/PDF-/actions/runs/40121275705), tentativa 1, commit `75d5012cc31032bd953e2075dacf2e81c541a591`, terminou **reprovada nos dois sistemas somente no isolamento do Office**. Montagem e assinatura passaram. O log principal registra `RuntimeError: soffice falhou (1):`, sem detalhe; não determina a causa. Instalação e atualização posteriores do binário não foram executadas.
+
+| Resultado por sistema | macOS 26 | macOS 27 |
+|---|---:|---:|
+| Núcleo | 281 aprovados · 78,149 s | 281 aprovados · 70,670 s |
+| Integrações | 46 aprovadas · 59,547 s | 46 aprovadas · 43,401 s |
+| Scripts | 108 aprovados + um skip · 19,120 s | 108 aprovados + um skip · 19,753 s |
+| Grupos nativos | 39 × três aprovados | 39 × três aprovados |
+| Capturas e AX | 32 PNGs/seis AX aprovados | 32 PNGs/seis AX aprovados |
+
+São **436 casos Python distintos: 435 aprovados e um skip Linux por sistema**, além de 117 resultados nativos aprovados. A contagem usa os dois logs completos de topo, sem somar reexecuções como novos casos. O novo grupo de geometria/captura e os testes do lançador OCR com `spawn` passaram nessa fonte.
+
+Os 64 PNGs foram revisados individualmente sem novo corte ou sobreposição dos controles fixos. A captura escura26 agora está nítida em 1050 × 772; o log recusa a geometria anterior de 752 pixels antes de publicar a captura concordante. A tela de revisão OCR mostra palavras incorretas e resultado `eng`, enquanto o seletor exibe Português + inglês; o snapshot carrega `eng`. Essa ressalva de precisão/configuração permanece em investigação e não foi ocultada pela aprovação visual. A revisão não equivale a teste interativo ou VoiceOver humano.
+
+Os [13 originais preservados](evidencias/75d5012/README.md) incluem manifesto, dois logs completos, dois smokes, seis JSONs Vision/IA/benchmark e os dois AX da tela de acessibilidade. A [retenção 40123290389](https://github.com/vibracall-beep/PDF-/actions/runs/40123290389), release privada `422923712`, recuperou os dez ZIPs e o ZIP de logs com identidade, digests e tamanhos conferidos. O ZIP de logs tem 731.223 bytes, SHA-256 `2b9a2fdbf4ba2dbc91ed250050572b077e651621369ff2d9d5a2c900cfd386d2`; os dois logs preservados são idênticos às entradas originais. A retenção não aprova o produto.
+
+Vision passou no26 e falhou no27, cujo OCR funcional e benchmark usaram Tesseract identificado. IA ficou `unavailable`/`deviceNotEligible` em ambos, com cinco itens sem geração. Seis operações foram medidas em M1 Virtual; os resultados não validam M4 físico, energia/NPU, modelo Apple instalado, serviços externos ou correções posteriores.
+
+## f9958a3 — integração de encerramento interrompida na compilação
+
+A [execução 40123759689](https://github.com/vibracall-beep/PDF-/actions/runs/40123759689), tentativa 1, commit `f9958a32f5a0f4e35399173f855322b743b86476`, falhou na compilação nos dois SDKs. Os novos closures de `ApplicationTask` exigem captura explícita de `self` em controladores; `Darwin.sigaction` foi resolvido como inicializador do struct em `OwnedChildProcess` e sua auditoria. Os dois logs completos foram baixados pela API oficial de tentativa; ZIP de 92.371 bytes, SHA-256 `807adb19b341ee1508df5437280d0ffb45ef7ed7de1507d994420cb399b944f2`. Esses diagnósticos orientam os ajustes, sem validar o comportamento nativo dos novos caminhos. A aprovação parcial de 75d5012 não se estende a essa fonte.

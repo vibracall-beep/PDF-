@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 1,
+  "kind": "derived-static-visual-review",
+  "reviewer": "native",
+  "reviewedAtUTC": "2026-10-24T21:57:48.245992+00:00",
+  "sourceRunID": 40134906805,
+  "sourceCommit": "352ae6fa8790ee51b547c93efc88f2f5c1956ebd",
+  "platform": "macos-26",
+  "sourceDirectory": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26",
+  "ordering": "PNG filenames sorted alphabetically, zero-based indices16–31",
+  "imageCount": 16,
+  "allAssignedPNGsOpened": true,
+  "originalImagesModified": false,
+  "productFilesModified": false,
+  "interactionApproval": false,
+  "wholeProductApproval": false,
+  "scopeLimits": [
+    "Somente pixels dos16PNG originais atribuídos; índices0–15 pertencem à outra revisão.",
+    "Não comprova interação, rolagem, foco, VoiceOver, persistência, exportação, integração externa ou operação dos controles.",
+    "Não aprova AppleVision/IA, conformidade criptográfica ou distribuição portátil.",
+    "Contagens visíveis incluem0,2,71e91; este lote não exercita o estado de contagem singular1 da biblioteca."
+  ],
+  "summary": {
+    "blockingVisibleLayoutFindings": 0,
+    "ocrManualReviewFindings": 1,
+    "ocrLabelsConsistentWithDisplayedAnalysis": true,
+    "visiblePluralCountsConsistent": true,
+    "remainingLayoutContentRequiresScrolling": true,
+    "visibleLayoutFindings": 1,
+    "nonblockingHeadingClippingFindings": 1
+  },
+  "images": [
+    {
+      "index": 16,
+      "name": "PDF-preview.lista.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.lista.png",
+      "sha256": "7124ad2c0e5754d2e414f3a8efd47691c45ec6a73f351d6530f0183eea24eadd",
+      "pixelWidth": 1050,
+      "pixelHeight": 772,
+      "openedWith": "view_image",
+      "section": "Lista do menu",
+      "observations": [
+        "Lista, busca, categoria e favoritos visíveis sem colisões. Contadores exibem 2 cópias locais de recuperação e 71 ferramentas."
+      ],
+      "limits": [
+        "A lista continua abaixo da janela; a barra de rolagem está visível."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 17,
+      "name": "PDF-preview.navegacao.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.navegacao.png",
+      "sha256": "8fca986791c33c27ecc98157d27b947a980ebcddb7008199b3e40bbc30740f52",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Navegação",
+      "observations": [
+        "Campos de nome, seletores de ícone, caixas e setas de ordem alinhados. Largura 210 pt legível; ações inferiores visíveis."
+      ],
+      "limits": [
+        "A imagem não verifica arrastar, reordenar, persistir ou restaurar."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 18,
+      "name": "PDF-preview.opcoes-leitura.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.opcoes-leitura.png",
+      "sha256": "5679bfa7617df7460b865012fba06bc2e455d6f24e99e90fe26195bdd8b258d6",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Opções de leitura",
+      "observations": [
+        "Rótulos de modo, direção, área, fundo e zoom permanecem visíveis; valor 55% legível. Não há sobreposição no conteúdo mostrado."
+      ],
+      "limits": [
+        "O início do estilo de anotações aparece no fim do viewport; demais opções dependem de rolagem, não exercitada nesta revisão."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 19,
+      "name": "PDF-preview.paleta.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.paleta.png",
+      "sha256": "5b922a1fa67cfea20ee7bd444dd1a7a936d874f74067765ea4487d23ed9b0899",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Paleta",
+      "observations": [
+        "Busca, comando selecionado, nomes e atalhos cabem na janela. Contador 91 comandos encontrados concorda com o valor mostrado."
+      ],
+      "limits": [
+        "A lista está parcialmente visível e não houve acionamento de comando ou teclado."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 20,
+      "name": "PDF-preview.perfis.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.perfis.png",
+      "sha256": "e3e5fea4d3b91f81d781f186172ffa6790ce55be74e611ca6b9871e07712e894",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Perfis",
+      "observations": [
+        "Texto explicativo completo, campo de nome e botão de guardar alinhados; ações de importação/exportação visíveis."
+      ],
+      "limits": [
+        "Estado vazio de perfis; a imagem não demonstra aplicação de perfil nem preservação de zoom."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 21,
+      "name": "PDF-preview.personalizar.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.personalizar.png",
+      "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Aparência",
+      "observations": [
+        "Rótulos e valores dos controles visíveis, com cartão de prévia à direita sem sobreposição."
+      ],
+      "limits": [
+        "Controles abaixo da dobra não foram vistos; a barra de rolagem indica continuação."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 22,
+      "name": "PDF-preview.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.png",
+      "sha256": "0736299e3f56ed7505dde03a5705a0d7d77afb142f03492e3d058d337e426b6b",
+      "pixelWidth": 1050,
+      "pixelHeight": 772,
+      "openedWith": "view_image",
+      "section": "Menu em grade",
+      "observations": [
+        "Navegação lateral, título, busca, categoria e grade de três colunas renderizados. 71 ferramentas e descrições visíveis sem colisão."
+      ],
+      "limits": [
+        "A parte seguinte da grade está abaixo da janela; não foram acionados os cartões."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 23,
+      "name": "PDF-preview.producao-bates.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-bates.png",
+      "sha256": "390e8ff9de2e46cc957200e4a94d724b1f092d976c8c6b6363261754563731a7",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Numeração Bates",
+      "observations": [
+        "Rótulos persistentes Prefixo, Número inicial e Dígitos acompanham os valores DOC-, 1 e 6. Campos e ação visíveis."
+      ],
+      "limits": [
+        "Nenhum arquivo está selecionado; não demonstra geração ou numeração de um PDF."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 24,
+      "name": "PDF-preview.producao-measure.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-measure.png",
+      "sha256": "f23a69b7cc88c88c1fa61ee98d593a62249682e0fb7d51e29a0bb23f37744aa2",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Medição",
+      "observations": [
+        "Página, escala, unidade, coordenadas X/Y e ações legíveis; valores 1, 100, 72/144 preservados na imagem."
+      ],
+      "limits": [
+        "O texto visível da escala é “Escala: 1 para...”, seguido do campo 100. A imagem não demonstra medição/calibração."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 25,
+      "name": "PDF-preview.producao-pdfx.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-pdfx.png",
+      "sha256": "69eae0885253ace256e1eedc15ac19409a0c508efb6a2d2fcc74f30bdb30f1f6",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "PDF/X-3",
+      "observations": [
+        "Seleção de perfil ICC, rótulo persistente da condição de impressão e explicação em duas linhas cabem no cartão."
+      ],
+      "limits": [
+        "Nenhum perfil ICC selecionado; não demonstra conversão ou conformidade PDF/X."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 26,
+      "name": "PDF-preview.producao-print-preflight.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-print-preflight.png",
+      "sha256": "143fe6a00f014c13ffdd864208c1b89aa9ab28bf5a20aceef9c814709ae87c59",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Diagnóstico de impressão",
+      "observations": [
+        "Rótulo persistente Resolução mínima de imagens, em DPI e valor 200 visíveis; texto explicativo sem corte."
+      ],
+      "limits": [
+        "Sem relatório executado; a imagem não demonstra análise do documento."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 27,
+      "name": "PDF-preview.recuperacao.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.recuperacao.png",
+      "sha256": "b439c9748b4769b3018fd6d5faeafc00980fdc0396f8c13e5f3074d55e9dccb3",
+      "pixelWidth": 1050,
+      "pixelHeight": 772,
+      "openedWith": "view_image",
+      "section": "Recuperação",
+      "observations": [
+        "Duas entradas com nomes legíveis, botões Recuperar e remover separados, contador 2 cópias locais correto."
+      ],
+      "limits": [
+        "Caminhos longos têm reticências intencionais. Datas aparecem em inglês no ambiente. Não houve recuperação, exclusão ou teste de senha nesta revisão."
+      ],
+      "findings": [
+        {
+          "category": "locale_observation",
+          "severity": "informational",
+          "detail": "Datas da lista aparecem em formato inglês do ambiente, embora os demais rótulos estejam em português."
+        }
+      ],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 28,
+      "name": "PDF-preview.revisao-ocr.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.revisao-ocr.png",
+      "sha256": "7b5050d001383348312ae8c47af34cba30589d37c8bcb421ff5eb71a80766c92",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Revisão OCR",
+      "observations": [
+        "Idioma do OCR e Organização do texto têm rótulos persistentes; Inglês e Página automática correspondem à linha Análise. Exportação visível, 0 correções correto. Título completo “Uma referência para comparar.” está reconhecido; página e palavras aparecem lado a lado."
+      ],
+      "limits": [
+        "O editor de correção continua abaixo do viewport. Há erro OCR visível no corpo: “informações” reconhecido como “informag6es”; isso requer revisão manual, sem inferência de acurácia geral.",
+        "A causa do recorte não é demonstrada pelos pixels; o ajuste do layout exige análise e nova captura nativa."
+      ],
+      "findings": [
+        {
+          "category": "ocr_accuracy_limit",
+          "severity": "manual_review_required",
+          "detail": "A palavra impressa informações aparece reconhecida como informag6es e está exposta no editor; não foi corrigida nem ocultada pela revisão."
+        },
+        {
+          "category": "interface_heading_clipping",
+          "severity": "nonblocking_visual_defect",
+          "detail": "O topo do título de interface Palavras reconhecidas está parcialmente recortado no limite superior do painel direito, aproximadamente x529/y354. O título dentro do PDF permanece íntegro. O mesmo recorte é visível nos originais26 e27."
+        }
+      ],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": true
+    },
+    {
+      "index": 29,
+      "name": "PDF-preview.solicitar-assinaturas.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.solicitar-assinaturas.png",
+      "sha256": "ed3153117498882bd7727936d2fecdfb724acd35c5af3aff4a8b4d92d057dafe",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Solicitação de assinaturas",
+      "observations": [
+        "Título no serviço, assunto, destinatário e geometria possuem rótulos visíveis; controles não se sobrepõem."
+      ],
+      "limits": [
+        "O formulário continua abaixo do viewport com scrollbar; apenas o início de um botão azul inferior aparece na borda. A imagem não verifica o alcance por rolagem nem qualquer envio externo."
+      ],
+      "findings": [
+        {
+          "category": "viewport_continuation",
+          "severity": "informational",
+          "detail": "Botão azul inferior parcialmente fora do viewport, em formulário com barra de rolagem. A captura não comprova sua acessibilidade após rolar."
+        }
+      ],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 30,
+      "name": "PDF-preview.validar-pdfa.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.validar-pdfa.png",
+      "sha256": "9cf0bdcf82f346cbb0d9be66deb96101bd1e16cbae361352643b3bd1db8edd30",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Validação PDF/A",
+      "observations": [
+        "Documento, perfil PDF/A-2b, versão veraPDF, explicação e botão inferior visíveis sem corte."
+      ],
+      "limits": [
+        "Não há resultado de validação na imagem; conformidade e execução não foram avaliadas visualmente."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    },
+    {
+      "index": 31,
+      "name": "PDF-preview.verificar-assinaturas.png",
+      "path": "/tmp/pdf-native-352ae6f/extracted/PDF-macOS-preview-macos-26/PDF-preview.verificar-assinaturas.png",
+      "sha256": "9b97ce5fcbe08823e7d29ddc7917089eb14099ebd11e0429bc8d6c1f8c0309f7",
+      "pixelWidth": 1050,
+      "pixelHeight": 752,
+      "openedWith": "view_image",
+      "section": "Verificação de assinaturas",
+      "observations": [
+        "Documento, confiança explícita, opções OCSP/CRL e botão inferior legíveis, sem colisão entre texto e controles."
+      ],
+      "limits": [
+        "Opções de revogação estão desmarcadas e não há relatório; cadeia criptográfica e interação não foram validadas pela imagem."
+      ],
+      "findings": [],
+      "blockingOverlapObserved": false,
+      "unexpectedClippingObserved": false
+    }
+  ],
+  "reviewRevision": 2,
+  "crossPlatformComparison": {
+    "otherPlatform": "xcode-27",
+    "matchedFinding": "interface_heading_clipping",
+    "sameImageName": "PDF-preview.revisao-ocr.png",
+    "method": "Both original PNGs opened independently with view_image; no image edits."
+  }
+}

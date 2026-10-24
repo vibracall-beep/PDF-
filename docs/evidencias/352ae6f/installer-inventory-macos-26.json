@@ -1,0 +1,30 @@
+{
+  "artifact": "12578100468",
+  "system": "macos-26",
+  "manifestEntries": 56817,
+  "tarFileAndLinkEntries": 56817,
+  "directoryEntries": 4307,
+  "hardlinks": 0,
+  "embeddedManifestByteExact": true,
+  "inventoryExact": true,
+  "differenceCount": 0,
+  "firstDifferences": [],
+  "fileModes": {
+    "0o600": 10786,
+    "0o700": 259,
+    "0o644": 30331,
+    "0o755": 499,
+    "0o444": 1475,
+    "0o500": 148,
+    "0o400": 961,
+    "0o555": 154,
+    "0o711": 67
+  },
+  "directoryModes": {
+    "0o700": 1776,
+    "0o755": 2531
+  },
+  "filesChangedByUmask077": 32526,
+  "directoriesChangedByUmask077": 2531,
+  "seconds": 19.471
+}

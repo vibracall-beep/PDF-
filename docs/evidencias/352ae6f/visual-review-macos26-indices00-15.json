@@ -1,0 +1,219 @@
+{
+  "schemaVersion": 1,
+  "kind": "individual-static-visual-review",
+  "sourceRunID": 40134906805,
+  "sourceCommit": "352ae6fa8790ee51b547c93efc88f2f5c1956ebd",
+  "runner": "macos-26",
+  "artifact": {
+    "id": 12577010137,
+    "name": "PDF-macOS-preview-macos-26",
+    "archiveBytes": 3283689,
+    "githubDigest": "sha256:6243b5f018dd052a6c4e6c650647deff602fc2856d3cd1e2334b7f3dedd63068",
+    "archiveSHA256": "6243b5f018dd052a6c4e6c650647deff602fc2856d3cd1e2334b7f3dedd63068"
+  },
+  "range": "alphabetical PNG indices0–15",
+  "reviewedImageCount": 16,
+  "files": [
+    {
+      "index": 0,
+      "file": "PDF-preview.abas.png",
+      "sha256": "93fabb9ef9b6b413590d827999f53f6405d06f1c74d5cfd2d33880f49f11be03",
+      "bytes": 124020,
+      "width": 1050,
+      "height": 772,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Duas abas, documento de referência e miniaturas visíveis; títulos e controles fixos legíveis. Documento continua em viewport com rolagem explícita."
+    },
+    {
+      "index": 1,
+      "file": "PDF-preview.anotacoes.png",
+      "sha256": "c66fbe0d4bcda0a9ba8d8f65aeb14e831fa2835612a0d87e705253f6334015db",
+      "bytes": 155414,
+      "width": 1050,
+      "height": 772,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Nota selecionada e painel de propriedades com texto, cor e geometria legíveis. A barra de ferramentas e o inspector possuem áreas roláveis; a imagem não comprova aplicação das alterações."
+    },
+    {
+      "index": 2,
+      "file": "PDF-preview.arquivos.png",
+      "sha256": "d6a11402aa67a249680170df6ece1851e48663291d796efc8188de896baa1cfe",
+      "bytes": 76968,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Personalização dos nomes dos resultados, destino e cópias locais visível; abas e rodapé separados, sem corte observado."
+    },
+    {
+      "index": 3,
+      "file": "PDF-preview.assinatura-digital.png",
+      "sha256": "96bf99a028edac865a2b378330a7459db6638b74598652f9520578bd497eab8b",
+      "bytes": 84324,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Formulário de certificado, PIN, motivo, local, nome de campo e perfil PAdES visível; salvar permanece desabilitado no estado sem certificado. Nenhuma assinatura concluída é mostrada."
+    },
+    {
+      "index": 4,
+      "file": "PDF-preview.atalhos.png",
+      "sha256": "0897d14e2e9e1b9a7f53e0e63cb27d21300ffcb630950475df1cb596993a854e",
+      "bytes": 75242,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Atalhos com comandos e ações Editar legíveis em lista rolável; linha parcial no limite inferior pertence à lista, acima do rodapé separado."
+    },
+    {
+      "index": 5,
+      "file": "PDF-preview.auditar-pdfua.png",
+      "sha256": "8dde7c59314eaac2a771225ae9cfaacc33ef574073493719b1aa125a57f0b4bf",
+      "bytes": 70265,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Documento, perfil PDF/UA, indicação de validação independente e ressalva de revisão humana legíveis; nenhum relatório executado mostrado."
+    },
+    {
+      "index": 6,
+      "file": "PDF-preview.automacao.png",
+      "sha256": "e86301c350608686c653a532d6264cf43a9662bf937fc6a585eb2773e23dab9e",
+      "bytes": 93918,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Automação sem fluxo/pastas escolhidos, nenhuma regra ativa e ação de criar regra desabilitada. Instruções do Finder e pré-requisitos visíveis."
+    },
+    {
+      "index": 7,
+      "file": "PDF-preview.biblioteca.png",
+      "sha256": "09ff575038c2f3fce69c4e9212eedd3fb66d95e94b9387d91037b808b57283ca",
+      "bytes": 111883,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Biblioteca mostra dois documentos e duas versões; ambas as linhas exibem corretamente \"1 versão\". O cabeçalho mostra \"2 versões\". Sem seleção, a busca permanece desabilitada."
+    },
+    {
+      "index": 8,
+      "file": "PDF-preview.configuracao-ferramenta.png",
+      "sha256": "f0f07f1ea94c10ba3f1d1ed6541260c5248de1e5724b1a4da8fe894d175b338a",
+      "bytes": 88095,
+      "width": 1050,
+      "height": 772,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Marca d’água mostra configurações, aviso de alterações não salvas e ausência de arquivo de entrada. Opções continuam na área rolável; ações fixas legíveis."
+    },
+    {
+      "index": 9,
+      "file": "PDF-preview.corrigir-acessibilidade.png",
+      "sha256": "1b1a9d7054821f163d8ac2195813ed6f84f1c3eb12bcab3cb3ea0e0dde6383ac",
+      "bytes": 94143,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Tag TH/página1 selecionada com título, Alt, ActualText, idioma e escopo Coluna; campos e ações visíveis sem colisão. Zero tags com alterações guardadas; exportação corrigida não demonstrada."
+    },
+    {
+      "index": 10,
+      "file": "PDF-preview.editor-conteudo.png",
+      "sha256": "65711ebf19f5a6761233cd0f50bf2e23198418dd3eb382c4b9e8706290639545",
+      "bytes": 121722,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Editor mostra12objetos identificados, título destacado e propriedades textuais. Zero alterações preparadas, exportação desabilitada e painéis com rolagem própria; não comprova edição/exportação."
+    },
+    {
+      "index": 11,
+      "file": "PDF-preview.escuro.png",
+      "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e",
+      "bytes": 399127,
+      "width": 1050,
+      "height": 772,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Tela escura nítida em1050×772, com títulos, filtros, contador71ferramentas e ações legíveis. Parte inferior continua em área rolável; imagem estática não comprova animações."
+    },
+    {
+      "index": 12,
+      "file": "PDF-preview.ferramentas.png",
+      "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca",
+      "bytes": 87460,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Categorias, busca, nome, visibilidade, ícone e controles de ordem da personalização visíveis; lista rolável termina acima do rodapé."
+    },
+    {
+      "index": 13,
+      "file": "PDF-preview.fluxo-lote.png",
+      "sha256": "7b58ff7ea4801595227f5212141d2c07d2c959f1a5cd56bd31dc8645d505ad0d",
+      "bytes": 105251,
+      "width": 1050,
+      "height": 752,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Fluxo em lote agora mostra \"2 documentos selecionados\", saída ainda não escolhida e3/24etapas. Conteúdo inferior continua em área rolável; execução não demonstrada."
+    },
+    {
+      "index": 14,
+      "file": "PDF-preview.lado-a-lado.png",
+      "sha256": "d63737fd82931b9fa6120a4174a26ae6d6b39202277929e4d7a80aaa660b06e7",
+      "bytes": 138396,
+      "width": 1050,
+      "height": 772,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Documentos lado a lado e identificação principal legíveis; texto das páginas é pequeno pela largura disponível. Controles do documento secundário e barras visíveis; zoom não foi exercitado."
+    },
+    {
+      "index": 15,
+      "file": "PDF-preview.leitor.png",
+      "sha256": "94ad17f20d2cb37b21e25f344b17a62f1f01ba9edb068e2a53b7d657b228ea2e",
+      "bytes": 120811,
+      "width": 1050,
+      "height": 772,
+      "viewedIndividuallyAsOriginal": true,
+      "fixedControlClippingOrOverlapObserved": false,
+      "observation": "Leitor com uma aba, miniaturas e texto da página legíveis. Documento maior que o viewport com rolagem; nenhuma busca ou anotação executada é demonstrada."
+    }
+  ],
+  "findings": [],
+  "observedCorrections": [
+    {
+      "file": "PDF-preview.biblioteca.png",
+      "previousText": "1 versões",
+      "observedText": "1 versão",
+      "occurrencesVisible": 2
+    },
+    {
+      "file": "PDF-preview.fluxo-lote.png",
+      "previousText": "2 documento(s) selecionado(s)",
+      "observedText": "2 documentos selecionados",
+      "occurrencesVisible": 1
+    }
+  ],
+  "summary": "Nenhum novo corte ou sobreposição dos controles fixos observado nestas16capturas estáticas. A pluralização da Biblioteca está corrigida nos dois pontos visíveis.",
+  "limitations": [
+    "A revisão cobre somente os16originais macOS26 indicados; índices16–31 pertencem à revisão independente do outro agente.",
+    "Nenhuma conclusão sobre macOS27, ações, animações, VoiceOver humano, precisãoOCR ou comportamento não capturado.",
+    "Texto dos PDFs lado a lado é pequeno na largura disponível; a captura não demonstra ajuste de zoom.",
+    "Nenhum PNG foi modificado ou gerado; esta revisão não aprova o produto ou instalador."
+  ],
+  "productApproved": false,
+  "installerApproved": false,
+  "humanVoiceOverTestPerformed": false
+}

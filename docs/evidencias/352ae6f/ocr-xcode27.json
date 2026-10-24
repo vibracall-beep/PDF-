@@ -1,0 +1,84 @@
+{
+  "runner": "xcode-27",
+  "sourceSHA256": "2684534b9e142fa9952e1c1b1f50ff6377e05e6136699131b36b24b5902280e6",
+  "reportSHA256": "0ec922d740a15067ad7b9470414739dbef7a6f8a5a3dc87233dbe82f8b083873",
+  "sourceDigestMatches": true,
+  "reviewDigestMatches": true,
+  "sourcePages": 1,
+  "sourceSelectableCharacters": 0,
+  "sourceRasterPixels": [
+    [
+      1130,
+      1600
+    ]
+  ],
+  "pagePoints": [
+    1130.0,
+    1600.0
+  ],
+  "words": 60,
+  "confidenceRange": [
+    0.37141106,
+    0.96993111
+  ],
+  "below80percent": [
+    {
+      "text": "informag6es",
+      "confidence": 0.37141106
+    },
+    {
+      "text": "retne",
+      "confidence": 0.5989798
+    },
+    {
+      "text": "conversao",
+      "confidence": 0.76576363
+    },
+    {
+      "text": "realgar.",
+      "confidence": 0.55814468
+    },
+    {
+      "text": "sumario",
+      "confidence": 0.790177
+    },
+    {
+      "text": "copia",
+      "confidence": 0.68199066
+    }
+  ],
+  "settings": {
+    "language": "eng",
+    "min_confidence": 0.0,
+    "ocr_deskew": false,
+    "ocr_dpi": 200,
+    "ocr_psm": 3
+  },
+  "uniqueIDs": true,
+  "finiteInBoundsCoordinates": true,
+  "visualInspectionPending": false,
+  "visualReview": {
+    "sourceRendered": true,
+    "originalOCRScreenshotViewed": true,
+    "languageAndPSMMatchControls": true,
+    "visibleWordBoxesAligned": true,
+    "sourceOriginalUnmodified": true,
+    "finalLayoutApproved": false
+  },
+  "limits": [
+    "Portuguese image recognized with eng/PSM3; real errors informag6es and retne persist.",
+    "High confidence is not proof of correct transcription.",
+    "200DPI resamples the original 1130x1600 raster; it does not add source detail.",
+    "Scrollable content beyond the screenshot viewport was not visually reviewed."
+  ],
+  "layoutFinding": {
+    "severity": "interface defect",
+    "description": "Top of the right OCR pane clips the Palavras reconhecidas heading.",
+    "confirmedBy": [
+      "root",
+      "ui"
+    ],
+    "distinctFromRecognitionErrors": true,
+    "originalImagesUnmodified": true
+  }
+}

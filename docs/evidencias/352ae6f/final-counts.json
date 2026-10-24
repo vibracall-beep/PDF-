@@ -1,0 +1,106 @@
+{
+  "macos-26": {
+    "pythonSuites": [
+      {
+        "count": 126,
+        "seconds": 23.254,
+        "resultLine": "2026-10-24T21:36:12.4025620Z OK (skipped=1)",
+        "line": 297
+      },
+      {
+        "count": 313,
+        "seconds": 96.772,
+        "resultLine": "2026-10-24T21:44:22.7768690Z OK",
+        "line": 1142
+      },
+      {
+        "count": 50,
+        "seconds": 55.335,
+        "resultLine": "2026-10-24T21:45:18.7801510Z OK",
+        "line": 1198
+      }
+    ],
+    "nativeSuccessfulRuns": [
+      {
+        "line": 2467,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 3735,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 5009,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 7763,
+        "groups": 41,
+        "allPassed": true
+      }
+    ],
+    "totalNativePassedLines": 164,
+    "nativeFailureLines": 0,
+    "printedTarSHA256": [
+      "40ab427db9df55f5bafb58440a10d9fc9d658d79bff6b85142da15d320b27754"
+    ],
+    "manifestMismatchLines": [
+      7815
+    ]
+  },
+  "xcode-27": {
+    "pythonSuites": [
+      {
+        "count": 126,
+        "seconds": 21.346,
+        "resultLine": "2026-10-24T21:36:10.3863340Z OK (skipped=1)",
+        "line": 295
+      },
+      {
+        "count": 313,
+        "seconds": 100.967,
+        "resultLine": "2026-10-24T21:45:37.8482740Z OK",
+        "line": 1191
+      },
+      {
+        "count": 50,
+        "seconds": 68.059,
+        "resultLine": "2026-10-24T21:46:46.5276620Z OK",
+        "line": 1247
+      }
+    ],
+    "nativeSuccessfulRuns": [
+      {
+        "line": 8886,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 16518,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 24155,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 27828,
+        "groups": 41,
+        "allPassed": true
+      }
+    ],
+    "totalNativePassedLines": 164,
+    "nativeFailureLines": 0,
+    "printedTarSHA256": [
+      "71a4e693e15eeb1ddd12e59ad319a8c392a9cb17354fdd2130cf5605ab0328c7"
+    ],
+    "manifestMismatchLines": [
+      27880
+    ]
+  }
+}

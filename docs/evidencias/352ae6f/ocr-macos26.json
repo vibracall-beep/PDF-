@@ -1,0 +1,84 @@
+{
+  "runner": "macos-26",
+  "sourceSHA256": "0aabe32c3a0127b682baa5568dc5fabab514d89544e73e6f6acf34e3b0a74673",
+  "reportSHA256": "3ba168d50a9677ec0283242b5bba42ba726bf74f26b4e7ac39d83ece45625195",
+  "sourceDigestMatches": true,
+  "reviewDigestMatches": true,
+  "sourcePages": 1,
+  "sourceSelectableCharacters": 0,
+  "sourceRasterPixels": [
+    [
+      1130,
+      1600
+    ]
+  ],
+  "pagePoints": [
+    1130.0,
+    1600.0
+  ],
+  "words": 60,
+  "confidenceRange": [
+    0.51780708,
+    0.97006699
+  ],
+  "below80percent": [
+    {
+      "text": "informag6es",
+      "confidence": 0.51780708
+    },
+    {
+      "text": "retne",
+      "confidence": 0.57534904
+    },
+    {
+      "text": "conversao",
+      "confidence": 0.6965617399999999
+    },
+    {
+      "text": "realgar.",
+      "confidence": 0.66980042
+    },
+    {
+      "text": "copia",
+      "confidence": 0.7953563699999999
+    },
+    {
+      "text": "demonstragao",
+      "confidence": 0.7666397100000001
+    }
+  ],
+  "settings": {
+    "language": "eng",
+    "min_confidence": 0.0,
+    "ocr_deskew": false,
+    "ocr_dpi": 200,
+    "ocr_psm": 3
+  },
+  "uniqueIDs": true,
+  "finiteInBoundsCoordinates": true,
+  "visualInspectionPending": false,
+  "visualReview": {
+    "sourceRendered": true,
+    "originalOCRScreenshotViewed": true,
+    "languageAndPSMMatchControls": true,
+    "visibleWordBoxesAligned": true,
+    "sourceOriginalUnmodified": true,
+    "finalLayoutApproved": false
+  },
+  "limits": [
+    "Portuguese image recognized with eng/PSM3; real errors informag6es and retne persist.",
+    "High confidence is not proof of correct transcription.",
+    "200DPI resamples the original 1130x1600 raster; it does not add source detail.",
+    "Scrollable content beyond the screenshot viewport was not visually reviewed."
+  ],
+  "layoutFinding": {
+    "severity": "interface defect",
+    "description": "Top of the right OCR pane clips the Palavras reconhecidas heading.",
+    "confirmedBy": [
+      "root",
+      "ui"
+    ],
+    "distinctFromRecognitionErrors": true,
+    "originalImagesUnmodified": true
+  }
+}

@@ -1,0 +1,217 @@
+{
+  "schema": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "sourceURL": "https://github.com/vibracall-beep/PDF-/commit/437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "runID": 40137438618,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40137438618",
+  "recordedAtUTC": "2026-10-24T22:41:27.062243+00:00",
+  "runSnapshot": {
+    "status": "in_progress",
+    "conclusion": null,
+    "apiUpdatedAt": "2026-10-24T22:10:59Z",
+    "limitation": "Snapshot read from the local collector; this gallery does not approve the package or predict the final run conclusion."
+  },
+  "galleryPlatform": "macos-26",
+  "captureMethod": "ScreenCaptureKit; janela real do aplicativo instalado por fontes, com documentos de demonstração e preferências isoladas",
+  "galleryPNGCount": 13,
+  "galleryPNGBytes": 1766875,
+  "artifacts": [
+    {
+      "id": 12578054234,
+      "name": "PDF-macOS-preview-macos-26",
+      "platform": "macos-26",
+      "createdAt": "2026-10-24T22:33:15Z",
+      "archiveBytes": 3279109,
+      "archiveSHA256": "99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+      "githubDigest": "sha256:99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+      "metadataURL": "https://api.github.com/repos/vibracall-beep/PDF-/actions/artifacts/12578054234",
+      "originalPNGCount": 32
+    },
+    {
+      "id": 12577629061,
+      "name": "PDF-macOS-preview-xcode-27",
+      "platform": "xcode-27",
+      "createdAt": "2026-10-24T22:29:34Z",
+      "archiveBytes": 3303763,
+      "archiveSHA256": "2b3f7b48eaca36f7fe7b0072938f79c46cdb965d78232be08d55e7c853aa5068",
+      "githubDigest": "sha256:2b3f7b48eaca36f7fe7b0072938f79c46cdb965d78232be08d55e7c853aa5068",
+      "metadataURL": "https://api.github.com/repos/vibracall-beep/PDF-/actions/artifacts/12577629061",
+      "originalPNGCount": 32
+    }
+  ],
+  "preservation": "Original PNG bytes, also compared directly to the original artifact ZIP members; no crop, resize, retouch or recomposition.",
+  "collectorSnapshots": [
+    {
+      "file": "collector-run.json",
+      "bytes": 12349,
+      "sha256": "5847243a42a8262bdfb66a8885f2255d3d14dccaee24e758cef93a35f00f678b"
+    },
+    {
+      "file": "collector-artifact-state.json",
+      "bytes": 22840,
+      "sha256": "dadfbdb6a6eb2b7a702d5574da47d5fa8bfcd5fab6ea341f824b2c5df110ac3c"
+    },
+    {
+      "file": "collector-artifacts.json",
+      "bytes": 6962,
+      "sha256": "73ed27da15d27c06f9f71b56f9ab7f472cc4781b738bb2c4a301d2107bf28f1d"
+    }
+  ],
+  "visualReviews": [
+    {
+      "file": "visual-review-macos26-all32.json",
+      "platform": "macos-26",
+      "artifactID": 12578054234,
+      "bytes": 27003,
+      "sha256": "3ccfd0d5a05228234cf24fdad4f19a64e2abd876f18bf3c6ee7367dda29380fb",
+      "reviewedOriginalPNGCount": 32,
+      "kind": "derived visual review; copied without reserialization",
+      "originalPNGHashesVerifiedAgainstCollectorAndZIP": true
+    },
+    {
+      "file": "visual-review-macos27.json",
+      "platform": "xcode-27",
+      "artifactID": 12577629061,
+      "bytes": 17803,
+      "sha256": "23675a12c38a6e8e36a0e4d11abf8dda5d8c961d6ac5fc41db4086f319e9b7f8",
+      "reviewedOriginalPNGCount": 32,
+      "kind": "derived visual review; copied without reserialization",
+      "originalPNGHashesVerifiedAgainstCollectorAndZIP": true
+    }
+  ],
+  "visualReviewSummary": {
+    "reviewedMacOS26Originals": 32,
+    "reviewedMacOS27Originals": 32,
+    "finding": "Os dois relatórios registram o cabeçalho Palavras reconhecidas inteiro. O rótulo Tamanho da fonte (pt) e a Biblioteca com 1 versão aparecem legíveis nas capturas; não foi identificado novo defeito de layout nos estados revisados.",
+    "limits": [
+      "A galeria seleciona 13 PNGs do macOS 26; os dois relatórios derivados abrangem os 64 originais, sem contagem adicional por conferências.",
+      "Capturas estáticas não comprovam cliques, digitação, rolagem até o fim, animações, redimensionamento ou preservação de estado.",
+      "Não há teste humano de VoiceOver, aprovação funcional completa, desempenho M4 ou comprovação de IA por estas imagens.",
+      "OCR Tesseract em inglês (eng), PSM 3, mantém erros reais no texto português, como informag6es para informações; a correção de layout não aprova a precisão.",
+      "A revisão visual de instalações por fontes não aprova o pacote portátil nem comprova a execução do mesmo binário do macOS 26 no macOS 27."
+    ]
+  },
+  "productApproved": false,
+  "installerApproved": false,
+  "files": [
+    {
+      "file": "PDF-preview.png",
+      "originalArtifactPath": "PDF-preview.png",
+      "title": "Menu inicial",
+      "bytes": 348715,
+      "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.escuro.png",
+      "originalArtifactPath": "PDF-preview.escuro.png",
+      "title": "Menu no tema escuro",
+      "bytes": 399127,
+      "sha256": "8e2564016e6571f533533aee2301b8aa58419402fb166c34933b0bd80485c4b5",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.lista.png",
+      "originalArtifactPath": "PDF-preview.lista.png",
+      "title": "Menu em lista",
+      "bytes": 94727,
+      "sha256": "5a4cd2d84e251fd7c41fcc22a8f7743c99721e0c7d5d300c79936a56bc6d29b0",
+      "width": 1050,
+      "height": 772
+    },
+    {
+      "file": "PDF-preview.personalizar.png",
+      "originalArtifactPath": "PDF-preview.personalizar.png",
+      "title": "Personalização da aparência",
+      "bytes": 99903,
+      "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.ferramentas.png",
+      "originalArtifactPath": "PDF-preview.ferramentas.png",
+      "title": "Personalização das ferramentas",
+      "bytes": 87460,
+      "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.navegacao.png",
+      "originalArtifactPath": "PDF-preview.navegacao.png",
+      "title": "Personalização da navegação",
+      "bytes": 79859,
+      "sha256": "8fca986791c33c27ecc98157d27b947a980ebcddb7008199b3e40bbc30740f52",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.opcoes-leitura.png",
+      "originalArtifactPath": "PDF-preview.opcoes-leitura.png",
+      "title": "Personalização do leitor",
+      "bytes": 83682,
+      "sha256": "5679bfa7617df7460b865012fba06bc2e455d6f24e99e90fe26195bdd8b258d6",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.arquivos.png",
+      "originalArtifactPath": "PDF-preview.arquivos.png",
+      "title": "Personalização dos arquivos",
+      "bytes": 76968,
+      "sha256": "d6a11402aa67a249680170df6ece1851e48663291d796efc8188de896baa1cfe",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.atalhos.png",
+      "originalArtifactPath": "PDF-preview.atalhos.png",
+      "title": "Personalização dos atalhos",
+      "bytes": 75242,
+      "sha256": "0897d14e2e9e1b9a7f53e0e63cb27d21300ffcb630950475df1cb596993a854e",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.perfis.png",
+      "originalArtifactPath": "PDF-preview.perfis.png",
+      "title": "Perfis de trabalho",
+      "bytes": 62414,
+      "sha256": "e3e5fea4d3b91f81d781f186172ffa6790ce55be74e611ca6b9871e07712e894",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.revisao-ocr.png",
+      "originalArtifactPath": "PDF-preview.revisao-ocr.png",
+      "title": "Revisão visual de OCR",
+      "bytes": 131586,
+      "sha256": "119675073fc4f066dc21427429648e19f2e986f1c375aa089e66a0f9f13e34b4",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.editor-conteudo.png",
+      "originalArtifactPath": "PDF-preview.editor-conteudo.png",
+      "title": "Editor do conteúdo original",
+      "bytes": 115309,
+      "sha256": "29abef81704da05c08bf142801c09af6486593da4780807ce7aa7a7f2de2e311",
+      "width": 1050,
+      "height": 752
+    },
+    {
+      "file": "PDF-preview.biblioteca.png",
+      "originalArtifactPath": "PDF-preview.biblioteca.png",
+      "title": "Biblioteca de documentos",
+      "bytes": 111883,
+      "sha256": "09ff575038c2f3fce69c4e9212eedd3fb66d95e94b9387d91037b808b57283ca",
+      "width": 1050,
+      "height": 752
+    }
+  ]
+}

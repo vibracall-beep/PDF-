@@ -1,6 +1,6 @@
 # Auditoria independente das ferramentas e dos requisitos
 
-**Revisão atual 0.6:** o catálogo contém 71 cartões, preservando os 54 anteriores. A auditoria vigente das 17 ampliações, dos caminhos compartilhados e das limitações está em [AMPLIACOES-2026-10.md](AMPLIACOES-2026-10.md). A [validação atual](VALIDACAO.md) ainda depende da nova matriz macOS, bloqueada por autenticação GitHub. O registro abaixo pertence à base histórica 0.5; sua aprovação não se transfere à ampliação.
+**Revisão atual 0.6:** o catálogo contém 71 cartões, preservando os 54 anteriores. A auditoria vigente das 17 ampliações, dos caminhos compartilhados e das limitações está em [AMPLIACOES-2026-10.md](AMPLIACOES-2026-10.md). A [validação atual](VALIDACAO.md) está em andamento; o acesso ao GitHub foi restabelecido, e os resultados são identificados por commit. O registro abaixo pertence à base histórica 0.5; sua aprovação não se transfere à ampliação.
 
 ## Registro histórico da base 0.5
 

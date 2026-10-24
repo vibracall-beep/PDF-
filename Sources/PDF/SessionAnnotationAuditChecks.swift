@@ -152,17 +152,18 @@ import SwiftUI
                         "A amostra inicial não preservou a ordem original das marcas combinantes ou começou suja.")
             try unicodeState.checkpointRecoveryNow()
             guard let previous = session.recoveryRecord else { throw NSError(domain: "PDF.SessionAudit", code: 18) }
+            let previousBytes = try store.load(previous)
             let previousState = PDFDocumentSession.widgetState(session.document)
             restoredField.widgetStringValue = afterValue
             try require((restoredField.widgetStringValue ?? "").utf8.elementsEqual(afterValue.utf8) &&
                         previousState != PDFDocumentSession.widgetState(session.document) && session.refreshDirty() && unicodeState.hasUnsavedChanges,
                         "A mudança de bytes canonicamente equivalentes não alterou a impressão do formulário nem marcou a sessão como modificada.")
             try unicodeState.checkpointRecoveryNow()
-            guard let replacement = session.recoveryRecord, let saved = PDFDocument(data: try store.load(replacement)) else {
-                throw NSError(domain: "PDF.SessionAudit", code: 19)
-            }
+            guard let replacement = session.recoveryRecord else { throw NSError(domain: "PDF.SessionAudit", code: 19) }
+            let replacementBytes = try store.load(replacement)
+            guard let saved = PDFDocument(data: replacementBytes) else { throw NSError(domain: "PDF.SessionAudit", code: 19) }
             let value = saved.page(at: 0)?.annotations.first(where: { $0.fieldName == "session-field" })?.widgetStringValue ?? ""
-            try require(replacement.generation != previous.generation && replacement.sha256 != previous.sha256 && value.utf8.elementsEqual(afterValue.utf8),
+            try require(replacementBytes != previousBytes && value.utf8.elementsEqual(afterValue.utf8),
                         "A recuperação reutilizou a geração anterior ou perdeu os bytes da edição Unicode de mesmo tamanho.")
         }
 

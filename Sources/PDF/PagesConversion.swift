@@ -557,7 +557,7 @@ enum PagesPrivateCopyAuditChecks {
         // Keep the suite usable if an assertion fails; this fixture never asks
         // Pages to open anything and has no external document to leave behind.
         defer { pending.finishUnusedOrClosed() }
-        let refused = try await Task.detached { () -> Bool in
+        let refused = await Task.detached { () -> Bool in
             do {
                 try pending.finishConfirmed { try cleanupCommand(status: 17) }
                 return false

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceCommit": "a0a3c0c94e17550d2b5042390e7487556da16323",
+  "runID": 40129073067,
+  "attempt": 1,
+  "conclusion": "failure",
+  "productApproved": false,
+  "file": "actions-attempt-1-logs.zip",
+  "bytes": 76387,
+  "sha256": "4f7d5d1125ffa032bbd99124d14032e7317e75ed201b5c5383004d41ef5ce9ff",
+  "source": "Official Actions attempt logs API; original ZIP unchanged; locally calculated hash."
+}

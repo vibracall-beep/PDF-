@@ -3,6 +3,7 @@ import AppKit
 import PDFKit
 import UniformTypeIdentifiers
 import CoreFoundation
+import Darwin
 
 struct Tool: Identifiable, Hashable {
     let id: String
@@ -133,9 +134,9 @@ let tools: [Tool] = [
         guard let keepAlive = CFRunLoopSourceCreate(kCFAllocatorDefault, 0, &context) else {
             fputs("PDF could not create the command-line event loop.\n", stderr); exit(1)
         }
-        CFRunLoopAddSource(CFRunLoopGetMain(), keepAlive, kCFRunLoopDefaultMode)
+        CFRunLoopAddSource(CFRunLoopGetMain(), keepAlive, CFRunLoopMode.defaultMode)
         Task { @MainActor in
-            guard Thread.isMainThread else {
+            guard pthread_main_np() != 0 else {
                 fputs("PDF command-line audit requires the original main thread.\n", stderr); exit(1)
             }
             await performAsyncCLI()

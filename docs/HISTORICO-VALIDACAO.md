@@ -392,3 +392,7 @@ A rodada anterior `fbc08c3` falhara antes desses controles ao verificar IDLE3.ap
 [40125423021](https://github.com/vibracall-beep/PDF-/actions/runs/40125423021) aprovou nos dois sistemas 301 testes de núcleo, 49 integrações e 110 de 111 testes de scripts (um skip Linux), total de 461 casos/460 aprovações. Os 41 grupos nativos passaram três vezes por sistema. Compilação, instalação por fontes e montagem/assinatura passaram.
 
 A captura expirou após `PDFApp init end; mainThread=true`, sem WindowGroup observada nem qualquer arquivo PNG/AX/PDF/JSON OCR; o amostrador também expirou. O isolamento falhou em `os.killpg(SIGTERM)` e na tentativa posterior de encerramento do grupo Java/veraPDF, com `EPERM`, antes do Office. Não houve instalação/atualização posterior do binário. [Nove originais e procedência](evidencias/ecae663/README.md). O log delimita os pontos de falha, sem estabelecer por si só suas causas. Correções seguintes precisam de nova matriz completa.
+
+## a0a3c0c — helper nativo aprovado; nome Core Foundation recusado
+
+[40129073067](https://github.com/vibracall-beep/PDF-/actions/runs/40129073067) aprovou 119/120 testes de scripts em cada Mac, com um skip Linux e o novo controle C real executado. Compilação parou no nome renomeado `kCFRunLoopDefaultMode`; a correção usa a API indicada pelo SDK e conserva a checagem física da thread via Darwin. Nenhum smoke, captura ou validação portátil executado. [ZIP original e procedência](evidencias/a0a3c0c/README.md).

@@ -48,9 +48,10 @@ jobs:
           sdk = subprocess.check_output(['xcrun', '--sdk', 'macosx', '--show-sdk-path'], text=True).strip()
           compiler = subprocess.check_output(['xcrun', '--find', 'swiftc'], text=True).strip()
           constants = output / 'PDF.swiftconstvalues'
-          subprocess.run([compiler, '-frontend', '-typecheck', '-parse-as-library', '-swift-version', '5',
+          subprocess.run([compiler, '-typecheck', '-parse-as-library', '-swift-version', '5',
               '-module-name', 'PDF', '-target', 'arm64-apple-macosx26.0', '-sdk', sdk,
-              '-emit-const-values-path', str(constants), '-const-gather-protocols-file', str(protocols),
+              '-Xfrontend', '-emit-const-values-path', '-Xfrontend', str(constants),
+              '-Xfrontend', '-const-gather-protocols-file', '-Xfrontend', str(protocols),
               *map(str, sources)], check=True, timeout=240)
           if not constants.is_file() or constants.stat().st_size == 0:
               raise RuntimeError('Compiler produced no constant metadata')

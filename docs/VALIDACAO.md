@@ -1,14 +1,37 @@
 # Evidências de validação
 
-## Versão validada
+## Revisão 0.6 — auditoria local concluída; gate nativo pendente
+
+A implementação ampliada **ainda não está aprovada para instalação final**. A [matriz das 17 ampliações](AMPLIACOES-2026-10.md) identifica cada caminho, teste e limite. As 54 ferramentas anteriores foram preservadas e o catálogo passou a 71 entradas, além do leitor.
+
+Código auditado: **`7205dd106c07002ec1c5ed8fd2ebbef448cf9f3a`**, preservado em commit local e ainda não enviado ao GitHub. A rodada consolidada passou com **388 testes executados e um ignorado, em 389 casos distintos**: 268 de núcleo (36,888 s), 45 integrações reais (94,387 s) e 76 de scripts (75 aprovados, um HFS+ exclusivo de macOS ignorado, 3,006 s). Chromium foi selecionado por `PDF_CHROMIUM_EXECUTABLE=/usr/bin/chromium`. [Logs, ambiente, comandos e manifesto SHA-256](evidencias/0.6-auditoria-local/README.md) identificam o snapshot efetivamente verificado.
+
+O parser aprovou a sintaxe dos 70 fontes Swift; oito scripts Bash e três workflows passaram suas verificações sintáticas, incluindo referências de etapas. A comparação dos catálogos confirmou 71 IDs únicos e todos os 54 anteriores preservados. Essas verificações **não compilam APIs Apple nem aprovam a execução do aplicativo**. Repetições focadas dos mesmos testes não foram somadas ao total.
+
+Histórico desta ampliação:
+
+| Revisão / execução | Resultado observado e correção |
+|---|---|
+| `4cd755c` / [40062813526](https://github.com/vibracall-beep/PDF-/actions/runs/40062813526) | Compilação passou nos dois SDKs; falha em expectativas antigas de tabela que supunham cabeçalho em A1. Corrigidas para conferir conteúdo e tabela sem descartar prosa. Ensaios reais HFS+ cheio/SIGKILL do atualizador passaram, sem aprovação do bundle portátil |
+| `662edfe` / [40063951872](https://github.com/vibracall-beep/PDF-/actions/runs/40063951872) | SwiftUI excedeu capacidade de type-check em SettingsExchangeView; tela dividida em subviews. Execução substituída pela seguinte |
+| `e1e8e0a` / [40064237569](https://github.com/vibracall-beep/PDF-/actions/runs/40064237569) | Compilação aprovada nos dois SDKs, 233 testes de núcleo e 37/38 integrações por sistema. Falha restante: descoberta do ICC no novo layout Ghostscript Homebrew. Localização corrigida no teste e no empacotador; integração Linux reexecutada com sucesso |
+| Metadados App Intents | Extração real comprovada em um diagnóstico SDK26; tentativas seguintes não produziram o artefato completo nos dois SDKs. O gate foi endurecido para exigir arquivo, ações, tipos, parâmetros e provedor reais; a versão corrigida aguarda execução |
+
+A integração do GitHub passou a retornar **HTTP 401 — Bad credentials**, bloqueando novos envios e execuções. A reconexão foi solicitada ao usuário, sem pedir tokens no chat. Isso é bloqueio de autenticação, não aprovação de testes nem motivo para reutilizar a aprovação histórica.
+
+O workflow atual prepara compilação em macOS 26/27, testes completos, recuperação real após SIGKILL, herança de bloqueio da instalação, 32 capturas reais/cinco relatórios AX, benchmark, ensaio de IA portuguesa com modelo real ou indisponibilidade explícita, pacote portátil isolado e duas instalações. **Etapa preparada não significa etapa executada.** Capturas e artefatos antigos abaixo são históricos.
+
+A avaliação em M4 físico, consumo de energia, uso de Neural Engine, interação humana com VoiceOver e entrega real por serviço de assinaturas continuam dependentes de equipamento/modelo/serviço. Cinco consultas sintéticas de IA não estimam qualidade geral; `unavailable` não é aprovação da geração.
+
+## Base histórica 0.5 aprovada — escopo separado
 
 As dez melhorias estão implementadas no código **`5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`**. A execução [40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837) terminou **aprovada nos dois ambientes Apple Silicon**: macOS 26.6.2 e 27.0.1. A instalação, ativação e as três execuções nativas passaram em cada sistema. A auditoria separada do framework Apple Vision mantém sua falha no runner27; o OCR funcional desse ambiente usou Tesseract local.
 
-A documentação final e as evidências podem alterar o hash do pacote de fontes. Os arquivos de código, testes, dependências e scripts da entrega foram comparados ao commit aprovado e mantidos idênticos; o `BUILD-INFO.json` do pacote identifica sua revisão documental.
+A documentação final e as evidências podem alterar o hash do pacote de fontes. Na entrega histórica 0.5, os arquivos de código, testes, dependências e scripts foram comparados ao commit aprovado e mantidos idênticos; o `BUILD-INFO.json` do pacote identifica sua revisão documental.
 
-A correspondência entre requisitos, fontes e testes está em [MELHORIAS.md](MELHORIAS.md); o catálogo e a auditoria estão em [FERRAMENTAS.md](FERRAMENTAS.md) e [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md). O [histórico](HISTORICO-VALIDACAO.md) conserva as reprovações e suas correções. Aprovações anteriores não foram usadas para aprovar o código atual.
+A correspondência entre requisitos, fontes e testes está em [MELHORIAS.md](MELHORIAS.md); o catálogo e a auditoria estão em [FERRAMENTAS.md](FERRAMENTAS.md) e [AUDITORIA-FERRAMENTAS.md](AUDITORIA-FERRAMENTAS.md). O [histórico](HISTORICO-VALIDACAO.md) conserva as reprovações e suas correções. Essa aprovação histórica não aprova o código 0.6 atual.
 
-## Testes locais
+## Testes locais da base histórica
 
 | Conjunto | Resultado Linux |
 |---|---|
@@ -51,7 +74,7 @@ Medianas em milissegundos, três amostras após aquecimento:
 
 Hardware de ambos: **Apple M1 Virtual**, arm64, três CPUs, 7 GiB e Apple Paravirtual device. Pico de RSS do processo principal: 301.023.232 bytes (26) e 149.028.864 bytes (27); não inclui subprocessos. O sistema26 foi 26.6.2 (25G83), SDK26.5; o sistema27 foi 27.0.1 (26A434), SDK27.0. Os PDFs sintéticos vieram do mesmo gerador, mas cada relatório registra seu próprio hash; esta rodada não é uma comparação controlada entre processadores físicos.
 
-Os [quatro relatórios JSON originais, hashes e metadados dos pacotes](evidencias/5a11c07/README.md) foram recebidos normalmente e preservados. Logs completos: `/tmp/pdf-5a11c07-all.log`; contagem separada dos grupos e tempos: `/tmp/pdf-5a11c07-summary.json`. As [19 capturas atuais](imagens/README.md) são originais do SDK27. Ambos os conjuntos foram baixados, validados e seus **38 estados revisados visualmente**, com procedência e hashes. Os oito relatórios AX passaram seus critérios automáticos.
+Os [quatro relatórios JSON originais, hashes e metadados dos pacotes](evidencias/5a11c07/README.md) foram recebidos normalmente e preservados. Logs completos: `/tmp/pdf-5a11c07-all.log`; contagem separada dos grupos e tempos: `/tmp/pdf-5a11c07-summary.json`. As [19 capturas históricas](imagens/README.md) são originais do SDK27. Ambos os conjuntos foram baixados, validados e seus **38 estados revisados visualmente**, com procedência e hashes. Os oito relatórios AX passaram seus critérios automáticos.
 
 Os relatórios de [2816a41](evidencias/2816a41/README.md) permanecem identificados como históricos. Não substituem os resultados atuais.
 
@@ -65,7 +88,7 @@ O smoke obrigatório exige reconhecer texto real a partir de uma página sem cam
 
 Nas rodadas anteriores, macOS 27.0.1/Xcode 27.1 apresentou erro do compilador interno do Vision: `e5rt_e5_compiler_compile call failed`, código 11. Entradas normalizadas, execução CPU, APIs públicas alternativas e processo isolado não resolveram a falha naquele runner. A alternativa Tesseract preserva o OCR funcional; não corrige nem certifica o framework Apple.
 
-## O que o CI exige
+## O que o CI da base histórica exigiu
 
 - Compilação release arm64 e 39 testes dos scripts.
 - 19 capturas reais da janela pelo ScreenCaptureKit e quatro relatórios AX. O cliente AX público inspeciona somente o próprio processo e complementa a inspeção da árvore nativa; identificadores obrigatórios ausentes reprovam a etapa.

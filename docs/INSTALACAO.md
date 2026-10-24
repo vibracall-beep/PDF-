@@ -1,135 +1,93 @@
 # Instalação do PDF por comando
 
-O instalador compila o aplicativo no próprio Mac, prepara suas dependências, executa verificações automáticas e só então ativa a instalação. A distribuição é de fontes verificáveis: o `.app` produzido num runner de CI depende daquele computador e não é um binário portátil para outros Macs.
+**Estado da versão 0.6:** o instalador autocontido e o atualizador estão implementados, mas o pacote portátil desta revisão ainda não foi aprovado na matriz macOS. A integração GitHub retornou HTTP 401 e bloqueou novos envios. Este documento descreve os procedimentos preparados; não é uma solicitação de teste de uma versão incompleta pelo usuário. Consulte [VALIDACAO.md](VALIDACAO.md) antes de identificar qualquer pacote como entrega final.
 
-## Requisitos do Mac
+## Requisitos comuns
 
-- Mac Apple Silicon executado nativamente, sem Rosetta. O alvo solicitado é M4 e superior; a verificação `arm64` também permite outras gerações Apple Silicon, sem afirmar desempenho equivalente.
-- macOS 26 ou posterior, Xcode 26 ou posterior selecionado e Swift 6.2 ou posterior. Compatibilidade exata com outra versão do sistema deve ser estabelecida pela validação daquela versão.
-- Homebrew arm64 em `/opt/homebrew`, instalado pelas instruções oficiais de <https://brew.sh>.
-- Acesso às fontes no GitHub e aos registries usados por Homebrew, PyPI e Playwright.
-- Para IA local: Apple Intelligence disponível e habilitada nas configurações do Mac. A presença do framework não garante que o modelo esteja disponível naquele dispositivo ou idioma.
+- Mac Apple Silicon nativo, sem Rosetta, com macOS 26 ou posterior. O alvo solicitado é M4 e superior; aceitar arm64 não demonstra ganho de desempenho numa geração específica.
+- Espaço para pacote, instalação e cópia anterior. O runtime completo inclui conversores e pode ocupar vários gigabytes; clones APFS reduzem cópias físicas quando disponíveis, sem eliminar o requisito de espaço.
+- Para geração de IA: Apple Intelligence disponível, habilitada e com modelo instalado. A ausência do modelo deve aparecer como indisponibilidade; ela não é substituída por resposta fictícia.
+- Pages, scanner, Continuidade, certificado, TSA e serviço de assinaturas dependem dos componentes/contas próprios quando essas ferramentas forem usadas.
 
-Não é necessária uma assinatura paga de desenvolvedor Apple. O bundle recebe assinatura local ad hoc. Isso não cria assinatura Developer ID nem notarização Apple.
+Não é necessária assinatura paga de desenvolvedor Apple. A assinatura é **ad hoc, sem Developer ID nem notarização Apple**. O instalador mantém Gatekeeper, TLS e verificação de assinaturas ativos. Isso pode exigir a autorização normal do macOS para um aplicativo obtido fora da App Store; não há promessa de instalação silenciosa em qualquer política de segurança.
 
-## Comando da versão validada
+## Pacote autocontido — caminho de entrega preparado
 
-O bloco abaixo instala a versão 0.5.0 do commit **`5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`**, aprovado integralmente na [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Os dois jobs, macOS **26.6.2** e **27.0.1** arm64, passaram compilação, 224 testes Python distintos por sistema, instalação/ativação, três verificações nativas, 19 capturas, quatro relatórios AX e benchmark. Os [relatórios originais e a verificação dos pacotes](evidencias/5a11c07/README.md) registram a procedência dessa aprovação.
+O pacote `PDF-arm64.tar.gz` deve conter `PDF.app`, manifesto e componentes de distribuição. O artefato aprovado também precisa fornecer `install-binary.sh`, checksum e `distribution-validation.json`, identificando o commit, a instalação isolada e as limitações do ensaio. O Mac de destino **não precisa de Xcode, Homebrew, Git ou Python previamente instalados**.
 
-No macOS 27, o OCR funcional passou usando Tesseract; os dois testes estritos do Apple Vision permaneceram reprovados e estão preservados nos relatórios. O benchmark foi executado em Apple M1 virtualizado, sem medição de M4 físico ou NPU. A aprovação corresponde ao commit indicado; o [histórico](HISTORICO-VALIDACAO.md) conserva as versões anteriores e as falhas corrigidas. Com os requisitos acima instalados, cole este bloco no Terminal de cada Mac:
+Após existir um pacote aprovado e um SHA-256 publicado por um canal confiável, o comando será:
 
 ```bash
-bash <<'PDF_INSTALL'
-set -euo pipefail
-PDF_SOURCE_DIR="$(mktemp -d "$HOME/PDF-fontes.XXXXXX")"
-git clone --quiet https://github.com/vibracall-beep/PDF-.git "$PDF_SOURCE_DIR"
-git -C "$PDF_SOURCE_DIR" checkout --quiet --detach 5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad
-printf 'Fontes preservados em: %s\n' "$PDF_SOURCE_DIR"
-bash "$PDF_SOURCE_DIR/scripts/install-mac.sh"
-open "$HOME/Applications/PDF.app"
-PDF_INSTALL
+bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE
 ```
 
-O diretório de fontes recebe um nome novo; cópias existentes não são alteradas. O instalador verifica o próprio computador antes de ativar `PDF.app`. Os limites da evidência — incluindo M4 físico, interação humana com VoiceOver, Pages, scanner/iPhone e geração por Apple Intelligence — estão em [VALIDACAO.md](VALIDACAO.md). A aprovação automatizada não demonstra uso desses equipamentos/modelos nem interação humana completa.
+O primeiro argumento também aceita URL HTTPS. O terceiro argumento opcional define a pasta de aplicativos:
 
-## Instalar fontes já baixados
+```bash
+bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE "$HOME/Applications/Documentos"
+```
 
-Na pasta de fontes do PDF:
+Os valores acima são parâmetros documentais, **não um link ou checksum de uma versão já aprovada**. O script verifica SHA-256 antes de extrair, valida a assinatura do bundle e usa o Python incluído para conferir o manifesto e instalar. A assinatura ad hoc não identifica um publicador Apple; a origem confiável do checksum continua necessária.
+
+O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` testa com rede, Homebrew, LibreOffice externo e ferramentas de desenvolvimento bloqueados. **A existência desses checks não significa que o pacote atual já passou.**
+
+## Atualização, recuperação e retorno à versão anterior
+
+Executar o instalador com outro pacote aprovado atualiza o mesmo destino. Preferências, perfis, biblioteca e recuperação ficam fora do bundle e são preservados. Os formatos novos mantêm leitura de presets anteriores; não se promete compatibilidade de qualquer dado futuro com qualquer versão antiga.
+
+O atualizador:
+
+1. Verifica manifesto, identidade e arquivos antes de publicar.
+2. Obtém bloqueios exclusivos das instalações envolvidas; recusa substituir um bundle em uso pelos processos que participam do protocolo.
+3. Prepara e valida uma cópia, grava um diário durável e preserva `PDF.previous.<identificador>.app`.
+4. Ativa a cópia e repete verificações. Falha tratada restaura a anterior; uma interrupção pode deixar diário para recuperação na próxima execução.
+
+Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
+
+Para **voltar deliberadamente** a uma versão, use novamente o instalador com o pacote anterior aprovado e seu checksum original. Isso preserva a instalação que está sendo substituída. Não mova bundles manualmente enquanto houver aplicativo, tarefas ou instalador em execução. Não apague cópias anteriores e runtimes durante a investigação de uma interrupção.
+
+Uma instalação antiga sem `Contents/Resources/installation.lock` não pode ser substituída automaticamente por este protocolo. Nesse caso, escolha outra pasta de destino; a versão anterior e suas configurações são preservadas. O instalador não mata aplicações do usuário para forçar a atualização.
+
+O caminho **por fontes** conserva seu mecanismo de limpeza e tem limites distintos: SIGKILL pode deixar `.pdf-install.lock`, estágio e runtime. Um lock residual impede nova instalação até investigação; não há recuperação universal desses resíduos. O diário transacional novo pertence ao instalador binário.
+
+## Compilação por fontes — desenvolvimento
+
+Exige Xcode 26/Swift 6.2 ou posterior, SDK macOS 26 ou posterior selecionado e Homebrew arm64 em `/opt/homebrew`. O script não instala nem aceita a licença do Xcode e não instala Homebrew automaticamente. Use as instruções oficiais de <https://brew.sh>.
+
+Na pasta dos fontes revisados:
 
 ```bash
 bash scripts/install-mac.sh
-open "$HOME/Applications/PDF.app"
 ```
 
-O comando inclui qpdf, OCRmyPDF, Tesseract com português e inglês, Ghostscript pela dependência de OCRmyPDF, LibreOffice, Python, Chromium/Playwright, pyHanko e Java 21 com veraPDF 1.30.3 verificado por SHA-256. O qpdf em `/opt/homebrew/bin/qpdf` é obrigatório para validar os PDFs gerados nativamente antes de salvar. `install-optional-mac.sh` permanece como entrada de compatibilidade e verifica a instalação completa.
+O script compila arm64, instala dependências, verifica idiomas, gera metadados reais de App Intents, executa testes, assina localmente e valida antes/depois da ativação em `~/Applications/PDF.app`. `PDF_INSTALL_DIR` muda o destino. O runtime desse caminho fica em `~/Library/Application Support/PDF/runtimes`; o `.app` gerado por fontes **não é a distribuição autocontida** para copiar entre computadores.
 
-A publicação nativa exige `qpdf --check` sem avisos e comparação dos campos, texto, páginas e anotações capturados antes da gravação. A cópia protegida usa AES-256 com credenciais de leitura e proprietário distintas, preservando as permissões compatíveis; restrições legadas incompatíveis são recusadas. O limite é 1 GiB por PDF, 64 MiB para o JSON auxiliar e 1–127 bytes UTF-8 para a senha. Esses limites provocam erro explícito, preservando o original.
-
-PDFs temporários protegidos mantêm criptografia. Jobs de qpdf e relatórios/patches JSON usam arquivos `0600` em diretórios `0700`, mas podem conter credenciais e conteúdo textual legível ao próprio usuário; não são arquivos criptografados. A limpeza ocorre na conclusão, erro e cancelamento normal. Encerramento abrupto pode deixar esses temporários. As cópias persistentes de recuperação de um documento protegido permanecem criptografadas.
-
-Para outro diretório de aplicativos:
+Para instalar fontes de um commit revisado, o helper aceita SHA completo de 40 caracteres, não uma branch mutável:
 
 ```bash
-PDF_INSTALL_DIR="$HOME/Applications/Documentos" bash scripts/install-mac.sh
+bash scripts/install-from-github.sh --commit SHA_COMPLETO_DA_VERSAO_REVISADA
 ```
 
-O instalador não instala nem aceita a licença do Xcode ou instala o Homebrew automaticamente. Ele informa a dependência que falta. As verificações de instalação são executadas pelo próprio comando; não exigem executar manualmente uma versão incompleta do aplicativo.
-
-## Instalar um commit revisado do GitHub
-
-Use um SHA completo de **40 caracteres** correspondente à versão revisada. Branches como `main` e tags mutáveis não são aceitas pelo instalador de fontes. A autenticação HTTPS usa a configuração Git que já existe no Mac.
-
-Com o script presente em uma cópia revisada do repositório:
+Também aceita arquivo HTTPS com checksum obrigatório:
 
 ```bash
-bash scripts/install-from-github.sh --commit SHA_COMPLETO_DA_VERSAO
+bash scripts/install-from-github.sh --archive URL_HTTPS_DO_PACOTE_DE_FONTES --sha256 SHA256_COMPLETO
 ```
 
-O script busca exatamente esse commit em `vibracall-beep/PDF-`, verifica o HEAD e os objetos Git, preserva os fontes em `~/Library/Application Support/PDF/sources/<SHA>` e inicia o instalador completo. A instalação de cada Mac é independente. Para outro destino de fontes, informe `--source-dir`; uma pasta existente nunca é mesclada ou apagada.
+Fontes existentes não são mesclados nem apagados. O helper conserva a cópia em `~/Library/Application Support/PDF/sources/<SHA>`; `--source-dir` escolhe outra pasta nova. Não passe credenciais na URL ou linha de comando.
 
-O parâmetro `--repository dono/repositorio` permite um fork revisado. Não use credenciais como parâmetros de URL ou de linha de comando; reutilize a autenticação normal do Git no Mac.
+## Identificação da versão aprovada
 
-## Pacote de fontes e checksum
+A última base inteiramente aprovada foi **0.5**, commit `5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`, na [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Os dois sistemas, macOS 26.6.2 e 27.0.1, passaram os checks daquele código. Essa base não contém as 17 ampliações atuais nem o novo pacote portátil. Os [relatórios históricos](evidencias/5a11c07/README.md) conservam sua procedência.
 
-O workflow produz um pacote por runner: `PDF-source-macos-26` ou `PDF-source-xcode-27` quando todas as etapas e o Vision passam. Se o produto passa usando OCR de compatibilidade ou a auditoria independente do Vision registra falha, o nome é `PDF-source-ocr-compatibility-<runner>`. Um pacote `PDF-source-unvalidated-<runner>` não passou todos os requisitos funcionais e não é a versão aprovada para instalação. Cada pacote contém:
+Artefatos `unvalidated` não são aprovados. Um relatório de IA `unavailable` informa ausência do modelo e não aprova qualidade de geração; falhas estritas do Vision também permanecem identificadas mesmo quando o OCR funcional passa com Tesseract. A validação atual precisa distinguir esses estados.
 
-- `PDF-source.tar.gz`: fontes, scripts, testes e documentação.
-- `PDF-source.tar.gz.sha256`: checksum externo do pacote.
-- Dentro do pacote, `SHA256SUMS` verifica os arquivos individualmente e `BUILD-INFO.json` identifica o commit e informa se havia alterações locais ao empacotar.
+GitHub Actions conserva artefatos por prazo limitado. A entrega permanente precisa de publicação de versão e checksums após aprovação; não trate um artefato temporário como disponibilidade definitiva.
 
-Os artefatos aprovados também incluem `PDF-vision-audit.json` e `PDF-benchmark.json` ao lado do arquivo compactado. Para o commit validado acima, os pacotes são [macOS 26 — 12545312794](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12545312794) e [macOS 27 com OCR de compatibilidade — 12545304284](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837/artifacts/12545304284). Ambos contêm o mesmo `PDF-source.tar.gz`, SHA-256 `e7b036f9d2277235b94758703c5fb4c789306573f4dca12a24a9aa138d253619`; o checksum externo, o manifesto completo e o commit de origem foram conferidos localmente.
+## Dados e proteção
 
-Depois de baixar o artefato da execução correspondente à versão revisada, confira o checksum antes de extrair:
+Os instaladores não removem documentos, preferências, histórico ou recuperação do usuário. Operações produzem arquivos novos e recusam sobrescrita; preservar originais não equivale a preservar a validade de uma assinatura digital sobre bytes editados.
 
-```bash
-shasum -a 256 -c PDF-source.tar.gz.sha256
-```
+PDFs temporários protegidos e cópias de recuperação permanecem cifrados. Opções enviadas ao motor usam arquivo privado `0600`, cujo nome é removido antes de entregar stdin; não é criptografia nem armazenamento apenas em RAM. Jobs/patches qpdf também usam arquivos privados e podem conter texto e credenciais durante a execução; encerramento abrupto pode deixar resíduos. Senhas não entram em presets/snapshots de configuração. PDFs comuns e metadados da biblioteca não recebem criptografia ponta a ponta adicional.
 
-O script também oferece download HTTPS com checksum obrigatório:
-
-```bash
-bash scripts/install-from-github.sh \
-  --archive URL_HTTPS_DO_PACOTE \
-  --sha256 SHA256_DO_PACOTE_REVISADO
-```
-
-Essa forma rejeita caminhos relativos inseguros, links, arquivos especiais, membros duplicados e manifestos divergentes antes de executar qualquer arquivo do pacote. Artefatos privados do GitHub exigem acesso autorizado; para eles, a forma por commit costuma ser mais simples. O script não solicita nem extrai tokens.
-
-Para gerar um pacote local a partir dos fontes revisados:
-
-```bash
-bash scripts/package-source.sh
-```
-
-O comando usa conteúdo e metadados determinísticos, exclui caches e padrões de credenciais e recusa sobrescrever um pacote existente. Gerar um pacote não publica uma release.
-
-## Conversões e dependências
-
-| Operações | Dependências |
-|---|---|
-| Salvar cópias, recuperação e PDFs nativos de scanner/OCR/IA | PDFKit/Core Graphics e qpdf arm64, com estrutura final e preservação de dados verificadas |
-| PDF, PNG, JPG, texto e EPUB | Motor Python/PyMuPDF e bibliotecas fixadas em `requirements.txt` |
-| DOC/DOCX, PPT/PPTX, XLS/XLSX, ODT, RTF e CSV para PDF | LibreOffice; CSV é preparado pelo motor antes da conversão |
-| HTML para PDF | Chromium/Playwright local |
-| OCR e PDF/A | OCRmyPDF, Tesseract, idiomas e Ghostscript |
-| Assinaturas digitais e verificação | pyHanko; certificado PKCS#12 do usuário para assinar; raízes públicas explícitas para avaliar confiança |
-| Validação independente PDF/A e PDF/UA | Java 21 e veraPDF oficial com checksum fixado |
-| Pages para PDF | Aplicativo **Pages da Apple**, instalado separadamente pela App Store; automação do macOS autorizada pelo sistema |
-| Resumo, tradução, conversa e perguntas por IA | Modelo local Apple Intelligence disponível; nenhum segredo de API obrigatório |
-| Compartilhar documentos | Serviços de compartilhamento instalados e configurados no macOS |
-
-Pages é um aplicativo gratuito da Apple e não é redistribuído pelo PDF. Quando ausente, a instalação informa essa dependência da ferramenta Pages → PDF. O macOS pode pedir autorização para o PDF controlar o Pages na primeira conversão. O aplicativo fornece a descrição de uso de automação correspondente; não desabilita os controles de privacidade do sistema.
-
-## Atualizações, verificações e recuperação
-
-A versão 0.5.0 usa um runtime próprio em `~/Library/Application Support/PDF/runtimes/<identificador>`. O bundle contém um launcher para esse runtime e permanece selado por assinatura. Não mova ou copie o `.app` para outro Mac; execute a instalação nesse Mac.
-
-Quando existe uma instalação anterior com o identificador `local.pdf.desktop`, o instalador preserva uma cópia `PDF.previous.<data>.<pid>.app`. A atualização é ativada depois dos testes. Se a verificação final falhar, a rotina de limpeza preserva o bundle com falha como `PDF.failed.<data>.<pid>.app` e tenta restaurar a versão anterior sem sobrescrever um destino criado ou alterado por outro processo. Se a restauração não puder ocorrer, a versão anterior permanece no caminho de backup informado. Um aplicativo diferente chamado `PDF.app` não é substituído.
-
-Essa limpeza depende de o instalador conseguir tratar a saída ou o sinal recebido. `SIGKILL`, queda de energia ou encerramento abrupto do sistema podem deixar `.pdf-install.lock`, uma pasta de estágio `.pdf-install.*` no diretório de aplicativos e um runtime `install.*` em `~/Library/Application Support/PDF/runtimes`. Não há recuperação automática desses resíduos na próxima execução: um lock existente interrompe a nova instalação. O arquivo `.pdf-install.lock/pid` ajuda a identificar o processo; confirme que não há instalador ativo antes de remover um lock residual. Preserve os bundles `PDF.previous.*.app` e `PDF.failed.*.app` e os runtimes apontados por seus arquivos `Contents/Resources/runtime-location.txt` ao investigar a interrupção.
-
-O CI completo instala em um destino novo e verifica o aplicativo antes e depois da ativação. Os testes portáteis de [install_files.py](../scripts/install_files.py), em [test_installation.py](../scripts/test_installation.py), cobrem movimentos exclusivos, preservação de destinos e restauração de um bundle anterior. Essa cobertura do helper não equivale a uma execução completa do instalador no Mac atualizando uma versão existente e sofrendo falha após a ativação; esse cenário e a recuperação após queda de energia não foram demonstrados.
-
-O comando `bash scripts/check-mac.sh CAMINHO/PDF.app` verifica arquitetura, assinatura, runtime, qpdf, idiomas, motores e o teste nativo. O teste nativo tem limite de 240 segundos; a renderização usada no CI mantém limite de 180 segundos; exceder o limite provoca falha explícita e encerramento do grupo de processos. Testes aprovados não equivalem a provar ausência absoluta de erros, fidelidade de todos os documentos ou comportamento de todo scanner.
-
-A execução de CI registra versão do macOS, nome do processador e número de CPUs, sem números de série. Uma execução aprovada exige 19 capturas reais e quatro relatórios AX por sistema, restritos ao próprio processo. Os artefatos `PDF-macOS-preview-macos-26` e `PDF-macOS-preview-xcode-27` de execuções reprovadas podem conter somente evidências parciais. As imagens revisadas, seu commit, hashes e procedência estão em [imagens/README.md](imagens/README.md). Uma imagem renderizada não substitui testes de interação, acessibilidade, Apple Intelligence ou equipamentos físicos.
+O manifesto identifica os arquivos do pacote; hashes não substituem a confiança no canal que publica o pacote/checksum. Bibliotecas de terceiros conservam seus avisos e licenças. PyMuPDF é AGPL/comercial; a distribuição deve observar os termos aplicáveis.

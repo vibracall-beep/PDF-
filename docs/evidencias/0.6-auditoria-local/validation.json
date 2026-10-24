@@ -1,0 +1,65 @@
+{
+  "schemaVersion": 1,
+  "generatedAtUTC": "2026-10-24T05:33:02.323372+00:00",
+  "codeCommit": "7205dd106c07002ec1c5ed8fd2ebbef448cf9f3a",
+  "platform": "Linux-6.18.55-x86_64-with-glibc2.41",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "status": "local_passed_native_blocked",
+  "suites": [
+    {
+      "name": "core",
+      "command": ".venv/bin/python -m unittest discover -s tests -p 'test_*.py'",
+      "methods": 268,
+      "passed": 268,
+      "skipped": 0,
+      "seconds": 36.888,
+      "log": "core.log"
+    },
+    {
+      "name": "integration",
+      "command": "PDF_CHROMIUM_EXECUTABLE=/usr/bin/chromium .venv/bin/python -m unittest discover -s tests -p 'integration_*.py'",
+      "methods": 45,
+      "passed": 45,
+      "skipped": 0,
+      "seconds": 94.387,
+      "log": "integration.log"
+    },
+    {
+      "name": "scripts",
+      "command": ".venv/bin/python -m unittest discover -s scripts -p 'test_*.py'",
+      "methods": 76,
+      "passed": 75,
+      "skipped": 1,
+      "seconds": 3.006,
+      "log": "scripts.log",
+      "skipReason": "HFS+ full-volume fixture requires macOS"
+    }
+  ],
+  "distinctMethods": 389,
+  "passed": 388,
+  "skipped": 1,
+  "syntaxChecks": {
+    "swiftFiles": 70,
+    "swiftSyntaxErrors": 0,
+    "swiftCompilerExecuted": false,
+    "bashScripts": 8,
+    "workflows": 3,
+    "workflowForwardReferences": 0
+  },
+  "catalog": {
+    "legacyCards": 54,
+    "retainedLegacyCards": 54,
+    "currentCards": 71,
+    "duplicateIDs": 0,
+    "readerIsSeparate": true
+  },
+  "nativeBuildApproved": false,
+  "portableInstallerApproved": false,
+  "currentNativeScreenshotsProduced": false,
+  "localAppleModelQualityApproved": false,
+  "physicalM4Measured": false,
+  "neuralEngineMeasured": false,
+  "energyMeasured": false,
+  "humanVoiceOverTested": false,
+  "blocker": "GitHub integration returned HTTP 401 Bad credentials; this code commit has not been pushed."
+}

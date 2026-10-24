@@ -1,0 +1,9 @@
+...............................................................................................................................................................................................................................Validation/revocation info will be embedded, but fetching is not allowed. This may give rise to unexpected results.
+...Validation/revocation info will be embedded, but fetching is not allowed. This may give rise to unexpected results.
+.Validation/revocation info will be embedded, but fetching is not allowed. This may give rise to unexpected results.
+.........................................
+----------------------------------------------------------------------
+Ran 268 tests in 36.888s
+
+OK
+sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute

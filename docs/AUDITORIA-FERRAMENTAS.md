@@ -1,5 +1,9 @@
 # Auditoria independente das ferramentas e dos requisitos
 
+**Revisão atual 0.6:** o catálogo contém 71 cartões, preservando os 54 anteriores. A auditoria vigente das 17 ampliações, dos caminhos compartilhados e das limitações está em [AMPLIACOES-2026-10.md](AMPLIACOES-2026-10.md). A [validação atual](VALIDACAO.md) ainda depende da nova matriz macOS, bloqueada por autenticação GitHub. O registro abaixo pertence à base histórica 0.5; sua aprovação não se transfere à ampliação.
+
+## Registro histórico da base 0.5
+
 Data: 24/10/2026. Snapshot validado: **`5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`**. Escopo: as 50 funções originais de [REQUISITOS.md](REQUISITOS.md) e as dez ampliações autorizadas. São **54 cartões e o leitor permanente**, mapeados nas 55 entradas abaixo; cinco cartões vieram das ampliações. Rotinas internas, como `ocr-page`, não contam como ferramentas adicionais.
 
 **Matriz completa aprovada:** [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), em macOS 26 e 27.0.1. Cada sistema passou compilação, instalação/ativação, 26 grupos nativos em cada um dos três smokes, 224 testes Python, 19 PNGs, quatro relatórios AX e benchmark de seis operações. Os **224 casos Python distintos são 162 do núcleo, 23 integrações externas e 39 scripts**; repetições entre sistemas e testes Swift não entram nessa soma. Histórico, ambientes e artefatos ficam em [VALIDACAO.md](VALIDACAO.md). Essa aprovação não elimina os limites registrados na matriz.

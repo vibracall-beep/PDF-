@@ -99,16 +99,17 @@ private final class BenchmarkJob: @unchecked Sendable {
         }
     }
     func cancel() { job?.cancel() }
-    func export() {
+    func export(model: Workspace) {
         guard let data else { return }
-        let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "PDF-desempenho.json"
-        guard panel.runModal() == .OK,let destination = panel.url else { return }
+        guard let destination = NativeOutput.destination(model: model, toolName: "Desempenho", extension: "json",
+            originalName: report?.sourceName ?? "PDF-desempenho.json") else { return }
         do { try NativeOutput.write(data,to:destination); message = "Relatório salvo." }
         catch { message = error.localizedDescription }
     }
 }
 
 struct BenchmarkView: View {
+    @EnvironmentObject private var model: Workspace
     @EnvironmentObject private var preferences:AppearancePreferences
     @StateObject private var controller = BenchmarkController()
     @State private var input:URL?
@@ -135,7 +136,7 @@ struct BenchmarkView: View {
                 HStack {
                     if controller.busy { ProgressView().controlSize(.small); Button("Cancelar") { controller.cancel() } }
                     else { Button("Medir desempenho") { controller.start(input:input,pages:pages) }.buttonStyle(.borderedProminent) }
-                    if controller.report != nil { Button("Exportar relatório…") { controller.export() } }
+                    if controller.report != nil { Button("Exportar relatório…") { controller.export(model: model) } }
                     Text(controller.message).font(.callout).textSelection(.enabled)
                 }
                 if let report = controller.report { results(report) }

@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import PDFKit
+import CryptoKit
 
 @MainActor final class PDFDocumentSession: ObservableObject, Identifiable {
     let id: UUID
@@ -49,16 +50,29 @@ import PDFKit
         originalWidgetState = Self.widgetState(document)
     }
     static func widgetState(_ document: PDFDocument) -> String {
-        var values: [String] = []
+        // Swift String equality normalizes canonically equivalent sequences.
+        // Frame the original UTF-8 bytes before hashing so field edits retain
+        // their exact codepoints and embedded separators cannot collide.
+        var digest = SHA256()
+        func append(_ value: String) {
+            let bytes = Data(value.utf8)
+            var length = UInt64(bytes.count).bigEndian
+            withUnsafeBytes(of: &length) { digest.update(bufferPointer: $0) }
+            digest.update(data: bytes)
+        }
+        func appendOptional(_ value: String?) {
+            append(value == nil ? "0" : "1"); append(value ?? "")
+        }
         for index in 0..<document.pageCount {
             for (position, annotation) in (document.page(at: index)?.annotations ?? []).enumerated() {
                 if PDFAnnotationKind.matches(annotation, .widget) || annotation.fieldName != nil {
-                    let value = annotation.widgetStringValue ?? ""
-                    values.append("\(index):\(position):\(annotation.fieldName ?? ""): \(value.utf8.count):\(value):\(annotation.buttonWidgetState.rawValue)")
+                    append(String(index)); append(String(position))
+                    appendOptional(annotation.fieldName); appendOptional(annotation.widgetStringValue)
+                    append(String(annotation.buttonWidgetState.rawValue))
                 }
             }
         }
-        return values.joined(separator: "\n")
+        return digest.finalize().map { String(format: "%02x", $0) }.joined()
     }
     @discardableResult func refreshDirty() -> Bool {
         let value = hasEdits || Self.widgetState(document) != originalWidgetState

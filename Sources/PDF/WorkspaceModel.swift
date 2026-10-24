@@ -402,7 +402,7 @@ enum ReaderAnnotationStyle {
         if activeSessionID == id {
             activeSessionID = nil; selectedAnnotation = nil; cancelSearch()
             if let next = sessions.last { loadSession(next) }
-            else { document = nil; url = nil; savedDocumentURL = nil; hasEdits = false; currentPage = 1; bookmarks = []; section = "Início" }
+            else { document = nil; url = nil; savedDocumentURL = nil; hasEdits = false; originalWidgetState = ""; currentPage = 1; bookmarks = []; section = "Início" }
         }
         refreshRecovery()
     }
@@ -559,11 +559,11 @@ enum ReaderAnnotationStyle {
     func undoAnnotation() { annotationUndoManager?.undo(); selectedAnnotation = nil }
     func redoAnnotation() { annotationUndoManager?.redo(); selectedAnnotation = nil }
     private func ensureSession() { if activeSession == nil { captureActiveSession() } }
-    func selectOutput(extension suffix:String = "pdf", directory:Bool = false, toolName:String = "PDF", originalURL: URL? = nil) -> URL? {
+    func selectOutput(extension suffix:String = "pdf", directory:Bool = false, toolName:String = "PDF", originalURL: URL? = nil, originalName: String? = nil) -> URL? {
         let panel = NSSavePanel()
         let prefix = defaults.string(forKey:"outputPrefix") ?? "PDF-resultado"
         panel.nameFieldStringValue = OutputFilename.make(template: defaults.string(forKey: "outputFilenameTemplate"),
-            prefix: prefix, original: (originalURL ?? savedDocumentURL ?? url)?.lastPathComponent ?? "Documento.pdf", tool: toolName, suffix: suffix, directory: directory)
+            prefix: prefix, original: originalName ?? (originalURL ?? savedDocumentURL ?? url)?.lastPathComponent ?? "Documento.pdf", tool: toolName, suffix: suffix, directory: directory)
         if !directory, let type = UTType(filenameExtension:suffix) { panel.allowedContentTypes = [type] }
         if let path = defaults.string(forKey:"outputDirectory"), !path.isEmpty { panel.directoryURL = URL(fileURLWithPath:path) }
         guard panel.runModal() == .OK, let target = panel.url else { return nil }

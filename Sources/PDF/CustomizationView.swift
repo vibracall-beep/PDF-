@@ -165,8 +165,8 @@ struct CustomizationView:View {
         } catch { message = error.localizedDescription }
     }
     func exportSettings() {
-        let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "PDF-personalizacao.json"
-        guard panel.runModal() == .OK,let url = panel.url else { return }
+        guard let url = NativeOutput.destination(model: model, toolName: "Personalização", extension: "json",
+            originalName: "PDF-personalizacao.json") else { return }
         do { try NativeOutput.write(preferences.exportData(),to:url); message = "Aparência e leitura exportadas." } catch { message = error.localizedDescription }
     }
 }

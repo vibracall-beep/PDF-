@@ -294,8 +294,8 @@ struct ToolConfigurationView: View {
         } catch { self.error = error.localizedDescription }
     }
     func writePresetData(_ data:Data,name:String) throws {
-        let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = name
-        guard panel.runModal() == .OK,let url = panel.url else { return }
+        guard let url = NativeOutput.destination(model: model, toolName: "Configurações de ferramentas", extension: "json",
+            originalName: name) else { return }
         try NativeOutput.write(data,to:url)
         presetMessage = "Configuração exportada."
     }

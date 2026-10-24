@@ -578,8 +578,8 @@ struct WorkflowView: View {
     }
     private func exportPreset() {
         if let validation = preset.validation { error = validation; return }
-        let panel = NSSavePanel(); panel.allowedContentTypes = [.json]; panel.nameFieldStringValue = "PDF-fluxo.json"
-        guard panel.runModal() == .OK, let url = panel.url else { return }
+        guard let url = NativeOutput.destination(model: model, toolName: "Configuração de fluxo", extension: "json",
+            originalName: "PDF-fluxo.json") else { return }
         do {
             try NativeOutput.write(WorkflowLibrary.encode(preset), to: url)
             error = ""; status = "Fluxo exportado sem senhas ou caminhos de documentos."

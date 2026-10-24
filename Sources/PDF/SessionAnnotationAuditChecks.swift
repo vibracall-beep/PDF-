@@ -127,8 +127,44 @@ import SwiftUI
         searchWorkspace.search("documento", animate: false)
         try require(searchWorkspace.hasSearchResources, "A segunda busca não restaurou o estado real do leitor.")
         searchWorkspace.closeSession(searchedSession.id, discardChanges: true)
-        try require(searchWorkspace.sessions.isEmpty && searchWorkspace.document == nil && !searchWorkspace.hasSearchResources && !searchWorkspace.searching,
-                    "Fechar a última aba reteve o documento pesquisado, resultados ou observadores no Workspace.")
+        try require(searchWorkspace.sessions.isEmpty && searchWorkspace.document == nil && !searchWorkspace.hasSearchResources &&
+                    !searchWorkspace.searching && !searchWorkspace.hasUnsavedChanges,
+                    "Fechar a última aba reteve recursos de busca ou deixou um estado de formulário modificado sem documento.")
+
+        // These spellings have equal UTF-8 lengths and compare equal as Swift
+        // Strings, but changing their codepoint order is still a real edit.
+        do {
+            let beforeValue = "e\u{0301}\u{0327}", afterValue = "e\u{0327}\u{0301}"
+            try require(beforeValue == afterValue && beforeValue.utf8.count == afterValue.utf8.count &&
+                        !beforeValue.utf8.elementsEqual(afterValue.utf8), "A amostra de marcas combinantes não exerce igualdade canônica com bytes distintos de mesmo tamanho.")
+            guard let source = PDFDocument(data: firstBytes), let field = source.page(at: 0)?.annotations.first(where: { $0.fieldName == "session-field" }) else {
+                throw NSError(domain: "PDF.SessionAudit", code: 16)
+            }
+            field.widgetStringValue = beforeValue
+            let sourceURL = directory.appendingPathComponent("combining-mark-order.pdf")
+            try NativeOutput.write(NativePDFSerialization.serialize(document: source), to: sourceURL)
+            let unicodeState = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+            unicodeState.open(url: sourceURL); await unicodeState.waitForPendingOpen()
+            guard let session = unicodeState.activeSession, let restoredField = session.document.page(at: 0)?.annotations.first(where: { $0.fieldName == "session-field" }) else {
+                throw NSError(domain: "PDF.SessionAudit", code: 17)
+            }
+            try require((restoredField.widgetStringValue ?? "").utf8.elementsEqual(beforeValue.utf8) && !unicodeState.hasUnsavedChanges,
+                        "A amostra inicial não preservou a ordem original das marcas combinantes ou começou suja.")
+            try unicodeState.checkpointRecoveryNow()
+            guard let previous = session.recoveryRecord else { throw NSError(domain: "PDF.SessionAudit", code: 18) }
+            let previousState = PDFDocumentSession.widgetState(session.document)
+            restoredField.widgetStringValue = afterValue
+            try require((restoredField.widgetStringValue ?? "").utf8.elementsEqual(afterValue.utf8) &&
+                        previousState != PDFDocumentSession.widgetState(session.document) && session.refreshDirty() && unicodeState.hasUnsavedChanges,
+                        "A mudança de bytes canonicamente equivalentes não alterou a impressão do formulário nem marcou a sessão como modificada.")
+            try unicodeState.checkpointRecoveryNow()
+            guard let replacement = session.recoveryRecord, let saved = PDFDocument(data: try store.load(replacement)) else {
+                throw NSError(domain: "PDF.SessionAudit", code: 19)
+            }
+            let value = saved.page(at: 0)?.annotations.first(where: { $0.fieldName == "session-field" })?.widgetStringValue ?? ""
+            try require(replacement.generation != previous.generation && replacement.sha256 != previous.sha256 && value.utf8.elementsEqual(afterValue.utf8),
+                        "A recuperação reutilizou a geração anterior ou perdeu os bytes da edição Unicode de mesmo tamanho.")
+        }
 
         // The original password stays in memory; recovered bytes must require it again.
         let password = "native-session-recovery-123"

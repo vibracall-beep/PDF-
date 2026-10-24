@@ -24,10 +24,10 @@ enum NativeOutput {
         try handle.synchronize()
         try FileManager.default.linkItem(at: temporary, to: destination)
     }
-    @MainActor static func destination(model: Workspace, toolName: String, extension suffix: String = "pdf", originalURL: URL? = nil) -> URL? {
+    @MainActor static func destination(model: Workspace, toolName: String, extension suffix: String = "pdf", originalURL: URL? = nil, originalName: String? = nil) -> URL? {
         // All result panels use the workspace's filename template, directory
         // and isolated defaults. Publication still uses the no-clobber writer.
-        model.selectOutput(extension: suffix, toolName: toolName, originalURL: originalURL)
+        model.selectOutput(extension: suffix, toolName: toolName, originalURL: originalURL, originalName: originalName)
     }
 }
 

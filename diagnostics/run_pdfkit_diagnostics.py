@@ -123,6 +123,8 @@ def annotation_measurements(executable, qpdf, directory, report):
     generated = run([str(executable), "annotations", str(fixtures)], verbose=True)
     report["annotationGeneration"] = generated
     report["annotationRecords"] = []
+    if generated["stdout"]:
+        print("ANNOTATION INCREMENTAL RECORDS\n" + generated["stdout"], flush=True)
     if not completed(generated) or generated["exitCode"] != 0:
         print("Annotation generation did not complete: " + generated["stderr"], flush=True)
         raise ValueError("Synthetic annotation generation did not complete successfully")

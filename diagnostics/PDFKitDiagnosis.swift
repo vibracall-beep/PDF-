@@ -49,7 +49,8 @@ struct PDFKitDiagnosis {
                 guard arguments.count == 4 else { throw failure("invalid-arguments") }
                 guard let document = PDFDocument(data: try readRegular(URL(fileURLWithPath: arguments[2]))) else { throw failure("annotation-reopen") }
                 if document.isLocked { guard document.unlock(withPassword: readerPassword) else { throw failure("annotation-unlock") } }
-                try writeJSON(annotationSnapshot(document), to: URL(fileURLWithPath: arguments[3]))
+                let output = URL(fileURLWithPath: arguments[3])
+                try writeJSON(annotationSnapshot(document, progressPrefix: output), to: output)
             default:
                 throw failure("invalid-arguments")
             }
@@ -110,7 +111,8 @@ struct PDFKitDiagnosis {
                 checkbox.buttonWidgetStateString = "Yes"; checkbox.buttonWidgetState = PDFWidgetCellState(rawValue: 1)!; page.addAnnotation(checkbox)
             }
             trace(scenario + " snapshot before")
-            try writeJSON(annotationSnapshot(document), to: directory.appendingPathComponent(scenario + ".before.json"))
+            let before = directory.appendingPathComponent(scenario + ".before.json")
+            try writeJSON(annotationSnapshot(document, progressPrefix: before), to: before)
             guard let plain = document.dataRepresentation() else { throw failure("annotation-serialize") }
             try writeExclusive(plain, to: directory.appendingPathComponent(scenario + ".pdf"))
             let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): ownerPassword,
@@ -122,31 +124,49 @@ struct PDFKitDiagnosis {
     }
 
     @MainActor
-    private static func annotationSnapshot(_ document: PDFDocument) throws -> [String: Any] {
+    private static func annotationSnapshot(_ document: PDFDocument, progressPrefix: URL) throws -> [String: Any] {
         // Only this diagnostic's known synthetic page is eligible for the
         // detailed report; ordinary documents are never dumped by inspect.
         guard !document.isLocked, document.pageCount == 1, (document.string ?? "").contains("PDF native verification"),
               let page = document.page(at: 0), page.annotations.count <= 20 else { throw failure("synthetic-fixture-required") }
+        var records: [[String: Any]] = []
+        for (index, annotation) in page.annotations.enumerated() {
+            let record = annotationRecord(annotation, index: index)
+            try writeJSON(record, to: progressPrefix.appendingPathExtension("annotation-\(index).json"))
+            let event: [String: Any] = ["syntheticFixture": true, "phase": progressPrefix.lastPathComponent, "annotation": record]
+            var bytes = try JSONSerialization.data(withJSONObject: diagnosticJSON(event), options: [.sortedKeys])
+            bytes.append(10)
+            // write() immediately preserves completed records in the launcher's
+            // bounded stdout even if a later framework getter crashes.
+            FileHandle.standardOutput.write(bytes)
+            records.append(record)
+        }
         return ["schemaVersion": 1, "syntheticFixture": true, "pageCount": document.pageCount,
             "knownTextPresent": true, "mediaBox": rectangle(page.bounds(for: .mediaBox)), "cropBox": rectangle(page.bounds(for: .cropBox)),
             "rotation": page.rotation, "isEncrypted": document.isEncrypted,
-            "annotations": page.annotations.enumerated().map { index, annotation in annotationRecord(annotation, index: index) }]
+            "annotations": records]
     }
 
     @MainActor
     private static func annotationRecord(_ item: PDFAnnotation, index: Int) -> [String: Any] {
         let subtype = (item.type ?? "").replacingOccurrences(of: "/", with: "").lowercased()
-        trace("annotation \(index) \(subtype) common color")
+        trace("annotation \(index) \(subtype) common color KVC begin")
+        // PDFAnnotation's nonoptional Swift color declaration may conceal an
+        // absent Objective-C value. KVC for this public getter preserves nil.
+        let annotationColor = item.value(forKey: "color") as? NSColor
+        trace("annotation \(index) \(subtype) common color KVC end; absent=\(annotationColor == nil)")
         var result: [String: Any] = ["index": index, "type": item.type ?? "", "bounds": rectangle(item.bounds),
             "contents": item.contents ?? "", "display": item.shouldDisplay, "print": item.shouldPrint,
             "flags": (item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) as? NSNumber) as Any? ?? NSNull(),
-            "color": colorRecord(item.color), "rawColor": jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/C"))),
+            "color": annotationColor.map(colorRecord) ?? ["absent": true], "rawColor": jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/C"))),
             "borderPresent": item.border != nil, "width": item.border?.lineWidth as Any? ?? NSNull()]
         if subtype == "freetext" {
             result["fontSize"] = item.font?.pointSize as Any? ?? NSNull()
             result["fontName"] = item.font?.fontName as Any? ?? NSNull()
-            trace("annotation \(index) freeText fontColor")
-            result["fontColor"] = item.fontColor.map(colorRecord) ?? ["absent": true]
+            trace("annotation \(index) freeText fontColor KVC begin")
+            let fontColor = item.value(forKey: "fontColor") as? NSColor
+            trace("annotation \(index) freeText fontColor KVC end; absent=\(fontColor == nil)")
+            result["fontColor"] = fontColor.map(colorRecord) ?? ["absent": true]
         }
         if ["highlight", "underline", "strikeout"].contains(subtype) {
             result["quadrilaterals"] = item.quadrilateralPoints?.map { [Double($0.pointValue.x), Double($0.pointValue.y)] } as Any? ?? NSNull()
@@ -174,9 +194,13 @@ struct PDFKitDiagnosis {
 
     @MainActor
     private static func colorRecord(_ color: NSColor) -> [String: Any] {
-        var result: [String: Any] = ["class": String(reflecting: type(of: color)), "type": String(describing: color.type),
-            "description": color.description, "colorSpaceName": color.colorSpaceName.rawValue]
+        var result: [String: Any] = ["absent": false]
+        trace("color class begin"); result["class"] = String(reflecting: type(of: color))
+        trace("color type begin"); result["type"] = String(describing: color.type)
+        trace("color description begin"); result["description"] = color.description
+        trace("color colorSpaceName begin"); result["colorSpaceName"] = color.colorSpaceName.rawValue
         for (name, space) in [("sRGB", NSColorSpace.sRGB), ("deviceRGB", .deviceRGB), ("genericRGB", .genericRGB), ("extendedSRGB", .extendedSRGB)] {
+            trace("color conversion " + name + " begin")
             if let converted = color.usingColorSpace(space) {
                 result[name] = ["description": converted.description,
                     "rgba": [converted.redComponent, converted.greenComponent, converted.blueComponent, converted.alphaComponent].map { Double($0) }]
@@ -186,6 +210,7 @@ struct PDFKitDiagnosis {
             result["cgColor"] = ["attempted": false, "reason": "pattern color has no scalar RGBA representation"]
             return result
         }
+        trace("color cgColor begin")
         let cg = color.cgColor
         var cgResult: [String: Any] = ["attempted": true, "components": cg.components?.map { Double($0) } ?? [],
             "space": cg.colorSpace?.name.map { $0 as String } ?? "", "model": cg.colorSpace?.model.rawValue as Any? ?? NSNull()]
@@ -193,6 +218,7 @@ struct PDFKitDiagnosis {
             cgResult["convertedSRGB"] = converted.components?.map { Double($0) } ?? []
         } else { cgResult["convertedSRGB"] = NSNull() }
         result["cgColor"] = cgResult
+        trace("color cgColor end")
         return result
     }
 

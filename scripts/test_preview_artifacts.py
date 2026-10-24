@@ -48,9 +48,9 @@ class PreviewArtifactTests(unittest.TestCase):
         with redirect_stdout(io.StringIO()),redirect_stderr(io.StringIO()):
             return preview.check_directory(self.root)
 
-    def test_all_32_images_and_5_ax_reports_are_required(self):
+    def test_all_32_images_and_6_ax_reports_are_required(self):
         self.assertEqual(len(preview.PREVIEW_STATES),32)
-        self.assertEqual(len(preview.REQUIRED_AX),5)
+        self.assertEqual(len(preview.REQUIRED_AX),6)
         self.assertTrue(self.check())
         for state in preview.PREVIEW_STATES:
             path=self.root/('PDF-preview'+('.'+state if state else '')+'.png')
@@ -73,6 +73,23 @@ class PreviewArtifactTests(unittest.TestCase):
         name='PDF-preview.leitor.accessibility.json'
         self.write_report(name,{'pdf.reader.document','pdf.reader.search'})
         self.assertFalse(self.check())
+
+    def test_accessibility_tag_fields_require_all_five_named_controls(self):
+        name='PDF-preview.corrigir-acessibilidade.accessibility.json'
+        expected={'pdf.accessibility.tag.title','pdf.accessibility.tag.alt','pdf.accessibility.tag.actual-text',
+                  'pdf.accessibility.tag.language','pdf.accessibility.tag.scope'}
+        self.assertEqual(preview.REQUIRED_AX[name],expected)
+        for identifier in sorted(expected):
+            with self.subTest(identifier=identifier):
+                self.write_report(name,expected-{identifier})
+                self.assertFalse(self.check())
+                self.write_report(name,expected)
+                path=self.root/name;report=json.loads(path.read_text())
+                next(node for node in report['nodes'] if node['identifier']==identifier)['name']=''
+                path.write_text(json.dumps(report))
+                self.assertFalse(self.check())
+        self.write_report(name,expected)
+        self.assertTrue(self.check())
 
     def test_undecodable_and_wrong_sized_rasters_fail_with_valid_chunk_checksums(self):
         path=self.root/'PDF-preview.png'

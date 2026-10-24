@@ -95,15 +95,117 @@ def integer(value,name,minimum=None,maximum=None):
 def _separate_page_aliases(doc):
     """Duplicated page-tree references must not share later mutations."""
     indices=[]; seen=set(); initial=len(doc)
+    xrefs=[doc[index].xref for index in range(initial)]
+    if len(set(xrefs)) == initial:
+        return
+    # MuPDF selects by page object, so aliases can also move destinations to a
+    # different occurrence and discard the AcroForm dictionary. Keep logical
+    # destinations and the complete form tree while separating this same set
+    # of pages; no original page is removed by this normalization.
+    def target_page(xref,detail):
+        local=(doc.xref_get_key(xref,'Dest')[0] != 'null'
+               or doc.xref_get_key(xref,'A/S') == ('name','/GoTo'))
+        if not local:
+            return None
+        page=detail.get('page',-1)
+        # MuPDF represents explicit /XYZ destinations containing null values
+        # as LINK_NAMED with a one-based page string, despite their raw /GoTo.
+        if detail.get('kind') == fitz.LINK_NAMED and isinstance(page,str) and page.isdecimal():
+            page=int(page)-1
+        if isinstance(page,int) and 0 <= page < initial:
+            return page
+        raise ValueError('O destino interno de uma página repetida não pôde ser resolvido sem ambiguidade.')
+
+    links=[]
+    for index in range(initial):
+        page=doc[index]
+        details={item['xref']:item for item in page.get_links()}
+        links.append([(xref,doc.xref_object(xref),target_page(xref,details.get(xref,{})))
+                      for xref,kind,_ in page.annot_xrefs() if kind == fitz.PDF_ANNOT_LINK])
+    outline=[(entry[3]['xref'],doc.xref_object(entry[3]['xref']),target_page(entry[3]['xref'],entry[3]))
+             for entry in doc.get_toc(simple=False)]
+    outline_kind,outline_value=doc.xref_get_key(doc.pdf_catalog(),'Outlines')
+    outline_root=int(outline_value.split()[0]) if outline_kind == 'xref' else None
+    outline_root_value=doc.xref_object(outline_root) if outline_root else None
+    copied_indices=set()
     for index in range(initial):
         xref=doc[index].xref
         if xref not in seen:
             indices.append(index); seen.add(xref); continue
+        widget_count=sum(1 for _ in doc[index].widgets())
         with fitz.open() as copy:
-            copy.insert_pdf(doc,from_page=index,to_page=index)
-            doc.insert_pdf(copy)
+            # insert_pdf reconstructs links from a reduced API description,
+            # dropping appearance, flags and accessibility attributes. Copy
+            # their complete dictionaries below, within the same document.
+            copy.insert_pdf(doc,from_page=index,to_page=index,links=False,annots=True,widgets=True)
+            if sum(1 for _ in copy[0].widgets()) != widget_count:
+                raise ValueError('As páginas repetidas possuem campos sem uma árvore de formulário copiável. Repare a estrutura antes de editar uma cópia.')
+            doc.insert_pdf(copy,links=False,annots=True,widgets=True)
         indices.append(len(doc)-1)
-    if len(doc)!=initial: doc.select(indices)
+        copied_indices.add(index)
+    catalog=doc.pdf_catalog()
+    catalog_value=doc.xref_object(catalog)
+    doc.select(indices)
+    # select also removes catalog entries outside its reduced allowlist.
+    # Keep them (including the complete form tree after widget cloning), while
+    # retaining the page-tree reference produced by the actual selection.
+    pages_kind,pages_value=doc.xref_get_key(doc.pdf_catalog(),'Pages')
+    if pages_kind != 'xref':
+        raise ValueError('Não foi possível preservar a árvore das páginas repetidas.')
+    doc.update_object(doc.pdf_catalog(),catalog_value)
+    doc.xref_set_key(doc.pdf_catalog(),'Pages',pages_value)
+    def retarget(xref,target):
+        if target is None or xrefs[target] == doc[target].xref:
+            return
+        key='Dest'
+        kind,value=doc.xref_get_key(xref,key)
+        action=None
+        if kind == 'null':
+            key='A/D'
+            action_kind,action=doc.xref_get_key(xref,'A')
+            if action_kind == 'xref':
+                action=doc.xref_object(int(action.split()[0]))
+            elif action_kind != 'dict':
+                raise ValueError('Não foi possível preservar o destino de uma página repetida.')
+            kind,value=doc.xref_get_key(xref,key)
+        if kind == 'xref':
+            value=doc.xref_object(int(value.split()[0])); kind='array' if value.lstrip().startswith('[') else kind
+        match=re.match(r'^\[\s*(?:\d+\s+\d+\s+R|\d+)(?=[\s/\]])',value) if kind == 'array' else None
+        if not match:
+            raise ValueError('O destino nomeado ou não explícito de uma página repetida requer revisão antes da edição.')
+        # Preserve /XYZ, /Fit*, null coordinates and every other dictionary
+        # entry. Inline an indirect action first so a shared action is not
+        # mutated through another link or outline entry.
+        if action is not None:
+            doc.xref_set_key(xref,'A',action)
+        doc.xref_set_key(xref,key,f'[{doc[target].xref} 0 R'+value[match.end():])
+
+    for index,records in enumerate(links):
+        page=doc[index]; added=[]
+        for xref,raw,target in records:
+            if index in copied_indices:
+                xref=doc.get_new_xref()
+                added.append(xref)
+            doc.update_object(xref,raw)
+            if index in copied_indices:
+                if doc.xref_get_key(xref,'P')[0] != 'null':
+                    doc.xref_set_key(xref,'P',f'{page.xref} 0 R')
+            retarget(xref,target)
+        if added:
+            kind,value=doc.xref_get_key(page.xref,'Annots')
+            if kind == 'null': value='[]'
+            elif kind == 'xref': value=doc.xref_object(int(value.split()[0]))
+            if not value.strip().startswith('[') or not value.strip().endswith(']'):
+                raise ValueError('Não foi possível preservar as anotações de uma página repetida.')
+            doc.xref_set_key(page.xref,'Annots',value.rstrip()[:-1]+' '+ ' '.join(f'{xref} 0 R' for xref in added)+']')
+    # Restore raw outline objects rather than rebuilding the reduced get_toc
+    # representation, which omits /Lang, /SE and arbitrary action metadata.
+    if outline_root:
+        doc.update_object(outline_root,outline_root_value)
+        doc.xref_set_key(doc.pdf_catalog(),'Outlines',outline_value)
+    for xref,raw,target in outline:
+        doc.update_object(xref,raw)
+        retarget(xref,target)
 
 
 def _select_independent_pages(doc, pages):

@@ -61,17 +61,20 @@ def preflight(source, output, options):
 
 
 def prepare_print(source, output, options):
-    from pdf_engine import open_pdf, number, parse_pages, save
+    from pdf_engine import open_pdf, number, parse_pages, save, _separate_page_aliases
     inset = number(options.get('trim_inset', 18), 'Margem de corte', 0, 144)
     bleed = number(options.get('bleed', 8.5), 'Sangria', 0, 72)
     marks = options.get('crop_marks', True)
     if not isinstance(marks, bool) or bleed > inset:
         raise ValueError('A sangria deve caber na margem de corte; crop_marks deve ser booleano.')
     with open_pdf(source, options.get('password', '')) as document:
+        _separate_page_aliases(document)
         for index in parse_pages(options.get('pages'), len(document)):
             page = document[index]
             if page.rotation or page.mediabox.x0 != 0 or page.mediabox.y0 != 0:
                 raise ValueError('Prepare uma cópia sem rotação e com origem da folha em zero antes de definir marcas de corte.')
+            if page.cropbox != page.mediabox:
+                raise ValueError('A área visível (CropBox) deve coincidir com a folha (MediaBox) antes de preparar corte e sangria. O recorte não foi expandido para evitar revelar conteúdo oculto.')
             trim = page.mediabox + (inset, inset, -inset, -inset)
             if trim.is_empty or min(trim.width, trim.height) < 20:
                 raise ValueError('A margem de corte elimina a área útil da página.')
@@ -140,7 +143,7 @@ def pdfx(source, output, options):
 
 
 def bates(source, output, options):
-    from pdf_engine import open_pdf, parse_pages, integer, number, _html_text, color, save, _checked_text
+    from pdf_engine import open_pdf, parse_pages, integer, number, _html_text, color, save, _checked_text, _separate_page_aliases
     prefix = _checked_text(options.get('prefix', 'DOC-'))
     suffix = _checked_text(options.get('suffix', ''))
     if len(prefix) + len(suffix) > 100:
@@ -149,6 +152,7 @@ def bates(source, output, options):
     digits = integer(options.get('digits', 6), 'Dígitos', 1, 16)
     size = number(options.get('font_size', 10), 'Fonte', 4, 36)
     with open_pdf(source, options.get('password', '')) as document:
+        _separate_page_aliases(document)
         for offset, index in enumerate(parse_pages(options.get('pages'), len(document))):
             page = document[index]
             bounds = page.rect * page.derotation_matrix
@@ -159,11 +163,12 @@ def bates(source, output, options):
 
 
 def stamp(source, output, options):
-    from pdf_engine import open_pdf, parse_pages, rectangle, _html_text, color, number, save, _checked_text
+    from pdf_engine import open_pdf, parse_pages, rectangle, _html_text, color, number, save, _checked_text, _separate_page_aliases
     text = _checked_text(options.get('text', 'REVISADO'))
     if not text.strip() or len(text) > 200:
         raise ValueError('O carimbo deve conter entre 1 e 200 caracteres.')
     with open_pdf(source, options.get('password', '')) as document:
+        _separate_page_aliases(document)
         for index in parse_pages(options.get('pages'), len(document)):
             page = document[index]
             rect = rectangle(options, page)

@@ -287,3 +287,22 @@ O benchmark aprovou seis operações, com aquecimento e três amostras em Apple 
 **A matriz global reprovou na montagem do pacote portátil.** No macOS 26, a lista pública Mozilla continha comentários UTF-8, mas a validação decodificava o arquivo inteiro como ASCII (`UnicodeDecodeError`). No27, o arquivo Java `gettext/share/gettext/javaversion.class` compartilha a assinatura inicial `CAFEBABE` com um contêiner Mach-O; o classificador de quatro bytes o enviou ao `lipo -verify_arch arm64`, que terminou com SIGSEGV. As etapas de isolamento sem dependências/rede e de instalação/atualização do binário **não foram executadas**. O aplicativo instalado por fontes não foi apresentado como distribuição portátil validada.
 
 As correções posteriores validam cada bloco PEM individualmente sem alterar comentários/bytes originais e distinguem estruturalmente contêineres Mach-O de arquivos Java, mantendo as verificações obrigatórias de arquitetura, carregamento e assinatura. Elas precisam de nova execução; a aprovação funcional desta rodada não aprova essas alterações nem o pacote resultante.
+
+## cbb3298 — relatórios originais recuperados; empacotamento interrompido pelo otool
+
+A execução [40109285584](https://github.com/vibracall-beep/PDF-/actions/runs/40109285584), tentativa 1, commit `cbb32987409a3911de29650e79a83840b670bdd7`, terminou **reprovada nos dois sistemas somente na etapa Assemble relocatable binary distribution**. Compilação, instalação/ativação por fontes, verificações nativas e gates de relatórios anteriores passaram. Inicialmente a API permitia confirmar os estados, mas o download dos artefatos estava bloqueado. A [retenção 40113693926](https://github.com/vibracall-beep/PDF-/actions/runs/40113693926), no rascunho privado de release `422859507`, permitiu recuperar os dez ZIPs originais de artefatos e o ZIP completo de logs, com hashes conferidos. O sucesso da retenção não altera a reprovação do produto.
+
+Os [oito originais preservados](evidencias/cbb3298/README.md) contêm um smoke e os JSONs de Vision, IA e benchmark de cada sistema. O manifesto registra também os hashes dos ZIPs e os logs completos que sustentam três smokes por sistema. Cada job aprovou **411 casos Python distintos: 410 executados e aprovados, um skip**, além dos **37 grupos nativos em três execuções**.
+
+| Conjunto | macOS 26.6.2 | macOS 27.0.1 |
+|---|---:|---:|
+| Núcleo | 268 aprovados · 74,409 s | 268 aprovados · 71,871 s |
+| Integrações | 46 aprovadas · 67,864 s | 46 aprovadas · 40,273 s |
+| Scripts | 96 aprovados + 1 skip · 17,227 s | 96 aprovados + 1 skip · 16,108 s |
+| Fases nativas | 37 × três, nenhuma falha | 37 × três, nenhuma falha |
+
+O skip depende de `/dev/full` do Linux; os ensaios reais HFS+ cheio e SIGKILL passaram. Os gates de 32 PNGs/cinco relatórios AX passaram por sistema, e os arquivos foram recuperados; a revisão visual individual das 64 capturas ainda estava pendente neste registro. Não se presume aprovação visual pela aprovação do gate automatizado.
+
+Os JSONs originais mostram dois checks Vision aprovados no26 e dois reprovados no27. O benchmark completou seis operações, com OCR Vision no26 e Tesseract no27 nas quatro chamadas de cada sistema. Apple Intelligence permaneceu indisponível (`deviceNotEligible`), com cinco itens `unavailable`/`modelAttempted=false` por sistema, sem geração avaliada. O hardware é Apple M1 Virtual, três CPUs e 7 GiB. Os PDFs sintéticos de 100 páginas têm SHA distintos; não há comparação controlada com entrada idêntica nem medição de M4 físico, energia/NPU ou VoiceOver humano.
+
+A falha de empacotamento ocorreu em `otool -l` sobre o executável `Chromium Helper (GPU)`: o argumento completo foi passado corretamente, mas `otool-classic` registrou tentativa de abrir o nome truncado `Chromium Helper `, `No such file or directory`, e encerrou com status 1. Os passos seguintes de isolamento do pacote e instalação/atualização binária foram ignorados. As correções posteriores de empacotamento, preservação de páginas/links e edição de tags de acessibilidade precisam de nova matriz; os resultados históricos de `cbb3298` não as aprovam.

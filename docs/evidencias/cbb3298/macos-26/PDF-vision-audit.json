@@ -1,0 +1,19 @@
+{
+  "checks" : [
+    {
+      "id" : "searchable-pdf",
+      "message" : "Reconhecimento real da amostra sintética confirmado.",
+      "status" : "passed"
+    },
+    {
+      "id" : "isolated-process",
+      "message" : "Reconhecimento real da amostra sintética confirmado.",
+      "status" : "passed"
+    }
+  ],
+  "fixture" : "image-only-verification-v1",
+  "schemaVersion" : 1,
+  "summary" : {
+    "appleVisionPassed" : true
+  }
+}

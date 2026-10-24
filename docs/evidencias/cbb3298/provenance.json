@@ -1,0 +1,699 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "commit": "cbb32987409a3911de29650e79a83840b670bdd7",
+  "runID": 40109285584,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584",
+  "overallConclusion": "failure",
+  "binaryDistributionApproved": false,
+  "evidenceDateUTC": "2026-10-24",
+  "retention": {
+    "releaseID": 422859507,
+    "draft": true,
+    "workflowRunID": 40113693926,
+    "workflowRunURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40113693926",
+    "purpose": "original-evidence-retention-only",
+    "sourceConclusionUnchanged": true,
+    "provenanceFileSHA256": "71ab4053edbcc044931f763e39ffd1caf4ba1cf7e0d66a753940af22b97cdf45",
+    "archiveCount": 10,
+    "archives": [
+      {
+        "artifactID": 12566064218,
+        "artifactName": "PDF-native-checks-macos-26",
+        "bytes": 8071,
+        "githubDigest": "sha256:2eccdf92c2e5f2b00aaa564ac8873b3198597f49091bf1c96e9aaf527faab99a",
+        "kind": "original-artifact-zip",
+        "name": "PDF-native-checks-macos-26.zip",
+        "sha256": "2eccdf92c2e5f2b00aaa564ac8873b3198597f49091bf1c96e9aaf527faab99a"
+      },
+      {
+        "artifactID": 12566567605,
+        "artifactName": "PDF-macOS-preview-macos-26",
+        "bytes": 3130222,
+        "githubDigest": "sha256:8905d3d70cbe1615df34ba43bfeb559d34c7e45facdc64e235ddce36e9b61a74",
+        "kind": "original-artifact-zip",
+        "name": "PDF-macOS-preview-macos-26.zip",
+        "sha256": "8905d3d70cbe1615df34ba43bfeb559d34c7e45facdc64e235ddce36e9b61a74"
+      },
+      {
+        "artifactID": 12566069280,
+        "artifactName": "PDF-Apple-Vision-capability-macos-26",
+        "bytes": 889,
+        "githubDigest": "sha256:83a148eb3332cc997bad450ab993683475bc923de143dd995181a9956f3116be",
+        "kind": "original-artifact-zip",
+        "name": "PDF-Apple-Vision-capability-macos-26.zip",
+        "sha256": "83a148eb3332cc997bad450ab993683475bc923de143dd995181a9956f3116be"
+      },
+      {
+        "artifactID": 12567020374,
+        "artifactName": "PDF-local-AI-macos-26",
+        "bytes": 2181,
+        "githubDigest": "sha256:1737f743c4096eeeb7663d91171c23496e0cce6c6942c8802b8644584ec5a722",
+        "kind": "original-artifact-zip",
+        "name": "PDF-local-AI-macos-26.zip",
+        "sha256": "1737f743c4096eeeb7663d91171c23496e0cce6c6942c8802b8644584ec5a722"
+      },
+      {
+        "artifactID": 12566512744,
+        "artifactName": "PDF-macOS-benchmark-macos-26",
+        "bytes": 1909,
+        "githubDigest": "sha256:068d3c5bfd02adae7a2eb1ab7b1fb314752c22f8385c33953498cb84b34bdb64",
+        "kind": "original-artifact-zip",
+        "name": "PDF-macOS-benchmark-macos-26.zip",
+        "sha256": "068d3c5bfd02adae7a2eb1ab7b1fb314752c22f8385c33953498cb84b34bdb64"
+      },
+      {
+        "artifactID": 12566780946,
+        "artifactName": "PDF-native-checks-xcode-27",
+        "bytes": 13049,
+        "githubDigest": "sha256:1fb2be5f4e488f1c70a56784e7bbe770bf8e022e7e28fc31c9a4d82c5aea51ba",
+        "kind": "original-artifact-zip",
+        "name": "PDF-native-checks-xcode-27.zip",
+        "sha256": "1fb2be5f4e488f1c70a56784e7bbe770bf8e022e7e28fc31c9a4d82c5aea51ba"
+      },
+      {
+        "artifactID": 12566602089,
+        "artifactName": "PDF-macOS-preview-xcode-27",
+        "bytes": 3153379,
+        "githubDigest": "sha256:8b3e261b26021c0749525baee62c97267eb6f47779dc361e2feef0da90a0ea3d",
+        "kind": "original-artifact-zip",
+        "name": "PDF-macOS-preview-xcode-27.zip",
+        "sha256": "8b3e261b26021c0749525baee62c97267eb6f47779dc361e2feef0da90a0ea3d"
+      },
+      {
+        "artifactID": 12566796097,
+        "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+        "bytes": 2089,
+        "githubDigest": "sha256:64f966d94ba9f293943e0fbea200b4c854197f34b3a7993ad48f77c51a85e6dd",
+        "kind": "original-artifact-zip",
+        "name": "PDF-Apple-Vision-capability-xcode-27.zip",
+        "sha256": "64f966d94ba9f293943e0fbea200b4c854197f34b3a7993ad48f77c51a85e6dd"
+      },
+      {
+        "artifactID": 12566651900,
+        "artifactName": "PDF-local-AI-xcode-27",
+        "bytes": 2169,
+        "githubDigest": "sha256:d1db22e326f7a6d40e643dc95ce6b6b69d22a35fef191902277e1a74c999ad78",
+        "kind": "original-artifact-zip",
+        "name": "PDF-local-AI-xcode-27.zip",
+        "sha256": "d1db22e326f7a6d40e643dc95ce6b6b69d22a35fef191902277e1a74c999ad78"
+      },
+      {
+        "artifactID": 12566980220,
+        "artifactName": "PDF-macOS-benchmark-xcode-27",
+        "bytes": 2203,
+        "githubDigest": "sha256:fe20c5917832a56169ff7943e33aeb74f60ec9a8b23bf6641a1b4b256cf0e11f",
+        "kind": "original-artifact-zip",
+        "name": "PDF-macOS-benchmark-xcode-27.zip",
+        "sha256": "fe20c5917832a56169ff7943e33aeb74f60ec9a8b23bf6641a1b4b256cf0e11f"
+      }
+    ],
+    "completeAttemptLogArchive": {
+      "bytes": 679686,
+      "digestProvenance": "calculated-from-original-download; no upstream digest supplied",
+      "jobIDs": [
+        120917434148,
+        120917434403
+      ],
+      "kind": "original-complete-attempt-logs-zip",
+      "name": "source-run-40109285584-attempt-1-logs.zip",
+      "sha256": "af391e806045c327b6ccf6bb2cb5a386e27cb5280f2941b88b65dd17c490cd7c",
+      "sourceAPIPath": "/actions/runs/40109285584/attempts/1/logs",
+      "sourceRunAttempt": 1,
+      "sourceRunID": 40109285584
+    }
+  },
+  "originalFiles": [
+    {
+      "path": "macos-26/PDF-native-checks.log",
+      "bytes": 80947,
+      "sha256": "6f35ef9612fac447960c6d3605f655aa73cfabf2348919a7b17b817281370ff8",
+      "artifactID": 12566064218,
+      "artifactName": "PDF-native-checks-macos-26",
+      "githubArchiveDigest": "sha256:2eccdf92c2e5f2b00aaa564ac8873b3198597f49091bf1c96e9aaf527faab99a",
+      "archiveSHA256": "2eccdf92c2e5f2b00aaa564ac8873b3198597f49091bf1c96e9aaf527faab99a",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566064218"
+    },
+    {
+      "path": "macos-26/PDF-vision-audit.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "artifactID": 12566069280,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "githubArchiveDigest": "sha256:83a148eb3332cc997bad450ab993683475bc923de143dd995181a9956f3116be",
+      "archiveSHA256": "83a148eb3332cc997bad450ab993683475bc923de143dd995181a9956f3116be",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566069280"
+    },
+    {
+      "path": "macos-26/PDF-local-ai.json",
+      "bytes": 7660,
+      "sha256": "acc65276a9d37174ea69630c9eebf5b47e46c71947791654add29431a8cff9fd",
+      "artifactID": 12567020374,
+      "artifactName": "PDF-local-AI-macos-26",
+      "githubArchiveDigest": "sha256:1737f743c4096eeeb7663d91171c23496e0cce6c6942c8802b8644584ec5a722",
+      "archiveSHA256": "1737f743c4096eeeb7663d91171c23496e0cce6c6942c8802b8644584ec5a722",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12567020374"
+    },
+    {
+      "path": "macos-26/PDF-benchmark.json",
+      "bytes": 4913,
+      "sha256": "034f21f48dd45744724bbcdeba386dcbb7b71b75a95dfe37c68b2a105fd26117",
+      "artifactID": 12566512744,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "githubArchiveDigest": "sha256:068d3c5bfd02adae7a2eb1ab7b1fb314752c22f8385c33953498cb84b34bdb64",
+      "archiveSHA256": "068d3c5bfd02adae7a2eb1ab7b1fb314752c22f8385c33953498cb84b34bdb64",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566512744"
+    },
+    {
+      "path": "xcode-27/PDF-native-checks.log",
+      "bytes": 300162,
+      "sha256": "df2734617231c5bfbfc3ab2390aab2848b47a0147a0a4a4eeb403d3bbd14e6cc",
+      "artifactID": 12566780946,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "githubArchiveDigest": "sha256:1fb2be5f4e488f1c70a56784e7bbe770bf8e022e7e28fc31c9a4d82c5aea51ba",
+      "archiveSHA256": "1fb2be5f4e488f1c70a56784e7bbe770bf8e022e7e28fc31c9a4d82c5aea51ba",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566780946"
+    },
+    {
+      "path": "xcode-27/PDF-vision-audit.json",
+      "bytes": 1621,
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "artifactID": 12566796097,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "githubArchiveDigest": "sha256:64f966d94ba9f293943e0fbea200b4c854197f34b3a7993ad48f77c51a85e6dd",
+      "archiveSHA256": "64f966d94ba9f293943e0fbea200b4c854197f34b3a7993ad48f77c51a85e6dd",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566796097"
+    },
+    {
+      "path": "xcode-27/PDF-local-ai.json",
+      "bytes": 7662,
+      "sha256": "ff46d48b41659c771a6b005e98e913e417fc3de26f8c565190691ded610d16eb",
+      "artifactID": 12566651900,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "githubArchiveDigest": "sha256:d1db22e326f7a6d40e643dc95ce6b6b69d22a35fef191902277e1a74c999ad78",
+      "archiveSHA256": "d1db22e326f7a6d40e643dc95ce6b6b69d22a35fef191902277e1a74c999ad78",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566651900"
+    },
+    {
+      "path": "xcode-27/PDF-benchmark.json",
+      "bytes": 8309,
+      "sha256": "9d48e6b3c606051389a3ea862150d886f8fd02a19d708dab71993f583f7ca585",
+      "artifactID": 12566980220,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "githubArchiveDigest": "sha256:fe20c5917832a56169ff7943e33aeb74f60ec9a8b23bf6641a1b4b256cf0e11f",
+      "archiveSHA256": "fe20c5917832a56169ff7943e33aeb74f60ec9a8b23bf6641a1b4b256cf0e11f",
+      "artifactURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/artifacts/12566980220"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "id": 120917434148,
+      "url": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/job/120917434148",
+      "conclusion": "failure",
+      "startedAt": "2026-10-24T15:57:02Z",
+      "completedAt": "2026-10-24T16:22:00Z",
+      "sourceJobLog": {
+        "name": "1_native-application (macos-26).txt",
+        "bytes": 830493,
+        "sha256": "16f1406c162f95a7186cb90367c17699319d7c13d19fb9decd7733f1ee6aa371"
+      },
+      "python": [
+        {
+          "suite": "core",
+          "cases": 268,
+          "passed": 268,
+          "skipped": 0,
+          "seconds": 74.409,
+          "logLine": 1060
+        },
+        {
+          "suite": "integration",
+          "cases": 46,
+          "passed": 46,
+          "skipped": 0,
+          "seconds": 67.864,
+          "logLine": 1112
+        },
+        {
+          "suite": "scripts",
+          "cases": 97,
+          "passed": 96,
+          "skipped": 1,
+          "seconds": 17.227,
+          "logLine": 261
+        }
+      ],
+      "pythonDistinctCases": 411,
+      "pythonPassed": 410,
+      "pythonSkipped": 1,
+      "native": {
+        "distinctGroups": 37,
+        "executionsEach": 3,
+        "passedExecutions": 111,
+        "failedExecutions": 0,
+        "preservedSmokeLogExecutions": 1
+      },
+      "previews": {
+        "pngCount": 32,
+        "accessibilityReportCount": 5,
+        "ciGate": "passed",
+        "copiedHere": false,
+        "manualVisualReview": "pending"
+      },
+      "vision": {
+        "appleVisionPassed": true,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "passed"
+          },
+          {
+            "id": "isolated-process",
+            "status": "passed"
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "modelAttempts": 0,
+        "items": 5,
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis."
+      },
+      "benchmark": {
+        "operations": 6,
+        "repetitions": 3,
+        "ocrBackendsIncludingWarmup": [
+          "apple-vision",
+          "apple-vision",
+          "apple-vision",
+          "apple-vision"
+        ],
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 26.6.2 (Build 25G83)",
+        "pageCount": 100,
+        "sourceSHA256": "23b445ef2bbbdabfc9c51972fd8846569c2ed628fdfeb9cf21a3b2c869940f6f",
+        "processPeakMemoryBytes": 301563904,
+        "mediansFromLog": [
+          {
+            "operation": "open",
+            "medianMilliseconds": 0.148,
+            "samples": 3,
+            "logLine": 5883
+          },
+          {
+            "operation": "extract",
+            "medianMilliseconds": 5.984,
+            "samples": 3,
+            "logLine": 5884
+          },
+          {
+            "operation": "search",
+            "medianMilliseconds": 1.896,
+            "samples": 3,
+            "logLine": 5885
+          },
+          {
+            "operation": "render",
+            "medianMilliseconds": 9.94,
+            "samples": 3,
+            "logLine": 5886
+          },
+          {
+            "operation": "contrast",
+            "medianMilliseconds": 14.94,
+            "samples": 3,
+            "logLine": 5887
+          },
+          {
+            "operation": "ocr",
+            "medianMilliseconds": 1680.993,
+            "samples": 3,
+            "logLine": 5888
+          }
+        ]
+      },
+      "packagingError": {
+        "line": 6561,
+        "text": "subprocess.CalledProcessError: Command '['/usr/bin/otool', '-l', '/Users/runner/work/_temp/PDF-distribution/PDF.app/Contents/Resources/runtime/browsers/chromium-1194/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Versions/141.0.7390.37/Helpers/Chromium Helper (GPU).app/Contents/MacOS/Chromium Helper (GPU)']' returned non-zero exit status 1."
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify Apple toolchain",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify installer integrity",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile native application",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install native PDF structural checker",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build, install and validate complete application",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate installed application and local OCR",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain native diagnostic log",
+          "conclusion": "success"
+        },
+        {
+          "name": "Capture native window preview",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate all native previews and accessibility reports",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain native preview artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record Apple Vision capability independently",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain Apple Vision capability report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Evaluate Portuguese answers with the actual local Apple model",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain local AI experiment and explicit availability",
+          "conclusion": "success"
+        },
+        {
+          "name": "Benchmark the installed application with OCR",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain native benchmark artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Assemble relocatable binary distribution",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Validate portable app without host dependencies or network",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Package and verify binary install and update",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Retain binary package with explicit validation status",
+          "conclusion": "success"
+        },
+        {
+          "name": "Create source distribution",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain source artifact with validation status",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "runner": "xcode-27",
+      "id": 120917434403,
+      "url": "https://github.com/vibracall-beep/PDF-/actions/runs/40109285584/job/120917434403",
+      "conclusion": "failure",
+      "startedAt": "2026-10-24T15:57:02Z",
+      "completedAt": "2026-10-24T16:17:59Z",
+      "sourceJobLog": {
+        "name": "0_native-application (xcode-27).txt",
+        "bytes": 2083454,
+        "sha256": "c5c14f0dae144173d1913b30efd69bceb29cdae12e6098020aa54ba738c24b7f"
+      },
+      "python": [
+        {
+          "suite": "core",
+          "cases": 268,
+          "passed": 268,
+          "skipped": 0,
+          "seconds": 71.871,
+          "logLine": 1098
+        },
+        {
+          "suite": "integration",
+          "cases": 46,
+          "passed": 46,
+          "skipped": 0,
+          "seconds": 40.273,
+          "logLine": 1150
+        },
+        {
+          "suite": "scripts",
+          "cases": 97,
+          "passed": 96,
+          "skipped": 1,
+          "seconds": 16.108,
+          "logLine": 259
+        }
+      ],
+      "pythonDistinctCases": 411,
+      "pythonPassed": 410,
+      "pythonSkipped": 1,
+      "native": {
+        "distinctGroups": 37,
+        "executionsEach": 3,
+        "passedExecutions": 111,
+        "failedExecutions": 0,
+        "preservedSmokeLogExecutions": 1
+      },
+      "previews": {
+        "pngCount": 32,
+        "accessibilityReportCount": 5,
+        "ciGate": "passed",
+        "copiedHere": false,
+        "manualVisualReview": "pending"
+      },
+      "vision": {
+        "appleVisionPassed": false,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "failed",
+            "errorDomain": "PDF.VisionRuntimeUnavailable",
+            "errorCode": 1
+          },
+          {
+            "id": "isolated-process",
+            "status": "failed",
+            "errorDomain": "PDF.VisionWorker.RuntimeFailure",
+            "errorCode": 1
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "modelAttempts": 0,
+        "items": 5,
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis."
+      },
+      "benchmark": {
+        "operations": 6,
+        "repetitions": 3,
+        "ocrBackendsIncludingWarmup": [
+          "tesseract",
+          "tesseract",
+          "tesseract",
+          "tesseract"
+        ],
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 27.0.1 (Build 26A434)",
+        "pageCount": 100,
+        "sourceSHA256": "15c5a4cddda41382087df092c21f0fcfd32df51bd5d26baa3fe83eabed541293",
+        "processPeakMemoryBytes": 150355968,
+        "mediansFromLog": [
+          {
+            "operation": "open",
+            "medianMilliseconds": 0.217,
+            "samples": 3,
+            "logLine": 24799
+          },
+          {
+            "operation": "extract",
+            "medianMilliseconds": 4.416,
+            "samples": 3,
+            "logLine": 24800
+          },
+          {
+            "operation": "search",
+            "medianMilliseconds": 0.975,
+            "samples": 3,
+            "logLine": 24801
+          },
+          {
+            "operation": "render",
+            "medianMilliseconds": 3.583,
+            "samples": 3,
+            "logLine": 24802
+          },
+          {
+            "operation": "contrast",
+            "medianMilliseconds": 5.725,
+            "samples": 3,
+            "logLine": 24803
+          },
+          {
+            "operation": "ocr",
+            "medianMilliseconds": 1978.152,
+            "samples": 3,
+            "logLine": 24804
+          }
+        ]
+      },
+      "packagingError": {
+        "line": 25477,
+        "text": "subprocess.CalledProcessError: Command '['/usr/bin/otool', '-l', '/Users/runner/work/_temp/PDF-distribution/PDF.app/Contents/Resources/runtime/browsers/chromium-1194/chrome-mac/Chromium.app/Contents/Frameworks/Chromium Framework.framework/Versions/141.0.7390.37/Helpers/Chromium Helper (GPU).app/Contents/MacOS/Chromium Helper (GPU)']' returned non-zero exit status 1."
+      },
+      "steps": [
+        {
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify Apple toolchain",
+          "conclusion": "success"
+        },
+        {
+          "name": "Verify installer integrity",
+          "conclusion": "success"
+        },
+        {
+          "name": "Compile native application",
+          "conclusion": "success"
+        },
+        {
+          "name": "Install native PDF structural checker",
+          "conclusion": "success"
+        },
+        {
+          "name": "Build, install and validate complete application",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate installed application and local OCR",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain native diagnostic log",
+          "conclusion": "success"
+        },
+        {
+          "name": "Capture native window preview",
+          "conclusion": "success"
+        },
+        {
+          "name": "Validate all native previews and accessibility reports",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain native preview artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Record Apple Vision capability independently",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain Apple Vision capability report",
+          "conclusion": "success"
+        },
+        {
+          "name": "Evaluate Portuguese answers with the actual local Apple model",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain local AI experiment and explicit availability",
+          "conclusion": "success"
+        },
+        {
+          "name": "Benchmark the installed application with OCR",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain native benchmark artifact",
+          "conclusion": "success"
+        },
+        {
+          "name": "Assemble relocatable binary distribution",
+          "conclusion": "failure"
+        },
+        {
+          "name": "Validate portable app without host dependencies or network",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Package and verify binary install and update",
+          "conclusion": "skipped"
+        },
+        {
+          "name": "Retain binary package with explicit validation status",
+          "conclusion": "success"
+        },
+        {
+          "name": "Create source distribution",
+          "conclusion": "success"
+        },
+        {
+          "name": "Retain source artifact with validation status",
+          "conclusion": "success"
+        },
+        {
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ]
+    }
+  ],
+  "limitations": [
+    "A execução global reprovou em Assemble nos dois sistemas; isolamento e instalação/atualização do pacote binário não foram executados.",
+    "O log nativo preservado contém um smoke; os três smokes são contados nos logs completos do job, identificados pelo ZIP original.",
+    "As capturas e os cinco relatórios AX por sistema foram recuperados, mas não são copiados nesta pasta; a revisão visual individual ainda estava pendente neste registro.",
+    "Modelo Apple indisponível nos dois sistemas: nenhum caso de geração foi executado.",
+    "M4 físico, energia, NPU e VoiceOver humano não foram avaliados; as amostras de benchmark têm SHA diferentes entre os sistemas.",
+    "Esta evidência não aprova correções posteriores ao commit cbb32987409a3911de29650e79a83840b670bdd7."
+  ]
+}

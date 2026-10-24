@@ -31,6 +31,10 @@ REQUIRED_AX = {
     'PDF-preview.lado-a-lado.accessibility.json': {'pdf.reader.document', 'pdf.reader.reference'},
     'PDF-preview.anotacoes.accessibility.json': {'pdf.reader.document', 'pdf.reader.inspector'},
     'PDF-preview.biblioteca.accessibility.json': {'pdf.library'},
+    'PDF-preview.corrigir-acessibilidade.accessibility.json': {
+        'pdf.accessibility.tag.title', 'pdf.accessibility.tag.alt', 'pdf.accessibility.tag.actual-text',
+        'pdf.accessibility.tag.language', 'pdf.accessibility.tag.scope',
+    },
 }
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'
 MAX_ARTIFACT_BYTES = 64 * 1024 * 1024

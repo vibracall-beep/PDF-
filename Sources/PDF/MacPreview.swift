@@ -163,6 +163,7 @@ enum MacPreview {
     private var fixtureInputs:[URL] = []
     private let contentController = AdvancedDocumentController()
     private let ocrController = AdvancedDocumentController()
+    private var accessibilityInspection: AccessibilityInspectionRequest?
     private lazy var automation = AutomationCoordinator(defaults: defaults)
     private lazy var toolPresets = ToolPresetStore(defaults:defaults)
     private var started = false
@@ -207,7 +208,7 @@ enum MacPreview {
             case "content": AdvancedContentEditorView(controller: contentController)
             case "ocr": OCRReviewView(controller: ocrController)
             case "library": DocumentLibraryView(directory: scratchDirectory?.appendingPathComponent("Library", isDirectory: true))
-            case "accessibility": AccessibilityRemediationView()
+            case "accessibility": AccessibilityRemediationView(initialInspection: accessibilityInspection)
             case "signatures": SignatureRequestView()
             default: AutomationView(coordinator: automation)
             }
@@ -392,12 +393,63 @@ enum MacPreview {
         let library = DocumentLibraryStore(directory: scratchDirectory.appendingPathComponent("Library", isDirectory: true))
         _ = try await library.importFiles(fixtureInputs, collection: "Documentos de demonstração", tags: ["Revisão"])
         present(.advanced("library")); try await capture("biblioteca", auditRequired: ["pdf.library"])
-        present(.advanced("accessibility")); try await capture("corrigir-acessibilidade")
+        try await presentAccessibilityFixture(source: documents.reference, directory: scratchDirectory)
+        try await capture("corrigir-acessibilidade", auditRequired: ["pdf.accessibility.tag.title", "pdf.accessibility.tag.alt",
+            "pdf.accessibility.tag.actual-text", "pdf.accessibility.tag.language", "pdf.accessibility.tag.scope"])
         present(.advanced("signatures")); try await capture("solicitar-assinaturas")
         present(.advanced("automation")); try await capture("automacao")
         for mode in [ProductionMode.preflight, .bates, .measure, .pdfx] {
             present(.production(mode)); try await capture("producao-" + mode.rawValue)
         }
+    }
+
+    private func previewOperation(_ operation: String, source: URL, output: URL, options: [String: Any]) async throws -> URL {
+        try Task.checkCancellation()
+        guard !model.busy else { throw MacPreview.failure(29, "O motor ainda está ocupado ao preparar a amostra acessível.") }
+        return try await withCheckedThrowingContinuation { continuation in
+            model.execute(operation: operation, inputs: [source], output: output, options: options,
+                          title: "Preparando amostra acessível", completion: { continuation.resume(with: $0) })
+        }
+    }
+
+    private func presentAccessibilityFixture(source: URL, directory: URL) async throws {
+        MacPreview.trace("accessibility fixture: create real page tags")
+        let tagged = try await previewOperation("accessibility-remediate", source: source,
+            output: directory.appendingPathComponent("Estrutura inicial.pdf"),
+            options: ["input_sha256": LibraryFiles.hash(try Data(contentsOf: source)), "language": "pt-BR",
+                      "create_page_tags": [["page": 1, "role": "P"], ["page": 2, "role": "P"]]])
+        let inspectionURL = try await previewOperation("accessibility-inspect", source: tagged,
+            output: directory.appendingPathComponent("Estrutura inicial.json"), options: [:])
+        guard let inspected = try JSONSerialization.jsonObject(with: Data(contentsOf: inspectionURL)) as? [String: Any],
+              inspected["schema_version"] as? Int == 1,
+              let hash = inspected["input_sha256"] as? String, LibraryFiles.validHash(hash),
+              let nodes = inspected["nodes"] as? [[String: Any]],
+              let node = nodes.first(where: { $0["role"] as? String == "P" && $0["page"] as? Int == 1 }),
+              let identity = node["id"] as? String else {
+            throw MacPreview.failure(30, "A inspeção real não recuperou a tag da amostra acessível.")
+        }
+        let expected = ["title": "Prazo de entrega", "alt": "Cabeçalho da coluna com o prazo de entrega.",
+                        "actual_text": "Prazo de entrega em dias úteis", "language": "pt-BR", "scope": "Column"]
+        var edit: [String: Any] = expected
+        edit["id"] = identity; edit["role"] = "TH"
+        MacPreview.trace("accessibility fixture: apply real TH attributes")
+        let prepared = try await previewOperation("accessibility-remediate", source: tagged,
+            output: directory.appendingPathComponent("Cabeçalho com atributos.pdf"),
+            options: ["input_sha256": hash, "edits": [edit]])
+        let expectedHash = LibraryFiles.hash(try Data(contentsOf: prepared))
+        // The view obtains its own report from the production inspection action.
+        // This callback resumes only after its actual selected fields are loaded.
+        let selected: AccessibilityInspectedSelection = try await withCheckedThrowingContinuation { continuation in
+            accessibilityInspection = AccessibilityInspectionRequest(sourceURL: prepared, selectedRole: "TH",
+                completion: { continuation.resume(with: $0) })
+            present(.advanced("accessibility"))
+        }
+        try Task.checkCancellation()
+        guard selected.sourceSHA256 == expectedHash, !selected.tagID.isEmpty,
+              selected.role == "TH", selected.values == expected else {
+            throw MacPreview.failure(31, "O formulário não carregou os atributos reais da tag TH inspecionada.")
+        }
+        MacPreview.trace("accessibility fixture: production inspection and selected fields ready")
     }
 
     private func waitForReview(_ controller: AdvancedDocumentController) async throws {

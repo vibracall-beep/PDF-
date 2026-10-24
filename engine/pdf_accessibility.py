@@ -18,6 +18,7 @@ from pdf_signatures import _snapshot
 ROLES = {'Document','Part','Sect','Div','P','H','H1','H2','H3','H4','H5','H6',
          'L','LI','Lbl','LBody','Table','TR','TH','TD','THead','TBody','TFoot',
          'Figure','Formula','Caption','Note','Link','Span','Quote','BlockQuote'}
+TEXT_FIELDS = {'alt':'/Alt', 'actual_text':'/ActualText', 'title':'/T', 'language':'/Lang'}
 
 
 def _raw(obj, key, default=None):
@@ -77,14 +78,17 @@ def _tree(reader):
             elif isinstance(value,g.NumberObject): content.append({'mcid':int(value)})
             elif isinstance(value,g.DictionaryObject): content.append({'type':str(value.get('/Type','')), 'mcid':int(value['/MCID']) if '/MCID' in value else None})
         page_number=pages.get(_id(_raw(obj,'/Pg')),inherited_page)
-        attributes=_object(_raw(obj,'/A')); scope=None
+        attributes=_object(_raw(obj,'/A')); scope=None; has_scope=False
         for attrs in _array(attributes):
             attrs=_object(attrs)
-            if isinstance(attrs,g.DictionaryObject) and _object(attrs.get('/O'))=='/Table': scope=str(_object(attrs.get('/Scope',''))).lstrip('/') or None
+            if isinstance(attrs,g.DictionaryObject) and _object(attrs.get('/O'))=='/Table':
+                has_scope=has_scope or '/Scope' in attrs
+                scope=str(_object(attrs.get('/Scope',''))).lstrip('/') or None
         item={'id':identity,'parent':parent,'role':role,'page':page_number,
               'alt':str(_object(obj.get('/Alt',''))),'actual_text':str(_object(obj.get('/ActualText',''))),
               'title':str(_object(obj.get('/T',''))),'language':str(_object(obj.get('/Lang',''))),
-              'scope':scope,'children':child_ids,'content':content,'depth':depth}
+              'scope':scope,'present_fields':[name for name,key in TEXT_FIELDS.items() if key in obj]+(['scope'] if has_scope else []),
+              'children':child_ids,'content':content,'depth':depth}
         nodes.append(item);index[identity]=(reference,obj)
         for child in kids: walk(child,identity,depth+1,page_number)
         active.remove(identity)
@@ -151,6 +155,38 @@ def _create_page_tags(writer,specifications):
     writer.root[g.pdf_name('/MarkInfo')]=g.DictionaryObject({g.pdf_name('/Marked'):g.BooleanObject(True)})
 
 
+def _set_table_scope(node, scope):
+    """Change only Table/Scope, never a shared attribute object or its siblings.
+
+    Attribute arrays may include revision numbers and several Table dictionaries.
+    Keep their order, shape, other keys and references, including unknown owners.
+    A removed Scope does not require removing its otherwise empty Table owner.
+    """
+    original=_object(_raw(node,'/A'))
+    if original is not None and not isinstance(original,(g.ArrayObject,g.DictionaryObject)):
+        raise ValueError('Os atributos da tag não permitem alterar Scope com segurança.')
+    attributes=_array(original); result=[]; found=False; changed=False
+    for reference in attributes:
+        attributes_object=_object(reference)
+        if isinstance(attributes_object,g.DictionaryObject) and _object(_raw(attributes_object,'/O'))=='/Table':
+            found=True
+            if scope is None and '/Scope' not in attributes_object:
+                result.append(reference)
+                continue
+            # Dereferencing and changing the original here would also edit other
+            # tags that share this /A object. Attach a local shallow copy instead.
+            replacement=g.DictionaryObject({key:attributes_object.raw_get(key) for key in attributes_object})
+            if scope is None: replacement.pop('/Scope',None)
+            else: replacement[g.pdf_name('/Scope')]=g.pdf_name('/'+scope)
+            result.append(replacement); changed=True
+        else: result.append(reference)
+    if scope is not None and not found:
+        result.append(g.DictionaryObject({g.pdf_name('/O'):g.pdf_name('/Table'),g.pdf_name('/Scope'):g.pdf_name('/'+scope)}))
+        changed=True
+    if changed:
+        node[g.pdf_name('/A')]=result[0] if isinstance(original,g.DictionaryObject) and len(result)==1 else g.ArrayObject(result)
+
+
 def remediate_pdf(input_path,output_path,options):
     edits=options.get('edits',[])
     if not isinstance(edits,list) or len(edits)>10000 or not all(isinstance(e,dict) for e in edits):
@@ -172,23 +208,26 @@ def remediate_pdf(input_path,output_path,options):
             if set(edit)-{'id','role','alt','actual_text','title','language','children','scope'}:
                 raise ValueError('A alteração contém um campo não suportado.')
             if 'role' in edit:
-                if edit['role'] not in ROLES: raise ValueError('Papel estrutural não suportado.')
+                if not isinstance(edit['role'],str) or edit['role'] not in ROLES: raise ValueError('Papel estrutural não suportado.')
                 node[g.pdf_name('/S')]=g.pdf_name('/'+edit['role'])
-            for option,key in [('alt','/Alt'),('actual_text','/ActualText'),('title','/T'),('language','/Lang')]:
+            for option,key in TEXT_FIELDS.items():
                 if option in edit:
-                    if option=='language' and edit[option]=='':
-                        node.pop('/Lang',None)
+                    # Omission preserves the attribute, null explicitly removes
+                    # it, and an empty string remains deliberate empty text.
+                    if edit[option] is None or (option=='language' and edit[option]==''):
+                        node.pop(key,None)
                         continue
                     value=_language(edit[option]) if option=='language' else _text(edit[option],option)
                     node[g.pdf_name(key)]=g.pdf_string(value)
             if 'scope' in edit:
-                if node['/S']!='/TH' or edit['scope'] not in ('Row','Column','Both'):
+                scope=edit['scope']
+                if scope is not None and (node['/S']!='/TH' or scope not in ('Row','Column','Both')):
                     raise ValueError('Scope Row, Column ou Both é permitido somente em cabeçalhos TH.')
-                attrs=_array(_raw(node,'/A'))
-                kept=[a for a in attrs if not (isinstance(_object(a),g.DictionaryObject) and _object(a).get('/O')=='/Table')]
-                old=next((_object(a) for a in attrs if isinstance(_object(a),g.DictionaryObject) and _object(a).get('/O')=='/Table'),{})
-                table=g.DictionaryObject(dict(old)); table[g.pdf_name('/O')]=g.pdf_name('/Table');table[g.pdf_name('/Scope')]=g.pdf_name('/'+edit['scope'])
-                node[g.pdf_name('/A')]=g.ArrayObject(kept+[table])
+                _set_table_scope(node,scope)
+            elif 'role' in edit and node['/S']!='/TH':
+                # A header becoming a data cell/paragraph must not retain an
+                # incompatible header Scope. All other table attributes survive.
+                _set_table_scope(node,None)
             if 'children' in edit:
                 current=_array(_raw(node,'/K')); ids=[_id(k) if isinstance(_object(k),g.DictionaryObject) and '/S' in _object(k) else None for k in current]
                 order=edit['children']

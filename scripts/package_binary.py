@@ -204,22 +204,38 @@ def relocate_links(original, copied, maps):
                 dirs.remove(name)
 
 
+def otool_libraries(output):
+    libraries = set()
+    for line in output.splitlines():
+        if not line.strip() or not line.startswith(('\t', ' ')):
+            continue
+        name, marker, version = line.strip().rpartition(' (compatibility version ')
+        if not name or not marker or not version.endswith(')'):
+            raise ValueError('Formato de dependência otool não reconhecido; inspeção recusada.')
+        # Parentheses are valid in library names too. Split only the final
+        # version metadata, not the first " (" appearing in the filename.
+        libraries.add(name)
+    return libraries
+
+
 def rewrite_macho(path, maps, root):
     # Native frameworks already use @rpath/@loader_path. Rewrite every external
     # absolute load reference; fail closed for unexpected non-system libraries.
     changes = []
-    output = command('/usr/bin/otool', '-l', path).splitlines()
+    # Apple's cctools otool documents -m as "don't use archive(member)
+    # syntax". It keeps Chromium Helper (GPU)/(Renderer) as literal filenames.
+    # This changes filename parsing only; all inspection failures remain fatal.
+    output = command('/usr/bin/otool', '-m', '-l', path).splitlines()
     identifiers = set()
     rpaths = set()
     for index, line in enumerate(output):
         if line.strip() == 'cmd LC_ID_DYLIB':
-            identifiers.add(output[index + 2].strip().removeprefix('name ').split(' (offset', 1)[0])
+            identifiers.add(output[index + 2].strip().removeprefix('name ').rsplit(' (offset ', 1)[0])
         if line.strip() == 'cmd LC_RPATH':
-            rpaths.add(output[index + 2].strip().removeprefix('path ').split(' (offset', 1)[0])
+            rpaths.add(output[index + 2].strip().removeprefix('path ').rsplit(' (offset ', 1)[0])
     if any(value.startswith('/') and not value.startswith(SYSTEM) for value in identifiers):
         changes += ['-id', '@rpath/' + path.name]
-    deps = {line.strip().split(' (', 1)[0] for line in command('/usr/bin/otool', '-L', path).splitlines()
-            if line.startswith(('\t', ' ')) and ' (' in line}
+    deps = otool_libraries(command('/usr/bin/otool', '-m', '-L', path))
     for value in sorted(deps - identifiers):
         if value.startswith('/') and not value.startswith(SYSTEM):
             mapped = remap_absolute(value, maps)
@@ -244,10 +260,7 @@ def rewrite_macho(path, maps, root):
             path.chmod(mode)
     # Reject a surviving absolute load path; textual debug/build strings do not
     # count as a load command and are retained for license/provenance integrity.
-    for line in command('/usr/bin/otool', '-L', path).splitlines():
-        if not line.startswith(('\t', ' ')) or ' (' not in line:
-            continue
-        value = line.strip().split(' (', 1)[0]
+    for value in otool_libraries(command('/usr/bin/otool', '-m', '-L', path)):
         if value.startswith('/') and not value.startswith(SYSTEM):
             raise ValueError('Carga Mach-O externa após relocalização: ' + value)
 

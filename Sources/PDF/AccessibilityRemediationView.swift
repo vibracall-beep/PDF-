@@ -20,12 +20,108 @@ private struct AccessibilityTag: Decodable, Identifiable {
     let title: String
     let language: String
     let scope: String?
+    let present_fields: [String]?
     let children: [String]
     let depth: Int
+
+    var textValues: [String: String] {
+        ["alt": alt, "actual_text": actual_text, "title": title, "language": language, "scope": scope ?? ""]
+    }
+    var presentFields: Set<String> {
+        // Reports from an older engine cannot distinguish absent from empty.
+        Set(present_fields ?? textValues.filter { !$0.value.isEmpty }.map(\.key))
+    }
+}
+
+/// Programmatic opening uses the same engine inspection and selection as the
+/// buttons. It carries no report or editable values that could bypass inspection.
+struct AccessibilityInspectionRequest {
+    let sourceURL: URL
+    let selectedRole: String
+    let completion: (Result<AccessibilityInspectedSelection, Error>) -> Void
+}
+
+struct AccessibilityInspectedSelection: Sendable {
+    let sourceSHA256: String
+    let tagID: String
+    let role: String
+    let values: [String: String]
+}
+
+/// The edit protocol distinguishes omission (preserve), null (remove), and text.
+/// Keep this independent from SwiftUI state so the actual JSON contract is audited.
+enum AccessibilityTagEdits {
+    static func stage(id: String, originalRole: String, role: String,
+                      original: [String: String], values: [String: String],
+                      present: Set<String>, existing: [String: Any]) -> [String: Any] {
+        var edit = existing
+        edit["id"] = id
+        if role.utf8.elementsEqual(originalRole.utf8) { edit.removeValue(forKey: "role") }
+        else { edit["role"] = role }
+        for key in ["alt", "actual_text", "title", "language", "scope"] {
+            let value = values[key] ?? "", baseline = original[key] ?? ""
+            if key == "scope", role != "TH" {
+                if present.contains(key) { edit[key] = NSNull() }
+                else { edit.removeValue(forKey: key) }
+            } else if value.utf8.elementsEqual(baseline.utf8) {
+                // An explicitly removed, originally empty attribute must stay
+                // removed when the same tag is revisited and saved again.
+                if !(value.isEmpty && present.contains(key) && edit[key] is NSNull) {
+                    edit.removeValue(forKey: key)
+                }
+            } else if value.isEmpty {
+                if present.contains(key) { edit[key] = NSNull() }
+                else { edit.removeValue(forKey: key) }
+            } else { edit[key] = value }
+        }
+        return edit
+    }
+
+    static func value(_ key: String, original: String, edit: [String: Any]) -> String {
+        edit[key] is NSNull ? "" : edit[key] as? String ?? original
+    }
+
+    static func runAuditChecks() throws {
+        func require(_ condition: Bool) throws {
+            guard condition else { throw NSError(domain: "PDF.AccessibilityEditAudit", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "O contrato de alterações das tags não preservou os atributos opcionais."]) }
+        }
+        func encoded(_ edit: [String: Any]) throws -> [String: Any] {
+            let data = try JSONSerialization.data(withJSONObject: edit)
+            return try JSONSerialization.jsonObject(with: data) as! [String: Any]
+        }
+        let blank = ["alt": "", "actual_text": "", "title": "", "language": "", "scope": ""]
+        let roleOnly = try encoded(stage(id: "1:0", originalRole: "P", role: "H2", original: blank,
+            values: blank, present: [], existing: ["children": ["2:0", "3:0"]]))
+        try require(Set(roleOnly.keys) == ["id", "role", "children"])
+        try require(roleOnly["children"] as? [String] == ["2:0", "3:0"])
+        let existingEmpty = stage(id: "1:0", originalRole: "P", role: "H2", original: blank,
+            values: blank, present: ["actual_text"], existing: [:])
+        try require(existingEmpty["actual_text"] == nil)
+        let removed = try encoded(stage(id: "1:0", originalRole: "P", role: "H2", original: blank,
+            values: blank, present: ["actual_text"], existing: ["actual_text": NSNull()]))
+        try require(removed["actual_text"] is NSNull)
+        try require(value("actual_text", original: "Original replacement", edit: removed).isEmpty)
+        var original = blank; original["actual_text"] = "Existing replacement"; original["scope"] = "Column"
+        var values = original; values["actual_text"] = ""
+        let cleared = try encoded(stage(id: "1:0", originalRole: "TH", role: "TD", original: original,
+            values: values, present: ["actual_text", "scope"], existing: [:]))
+        try require(cleared["scope"] is NSNull && cleared["actual_text"] is NSNull)
+        original["title"] = "é"; values = original; values["title"] = "e\u{301}"
+        let unicode = try encoded(stage(id: "1:0", originalRole: "TH", role: "TH", original: original,
+            values: values, present: ["title", "actual_text", "scope"], existing: [:]))
+        try require((unicode["title"] as? String)?.utf8.elementsEqual("e\u{301}".utf8) == true)
+        try require(unicode["actual_text"] == nil && unicode["scope"] == nil)
+        let restored = stage(id: "1:0", originalRole: "TH", role: "TH", original: original,
+            values: original, present: ["title", "actual_text", "scope"], existing: cleared)
+        try require(Set(restored.keys) == ["id"])
+    }
 }
 
 struct AccessibilityRemediationView: View {
     @EnvironmentObject private var model: Workspace
+    private let initialInspection: AccessibilityInspectionRequest?
+    @State private var beganInitialInspection = false
     @State private var source: URL?
     @State private var report: AccessibilityTreeReport?
     @State private var selection: String?
@@ -34,7 +130,7 @@ struct AccessibilityRemediationView: View {
     @State private var actualText = ""
     @State private var tagTitle = ""
     @State private var tagLanguage = ""
-    @State private var scope = "Column"
+    @State private var scope = ""
     @State private var language = "pt-BR"
     @State private var edits: [String: [String: Any]] = [:]
     @State private var pageRoles: [String] = []
@@ -44,6 +140,10 @@ struct AccessibilityRemediationView: View {
     @State private var error = ""
     @State private var showValidation = false
     private let roles = ["Document", "Part", "Sect", "Div", "P", "H", "H1", "H2", "H3", "H4", "H5", "H6", "L", "LI", "Lbl", "LBody", "Table", "TR", "TH", "TD", "THead", "TBody", "TFoot", "Figure", "Formula", "Caption", "Note", "Link", "Span", "Quote", "BlockQuote"]
+
+    init(initialInspection: AccessibilityInspectionRequest? = nil) {
+        self.initialInspection = initialInspection
+    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -57,7 +157,9 @@ struct AccessibilityRemediationView: View {
             Text("Defina o significado e a ordem de leitura. A edição preserva vínculos com o conteúdo; tags sozinhas não certificam PDF/UA.")
                 .font(.callout).foregroundStyle(.secondary)
             if let report {
-                TextField("Idioma do documento (BCP 47)", text: $language).textFieldStyle(.roundedBorder)
+                LabeledContent("Idioma do documento (BCP 47)") {
+                    TextField("pt-BR", text: $language).textFieldStyle(.roundedBorder).accessibilityLabel("Idioma do documento (BCP 47)")
+                }
                 if report.has_structure_tree { taggedEditor(report) }
                 else { pageEditor(report) }
                 HStack {
@@ -78,7 +180,15 @@ struct AccessibilityRemediationView: View {
             if model.busy { HStack { ProgressView().controlSize(.small); Text(model.message); Button("Cancelar") { model.cancel() } } }
             if !error.isEmpty { Text(error).foregroundStyle(.red).textSelection(.enabled) }
         }.padding(24).frame(minWidth: 760, minHeight: 580)
-            .onAppear { if !model.hasUnsavedChanges { source = model.savedDocumentURL ?? model.url } }
+            .onAppear {
+                if let initialInspection, !beganInitialInspection {
+                    beganInitialInspection = true
+                    source = initialInspection.sourceURL
+                    inspect(request: initialInspection)
+                } else if initialInspection == nil, !model.hasUnsavedChanges {
+                    source = model.savedDocumentURL ?? model.url
+                }
+            }
             .sheet(isPresented: $showValidation) { VerificationView(initialMode: "pdfua", sourceURL: result).environmentObject(model) }
     }
 
@@ -92,18 +202,47 @@ struct AccessibilityRemediationView: View {
                     }.padding(.leading, CGFloat(min(node.depth, 8)) * 10).tag(node.id)
                 }
             }.frame(minWidth: 260).onChange(of: selection) { _, _ in loadSelection() }
-            VStack(alignment: .leading, spacing: 10) {
+            ScrollView {
+              VStack(alignment: .leading, spacing: 10) {
                 if selection != nil {
                     Picker("Papel", selection: $role) { ForEach(roles, id: \.self) { Text($0).tag($0) } }
-                    TextField("Título da tag", text: $tagTitle).textFieldStyle(.roundedBorder)
-                    TextField("Texto alternativo", text: $alt, axis: .vertical).lineLimit(3...6).textFieldStyle(.roundedBorder)
-                    TextField("Texto de substituição (ActualText)", text: $actualText, axis: .vertical).lineLimit(2...4).textFieldStyle(.roundedBorder)
-                    TextField("Idioma da tag (opcional)", text: $tagLanguage).textFieldStyle(.roundedBorder)
-                    if role == "TH" { Picker("Cabeçalho da tabela", selection: $scope) { Text("Coluna").tag("Column"); Text("Linha").tag("Row"); Text("Ambos").tag("Both") } }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Título da tag").font(.caption)
+                        TextField("Título", text: $tagTitle).textFieldStyle(.roundedBorder).accessibilityLabel("Título da tag")
+                            .accessibilityIdentifier("pdf.accessibility.tag.title")
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Texto alternativo").font(.caption)
+                        TextField("Descrição do conteúdo", text: $alt, axis: .vertical).lineLimit(3...6).textFieldStyle(.roundedBorder).accessibilityLabel("Texto alternativo")
+                            .accessibilityIdentifier("pdf.accessibility.tag.alt")
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Texto de substituição (ActualText)").font(.caption)
+                        TextField("Texto de substituição", text: $actualText, axis: .vertical).lineLimit(2...4).textFieldStyle(.roundedBorder).accessibilityLabel("Texto de substituição (ActualText)")
+                            .accessibilityIdentifier("pdf.accessibility.tag.actual-text")
+                    }
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text("Idioma da tag (opcional)").font(.caption)
+                        TextField("pt-BR", text: $tagLanguage).textFieldStyle(.roundedBorder).accessibilityLabel("Idioma da tag (opcional)")
+                            .accessibilityIdentifier("pdf.accessibility.tag.language")
+                    }
+                    if role == "TH" {
+                        Picker("Cabeçalho da tabela", selection: $scope) { Text("Não definido").tag(""); Text("Coluna").tag("Column"); Text("Linha").tag("Row"); Text("Ambos").tag("Both") }
+                            .accessibilityIdentifier("pdf.accessibility.tag.scope")
+                    }
+                    Menu("Remover atributo…") {
+                        Button("Texto de substituição (ActualText)") { removeAttribute("actual_text") }
+                        Button("Texto alternativo") { removeAttribute("alt") }
+                        Button("Título da tag") { removeAttribute("title") }
+                        Button("Idioma da tag") { removeAttribute("language") }
+                        if role == "TH" { Button("Escopo do cabeçalho") { removeAttribute("scope") } }
+                    }
+                    Text("Campos sem alteração são preservados. Apagar um valor remove o atributo; remover ActualText permite voltar ao texto do conteúdo.").font(.caption).foregroundStyle(.secondary)
                     Button("Guardar alteração desta tag") { stageSelection() }
                     HStack { Button("Ler antes") { reorder(-1) }; Button("Ler depois") { reorder(1) } }
                     Text("A ordem muda somente entre tags do mesmo pai. MCIDs, objetos e páginas permanecem vinculados ao conteúdo original.").font(.caption).foregroundStyle(.secondary)
                 } else { Text("Selecione uma tag para revisar.").foregroundStyle(.secondary) }
+              }.frame(maxWidth: .infinity, alignment: .leading)
             }.frame(minWidth: 320).disabled(model.busy)
         }.frame(minHeight: 320)
     }
@@ -128,8 +267,13 @@ struct AccessibilityRemediationView: View {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
         if panel.runModal() == .OK { source = panel.url; report = nil; selection = nil; edits = [:]; result = nil; error = "" }
     }
-    private func inspect() {
-        guard let source else { return }; error = ""
+    private func inspect(request: AccessibilityInspectionRequest? = nil) {
+        guard let source, !model.busy else {
+            request?.completion(.failure(NSError(domain: "PDF.Accessibility", code: 3,
+                userInfo: [NSLocalizedDescriptionKey: "A inspeção exige um PDF de origem e o motor disponível."])))
+            return
+        }
+        error = ""
         do {
             let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-accessibility-" + UUID().uuidString, isDirectory: true)
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
@@ -149,16 +293,37 @@ struct AccessibilityRemediationView: View {
                     report = value; language = value.language.isEmpty ? "pt-BR" : value.language
                     pageRoles = Array(repeating: "P", count: value.pages); pageAlternatives = Array(repeating: "", count: value.pages)
                     reviewedPages = false; edits = [:]; selection = nil; result = nil
-                } catch { self.error = error.localizedDescription }
+                    if let request {
+                        let candidates = value.nodes.filter { $0.role == request.selectedRole }
+                        guard candidates.count == 1, let chosen = candidates.first else {
+                            throw NSError(domain: "PDF.Accessibility", code: 4,
+                                userInfo: [NSLocalizedDescriptionKey: "A inspeção não encontrou exatamente uma tag do papel solicitado."])
+                        }
+                        selection = chosen.id
+                        loadSelection()
+                        request.completion(.success(AccessibilityInspectedSelection(sourceSHA256: value.input_sha256,
+                            tagID: chosen.id, role: role,
+                            values: ["title": tagTitle, "alt": alt, "actual_text": actualText, "language": tagLanguage, "scope": scope])))
+                    }
+                } catch {
+                    self.error = error.localizedDescription
+                    request?.completion(.failure(error))
+                }
             })
-        } catch { self.error = error.localizedDescription }
+        } catch {
+            self.error = error.localizedDescription
+            request?.completion(.failure(error))
+        }
     }
     private func loadSelection() {
         guard let node = report?.nodes.first(where: { $0.id == selection }) else { return }
         let edit = edits[node.id] ?? [:]
-        role = edit["role"] as? String ?? node.role; alt = edit["alt"] as? String ?? node.alt
-        actualText = edit["actual_text"] as? String ?? node.actual_text; tagTitle = edit["title"] as? String ?? node.title
-        tagLanguage = edit["language"] as? String ?? node.language; scope = edit["scope"] as? String ?? node.scope ?? "Column"
+        role = edit["role"] as? String ?? node.role
+        alt = AccessibilityTagEdits.value("alt", original: node.alt, edit: edit)
+        actualText = AccessibilityTagEdits.value("actual_text", original: node.actual_text, edit: edit)
+        tagTitle = AccessibilityTagEdits.value("title", original: node.title, edit: edit)
+        tagLanguage = AccessibilityTagEdits.value("language", original: node.language, edit: edit)
+        scope = AccessibilityTagEdits.value("scope", original: node.scope ?? "", edit: edit)
     }
     private func orderedNodes(_ report: AccessibilityTreeReport) -> [AccessibilityTag] {
         let byID = Dictionary(uniqueKeysWithValues: report.nodes.map { ($0.id, $0) })
@@ -174,12 +339,27 @@ struct AccessibilityRemediationView: View {
         return ordered
     }
     private func stageSelection() {
-        guard let selection else { return }
+        guard let selection, let node = report?.nodes.first(where: { $0.id == selection }) else { return }
+        let edit = AccessibilityTagEdits.stage(id: selection, originalRole: node.role, role: role,
+            original: node.textValues,
+            values: ["alt": alt, "actual_text": actualText, "title": tagTitle, "language": tagLanguage, "scope": scope],
+            present: node.presentFields, existing: edits[selection] ?? [:])
+        if edit.count > 1 { edits[selection] = edit } else { edits.removeValue(forKey: selection) }
+    }
+    private func removeAttribute(_ key: String) {
+        guard let selection, let node = report?.nodes.first(where: { $0.id == selection }) else { return }
+        stageSelection()
         var edit = edits[selection] ?? ["id": selection]
-        edit["role"] = role; edit["alt"] = alt; edit["actual_text"] = actualText; edit["title"] = tagTitle
-        edit["language"] = tagLanguage
-        if role == "TH" { edit["scope"] = scope } else { edit.removeValue(forKey: "scope") }
-        edits[selection] = edit
+        if node.presentFields.contains(key) { edit[key] = NSNull() } else { edit.removeValue(forKey: key) }
+        if edit.count > 1 { edits[selection] = edit } else { edits.removeValue(forKey: selection) }
+        switch key {
+        case "alt": alt = ""
+        case "actual_text": actualText = ""
+        case "title": tagTitle = ""
+        case "language": tagLanguage = ""
+        case "scope": scope = ""
+        default: break
+        }
     }
     private func reorder(_ offset: Int) {
         guard let report, let node = report.nodes.first(where: { $0.id == selection }), let parent = node.parent,

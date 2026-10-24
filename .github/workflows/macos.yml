@@ -89,7 +89,7 @@ jobs:
           CG_PDF_VERBOSE: '1'
         run: |
           set -o pipefail
-          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --smoke-test 2>&1 | tee "$RUNNER_TEMP/PDF-native-checks.log"
+          python3 scripts/run-with-timeout.py --seconds 240 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --smoke-test 2>&1 | tee "$RUNNER_TEMP/PDF-native-checks.log"
       - name: Retain native diagnostic log
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

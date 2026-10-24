@@ -82,6 +82,10 @@ import PDFKit
 /// Independent page/zoom state, while annotations and form values belong to the reference session.
 struct SessionComparisonReader: NSViewRepresentable {
     @ObservedObject var session: PDFDocumentSession
+    @AppStorage("readerDirection") private var direction = "vertical"
+    @AppStorage("readerDisplayBox") private var box = "crop"
+    @AppStorage("readerPageBackground") private var background = "#E8E9EF"
+    @AppStorage("readerDisplayPageBreaks") private var pageBreaks = true
     var mode: Int
     func makeCoordinator() -> Coordinator { Coordinator(session: session) }
     func makeNSView(context: Context) -> PDFView {
@@ -93,11 +97,14 @@ struct SessionComparisonReader: NSViewRepresentable {
     func updateNSView(_ view: PDFView, context: Context) {
         let coordinator = context.coordinator
         coordinator.session = session
-        if view.document !== session.document { view.document = session.document; coordinator.page = nil; coordinator.zoom = nil }
-        let display: PDFDisplayMode = mode == 1 ? .singlePage : mode == 2 ? .twoUpContinuous : .singlePageContinuous
-        if view.displayMode != display { view.displayMode = display }
-        if coordinator.autoScale != session.autoScale { view.autoScales = session.autoScale; coordinator.autoScale = session.autoScale }
-        if !session.autoScale, coordinator.zoom != session.zoom { view.scaleFactor = CGFloat(min(8, max(0.1, session.zoom))); coordinator.zoom = session.zoom }
+        let changedDocument = view.document !== session.document
+        if changedDocument { view.document = session.document; coordinator.page = nil }
+        // Layout preferences are shared with the primary reader. Page, zoom and
+        // automatic fitting continue to belong to this reference session.
+        let settings = ReaderSettings(mode: mode, direction: direction, box: box, background: background,
+                                      autoScale: session.autoScale, zoom: session.zoom, pageBreaks: pageBreaks)
+        settings.apply(to: view, previous: coordinator.settings, changedDocument: changedDocument)
+        coordinator.settings = settings
         if coordinator.page != session.page, let page = session.document.page(at: max(0, min(session.document.pageCount - 1, session.page - 1))) {
             view.go(to: page); coordinator.page = session.page
         }
@@ -106,8 +113,7 @@ struct SessionComparisonReader: NSViewRepresentable {
         var session: PDFDocumentSession
         var observers: [NSObjectProtocol] = []
         var page: Int?
-        var zoom: Double?
-        var autoScale: Bool?
+        var settings: ReaderSettings?
         init(session: PDFDocumentSession) { self.session = session }
         func observe(_ view: PDFView) {
             observers.append(NotificationCenter.default.addObserver(forName: .PDFViewPageChanged, object: view, queue: .main) { [weak view, weak self] _ in
@@ -122,7 +128,9 @@ struct SessionComparisonReader: NSViewRepresentable {
                 guard let view else { return }
                 Task { @MainActor in
                     guard let self, view.document === self.session.document else { return }
-                    self.zoom = Double(view.scaleFactor); self.session.zoom = self.zoom ?? 1; self.session.autoScale = view.autoScales
+                    let zoom = Double(view.scaleFactor)
+                    if zoom.isFinite, zoom > 0 { self.session.zoom = min(8, max(0.1, zoom)) }
+                    self.session.autoScale = view.autoScales
                 }
             })
         }

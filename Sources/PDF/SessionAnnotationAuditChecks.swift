@@ -1,6 +1,7 @@
 import AppKit
 import PDFKit
 import CoreGraphics
+import SwiftUI
 
 @MainActor enum SessionAnnotationAuditChecks {
     static func run() async throws {
@@ -15,6 +16,7 @@ import CoreGraphics
         guard let defaults = UserDefaults(suiteName: suite) else { throw NSError(domain: "PDF.SessionAudit", code: 2) }
         defer { defaults.removePersistentDomain(forName: suite) }
         defaults.set(false, forKey: "recoveryEnabled")
+        defaults.set(false, forKey: "readerAutoScale"); defaults.set(1.5, forKey: "readerZoom")
         let store = RecoveryStore(directory: directory.appendingPathComponent("Recovery", isDirectory: true))
         let firstURL = directory.appendingPathComponent("first.pdf"), secondURL = directory.appendingPathComponent("second.pdf")
         guard let first = PDFDocument(data: try IntelligenceText.PDF("Primeiro documento — sessão de teste.")),
@@ -30,13 +32,18 @@ import CoreGraphics
         workspace.open(url: firstURL)
         await workspace.waitForPendingOpen()
         guard let firstSession = workspace.activeSession, let openedPage = workspace.document?.page(at: 0) else { throw NSError(domain: "PDF.SessionAudit", code: 5) }
+        try require(firstSession.zoom == 1.5 && !firstSession.autoScale,
+                    "Uma nova sessão ignorou o zoom e o ajuste automático escolhidos nas preferências.")
         let view = PDFView(frame: CGRect(x: 0, y: 0, width: 800, height: 600)); view.document = workspace.document
         workspace.pdfView = view; view.autoScales = false; view.scaleFactor = 1.75
         workspace.currentPage = 2; workspace.bookmarks = [2]
         openedPage.annotations.first { $0.fieldName == "session-field" }?.widgetStringValue = "Alterado na primeira aba"
+        defaults.set(true, forKey: "readerAutoScale"); defaults.set(2.25, forKey: "readerZoom")
         workspace.open(url: secondURL)
         await workspace.waitForPendingOpen()
         guard let secondSession = workspace.activeSession else { throw NSError(domain: "PDF.SessionAudit", code: 6) }
+        try require(secondSession.zoom == 2.25 && secondSession.autoScale && !firstSession.autoScale,
+                    "As preferências de uma nova aba sobrescreveram o estado da aba já aberta.")
         try require(workspace.sessions.count == 2 && firstSession.isDirty && !secondSession.isDirty, "Abrir outra aba perdeu o documento ou alterações de formulário.")
         try require(firstSession.page == 2 && abs(firstSession.zoom - 1.75) < 0.01 && firstSession.bookmarks == [2], "A primeira aba perdeu página, zoom ou marcas.")
         workspace.activateSession(firstSession.id)
@@ -44,6 +51,32 @@ import CoreGraphics
         workspace.comparisonSessionID = secondSession.id
         secondSession.page = 1; secondSession.zoom = 2.1; secondSession.autoScale = false
         try require(workspace.currentPage == 2 && firstSession.zoom != secondSession.zoom, "O documento de referência alterou a navegação principal.")
+        do {
+            defaults.set("horizontal", forKey: "readerDirection"); defaults.set("media", forKey: "readerDisplayBox")
+            defaults.set("#204060", forKey: "readerPageBackground"); defaults.set(false, forKey: "readerDisplayPageBreaks")
+            let host = NSHostingView(rootView: SessionComparisonReader(session: secondSession, mode: 2).defaultAppStorage(defaults))
+            host.frame = NSRect(x: 0, y: 0, width: 800, height: 600); host.layoutSubtreeIfNeeded()
+            // A queue barrier lets the real SwiftUI/representable work already
+            // scheduled above finish; no polling or manual run loop is used.
+            await withCheckedContinuation { (continuation: CheckedContinuation<Void, Never>) in
+                DispatchQueue.main.async { continuation.resume() }
+            }
+            host.layoutSubtreeIfNeeded()
+            func findPDFView(_ view: NSView) -> PDFView? {
+                if let pdf = view as? PDFView { return pdf }
+                return view.subviews.lazy.compactMap(findPDFView).first
+            }
+            guard let reference = findPDFView(host), let color = reference.backgroundColor.usingColorSpace(.sRGB) else {
+                throw NSError(domain: "PDF.SessionAudit", code: 15, userInfo: [NSLocalizedDescriptionKey: "O leitor real de referência não foi montado para verificar as preferências."])
+            }
+            try require(reference.document === secondSession.document && reference.displayMode == .twoUpContinuous &&
+                        reference.displayDirection == .horizontal && reference.displayBox == .mediaBox && !reference.displaysPageBreaks,
+                        "O leitor de referência ignorou modo, direção, caixa de página ou separação configurados.")
+            try require(!reference.autoScales && abs(Double(reference.scaleFactor) - 2.1) < 0.01 &&
+                        abs(color.redComponent - 32.0 / 255) < 0.001 && abs(color.greenComponent - 64.0 / 255) < 0.001 &&
+                        abs(color.blueComponent - 96.0 / 255) < 0.001,
+                        "O leitor de referência perdeu o zoom próprio ou o fundo personalizado.")
+        }
         try workspace.checkpointRecoveryNow()
         let records = try store.list()
         try require(records.count == 2, "A recuperação não preservou as duas sessões.")
@@ -53,6 +86,8 @@ import CoreGraphics
         try restoredWorkspace.refreshRecoveryNow(); restoredWorkspace.restoreRecovery(id: firstSession.id)
         await restoredWorkspace.waitForPendingOpen()
         try require(restoredWorkspace.currentPage == 2 && restoredWorkspace.activeSession?.isDirty == true && restoredWorkspace.bookmarks == [2], "A restauração não recuperou o estado de leitura e a proteção contra descarte.")
+        try require(abs((restoredWorkspace.activeSession?.zoom ?? 0) - 1.75) < 0.01 && restoredWorkspace.activeSession?.autoScale == false,
+                    "Restaurar a sessão aplicou as preferências atuais no lugar do zoom e ajuste automático recuperados.")
         try require(try Data(contentsOf: firstURL) == firstBytes, "Sessões/recuperação alteraram o documento original.")
         let generationsBeforeNavigation = try FileManager.default.contentsOfDirectory(atPath: store.directory.path).sorted()
         workspace.currentPage = 1; workspace.bookmarks = []; view.scaleFactor = 2.75
@@ -78,6 +113,22 @@ import CoreGraphics
         firstSession.finishRecoveryTask(replacementTaskID)
         try require(firstSession.recoveryTaskID == nil && firstSession.recoveryTask == nil && firstSession.recoveryWrite == nil,
                     "Concluir a tarefa atual não limpou seus próprios identificadores.")
+
+        // Inspect our explicit ownership boundary; PDFKit may retain its own
+        // internal caches, so the test never relies on framework deinit timing.
+        let searchWorkspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+        searchWorkspace.open(url: firstURL); await searchWorkspace.waitForPendingOpen()
+        guard let searchedSession = searchWorkspace.activeSession else { throw NSError(domain: "PDF.SessionAudit", code: 14) }
+        searchWorkspace.search("Primeiro", animate: false)
+        try require(searchWorkspace.hasSearchResources, "A busca não criou o estado real exigido pelo cenário de liberação.")
+        searchWorkspace.cancelSearch()
+        try require(!searchWorkspace.hasSearchResources && !searchWorkspace.searching,
+                    "Cancelar a busca manteve referências ao PDF, resultados ou observadores.")
+        searchWorkspace.search("documento", animate: false)
+        try require(searchWorkspace.hasSearchResources, "A segunda busca não restaurou o estado real do leitor.")
+        searchWorkspace.closeSession(searchedSession.id, discardChanges: true)
+        try require(searchWorkspace.sessions.isEmpty && searchWorkspace.document == nil && !searchWorkspace.hasSearchResources && !searchWorkspace.searching,
+                    "Fechar a última aba reteve o documento pesquisado, resultados ou observadores no Workspace.")
 
         // The original password stays in memory; recovered bytes must require it again.
         let password = "native-session-recovery-123"

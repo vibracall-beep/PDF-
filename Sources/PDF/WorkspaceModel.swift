@@ -298,6 +298,9 @@ enum ReaderAnnotationStyle {
         (pdfView as? DrawingPDFView)?.finishStroke()
         captureActiveSession()
         let session = PDFDocumentSession(document: doc, sourceURL: url, password: password, usedCompatibilityCopy: usedCompatibilityCopy)
+        let preferredZoom = defaults.object(forKey: "readerZoom") as? Double ?? 1
+        session.zoom = preferredZoom.isFinite ? min(8, max(0.1, preferredZoom)) : 1
+        session.autoScale = defaults.object(forKey: "readerAutoScale") as? Bool ?? true
         session.page = min(max(1, defaults.integer(forKey: "readerPage:" + url.standardizedFileURL.path)), max(1, doc.pageCount))
         session.bookmarks = Set((defaults.array(forKey: "bookmarks:" + url.standardizedFileURL.path) as? [Int] ?? []).filter { $0 > 0 && $0 <= doc.pageCount })
         configure(session); sessions.append(session); loadSession(session)
@@ -368,7 +371,7 @@ enum ReaderAnnotationStyle {
         session.refreshDirty()
     }
     private func loadSession(_ session: PDFDocumentSession) {
-        cancelSearch(); searchMatches = []; searchCursor = -1; selectedAnnotation = nil
+        cancelSearch(); selectedAnnotation = nil
         activeSessionID = session.id; document = session.document; url = session.sourceURL; savedDocumentURL = session.savedURL
         currentPage = min(max(1, session.page), max(1, session.document.pageCount)); bookmarks = session.bookmarks
         hasEdits = session.hasEdits; annotationRevision = session.annotationRevision; originalWidgetState = session.originalWidgetState
@@ -679,7 +682,6 @@ enum ReaderAnnotationStyle {
         }
         if query == searchQuery, searching { return }
         cancelSearch(); searchDocument = document; searchQuery = query; searchRevision = annotationRevision
-        searchMatches = []; searchCursor = -1; searchLimited = false
         searchAnchorPage = max(0, currentPage - 1); searchAnchorCharacter = 0
         if let selection = pdfView?.currentSelection, let page = selection.pages.last {
             let count = selection.numberOfTextRanges(on: page)
@@ -697,13 +699,18 @@ enum ReaderAnnotationStyle {
         })
         document.beginFindString(query, withOptions: .caseInsensitive)
     }
+    /// Exposes ownership, not PDFKit's internal object lifetime, for the native
+    /// close/cancellation regression and diagnostics.
+    var hasSearchResources: Bool { searchDocument != nil || !searchMatches.isEmpty || !searchObservers.isEmpty }
     func cancelSearch() {
         searchID = UUID()
         for observer in searchObservers { NotificationCenter.default.removeObserver(observer) }
         searchObservers = []
         if searchDocument?.isFinding == true { searchDocument?.cancelFindString() }
         if searching { message = "Busca cancelada." }
-        searching = false; searchQuery = ""
+        searching = false; searchQuery = ""; searchDocument = nil
+        searchMatches = []; searchCursor = -1; searchRevision = -1
+        searchAnchorPage = 0; searchAnchorCharacter = 0; searchLimited = false
     }
     private func receiveSearchMatch(_ selection: PDFSelection, id: UUID) {
         guard id == searchID, searching, let document = searchDocument, self.document === document else { return }
@@ -907,7 +914,12 @@ struct Reader: NSViewRepresentable {
             } else {
                 let zoomBinding = $zoom, scaleBinding = $autoScale
                 let sessionZoom = session.zoom, sessionScale = session.autoScale
-                DispatchQueue.main.async { zoomBinding.wrappedValue = sessionZoom; scaleBinding.wrappedValue = sessionScale }
+                let sessionID = session.id
+                DispatchQueue.main.async { [weak model, weak view] in
+                    guard let model, model.activeSessionID == sessionID,
+                          let view, view.document === model.activeSession?.document else { return }
+                    zoomBinding.wrappedValue = sessionZoom; scaleBinding.wrappedValue = sessionScale
+                }
             }
         }
         let settings = ReaderSettings(mode: mode, direction: direction, box: box, background: background,

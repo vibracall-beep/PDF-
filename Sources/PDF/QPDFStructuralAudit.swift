@@ -200,10 +200,15 @@ enum QPDFStructuralAudit {
             }
             try require(restored.annotations.contains { $0.fieldName == "roundtrip-text" && $0.widgetStringValue == "Editable field" },
                         "O roundtrip perdeu o valor do campo de texto.")
-            try require(restored.annotations.contains {
-                $0.fieldName == "roundtrip-choice" && $0.widgetStringValue == "second" &&
-                    $0.choices == ["First label", "Second label"] && $0.values == ["first", "second"] && $0.isListChoice
-            }, "O roundtrip perdeu seleção, rótulos ou valores da lista.")
+            // macOS 26 returns "Second label" from widgetStringValue for this
+            // encrypted fixture while the actual /V remains the export
+            // "second". Check the persisted export independently with qpdf;
+            // retain PDFKit checks for labels, exports and the list control.
+            let restoredList = try findAnnotation(restored, .widget, field: "roundtrip-choice")
+            try require(restoredList.choices == ["First label", "Second label"] &&
+                        restoredList.values == ["first", "second"] && restoredList.isListChoice,
+                        "O roundtrip perdeu rótulos, valores ou o tipo de controle da lista.")
+            try verifyChoiceExport(bytes, password: password, expected: "second")
             try require(restored.annotations.contains {
                 $0.fieldName == "roundtrip-checkbox" && $0.widgetControlType == .checkBoxControl &&
                     $0.buttonWidgetState.rawValue == 1 && $0.buttonWidgetStateString == "Yes"
@@ -226,6 +231,14 @@ enum QPDFStructuralAudit {
             try require((text.widgetDefaultStringValue ?? "").isEmpty && (choice.widgetDefaultStringValue ?? "").isEmpty &&
                         originalText.font?.fontName == originalFont.fontName && originalText.font?.pointSize == originalFont.pointSize,
                         "Preparar a cópia modificou a semântica dos valores ou da fonte no documento aberto.")
+            let changedSelection = try NativePDFSerialization.open(data: bytes, password: password)
+            guard let changedPage = changedSelection.page(at: 0) else { throw failure("A amostra de seleção perdeu a página.") }
+            try findAnnotation(changedPage, .widget, field: "roundtrip-choice").widgetStringValue = "first"
+            let changedBytes = try NativePDFSerialization.serialize(document: changedSelection, password: password)
+            try check(changedBytes, password: password, phase: "changed exported list selection")
+            try verifyChoiceExport(changedBytes, password: password, expected: "first")
+            try require(rejects { try NativePDFSerialization.verifyFidelity(data: changedBytes, prepared: prepared) },
+                        "A verificação aceitou uma alteração real da seleção exportada da lista.")
             if password == nil { plainBytes = bytes }
         }
         guard let plainBytes else { throw failure("A amostra editável sem senha não foi exercitada.") }
@@ -268,6 +281,7 @@ enum QPDFStructuralAudit {
                     "A cópia alterou os valores explícitos de redefinição dos campos.")
         try require(restored.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
             $0.contents == "Independent popup contents" && $0.isOpen }, "A cópia perdeu o popup independente aberto.")
+        try verifyPopupOpen(bytes, expected: true)
         try require(restored.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
             $0.contents == "Independent popup contents" &&
                 ($0.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) as? NSNumber)?.intValue == 4 },
@@ -289,9 +303,21 @@ enum QPDFStructuralAudit {
             let item = try findAnnotation(page, .freeText)
             return item.font?.fontName == otherFont.fontName && item.font?.pointSize == 17
         })
+        // PDFKit immediately converts named colors such as NSColor.red into
+        // its annotation color space. Capture the actual setter result before
+        // writing, require a real change, then compare that same color after
+        // reopening; do not mistake the conversion for a serialization loss.
+        var changedFontColor: NSColor?
         try mutatedCandidate(bytes, prepared: prepared, name: "changed font color", mutate: { page in
-            try findAnnotation(page, .freeText).fontColor = .red
-        }, persisted: { page in sameColor(try findAnnotation(page, .freeText).fontColor, .red) })
+            let item = try findAnnotation(page, .freeText)
+            item.fontColor = NSColor(srgbRed: 0.6, green: 0.2, blue: 0.3, alpha: 1)
+            guard let effective = item.fontColor else { throw failure("O setter de cor não retornou uma cor de texto efetiva.") }
+            try require(!sameColor(effective, annotation.fontColor), "O controle de cor não alterou a cor efetiva da anotação.")
+            changedFontColor = effective
+        }, persisted: { page in
+            guard let changedFontColor else { return false }
+            return sameColor(try findAnnotation(page, .freeText).fontColor, changedFontColor)
+        }, serialized: { try verifyChangedFontColor(baseline: bytes, changed: $0) })
         try mutatedCandidate(bytes, prepared: prepared, name: "changed explicit border", mutate: { page in
             let changed = PDFBorder(); changed.lineWidth = 4
             try findAnnotation(page, .freeText).border = changed
@@ -333,7 +359,8 @@ enum QPDFStructuralAudit {
             }
             item.isOpen = false
         }, persisted: { page in page.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
-            $0.contents == "Independent popup contents" && !$0.isOpen } })
+            $0.contents == "Independent popup contents" && !$0.isOpen } },
+           serialized: { try verifyPopupOpen($0, expected: false) })
         try mutatedCandidate(bytes, prepared: prepared, name: "changed independent popup raw flags", mutate: { page in
             guard let item = page.annotations.first(where: { PDFAnnotationKind.matches($0, .popup) && $0.contents == "Independent popup contents" }) else {
                 throw failure("O cenário de flags não encontrou o Popup independente.")
@@ -386,13 +413,15 @@ enum QPDFStructuralAudit {
 
     @MainActor
     private static func mutatedCandidate(_ baseline: Data, prepared: NativePDFSerialization.Prepared, name: String,
-                                         mutate: (PDFPage) throws -> Void, persisted: (PDFPage) throws -> Bool) throws {
+                                         mutate: (PDFPage) throws -> Void, persisted: (PDFPage) throws -> Bool,
+                                         serialized: ((Data) throws -> Void)? = nil) throws {
         guard let document = PDFDocument(data: baseline), let page = document.page(at: 0) else {
             throw failure("A amostra de adulteração não pôde ser aberta.")
         }
         try mutate(page)
         let bytes = try NativePDFSerialization.serialize(document: document)
         try check(bytes, phase: name)
+        try serialized?(bytes)
         guard let reopened = PDFDocument(data: bytes), let result = reopened.page(at: 0), try persisted(result) else {
             throw failure("\(name): a alteração solicitada não persistiu; cenário inválido.")
         }
@@ -416,6 +445,80 @@ enum QPDFStructuralAudit {
             abs(left.blueComponent - right.blueComponent) <= tolerance &&
             abs(left.alphaComponent - right.alphaComponent) <= tolerance
     }
+
+    /// Inspect only live page annotations from the independent qpdf JSON, not
+    /// an orphaned dictionary or the same canonicalizer used by production.
+    private static func liveAnnotations(_ data: Data, password: String? = nil) throws -> [[String: Any]] {
+        var options: [String: Any] = ["json": "2", "jsonKey": ["qpdf", "pages"], "jsonStreamData": "none"]
+        if let password { options["password"] = password }
+        let report = try auditJob(data, options: options, outputPDF: false)
+        guard let root = try JSONSerialization.jsonObject(with: report) as? [String: Any],
+              let qpdf = root["qpdf"] as? [Any], qpdf.count == 2,
+              let objects = qpdf[1] as? [String: [String: Any]],
+              let pages = root["pages"] as? [[String: Any]], pages.count == 1 else {
+            throw failure("A amostra não produziu a árvore independente de uma página esperada.")
+        }
+        func value(_ source: Any?) -> Any? {
+            if let reference = source as? String, reference.hasSuffix(" R") {
+                return objects["obj:" + reference]?["value"]
+            }
+            return source
+        }
+        guard let page = value(pages[0]["object"]) as? [String: Any],
+              let references = value(page["/Annots"]) as? [Any] else {
+            throw failure("A página não contém a lista de anotações esperada pela auditoria.")
+        }
+        return try references.map { reference in
+            guard let annotation = value(reference) as? [String: Any] else {
+                throw failure("Uma anotação da amostra não pôde ser inspecionada independentemente.")
+            }
+            return annotation
+        }
+    }
+
+    private static func verifyChoiceExport(_ data: Data, password: String?, expected: String) throws {
+        let matches = try liveAnnotations(data, password: password).filter { $0["/T"] as? String == "u:roundtrip-choice" }
+        guard matches.count == 1, let field = matches.first,
+              field["/FT"] as? String == "/Ch", field["/Subtype"] as? String == "/Widget",
+              field["/V"] as? String == "u:" + expected,
+              field["/Opt"] as? [[String]] == [["u:first", "u:First label"], ["u:second", "u:Second label"]],
+              let flags = field["/Ff"] as? NSNumber, CFGetTypeID(flags) != CFBooleanGetTypeID(), flags.intValue == 0 else {
+            throw failure("O valor exportado, as opções ou o tipo da lista diferem nos objetos PDF publicados.")
+        }
+    }
+
+    private static func verifyPopupOpen(_ data: Data, expected: Bool) throws {
+        let matches = try liveAnnotations(data).filter {
+            $0["/Subtype"] as? String == "/Popup" && $0["/Contents"] as? String == "u:Independent popup contents"
+        }
+        guard matches.count == 1, let flag = matches.first?["/Open"] as? NSNumber,
+              CFGetTypeID(flag) == CFBooleanGetTypeID(), flag.boolValue == expected else {
+            throw failure("O Popup independente não preservou /Open como booleano PDF com o estado esperado.")
+        }
+    }
+
+    private static func verifyChangedFontColor(baseline: Data, changed: Data) throws {
+        func RGB(_ data: Data) throws -> [Double] {
+            let matches = try liveAnnotations(data).filter {
+                $0["/Subtype"] as? String == "/FreeText" && $0["/Contents"] as? String == "u:Annotation 4"
+            }
+            guard matches.count == 1, let appearance = matches.first?["/DA"] as? String,
+                  appearance.hasPrefix("u:") else { throw failure("A aparência textual não contém uma string PDF independente.") }
+            let tokens = appearance.dropFirst(2).split(whereSeparator: { $0.isWhitespace })
+            let operators = tokens.indices.filter { tokens[$0] == "rg" }
+            guard operators.count == 1, let index = operators.first, index >= 3 else {
+                throw failure("A aparência da amostra não contém a única cor RGB esperada.")
+            }
+            let components = tokens[(index - 3)..<index].compactMap { Double($0) }
+            guard components.count == 3, components.allSatisfy({ $0.isFinite && (0...1).contains($0) }) else {
+                throw failure("A aparência da amostra contém componentes de cor inválidos.")
+            }
+            return components
+        }
+        try require(try RGB(baseline) != RGB(changed),
+                    "O controle de cor não alterou os componentes RGB serializados em /DA.")
+    }
+
 
     @MainActor
     static func verifyUnicodeFieldIdentity() throws {

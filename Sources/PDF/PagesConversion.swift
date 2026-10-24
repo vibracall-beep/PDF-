@@ -263,7 +263,7 @@ struct PagesConversionView: View {
                     Button("Escolher documento…") { chooseSource() }
                     Divider()
                     Label(destination?.lastPathComponent ?? "Escolha um novo PDF de saída", systemImage: "square.and.arrow.down")
-                    Button("Escolher destino…") { destination = NativeOutput.destination(name: (source?.deletingPathExtension().lastPathComponent ?? "Pages") + ".pdf", type: .pdf) }
+                    Button("Escolher destino…") { destination = NativeOutput.destination(model: model, toolName: "Pages para PDF", originalURL: source) }
                 }.frame(maxWidth: .infinity, alignment: .leading).padding(10)
             }.disabled(converter.running)
             Text("O Pages precisa estar instalado. Na primeira conversão, o macOS pode solicitar autorização para o PDF controlar o Pages. Uma cópia privada é usada para exportar; seu documento original permanece intacto.")

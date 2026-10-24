@@ -1,5 +1,6 @@
 import Foundation
 import PDFKit
+import CoreFoundation
 
 /// Repairs PDFKit's known NSString -> PDF Name serialization defect. The
 /// caller owns private IPC, structural checks, encryption and final fidelity.
@@ -11,6 +12,7 @@ enum NativePDFStringRepair {
         fileprivate var buttonStates: Set<Data> = [Data("Off".utf8)]
         fileprivate var terminalFields: [TerminalField] = []
         fileprivate var fieldNameCounts: [Data: Int] = [:]
+        fileprivate var popups: [PopupWitness] = []
         fileprivate var needsInspection = false
     }
 
@@ -20,6 +22,13 @@ enum NativePDFStringRepair {
         let type: String
         let bounds: [Double]
         var checkedBoxValue: Data? = nil
+    }
+
+    fileprivate struct PopupWitness: Sendable {
+        let page: Int
+        let bounds: [Double]
+        let contents: Data
+        let isOpen: Bool
     }
 
     private static let maximumJSONBytes = 64 * 1024 * 1024
@@ -44,6 +53,16 @@ enum NativePDFStringRepair {
                 guard annotationCount <= maximumObjects else { throw failure() }
                 try remember("contents", item.contents)
                 if PDFAnnotationKind.matchesAny(item, [.text, .popup]) || item.popup != nil { result.needsInspection = true }
+                if PDFAnnotationKind.matches(item, .popup) {
+                    if let raw = item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/Open")) {
+                        guard let number = raw as? NSNumber, CFGetTypeID(number) == CFBooleanGetTypeID(),
+                              number.boolValue == item.isOpen else { throw failure() }
+                    } else if item.isOpen { throw failure() }
+                    result.popups.append(PopupWitness(page: index,
+                        bounds: try geometry([Double(item.bounds.origin.x), Double(item.bounds.origin.y),
+                                              Double(item.bounds.width), Double(item.bounds.height)]),
+                        contents: Data((item.contents ?? "").utf8), isOpen: item.isOpen))
+                }
                 for (key, value) in try annotationTextFields(item) {
                     try remember("annotation:" + key, value)
                 }
@@ -199,6 +218,11 @@ enum NativePDFStringRepair {
             let annotation = annotationKeys.contains(key)
             if annotation {
                 try repair("/Contents", role: "contents")
+                if value["/Subtype"] as? String == "/Popup", let rawOpen = value["/Open"] {
+                    let fixed = try repairPopupOpen(rawOpen, key: key, value: value, graph: graph,
+                        pages: document["pages"], baseline: baseline)
+                    if fixed.changed { value["/Open"] = fixed.value; changed = true }
+                }
                 for field in ["/NM", "/Subj"] { try repair(field, role: "annotation:" + field) }
                 if !fieldKeys.contains(key) { try repair("/T", role: "annotation:/T") }
             }
@@ -484,6 +508,37 @@ enum NativePDFStringRepair {
         }
     }
 
+    /// macOS 27 can serialize a Popup's CFBoolean as the PDF number 0/1.
+    /// Only an exact pre-writer popup can prove the intended Boolean. Valid
+    /// Boolean values are not broadly coerced, and no other key is changed.
+    private static func repairPopupOpen(_ raw: Any, key: String, value: [String: Any], graph: Graph,
+                                        pages: Any?, baseline: Baseline) throws -> (value: Any, changed: Bool) {
+        guard let number = raw as? NSNumber else { throw failure() }
+        let isBoolean = CFGetTypeID(number) == CFBooleanGetTypeID()
+        guard number.doubleValue == 0 || number.doubleValue == 1 else { throw failure() }
+        guard let rectangle = value["/Rect"] as? [NSNumber], rectangle.count == 4,
+              let pages = pages as? [[String: Any]] else { throw failure() }
+        let coordinates = rectangle.map(\.doubleValue)
+        guard coordinates.allSatisfy(\.isFinite), coordinates[2] >= coordinates[0], coordinates[3] >= coordinates[1] else { throw failure() }
+        let bounds = try geometry([coordinates[0], coordinates[1], coordinates[2] - coordinates[0], coordinates[3] - coordinates[1]])
+        let contents: Data
+        if let rawContents = value["/Contents"] {
+            guard let string = rawContents as? String, string.hasPrefix("u:") else { throw failure() }
+            contents = Data(string.dropFirst(2).utf8)
+        } else { contents = Data() }
+        var locations: [Int] = []
+        for (index, page) in pages.enumerated() {
+            guard let pageKey = graph.reference(page["object"]), let page = graph.value(pageKey) else { throw failure() }
+            for entry in try graph.array(page["/Annots"]) ?? [] where graph.reference(entry) == key { locations.append(index) }
+        }
+        let matches = baseline.popups.filter { locations == [$0.page] && $0.bounds == bounds && $0.contents == contents }
+        // A valid Boolean on an automatically generated popup needs no type
+        // repair. Its semantics remain covered by the final fidelity check.
+        if isBoolean, matches.count != 1 { return (raw, false) }
+        guard matches.count == 1, let witness = matches.first, witness.isOpen == number.boolValue else { throw failure() }
+        return isBoolean ? (raw, false) : (witness.isOpen, true)
+    }
+
     private static func repairStrings(_ value: Any, allowed: Set<Data>, arrays: Bool = false) throws -> (value: Any, changed: Bool) {
         if arrays, let values = value as? [Any] {
             var output: [Any] = [], changed = false
@@ -640,7 +695,14 @@ enum NativePDFStringRepair {
     /// diagnostics. These checks exercise typed values and structural aliases
     /// independently of PDFKit's reader accepting a malformed representation.
     static func runAuditChecks() throws {
-        func require(_ value: Bool) throws { if !value { throw failure() } }
+        func require(_ value: Bool, line: Int = #line) throws {
+            if !value {
+                // Only a fixed source location reaches diagnostics, never a
+                // PDF value or the contents of a rejected fixture.
+                throw NSError(domain: "PDF.NativeStringRepair.Audit", code: 1, userInfo: [NSLocalizedDescriptionKey:
+                    "A auditoria interna do reparo PDF falhou no ponto \(line)."])
+            }
+        }
         func record(_ value: [String: Any]) -> [String: Any] { ["value": value] }
         var baseline = Baseline()
         let expectedStrings: [String: [String]] = ["contents": ["/Note text"], "field:T": ["/field", "choice"],
@@ -709,10 +771,10 @@ enum NativePDFStringRepair {
         var applied = objects
         for (key, value) in updates { applied[key] = value }
         try require(try patch(jsonData: data(applied), baseline: baseline) == nil)
-        func rejects(_ records: [String: [String: Any]], _ captured: Baseline) throws {
+        func rejects(_ records: [String: [String: Any]], _ captured: Baseline, line: Int = #line) throws {
             var refused = false
             do { _ = try patch(jsonData: data(records), baseline: captured) } catch { refused = true }
-            try require(refused)
+            try require(refused, line: line)
         }
         // The second write in the real macOS 26 fixture keeps only the button
         // in /Fields, while text/choice widgets remain intact on the page.
@@ -783,10 +845,70 @@ enum NativePDFStringRepair {
             case "duplicate-name": witnessed.fieldNameCounts[singleName] = 2
             case "radio": candidate["/Ff"] = 1 << 15
             case "pushbutton": candidate["/Ff"] = 1 << 16
-            default: candidate["/Parent"] = "11 0 R"
+            default:
+                // Object 11 has a valid /Yes state through its other child.
+                // Reusing it would test inherited AP evidence, not the flat
+                // single-appearance witness that this negative isolates.
+                candidate["/Parent"] = "15 0 R"
+                invalid["obj:15 0 R"] = record(["/FT": "/Btn", "/T": "u:parent-without-states", "/Kids": ["14 0 R"]])
             }
             invalid["obj:14 0 R"] = record(candidate)
             try rejects(invalid, witnessed)
+        }
+        // Conversely, a real parent/child group may prove the value using its
+        // appearance states. Preserve that supported path with valid backlinks.
+        var inherited = single, inheritedBox = singleBox
+        inherited["obj:1 0 R"] = objects["obj:1 0 R"]
+        inheritedBox["/Parent"] = "11 0 R"
+        inherited["obj:14 0 R"] = record(inheritedBox)
+        inherited["obj:12 0 R"] = ["value": ["13 0 R", "14 0 R"]]
+        guard let inheritedPatch = try patch(jsonData: data(inherited), baseline: singleBaseline),
+              let inheritedRoot = try JSONSerialization.jsonObject(with: inheritedPatch) as? [String: Any],
+              let inheritedQPDF = inheritedRoot["qpdf"] as? [Any],
+              let inheritedUpdates = inheritedQPDF[1] as? [String: [String: Any]],
+              let inheritedValue = inheritedUpdates["obj:14 0 R"]?["value"] as? [String: Any] else { throw failure() }
+        try require(inheritedValue["/V"] as? String == "/Yes")
+        try require(inheritedValue["/Parent"] as? String == "11 0 R")
+        // Actual macOS 27 qpdf JSON contains /Open:1 for an independently
+        // authored popup whose pre-writer raw value and getter were true.
+        let popupText = "Independent popup contents"
+        let independentPopup: [String: Any] = ["/Type": "/Annot", "/Subtype": "/Popup", "/F": 4,
+            "/Rect": [330, 100, 470, 190], "/Contents": "u:" + popupText, "/Open": 1]
+        var openRecords = objects, openBaseline = baseline
+        openRecords["obj:24 0 R"] = record(independentPopup)
+        openRecords["obj:4 0 R"] = ["value": ["5 0 R", "20 0 R", "21 0 R", "24 0 R"]]
+        openBaseline.popups = [PopupWitness(page: 0, bounds: [330, 100, 140, 90], contents: Data(popupText.utf8), isOpen: true)]
+        for opened in [true, false] {
+            var records = openRecords, captured = openBaseline, popupValue = independentPopup
+            popupValue["/Open"] = opened ? 1 : 0; records["obj:24 0 R"] = record(popupValue)
+            captured.popups = [PopupWitness(page: 0, bounds: [330, 100, 140, 90], contents: Data(popupText.utf8), isOpen: opened)]
+            guard let corrected = try patch(jsonData: data(records), baseline: captured),
+                  let root = try JSONSerialization.jsonObject(with: corrected) as? [String: Any],
+                  let qpdf = root["qpdf"] as? [Any], let correctedRecords = qpdf[1] as? [String: [String: Any]],
+                  var restoredPopup = correctedRecords["obj:24 0 R"]?["value"] as? [String: Any],
+                  let state = restoredPopup["/Open"] as? NSNumber else { throw failure() }
+            try require(CFGetTypeID(state) == CFBooleanGetTypeID() && state.boolValue == opened)
+            restoredPopup.removeValue(forKey: "/Open"); popupValue.removeValue(forKey: "/Open")
+            try require(NSDictionary(dictionary: restoredPopup).isEqual(to: popupValue))
+            for (key, value) in correctedRecords { records[key] = value }
+            try require(try patch(jsonData: data(records), baseline: captured) == nil)
+        }
+        for change in ["state", "boolean-state", "number", "fraction", "string", "page", "bounds", "contents", "duplicate", "duplicate-page-reference"] {
+            var invalid = openRecords, captured = openBaseline, popupValue = independentPopup
+            switch change {
+            case "state": popupValue["/Open"] = 0
+            case "boolean-state": popupValue["/Open"] = false
+            case "number": popupValue["/Open"] = 2
+            case "fraction": popupValue["/Open"] = 0.5
+            case "string": popupValue["/Open"] = "u:true"
+            case "page": captured.popups = [PopupWitness(page: 1, bounds: [330, 100, 140, 90], contents: Data(popupText.utf8), isOpen: true)]
+            case "bounds": popupValue["/Rect"] = [331, 100, 470, 190]
+            case "contents": popupValue["/Contents"] = "u:Different contents"
+            case "duplicate": captured.popups.append(captured.popups[0])
+            default: invalid["obj:4 0 R"] = ["value": ["5 0 R", "20 0 R", "21 0 R", "24 0 R", "24 0 R"]]
+            }
+            invalid["obj:24 0 R"] = record(popupValue)
+            try rejects(invalid, captured)
         }
         // Two distinct visible objects cannot be merged merely because their
         // dictionaries currently happen to be equal.

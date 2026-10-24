@@ -247,10 +247,8 @@ struct VerificationView: View {
             }
         } else if mode == "verify" { options["trust_roots"] = roots.map(\.path) }
         else { options["flavour"] = mode == "pdfa" ? archiveProfile : accessibilityProfile }
-        let panel = NSSavePanel(); panel.allowedContentTypes = signing ? [.pdf] : [.json]
-        panel.nameFieldStringValue = source.deletingPathExtension().lastPathComponent + (signing ? "-assinado.pdf" : "-verificacao.json")
-        guard panel.runModal() == .OK, let output = panel.url else { return }
-        guard !FileManager.default.fileExists(atPath: output.path) else { error = "Escolha um novo destino para preservar os arquivos existentes."; return }
+        guard let output = NativeOutput.destination(model: model, toolName: title,
+            extension: signing ? "pdf" : "json", originalURL: source) else { return }
         certificatePIN = ""; report = nil; reportURL = nil
         model.execute(operation: operation, inputs: [source], output: output, options: options, title: title, completion: { result in
             switch result {

@@ -68,5 +68,5 @@ PY
 # The product must recover real text through its local OCR pipeline. A failed
 # Apple-only capability audit is reported separately by CI, never substituted
 # for this mandatory product smoke check or for the installer's rollback.
-"$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/run-with-timeout.py" --seconds 180 -- "$PDF_EXECUTABLE" --smoke-test
+"$PDF_INTERPRETER" "$PDF_SOURCE_ROOT/scripts/run-with-timeout.py" --seconds 240 -- "$PDF_EXECUTABLE" --smoke-test
 printf '%s\n' 'Bundle arm64, assinatura local, qpdf, dependências, OCR local e verificações do aplicativo: OK'

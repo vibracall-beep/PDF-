@@ -24,19 +24,10 @@ enum NativeOutput {
         try handle.synchronize()
         try FileManager.default.linkItem(at: temporary, to: destination)
     }
-    @MainActor static func destination(name: String, type: UTType) -> URL? {
-        let panel = NSSavePanel()
-        panel.allowedContentTypes = [type]
-        panel.nameFieldStringValue = name
-        guard panel.runModal() == .OK, let url = panel.url else { return nil }
-        guard !FileManager.default.fileExists(atPath: url.path) else {
-            let alert = NSAlert()
-            alert.messageText = "Escolha um nome novo"
-            alert.informativeText = "O arquivo existente será preservado."
-            alert.runModal()
-            return nil
-        }
-        return url
+    @MainActor static func destination(model: Workspace, toolName: String, extension suffix: String = "pdf", originalURL: URL? = nil) -> URL? {
+        // All result panels use the workspace's filename template, directory
+        // and isolated defaults. Publication still uses the no-clobber writer.
+        model.selectOutput(extension: suffix, toolName: toolName, originalURL: originalURL)
     }
 }
 
@@ -567,7 +558,7 @@ struct NativeFeaturesView: View {
     }
     private func assembleScans() {
         guard !running, !scanner.importingContinuity, !scanner.captures.isEmpty else { return }
-        guard let destination = NativeOutput.destination(name: "Digitalizacao.pdf", type: .pdf) else { return }
+        guard let destination = NativeOutput.destination(model: model, toolName: "Digitalização", originalURL: scanner.captures.first) else { return }
         let captures = scanner.captures
         let token = NativeCancellation(); cancellation = token
         running = true; progress = 0; status = "Montando páginas digitalizadas…"; result = nil
@@ -594,7 +585,7 @@ struct NativeFeaturesView: View {
         // This snapshot stays in memory and is only input to CoreGraphics. The
         // complete OCR output is normalized before it can be published.
         guard document.pageCount > 0, let data = document.dataRepresentation() else { status = "Não foi possível obter as páginas."; return }
-        guard let destination = NativeOutput.destination(name: "Documento-OCR.pdf", type: .pdf) else { return }
+        guard let destination = NativeOutput.destination(model: model, toolName: "OCR") else { return }
         let token = NativeCancellation(); cancellation = token
         let selectedLanguage = language
         let enhance = enhanceContrast

@@ -462,7 +462,8 @@ struct LocalIntelligenceView: View {
 
     private func export(type: UTType, fileExtension: String) {
         guard !working else { return }
-        guard let destination = NativeOutput.destination(name: (mode == "chat" ? "Conversa-PDF" : mode == "quiz" ? "Questoes-PDF" : translation ? "Traducao" : "Resumo") + "." + fileExtension, type: type) else { return }
+        let toolName = mode == "chat" ? "Conversa com IA" : mode == "quiz" ? "Questões com IA" : translation ? "Tradução" : "Resumo"
+        guard let destination = NativeOutput.destination(model: model, toolName: toolName, extension: fileExtension) else { return }
         let text = exportText
         let cancellation = NativeCancellation()
         working = true; progress = 0; status = "Preparando exportação…"
@@ -641,7 +642,7 @@ struct LocalIntelligenceView: View {
         guard !document.isEncrypted, !document.isLocked else { status = "Desbloqueie uma cópia explicitamente antes de traduzir um PDF protegido."; return }
         guard !model.hasUnsavedChanges else { status = "Salve e abra uma cópia das alterações do leitor antes de traduzir o layout."; return }
         guard case .available = SystemLanguageModel.default.availability else { status = "Apple Intelligence não está disponível neste Mac."; return }
-        guard let destination = NativeOutput.destination(name: "Documento-traduzido.pdf", type: .pdf) else { return }
+        guard let destination = NativeOutput.destination(model: model, toolName: "Tradução", originalURL: source) else { return }
         let targetLanguage = String(language.prefix(80))
         let key = documentKey
         working = true; translation = true; progress = 0; result = ""; status = "Lendo blocos do documento…"; saved = nil; resultReferences = []; resultSourceKey = key

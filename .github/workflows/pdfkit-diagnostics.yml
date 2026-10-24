@@ -33,7 +33,7 @@ jobs:
       - name: Compile isolated PDFKit reproduction
         run: xcrun swiftc -parse-as-library diagnostics/PDFKitDiagnosis.swift -o "$RUNNER_TEMP/PDFKitDiagnosis" -framework AppKit -framework PDFKit
       - name: Measure originals and independent normalization
-        run: python3 diagnostics/run_pdfkit_diagnostics.py --executable "$RUNNER_TEMP/PDFKitDiagnosis" --qpdf /opt/homebrew/bin/qpdf --output "$RUNNER_TEMP/PDFKit-diagnostics" --exact-only
+        run: python3 diagnostics/run_pdfkit_diagnostics.py --executable "$RUNNER_TEMP/PDFKitDiagnosis" --qpdf /opt/homebrew/bin/qpdf --output "$RUNNER_TEMP/PDFKit-diagnostics"
       - name: Retain synthetic fixtures and measurement report
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4

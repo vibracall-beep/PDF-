@@ -1,6 +1,6 @@
 # Evidências de validação
 
-## Revisão 0.6 — rodada 75d5012 reprovada no isolamento do Office
+## Revisão 0.6 — ecae663 reprovada em captura e isolamento
 
 A implementação ampliada **ainda não está aprovada para instalação final**. A [matriz das 17 ampliações](AMPLIACOES-2026-10.md) identifica cada caminho, teste e limite. As 54 ferramentas anteriores foram preservadas e o catálogo passou a 71 entradas, além do leitor. O acesso ao GitHub foi restabelecido; o HTTP 401 anterior não é um bloqueio ativo.
 
@@ -17,6 +17,13 @@ A implementação ampliada **ainda não está aprovada para instalação final**
 | `75d5012` / [40121275705](https://github.com/vibracall-beep/PDF-/actions/runs/40121275705) | **Reprovada no isolamento do Office em ambos.** 436 casos Python (435 aprovados/um skip), 39 grupos nativos × três, 32 PNGs/seis AX e montagem/assinatura aprovados. Captura escura26 corrigida; ressalva de precisão/idioma do OCR visual permanece |
 | `f9958a3` / [40123759689](https://github.com/vibracall-beep/PDF-/actions/runs/40123759689) | **Reprovada na compilação em ambos.** Novos closures precisam de captura explícita de `self`; chamadas `Darwin.sigaction` foram resolvidas como inicializador do struct. Correções posteriores ainda dependem de nova matriz |
 | `360dae6` / [40124180933](https://github.com/vibracall-beep/PDF-/actions/runs/40124180933) | **Compilação corrigida; primeiro smoke reprovado em ambos.** 454 casos Python (453 aprovados/um skip). Foram observados 18 grupos nativos aprovados e 16 reprovados; sete checks dependentes não foram alcançados. A preparação de descritores do novo owner falhou, afetando qpdf e seus consumidores. Nenhum smoke posterior ou instalação ativada |
+| `ecae663` / [40125423021](https://github.com/vibracall-beep/PDF-/actions/runs/40125423021) | **Testes aprovados; matriz reprovada nos dois sistemas.** 460 casos Python aprovados/um skip e 41 grupos nativos × três. Captura expirou antes da WindowGroup, sem arquivos. Montagem/assinatura passou; controle de processos Java falhou com `EPERM` no isolamento, antes de Office |
+
+Em **`ecae663`**, [40125423021](https://github.com/vibracall-beep/PDF-/actions/runs/40125423021), os dois sistemas aprovaram **461 casos Python: 460 aprovados e um skip**, e **41 grupos nativos × três = 123 aprovações** por sistema. Isso confirma a correção anterior de descritores e os contratos OCR do snapshot. A captura expirou nos dois após `PDFApp init end; mainThread=true`, antes de qualquer janela observada: **zero PNGs, AX, PDFs ou JSONs de revisão OCR**. O amostrador também expirou. A montagem/assinatura passou; o isolamento falhou ao sinalizar um grupo Java/veraPDF com `EPERM`, antes de alcançar Office. Instalação/atualização binária não foram executadas. [Nove originais, tempos e procedência](evidencias/ecae663/README.md).
+
+As correções seguintes de perfis/páginas/zoom, revalidação antes de sair, cleanup Pages, inicialização síncrona GUI e comunicação privada precisam de outra matriz. A causa exata da recusa de inspeção/sinais no sandbox está sob diagnóstico separado. Os resultados históricos abaixo não aprovam essas alterações.
+
+### Rodada visual histórica 75d5012
 
 Em `75d5012`, cada sistema aprovou **281 testes de núcleo, 46 integrações e 108 testes de scripts**, com um skip Linux: **436 casos distintos, 435 aprovados e um skip**. Tempos de núcleo/integrações/scripts: **78,149 / 59,547 / 19,120 s no macOS 26** e **70,670 / 43,401 / 19,753 s no macOS 27**. Os **39 grupos nativos passaram três vezes**, totalizando 117 aprovações por sistema. A contagem usa os dois logs completos de topo, conferidos contra o ZIP retido. [Treze originais e procedência](evidencias/75d5012/README.md).
 
@@ -28,7 +35,7 @@ Os JSONs originais registram Vision aprovado nos dois checks no macOS 26 e repro
 
 A [retenção privada 40123290389](https://github.com/vibracall-beep/PDF-/actions/runs/40123290389), release `422923712`, recuperou manifesto, dez ZIPs originais e ZIP de logs. IDs, commit, digests e tamanhos foram conferidos. O sucesso da retenção não transforma o `failure` da matriz em aprovação. As falhas e evidências anteriores permanecem no [histórico](HISTORICO-VALIDACAO.md).
 
-Os novos caminhos de encerramento e gestão de processos **não estão aprovados pela rodada 75d5012**. A compilação reprovada em `f9958a3` foi corrigida em `360dae6`, mas a execução deste último encontrou uma falha na preparação dos descritores dos auxiliares. O reparo em andamento trata explicitamente `FileHandle.nullDevice` como `/dev/null`, preservando a recusa de descritores inválidos; sua aprovação depende de outra execução nativa. Os 297 testes de núcleo, 46 integrações e 111 testes de scripts (110 aprovados/um skip) de `360dae6` passaram nos dois Macs. O primeiro smoke produziu 18 aprovações e 16 reprovações efetivas; não se devem contar como executados os sete checks dependentes que não foram alcançados.
+A sequência de correções conserva seus resultados: `f9958a3` falhou na compilação; `360dae6` compilou, mas reprovou na preparação de descritores, com 18 grupos aprovados/16 reprovados no primeiro smoke. A correção de `/dev/null` em `ecae663` passou os 41 grupos em três smokes por sistema. Ela não resolveu a inicialização da WindowGroup nem a inspeção/sinalização no sandbox. Os fixes de encerramento/perfis posteriores ainda não foram executados nesses resultados.
 
 A auditoria Linux consolidada anterior, do código `7205dd106c07002ec1c5ed8fd2ebbef448cf9f3a`, continua preservada: 268 testes de núcleo (36,888 s), 45 integrações (94,387 s), 76 de scripts (75 aprovados/um HFS+ exclusivo de macOS ignorado, 3,006 s). São **389 casos distintos, 388 executados e aprovados, um ignorado**. [Logs, ambiente, comandos e manifesto SHA-256](evidencias/0.6-auditoria-local/README.md) identificam esse snapshot, sem aprovar alterações posteriores. O parser dos 70 fontes Swift, as verificações Bash/YAML e a comparação dos 71 IDs foram checks estáticos separados.
 

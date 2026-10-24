@@ -1,0 +1,549 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "commit": "ecae663e5d0006113fbf3948bfe86a7ca2c32b0b",
+  "runID": 40125423021,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40125423021",
+  "overallConclusion": "failure",
+  "binaryDistributionApproved": false,
+  "retrieval": "Official Actions attempt log ZIP and artifact ZIP APIs; exact source commit, IDs, sizes and artifact digests checked. No retention workflow used.",
+  "archiveDownloads": [
+    {
+      "artifactID": 12573047915,
+      "artifactName": "PDF-native-checks-macos-26",
+      "bytes": 8222,
+      "sha256": "c28d734a93e3cde45b71f5a9d07502e24cbd40938fc777feee80cfd4b767d77e",
+      "githubDigest": "sha256:c28d734a93e3cde45b71f5a9d07502e24cbd40938fc777feee80cfd4b767d77e",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573483406,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "bytes": 888,
+      "sha256": "58fec59de7103e48da21b03cb86be2d92bed85e6b556a6544a30667906703968",
+      "githubDigest": "sha256:58fec59de7103e48da21b03cb86be2d92bed85e6b556a6544a30667906703968",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573797032,
+      "artifactName": "PDF-local-AI-macos-26",
+      "bytes": 2178,
+      "sha256": "d02300f2b5a30132b5c9154a7575d48088153bda77e2581aeaf79007bbacecd4",
+      "githubDigest": "sha256:d02300f2b5a30132b5c9154a7575d48088153bda77e2581aeaf79007bbacecd4",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573783228,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "bytes": 1885,
+      "sha256": "6b6f1494a7d9d9cc508e2cd6672805efcc97f3c2e69ccf337ba11ebe4963564f",
+      "githubDigest": "sha256:6b6f1494a7d9d9cc508e2cd6672805efcc97f3c2e69ccf337ba11ebe4963564f",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573656970,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "bytes": 13397,
+      "sha256": "f687ebf4a22c0775a77f6a06965f39e727032e0377774f55576b42850b5f20c8",
+      "githubDigest": "sha256:f687ebf4a22c0775a77f6a06965f39e727032e0377774f55576b42850b5f20c8",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573238000,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "bytes": 2077,
+      "sha256": "4ad7e20b07730f664a925a7408dcaf543590e8c419c8b568507499993f7fa33a",
+      "githubDigest": "sha256:4ad7e20b07730f664a925a7408dcaf543590e8c419c8b568507499993f7fa33a",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573462682,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "bytes": 2171,
+      "sha256": "6dad03f03a377d59e5468c052aa62baf4da7fd71af755067ea53c13a795b552d",
+      "githubDigest": "sha256:6dad03f03a377d59e5468c052aa62baf4da7fd71af755067ea53c13a795b552d",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    },
+    {
+      "artifactID": 12573238023,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "bytes": 2211,
+      "sha256": "28abd776c63ef42890a27d38de07ada78616992612db45b3aee16b19d82fa344",
+      "githubDigest": "sha256:28abd776c63ef42890a27d38de07ada78616992612db45b3aee16b19d82fa344",
+      "downloadMethod": "Official Actions artifact ZIP API"
+    }
+  ],
+  "originalFiles": [
+    {
+      "path": "actions-attempt-1-logs.zip",
+      "bytes": 694836,
+      "sha256": "70384e3d860f909f7c4f4ce38a5bb01746529c79e96fb5630fc41d1833e0171d",
+      "sourceAPIPath": "/repos/vibracall-beep/PDF-/actions/runs/40125423021/attempts/1/logs",
+      "upstreamDigestSupplied": false
+    },
+    {
+      "path": "macos-26/PDF-native-checks.log",
+      "bytes": 81907,
+      "sha256": "e4fb08a07cf13217ade5d963a824ddaebd18650bd406a6430a3aa7a53f13b0be",
+      "artifactID": 12573047915,
+      "artifactName": "PDF-native-checks-macos-26",
+      "githubArchiveDigest": "sha256:c28d734a93e3cde45b71f5a9d07502e24cbd40938fc777feee80cfd4b767d77e"
+    },
+    {
+      "path": "macos-26/PDF-vision-audit.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "artifactID": 12573483406,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "githubArchiveDigest": "sha256:58fec59de7103e48da21b03cb86be2d92bed85e6b556a6544a30667906703968"
+    },
+    {
+      "path": "macos-26/PDF-local-ai.json",
+      "bytes": 7662,
+      "sha256": "ed65f8a3cf8c2739564f10dd16aa4200a08567d6e1b750f8ccdeecb8e814311b",
+      "artifactID": 12573797032,
+      "artifactName": "PDF-local-AI-macos-26",
+      "githubArchiveDigest": "sha256:d02300f2b5a30132b5c9154a7575d48088153bda77e2581aeaf79007bbacecd4"
+    },
+    {
+      "path": "macos-26/PDF-benchmark.json",
+      "bytes": 4924,
+      "sha256": "2409977e9cd40bf56ea8e2c364efc1cadf0555e30ff67b945b4cf09fd6e7b3c8",
+      "artifactID": 12573783228,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "githubArchiveDigest": "sha256:6b6f1494a7d9d9cc508e2cd6672805efcc97f3c2e69ccf337ba11ebe4963564f"
+    },
+    {
+      "path": "xcode-27/PDF-native-checks.log",
+      "bytes": 302199,
+      "sha256": "bfc6dbd2304f6f50f0adf37ff2a49e4538cda8529d75fad2a347ddd4805ac3bc",
+      "artifactID": 12573656970,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "githubArchiveDigest": "sha256:f687ebf4a22c0775a77f6a06965f39e727032e0377774f55576b42850b5f20c8"
+    },
+    {
+      "path": "xcode-27/PDF-vision-audit.json",
+      "bytes": 1621,
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "artifactID": 12573238000,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "githubArchiveDigest": "sha256:4ad7e20b07730f664a925a7408dcaf543590e8c419c8b568507499993f7fa33a"
+    },
+    {
+      "path": "xcode-27/PDF-local-ai.json",
+      "bytes": 7664,
+      "sha256": "b75970f2d84a7c8724440e3fae9d7758b1974f8945923a0243da0112ab0e161e",
+      "artifactID": 12573462682,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "githubArchiveDigest": "sha256:6dad03f03a377d59e5468c052aa62baf4da7fd71af755067ea53c13a795b552d"
+    },
+    {
+      "path": "xcode-27/PDF-benchmark.json",
+      "bytes": 8300,
+      "sha256": "273710472a3a318fc1a154ca57328f25120bd6d3db8f30e592dfe1e2cc70c85f",
+      "artifactID": 12573238023,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "githubArchiveDigest": "sha256:28abd776c63ef42890a27d38de07ada78616992612db45b3aee16b19d82fa344"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "completeLogEntry": "0_native-application (macos-26).txt",
+      "bytes": 908854,
+      "sha256": "c8ad008f0d851a50fb149a6e7e9aa1fbe0eb77e2fc9277b2f54e4ce4e0477253",
+      "python": [
+        {
+          "cases": 111,
+          "passed": 110,
+          "skipped": 1,
+          "seconds": 25.488,
+          "line": 276
+        },
+        {
+          "cases": 301,
+          "passed": 301,
+          "skipped": 0,
+          "seconds": 88.735,
+          "line": 1108
+        },
+        {
+          "cases": 49,
+          "passed": 49,
+          "skipped": 0,
+          "seconds": 54.853,
+          "line": 1163
+        }
+      ],
+      "nativeDistinctGroups": 41,
+      "nativePassedResults": 123,
+      "nativeRepeatCounts": [
+        3
+      ],
+      "nativeFailures": [],
+      "previewCaptureCount": 0,
+      "events": [
+        {
+          "line": 4972,
+          "text": "2026-10-24T19:47:14.1177190Z PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true"
+        },
+        {
+          "line": 4973,
+          "text": "2026-10-24T19:47:14.1197280Z PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true"
+        },
+        {
+          "line": 4974,
+          "text": "2026-10-24T19:47:14.1197990Z PDF preview startup: CLI dispatch complete; enter SwiftUI App.main; mainThread=true"
+        },
+        {
+          "line": 4975,
+          "text": "2026-10-24T19:47:14.1233340Z PDF preview startup: PDFApp init begin; mainThread=true"
+        },
+        {
+          "line": 4976,
+          "text": "2026-10-24T19:47:14.1238020Z PDF preview startup: preview session init begin; mainThread=true"
+        },
+        {
+          "line": 4977,
+          "text": "2026-10-24T19:47:14.1239090Z PDF preview startup: isolated defaults ready; mainThread=true"
+        },
+        {
+          "line": 4978,
+          "text": "2026-10-24T19:47:14.1248740Z PDF preview startup: isolated scratch directory ready; mainThread=true"
+        },
+        {
+          "line": 4979,
+          "text": "2026-10-24T19:47:14.1741350Z PDF preview startup: appearance preferences ready; mainThread=true"
+        },
+        {
+          "line": 4980,
+          "text": "2026-10-24T19:47:14.1750190Z PDF preview startup: workspace ready; mainThread=true"
+        },
+        {
+          "line": 4981,
+          "text": "2026-10-24T19:47:14.1750750Z PDF preview startup: preview session init end; mainThread=true"
+        },
+        {
+          "line": 4982,
+          "text": "2026-10-24T19:47:14.1751150Z PDF preview startup: PDFApp init end; mainThread=true"
+        },
+        {
+          "line": 4983,
+          "text": "2026-10-24T19:52:14.1954530Z Validation failed: command exceeded 300 seconds; terminating its process group."
+        },
+        {
+          "line": 4986,
+          "text": "2026-10-24T19:52:26.2638250Z Stack sampling unavailable (TimeoutExpired); the original timeout remains a failure."
+        },
+        {
+          "line": 4987,
+          "text": "2026-10-24T19:52:26.5019070Z ##[error]Process completed with exit code 124."
+        },
+        {
+          "line": 5006,
+          "text": "2026-10-24T19:52:27.2192670Z /Users/runner/work/_temp/PDF-preview.revisao-ocr.analysis.json. No artifacts will be uploaded."
+        },
+        {
+          "line": 6730,
+          "text": "2026-10-24T19:57:08.4666860Z PermissionError: [Errno 1] Operation not permitted"
+        },
+        {
+          "line": 6731,
+          "text": "2026-10-24T19:57:08.4667860Z Could not prove the owned group is dead: PermissionError"
+        },
+        {
+          "line": 6732,
+          "text": "2026-10-24T19:57:08.4668650Z Group kill also failed: PermissionError"
+        },
+        {
+          "line": 6734,
+          "text": "2026-10-24T19:57:08.7726000Z Could not prove the owned group is dead: PermissionError"
+        },
+        {
+          "line": 6735,
+          "text": "2026-10-24T19:57:08.7727220Z Group kill also failed: PermissionError"
+        },
+        {
+          "line": 6736,
+          "text": "2026-10-24T19:57:08.7861510Z ##[error]Process completed with exit code 127."
+        },
+        {
+          "line": 6749,
+          "text": "2026-10-24T19:57:09.3021710Z No files were found with the provided path: /Users/runner/work/_temp/PDF-binary-artifact/*. No artifacts will be uploaded."
+        }
+      ],
+      "jobID": 120965689452,
+      "jobConclusion": "failure",
+      "failedSteps": [
+        "Capture native window preview",
+        "Validate portable app without host dependencies or network"
+      ],
+      "pythonDistinctCases": 461,
+      "pythonPassed": 460,
+      "pythonSkipped": 1,
+      "vision": {
+        "appleVisionPassed": true,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "passed"
+          },
+          {
+            "id": "isolated-process",
+            "status": "passed"
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+        "items": 5,
+        "modelAttempts": 0
+      },
+      "benchmark": {
+        "repetitions": 3,
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 26.6.2 (Build 25G83)",
+        "activeProcessorCount": 3,
+        "physicalMemoryBytes": 7516192768,
+        "sourceSHA256": "3085ad4b250db89f4bcfc78159fd8c8553caa7b9af50e7c14306474495361471",
+        "pageCount": 100,
+        "processPeakMemoryBytes": 301285376,
+        "operations": 6,
+        "ocrBackendsIncludingWarmup": [
+          "apple-vision",
+          "apple-vision",
+          "apple-vision",
+          "apple-vision"
+        ]
+      },
+      "preview": {
+        "status": "failed",
+        "secondsLimit": 300,
+        "lastTrace": "PDFApp init end; mainThread=true",
+        "stackSampling": "unavailable; 12-second timeout",
+        "pngFiles": 0,
+        "axReports": 0,
+        "ocrSourcePDFs": 0,
+        "ocrAnalysisJSONs": 0,
+        "manualVisualReview": "not possible; no original captures"
+      },
+      "portable": {
+        "assembleAndCodeSign": "passed",
+        "isolatedValidation": "failed",
+        "failureOperation": "validate-pdfua / Java",
+        "observedFailure": "owned_process.close -> signal_owned_group -> os.killpg(SIGTERM): EPERM; group kill also EPERM",
+        "stepExit": 127,
+        "officeReached": false,
+        "binaryInstallAndUpdate": "not executed"
+      }
+    },
+    {
+      "runner": "xcode-27",
+      "completeLogEntry": "1_native-application (xcode-27).txt",
+      "bytes": 2165125,
+      "sha256": "e986f6a81d18628ffbd73252a8d8a48c2db5ca41081ae94365b090b46d53e326",
+      "python": [
+        {
+          "cases": 111,
+          "passed": 110,
+          "skipped": 1,
+          "seconds": 20.234,
+          "line": 274
+        },
+        {
+          "cases": 301,
+          "passed": 301,
+          "skipped": 0,
+          "seconds": 75.471,
+          "line": 1141
+        },
+        {
+          "cases": 49,
+          "passed": 49,
+          "skipped": 0,
+          "seconds": 46.686,
+          "line": 1196
+        }
+      ],
+      "nativeDistinctGroups": 41,
+      "nativePassedResults": 123,
+      "nativeRepeatCounts": [
+        3
+      ],
+      "nativeFailures": [],
+      "previewCaptureCount": 0,
+      "events": [
+        {
+          "line": 23069,
+          "text": "2026-10-24T19:42:00.1365690Z PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true"
+        },
+        {
+          "line": 23070,
+          "text": "2026-10-24T19:42:00.1377880Z PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true"
+        },
+        {
+          "line": 23071,
+          "text": "2026-10-24T19:42:00.1378430Z PDF preview startup: CLI dispatch complete; enter SwiftUI App.main; mainThread=true"
+        },
+        {
+          "line": 23072,
+          "text": "2026-10-24T19:42:00.1381460Z PDF preview startup: PDFApp init begin; mainThread=true"
+        },
+        {
+          "line": 23073,
+          "text": "2026-10-24T19:42:00.1382710Z PDF preview startup: preview session init begin; mainThread=true"
+        },
+        {
+          "line": 23074,
+          "text": "2026-10-24T19:42:00.1383120Z PDF preview startup: isolated defaults ready; mainThread=true"
+        },
+        {
+          "line": 23075,
+          "text": "2026-10-24T19:42:00.1389780Z PDF preview startup: isolated scratch directory ready; mainThread=true"
+        },
+        {
+          "line": 23076,
+          "text": "2026-10-24T19:42:00.1635650Z PDF preview startup: appearance preferences ready; mainThread=true"
+        },
+        {
+          "line": 23077,
+          "text": "2026-10-24T19:42:00.1638480Z PDF preview startup: workspace ready; mainThread=true"
+        },
+        {
+          "line": 23078,
+          "text": "2026-10-24T19:42:00.1638930Z PDF preview startup: preview session init end; mainThread=true"
+        },
+        {
+          "line": 23079,
+          "text": "2026-10-24T19:42:00.1639310Z PDF preview startup: PDFApp init end; mainThread=true"
+        },
+        {
+          "line": 23080,
+          "text": "2026-10-24T19:47:00.1721260Z Validation failed: command exceeded 300 seconds; terminating its process group."
+        },
+        {
+          "line": 23083,
+          "text": "2026-10-24T19:47:12.2281040Z Stack sampling unavailable (TimeoutExpired); the original timeout remains a failure."
+        },
+        {
+          "line": 23084,
+          "text": "2026-10-24T19:47:12.2936480Z ##[error]Process completed with exit code 124."
+        },
+        {
+          "line": 23103,
+          "text": "2026-10-24T19:47:12.7106340Z /Users/runner/work/_temp/PDF-preview.revisao-ocr.analysis.json. No artifacts will be uploaded."
+        },
+        {
+          "line": 25713,
+          "text": "2026-10-24T19:51:02.2752220Z PermissionError: [Errno 1] Operation not permitted"
+        },
+        {
+          "line": 25714,
+          "text": "2026-10-24T19:51:02.2752730Z Could not prove the owned group is dead: PermissionError"
+        },
+        {
+          "line": 25715,
+          "text": "2026-10-24T19:51:02.2753170Z Group kill also failed: PermissionError"
+        },
+        {
+          "line": 25717,
+          "text": "2026-10-24T19:51:02.4867870Z Could not prove the owned group is dead: PermissionError"
+        },
+        {
+          "line": 25718,
+          "text": "2026-10-24T19:51:02.4868640Z Group kill also failed: PermissionError"
+        },
+        {
+          "line": 25719,
+          "text": "2026-10-24T19:51:02.4930000Z ##[error]Process completed with exit code 127."
+        },
+        {
+          "line": 25732,
+          "text": "2026-10-24T19:51:02.9427790Z No files were found with the provided path: /Users/runner/work/_temp/PDF-binary-artifact/*. No artifacts will be uploaded."
+        }
+      ],
+      "jobID": 120965689255,
+      "jobConclusion": "failure",
+      "failedSteps": [
+        "Capture native window preview",
+        "Validate portable app without host dependencies or network"
+      ],
+      "pythonDistinctCases": 461,
+      "pythonPassed": 460,
+      "pythonSkipped": 1,
+      "vision": {
+        "appleVisionPassed": false,
+        "checks": [
+          {
+            "id": "searchable-pdf",
+            "status": "failed"
+          },
+          {
+            "id": "isolated-process",
+            "status": "failed"
+          }
+        ]
+      },
+      "ai": {
+        "status": "unavailable",
+        "availabilityReason": "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+        "items": 5,
+        "modelAttempts": 0
+      },
+      "benchmark": {
+        "repetitions": 3,
+        "processor": "Apple M1 (Virtual)",
+        "operatingSystem": "Version 27.0.1 (Build 26A434)",
+        "activeProcessorCount": 3,
+        "physicalMemoryBytes": 7516192768,
+        "sourceSHA256": "3508d30d529b574833f8670a82e9cfcdb31bef669a95380016bbd01039a52f52",
+        "pageCount": 100,
+        "processPeakMemoryBytes": 150355968,
+        "operations": 6,
+        "ocrBackendsIncludingWarmup": [
+          "tesseract",
+          "tesseract",
+          "tesseract",
+          "tesseract"
+        ]
+      },
+      "preview": {
+        "status": "failed",
+        "secondsLimit": 300,
+        "lastTrace": "PDFApp init end; mainThread=true",
+        "stackSampling": "unavailable; 12-second timeout",
+        "pngFiles": 0,
+        "axReports": 0,
+        "ocrSourcePDFs": 0,
+        "ocrAnalysisJSONs": 0,
+        "manualVisualReview": "not possible; no original captures"
+      },
+      "portable": {
+        "assembleAndCodeSign": "passed",
+        "isolatedValidation": "failed",
+        "failureOperation": "validate-pdfua / Java",
+        "observedFailure": "owned_process.close -> signal_owned_group -> os.killpg(SIGTERM): EPERM; group kill also EPERM",
+        "stepExit": 127,
+        "officeReached": false,
+        "binaryInstallAndUpdate": "not executed"
+      }
+    }
+  ],
+  "privacyReview": {
+    "entriesAndFilesScanned": 60,
+    "patternMatches": 0,
+    "redactionsApplied": false,
+    "scope": "Authentication tokens, signed URLs, authorization headers and private keys; pattern scan does not establish absence of every possible sensitive value."
+  },
+  "limitations": [
+    "Nenhuma captura, relatório AX ou amostra OCR visual foi gerada; não houve revisão visual desta rodada.",
+    "A causa do bloqueio após App.init não foi estabelecida; a coleta de stack também expirou.",
+    "Montagem/assinatura e smoke não aprovam isolamento, instalação ou atualização binária.",
+    "Falha portátil ocorreu em Java/PDF-UA antes de Office; não é a falha soffice status1 de 75d.",
+    "Resultados do diagnóstico privado IPC c2 são separados e não aprovam esta fonte.",
+    "M1 Virtual não prova M4 físico, energia ou NPU; modelo Apple indisponível, sem geração avaliada.",
+    "Correções posteriores a ecae663 e VoiceOver humano permanecem sem aprovação por esta rodada."
+  ]
+}

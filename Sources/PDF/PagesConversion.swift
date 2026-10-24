@@ -227,7 +227,7 @@ private enum PagesExporter {
         }
         let token = PagesProcessControl()
         control = token; running = true; result = nil; error = ""
-        ApplicationTask.start(cancel: { token.cancel() }) {
+        ApplicationTask.start(cancel: { token.cancel() }) { [self] in
             do {
                 try Task.checkCancellation()
                 let output = try await Task.detached(priority: .userInitiated) {

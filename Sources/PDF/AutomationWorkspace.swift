@@ -153,7 +153,7 @@ struct AutomationRunRecord:Identifiable {
     func attach(model:Workspace) {
         guard self.model == nil else { return }; self.model = model
         startTimer()
-        for rule in rules where rule.enabled { ApplicationTask.start { await setEnabled(true,id:rule.id) } }
+        for rule in rules where rule.enabled { ApplicationTask.start { [self] in await setEnabled(true,id:rule.id) } }
     }
     private func startTimer() {
         guard timer == nil, model != nil, ApplicationWork.isAcceptingWork else { return }
@@ -174,7 +174,7 @@ struct AutomationRunRecord:Identifiable {
         suspendedForTermination = false
         startTimer()
         for rule in rules where rule.enabled && trackers[rule.id] == nil {
-            ApplicationTask.start { await setEnabled(true, id: rule.id) }
+            ApplicationTask.start { [self] in await setEnabled(true, id: rule.id) }
         }
     }
     private func scan(_ folder: URL) async throws -> [String: AutomationFileStamp] {

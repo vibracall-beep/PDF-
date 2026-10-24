@@ -16,7 +16,7 @@ import PDFKit
             sigemptyset(&policy.sa_mask)
             policy.__sigaction_u.__sa_handler = mode == "ignore" ? SIG_IGN : SIG_DFL
             policy.sa_flags = mode == "no-wait" ? SA_NOCLDWAIT : 0
-            guard Darwin.sigaction(SIGCHLD, &policy, nil) == 0 else { throw error("não foi possível preparar a política isolada.") }
+            guard sigaction(SIGCHLD, &policy, nil) == 0 else { throw error("não foi possível preparar a política isolada.") }
             let config = Process()
             config.executableURL = URL(fileURLWithPath: "/usr/bin/true")
             config.standardInput = FileHandle.nullDevice; config.standardOutput = FileHandle.nullDevice; config.standardError = FileHandle.nullDevice

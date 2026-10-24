@@ -65,7 +65,7 @@ private final class BenchmarkJob: @unchecked Sendable {
         guard !busy, ApplicationWork.isAcceptingWork, let executable = Bundle.main.executableURL else { return }
         busy = true; message = "Medindo abertura, busca, renderização, processamento e OCR…"; report = nil; data = nil
         let job = BenchmarkJob(); self.job = job
-        task = ApplicationTask.start(cancel: { job.cancel() }) {
+        task = ApplicationTask.start(cancel: { job.cancel() }) { [self] in
             do {
                 try Task.checkCancellation()
                 let bytes = try await Task.detached(priority:.userInitiated) { try job.run(executable:executable,input:input,pages:pages) }.value
@@ -100,7 +100,7 @@ private final class BenchmarkJob: @unchecked Sendable {
         busy = true; report = nil; data = nil
         message = "Consultando o modelo local com cinco casos em português…"
         let job = BenchmarkJob(); self.job = job
-        ApplicationTask.start(cancel: { job.cancel() }) {
+        ApplicationTask.start(cancel: { job.cancel() }) { [self] in
             defer { busy = false; self.job = nil }
             do {
                 try Task.checkCancellation()

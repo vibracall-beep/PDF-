@@ -285,7 +285,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
             switch result {
             case .failure(let error): status = error.localizedDescription; working = false
             case .success(let url):
-                task = ApplicationTask.start {
+                task = ApplicationTask.start { [self] in
                     defer { working = false; task = nil }
                     do {
                         try Task.checkCancellation()

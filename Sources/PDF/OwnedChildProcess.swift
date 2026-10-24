@@ -57,7 +57,7 @@ final class OwnedChildProcess: @unchecked Sendable {
             try Self.check(posix_spawn_file_actions_adddup2(&actions, copy, Int32(index)))
         }
         if let directory = configuration.currentDirectoryURL {
-            try directory.path.withCString { try Self.check(posix_spawn_file_actions_addchdir_np(&actions, $0)) }
+            try directory.path.withCString { try Self.check(posix_spawn_file_actions_addchdir(&actions, $0)) }
         }
         // Only explicit stdio survives. The installation lease is already
         // carried in stdin/stderr by BundleRuntimeLease before this method.
@@ -219,7 +219,7 @@ final class OwnedChildProcess: @unchecked Sendable {
     }
     private static func validateReapingPolicy() throws {
         var disposition = sigaction()
-        guard Darwin.sigaction(SIGCHLD, nil, &disposition) == 0,
+        guard sigaction(SIGCHLD, nil, &disposition) == 0,
               disposition.sa_flags & SA_NOCLDWAIT == 0,
               unsafeBitCast(disposition.__sigaction_u.__sa_handler, to: UInt.self) == unsafeBitCast(SIG_DFL, to: UInt.self) else {
             throw NSError(domain: "PDF.OwnedChild.Ownership", code: 1, userInfo:

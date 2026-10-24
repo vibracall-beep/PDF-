@@ -2,15 +2,14 @@
 
 Aplicativo nativo macOS, em português, com **71 ferramentas e leitor permanente**, SwiftUI/PDFKit e Liquid Glass. Preserva as 54 ferramentas anteriores e amplia edição, conversões, biblioteca, automação e produção de documentos.
 
-**A versão 0.6 está em validação. Ainda não há um instalador portátil desta revisão aprovado para entrega.** A auditoria encontrou requisitos parcialmente atendidos e ensaios que dependem de macOS, M4 físico, modelo Apple ou serviço externo. O estado de cada requisito está na [matriz das 17 ampliações](docs/AMPLIACOES-2026-10.md); não há afirmação de ausência universal de erros ou superioridade comprovada a concorrentes.
+**A matriz nativa da versão 0.6 foi aprovada nos dois sistemas.** A entrega ainda depende da verificação do mesmo pacote do macOS 26 no macOS 27, incluindo a interface instalada, e da retenção dos arquivos para o proprietário. A auditoria mantém requisitos parcialmente atendidos e ensaios dependentes de M4 físico, modelo Apple ou serviço externo. Veja a [matriz das 17 ampliações](docs/AMPLIACOES-2026-10.md); não há afirmação de ausência universal de erros ou superioridade comprovada a concorrentes.
 
 ## Estado verificável
 
 - **Implementação:** catálogo com 71 entradas, mantendo todos os 54 IDs anteriores. Leitor com abas, comparação lado a lado, pesquisa, miniaturas, marcadores, anotações e recuperação.
-- **Base visual conferida:** `cbb3298` aprovou compilação/instalação por fontes, 411 casos Python (410 aprovados/um skip) e 37 grupos nativos × três por sistema. Os 64 PNGs foram revisados sem nova regressão visual; o pacote reprovou no `otool`. [Originais históricos recuperados](docs/evidencias/cbb3298/README.md).
-- **Última base inteiramente aprovada no CI:** `5a11c07`, [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837), macOS 26.6.2 e 27.0.1. Essa base é anterior às 17 ampliações.
-- **Última matriz completa:** `352ae6f`, [40134906805](https://github.com/vibracall-beep/PDF-/actions/runs/40134906805). Cada Mac aprovou 488 métodos Python/um skip e 41 grupos nativos × três por fontes e × uma no bundle isolado. O pacote passou nos caminhos protegidos e no isolamento, mas **a primeira instalação binária foi recusada após a extração alterar permissões do manifesto**. Atualização e controles posteriores não foram alcançados. [Originais e contagens](docs/evidencias/352ae6f/README.md).
-- **Interface e correções:** 32 PNGs/seis AX por sistema passaram no gate automático. A revisão dos 64 originais confirmou a pluralização corrigida na Biblioteca e um corte no título do painel OCR. Os patches de layout e extração estão em validação na [rodada `437a8f4`](https://github.com/vibracall-beep/PDF-/actions/runs/40137438618); ainda não há aprovação de entrega.
+- **Matriz completa aprovada:** `437a8f4`, [40137438618](https://github.com/vibracall-beep/PDF-/actions/runs/40137438618). Cada Mac aprovou 490 dos 491 métodos Python; um caso depende de `/dev/full` do Linux. Os 41 grupos nativos passaram em nove execuções por sistema. Compilação, isolamento, primeira instalação, atualização, recusa de checksum incorreto e preservação da configuração de controle passaram. [Originais e contagens](docs/evidencias/437a8f4/README.md).
+- **Interface e correções:** 32 PNGs/seis AX por sistema passaram no gate automático. A revisão dos 64 originais confirmou o título OCR inteiro, o rótulo de tamanho da fonte e “1 versão” na Biblioteca. A correção de extração preservou os modos autenticados sem relaxar o manifesto.
+- **Entrega:** o teste cruzado do mesmo arquivo e da interface do binário instalado, seguido da retenção privada, ainda precisa ser concluído. A aprovação da matriz não substitui essas etapas. As falhas anteriores permanecem no [histórico de validação](docs/VALIDACAO.md).
 - **Alcance:** runners M1 virtualizados não medem M4 físico, energia ou Neural Engine; inspeção AX automática não substitui uso humano com VoiceOver.
 
 A [especificação original](docs/REQUISITOS.md), o [catálogo das imagens](docs/FERRAMENTAS.md), as [dez primeiras melhorias](docs/MELHORIAS.md) e a [auditoria histórica](docs/AUDITORIA-FERRAMENTAS.md) permanecem disponíveis.
@@ -29,8 +28,8 @@ O alvo é Mac Apple Silicon com macOS 26 ou posterior, incluindo M4 e superiores
 
 Existem dois caminhos, descritos em [INSTALACAO.md](docs/INSTALACAO.md):
 
-- **Pacote autocontido 0.6:** empacotador e instalador por comando implementados, com runtime, dependências, checksum, atualização transacional e preservação de configurações. A validação em ambiente isolado, primeira instalação e atualização no Mac ainda precisam passar antes da entrega. Foi projetado para dispensar Xcode, Homebrew e Python no Mac de destino; essa independência ainda depende da aprovação do pacote.
-- **Compilação por fontes:** `bash scripts/install-mac.sh`, para desenvolvimento, exige Xcode/Swift e Homebrew arm64. Instala dependências, executa verificações e ativa o aplicativo somente após aprovação. A aprovação histórica pertence ao commit indicado, não a qualquer `main` futuro.
+- **Pacote autocontido 0.6:** inclui runtime, dependências, checksum e atualização transacional. Os pacotes de `437a8f4` passaram no isolamento sem dependências externas, primeira instalação e atualização em seus respectivos sistemas, preservando a configuração de controle. O destino dispensa Xcode, Homebrew e Python previamente instalados. A entrega aguarda o teste cruzado do mesmo arquivo e sua retenção privada.
+- **Compilação por fontes:** `bash scripts/install-mac.sh`, para desenvolvimento, exige Xcode/Swift e Homebrew arm64. Instala dependências, executa verificações e ativa o aplicativo somente após aprovação. A aprovação pertence ao commit indicado, não a qualquer `main` futuro.
 
 O pacote do GitHub Actions tem retenção limitada; isso não equivale a uma publicação permanente. Nenhum pacote marcado `unvalidated` deve ser tratado como a entrega final solicitada.
 
@@ -57,7 +56,7 @@ Pages continua requerendo o aplicativo Pages e autorização de Automação. EPU
 
 ## Desenvolvimento e verificações
 
-Na rodada `352ae6f`, cada Mac aprovou 313 testes de núcleo, 50 integrações e 125 de 126 testes de scripts; o skip depende de `/dev/full` do Linux. São 489 métodos distintos, sem somar reexecuções ou subtestes. Os 41 grupos nativos passaram três vezes por fontes e uma no bundle portátil. Os [originais](docs/evidencias/352ae6f/README.md) preservam a falha posterior na primeira instalação binária.
+Na rodada `437a8f4`, cada Mac aprovou 313 testes de núcleo, 50 integrações e 127 de 128 testes de scripts; o skip depende de `/dev/full` do Linux. São **491 métodos distintos, 490 aprovados e um ignorado**, sem somar reexecuções ou subtestes. Os 41 grupos nativos passaram nove vezes por sistema: três por fontes, uma no primeiro isolamento e cinco durante instalação, atualização e isolamento posterior. Os [originais](docs/evidencias/437a8f4/README.md) identificam esses escopos; as repetições não são novos casos Python.
 
 Use o checkout existente em `/workspace/PDF-`, sem criar worktrees salvo pedido explícito.
 

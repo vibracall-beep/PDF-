@@ -1,0 +1,180 @@
+{
+  "macos-26": {
+    "jobID": 121001851126,
+    "originalLog": "collector-job-121001851126.log",
+    "bytes": 1204339,
+    "sha256": "c34f418f0c56ed161377ef52610fed038ba10adc61ed441c1ce6b80edc733e86",
+    "pythonSuites": [
+      {
+        "count": 128,
+        "seconds": 26.213,
+        "resultLine": "2026-10-24T22:11:35.1640440Z OK (skipped=1)",
+        "line": 301
+      },
+      {
+        "count": 313,
+        "seconds": 122.269,
+        "resultLine": "2026-10-24T22:23:47.5031580Z OK",
+        "line": 1146
+      },
+      {
+        "count": 50,
+        "seconds": 79.863,
+        "resultLine": "2026-10-24T22:25:08.2772870Z OK",
+        "line": 1202
+      }
+    ],
+    "nativeSuccessfulRuns": [
+      {
+        "line": 2471,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 3739,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 5013,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 7767,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 8093,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 8368,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 8647,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 8922,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 9200,
+        "groups": 41,
+        "allPassed": true
+      }
+    ],
+    "totalNativePassedLines": 369,
+    "nativeFailureLines": 0,
+    "archiveRegressionEvidence": [
+      {
+        "line": 178,
+        "text": "2026-10-24T22:11:09.2069890Z test_authenticated_archive_roundtrip_preserves_modes_links_and_executable (test_binary_archive.BinaryArchiveExtractionTests.test_authenticated_archive_roundtrip_preserves_modes_links_and_executable) ... ok"
+      },
+      {
+        "line": 179,
+        "text": "2026-10-24T22:11:09.2491110Z test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected (test_binary_archive.BinaryArchiveExtractionTests.test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected) ... ok"
+      }
+    ],
+    "errorAnnotations": [],
+    "printedTarSHA256": [
+      "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad"
+    ]
+  },
+  "xcode-27": {
+    "jobID": 121001851239,
+    "originalLog": "collector-job-121001851239.log",
+    "bytes": 2556241,
+    "sha256": "133bc760a64035d4498469c82c8694174495dd229e567e92cd024b568442172b",
+    "pythonSuites": [
+      {
+        "count": 128,
+        "seconds": 20.577,
+        "resultLine": "2026-10-24T22:11:25.2126420Z OK (skipped=1)",
+        "line": 299
+      },
+      {
+        "count": 313,
+        "seconds": 109.412,
+        "resultLine": "2026-10-24T22:20:41.7392770Z OK",
+        "line": 1181
+      },
+      {
+        "count": 50,
+        "seconds": 83.232,
+        "resultLine": "2026-10-24T22:22:05.9913000Z OK",
+        "line": 1237
+      }
+    ],
+    "nativeSuccessfulRuns": [
+      {
+        "line": 8865,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 16503,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 24141,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 27814,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 28158,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 28451,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 28748,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 29041,
+        "groups": 41,
+        "allPassed": true
+      },
+      {
+        "line": 29337,
+        "groups": 41,
+        "allPassed": true
+      }
+    ],
+    "totalNativePassedLines": 369,
+    "nativeFailureLines": 0,
+    "archiveRegressionEvidence": [
+      {
+        "line": 176,
+        "text": "2026-10-24T22:11:04.7501360Z test_authenticated_archive_roundtrip_preserves_modes_links_and_executable (test_binary_archive.BinaryArchiveExtractionTests.test_authenticated_archive_roundtrip_preserves_modes_links_and_executable) ... ok"
+      },
+      {
+        "line": 177,
+        "text": "2026-10-24T22:11:04.7708980Z test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected (test_binary_archive.BinaryArchiveExtractionTests.test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected) ... ok"
+      }
+    ],
+    "errorAnnotations": [],
+    "printedTarSHA256": [
+      "ff8ab80f49b20eb7754e67e99d8c5186c7d34be5ae402739b5af8c26d77d10df"
+    ]
+  }
+}

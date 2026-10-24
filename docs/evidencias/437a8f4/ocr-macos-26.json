@@ -1,0 +1,75 @@
+{
+  "runner": "macos-26",
+  "sourceSHA256": "303fb64b2a6d396bf5388a6e3407c6281fe93e8666f5e8c841a592909d991a32",
+  "reportSHA256": "f455de169a0f89a606361598d332f672248f81c657c9e6483cd24f09e77a3365",
+  "sourceDigestMatches": true,
+  "reviewDigestMatches": true,
+  "sourcePages": 1,
+  "sourceSelectableCharacters": 0,
+  "sourceRasterPixels": [
+    [
+      1130,
+      1600
+    ]
+  ],
+  "pagePoints": [
+    1130.0,
+    1600.0
+  ],
+  "words": 60,
+  "confidenceRange": [
+    0.51780708,
+    0.97006699
+  ],
+  "below80percent": [
+    {
+      "text": "informag6es",
+      "confidence": 0.51780708
+    },
+    {
+      "text": "retne",
+      "confidence": 0.57534904
+    },
+    {
+      "text": "conversao",
+      "confidence": 0.6965617399999999
+    },
+    {
+      "text": "realgar.",
+      "confidence": 0.66980042
+    },
+    {
+      "text": "copia",
+      "confidence": 0.7953563699999999
+    },
+    {
+      "text": "demonstragao",
+      "confidence": 0.7666397100000001
+    }
+  ],
+  "settings": {
+    "language": "eng",
+    "min_confidence": 0.0,
+    "ocr_deskew": false,
+    "ocr_dpi": 200,
+    "ocr_psm": 3
+  },
+  "uniqueIDs": true,
+  "finiteInBoundsCoordinates": true,
+  "visualInspectionPending": false,
+  "visualReview": {
+    "sourceRendered": true,
+    "originalScreenshotViewed": true,
+    "headingFullyVisibleWithTopMargin": true,
+    "languageAndPSMMatchControls": true,
+    "visibleWordBoxesAligned": true,
+    "rightPaneScrollVisible": true,
+    "originalsUnmodified": true
+  },
+  "limits": [
+    "Only the visible captured state was inspected; scrolling and live editing were not exercised by this review.",
+    "Portuguese text recognized with eng/PSM3 retains errors such as informag6es and retne.",
+    "Confidence is not a calibrated correctness guarantee; 200DPI resamples the original raster.",
+    "No overall product, binary installation or human VoiceOver approval."
+  ]
+}

@@ -1,6 +1,6 @@
 # Instalação do PDF por comando
 
-**Estado da versão 0.6:** o instalador autocontido e o atualizador estão implementados, mas o pacote portátil ainda não foi aprovado. A última matriz completa, [40134906805](https://github.com/vibracall-beep/PDF-/actions/runs/40134906805), fonte `352ae6f`, aprovou nos dois sistemas **489 métodos Python: 488 aprovados e um skip**, **41 grupos nativos em três execuções por fontes e uma no pacote isolado**, compilação, instalação por fontes, montagem e assinatura. O runtime portátil e os caminhos de PDFs protegidos passaram. Foram gerados **32 PNGs/seis AX por sistema**, aprovados pelo gate automático; a revisão visual confirmou um título cortado no painel OCR. **A rodada reprovou na primeira instalação binária:** a extração alterava permissões exigidas pelo manifesto; atualização e controles posteriores não foram alcançados. Os dois tars originais conferem com seus manifestos. [Originais, contagens e diagnóstico](evidencias/352ae6f/README.md). As correções de extração e dos inspetores estão na [matriz seguinte, fonte `437a8f4`](https://github.com/vibracall-beep/PDF-/actions/runs/40137438618), ainda sem conclusão. [Estado de cada rodada](VALIDACAO.md). Este documento descreve procedimentos preparados, sem solicitar ao usuário teste de versão incompleta. Consulte [VALIDACAO.md](VALIDACAO.md) antes de identificar qualquer pacote como entrega final.
+**Estado da versão 0.6:** os pacotes de `437a8f4` passaram na matriz [40137438618](https://github.com/vibracall-beep/PDF-/actions/runs/40137438618), nos dois sistemas, incluindo isolamento, primeira instalação, atualização, recusa de checksum incorreto e preservação da configuração de controle. [Originais e contagens](evidencias/437a8f4/README.md). A entrega ainda depende do teste do mesmo pacote do macOS 26 no macOS 27, com interface instalada, e da retenção privada dos arquivos. Os comandos abaixo continuam documentais; não solicitam ao usuário testar uma entrega incompleta. Consulte [VALIDACAO.md](VALIDACAO.md) para o estado de cada etapa.
 
 ## Requisitos comuns
 
@@ -15,7 +15,7 @@ Não é necessária assinatura paga de desenvolvedor Apple. A assinatura é **ad
 
 O pacote `PDF-arm64.tar.gz` deve conter `PDF.app`, manifesto e componentes de distribuição. O artefato aprovado também precisa fornecer `install-binary.sh`, checksum e `distribution-validation.json`, identificando o commit, a instalação isolada e as limitações do ensaio. O Mac de destino **não precisa de Xcode, Homebrew, Git ou Python previamente instalados**.
 
-Após existir um pacote aprovado e um SHA-256 publicado por um canal confiável, o comando será:
+Após a conclusão das etapas de entrega e a disponibilização do SHA-256 por um canal confiável, o comando será:
 
 ```bash
 bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE
@@ -27,9 +27,9 @@ O primeiro argumento também aceita URL HTTPS. O terceiro argumento opcional def
 bash install-binary.sh /caminho/PDF-arm64.tar.gz SHA256_COMPLETO_DO_PACOTE "$HOME/Applications/Documentos"
 ```
 
-Os valores acima são parâmetros documentais, **não um link ou checksum de uma versão já aprovada**. O script verifica SHA-256 antes de extrair, valida a assinatura do bundle e usa o Python incluído para conferir o manifesto e instalar. A assinatura ad hoc não identifica um publicador Apple; a origem confiável do checksum continua necessária.
+Os valores acima são parâmetros documentais, **não um link ou checksum da entrega final**. O script verifica SHA-256 antes de extrair, valida a assinatura do bundle e usa o Python incluído para conferir o manifesto e instalar. A assinatura ad hoc não identifica um publicador Apple; a origem confiável do checksum continua necessária.
 
-O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` exige execução sem rede e sem ferramentas/dependências externas. A lista CA é pública Mozilla, sem Keychains do host. Em `352ae6f`, montagem, assinatura, runtime isolado e os 41 grupos nativos portáteis passaram nos dois sistemas, incluindo PDFs protegidos, Office, Java, Chromium e OCR. A primeira instalação binária seguinte recusou a divergência de permissões causada pela extração. A correção preserva os modos do arquivo autenticado dentro do staging privado; sua validação completa, a atualização e a compatibilidade do binário ainda estão pendentes. As falhas anteriores de relocação, assinatura e Office continuam registradas na [tabela histórica](VALIDACAO.md).
+O bundle inclui runtime Python e bibliotecas, qpdf, Tesseract português/inglês, OCRmyPDF, Ghostscript, LibreOffice, Chromium/Playwright, pyHanko, Java e veraPDF fixado. O empacotador verifica arquitetura e relocação; `check-portable.sh` exige execução sem rede e sem ferramentas/dependências externas. A lista CA é pública Mozilla, sem Keychains do host. Em `437a8f4`, montagem, assinatura, runtime isolado e verificações nativas passaram nos dois sistemas, incluindo PDFs protegidos, Office, Java, Chromium e OCR. A extração conservou os modos do arquivo autenticado no staging privado, e a primeira instalação e a atualização passaram em ambos os sistemas. O teste do mesmo binário entre sistemas e sua interface instalada permanecem etapas separadas de entrega. A falha de extração em `352ae6f` e os demais resultados anteriores estão preservados em [VALIDACAO.md](VALIDACAO.md).
 
 ## Atualização, recuperação e retorno à versão anterior
 
@@ -42,7 +42,7 @@ O atualizador:
 3. Prepara e valida uma cópia, grava um diário durável e preserva `PDF.previous.<identificador>.app`.
 4. Ativa a cópia e repete verificações. Falha tratada restaura a anterior; uma interrupção pode deixar diário para recuperação na próxima execução.
 
-Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. HFS+ realmente cheio, desmontagem do volume e recuperação após SIGKILL passaram nos dois sistemas em `cbb3298`. Isso valida esses cenários do helper, sem aprovar o pacote portátil completo. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
+Testes reais exercitam cinco pontos com SIGKILL, disco cheio, corrupção e destino alterado por concorrência. HFS+ realmente cheio, desmontagem do volume e recuperação após SIGKILL passaram nos dois sistemas em `cbb3298`. Esses ensaios validam os cenários delimitados do helper; a aprovação posterior de instalação e atualização do pacote `437a8f4` está registrada separadamente. Processos do aplicativo, motor e filhos explicitamente encaminhados mantêm o bloqueio por descritores. Subprocessos internos de terceiros que fecham descritores não têm garantia universal de cobertura.
 
 Para **voltar deliberadamente** a uma versão, use novamente o instalador com o pacote anterior aprovado e seu checksum original. Isso preserva a instalação que está sendo substituída. Não mova bundles manualmente enquanto houver aplicativo, tarefas ou instalador em execução. Não apague cópias anteriores e runtimes durante a investigação de uma interrupção.
 
@@ -78,13 +78,13 @@ Fontes existentes não são mesclados nem apagados. O helper conserva a cópia e
 
 ## Identificação da versão aprovada
 
-A revisão 0.6 ainda não tem pacote portátil aprovado. A [tabela de execuções](VALIDACAO.md) identifica o resultado de cada commit e os respectivos originais. As falhas anteriores de captura, empacotamento e isolamento permanecem no histórico; uma compilação ou um diagnóstico focal aprovado não substitui a instalação, atualização e compatibilidade do pacote completo. Por isso ainda não há checksum de entrega final para indicar aqui.
+A revisão **0.6**, commit `437a8f4d6bb6ebb003859f769e3756fce30c9da3`, tem pacotes aprovados nos dois jobs da matriz. A [tabela de execuções](VALIDACAO.md) conserva o resultado de cada commit e os respectivos originais. A aprovação da entrega ainda depende da compatibilidade e da interface do mesmo binário entre sistemas, além da retenção privada. Por isso não se indica aqui um checksum de entrega final. As falhas anteriores não são apagadas nem reinterpretadas como aprovação.
 
-A última base inteiramente aprovada foi **0.5**, commit `5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`, na [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Os dois sistemas, macOS 26.6.2 e 27.0.1, passaram os checks daquele código. Essa base não contém as 17 ampliações atuais nem o novo pacote portátil. Os [relatórios históricos](evidencias/5a11c07/README.md) conservam sua procedência.
+A base histórica **0.5**, commit `5a11c07ba2ffc89dd01e10d7ba9ae11cf1f124ad`, foi aprovada na [execução 40055682837](https://github.com/vibracall-beep/PDF-/actions/runs/40055682837). Os dois sistemas, macOS 26.6.2 e 27.0.1, passaram os checks daquele código. Essa base não contém as 17 ampliações atuais nem o novo pacote portátil. Os [relatórios históricos](evidencias/5a11c07/README.md) conservam sua procedência.
 
 Artefatos `unvalidated` não são aprovados. Um relatório de IA `unavailable` informa ausência do modelo e não aprova qualidade de geração; falhas estritas do Vision também permanecem identificadas mesmo quando o OCR funcional passa com Tesseract. A validação atual precisa distinguir esses estados.
 
-GitHub Actions conserva artefatos por prazo limitado. A entrega permanente precisa de publicação de versão e checksums após aprovação; não trate um artefato temporário como disponibilidade definitiva.
+GitHub Actions conserva artefatos por prazo limitado. A retenção da entrega ao proprietário precisa preservar pacote, fontes, evidências e checksums fora dessa expiração. Um rascunho privado não é publicação pública; um artefato temporário não é disponibilidade definitiva.
 
 ## Dados e proteção
 

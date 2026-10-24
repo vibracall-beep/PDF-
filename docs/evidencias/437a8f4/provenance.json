@@ -1,0 +1,645 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "runID": 40137438618,
+  "runAttempt": 1,
+  "runConclusion": "success",
+  "workflowURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40137438618",
+  "collection": "normal authenticated GitHub API; every archive checked against GitHub digest, size, run and head SHA; no retention proxy used",
+  "preservedFiles": [
+    {
+      "file": "attempt-1-logs.zip",
+      "bytes": 886935,
+      "sha256": "590164ffd2c14af2182f83a8be2724b002628124be813a7b96af0f9ba9e78b97",
+      "kind": "original",
+      "origin": "GitHub official attempt log archive; unchanged bytes",
+      "upstreamDigestAvailable": false
+    },
+    {
+      "file": "macos-26-native-checks.log",
+      "bytes": 82215,
+      "sha256": "d8103645841796022c27f06ebe0e68290e2b0dd2c140413350acd2ed21c56ad3",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12578098852,
+      "artifactName": "PDF-native-checks-macos-26",
+      "member": "PDF-native-checks.log"
+    },
+    {
+      "file": "macos-26-vision.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577689564,
+      "artifactName": "PDF-Apple-Vision-capability-macos-26",
+      "member": "PDF-vision-audit.json"
+    },
+    {
+      "file": "macos-26-local-ai.json",
+      "bytes": 7657,
+      "sha256": "c5922eaae5b29a9618cc159bb5f5cc4e85bb4b30b8a79dad55c8904568a76555",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577479896,
+      "artifactName": "PDF-local-AI-macos-26",
+      "member": "PDF-local-ai.json"
+    },
+    {
+      "file": "macos-26-benchmark.json",
+      "bytes": 4920,
+      "sha256": "1c3ee731d53bb4723ce3e90050f9375f7d15410423343e81aad55df369c3d680",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577534759,
+      "artifactName": "PDF-macOS-benchmark-macos-26",
+      "member": "PDF-benchmark.json"
+    },
+    {
+      "file": "macos-26-distribution-validation.json",
+      "bytes": 667,
+      "sha256": "1f36de7e4d8b8d33334ffa5ac084314eef465bbb9da2fbb971fd8e3b08e6b9db",
+      "kind": "original",
+      "origin": "original binary artifact member; unchanged bytes",
+      "artifactID": 12578358642,
+      "artifactName": "PDF-binary-validated-macos-26",
+      "member": "distribution-validation.json"
+    },
+    {
+      "file": "xcode-27-native-checks.log",
+      "bytes": 316896,
+      "sha256": "156c83140deee3fa62adcebaa3e7e8c97b00213d0bae744ab7b6fe63ba95b050",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577813858,
+      "artifactName": "PDF-native-checks-xcode-27",
+      "member": "PDF-native-checks.log"
+    },
+    {
+      "file": "xcode-27-vision.json",
+      "bytes": 1621,
+      "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577519341,
+      "artifactName": "PDF-Apple-Vision-capability-xcode-27",
+      "member": "PDF-vision-audit.json"
+    },
+    {
+      "file": "xcode-27-local-ai.json",
+      "bytes": 7661,
+      "sha256": "0b3b443d65a1b713fd6de2c095e559b84f69285f43bd7ce8ab35dd4c6d41c180",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577689046,
+      "artifactName": "PDF-local-AI-xcode-27",
+      "member": "PDF-local-ai.json"
+    },
+    {
+      "file": "xcode-27-benchmark.json",
+      "bytes": 8307,
+      "sha256": "6fb04fad8f39b2efccae12d83c7d2305003a1cc020c08ae5ca5a511f3b5dc6e0",
+      "kind": "original",
+      "origin": "original artifact member; unchanged bytes",
+      "artifactID": 12577539226,
+      "artifactName": "PDF-macOS-benchmark-xcode-27",
+      "member": "PDF-benchmark.json"
+    },
+    {
+      "file": "xcode-27-distribution-validation.json",
+      "bytes": 667,
+      "sha256": "b7a5fc4faacf1bfe877a7834492d31c2db689bf6ceab63430388bbdd1a8a21ad",
+      "kind": "original",
+      "origin": "original binary artifact member; unchanged bytes",
+      "artifactID": 12578502165,
+      "artifactName": "PDF-binary-validated-xcode-27",
+      "member": "distribution-validation.json"
+    },
+    {
+      "file": "visual-review-macos26-all32.json",
+      "bytes": 27003,
+      "sha256": "3ccfd0d5a05228234cf24fdad4f19a64e2abd876f18bf3c6ee7367dda29380fb",
+      "kind": "derived",
+      "origin": "individual visual review of authenticated original screenshots; not a GitHub-produced report"
+    },
+    {
+      "file": "visual-review-macos27.json",
+      "bytes": 17803,
+      "sha256": "23675a12c38a6e8e36a0e4d11abf8dda5d8c961d6ac5fc41db4086f319e9b7f8",
+      "kind": "derived",
+      "origin": "individual visual review of authenticated original screenshots; not a GitHub-produced report"
+    },
+    {
+      "file": "ocr-macos-26.json",
+      "bytes": 1887,
+      "sha256": "6c705960139969df5e6fa092e8cf52d60113a60bbb03d602fb6c402d202b0a2d",
+      "kind": "derived",
+      "origin": "post-run local read-only analysis; not a GitHub-produced report"
+    },
+    {
+      "file": "ocr-xcode-27.json",
+      "bytes": 1855,
+      "sha256": "f2d4f282f0a233fe6de336e54728de2af1b8fa40de7b5e2a72c370ae55660ef0",
+      "kind": "derived",
+      "origin": "post-run local read-only analysis; not a GitHub-produced report"
+    },
+    {
+      "file": "final-counts.json",
+      "bytes": 4637,
+      "sha256": "ccfb6cb1992ab9e79dd97122cff4cf958921d60d1a440bef900b47da3f79fb2a",
+      "kind": "derived",
+      "origin": "post-run local read-only analysis; not a GitHub-produced report"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": 12578548557,
+      "name": "PDF-source-macos-26",
+      "bytes": 10541898,
+      "sha256": "3d78a25035b4859f7dfc91a9f04deb4b64eab2883cb616c09d7a159f4b4e2ece",
+      "githubDigest": "sha256:3d78a25035b4859f7dfc91a9f04deb4b64eab2883cb616c09d7a159f4b4e2ece",
+      "createdAt": "2026-10-24T23:08:01Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12578502165,
+      "name": "PDF-binary-validated-xcode-27",
+      "bytes": 1442866110,
+      "sha256": "6e833546e66fb2a468649625ab6a072093052c7c39ed62444f6a0dc792e40081",
+      "githubDigest": "sha256:6e833546e66fb2a468649625ab6a072093052c7c39ed62444f6a0dc792e40081",
+      "createdAt": "2026-10-24T22:56:36Z",
+      "expiresAt": "2026-10-31T22:55:58Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12578358642,
+      "name": "PDF-binary-validated-macos-26",
+      "bytes": 1444846011,
+      "sha256": "cacc3bdb81ae3e74cec1071f7d3bca4785ac2013f2074afb11d4b788ceedf758",
+      "githubDigest": "sha256:cacc3bdb81ae3e74cec1071f7d3bca4785ac2013f2074afb11d4b788ceedf758",
+      "createdAt": "2026-10-24T23:07:57Z",
+      "expiresAt": "2026-10-31T23:07:12Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12578242607,
+      "name": "PDF-source-ocr-compatibility-xcode-27",
+      "bytes": 10542467,
+      "sha256": "5e70303cd5a9b558f60f051504c05c47251535bcfb0f5bd583d4d5725a5957ce",
+      "githubDigest": "sha256:5e70303cd5a9b558f60f051504c05c47251535bcfb0f5bd583d4d5725a5957ce",
+      "createdAt": "2026-10-24T22:56:39Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12578098852,
+      "name": "PDF-native-checks-macos-26",
+      "bytes": 8259,
+      "sha256": "e49c233880ebf80e280a5693e58657311b4ac052fe5c6cc06dc733a0f45d08f2",
+      "githubDigest": "sha256:e49c233880ebf80e280a5693e58657311b4ac052fe5c6cc06dc733a0f45d08f2",
+      "createdAt": "2026-10-24T22:31:39Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12578054234,
+      "name": "PDF-macOS-preview-macos-26",
+      "bytes": 3279109,
+      "sha256": "99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+      "githubDigest": "sha256:99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+      "createdAt": "2026-10-24T22:33:15Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577813858,
+      "name": "PDF-native-checks-xcode-27",
+      "bytes": 15096,
+      "sha256": "1b3b605a85975d6803e69b2004ddb663e798e77f540c7289d6d0330c9156e6c9",
+      "githubDigest": "sha256:1b3b605a85975d6803e69b2004ddb663e798e77f540c7289d6d0330c9156e6c9",
+      "createdAt": "2026-10-24T22:28:29Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577689564,
+      "name": "PDF-Apple-Vision-capability-macos-26",
+      "bytes": 887,
+      "sha256": "dedeee1aaeefe5a52af64266e50cca0a63c420c6b2f0380731f6cd0c2eed44ab",
+      "githubDigest": "sha256:dedeee1aaeefe5a52af64266e50cca0a63c420c6b2f0380731f6cd0c2eed44ab",
+      "createdAt": "2026-10-24T22:33:22Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577689046,
+      "name": "PDF-local-AI-xcode-27",
+      "bytes": 2178,
+      "sha256": "0577f2ec372631837910247febab75872a825a1a2ba84e9ff3795177189a9878",
+      "githubDigest": "sha256:0577f2ec372631837910247febab75872a825a1a2ba84e9ff3795177189a9878",
+      "createdAt": "2026-10-24T22:29:39Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577629061,
+      "name": "PDF-macOS-preview-xcode-27",
+      "bytes": 3303763,
+      "sha256": "2b3f7b48eaca36f7fe7b0072938f79c46cdb965d78232be08d55e7c853aa5068",
+      "githubDigest": "sha256:2b3f7b48eaca36f7fe7b0072938f79c46cdb965d78232be08d55e7c853aa5068",
+      "createdAt": "2026-10-24T22:29:34Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577539226,
+      "name": "PDF-macOS-benchmark-xcode-27",
+      "bytes": 2205,
+      "sha256": "40604ee5509a49428f37c7e944bda133b54f8161effbb92510752a1648d60989",
+      "githubDigest": "sha256:40604ee5509a49428f37c7e944bda133b54f8161effbb92510752a1648d60989",
+      "createdAt": "2026-10-24T22:29:47Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577534759,
+      "name": "PDF-macOS-benchmark-macos-26",
+      "bytes": 1904,
+      "sha256": "fbc65e626aaabad04b2df148b2a9b3de2fc9577986d6c5403dc6bb6434085ccc",
+      "githubDigest": "sha256:fbc65e626aaabad04b2df148b2a9b3de2fc9577986d6c5403dc6bb6434085ccc",
+      "createdAt": "2026-10-24T22:33:36Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577519341,
+      "name": "PDF-Apple-Vision-capability-xcode-27",
+      "bytes": 2078,
+      "sha256": "d6867944fff1a331ee0d6ecc577191a8cc64b1c0ec8e973f0e6868e13997357b",
+      "githubDigest": "sha256:d6867944fff1a331ee0d6ecc577191a8cc64b1c0ec8e973f0e6868e13997357b",
+      "createdAt": "2026-10-24T22:29:38Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    },
+    {
+      "id": 12577479896,
+      "name": "PDF-local-AI-macos-26",
+      "bytes": 2186,
+      "sha256": "2e5a044f178edb1cc0b564a0634f19f95f1d68f63512a5c386d042ab2c6bdcef",
+      "githubDigest": "sha256:2e5a044f178edb1cc0b564a0634f19f95f1d68f63512a5c386d042ab2c6bdcef",
+      "createdAt": "2026-10-24T22:33:24Z",
+      "expiresAt": "2027-01-22T22:10:54Z",
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "downloadedAndVerified": true,
+      "wholeArtifactArchivedInRepository": false
+    }
+  ],
+  "binaryTarChecks": [
+    {
+      "id": 12578502165,
+      "name": "PDF-binary-validated-xcode-27",
+      "downloaded": true,
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "runID": 40137438618,
+      "archiveBytes": 1442866110,
+      "githubDigest": "sha256:6e833546e66fb2a468649625ab6a072093052c7c39ed62444f6a0dc792e40081",
+      "archiveSHA256": "6e833546e66fb2a468649625ab6a072093052c7c39ed62444f6a0dc792e40081",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1446486442,
+        "sha256": "ff8ab80f49b20eb7754e67e99d8c5186c7d34be5ae402739b5af8c26d77d10df",
+        "retainedInsideOriginalZIP": true
+      },
+      "files": [
+        {
+          "name": "PDF-arm64.tar.gz.sha256",
+          "bytes": 83,
+          "sha256": "4e692289ae78379470736fb256cc7d74952cff6aea0453ba1283255c0d4e3edb"
+        },
+        {
+          "name": "distribution-manifest.json",
+          "bytes": 12261281,
+          "sha256": "a3f5cc1ee5ee4e5631c3f79d813f4f1183333e4d44acadfff2a96c2cac1a3c4f"
+        },
+        {
+          "name": "distribution-validation.json",
+          "bytes": 667,
+          "sha256": "b7a5fc4faacf1bfe877a7834492d31c2db689bf6ceab63430388bbdd1a8a21ad"
+        },
+        {
+          "name": "install-binary.sh",
+          "bytes": 3344,
+          "sha256": "53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211"
+        }
+      ],
+      "validationReportVerified": true,
+      "fullRunApprovalNotInferredFromArtifactName": true,
+      "tarSidecarMatches": true,
+      "tarPrintedLogMatches": true
+    },
+    {
+      "id": 12578358642,
+      "name": "PDF-binary-validated-macos-26",
+      "downloaded": true,
+      "sourceSHA": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+      "runID": 40137438618,
+      "archiveBytes": 1444846011,
+      "githubDigest": "sha256:cacc3bdb81ae3e74cec1071f7d3bca4785ac2013f2074afb11d4b788ceedf758",
+      "archiveSHA256": "cacc3bdb81ae3e74cec1071f7d3bca4785ac2013f2074afb11d4b788ceedf758",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1448521887,
+        "sha256": "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad",
+        "retainedInsideOriginalZIP": true
+      },
+      "files": [
+        {
+          "name": "PDF-arm64.tar.gz.sha256",
+          "bytes": 83,
+          "sha256": "b9e7e8d13b1196a5a6fda207882cc69e090197428be072d906c0d98e3bb9bf61"
+        },
+        {
+          "name": "distribution-manifest.json",
+          "bytes": 12261315,
+          "sha256": "ac5fe9b8cb68c3520a72b0df696f1989417c4b7efd4f8f8ecaccc36bc42150bc"
+        },
+        {
+          "name": "distribution-validation.json",
+          "bytes": 667,
+          "sha256": "1f36de7e4d8b8d33334ffa5ac084314eef465bbb9da2fbb971fd8e3b08e6b9db"
+        },
+        {
+          "name": "install-binary.sh",
+          "bytes": 3344,
+          "sha256": "53ecfd803797d72111a0c51050a49a0db75d00dc310c8066a35888400509a211"
+        }
+      ],
+      "validationReportVerified": true,
+      "fullRunApprovalNotInferredFromArtifactName": true,
+      "tarSidecarMatches": true,
+      "tarPrintedLogMatches": true
+    }
+  ],
+  "logIdentities": {
+    "originalZIP": "collector-attempt-1-logs.zip",
+    "bytes": 886935,
+    "sha256": "590164ffd2c14af2182f83a8be2724b002628124be813a7b96af0f9ba9e78b97",
+    "topLevelOriginalLogIdentity": [
+      {
+        "runner": "macos-26",
+        "zipMember": "0_native-application (macos-26).txt",
+        "bytes": 1204339,
+        "sha256": "c34f418f0c56ed161377ef52610fed038ba10adc61ed441c1ce6b80edc733e86",
+        "equalsDirectJobLog": true
+      },
+      {
+        "runner": "xcode-27",
+        "zipMember": "1_native-application (xcode-27).txt",
+        "bytes": 2556241,
+        "sha256": "133bc760a64035d4498469c82c8694174495dd229e567e92cd024b568442172b",
+        "equalsDirectJobLog": true
+      }
+    ]
+  },
+  "actualCounts": {
+    "macos-26": {
+      "jobID": 121001851126,
+      "originalLog": "collector-job-121001851126.log",
+      "bytes": 1204339,
+      "sha256": "c34f418f0c56ed161377ef52610fed038ba10adc61ed441c1ce6b80edc733e86",
+      "pythonSuites": [
+        {
+          "count": 128,
+          "seconds": 26.213,
+          "resultLine": "2026-10-24T22:11:35.1640440Z OK (skipped=1)",
+          "line": 301
+        },
+        {
+          "count": 313,
+          "seconds": 122.269,
+          "resultLine": "2026-10-24T22:23:47.5031580Z OK",
+          "line": 1146
+        },
+        {
+          "count": 50,
+          "seconds": 79.863,
+          "resultLine": "2026-10-24T22:25:08.2772870Z OK",
+          "line": 1202
+        }
+      ],
+      "nativeSuccessfulRuns": [
+        {
+          "line": 2471,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 3739,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 5013,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 7767,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 8093,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 8368,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 8647,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 8922,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 9200,
+          "groups": 41,
+          "allPassed": true
+        }
+      ],
+      "totalNativePassedLines": 369,
+      "nativeFailureLines": 0,
+      "archiveRegressionEvidence": [
+        {
+          "line": 178,
+          "text": "2026-10-24T22:11:09.2069890Z test_authenticated_archive_roundtrip_preserves_modes_links_and_executable (test_binary_archive.BinaryArchiveExtractionTests.test_authenticated_archive_roundtrip_preserves_modes_links_and_executable) ... ok"
+        },
+        {
+          "line": 179,
+          "text": "2026-10-24T22:11:09.2491110Z test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected (test_binary_archive.BinaryArchiveExtractionTests.test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected) ... ok"
+        }
+      ],
+      "errorAnnotations": [],
+      "printedTarSHA256": [
+        "7dabd68ffcc1b65ea551efd51bb17f9194bb6d3990261f6c52e33735d96cb7ad"
+      ]
+    },
+    "xcode-27": {
+      "jobID": 121001851239,
+      "originalLog": "collector-job-121001851239.log",
+      "bytes": 2556241,
+      "sha256": "133bc760a64035d4498469c82c8694174495dd229e567e92cd024b568442172b",
+      "pythonSuites": [
+        {
+          "count": 128,
+          "seconds": 20.577,
+          "resultLine": "2026-10-24T22:11:25.2126420Z OK (skipped=1)",
+          "line": 299
+        },
+        {
+          "count": 313,
+          "seconds": 109.412,
+          "resultLine": "2026-10-24T22:20:41.7392770Z OK",
+          "line": 1181
+        },
+        {
+          "count": 50,
+          "seconds": 83.232,
+          "resultLine": "2026-10-24T22:22:05.9913000Z OK",
+          "line": 1237
+        }
+      ],
+      "nativeSuccessfulRuns": [
+        {
+          "line": 8865,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 16503,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 24141,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 27814,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 28158,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 28451,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 28748,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 29041,
+          "groups": 41,
+          "allPassed": true
+        },
+        {
+          "line": 29337,
+          "groups": 41,
+          "allPassed": true
+        }
+      ],
+      "totalNativePassedLines": 369,
+      "nativeFailureLines": 0,
+      "archiveRegressionEvidence": [
+        {
+          "line": 176,
+          "text": "2026-10-24T22:11:04.7501360Z test_authenticated_archive_roundtrip_preserves_modes_links_and_executable (test_binary_archive.BinaryArchiveExtractionTests.test_authenticated_archive_roundtrip_preserves_modes_links_and_executable) ... ok"
+        },
+        {
+          "line": 177,
+          "text": "2026-10-24T22:11:04.7708980Z test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected (test_binary_archive.BinaryArchiveExtractionTests.test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected) ... ok"
+        }
+      ],
+      "errorAnnotations": [],
+      "printedTarSHA256": [
+        "ff8ab80f49b20eb7754e67e99d8c5186c7d34be5ae402739b5af8c26d77d10df"
+      ]
+    }
+  },
+  "visualReview": {
+    "individualPNGsReviewed": 64,
+    "automatedPreviewGatePerSystem": {
+      "PNG": 32,
+      "AX": 6
+    },
+    "confirmedCorrections": [
+      "The Palavras reconhecidas heading is fully visible on both systems with a separate scroll area.",
+      "Biblioteca shows 1 versão at both visible singular counts."
+    ],
+    "newBlockingLayoutDefectObserved": false,
+    "originalsUnmodified": true,
+    "humanVoiceOverOrInteractionApproval": false
+  },
+  "privacyReview": {
+    "textEntriesScanned": 71,
+    "patternOccurrences": {
+      "temporary_signed_url": 0,
+      "github_token": 0,
+      "private_key": 0,
+      "authorization_value": 0
+    },
+    "redacted": false,
+    "limitations": "Pattern screening is not proof of absence of every possible secret. PDF fixture diagnostics and runtime paths remain in original logs."
+  },
+  "limits": [
+    "Each binary passed its own macOS runner; cross-version execution of the unchanged macOS 26 tar on macOS 27 is a separate gate, not certified by this matrix.",
+    "No physical M4, energy/Neural Engine measurements or human VoiceOver test.",
+    "Apple model unavailable on both virtual Macs; Vision on 27 failed and local OCR used Tesseract.",
+    "OCR transcription errors remain visible in the Portuguese raster fixture; high confidence is not proof of transcription accuracy.",
+    "Tarballs and large manifests remain in local collection and GitHub artifacts; not copied into this evidence directory.",
+    "Ad-hoc signed, without Apple notarization; physical device/scanner/Pages/provider credentials and real external signing service not approved by these automated runs."
+  ]
+}

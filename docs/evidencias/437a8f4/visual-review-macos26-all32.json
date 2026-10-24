@@ -1,0 +1,629 @@
+{
+  "schema": 1,
+  "reviewer": "native",
+  "reviewedAtUTC": "2026-10-24T22:39:24.872375+00:00",
+  "sourceCommit": "437a8f4d6bb6ebb003859f769e3756fce30c9da3",
+  "sourceRunID": 40137438618,
+  "platform": "macos-26",
+  "sourceArtifact": {
+    "id": 12578054234,
+    "name": "PDF-macOS-preview-macos-26",
+    "archiveBytes": 3279109,
+    "archiveSHA256": "99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+    "githubDigest": "sha256:99161050945e84a080ee4e799fe07a9c7a24a42ad1fc947858d06cbdfa598182",
+    "extractionVerified": true
+  },
+  "provenanceFile": "/tmp/pdf-native-437a8f4/collector-artifact-state.json",
+  "scope": {
+    "expectedPNGCount": 32,
+    "individuallyViewedPNGCount": 32,
+    "sortedIndices": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25,
+      26,
+      27,
+      28,
+      29,
+      30,
+      31
+    ],
+    "originalsModified": false,
+    "reviewMethod": "Every PNG opened individually through view_image (some calls contained two separately displayed originals). No composite, crop, resizing or edited image was used."
+  },
+  "summary": {
+    "newBlockingLayoutFindings": 0,
+    "ocrHeaderClippingResolvedInThisCapture": true,
+    "editorFontLabelVisible": true,
+    "librarySingularVersionCorrect": true,
+    "visibleCountGrammarDefects": 0,
+    "productOrPackageApproved": false
+  },
+  "observations": [
+    {
+      "id": "ocr-existing-recognition-error",
+      "severity": "known-accuracy-limitation",
+      "file": "PDF-preview.revisao-ocr.png",
+      "detail": "The printed word informações is shown by OCR as informag6es. The correction UI exposes it. The layout fix does not establish exact recognition."
+    },
+    {
+      "id": "scroll-beyond-captured-viewport",
+      "severity": "review-limit",
+      "detail": "Several long forms/lists continue beyond their visible scroll view, including the signature request bottom action and OCR/editor lower controls. This static review does not establish interaction, scrolling or resized-state behavior."
+    }
+  ],
+  "limits": [
+    "Static pixels only: no clicks, typing, scrolling, resizing, VoiceOver, keyboard traversal, PDF mutation, export or recovery was performed by this review.",
+    "No claim of full OCR accuracy, physical M4 performance, AI capability or portable package approval. Package/CI status is independent.",
+    "Accessibility JSON, OCR PDF/JSON fidelity and pipeline gates are reviewed separately by other agents; their results are not inferred from these images."
+  ],
+  "files": [
+    {
+      "index": 0,
+      "name": "PDF-preview.abas.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.abas.png",
+      "sha256": "93fabb9ef9b6b413590d827999f53f6405d06f1c74d5cfd2d33880f49f11be03",
+      "bytes": 124020,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Duas abas legíveis, identidade ativa e rodapé coerentes; miniaturas e página sem sobreposição.",
+      "limits": "A barra de ferramentas possui rolagem horizontal; ações fora da área visível não foram verificadas.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 1,
+      "name": "PDF-preview.anotacoes.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.anotacoes.png",
+      "sha256": "a5477d0e4e0b8c117aeb8ad66acc4f1c9af6daa3cf30387337f3701ac35f254e",
+      "bytes": 155414,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Inspector Anotações apresenta nota, texto, cor, coordenadas e ação Aplicar alterações; título e campos visíveis.",
+      "limits": "Parte inferior do inspector e ferramentas adicionais dependem de rolagem; não houve edição interativa.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 2,
+      "name": "PDF-preview.arquivos.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.arquivos.png",
+      "sha256": "d6a11402aa67a249680170df6ece1851e48663291d796efc8188de896baa1cfe",
+      "bytes": 76968,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Preferências de arquivos, nomes, pasta e recuperação aparecem com rótulos completos e ações separadas.",
+      "limits": "Somente estado estático das opções; persistência não verificada por esta revisão.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 3,
+      "name": "PDF-preview.assinatura-digital.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.assinatura-digital.png",
+      "sha256": "96bf99a028edac865a2b378330a7459db6638b74598652f9520578bd497eab8b",
+      "bytes": 84324,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Formulário de assinatura digital mantém rótulos persistentes de PIN, motivo, local, campo e perfil; ação inferior aparece inteira.",
+      "limits": "Nenhum certificado, assinatura ou diálogo foi executado.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 4,
+      "name": "PDF-preview.atalhos.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.atalhos.png",
+      "sha256": "0897d14e2e9e1b9a7f53e0e63cb27d21300ffcb630950475df1cb596993a854e",
+      "bytes": 75242,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Lista de atalhos tem nomes, combinações e botões Editar alinhados, sem sobreposição.",
+      "limits": "Lista continua abaixo da área rolável; não foi operada por teclado.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 5,
+      "name": "PDF-preview.auditar-pdfua.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.auditar-pdfua.png",
+      "sha256": "8dde7c59314eaac2a771225ae9cfaacc33ef574073493719b1aa125a57f0b4bf",
+      "bytes": 70265,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Página PDF/UA apresenta documento, perfil, descrição e ação final inteiros.",
+      "limits": "A imagem não comprova uma validação PDF/UA nem acessibilidade assistiva.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 6,
+      "name": "PDF-preview.automacao.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.automacao.png",
+      "sha256": "e86301c350608686c653a532d6264cf43a9662bf937fc6a585eb2773e23dab9e",
+      "bytes": 93918,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Formulário de automação sem regra ativa apresenta entrada/saída, fluxo e serviços do Finder legíveis; 0 arquivos na fila concorda.",
+      "limits": "Nenhuma pasta ou automação foi ativada.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 7,
+      "name": "PDF-preview.biblioteca.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.biblioteca.png",
+      "sha256": "09ff575038c2f3fce69c4e9212eedd3fb66d95e94b9387d91037b808b57283ca",
+      "bytes": 111883,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Biblioteca apresenta 2 documentos e 2 versões; cada documento mostra corretamente 1 versão; controles de consulta e filtros legíveis.",
+      "limits": "Nenhuma consulta, sincronização ou abertura foi executada durante a revisão visual.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 8,
+      "name": "PDF-preview.configuracao-ferramenta.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.configuracao-ferramenta.png",
+      "sha256": "f0f07f1ea94c10ba3f1d1ed6541260c5248de1e5724b1a4da8fe894d175b338a",
+      "bytes": 88095,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Configuração da marca d’água mantém aviso de alterações não salvas, seleção de arquivo, fonte, tamanho e ação inferior separados.",
+      "limits": "Demais parâmetros seguem em área rolável; nenhum resultado foi gerado.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 9,
+      "name": "PDF-preview.corrigir-acessibilidade.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.corrigir-acessibilidade.png",
+      "sha256": "1b1a9d7054821f163d8ac2195813ed6f84f1c3eb12bcab3cb3ea0e0dde6383ac",
+      "bytes": 94143,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Formulário real de TH mostra Papel, título, texto alternativo, ActualText, idioma e Cabeçalho da tabela; ações e estado 0 tags completos.",
+      "limits": "Não foi testada navegação assistiva nem aplicação interativa de alterações.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 10,
+      "name": "PDF-preview.editor-conteudo.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.editor-conteudo.png",
+      "sha256": "29abef81704da05c08bf142801c09af6486593da4780807ce7aa7a7f2de2e311",
+      "bytes": 115309,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Cabeçalhos Editar conteúdo original e Objetos da página estão inteiros. Seleção, texto e rótulo Tamanho da fonte (pt) com valor 23 visíveis; 12 objetos identificados concorda.",
+      "limits": "Há rolagens próprias da página, lista e inspector. Controles inferiores do inspector ficam abaixo do viewport; alcance e preservação de estado durante resize não são demonstrados pela imagem.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 11,
+      "name": "PDF-preview.escuro.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.escuro.png",
+      "sha256": "8e2564016e6571f533533aee2301b8aa58419402fb166c34933b0bd80485c4b5",
+      "bytes": 399127,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Tema escuro mantém títulos, textos e categorias legíveis; 2 cópias locais e 71 ferramentas em plural correto.",
+      "limits": "A revisão é visual, sem medição normativa de contraste; catálogo continua abaixo.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 12,
+      "name": "PDF-preview.ferramentas.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.ferramentas.png",
+      "sha256": "8d62461993725f3f4204e12969d0dfb44cfdd4eb10f44d5410960622253a0bca",
+      "bytes": 87460,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Categorias e linhas de personalização de ferramentas aparecem alinhadas com nomes e botões de reordenação.",
+      "limits": "Somente primeiras linhas visíveis; rolagem e reordenação não exercidas.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 13,
+      "name": "PDF-preview.fluxo-lote.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.fluxo-lote.png",
+      "sha256": "7b58ff7ea4801595227f5212141d2c07d2c959f1a5cd56bd31dc8645d505ad0d",
+      "bytes": 105251,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Fluxo em lote mostra 2 documentos selecionados, destinos e etapas com rótulos numéricos persistentes; nenhuma sobreposição visível.",
+      "limits": "Parte das etapas e controles prossegue abaixo do viewport rolável.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 14,
+      "name": "PDF-preview.lado-a-lado.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.lado-a-lado.png",
+      "sha256": "d63737fd82931b9fa6120a4174a26ae6d6b39202277929e4d7a80aaa660b06e7",
+      "bytes": 138396,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Duas páginas reais e identidades Principal/Referência visíveis; tornar principal, navegação e ajuste da referência separados.",
+      "limits": "Texto do documento é pequeno devido à escala de comparação; nenhum zoom ou troca foi executado.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 15,
+      "name": "PDF-preview.leitor.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.leitor.png",
+      "sha256": "94ad17f20d2cb37b21e25f344b17a62f1f01ba9edb068e2a53b7d657b228ea2e",
+      "bytes": 120811,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Leitor mostra guia, título e parágrafos sem sobreposição; miniaturas, página 1 de 2 e rodapé coerentes.",
+      "limits": "Barra de ferramentas e documento possuem áreas roláveis; não houve interação.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 16,
+      "name": "PDF-preview.lista.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.lista.png",
+      "sha256": "5a4cd2d84e251fd7c41fcc22a8f7743c99721e0c7d5d300c79936a56bc6d29b0",
+      "bytes": 94727,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Modo Lista mantém títulos e favoritos legíveis, navegação compacta, 2 cópias e 71 ferramentas corretos.",
+      "limits": "Catálogo continua abaixo da área visível.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 17,
+      "name": "PDF-preview.navegacao.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.navegacao.png",
+      "sha256": "8fca986791c33c27ecc98157d27b947a980ebcddb7008199b3e40bbc30740f52",
+      "bytes": 79859,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Preferências de navegação mostram nomes, ícones, largura e ações sem cortes.",
+      "limits": "Reordenação/alteração de largura não exercidas.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 18,
+      "name": "PDF-preview.opcoes-leitura.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.opcoes-leitura.png",
+      "sha256": "5679bfa7617df7460b865012fba06bc2e455d6f24e99e90fe26195bdd8b258d6",
+      "bytes": 83682,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Preferências do leitor mostram rótulos persistentes, zoom 55% e explicação sobre preservação de zoom por aba.",
+      "limits": "Estilo de anotações continua abaixo da área rolável; efeitos das opções não comprovados pela captura.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 19,
+      "name": "PDF-preview.paleta.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.paleta.png",
+      "sha256": "5b922a1fa67cfea20ee7bd444dd1a7a936d874f74067765ea4487d23ed9b0899",
+      "bytes": 62960,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Paleta apresenta busca, itens e atalhos alinhados; 91 comandos encontrados concorda.",
+      "limits": "Somente parte da lista visível; seleção por teclado não testada.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 20,
+      "name": "PDF-preview.perfis.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.perfis.png",
+      "sha256": "e3e5fea4d3b91f81d781f186172ffa6790ce55be74e611ca6b9871e07712e894",
+      "bytes": 62414,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Perfis mostram descrição completa sobre documentos, posição, zoom e novas abas, nome e botão de guardar.",
+      "limits": "Estado vazio não comprova aplicação ou persistência de perfil.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 21,
+      "name": "PDF-preview.personalizar.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.personalizar.png",
+      "sha256": "25db9d17a989179a7043b125ff9dd73ac413a8097951bb1cb6558a03cd414e54",
+      "bytes": 99903,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Personalização de aparência e prévia ao vivo apresentam controles e valores legíveis em painéis separados.",
+      "limits": "Preferências adicionais seguem abaixo do viewport; nenhuma mudança interativa.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 22,
+      "name": "PDF-preview.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.png",
+      "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3",
+      "bytes": 348715,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Início em grade apresenta cabeçalho, busca, Categoria e cartões sem sobreposição; 71 ferramentas correto.",
+      "limits": "Parte inferior do catálogo está fora da área visível.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 23,
+      "name": "PDF-preview.producao-bates.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-bates.png",
+      "sha256": "390e8ff9de2e46cc957200e4a94d724b1f092d976c8c6b6363261754563731a7",
+      "bytes": 64205,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Bates apresenta Prefixo, Número inicial e Dígitos com rótulos persistentes; ação de criar cópia visível.",
+      "limits": "Nenhum documento escolhido nem numeração executada.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 24,
+      "name": "PDF-preview.producao-measure.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-measure.png",
+      "sha256": "f23a69b7cc88c88c1fa61ee98d593a62249682e0fb7d51e29a0bb23f37744aa2",
+      "bytes": 73628,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Medição apresenta Página, Escala, Unidade, coordenadas X/Y e ações legíveis, sem corte.",
+      "limits": "Não comprova calibração nem resultado de medição.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 25,
+      "name": "PDF-preview.producao-pdfx.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-pdfx.png",
+      "sha256": "69eae0885253ace256e1eedc15ac19409a0c508efb6a2d2fcc74f30bdb30f1f6",
+      "bytes": 71803,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Preparação PDF/X apresenta perfil ICC, condição de impressão e limites explicativos legíveis.",
+      "limits": "Não comprova conformidade PDF/X ou fidelidade de cores.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 26,
+      "name": "PDF-preview.producao-print-preflight.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-print-preflight.png",
+      "sha256": "143fe6a00f014c13ffdd864208c1b89aa9ab28bf5a20aceef9c814709ae87c59",
+      "bytes": 63860,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Pré-impressão apresenta resolução mínima em DPI com rótulo persistente e ação de gerar relatório.",
+      "limits": "Nenhum relatório gerado nesta revisão.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 27,
+      "name": "PDF-preview.recuperacao.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.recuperacao.png",
+      "sha256": "6431ce23cee45cab6f822914ec554de3880a9045180d6f6872163822eefaeb3c",
+      "bytes": 68296,
+      "dimensions": {
+        "width": 1050,
+        "height": 772
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Recuperação mostra duas cópias com ações distintas e 2 cópias locais correto; nomes não sobrepostos.",
+      "limits": "Caminhos são truncados visualmente e datas seguem o ambiente em inglês. Reabertura, senha e recuperação não exercidas.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 28,
+      "name": "PDF-preview.revisao-ocr.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.revisao-ocr.png",
+      "sha256": "119675073fc4f066dc21427429648e19f2e986f1c375aa089e66a0f9f13e34b4",
+      "bytes": 131586,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Título da interface Palavras reconhecidas agora está inteiramente visível, com espaço acima. Inglês e Página automática coincidem com a metadata mostrada. 0 correções correto; título impresso reconhecido em quatro palavras.",
+      "limits": "Parte inferior do editor e ações de correção depende de rolagem. A palavra impressa informações permanece reconhecida como informag6es e está exposta para correção; não há aprovação de exatidão integral do OCR.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 29,
+      "name": "PDF-preview.solicitar-assinaturas.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.solicitar-assinaturas.png",
+      "sha256": "ed3153117498882bd7727936d2fecdfb724acd35c5af3aff4a8b4d92d057dafe",
+      "bytes": 99164,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Solicitação de assinaturas mantém títulos, campos, conexão, destinatário e geometria com rótulos legíveis.",
+      "limits": "A ação azul inferior está parcialmente abaixo do viewport, com barra de rolagem visível. Não se testou acesso por rolagem nem envio; nenhuma mensagem foi enviada.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 30,
+      "name": "PDF-preview.validar-pdfa.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.validar-pdfa.png",
+      "sha256": "9cf0bdcf82f346cbb0d9be66deb96101bd1e16cbae361352643b3bd1db8edd30",
+      "bytes": 62268,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Validação PDF/A mostra documento, perfil, descrição e ação final completos.",
+      "limits": "Sem validação de documento ou conformidade comprovada por esta imagem.",
+      "newLayoutDefectObserved": false
+    },
+    {
+      "index": 31,
+      "name": "PDF-preview.verificar-assinaturas.png",
+      "path": "/tmp/pdf-native-437a8f4/extracted/PDF-macOS-preview-macos-26/PDF-preview.verificar-assinaturas.png",
+      "sha256": "9b97ce5fcbe08823e7d29ddc7917089eb14099ebd11e0429bc8d6c1f8c0309f7",
+      "bytes": 73581,
+      "dimensions": {
+        "width": 1050,
+        "height": 752
+      },
+      "individuallyViewed": true,
+      "viewer": "tools.view_image",
+      "imageModified": false,
+      "visualObservation": "Verificação de assinaturas mostra confiança explícita, raízes, OCSP/CRL e LTA sem sobreposição, com ação final completa.",
+      "limits": "Não comprova identidade, cadeia, revogação ou assinatura válida.",
+      "newLayoutDefectObserved": false
+    }
+  ]
+}

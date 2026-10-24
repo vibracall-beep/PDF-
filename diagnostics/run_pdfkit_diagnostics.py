@@ -538,5 +538,10 @@ if __name__ == "__main__":
     parser.add_argument("--executable", type=Path, required=True)
     parser.add_argument("--qpdf", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--exact-only", action="store_true", help="Run instrumented copies of the exact 63bf88a production audits on synthetic inputs only")
     args = parser.parse_args()
-    measure(args.executable.resolve(strict=True), args.qpdf.resolve(strict=True), args.output)
+    if args.exact_only:
+        from run_exact_serialization import run_exact
+        run_exact(Path(__file__).resolve().parents[1], args.output, args.qpdf.resolve(strict=True))
+    else:
+        measure(args.executable.resolve(strict=True), args.qpdf.resolve(strict=True), args.output)

@@ -60,11 +60,21 @@ enum MacSmokeTests {
         audit("Workflow presets and credentials") { try WorkflowAuditChecks.run(in: directory) }
         audit("Pages isolated copy") { try PagesPrivateCopyAuditChecks.run(in: directory) }
         audit("Capture import and orientation") { try CaptureImportAuditChecks.run(in: directory) }
+        audit("Typed-string repair graph and Unicode parser") { try NativePDFStringRepair.runAuditChecks() }
         audit("Native serialization editable annotation and form roundtrips") {
             try QPDFStructuralAudit.verifyEditableRoundTrips()
         }
+        audit("Unicode field identity and byte-exact fidelity") {
+            try QPDFStructuralAudit.verifyUnicodeFieldIdentity()
+        }
+        audit("Unsupported ink curve loss is refused") {
+            try QPDFStructuralAudit.verifyUnsupportedInkCurveRefusal()
+        }
         audit("Native AES-256, permissions and Unicode credentials") {
             try QPDFStructuralAudit.verifyEncryptionGuards()
+        }
+        audit("Typed-string repair privacy and interruption") {
+            try QPDFStructuralAudit.verifyRepairProcessGuards()
         }
 
         audit("PDFKit, capture encoding, AI text helpers and protected output") {
@@ -265,7 +275,7 @@ enum MacSmokeTests {
             let password = "native-check-reader-123"
             trace("protected serialize begin")
             let protectedPrepared = try NativePDFSerialization.prepare(document: restored, password: password)
-            try QPDFStructuralAudit.recordRawPDFKit(protectedPrepared.data, password: password,
+            try QPDFStructuralAudit.recordRawPDFKit(protectedPrepared.data, password: protectedPrepared.inputPassword,
                                                     phase: "encrypted framework serialization")
             let protectedData = try NativePDFSerialization.finish(protectedPrepared)
             trace("protected serialize end")

@@ -6,16 +6,20 @@ import Darwin
 import Security
 
 /// The publication boundary for native PDF writers. PDFKit can emit malformed
-/// stream lengths while keeping a readable document. Never publish those raw
-/// bytes: independently check them, repair only recoverable structural warnings,
-/// then check the resulting structure and the original document's semantics.
+/// stream lengths and string types while keeping a readable document. Check the
+/// raw structure, repair only proven defects using the pre-writer baseline, then
+/// independently verify structure, protection and original document semantics.
 enum NativePDFSerialization {
     struct Prepared: Sendable {
         let data: Data
+        // Private staging authentication only. Never persist this credential in
+        // session/recovery metadata or show it in diagnostics.
+        let inputPassword: String?
         fileprivate let snapshot: Snapshot
         fileprivate let password: String?
         fileprivate let encrypted: Bool
         fileprivate let permissions: EncryptionPermissions
+        fileprivate let strings: NativePDFStringRepair.Baseline?
     }
     fileprivate struct Snapshot: Sendable, Equatable {
         let pages: [Page]
@@ -25,7 +29,9 @@ enum NativePDFSerialization {
         let crop: [Double]
         let rotation: Int
         let textDigest: Data
-        let annotations: [String]
+        // Swift String equality folds canonically equivalent Unicode. PDF field
+        // identifiers and editable values require the exact original codepoints.
+        let annotations: [Data]
     }
     fileprivate struct EncryptionPermissions: Sendable, Equatable {
         let accessibility: Bool
@@ -51,6 +57,7 @@ enum NativePDFSerialization {
         }
     }
     private static let maximumBytes = 1_073_741_824
+    private static let maximumRepairJSONBytes = 64 * 1_024 * 1_024
     private static let executable = URL(fileURLWithPath: "/opt/homebrew/bin/qpdf")
     typealias LaunchObserver = (Process, URL) -> Void
 
@@ -64,6 +71,7 @@ enum NativePDFSerialization {
             throw failure("A publicação de um documento protegido exige a senha da cópia. Nenhum arquivo sem proteção será criado.")
         }
         let baseline = try snapshot(document)
+        let strings = try NativePDFStringRepair.capture(document: document)
         let permissions = try encryptionPermissions(document)
         if password != nil, !permissions.accessibility {
             throw failure("A restrição de acessibilidade deste PDF não pode ser preservada no AES-256 moderno. O original permanece intacto; nenhuma cópia foi publicada.")
@@ -74,17 +82,28 @@ enum NativePDFSerialization {
         // final comparison must still match that earlier baseline.
         try materializeWriterDefaults(document)
         let bytes: Data?
-        if let password {
+        let inputPassword: String?
+        if password != nil {
+            // PDFKit's intermediate writer supports at most 32 ASCII password
+            // bytes. Its Unicode handling can emit nil or even unprotected data.
+            // Keep staging encrypted with a fresh ASCII secret; qpdf applies the
+            // user's full UTF-8 password only to the final AES-256 document.
+            let stagingPassword = try randomCredential(byteCount: 16)
+            inputPassword = stagingPassword
             bytes = document.dataRepresentation(options: [
-                AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): password,
-                AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): password
+                AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): stagingPassword,
+                AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): stagingPassword
             ])
-        } else { bytes = document.dataRepresentation() }
+        } else {
+            inputPassword = nil
+            bytes = document.dataRepresentation()
+        }
         guard let bytes, !bytes.isEmpty, bytes.count <= maximumBytes else {
             throw failure("O escritor nativo não produziu uma cópia válida dentro do limite de 1 GiB.")
         }
         try checkCancellation(nil)
-        return Prepared(data: bytes, snapshot: baseline, password: password, encrypted: password != nil, permissions: permissions)
+        return Prepared(data: bytes, inputPassword: inputPassword, snapshot: baseline,
+                        password: password, encrypted: password != nil, permissions: permissions, strings: strings)
     }
 
     static func serialize(document: PDFDocument, password: String? = nil,
@@ -111,8 +130,8 @@ enum NativePDFSerialization {
                 throw failure("Não foi possível confirmar a proteção do PDF gerado.")
             }
         }
-        let prepared = Prepared(data: data, snapshot: try snapshot(document, cancellation: cancellation),
-            password: encrypted ? password : nil, encrypted: encrypted, permissions: try encryptionPermissions(document))
+        let prepared = Prepared(data: data, inputPassword: encrypted ? password : nil, snapshot: try snapshot(document, cancellation: cancellation),
+            password: encrypted ? password : nil, encrypted: encrypted, permissions: try encryptionPermissions(document), strings: nil)
         return try finish(prepared, cancellation: cancellation)
     }
 
@@ -126,9 +145,10 @@ enum NativePDFSerialization {
         if prepared.encrypted {
             // A native-writer failure must never turn a protected session into
             // even a private plaintext staging file.
-            guard let inputDocument = PDFDocument(data: prepared.data), inputDocument.isEncrypted,
-                  inputDocument.isLocked, !inputDocument.unlock(withPassword: "") else {
-                throw failure("O escritor nativo não preservou a proteção da cópia. Nenhum arquivo temporário sem senha foi criado.")
+            guard let inputPassword = prepared.inputPassword,
+                  let inputDocument = PDFDocument(data: prepared.data), inputDocument.isEncrypted,
+                  inputDocument.isLocked, !inputDocument.unlock(withPassword: ""), inputDocument.unlock(withPassword: inputPassword) else {
+                throw failure("O escritor nativo não preservou a proteção da cópia. Nenhum PDF temporário desprotegido foi criado.")
             }
         }
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-serialization-\(UUID().uuidString)", isDirectory: true)
@@ -138,20 +158,27 @@ enum NativePDFSerialization {
         let output = directory.appendingPathComponent("checked.pdf")
         try NativeOutput.write(prepared.data, to: input)
         let password = prepared.password ?? ""
-        let initial = try runJob(["inputFile": input.path, "password": password, "check": ""],
+        let inputPassword = prepared.inputPassword ?? ""
+        let initial = try runJob(["inputFile": input.path, "password": inputPassword, "check": ""],
                                  directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout)
         guard initial == 0 || initial == 3 else {
             throw failure("O PDF gerado foi recusado pelo verificador estrutural (status \(initial)). Nenhum arquivo foi publicado.")
         }
+        let stringPatch: URL?
+        if let strings = prepared.strings {
+            stringPatch = try prepareStringPatch(input: input, password: inputPassword, baseline: strings,
+                directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout)
+        } else { stringPatch = nil }
         let result: Data
-        if initial == 0, !prepared.encrypted {
+        if initial == 0, !prepared.encrypted, stringPatch == nil {
             result = prepared.data
         } else {
             // A private, pre-created 0600 file keeps encrypted and unencrypted
             // documents private even if qpdf's default umask is permissive.
             try NativeOutput.write(Data(), to: output)
-            var job: [String: Any] = ["inputFile": input.path, "outputFile": output.path, "password": password,
+            var job: [String: Any] = ["inputFile": input.path, "outputFile": output.path, "password": inputPassword,
                                       "objectStreams": "preserve", "streamData": "preserve"]
+            if let stringPatch { job["updateFromJson"] = stringPatch.path }
             if prepared.encrypted {
                 guard prepared.permissions.accessibility else {
                     throw failure("A restrição de acessibilidade deste PDF não pode ser preservada no AES-256 moderno. O original permanece intacto; nenhuma cópia foi publicada.")
@@ -221,15 +248,15 @@ enum NativePDFSerialization {
             guard before.annotations != after.annotations else { continue }
             if before.annotations.count != after.annotations.count { differences.append(prefix + "quantidade de anotações") }
             // Remove exact matches as a multiset; order is not a semantic change.
-            var remaining: [String: Int] = [:]
+            var remaining: [Data: Int] = [:]
             for value in after.annotations { remaining[value, default: 0] += 1 }
-            var missing: [String] = []
+            var missing: [Data] = []
             for value in before.annotations {
                 if let count = remaining[value], count > 0 { remaining[value] = count - 1 }
                 else if missing.count < maximum { missing.append(value) }
             }
             var candidates: [[String: Any]] = []
-            for (value, count) in remaining.sorted(by: { $0.key < $1.key }) where count > 0 {
+            for (value, count) in remaining.sorted(by: { $0.key.lexicographicallyPrecedes($1.key) }) where count > 0 {
                 guard candidates.count < maximum else { break }
                 if let dictionary = annotationDictionary(value) {
                     for _ in 0..<min(count, maximum - candidates.count) { candidates.append(dictionary) }
@@ -254,19 +281,22 @@ enum NativePDFSerialization {
         }
         return differences.isEmpty ? ["anotações incompatíveis"] : Array(differences.prefix(maximum))
     }
-    private static func annotationDictionary(_ value: String) -> [String: Any]? {
-        (try? JSONSerialization.jsonObject(with: Data(value.utf8))) as? [String: Any]
+    private static func annotationDictionary(_ value: Data) -> [String: Any]? {
+        (try? JSONSerialization.jsonObject(with: value)) as? [String: Any]
     }
     private static func differingAnnotationFields(_ before: [String: Any], _ after: [String: Any]) -> [String] {
         // Only these implementation-owned names can reach a user-visible error.
         let fields = ["type", "bounds", "contents", "display", "print", "color", "width", "fontName", "fontSize", "fontColor",
                       "quadrilaterals", "start", "end", "startStyle", "endStyle", "paths", "field", "fieldType",
                       "value", "default", "readOnly", "buttonState", "control", "buttonName", "choices", "choiceValues",
-                      "list", "multiline", "maxLength", "url", "open"]
+                      "list", "multiline", "maxLength", "url", "open", "textFields"]
         return fields.filter { key in
             switch (before[key], after[key]) {
             case (nil, nil): return false
-            case let (left?, right?): return !NSDictionary(dictionary: ["value": left]).isEqual(to: ["value": right])
+            case let (left?, right?):
+                let leftBytes = try? JSONSerialization.data(withJSONObject: ["value": left], options: [.sortedKeys])
+                let rightBytes = try? JSONSerialization.data(withJSONObject: ["value": right], options: [.sortedKeys])
+                return leftBytes == nil || rightBytes == nil || leftBytes != rightBytes
             default: return true
             }
         }
@@ -282,15 +312,17 @@ enum NativePDFSerialization {
             let text = Data((page.string ?? "").utf8)
             pages.append(Page(media: try rectangle(page.bounds(for: .mediaBox)), crop: try rectangle(page.bounds(for: .cropBox)),
                               rotation: ((page.rotation % 360) + 360) % 360, textDigest: Data(SHA256.hash(data: text)),
-                              annotations: try page.annotations.filter { !isDerivedPopup($0, on: page) }.map(annotation).sorted()))
+                              annotations: try page.annotations.filter { !isDerivedPopup($0, on: page) }.map(annotation)
+                                .sorted { $0.lexicographicallyPrecedes($1) }))
         }
         return Snapshot(pages: pages)
     }
 
-    private static func annotation(_ item: PDFAnnotation) throws -> String {
+    private static func annotation(_ item: PDFAnnotation) throws -> Data {
         var values: [String: Any] = ["type": PDFAnnotationKind.normalizedName(item.type) ?? "",
             "bounds": try rectangle(item.bounds), "contents": item.contents ?? "", "display": item.shouldDisplay,
-            "print": item.shouldPrint, "color": try annotationColor(item)]
+            "print": item.shouldPrint, "color": try annotationColor(item),
+            "textFields": try NativePDFStringRepair.annotationTextFields(item)]
         if PDFAnnotationKind.matches(item, .text) {
             // Text annotations use a viewer-sized icon. PDFKit reopens them as
             // 24pt icons while retaining this upper-left document-space anchor.
@@ -338,6 +370,7 @@ enum NativePDFSerialization {
                 values["buttonState"] = item.buttonWidgetState.rawValue; values["control"] = item.widgetControlType.rawValue
                 values["buttonName"] = item.buttonWidgetStateString
             } else if item.widgetFieldType == .choice {
+                values["value"] = try NativePDFStringRepair.choiceSelection(item)
                 values["choices"] = item.choices ?? []; values["choiceValues"] = item.values ?? []
                 values["list"] = item.isListChoice
             } else if item.widgetFieldType == .text {
@@ -345,8 +378,7 @@ enum NativePDFSerialization {
             }
         }
         if PDFAnnotationKind.matches(item, .link) { values["url"] = item.url?.absoluteString ?? "" }
-        let data = try JSONSerialization.data(withJSONObject: values, options: [.sortedKeys])
-        return String(decoding: data, as: UTF8.self)
+        return try JSONSerialization.data(withJSONObject: values, options: [.sortedKeys])
     }
 
     private static func materializeWriterDefaults(_ document: PDFDocument) throws {
@@ -363,6 +395,19 @@ enum NativePDFSerialization {
                         let border = PDFBorder()
                         border.lineWidth = 0
                         item.border = border
+                    }
+                    // /DA is a content-program STRING. SDK27 mistakes a
+                    // leading slash for a PDF name, so reloading silently falls
+                    // back to Helvetica 12 even when the appearance embeds the
+                    // original font. Whitespace is neutral PDF syntax; preserve
+                    // the entire program, font and color without reconstructing
+                    // or changing any user-authored text.
+                    let appearanceKey = PDFAnnotationKey(rawValue: "/DA")
+                    if let appearance = item.value(forAnnotationKey: appearanceKey) as? String,
+                       appearance.hasPrefix("/") {
+                        guard item.setValue(" " + appearance, forAnnotationKey: appearanceKey) else {
+                            throw failure("A aparência editável do texto não pôde ser preservada para gravação.")
+                        }
                     }
                 }
                 if PDFAnnotationKind.matches(item, .widget),
@@ -385,7 +430,7 @@ enum NativePDFSerialization {
         return page.annotations.contains { parent in
             guard PDFAnnotationKind.matches(parent, .text), parent.popup === item else { return false }
             let contents = item.contents ?? ""
-            return contents.isEmpty || contents == (parent.contents ?? "")
+            return contents.isEmpty || contents.utf8.elementsEqual((parent.contents ?? "").utf8)
         }
     }
 
@@ -432,13 +477,17 @@ enum NativePDFSerialization {
     }
 
     private static func ownerCredential(excluding password: String) throws -> String {
-        var bytes = [UInt8](repeating: 0, count: 32)
-        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
-            throw failure("Não foi possível gerar a proteção de proprietário da cópia.")
-        }
-        let owner = bytes.map { String(format: "%02x", $0) }.joined()
+        let owner = try randomCredential(byteCount: 32)
         guard owner != password else { throw failure("Não foi possível criar credenciais de leitura e proprietário distintas.") }
         return owner
+    }
+
+    private static func randomCredential(byteCount: Int) throws -> String {
+        var bytes = [UInt8](repeating: 0, count: byteCount)
+        guard SecRandomCopyBytes(kSecRandomDefault, bytes.count, &bytes) == errSecSuccess else {
+            throw failure("Não foi possível gerar uma credencial temporária segura para a cópia.")
+        }
+        return bytes.map { String(format: "%02x", $0) }.joined()
     }
 
     private static func verifyEncryption(_ file: URL, password: String, permissions: EncryptionPermissions,
@@ -464,6 +513,32 @@ enum NativePDFSerialization {
         }
     }
 
+    private static func prepareStringPatch(input: URL, password: String, baseline: NativePDFStringRepair.Baseline,
+                                            directory: URL, cancellation: NativeCancellation,
+                                            onLaunch: LaunchObserver?, timeout: TimeInterval) throws -> URL? {
+        let report = directory.appendingPathComponent("strings-\(UUID().uuidString).json")
+        // Stream bodies are excluded. This temporary object report may contain
+        // annotation/form text, so it uses the same private directory and 0600
+        // publication as credentials and is removed on every completion path.
+        let status = try runJob(["inputFile": input.path, "password": password, "json": "2",
+                                 "jsonKey": ["qpdf", "pages"], "jsonStreamData": "none"],
+            directory: directory, cancellation: cancellation, onLaunch: onLaunch, timeout: timeout,
+            output: report, outputLimit: maximumRepairJSONBytes)
+        guard status == 0 || status == 3 else {
+            throw failure("Os campos de texto da cópia nativa não puderam ser inspecionados com segurança.")
+        }
+        let bytes = try readPrivate(report, cancellation: cancellation, limit: maximumRepairJSONBytes)
+        try checkCancellation(cancellation)
+        guard let patch = try NativePDFStringRepair.patch(jsonData: bytes, baseline: baseline) else { return nil }
+        guard !patch.isEmpty, patch.count <= maximumRepairJSONBytes else {
+            throw failure("A correção dos tipos de texto excedeu o limite privado de 64 MiB.")
+        }
+        try checkCancellation(cancellation)
+        let file = directory.appendingPathComponent("string-patch-\(UUID().uuidString).json")
+        try NativeOutput.write(patch, to: file)
+        return file
+    }
+
     private static func validatePassword(_ value: String?) throws {
         guard let value else { return }
         guard !value.isEmpty, !value.contains("\n"), !value.contains("\r"), !value.contains("\0"), value.utf8.count <= 127 else {
@@ -476,20 +551,24 @@ enum NativePDFSerialization {
     }
 
     private static func runJob(_ job: [String: Any], directory: URL, cancellation: NativeCancellation,
-                               onLaunch: LaunchObserver?, timeout: TimeInterval, output: URL? = nil) throws -> Int32 {
+                               onLaunch: LaunchObserver?, timeout: TimeInterval, output: URL? = nil,
+                               outputLimit: Int = 65_536) throws -> Int32 {
         try checkCancellation(cancellation)
         let input = directory.appendingPathComponent("job-\(UUID().uuidString).json")
         let data = try JSONSerialization.data(withJSONObject: job, options: [.sortedKeys])
         guard data.count <= 65_536 else { throw failure("A solicitação ao verificador PDF excedeu o limite privado.") }
         try NativeOutput.write(data, to: input)
         return try run(["--job-json-file=/dev/stdin"], credential: input, directory: directory,
-                       cancellation: cancellation, onLaunch: onLaunch, timeout: timeout, output: output)
+                       cancellation: cancellation, onLaunch: onLaunch, timeout: timeout, output: output, outputLimit: outputLimit)
     }
 
     private static func run(_ arguments: [String], credential: URL, directory: URL,
                             cancellation: NativeCancellation, onLaunch: LaunchObserver?, timeout: TimeInterval,
-                            output: URL? = nil) throws -> Int32 {
+                            output: URL? = nil, outputLimit: Int = 65_536) throws -> Int32 {
         try checkCancellation(cancellation)
+        guard outputLimit > 0, outputLimit <= maximumRepairJSONBytes else {
+            throw failure("O limite privado do relatório PDF é inválido.")
+        }
         let stdin = try FileHandle(forReadingFrom: credential)
         defer { try? stdin.close() }
         var stdout: FileHandle?
@@ -518,7 +597,7 @@ enum NativePDFSerialization {
             guard ProcessInfo.processInfo.systemUptime < deadline else { throw failure("O verificador PDF excedeu o prazo de execução. Nenhum arquivo foi publicado.") }
             if let stdout {
                 var information = stat()
-                guard fstat(stdout.fileDescriptor, &information) == 0, information.st_size <= 65_536 else {
+                guard fstat(stdout.fileDescriptor, &information) == 0, information.st_size <= Int64(outputLimit) else {
                     throw failure("O relatório privado do verificador excedeu o limite permitido.")
                 }
             }

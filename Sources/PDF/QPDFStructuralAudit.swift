@@ -125,8 +125,11 @@ enum QPDFStructuralAudit {
             if type == .ink {
                 let path = NSBezierPath()
                 path.move(to: CGPoint(x: 4, y: 5)); path.line(to: CGPoint(x: 35, y: 20))
-                path.curve(to: CGPoint(x: 120, y: 15), controlPoint1: CGPoint(x: 50, y: 25), controlPoint2: CGPoint(x: 90, y: 5))
+                path.line(to: CGPoint(x: 50, y: 25)); path.line(to: CGPoint(x: 90, y: 5)); path.line(to: CGPoint(x: 120, y: 15))
                 annotation.add(path)
+                let second = NSBezierPath()
+                second.move(to: CGPoint(x: 10, y: 25)); second.line(to: CGPoint(x: 40, y: 8)); second.line(to: CGPoint(x: 80, y: 22))
+                annotation.add(second)
             } else if type == .line {
                 annotation.startPoint = CGPoint(x: 5, y: 5); annotation.endPoint = CGPoint(x: 130, y: 25)
             } else if [PDFAnnotationSubtype.highlight, .underline, .strikeOut].contains(type) {
@@ -164,7 +167,7 @@ enum QPDFStructuralAudit {
         let passwords: [String?] = [nil, "roundtrip-protected-123"]
         for password in passwords {
             let prepared = try NativePDFSerialization.prepare(document: document, password: password)
-            try recordRawPDFKit(prepared.data, password: password,
+            try recordRawPDFKit(prepared.data, password: prepared.inputPassword,
                                 phase: password == nil ? "editable defaults unencrypted" : "editable defaults protected")
             let bytes = try NativePDFSerialization.finish(prepared)
             try check(bytes, password: password, phase: "published editable annotations and fields")
@@ -183,7 +186,7 @@ enum QPDFStructuralAudit {
             try require(result.pageCount == 1 && editable.count == types.count + 3 && extras.allSatisfy { popup in
                 PDFAnnotationKind.matches(popup, .popup) && !popup.isOpen && restored.annotations.contains { parent in
                     PDFAnnotationKind.matches(parent, .text) && parent.popup === popup &&
-                        ((popup.contents ?? "").isEmpty || popup.contents == parent.contents)
+                        ((popup.contents ?? "").isEmpty || (popup.contents ?? "").utf8.elementsEqual((parent.contents ?? "").utf8))
                 }
             },
                         "O roundtrip perdeu ou duplicou anotações/campos.")
@@ -294,6 +297,21 @@ enum QPDFStructuralAudit {
         try mutatedCandidate(bytes, prepared: prepared, name: "changed note color", mutate: { page in
             try findAnnotation(page, .text).color = .blue
         }, persisted: { page in sameColor(try findAnnotation(page, .text).value(forKey: "color") as? NSColor, .blue) })
+        try mutatedCandidate(bytes, prepared: prepared, name: "changed ink vertex", mutate: { page in
+            let ink = try findAnnotation(page, .ink)
+            guard var paths = ink.paths, paths.count == 2 else { throw failure("A amostra não manteve os dois traços de tinta.") }
+            let changed = NSBezierPath()
+            changed.move(to: CGPoint(x: 4, y: 5)); changed.line(to: CGPoint(x: 35, y: 23))
+            changed.line(to: CGPoint(x: 50, y: 25)); changed.line(to: CGPoint(x: 90, y: 5)); changed.line(to: CGPoint(x: 120, y: 15))
+            for path in paths { ink.remove(path) }
+            paths[0] = changed
+            for path in paths { ink.add(path) }
+        }, persisted: { page in
+            guard let paths = try findAnnotation(page, .ink).paths, paths.count == 2, paths[0].elementCount == 5 else { return false }
+            var points = [NSPoint](repeating: .zero, count: 3)
+            let element = points.withUnsafeMutableBufferPointer { paths[0].element(at: 1, associatedPoints: $0.baseAddress!) }
+            return element == .lineTo && points[0] == NSPoint(x: 35, y: 23)
+        })
         try mutatedCandidate(bytes, prepared: prepared, name: "removed independent popup", mutate: { page in
             guard let item = page.annotations.first(where: { PDFAnnotationKind.matches($0, .popup) && $0.contents == "Independent popup contents" }) else {
                 throw failure("O cenário de remoção não encontrou o popup independente.")
@@ -307,7 +325,45 @@ enum QPDFStructuralAudit {
             item.isOpen = false
         }, persisted: { page in page.annotations.contains { PDFAnnotationKind.matches($0, .popup) &&
             $0.contents == "Independent popup contents" && !$0.isOpen } })
-        log("explicit fidelity guards: real changed defaults, font family/color, border, note anchor/color and independent popup rejected")
+        log("explicit fidelity guards: real changed defaults, font family/color, border, note anchor/color, ink vertex and independent popup rejected")
+    }
+
+    /// /InkList stores polylines. The app's pen tool creates move/line strokes;
+    /// an unsupported Bézier must never become a silently simplified drawing.
+    @MainActor
+    static func verifyUnsupportedInkCurveRefusal() throws {
+        guard let document = PDFDocument(data: streamFixture().valid), let page = document.page(at: 0) else {
+            throw failure("A amostra de curva de tinta não pôde ser criada.")
+        }
+        let ink = PDFAnnotation(bounds: CGRect(x: 60, y: 180, width: 140, height: 30), forType: .ink, withProperties: nil)
+        let curve = NSBezierPath()
+        curve.move(to: CGPoint(x: 4, y: 5)); curve.line(to: CGPoint(x: 35, y: 20))
+        curve.curve(to: CGPoint(x: 120, y: 15), controlPoint1: CGPoint(x: 50, y: 25), controlPoint2: CGPoint(x: 90, y: 5))
+        ink.add(curve); page.addAnnotation(ink)
+        let prepared = try NativePDFSerialization.prepare(document: document)
+        // Inspect what PDFKit actually encoded. Normalizing these already
+        // serialized bytes is only a negative fixture, never the product save.
+        let changed = try NativePDFSerialization.normalize(data: prepared.data)
+        try check(changed, phase: "structurally valid PDFKit ink curve loss control")
+        guard let reopened = PDFDocument(data: changed), let restored = reopened.page(at: 0),
+              let paths = try findAnnotation(restored, .ink).paths else {
+            throw failure("A amostra de perda de curva não pôde ser reaberta.")
+        }
+        let retainedCurve = paths.contains { path in
+            (0..<path.elementCount).contains { path.element(at: $0) == .curveTo }
+        }
+        try require(!retainedCurve, "O controle de perda de curva não reproduziu a limitação de InkList esperada.")
+        try require(rejects { try NativePDFSerialization.verifyFidelity(data: changed, prepared: prepared) },
+                    "A verificação aceitou perder os controles da curva de tinta.")
+        do {
+            _ = try NativePDFSerialization.finish(prepared)
+            throw failure("A publicação aceitou uma curva de tinta com geometria perdida.")
+        } catch {
+            let issue = error as NSError
+            try require(issue.domain == "PDF.NativeSerialization" && issue.localizedDescription.contains("anotação.paths"),
+                        "A recusa da curva não foi causada pela perda real da geometria do traço.")
+        }
+        log("ink curve guard: real PDFKit control-point loss rejected; pen polylines remain strictly preserved")
     }
 
     @MainActor
@@ -343,6 +399,78 @@ enum QPDFStructuralAudit {
             abs(left.alphaComponent - right.alphaComponent) <= tolerance
     }
 
+    @MainActor
+    static func verifyUnicodeFieldIdentity() throws {
+        // Swift String equality intentionally treats these forms as equivalent.
+        // PDF field identity and the saved values must retain the actual bytes.
+        let suffixes = ["\u{00E9}", "e\u{0301}"]
+        try require(suffixes[0] == suffixes[1] && !suffixes[0].utf8.elementsEqual(suffixes[1].utf8),
+                    "A amostra Unicode não contém formas canonicamente equivalentes e distintas em bytes.")
+        guard let document = PDFDocument(data: streamFixture().valid), let page = document.page(at: 0) else {
+            throw failure("A amostra de identidade Unicode não pôde ser criada.")
+        }
+        for (index, suffix) in suffixes.enumerated() {
+            let field = PDFAnnotation(bounds: CGRect(x: 80, y: CGFloat(500 - index * 70), width: 200, height: 35),
+                                      forType: .widget, withProperties: nil)
+            field.widgetFieldType = .text
+            field.fieldName = "/" + suffix
+            field.widgetStringValue = "/valor-" + suffix
+            field.widgetDefaultStringValue = "/default-" + suffix
+            page.addAnnotation(field)
+        }
+        try assertUnicodeFields(page, suffixes: suffixes)
+        var plain: (Data, NativePDFSerialization.Prepared)?
+        let passwords: [String?] = [nil, "unicode-audit-reader-123"]
+        for password in passwords {
+            let prepared = try NativePDFSerialization.prepare(document: document, password: password)
+            let bytes = try NativePDFSerialization.finish(prepared)
+            try check(bytes, password: password, phase: "byte-exact Unicode field identities")
+            if let password { try verifyAES256(bytes, password: password) }
+            guard let result = PDFDocument(data: bytes) else { throw failure("O PDF Unicode não pôde ser reaberto.") }
+            if let password { try require(result.unlock(withPassword: password), "A cópia Unicode não aceitou a senha solicitada.") }
+            guard let restored = result.page(at: 0) else { throw failure("A cópia Unicode perdeu sua página.") }
+            try assertUnicodeFields(restored, suffixes: suffixes)
+            if password == nil { plain = (bytes, prepared) }
+        }
+        guard let (bytes, prepared) = plain else { throw failure("A amostra Unicode sem senha não foi executada.") }
+        let composedName = "/" + suffixes[0]
+        let decomposedValue = "/valor-" + suffixes[1]
+        try mutatedCandidate(bytes, prepared: prepared, name: "Unicode value decomposition changed", mutate: { page in
+            try exactUnicodeField(page, named: composedName).widgetStringValue = decomposedValue
+        }, persisted: { page in
+            try exactUnicodeField(page, named: composedName).widgetStringValue?.utf8.elementsEqual(decomposedValue.utf8) == true
+        })
+        let decomposedDefault = "/default-" + suffixes[1]
+        try mutatedCandidate(bytes, prepared: prepared, name: "Unicode reset decomposition changed", mutate: { page in
+            try exactUnicodeField(page, named: composedName).widgetDefaultStringValue = decomposedDefault
+        }, persisted: { page in
+            try exactUnicodeField(page, named: composedName).widgetDefaultStringValue?.utf8.elementsEqual(decomposedDefault.utf8) == true
+        })
+        log("Unicode field guard: NFC/NFD names, values and defaults preserved byte-for-byte; real decomposition changes rejected")
+    }
+
+    private static func exactUnicodeField(_ page: PDFPage, named name: String) throws -> PDFAnnotation {
+        let fields = page.annotations.filter {
+            PDFAnnotationKind.matches($0, .widget) && $0.fieldName?.utf8.elementsEqual(name.utf8) == true
+        }
+        guard fields.count == 1, let field = fields.first else {
+            throw failure("A cópia uniu, perdeu ou duplicou campos Unicode de identidade distinta.")
+        }
+        return field
+    }
+
+    private static func assertUnicodeFields(_ page: PDFPage, suffixes: [String]) throws {
+        let widgets = page.annotations.filter { PDFAnnotationKind.matches($0, .widget) }
+        try require(widgets.count == 2 && Set(widgets.compactMap { $0.fieldName.map { Data($0.utf8) } }).count == 2,
+                    "Os nomes NFC/NFD foram unidos ou normalizados durante a gravação.")
+        for suffix in suffixes {
+            let field = try exactUnicodeField(page, named: "/" + suffix)
+            try require(field.widgetStringValue?.utf8.elementsEqual(("/valor-" + suffix).utf8) == true &&
+                        field.widgetDefaultStringValue?.utf8.elementsEqual(("/default-" + suffix).utf8) == true,
+                        "A cópia alterou os bytes do valor ou da redefinição de um campo Unicode.")
+        }
+    }
+
     /// Inspect the final cipher independently, including the distinction
     /// between a reader password and the randomly generated owner credential.
     static func verifyAES256(_ data: Data, password: String, permissions: [String: Bool]? = nil) throws {
@@ -368,8 +496,18 @@ enum QPDFStructuralAudit {
         for password in [String(repeating: "a", count: 127), String(repeating: "🔑", count: 31) + "abc"] {
             guard let document = PDFDocument(data: streamFixture().valid) else { throw failure("A amostra de senha é inválida.") }
             try require(password.utf8.count == 127, "A amostra de limite de senha está incorreta.")
-            let result = try NativePDFSerialization.serialize(document: document, password: password)
+            let prepared = try NativePDFSerialization.prepare(document: document, password: password)
+            guard let stagingPassword = prepared.inputPassword, stagingPassword != password,
+                  stagingPassword.utf8.count == 32, stagingPassword.utf8.allSatisfy({ $0 < 128 }),
+                  let staging = PDFDocument(data: prepared.data), staging.isEncrypted, staging.isLocked,
+                  !staging.unlock(withPassword: ""), !staging.unlock(withPassword: password),
+                  staging.unlock(withPassword: stagingPassword) else {
+                throw failure("O estágio PDFKit não manteve criptografia com credencial temporária ASCII distinta.")
+            }
+            let result = try NativePDFSerialization.finish(prepared)
             try verifyAES256(result, password: password)
+            try require(PDFDocument(data: result)?.unlock(withPassword: stagingPassword) == false,
+                        "A senha temporária do estágio foi aceita pelo documento final.")
             guard let reopened = PDFDocument(data: result), reopened.unlock(withPassword: password),
                   (reopened.string ?? "").contains("PDF structural verification") else {
                 throw failure("A senha no limite UTF-8 não preservou o acesso ao conteúdo.")
@@ -464,12 +602,17 @@ enum QPDFStructuralAudit {
     }
 
     static func verifyProcessGuards(prepared: NativePDFSerialization.Prepared, password: String) throws {
+        guard let inputPassword = prepared.inputPassword, inputPassword != password else {
+            throw failure("A amostra de privacidade não separou senha temporária e senha final.")
+        }
         var privacyErrors: [String] = [], directories: [URL] = [], launches = 0, ownerDigests: [Data] = []
         for _ in 0..<2 {
             _ = try NativePDFSerialization.finish(prepared, onLaunch: { process, directory in
                 launches += 1; directories.append(directory)
                 do {
-                    if let digest = try inspectPrivacy(process, directory: directory, password: password) { ownerDigests.append(digest) }
+                    if let digest = try inspectPrivacy(process, directory: directory, password: password, inputPassword: inputPassword) {
+                        ownerDigests.append(digest)
+                    }
                 } catch { privacyErrors.append("O processo de validação não preservou os limites privados exigidos.") }
             })
         }
@@ -538,7 +681,74 @@ enum QPDFStructuralAudit {
         log("private process guards: password on stdin, permissions, cancellation and timeout verified")
     }
 
-    private static func inspectPrivacy(_ process: Process, directory: URL, password: String) throws -> Data? {
+    @MainActor
+    static func verifyRepairProcessGuards() throws {
+        // Both SDKs encode these leading-slash strings as PDF Names. This is
+        // a real defect requiring updateFromJson, not a forced no-op patch.
+        guard let document = PDFDocument(data: streamFixture().valid), let page = document.page(at: 0) else {
+            throw failure("A amostra de reparo de strings não pôde ser criada.")
+        }
+        let field = PDFAnnotation(bounds: CGRect(x: 80, y: 500, width: 180, height: 30), forType: .widget, withProperties: nil)
+        field.widgetFieldType = .text; field.fieldName = "/field"; field.widgetStringValue = "/value"
+        field.widgetDefaultStringValue = "/default"; page.addAnnotation(field)
+        let password = "repair-audit-reader-123"
+        let prepared = try NativePDFSerialization.prepare(document: document, password: password)
+        guard let inputPassword = prepared.inputPassword else { throw failure("O reparo protegido não definiu senha de estágio.") }
+        var patchCount = 0, privacyFailed = false, folders: [URL] = []
+        let result = try NativePDFSerialization.finish(prepared, onLaunch: { process, directory in
+            folders.append(directory)
+            do {
+                _ = try inspectPrivacy(process, directory: directory, password: password, inputPassword: inputPassword)
+                if try observedJob(process)["updateFromJson"] is String { patchCount += 1 }
+            } catch { privacyFailed = true }
+        })
+        try require(patchCount == 1 && !privacyFailed,
+                    "A correção real das strings não usou exatamente um patch privado e limitado.")
+        try require(folders.allSatisfy { !FileManager.default.fileExists(atPath: $0.path) },
+                    "O reparo concluído deixou JSON ou PDFs temporários na pasta privada.")
+        try verifyAES256(result, password: password)
+        guard let reopened = PDFDocument(data: result), reopened.unlock(withPassword: password),
+              let repaired = reopened.page(at: 0)?.annotations.first(where: { $0.fieldName == "/field" }),
+              repaired.widgetStringValue == "/value", repaired.widgetDefaultStringValue == "/default" else {
+            throw failure("O reparo não preservou as strings literais com barra inicial.")
+        }
+
+        for enforceTimeout in [false, true] {
+            let cancellation = NativeCancellation()
+            var child: Int32 = 0, directory: URL?, patchFile: URL?, reachedPatch = 0
+            var suspended = false, expectedFailure = false, observerFailed = false
+            let start = ProcessInfo.processInfo.systemUptime
+            do {
+                _ = try NativePDFSerialization.finish(prepared, cancellation: cancellation, onLaunch: { process, folder in
+                    do {
+                        guard let path = try observedJob(process)["updateFromJson"] as? String else { return }
+                        reachedPatch += 1; child = process.processIdentifier; directory = folder
+                        patchFile = URL(fileURLWithPath: path)
+                        try inspectPrivatePatch(URL(fileURLWithPath: path))
+                        if enforceTimeout { suspended = Darwin.kill(child, SIGSTOP) == 0 }
+                        else { cancellation.cancel() }
+                    } catch { observerFailed = true; cancellation.cancel() }
+                }, timeout: enforceTimeout ? 2 : 60)
+            } catch {
+                if reachedPatch == 0 { throw error }
+                if enforceTimeout {
+                    let issue = error as NSError
+                    expectedFailure = !(error is CancellationError) && issue.domain == "PDF.NativeSerialization" &&
+                        issue.localizedDescription.contains("excedeu")
+                } else { expectedFailure = error is CancellationError }
+            }
+            try require(expectedFailure && !observerFailed && reachedPatch == 1 && child > 0 && (!enforceTimeout || suspended),
+                        "O cenário não interrompeu a etapa real de patch pelo motivo esperado.")
+            try require(ProcessInfo.processInfo.systemUptime - start < 12 && Darwin.kill(child, 0) == -1 && errno == ESRCH,
+                        "A interrupção do patch não encerrou e recolheu o processo no prazo limitado.")
+            try require(directory.map { !FileManager.default.fileExists(atPath: $0.path) } == true &&
+                        patchFile.map { !FileManager.default.fileExists(atPath: $0.path) } == true,
+                        "Cancelamento ou timeout deixaram o patch JSON privado no disco.")
+        }
+        log("typed-string patch guards: real repair, encrypted PDFs, private bounded JSON, cancellation/timeout cleanup verified")
+    }
+
+    private static func inspectPrivacy(_ process: Process, directory: URL, password: String, inputPassword: String) throws -> Data? {
         let attributes = try FileManager.default.attributesOfItem(atPath: directory.path)
         try require((attributes[.posixPermissions] as? NSNumber)?.intValue == 0o700,
                     "A pasta temporária da gravação não é privada.")
@@ -551,39 +761,68 @@ enum QPDFStructuralAudit {
                         "Um arquivo temporário não é regular e privado.")
         }
         let arguments = process.arguments ?? []
-        try require(arguments == ["--job-json-file=/dev/stdin"] && !arguments.contains(where: { $0.contains(password) }),
+        try require(arguments == ["--job-json-file=/dev/stdin"] &&
+                    !arguments.contains(where: { $0.contains(password) || $0.contains(inputPassword) }),
                     "O processo não usou o canal privado de senha.")
-        guard let input = process.standardInput as? FileHandle else { throw failure("O processo não recebeu stdin privado.") }
-        var metadata = stat()
-        try require(fstat(input.fileDescriptor, &metadata) == 0 && metadata.st_mode & S_IFMT == S_IFREG &&
-                    metadata.st_mode & 0o777 == 0o600 && metadata.st_uid == getuid() &&
-                    metadata.st_size > 0 && metadata.st_size <= 64 * 1_024,
-                    "O descritor da senha não é um arquivo regular privado do usuário.")
-        var buffer = [UInt8](repeating: 0, count: Int(metadata.st_size))
-        let count = buffer.withUnsafeMutableBytes { bytes in
-            Darwin.pread(input.fileDescriptor, bytes.baseAddress, bytes.count, 0)
-        }
-        guard count == buffer.count, let job = try JSONSerialization.jsonObject(with: Data(buffer)) as? [String: Any],
-              job["password"] as? String == password else {
+        let job = try observedJob(process)
+        guard let inputPath = job["inputFile"] as? String, let credential = job["password"] as? String else {
             throw failure("O canal JSON privado não transportou a senha esperada.")
         }
-        for key in ["inputFile", "outputFile"] {
+        let isStagingInput = URL(fileURLWithPath: inputPath).lastPathComponent != "checked.pdf"
+        try require(credential == (isStagingInput ? inputPassword : password),
+                    "O job confundiu a credencial temporária do estágio e a senha final.")
+        for key in ["inputFile", "outputFile", "updateFromJson"] {
             if let path = job[key] as? String {
                 try require(URL(fileURLWithPath: path).standardizedFileURL.deletingLastPathComponent() == directory.standardizedFileURL,
                             "O job de publicação saiu da pasta privada da cópia.")
             }
         }
+        try require(PDFDocument(url: URL(fileURLWithPath: inputPath))?.isEncrypted == true,
+                    "Uma etapa da cópia protegida recebeu um PDF temporário sem criptografia.")
+        if let patch = job["updateFromJson"] as? String { try inspectPrivatePatch(URL(fileURLWithPath: patch)) }
         guard let encryption = job["encrypt"] as? [String: Any] else { return nil }
-        guard encryption["userPassword"] as? String == password,
+        guard isStagingInput, encryption["userPassword"] as? String == password,
               let owner = encryption["ownerPassword"] as? String, owner != password, owner.utf8.count == 64,
               owner.utf8.allSatisfy({ (48...57).contains($0) || (97...102).contains($0) }),
               encryption["256bit"] is [String: Any] else {
             throw failure("O job não usou AES-256 e uma credencial independente para o proprietário.")
         }
         try require(!arguments.contains(where: { $0.contains(owner) }) &&
-                    !(process.environment?.values.contains(where: { $0.contains(password) || $0.contains(owner) }) ?? false),
+                    !(process.environment?.values.contains(where: {
+                        $0.contains(password) || $0.contains(inputPassword) || $0.contains(owner)
+                    }) ?? false),
                     "Uma credencial de publicação foi exposta por argumentos ou ambiente.")
         return Data(SHA256.hash(data: Data(owner.utf8)))
+    }
+
+    /// pread leaves the offset shared with qpdf untouched, even if the child
+    /// has already consumed the job. Never log or interpolate parsed values.
+    private static func observedJob(_ process: Process) throws -> [String: Any] {
+        guard process.arguments == ["--job-json-file=/dev/stdin"], let input = process.standardInput as? FileHandle else {
+            throw failure("O processo não recebeu o job pelo descritor privado esperado.")
+        }
+        var metadata = stat()
+        try require(fstat(input.fileDescriptor, &metadata) == 0 && metadata.st_mode & S_IFMT == S_IFREG &&
+                    metadata.st_mode & 0o777 == 0o600 && metadata.st_uid == getuid() &&
+                    metadata.st_size > 0 && metadata.st_size <= 64 * 1_024,
+                    "O job não é um arquivo regular privado e limitado do usuário.")
+        var buffer = [UInt8](repeating: 0, count: Int(metadata.st_size))
+        let count = buffer.withUnsafeMutableBytes { Darwin.pread(input.fileDescriptor, $0.baseAddress, $0.count, 0) }
+        guard count == buffer.count, let job = try JSONSerialization.jsonObject(with: Data(buffer)) as? [String: Any] else {
+            throw failure("O job privado não contém JSON válido e completo.")
+        }
+        return job
+    }
+
+    private static func inspectPrivatePatch(_ patch: URL) throws {
+        let descriptor = Darwin.open(patch.path, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        guard descriptor >= 0 else { throw failure("O patch privado não pôde ser inspecionado sem seguir links.") }
+        defer { _ = Darwin.close(descriptor) }
+        var metadata = stat()
+        try require(fstat(descriptor, &metadata) == 0 && metadata.st_mode & S_IFMT == S_IFREG &&
+                    metadata.st_uid == getuid() && metadata.st_mode & 0o777 == 0o600 &&
+                    metadata.st_size > 0 && metadata.st_size <= 64 * 1_024 * 1_024,
+                    "O patch JSON não é regular, privado e limitado a 64 MiB.")
     }
 
     private static func require(_ condition: Bool, _ message: String) throws {

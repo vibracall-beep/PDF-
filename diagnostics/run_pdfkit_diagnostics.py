@@ -163,6 +163,57 @@ def raw_appearance_token(object_text):
     return object_text[start:end][:4096]
 
 
+def object_relations(objects):
+    """Whitelist the field/page/annotation graph, including disconnected widgets."""
+    edges = {"/Root", "/AcroForm", "/Fields", "/Kids", "/Parent", "/Pages", "/Annots", "/Popup"}
+    scalar_keys = {"/Type", "/Subtype", "/FT", "/T", "/V", "/DV", "/Rect", "/Ff", "/F", "/Open", "/NM", "/Count"}
+    allowed = edges | scalar_keys
+    root = objects.get("trailer", {}).get("value", {}).get("/Root")
+    result = {"root": root, "objects": {}}
+    pending, seen = [], set()
+
+    def visit(value):
+        if isinstance(value, str) and re.fullmatch(r"[1-9][0-9]* [0-9]+ R", value):
+            pending.append(value)
+        elif isinstance(value, list):
+            for item in value:
+                visit(item)
+        elif isinstance(value, dict):
+            for key in edges:
+                if key in value:
+                    visit(value[key])
+
+    def filtered(value):
+        if isinstance(value, dict):
+            return {key: filtered(child) for key, child in value.items() if key in allowed}
+        if isinstance(value, list):
+            return [filtered(child) for child in value]
+        return value
+
+    visit(root)
+    for key, record in objects.items():
+        value = record.get("value")
+        if isinstance(value, dict) and (value.get("/Type") in ("/Catalog", "/Pages", "/Page", "/Annot")
+                                     or "/FT" in value or ("/Subtype" in value and "/Rect" in value)):
+            visit(key.removeprefix("obj:"))
+    while pending and len(seen) < 1000:
+        reference = pending.pop()
+        if reference in seen:
+            continue
+        seen.add(reference)
+        record = objects.get("obj:" + reference, {})
+        # No stream dictionaries or bodies, including fonts/AP/AAPL archives.
+        if "value" not in record:
+            result["objects"][reference] = {"unavailableOrStream": True}
+            continue
+        value = record["value"]
+        result["objects"][reference] = filtered(value)
+        visit(value)
+    result["objects"] = dict(sorted(result["objects"].items()))
+    result["limitReached"] = bool(pending)
+    return result
+
+
 def free_text_details(qpdf, source, password):
     """Inspect only synthetic annotation metadata and Form appearance commands.
 
@@ -185,6 +236,7 @@ def free_text_details(qpdf, source, password):
         report["extractionError"] = "qpdf metadata response was invalid"
         return report
     report["objectCount"] = len(objects)
+    report["objectRelations"] = object_relations(objects)
 
     def reference(value):
         match = re.fullmatch(r"([1-9][0-9]*) ([0-9]+) R", value) if isinstance(value, str) else None
@@ -303,6 +355,8 @@ def serialization_cycles(executable, qpdf, directory, source, report):
         raw_hash = hashlib.sha256(read_regular(raw)).hexdigest()
         cycle["rawSHA256"] = raw_hash
         cycle["rawCheck"] = run([str(qpdf), "--password-file=-", "--check", str(raw)], password)
+        raw_details = free_text_details(qpdf, raw, password)
+        cycle["rawRelations"] = {key: raw_details[key] for key in ("jsonProcess", "objectRelations", "extractionError") if key in raw_details}
         cycle["rawEncryption"] = run([str(qpdf), "--password-file=-", "--show-encryption", str(raw)], password)
         for mode in ("preserve", "default"):
             normalized = directory / (name + "-" + mode + ".pdf")
@@ -317,6 +371,8 @@ def serialization_cycles(executable, qpdf, directory, source, report):
                 continue
             target_password = READER if password else ""
             record["check"] = run([str(qpdf), "--password-file=-", "--check", str(normalized)], target_password)
+            details = free_text_details(qpdf, normalized, target_password)
+            record["relations"] = {key: details[key] for key in ("jsonProcess", "objectRelations", "extractionError") if key in details}
             record["encryption"] = run([str(qpdf), "--password-file=-", "--show-encryption", str(normalized)], target_password)
             inspection = directory / (name + "-" + mode + ".json")
             record["inspectionProcess"] = run([str(executable), "inspect-annotations", str(normalized), str(inspection)], verbose=True)

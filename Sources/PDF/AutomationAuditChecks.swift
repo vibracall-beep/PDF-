@@ -1,4 +1,5 @@
 import Foundation
+import Darwin
 
 @MainActor enum AutomationAuditChecks {
     static func run() async throws {
@@ -23,13 +24,62 @@ import Foundation
         let subdirectory = input.appendingPathComponent("subfolder",isDirectory:true)
         try FileManager.default.createDirectory(at:subdirectory,withIntermediateDirectories:true)
         try original.write(to:subdirectory.appendingPathComponent("nested.pdf"))
+        // Diagnose the former combined assertion without printing private paths:
+        // Foundation's enumerated URL may spell /var as /private/var on macOS.
+        let foundationFiles = try FileManager.default.contentsOfDirectory(at:input,includingPropertiesForKeys:[.isRegularFileKey,.isSymbolicLinkKey],options:[.skipsHiddenFiles])
+        let legacyPaths = try foundationFiles.filter { $0.pathExtension.lowercased() == "pdf" }.compactMap { file -> String? in
+            let info = try file.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey])
+            guard info.isRegularFile == true,info.isSymbolicLink != true,
+                  (try FileManager.default.attributesOfItem(atPath:file.path)[.type]) as? FileAttributeType == .typeRegular else { return nil }
+            return file.path
+        }
+        guard let realFile = realpath(old.path,nil) else { throw POSIXError(.EIO) }
+        let canonicalFile = String(cString:realFile); free(realFile)
+        print("Automation path diagnostic: legacyCount=\(legacyPaths.count), rawLookup=\(legacyPaths.contains(old.path)), canonicalLookup=\(legacyPaths.contains(canonicalFile)), rootHasAlias=\(old.path != canonicalFile)")
         let first = try AutomationFolderInspector.scan(input)
-        try check(first.count == 1 && first[old.path] != nil,"scan deve ignorar links e subpastas")
+        try check(first.count == 1,"scan deve incluir exatamente um PDF regular, ignorando links e subpastas")
+        try check(Set(first.keys) == [canonicalFile],"a chave do PDF deve usar a identidade canônica da pasta")
+        try check(try AutomationFolderInspector.stamp(link) == nil,"stamp não pode seguir a folha simbólica")
+        let pdfDirectory = input.appendingPathComponent("directory.pdf",isDirectory:true)
+        try FileManager.default.createDirectory(at:pdfDirectory,withIntermediateDirectories:false)
+        try original.write(to:pdfDirectory.appendingPathComponent("also-nested.pdf"))
+        let broken = input.appendingPathComponent("broken.pdf")
+        try FileManager.default.createSymbolicLink(at:broken,withDestinationURL:root.appendingPathComponent("missing.pdf"))
+        let fifo = input.appendingPathComponent("pipe.pdf")
+        try check(mkfifo(fifo.path,0o600) == 0,"não foi possível criar a fixture de FIFO")
+        let hidden = input.appendingPathComponent(".hidden.pdf"); try original.write(to:hidden)
+        try check(try AutomationFolderInspector.scan(input) == first,"scan não pode incluir diretório .pdf, PDF aninhado, link quebrado, FIFO ou arquivo oculto")
+        let parentAlias = root.appendingPathComponent("parent-alias",isDirectory:true)
+        try FileManager.default.createSymbolicLink(at:parentAlias,withDestinationURL:root)
+        let aliasedInput = parentAlias.appendingPathComponent("input",isDirectory:true)
+        let aliasedScan = try AutomationFolderInspector.scan(aliasedInput)
+        try check(aliasedScan == first,"aliases de ancestrais devem produzir as mesmas chaves e stamps")
+        var aliasTracker = AutomationArrivalTracker(baseline:aliasedScan)
+        for _ in 0..<3 { try check(aliasTracker.observe(first).isEmpty,"alternar a grafia canônica não pode reenfileirar a baseline") }
+        let directoryLink = root.appendingPathComponent("linked-input",isDirectory:true)
+        try FileManager.default.createSymbolicLink(at:directoryLink,withDestinationURL:input)
+        var linkedRootRejected = false
+        do { _ = try AutomationFolderInspector.scan(directoryLink) } catch { linkedRootRejected = true }
+        try check(linkedRootRejected,"a pasta selecionada não pode ser um link simbólico final")
+        let switched = input.appendingPathComponent("switched.pdf")
+        try original.write(to:switched)
+        try check(try AutomationFolderInspector.stamp(switched) != nil,"a folha inicial deve ser regular")
+        try FileManager.default.removeItem(at:switched)
+        try FileManager.default.createSymbolicLink(at:switched,withDestinationURL:old)
+        try check(try AutomationFolderInspector.stamp(switched) == nil && AutomationFolderInspector.scan(input) == first,"trocar a folha regular por link não pode seguir seu destino")
+        let cancelledScan = Task { try AutomationFolderInspector.scan(input) }
+        cancelledScan.cancel()
+        var cancellationObserved = false
+        do { _ = try await cancelledScan.value } catch is CancellationError { cancellationObserved = true }
+        try check(cancellationObserved,"uma varredura cancelada não pode retornar uma lista de trabalho")
         var overlapRejected = false
         do { try AutomationFolderInspector.validate(input:root,output:output) } catch { overlapRejected = true }
         try check(overlapRejected,"entrada e saída sobrepostas devem ser recusadas")
         let coordinator = AutomationCoordinator(defaults:defaults)
         try coordinator.add(name:"Regra de auditoria",input:input,output:output,workflow:workflow)
+        var duplicateAliasRejected = false
+        do { try coordinator.add(name:"Alias da mesma pasta",input:aliasedInput,output:output,workflow:workflow) } catch { duplicateAliasRejected = true }
+        try check(duplicateAliasRejected && coordinator.rules.count == 1,"um alias da mesma entrada não pode criar outra regra")
         guard let ruleID = coordinator.rules.first?.id else { throw PreferenceError.invalid("Regra de auditoria ausente.") }
         try check(coordinator.rules.first?.enabled == false,"criar regra jamais deve ativá-la")
         await coordinator.scanNow(); await coordinator.scanNow(); await coordinator.scanNow()

@@ -1,5 +1,6 @@
 import SwiftUI
 import AppKit
+import Darwin
 
 struct WatchedFolderRule: Codable, Identifiable {
     var id = UUID()
@@ -13,37 +14,72 @@ struct AutomationFileStamp: Equatable, Sendable {
     var size: Int
     var modified: Double
     var inode: UInt64
+    var device: UInt64 = 0
+    var modifiedNanoseconds: Int64 = 0
 }
 enum AutomationFolderInspector {
-    static func validate(input:URL,output:URL) throws {
-        for url in [input,output] {
-            guard url.isFileURL else { throw PreferenceError.invalid("Escolha pastas locais do Mac.") }
-            let values = try url.resourceValues(forKeys:[.isDirectoryKey,.isSymbolicLinkKey])
-            guard values.isDirectory == true,values.isSymbolicLink != true else { throw PreferenceError.invalid("Escolha uma pasta real, sem link simbólico.") }
+    /// Resolve only the already-validated directory. A child name is appended
+    /// below this root; a leaf is always inspected with lstat, never resolved.
+    static func canonicalDirectory(_ url:URL) throws -> URL {
+        try Task.checkCancellation()
+        guard url.isFileURL else { throw PreferenceError.invalid("Escolha pastas locais do Mac.") }
+        var path = url.path
+        while path.count > 1 && path.hasSuffix("/") { path.removeLast() }
+        var original = stat()
+        guard lstat(path,&original) == 0,original.st_mode & S_IFMT == S_IFDIR else {
+            throw PreferenceError.invalid("Escolha uma pasta real e acessível, sem link simbólico.")
         }
-        let source = input.resolvingSymlinksInPath().standardizedFileURL.path
-        let destination = output.resolvingSymlinksInPath().standardizedFileURL.path
+        guard let resolved = realpath(path,nil) else { throw POSIXError(POSIXErrorCode(rawValue:errno) ?? .EIO) }
+        defer { free(resolved) }
+        let canonical = String(cString:resolved)
+        var final = stat()
+        guard lstat(canonical,&final) == 0,final.st_mode & S_IFMT == S_IFDIR,
+              original.st_dev == final.st_dev,original.st_ino == final.st_ino else {
+            throw PreferenceError.invalid("A pasta mudou durante a verificação. Escolha-a novamente.")
+        }
+        return URL(fileURLWithPath:canonical,isDirectory:true)
+    }
+    static func validate(input:URL,output:URL) throws {
+        let source = try canonicalDirectory(input).path
+        let destination = try canonicalDirectory(output).path
         func contains(_ parent:String,_ child:String)->Bool { child == parent || child.hasPrefix(parent.hasSuffix("/") ? parent : parent+"/") }
         guard !contains(source,destination),!contains(destination,source) else { throw PreferenceError.invalid("As pastas de entrada e saída devem ser separadas e não podem conter uma à outra.") }
         guard FileManager.default.isReadableFile(atPath:source),FileManager.default.isWritableFile(atPath:destination) else { throw PreferenceError.invalid("O PDF precisa ler a entrada e gravar na pasta de saída escolhida.") }
     }
     static func scan(_ folder:URL) throws -> [String:AutomationFileStamp] {
-        let values = try folder.resourceValues(forKeys:[.isDirectoryKey,.isSymbolicLinkKey])
-        guard values.isDirectory == true,values.isSymbolicLink != true else { throw PreferenceError.invalid("A pasta monitorada deixou de estar disponível.") }
-        let files = try FileManager.default.contentsOfDirectory(at:folder,includingPropertiesForKeys:[.isRegularFileKey,.isSymbolicLinkKey],options:[.skipsHiddenFiles])
+        let root = try canonicalDirectory(folder)
+        var rootIdentity = stat()
+        guard lstat(root.path,&rootIdentity) == 0,rootIdentity.st_mode & S_IFMT == S_IFDIR else { throw PreferenceError.invalid("A pasta monitorada deixou de estar disponível.") }
+        let files = try FileManager.default.contentsOfDirectory(at:root,includingPropertiesForKeys:nil,options:[.skipsHiddenFiles])
         guard files.count <= 5_000 else { throw PreferenceError.invalid("A pasta excede 5.000 itens. Use uma pasta de entrada menor.") }
         var result:[String:AutomationFileStamp] = [:]
-        for file in files where file.pathExtension.lowercased() == "pdf" {
-            let info = try file.resourceValues(forKeys:[.isRegularFileKey,.isSymbolicLinkKey])
-            guard info.isRegularFile == true,info.isSymbolicLink != true else { continue }
+        for entry in files {
+            try Task.checkCancellation()
+            guard entry.pathExtension.lowercased() == "pdf" else { continue }
+            // Foundation may return a different spelling for /var and
+            // /private/var. Keys always use the canonical parent, not that URL.
+            let file = root.appendingPathComponent(entry.lastPathComponent)
             if let stamp = try stamp(file) { result[file.path] = stamp }
         }
+        var finalIdentity = stat()
+        guard lstat(root.path,&finalIdentity) == 0,finalIdentity.st_mode & S_IFMT == S_IFDIR,
+              rootIdentity.st_dev == finalIdentity.st_dev,rootIdentity.st_ino == finalIdentity.st_ino else {
+            throw PreferenceError.invalid("A pasta mudou durante a leitura. Ative a regra novamente.")
+        }
+        try Task.checkCancellation()
         return result
     }
     static func stamp(_ file:URL) throws -> AutomationFileStamp? {
-        let attributes = try FileManager.default.attributesOfItem(atPath:file.path)
-        guard attributes[.type] as? FileAttributeType == .typeRegular,let size = attributes[.size] as? NSNumber,let date = attributes[.modificationDate] as? Date else { return nil }
-        return .init(size:size.intValue,modified:date.timeIntervalSince1970,inode:(attributes[.systemFileNumber] as? NSNumber)?.uint64Value ?? 0)
+        try Task.checkCancellation()
+        guard file.isFileURL else { return nil }
+        var info = stat()
+        if lstat(file.path,&info) != 0 {
+            if errno == ENOENT || errno == ENOTDIR { return nil }
+            throw POSIXError(POSIXErrorCode(rawValue:errno) ?? .EIO)
+        }
+        guard info.st_mode & S_IFMT == S_IFREG,info.st_size >= 0,let size = Int(exactly:info.st_size) else { return nil }
+        return .init(size:size,modified:Double(info.st_mtimespec.tv_sec)+Double(info.st_mtimespec.tv_nsec)/1_000_000_000,
+                     inode:UInt64(info.st_ino),device:UInt64(bitPattern:Int64(info.st_dev)),modifiedNanoseconds:Int64(info.st_mtimespec.tv_nsec))
     }
 }
 
@@ -112,9 +148,9 @@ struct AutomationRunRecord:Identifiable {
         let name = name.trimmingCharacters(in:.whitespacesAndNewlines)
         guard !name.isEmpty,name.count <= 80,rules.count < 20 else { throw PreferenceError.invalid("Use um nome de até 80 caracteres e no máximo 20 regras.") }
         try AutomationFolderInspector.validate(input:input,output:output); _ = try AutomationWorkflowBridge.options(workflow)
-        let source = input.resolvingSymlinksInPath().standardizedFileURL
-        guard !rules.contains(where:{$0.input.resolvingSymlinksInPath().standardizedFileURL == source}) else { throw PreferenceError.invalid("Essa pasta já possui uma regra. Remova a anterior para substituí-la.") }
-        let candidate = rules + [WatchedFolderRule(name:name,input:source,output:output.resolvingSymlinksInPath().standardizedFileURL,workflow:workflow)]
+        let source = try AutomationFolderInspector.canonicalDirectory(input)
+        guard !rules.contains(where:{$0.input.path == source.path || (try? AutomationFolderInspector.canonicalDirectory($0.input)) == source}) else { throw PreferenceError.invalid("Essa pasta já possui uma regra. Remova a anterior para substituí-la.") }
+        let candidate = rules + [WatchedFolderRule(name:name,input:source,output:try AutomationFolderInspector.canonicalDirectory(output),workflow:workflow)]
         guard try JSONEncoder().encode(candidate).count < 16_000_000 else { throw PreferenceError.invalid("As regras excedem o limite de 16 MB. Remova uma regra antes de continuar.") }
         rules = candidate
         persist(); status = "Regra criada desativada. Ative quando estiver pronta para processar novos PDFs."

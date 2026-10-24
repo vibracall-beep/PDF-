@@ -107,10 +107,14 @@ enum PreferenceError:LocalizedError {
     func title(for tool:Tool) -> String { state.toolTitles[tool.id] ?? tool.name }
     func icon(for tool:Tool) -> String { state.toolIcons[tool.id] ?? tool.icon }
     func orderedTools() -> [Tool] {
-        let ranks = Dictionary(uniqueKeysWithValues:state.toolOrder.enumerated().map { ($0.element,$0.offset) })
-        return tools.enumerated().sorted {
-            (ranks[$0.element.id] ?? (state.toolOrder.count+$0.offset)) < (ranks[$1.element.id] ?? (state.toolOrder.count+$1.offset))
-        }.map(\.element)
+        let lookup = Dictionary(uniqueKeysWithValues: tools.map { ($0.id, $0) })
+        var seen = Set<String>()
+        // Persisted IDs define a relative order. New catalog entries follow in
+        // catalog order; removed/duplicate IDs never shift another tool's identity.
+        return (state.toolOrder + tools.map(\.id)).compactMap { id in
+            guard let tool = lookup[id], seen.insert(id).inserted else { return nil }
+            return tool
+        }
     }
     func moveTool(_ id:String,before target:String) {
         var order = orderedTools().map(\.id)

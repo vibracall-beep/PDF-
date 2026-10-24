@@ -138,17 +138,17 @@ enum PDFProfileConflictPolicy:Equatable { case keepBoth, replaceMatchingIdentifi
     func restoreBindings() { bindings = [:]; disabled = []; persistBindings() }
     private func persistBindings() { if let data = try? JSONEncoder().encode(snapshot) { defaults.set(data,forKey:Self.bindingKey) } }
     func record(_ id:String) { recentCommands.removeAll { $0 == id }; recentCommands.insert(id,at:0); recentCommands = Array(recentCommands.prefix(20)) }
-    private static func validateProfile(_ profile:PDFWorkspaceProfile) throws {
+    private static func validateProfile(_ profile:PDFWorkspaceProfile) throws -> CustomizationSnapshot {
         guard !profile.name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty,profile.name.count <= 80,profile.settings.count <= 1_048_576 else { throw PreferenceError.invalid("Use um nome de perfil com até 80 caracteres e ajustes de até 1 MB.") }
         var snapshot = try JSONDecoder().decode(CustomizationSnapshot.self,from:profile.settings)
         try snapshot.appearance.validate(); try snapshot.reader.validate()
         if let shortcuts = snapshot.shortcuts { try validate(shortcuts) }
         if let output = snapshot.output { try output.validate() }
+        return snapshot
     }
     private static func canonicalProfile(_ profile:PDFWorkspaceProfile) throws -> PDFWorkspaceProfile {
-        try validateProfile(profile)
+        let snapshot = try validateProfile(profile)
         var value = profile
-        let snapshot = try JSONDecoder().decode(CustomizationSnapshot.self,from:profile.settings)
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]
         value.settings = try encoder.encode(snapshot)
         return value

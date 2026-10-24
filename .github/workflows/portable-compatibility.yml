@@ -1,0 +1,97 @@
+name: Portable binary compatibility from macOS 26 to 27
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Completed successful application validation run in this repository
+        required: true
+        type: string
+      source_commit:
+        description: Exact 40-character source commit of that run
+        required: true
+        type: string
+      expected_sha256:
+        description: Independently reviewed 64-character SHA-256 of PDF-arm64.tar.gz
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compatible-binary:
+    runs-on: xcode-27
+    timeout-minutes: 60
+    env:
+      PDF_SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+      PDF_SOURCE_COMMIT: ${{ inputs.source_commit }}
+      PDF_EXPECTED_SHA: ${{ inputs.expected_sha256 }}
+    steps:
+      - name: Check out this validation control
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: compatibility-control
+          persist-credentials: false
+      - name: Authenticate the completed source run and approved macOS 26 artifact
+        id: origin
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 -m unittest discover -s compatibility-control/diagnostics -p 'test_portable_compatibility.py' -v
+          python3 compatibility-control/diagnostics/portable_compatibility.py origin --output "$RUNNER_TEMP/PDF-cross-origin.json"
+      - name: Check out only the authenticated source commit for installation checks
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_commit }}
+          path: source
+          persist-credentials: false
+      - name: Download the exact approved same-repository artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ steps.origin.outputs.artifact_id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/PDF-source-binary
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ inputs.source_run_id }}
+      - name: Verify the independent hash and both internal and published evidence
+        run: |
+          python3 compatibility-control/diagnostics/portable_compatibility.py archive \
+            --input "$RUNNER_TEMP/PDF-cross-origin.json" \
+            --directory "$RUNNER_TEMP/PDF-source-binary" \
+            --output "$RUNNER_TEMP/PDF-cross-verified.json"
+      - name: Install the unchanged macOS 26 binary on macOS 27
+        id: install
+        run: |
+          set -euo pipefail
+          test ! -e "$RUNNER_TEMP/pdf-cross-installed"
+          # No compilation, pip installation or Homebrew preparation is run.
+          # This exact source-commit script independently checks the hash again.
+          bash source/scripts/install-binary.sh \
+            "$RUNNER_TEMP/PDF-source-binary/PDF-arm64.tar.gz" "$PDF_EXPECTED_SHA" \
+            "$RUNNER_TEMP/pdf-cross-installed"
+      - name: Deny host dependencies and validate runtime, metadata and native operations
+        id: isolated
+        run: |
+          set -euo pipefail
+          # The package's own Python/engines are exercised under sandbox-exec,
+          # with host Homebrew, Xcode, LibreOffice and network access denied.
+          bash source/scripts/check-portable.sh "$RUNNER_TEMP/pdf-cross-installed/PDF.app" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-cross-isolation.log"
+      - name: Publish the exact cross-OS measurement and target hardware identity
+        id: report
+        run: |
+          python3 compatibility-control/diagnostics/portable_compatibility.py report \
+            --input "$RUNNER_TEMP/PDF-cross-verified.json" \
+            --output "$RUNNER_TEMP/PDF-cross-platform.json"
+      - name: Retain evidence without relabeling a failed installation
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.install.outcome == 'success' && steps.isolated.outcome == 'success' && steps.report.outcome == 'success' && 'PDF-cross-platform-validated' || 'PDF-cross-platform-unvalidated' }}
+          path: |
+            ${{ runner.temp }}/PDF-cross-origin.json
+            ${{ runner.temp }}/PDF-cross-verified.json
+            ${{ runner.temp }}/PDF-cross-isolation.log
+            ${{ runner.temp }}/PDF-cross-platform.json
+          if-no-files-found: ignore
+          retention-days: 7

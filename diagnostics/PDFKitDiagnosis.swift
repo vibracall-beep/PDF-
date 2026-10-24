@@ -42,6 +42,14 @@ struct PDFKitDiagnosis {
             case "inspect":
                 guard arguments.count == 4 else { throw failure("invalid-arguments") }
                 try inspect(URL(fileURLWithPath: arguments[2]), output: URL(fileURLWithPath: arguments[3]))
+            case "annotations":
+                guard arguments.count == 3 else { throw failure("invalid-arguments") }
+                try annotationFixtures(URL(fileURLWithPath: arguments[2], isDirectory: true))
+            case "inspect-annotations":
+                guard arguments.count == 4 else { throw failure("invalid-arguments") }
+                guard let document = PDFDocument(data: try readRegular(URL(fileURLWithPath: arguments[2]))) else { throw failure("annotation-reopen") }
+                if document.isLocked { guard document.unlock(withPassword: readerPassword) else { throw failure("annotation-unlock") } }
+                try writeJSON(annotationSnapshot(document), to: URL(fileURLWithPath: arguments[3]))
             default:
                 throw failure("invalid-arguments")
             }
@@ -52,6 +60,155 @@ struct PDFKitDiagnosis {
             FileHandle.standardError.write(Data(("PDFKit diagnosis failed: " + code + "\n").utf8))
             exit(1)
         }
+    }
+
+    @MainActor
+    private static func annotationFixtures(_ directory: URL) throws {
+        guard Darwin.mkdir(directory.path, mode_t(0o700)) == 0 else { throw failure("new-private-directory-required") }
+        let previousMask = Darwin.umask(mode_t(0o077)); defer { _ = Darwin.umask(previousMask) }
+        // Reuse the exact source-generation and unmodified PDFKit fixture path.
+        let baseline = directory.appendingPathComponent("baseline", isDirectory: true)
+        try generate(baseline)
+        for scenario in ["smoke", "preview-note", "editable-defaults"] {
+            guard let document = PDFDocument(url: baseline.appendingPathComponent("source.pdf")), let page = document.page(at: 0) else {
+                throw failure("annotation-source")
+            }
+            if scenario == "smoke" {
+                let highlight = PDFAnnotation(bounds: CGRect(x: 72, y: 700, width: 120, height: 24), forType: .highlight, withProperties: nil)
+                highlight.color = .systemYellow; page.addAnnotation(highlight)
+                let field = PDFAnnotation(bounds: CGRect(x: 72, y: 620, width: 200, height: 30), forType: .widget, withProperties: nil)
+                field.widgetFieldType = .text; field.fieldName = "native-test"; field.widgetStringValue = "PDF"; page.addAnnotation(field)
+            } else if scenario == "preview-note" {
+                let bounds = page.bounds(for: .cropBox)
+                let note = PDFAnnotation(bounds: CGRect(x: bounds.minX + 30, y: bounds.maxY - 70, width: 28, height: 28), forType: .text, withProperties: nil)
+                note.contents = "Revisar esta passagem antes de concluir o documento."
+                note.color = NSColor(srgbRed: 1, green: CGFloat(204) / 255, blue: 0, alpha: 1)
+                page.addAnnotation(note)
+            } else {
+                let types: [PDFAnnotationSubtype] = [.highlight, .underline, .strikeOut, .text, .freeText, .square, .circle, .ink, .line]
+                for (index, type) in types.enumerated() {
+                    let annotation = PDFAnnotation(bounds: CGRect(x: 60, y: CGFloat(650 - index * 45), width: 140, height: 30), forType: type, withProperties: nil)
+                    annotation.contents = "Annotation \(index)"
+                    if type == .ink {
+                        let path = NSBezierPath(); path.move(to: CGPoint(x: 4, y: 5)); path.line(to: CGPoint(x: 35, y: 20))
+                        path.curve(to: CGPoint(x: 120, y: 15), controlPoint1: CGPoint(x: 50, y: 25), controlPoint2: CGPoint(x: 90, y: 5)); annotation.add(path)
+                    } else if type == .line {
+                        annotation.startPoint = CGPoint(x: 5, y: 5); annotation.endPoint = CGPoint(x: 130, y: 25)
+                    } else if [PDFAnnotationSubtype.highlight, .underline, .strikeOut].contains(type) {
+                        annotation.quadrilateralPoints = [NSPoint(x: 0, y: 30), NSPoint(x: 140, y: 30), .zero, NSPoint(x: 140, y: 0)].map(NSValue.init(point:))
+                    }
+                    page.addAnnotation(annotation)
+                }
+                let text = PDFAnnotation(bounds: CGRect(x: 260, y: 610, width: 230, height: 35), forType: .widget, withProperties: nil)
+                text.widgetFieldType = .text; text.fieldName = "roundtrip-text"; text.widgetStringValue = "Editable field"; page.addAnnotation(text)
+                let choice = PDFAnnotation(bounds: CGRect(x: 260, y: 540, width: 230, height: 55), forType: .widget, withProperties: nil)
+                choice.widgetFieldType = .choice; choice.fieldName = "roundtrip-choice"
+                choice.choices = ["First label", "Second label"]; choice.values = ["first", "second"]
+                choice.isListChoice = true; choice.widgetStringValue = "second"; page.addAnnotation(choice)
+                let checkbox = PDFAnnotation(bounds: CGRect(x: 260, y: 480, width: 25, height: 25), forType: .widget, withProperties: nil)
+                checkbox.widgetFieldType = .button; checkbox.widgetControlType = .checkBoxControl; checkbox.fieldName = "roundtrip-checkbox"
+                checkbox.buttonWidgetStateString = "Yes"; checkbox.buttonWidgetState = PDFWidgetCellState(rawValue: 1)!; page.addAnnotation(checkbox)
+            }
+            trace(scenario + " snapshot before")
+            try writeJSON(annotationSnapshot(document), to: directory.appendingPathComponent(scenario + ".before.json"))
+            guard let plain = document.dataRepresentation() else { throw failure("annotation-serialize") }
+            try writeExclusive(plain, to: directory.appendingPathComponent(scenario + ".pdf"))
+            let options: [AnyHashable: Any] = [AnyHashable(PDFDocumentWriteOption.ownerPasswordOption.rawValue): ownerPassword,
+                AnyHashable(PDFDocumentWriteOption.userPasswordOption.rawValue): readerPassword]
+            guard let protected = document.dataRepresentation(options: options) else { throw failure("annotation-protected-serialize") }
+            try writeExclusive(protected, to: directory.appendingPathComponent(scenario + ".protected.pdf"))
+            trace(scenario + " serialized")
+        }
+    }
+
+    @MainActor
+    private static func annotationSnapshot(_ document: PDFDocument) throws -> [String: Any] {
+        // Only this diagnostic's known synthetic page is eligible for the
+        // detailed report; ordinary documents are never dumped by inspect.
+        guard !document.isLocked, document.pageCount == 1, (document.string ?? "").contains("PDF native verification"),
+              let page = document.page(at: 0), page.annotations.count <= 20 else { throw failure("synthetic-fixture-required") }
+        return ["schemaVersion": 1, "syntheticFixture": true, "pageCount": document.pageCount,
+            "knownTextPresent": true, "mediaBox": rectangle(page.bounds(for: .mediaBox)), "cropBox": rectangle(page.bounds(for: .cropBox)),
+            "rotation": page.rotation, "isEncrypted": document.isEncrypted,
+            "annotations": page.annotations.enumerated().map { index, annotation in annotationRecord(annotation, index: index) }]
+    }
+
+    @MainActor
+    private static func annotationRecord(_ item: PDFAnnotation, index: Int) -> [String: Any] {
+        let subtype = (item.type ?? "").replacingOccurrences(of: "/", with: "").lowercased()
+        trace("annotation \(index) \(subtype) common color")
+        var result: [String: Any] = ["index": index, "type": item.type ?? "", "bounds": rectangle(item.bounds),
+            "contents": item.contents ?? "", "display": item.shouldDisplay, "print": item.shouldPrint,
+            "flags": (item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/F")) as? NSNumber) as Any? ?? NSNull(),
+            "color": colorRecord(item.color), "rawColor": jsonValue(item.value(forAnnotationKey: PDFAnnotationKey(rawValue: "/C"))),
+            "borderPresent": item.border != nil, "width": item.border?.lineWidth as Any? ?? NSNull()]
+        if subtype == "freetext" {
+            result["fontSize"] = item.font?.pointSize as Any? ?? NSNull()
+            result["fontName"] = item.font?.fontName as Any? ?? NSNull()
+            trace("annotation \(index) freeText fontColor")
+            result["fontColor"] = item.fontColor.map(colorRecord) ?? ["absent": true]
+        }
+        if ["highlight", "underline", "strikeout"].contains(subtype) {
+            result["quadrilaterals"] = item.quadrilateralPoints?.map { [Double($0.pointValue.x), Double($0.pointValue.y)] } as Any? ?? NSNull()
+        }
+        if subtype == "line" {
+            result["start"] = [Double(item.startPoint.x), Double(item.startPoint.y)]; result["end"] = [Double(item.endPoint.x), Double(item.endPoint.y)]
+            result["startStyle"] = item.startLineStyle.rawValue; result["endStyle"] = item.endLineStyle.rawValue
+        }
+        if subtype == "ink" {
+            result["pathElementCounts"] = item.paths?.map(\.elementCount) ?? []
+        }
+        if subtype == "widget" {
+            result["field"] = item.fieldName ?? ""; result["fieldType"] = item.widgetFieldType.rawValue
+            result["value"] = item.widgetStringValue ?? ""; result["default"] = item.widgetDefaultStringValue ?? ""
+            result["readOnly"] = item.isReadOnly
+            if item.widgetFieldType == .text { result["multiline"] = item.isMultiline; result["maxLength"] = item.maximumLength }
+            if item.widgetFieldType == .choice { result["choices"] = item.choices ?? []; result["choiceValues"] = item.values ?? []; result["list"] = item.isListChoice }
+            if item.widgetFieldType == .button {
+                result["buttonState"] = item.buttonWidgetState.rawValue; result["control"] = item.widgetControlType.rawValue
+                result["buttonName"] = item.buttonWidgetStateString
+            }
+        }
+        return result
+    }
+
+    @MainActor
+    private static func colorRecord(_ color: NSColor) -> [String: Any] {
+        var result: [String: Any] = ["class": String(reflecting: type(of: color)), "type": String(describing: color.type),
+            "description": color.description, "colorSpaceName": color.colorSpaceName.rawValue]
+        for (name, space) in [("sRGB", NSColorSpace.sRGB), ("deviceRGB", .deviceRGB), ("genericRGB", .genericRGB), ("extendedSRGB", .extendedSRGB)] {
+            if let converted = color.usingColorSpace(space) {
+                result[name] = ["description": converted.description,
+                    "rgba": [converted.redComponent, converted.greenComponent, converted.blueComponent, converted.alphaComponent].map { Double($0) }]
+            } else { result[name] = NSNull() }
+        }
+        if color.type == .pattern {
+            result["cgColor"] = ["attempted": false, "reason": "pattern color has no scalar RGBA representation"]
+            return result
+        }
+        let cg = color.cgColor
+        var cgResult: [String: Any] = ["attempted": true, "components": cg.components?.map { Double($0) } ?? [],
+            "space": cg.colorSpace?.name.map { $0 as String } ?? "", "model": cg.colorSpace?.model.rawValue as Any? ?? NSNull()]
+        if let srgb = CGColorSpace(name: CGColorSpace.sRGB), let converted = cg.converted(to: srgb, intent: .defaultIntent, options: nil) {
+            cgResult["convertedSRGB"] = converted.components?.map { Double($0) } ?? []
+        } else { cgResult["convertedSRGB"] = NSNull() }
+        result["cgColor"] = cgResult
+        return result
+    }
+
+    private static func rectangle(_ rect: CGRect) -> [Double] { [rect.minX, rect.minY, rect.width, rect.height].map { Double($0) } }
+    private static func jsonValue(_ value: Any?) -> Any {
+        guard let value, JSONSerialization.isValidJSONObject([value]) else { return NSNull() }
+        return value
+    }
+    private static func writeJSON(_ value: [String: Any], to output: URL) throws {
+        try writeExclusive(JSONSerialization.data(withJSONObject: diagnosticJSON(value), options: [.prettyPrinted, .sortedKeys]), to: output)
+    }
+    private static func diagnosticJSON(_ value: Any) -> Any {
+        if let number = value as? NSNumber, !number.doubleValue.isFinite { return "nonfinite:" + number.stringValue }
+        if let array = value as? [Any] { return array.map(diagnosticJSON) }
+        if let dictionary = value as? [String: Any] { return dictionary.mapValues(diagnosticJSON) }
+        return value
     }
 
     @MainActor

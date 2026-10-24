@@ -118,6 +118,46 @@ def completed(result):
     return not result["timedOut"] and not result["outputLimitExceeded"] and result["exitCode"] >= 0
 
 
+def annotation_measurements(executable, qpdf, directory, report):
+    fixtures = directory / "annotation-fixtures"
+    generated = run([str(executable), "annotations", str(fixtures)], verbose=True)
+    report["annotationGeneration"] = generated
+    report["annotationRecords"] = []
+    if not completed(generated) or generated["exitCode"] != 0:
+        print("Annotation generation did not complete: " + generated["stderr"], flush=True)
+        raise ValueError("Synthetic annotation generation did not complete successfully")
+    for scenario in ("smoke", "preview-note", "editable-defaults"):
+        before = json.loads(read_regular(fixtures / (scenario + ".before.json"), 1024 * 1024))
+        # Every value printed here originates exclusively from our generated
+        # fixture. The regular inspect mode does not dump annotation contents.
+        print("ANNOTATIONS BEFORE " + scenario + ": " + json.dumps(before, ensure_ascii=False, sort_keys=True), flush=True)
+        for protected in (False, True):
+            name = scenario + (".protected" if protected else "")
+            source = fixtures / (name + ".pdf")
+            password = READER if protected else ""
+            original_hash = hashlib.sha256(read_regular(source)).hexdigest()
+            record = {"name": name, "before": before, "originalSHA256": original_hash}
+            report["annotationRecords"].append(record)
+            record["originalCheck"] = run([str(qpdf), "--password-file=-", "--check", str(source)], password)
+            original_json = directory / (name + ".annotations-original.json")
+            record["originalInspection"] = run([str(executable), "inspect-annotations", str(source), str(original_json)], verbose=True)
+            if completed(record["originalInspection"]) and record["originalInspection"]["exitCode"] == 0:
+                record["original"] = json.loads(read_regular(original_json, 1024 * 1024))
+                print("ANNOTATIONS ORIGINAL " + name + ": " + json.dumps(record["original"], ensure_ascii=False, sort_keys=True), flush=True)
+            normalized = directory / (name + ".annotations-normalized.pdf")
+            record["normalization"] = run([str(qpdf), "--password-file=-", "--object-streams=disable", str(source), str(normalized)], password)
+            if normalized.exists():
+                record["normalizedCheck"] = run([str(qpdf), "--password-file=-", "--check", str(normalized)], password)
+                normalized_json = directory / (name + ".annotations-normalized.json")
+                record["normalizedInspection"] = run([str(executable), "inspect-annotations", str(normalized), str(normalized_json)], verbose=True)
+                if completed(record["normalizedInspection"]) and record["normalizedInspection"]["exitCode"] == 0:
+                    record["normalized"] = json.loads(read_regular(normalized_json, 1024 * 1024))
+                    print("ANNOTATIONS NORMALIZED " + name + ": " + json.dumps(record["normalized"], ensure_ascii=False, sort_keys=True), flush=True)
+            record["originalUnchanged"] = hashlib.sha256(read_regular(source)).hexdigest() == original_hash
+            if not record["originalUnchanged"]:
+                raise ValueError("An original annotation fixture was modified")
+
+
 def measure(executable, qpdf, directory):
     directory.mkdir(mode=0o700)
     fixtures = directory / "fixtures"
@@ -126,6 +166,7 @@ def measure(executable, qpdf, directory):
               "records": []}
     try:
         report["qpdfVersion"] = run([str(qpdf), "--version"])
+        annotation_measurements(executable, qpdf, directory, report)
         report["generation"] = run([str(executable), "generate", str(fixtures)], verbose=True)
         if not completed(report["generation"]) or report["generation"]["exitCode"] != 0:
             raise ValueError("Synthetic fixture generation did not complete successfully")
@@ -160,8 +201,10 @@ def measure(executable, qpdf, directory):
                                            for name, digest in originals.items())
         if not report["originalsUnchanged"]:
             raise ValueError("An original fixture changed during diagnostic measurement")
-        processes = [report["qpdfVersion"], report["generation"]]
+        processes = [report["qpdfVersion"], report["generation"], report["annotationGeneration"]]
         processes.extend(value for item in report["records"] for value in item.values()
+                         if isinstance(value, dict) and "exitCode" in value)
+        processes.extend(value for item in report["annotationRecords"] for value in item.values()
                          if isinstance(value, dict) and "exitCode" in value)
         if not all(completed(result) for result in processes):
             raise ValueError("A diagnostic subprocess was interrupted, timed out or exceeded its output bound")
@@ -172,6 +215,8 @@ def measure(executable, qpdf, directory):
         raise
     finally:
         write_json(directory / "PDFKit-diagnostics.json", report)
+        if "annotationGeneration" in report:
+            write_json(directory / "annotation-generation-process.json", report["annotationGeneration"])
         for item in report["records"]:
             for key, value in item.items():
                 if isinstance(value, dict) and "stderr" in value:

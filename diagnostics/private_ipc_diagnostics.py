@@ -9,6 +9,7 @@ from pathlib import Path
 import re
 import shutil
 import stat
+import subprocess
 import tempfile
 
 from assemble_ipc_runtime import assemble
@@ -118,13 +119,16 @@ def run_private_ipc(executable, base, ipc_probe, output, source_venv, source_bro
             assembled = assemble(source_venv, source_browsers, workspace / 'build', commit)
             original = assembled['runtime']; runtime = workspace / 'moved runtime'
             original.rename(runtime)
+            app = runtime / assembled['app'].relative_to(original)
             python = runtime / assembled['python'].relative_to(original)
             browsers = {name: runtime / path.relative_to(original) for name, path in assembled['browsers'].items()}
             shutil.copyfile(runtime / 'manifest.json', output / 'runtime-manifest.json')
             shutil.copyfile(runtime / 'provenance.json', output / 'runtime-provenance.json')
             before = manifest_identity(runtime)
             if before != assembled['manifestSHA256']: raise ValueError('Relocation changed the runtime manifest.')
+            subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(app)], check=True, timeout=90)
             report['runtime'] = {'moved': True, 'manifestSHA256Before': before, 'sourceLocationAbsent': not original.exists(),
+                                 'signatureUnit': str(app), 'signatureAfterMoveVerified': True,
                                  'pythonSHA256': hashlib.sha256(python.read_bytes()).hexdigest()}
             # Deny the fixture's source packages/browsers as well as the base's
             # Homebrew/Office/Xcode roots. Cache roots cannot silently use host
@@ -196,6 +200,8 @@ def run_private_ipc(executable, base, ipc_probe, output, source_venv, source_bro
                     if browser_receipt_matches(generated, data): shutil.copyfile(generated, case / 'browser.pdf')
                     publish()
             after = manifest_identity(runtime)
+            subprocess.run(['/usr/bin/codesign', '--verify', '--deep', '--strict', str(app)], check=True, timeout=90)
+            report['runtime']['signatureAfterWorkloadsVerified'] = True
             report['runtime']['manifestSHA256After'] = after
             report['runtime']['bytesUnchanged'] = before == after
             denied, allowed, denied_after = (report['officeFallback'][key] for key in ('denied-before', 'private', 'denied-after'))

@@ -7,6 +7,7 @@ not change the production sandbox, use user documents, or contact a service.
 from __future__ import annotations
 
 import argparse
+import contextlib
 import errno
 import hashlib
 import json
@@ -264,14 +265,14 @@ def measure(command, directory, environment=None, seconds=90, observe=None):
     return result
 
 
-def conversion(executable, directory, profile=None, fixture=None):
+def conversion(executable, directory, profile=None, fixture=None, environment_override=None, predicted_socket=None):
     import fitz
     directory.mkdir(mode=0o700)
     source, user_installation, converted = fixture or prepare_office_fixture(directory / 'fixture')
     generated = converted / 'office.pdf'
     if os.path.lexists(generated):
         raise FileExistsError('The synthetic conversion output must be absent before every attempt.')
-    socket_path = office_socket(user_installation, os.getuid())
+    socket_path = predicted_socket or office_socket(user_installation, os.getuid())
     if os.path.lexists(socket_path):
         raise FileExistsError('The synthetic Office socket already exists; do not connect to or remove it.')
     socket_observed = False
@@ -287,6 +288,7 @@ def conversion(executable, directory, profile=None, fixture=None):
     environment['PATH'] = '/usr/bin:/bin:/usr/sbin:/sbin'
     # This affects logging only; no bootstrap/profile/IPC workaround is added.
     environment['SAL_LOG'] = '+WARN+INFO'
+    if environment_override is not None: environment.update(environment_override)
     command = [str(executable), '-env:UserInstallation=' + user_installation.resolve(strict=True).as_uri(),
                '--headless', '--convert-to', 'pdf', '--outdir', str(converted), str(source)]
     office_arguments = command[:]
@@ -353,7 +355,12 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--ipc-probe', type=Path, required=True)
+    parser.add_argument('--private-ipc', action='store_true', help='Run the diagnostic-only general Unix IPC experiment.')
+    parser.add_argument('--source-venv', type=Path)
+    parser.add_argument('--source-browsers', type=Path)
     args = parser.parse_args()
+    if args.private_ipc and (args.source_venv is None or args.source_browsers is None):
+        parser.error('--private-ipc requires --source-venv and --source-browsers')
     if sys.platform != 'darwin': raise ValueError('This diagnosis requires macOS.')
     os.umask(0o077)
     ipc_probe = args.ipc_probe.resolve(strict=True)
@@ -369,19 +376,22 @@ def main():
               'sandboxSHA256': hashlib.sha256(profile.encode()).hexdigest(), 'cases': {}, 'complete': False,
               'officePipeProtocolSource': 'https://github.com/LibreOffice/core/blob/libreoffice-26.8.1.1/desktop/source/deployment/misc/dp_misc.cxx',
               'ipcProbeSHA256': hashlib.sha256(ipc_probe.read_bytes()).hexdigest(),
-              'limitations': ['Only LibreOffice is copied; the full PDF runtime and its fontconfig environment are not assembled.',
+              'limitations': ['The full PDF runtime and its fontconfig environment are not assembled; optional private IPC builds a focused Python/Chromium runtime.',
                               'Unisolated cases are diagnostic controls using synthetic input, not a production fallback.',
                               'No result from this workflow approves the complete PDF application.']}
     def publish():
         (output / 'report.json').write_text(json.dumps(report, indent=2) + '\n')
     publish()
+    resources = contextlib.ExitStack()
     try:
         report['metadata'] = measure(['/usr/bin/codesign', '-d', '--verbose=4', '--entitlements', ':-',
                                       str(source / 'Contents/MacOS/soffice')], output / 'source-signature')
         report['version'] = measure([str(source / 'Contents/MacOS/soffice'), '--version'], output / 'source-version')
         report['cases']['original'] = conversion(source / 'Contents/MacOS/soffice', output / 'original')
         publish()
-        with tempfile.TemporaryDirectory(prefix='PDF private Office ') as directory:
+        # Retain the same relocated/signed converter through all later controls.
+        directory = resources.enter_context(tempfile.TemporaryDirectory(prefix='PDF private Office '))
+        with contextlib.nullcontext(directory) as directory:
             root = Path(directory)
             copied = root / 'runtime/LibreOffice.app'; copied.parent.mkdir()
             copy_tree(source, copied)
@@ -454,9 +464,16 @@ def main():
             and denied['executableSHA256'] == allowed['executableSHA256'] == denied_after['executableSHA256']
             and all(item['expectationPassed'] for item in controls.values()))
         report['networkControlInterpretation'] = 'Negative controls require bind() EPERM on fresh endpoints; connection refusal or a missing listener never counts as network isolation.'
+        if args.private_ipc:
+            if not report['causalProofPassed']:
+                raise RuntimeError('The exact-socket causal controls failed; general IPC cannot be evaluated.')
+            from private_ipc_diagnostics import run_private_ipc
+            report['privateIPC'] = run_private_ipc(executable, profile, ipc_probe, output / 'private-ipc',
+                args.source_venv, args.source_browsers, os.environ.get('GITHUB_SHA', ''))
         report['complete'] = True
     finally:
-        publish()
+        try: resources.close()
+        finally: publish()
     print('FINAL DIAGNOSTIC REPORT', json.dumps(report, sort_keys=True), flush=True)
 
 

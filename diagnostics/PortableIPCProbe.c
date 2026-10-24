@@ -129,7 +129,7 @@ static int unix_parent(const char *requested, char *canonical, size_t capacity,
     return length > 0 && (size_t)length < capacity;
 }
 
-static int unix_probe(const char *path, int office) {
+static int unix_probe(const char *path, int office, int lexical) {
     struct Result r = {0};
     struct sockaddr_un address;
     struct stat owned, current;
@@ -141,6 +141,18 @@ static int unix_probe(const char *path, int office) {
         if (directory >= 0) close(directory);
         fputs("Invalid or non-private Unix socket destination.\n", stderr);
         return 2;
+    }
+    /* The negative-control mode deliberately retains a symlinked ancestor in
+     * bind's argument. The resolved parent is still private and held by FD;
+     * cleanup may remove only the socket actually observed in that directory.
+     * This tests the sandbox's canonical-path policy, not this probe's rewrite. */
+    if (lexical) {
+        if (strlen(path) >= sizeof(address.sun_path)) {
+            close(directory);
+            fputs("Unix socket path is too long.\n", stderr);
+            return 2;
+        }
+        memcpy(address.sun_path, path, strlen(path) + 1);
     }
     address.sun_family = AF_UNIX;
     socklen_t length = (socklen_t)(offsetof(struct sockaddr_un, sun_path)
@@ -247,10 +259,17 @@ int main(int argc, char **argv) {
     sigemptyset(&action.sa_mask);
     if (sigaction(SIGALRM, &action, NULL) || signal(SIGPIPE, SIG_IGN) == SIG_ERR) return 2;
     alarm(5);
-    if (argc == 3 && !strcmp(argv[1], "unix")) return unix_probe(argv[2], 0);
-    if (argc == 3 && !strcmp(argv[1], "unix-office")) return unix_probe(argv[2], 1);
+    if (argc == 3 && !strcmp(argv[1], "unix")) return unix_probe(argv[2], 0, 0);
+    if (argc == 3 && !strcmp(argv[1], "unix-office")) return unix_probe(argv[2], 1, 0);
+    if (argc == 3 && !strcmp(argv[1], "unix-lexical")) return unix_probe(argv[2], 0, 1);
+    if (argc == 3 && !strcmp(argv[1], "access") && argv[2][0] == '/') {
+        int result = access(argv[2], W_OK);
+        int error = result == 0 ? 0 : errno;
+        printf("{\"writable\":%s,\"accessErrno\":%d}\n", result == 0 ? "true" : "false", error);
+        return fflush(stdout) == 0 ? 0 : 2;
+    }
     if (argc == 2 && !strcmp(argv[1], "tcp")) return internet_probe(0);
     if (argc == 2 && !strcmp(argv[1], "udp")) return internet_probe(1);
-    fputs("Usage: probe unix ABSOLUTE_PATH | probe unix-office OFFICE_PATH | probe tcp | probe udp\n", stderr);
+    fputs("Usage: probe unix ABSOLUTE_PATH | probe unix-office OFFICE_PATH | probe unix-lexical ABSOLUTE_PATH | probe access ABSOLUTE_PATH | probe tcp | probe udp\n", stderr);
     return 2;
 }

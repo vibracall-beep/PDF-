@@ -4,14 +4,32 @@ from pathlib import Path
 import sys
 import tempfile
 import unittest
+import subprocess
 import fitz
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'engine'))
 import pdf_accessibility
 import pdf_standards
 from tests.test_accessibility_grouping import tagged_cells
+from tests.test_accessibility_tables import real_table
 
 
 class AccessibilityIndependentValidation(unittest.TestCase):
+    def test_merged_cells_and_header_associations_pass_structural_check_without_fabricating_pdfua(self):
+        from pdf_engine import run
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);source,ids=real_table(root);original=source.read_bytes();target=root/'headers.pdf'
+            run('accessibility-remediate',[source],target,dict(input_sha256=hashlib.sha256(original).hexdigest(),edits=[
+                dict(id=ids[0],column_span=2),dict(id=ids[2],column_span=2,headers=[ids[0]]),dict(id=ids[3],headers=[ids[1]])]))
+            checked=subprocess.run(['qpdf','--check',str(target)],text=True,capture_output=True,timeout=30)
+            self.assertEqual(checked.returncode,0,checked.stdout+checked.stderr)
+            tree=pdf_accessibility.inspect_pdf(target,root/'tree.json');records={node['id']:node for node in tree['nodes']}
+            self.assertEqual(records[ids[0]]['column_span'],2);self.assertEqual(records[ids[2]]['headers'],[ids[0]])
+            self.assertEqual(records[ids[3]]['headers'],[ids[1]])
+            report=pdf_standards.validate_pdf(target,root/'validation.json',{'flavour':'ua1'},standard='pdfua')
+            self.assertFalse(report['compliant']);self.assertGreater(report['counts']['failedRules'],0)
+            self.assertTrue(report['manual_review_required']);self.assertFalse(report['accessibility_certified'])
+            self.assertIn('veraPDF',report['validator']['name']);self.assertEqual(source.read_bytes(),original)
+
     def test_explicit_row_and_table_reconstruction_still_requires_independent_pdfua_review(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);source=tagged_cells(root)

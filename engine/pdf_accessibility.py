@@ -97,6 +97,8 @@ def _tree(reader):
         active.remove(identity)
     if isinstance(root,g.DictionaryObject):
         for child in _array(_raw(root,'/K')): walk(child,None,0)
+    from accessibility_tables import describe
+    describe(nodes,index)
     return root,nodes,index,pages
 
 
@@ -159,35 +161,8 @@ def _create_page_tags(writer,specifications):
 
 
 def _set_table_scope(node, scope):
-    """Change only Table/Scope, never a shared attribute object or its siblings.
-
-    Attribute arrays may include revision numbers and several Table dictionaries.
-    Keep their order, shape, other keys and references, including unknown owners.
-    A removed Scope does not require removing its otherwise empty Table owner.
-    """
-    original=_object(_raw(node,'/A'))
-    if original is not None and not isinstance(original,(g.ArrayObject,g.DictionaryObject)):
-        raise ValueError('Os atributos da tag não permitem alterar Scope com segurança.')
-    attributes=_array(original); result=[]; found=False; changed=False
-    for reference in attributes:
-        attributes_object=_object(reference)
-        if isinstance(attributes_object,g.DictionaryObject) and _object(_raw(attributes_object,'/O'))=='/Table':
-            found=True
-            if scope is None and '/Scope' not in attributes_object:
-                result.append(reference)
-                continue
-            # Dereferencing and changing the original here would also edit other
-            # tags that share this /A object. Attach a local shallow copy instead.
-            replacement=g.DictionaryObject({key:attributes_object.raw_get(key) for key in attributes_object})
-            if scope is None: replacement.pop('/Scope',None)
-            else: replacement[g.pdf_name('/Scope')]=g.pdf_name('/'+scope)
-            result.append(replacement); changed=True
-        else: result.append(reference)
-    if scope is not None and not found:
-        result.append(g.DictionaryObject({g.pdf_name('/O'):g.pdf_name('/Table'),g.pdf_name('/Scope'):g.pdf_name('/'+scope)}))
-        changed=True
-    if changed:
-        node[g.pdf_name('/A')]=result[0] if isinstance(original,g.DictionaryObject) and len(result)==1 else g.ArrayObject(result)
+    from accessibility_tables import set_attribute
+    set_attribute(node,'/Scope',None if scope is None else g.pdf_name('/'+scope))
 
 
 def _validate_parent_links(writer,nodes,index):
@@ -226,6 +201,10 @@ def _group_siblings(writer,specifications):
         parent=records[identities[0]]['parent']
         if any(records[identity]['parent']!=parent for identity in identities):
             raise ValueError('Um novo grupo exige tags do mesmo pai.')
+        parent_role=records[parent]['role'] if parent is not None else None
+        allowed=GROUP_CHILD_ROLES.get(parent_role)
+        if allowed is not None and role not in allowed:
+            raise ValueError('O novo grupo não é um filho estrutural válido para o papel do pai.')
         parent_ref,parent_object=index[parent] if parent is not None else (_raw(writer.root,'/StructTreeRoot'),tree)
         current=_array(_raw(parent_object,'/K'));current_ids=[_id(value) for value in current]
         first=current_ids.index(identities[0])
@@ -271,7 +250,7 @@ def remediate_pdf(input_path,output_path,options):
             identity=edit.get('id')
             if identity not in index or identity in seen: raise ValueError('Tag desconhecida ou repetida nas alterações.')
             seen.add(identity);reference,node=index[identity]
-            if set(edit)-{'id','role','alt','actual_text','title','language','children','scope'}:
+            if set(edit)-{'id','role','alt','actual_text','title','language','children','scope','row_span','column_span','headers'}:
                 raise ValueError('A alteração contém um campo não suportado.')
             if 'role' in edit:
                 if not isinstance(edit['role'],str) or edit['role'] not in ROLES: raise ValueError('Papel estrutural não suportado.')
@@ -303,6 +282,10 @@ def remediate_pdf(input_path,output_path,options):
                 references=dict(zip(ids,current)); node[g.pdf_name('/K')]=g.ArrayObject([references[i] for i in order])
             writer.mark_update(reference)
         if 'groups' in options: _group_siblings(writer,options['groups'])
+        if any(set(edit).intersection({'role','row_span','column_span','headers'}) for edit in edits):
+            from accessibility_tables import apply
+            tree,nodes,index,_=_tree(writer)
+            apply(writer,tree,nodes,index,edits,expected)
         if 'language' in options: writer.root[g.pdf_name('/Lang')]=g.pdf_string(_language(options['language']))
         writer.update_root()
         # A missing tree is not "fixed" with Marked=true or PDF/UA metadata.

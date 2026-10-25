@@ -398,6 +398,21 @@ def run(operation, inputs, output, options=None):
 
 
 def _execute(operation, inputs, output, options):
+    if operation in ('layout-extract','translate-layout'):
+        # Hash and parse the same bounded immutable byte snapshot. Reopening a
+        # mutable path after hashing could otherwise bind the plan to one PDF
+        # while translating another, including changes outside the text boxes.
+        from pdf_content import _source
+        doc,digest=_source(inputs[0],options)
+        try:
+            if operation == 'layout-extract':
+                pages=parse_pages(options.get('pages'),len(doc))
+                output.write_text(json.dumps(_layout(doc,pages,digest),ensure_ascii=False,indent=2),encoding='utf-8')
+            else:
+                _separate_page_aliases(doc)
+                _translate_layout(doc,options,digest);save(doc,output)
+        finally: doc.close()
+        return
     if operation == 'conversion-audit':
         from document_layout import conversion_audit
         conversion_audit(inputs[0],inputs[1],output,options)
@@ -575,10 +590,6 @@ def _execute(operation, inputs, output, options):
                     save(part,output/f'parte-{i+1:04}.pdf',**_encrypted_output(doc,password))
         elif operation in ('jpg','png'):
             _raster_export(doc,pages,output,operation,options)
-        elif operation == 'layout-extract':
-            output.write_text(json.dumps(_layout(doc,pages),ensure_ascii=False,indent=2),encoding='utf-8')
-        elif operation == 'translate-layout':
-            _translate_layout(doc,options); save(doc,output)
         elif operation == 'form-detect':
             output.write_text(json.dumps(_detect_forms_report(doc,pages,options),ensure_ascii=False,indent=2),encoding='utf-8')
         elif operation == 'forms':
@@ -621,7 +632,7 @@ def _execute(operation, inputs, output, options):
         elif operation == 'form-fill':
             _fill_forms(doc,options); save(doc,output)
         elif operation in PDF_OPERATIONS:
-            _modify(doc,pages,operation,options)
+            modification_audit = _modify(doc,pages,operation,options)
             kwargs = {}
             if operation == 'protect':
                 secret = options.get('new_password','')
@@ -629,6 +640,9 @@ def _execute(operation, inputs, output, options):
                 kwargs = dict(encryption=fitz.PDF_ENCRYPT_AES_256,owner_pw=secrets.token_urlsafe(24),user_pw=secret)
             elif operation == 'unlock': kwargs['encryption'] = fitz.PDF_ENCRYPT_NONE
             save(doc,output,**kwargs)
+            if operation == 'redact':
+                from pdf_redaction import verify_saved
+                verify_saved(output, password, modification_audit)
         else: raise ValueError('Operação não implementada: '+operation)
 
 
@@ -876,9 +890,16 @@ def _remove_redacted_interactive(page,rects,term):
 
 
 def _modify(doc,pages,operation,options):
+    redaction_audit = None
+    if operation == 'redact':
+        from pdf_redaction import prepare
+        redaction_audit = prepare(doc)
+        redaction_audit['rectangles'] = {}
+        redaction_audit['term'] = options.get('search', options.get('text', '')) if not options.get('rects') else ''
     if operation == 'compress' and options.get('image_dpi'):
         # Recompress embedded images while preserving vectors, searchable text and widgets.
         from PIL import Image
+        from pdf_content import _embedded_image_profile, _replace_image_preserving_order
         dpi = number(options['image_dpi'],'DPI',36,600)
         quality = int(number(options.get('quality',80),'Qualidade JPEG',20,95))
         placements={}; selected=set(pages)
@@ -893,16 +914,26 @@ def _modify(doc,pages,operation,options):
                     record['height']=max(record['height'],rect.height)
         for xref,record in placements.items():
             if record['masked'] or not record['eligible'] or not record['width'] or not record['height']: continue
+            # Masks, decode arrays and image-specific rendering intents stay
+            # intact. Only uncalibrated RGB/gray samples can be downsampled.
+            # extract_image may color-convert ICC samples; keeping that profile
+            # on converted samples would incorrectly apply it a second time.
+            if any(doc.xref_get_key(xref,key)[0]!='null' for key in ('SMask','Mask','Decode','Intent','Alternates','OPI')) or doc.xref_get_key(xref,'ImageMask')==('bool','true'): continue
             target_w=max(1,math.ceil(record['width']*dpi/72)); target_h=max(1,math.ceil(record['height']*dpi/72))
             try:
+                color_space,channels,profile=_embedded_image_profile(doc,xref)
+                original_color_space=doc.xref_get_key(xref,'ColorSpace')[1]
+                if color_space=='/ICCBased': continue
+                if color_space not in ('/DeviceRGB','/DeviceGray') or doc.xref_get_key(xref,'BitsPerComponent')!=('int','8'): continue
                 source=doc.extract_image(xref)
                 with Image.open(io.BytesIO(source['image'])) as image:
                     # A shared image must retain enough pixels for its largest placement.
                     ratio=max(target_w/image.width,target_h/image.height)
                     if ratio>=1: continue
                     image.thumbnail((math.ceil(image.width*ratio),math.ceil(image.height*ratio)))
-                    buffer=io.BytesIO(); image.convert('RGB').save(buffer,format='JPEG',quality=quality,optimize=True)
-                    doc[record['page']].replace_image(xref,stream=buffer.getvalue())
+                    buffer=io.BytesIO(); image.convert('L' if color_space=='/DeviceGray' else 'RGB').save(buffer,format='JPEG',quality=quality,optimize=True)
+                    _replace_image_preserving_order(doc[record['page']],xref,buffer.getvalue())
+                    doc.xref_set_key(xref,'ColorSpace',original_color_space)
             except (OSError,ValueError): continue
     matches = 0
     for i in pages:
@@ -918,7 +949,9 @@ def _modify(doc,pages,operation,options):
                 value = options.get('text','PDF')
                 if operation == 'numbers':
                     start = integer(options.get('start',1),'Número inicial',0)
-                    value = options.get('format','{n}').replace('{n}',str(start+pages.index(i))).replace('{total}',str(len(pages)))
+                    template = _checked_text(options.get('format','{n}'))
+                    if not template.strip(): raise ValueError('Informe um formato de numeração não vazio.')
+                    value = template.replace('{n}',str(start+pages.index(i))).replace('{total}',str(len(pages)))
                 _text(page,str(value),options,operation)
         elif operation in ('image','signature'): _insert_image(page,options)
         elif operation == 'shape':
@@ -939,13 +972,18 @@ def _modify(doc,pages,operation,options):
             if operation=='edit' and options.get('font_file'): raise ValueError('Substituição direta usa fontes PDF padrão; use sobreposição para fontes externas.')
             if rects:
                 _reject_pending_redactions(page)
-                if operation=='redact': _remove_redacted_interactive(page,rects,term)
+                if operation=='redact':
+                    from pdf_redaction import record_regions
+                    record_regions(doc, redaction_audit, i, rects)
+                    _remove_redacted_interactive(page,rects,term)
             for rect in rects:
                 matches += 1
                 page.add_redact_annot(rect,fill=color(options.get('fill'),(1,1,1) if operation=='edit' else (0,0,0)))
             if rects:
                 if operation=='edit': page.apply_redactions(images=0,graphics=0,text=0)
-                else: page.apply_redactions()
+                else:
+                    page.apply_redactions(images=2, graphics=2, text=0)
+                    redaction_audit['rectangles'][i] = [list(rect) for rect in rects]
             if operation=='edit' and replacement:
                 for rect in rects:
                     size=number(options.get('font_size',11),'Fonte',4,300)
@@ -967,17 +1005,9 @@ def _modify(doc,pages,operation,options):
     if operation in ('redact','edit') and matches == 0:
         raise ValueError('Nenhuma ocorrência encontrada. Nenhuma cópia foi criada.')
     if operation == 'redact':
-        # Purge metadata, embedded attachments and XML metadata along with removed streams.
-        doc.set_metadata({})
-        doc.del_xml_metadata()
-        for name in list(doc.embfile_names()): doc.embfile_del(name)
-        doc.scrub(attached_files=False,clean_pages=False,embedded_files=False,hidden_text=False,javascript=True,metadata=False,redactions=False,remove_links=False,reset_fields=False,reset_responses=False,thumbnails=True,xml_metadata=False)
-        term=options.get('search',options.get('text',''))
-        if term:
-            outline=doc.get_toc()
-            for item in outline:
-                if str(term).casefold() in item[1].casefold(): item[1]='[Removido]'
-            if outline: doc.set_toc(outline)
+        from pdf_redaction import finish
+        finish(doc)
+        return redaction_audit
 
 
 
@@ -995,30 +1025,46 @@ def _insert_image(page,options,watermark=False):
     else: page.insert_image(rect,filename=image,keep_proportion=True,overlay=bool(options.get('overlay',True)))
 
 
-def _layout(doc,pages):
-    blocks=[]
+def _layout(doc,pages,source_sha256):
+    blocks=[];text_bytes=0
     for i in pages:
         for j,block in enumerate(doc[i].get_text('dict',sort=True)['blocks']):
             if block['type']!=0: continue
             text='\n'.join(''.join(span['text'] for span in line['spans']) for line in block['lines']).strip()
             if not text: continue
+            text_bytes+=len(text.encode('utf-8'))
+            if len(blocks)>=100000 or text_bytes>16*1024*1024:
+                raise ValueError('A análise excede 100.000 blocos ou 16 MiB de texto. Selecione menos páginas para traduzir.')
             spans=[span for line in block['lines'] for span in line['spans'] if span['text'].strip()]
             if not spans: continue
             ink=spans[0].get('color',0)
-            blocks.append(dict(id=f'p{i+1}-b{j}',page=i+1,rect=list(block['bbox']),text=text,font_size=max(span['size'] for span in spans),color=f'#{ink:06x}'))
+            blocks.append(dict(id=f'p{i+1}-b{j}',source_sha256=source_sha256,page=i+1,rect=list(block['bbox']),text=text,font_size=max(span['size'] for span in spans),color=f'#{ink:06x}'))
     return blocks
 
 
-def _translate_layout(doc,options):
+def _translate_layout(doc,options,source_sha256):
     edits=options.get('edits',[])
-    if not isinstance(edits,list) or not edits: raise ValueError('Informe os blocos traduzidos.')
-    grouped={}
+    if not isinstance(edits,list) or not 1<=len(edits)<=100000: raise ValueError('Informe de 1 a 100.000 blocos traduzidos.')
     for edit in edits:
+        if not isinstance(edit,dict): raise ValueError('Cada bloco traduzido precisa ser um objeto.')
+        digest=edit.get('source_sha256')
+        if not isinstance(digest,str) or re.fullmatch('[0-9a-f]{64}',digest) is None or digest!=source_sha256:
+            raise ValueError('O PDF original mudou ou esta análise não contém sua prova SHA-256. Extraia o layout novamente.')
+    selected=sorted({integer(edit.get('page',1),'Página',1,len(doc))-1 for edit in edits})
+    expected={block['id']:block for block in _layout(doc,selected,source_sha256)}
+    grouped={};seen=set()
+    for edit in edits:
+        identifier=edit.get('id')
+        if not isinstance(identifier,str) or identifier not in expected or identifier in seen:
+            raise ValueError('O bloco traduzido está ausente, repetido ou não pertence à análise da origem.')
+        seen.add(identifier);original=expected[identifier]
         page_number=integer(edit.get('page',1),'Página',1,len(doc))-1
         page=doc[page_number]; rect=rectangle(edit,page)
+        if page_number+1!=original['page'] or list(rect)!=original['rect']:
+            raise ValueError('A página ou a área do bloco mudou. Extraia o layout novamente.')
         text=str(edit.get('text',''))
         if not text.strip(): raise ValueError('O texto traduzido não pode estar vazio.')
-        if edit.get('source_text') and page.get_textbox(rect).strip()!=edit['source_text'].strip():
+        if 'source_text' in edit and edit['source_text']!=original['text']:
             raise ValueError('O bloco original mudou. Extraia o layout novamente.')
         if any(_area(rect & previous[1]) > 0.5 for previous in grouped.get(page_number,[])):
             raise ValueError('Blocos de tradução sobrepostos. Selecione blocos sem sobreposição.')
@@ -1104,14 +1150,14 @@ def _form_records(doc,pages):
     for index in pages:
         for widget in doc[index].widgets() or []:
             choices=_choice_options(widget) if widget.field_type in (fitz.PDF_WIDGET_TYPE_LISTBOX,fitz.PDF_WIDGET_TYPE_COMBOBOX) else []
-            record=dict(page=index+1,name=widget.field_name,value=widget.field_value,type=widget.field_type_string,rect=list(widget.rect),choices=[value for value,label in choices],choice_labels={value:label for value,label in choices},readonly=bool(widget.field_flags & 1))
+            record=dict(page=index+1,name=widget.field_name,value=widget.field_value,type=widget.field_type_string,rect=list(widget.rect),choices=[value for value,label in choices],choice_labels={value:label for value,label in choices},choice_items=[dict(value=value,label=label) for value,label in choices],readonly=bool(widget.field_flags & 1))
             if widget.field_type!=fitz.PDF_WIDGET_TYPE_RADIOBUTTON:
                 records.append(record); continue
             key=widget.rb_parent or widget.field_name
             if key not in groups:
                 record.update(value='',choices=[],buttons=[]); groups[key]=record; records.append(record)
             group=groups[key]; group['readonly'] |= bool(widget.field_flags & 1); value=_radio_value(widget)
-            group['choices'].append(value); group['buttons'].append(dict(page=index+1,rect=list(widget.rect),value=value))
+            group['choices'].append(value); group['choice_items'].append(dict(value=value,label=value)); group['buttons'].append(dict(page=index+1,rect=list(widget.rect),value=value))
             if widget.field_value!='Off': group['value']=value
     return records
 
@@ -1183,7 +1229,18 @@ def _create_forms(doc,options):
 
 
 def _fill_forms(doc,options):
-    values=options.get('values',{})
+    # Array entries keep canonically equivalent UTF-8 field names distinct in
+    # clients whose native dictionary normalizes String equality (Swift).
+    if 'value_entries' in options:
+        if 'values' in options: raise ValueError('Use values ou value_entries, não ambos.')
+        entries=options['value_entries']
+        if not isinstance(entries,list) or not 1<=len(entries)<=100000: raise ValueError('Informe de 1 a 100.000 entradas de formulário.')
+        values={}
+        for entry in entries:
+            if not isinstance(entry,dict) or set(entry)!=set(('name','value')) or not isinstance(entry['name'],str) or not entry['name'] or entry['name'] in values:
+                raise ValueError('Cada entrada de formulário exige name único e value, preservados literalmente.')
+            values[entry['name']]=entry['value']
+    else: values=options.get('values',{})
     if not isinstance(values,dict) or not values or any(not isinstance(name,str) for name in values): raise ValueError('Informe os valores dos campos por nome.')
     existing={widget.field_name for page in doc for widget in (page.widgets() or [])}
     missing=set(values)-existing
@@ -1239,8 +1296,7 @@ def _write_base64(stream, data):
 
 def _markdown(doc,pages,output,options=None):
     options=options or {}
-    def escaped(value):
-        return str(value or '').replace('\\','\\\\').replace('<','&lt;').replace('>','&gt;')
+    from markdown_layout import escape_text, inert_line, page_links, linked_line, list_plan
     with output.open('w',encoding='utf-8') as stream:
         first=True
         def begin_line():
@@ -1261,14 +1317,15 @@ def _markdown(doc,pages,output,options=None):
             else: page_items=_page_elements(page,options)
             sizes=[s['size'] for b in page_items if b['type']==0 for line in b['lines'] for s in line['spans'] if s['text'].strip()]
             body=sorted(sizes)[len(sizes)//2] if sizes else 11
-            emit(f'<!-- Página {i+1} -->')
-            for block in page_items:
+            links=page_links(page,set(pages));lists=list_plan(page_items)
+            emit(f'<!-- Página {i+1} -->');emit(f'<a id="pdf-page-{i+1}"></a>');emit('')
+            for block_index,block in enumerate(page_items):
                 if block['type']==2:
                     rows=block['rows']
                     if not rows: continue
                     width=max(map(len,rows))
                     for n,row in enumerate(rows):
-                        emit('| '+' | '.join(escaped(value).replace('|','\\|').replace('\n','<br>') for value in [*row,*['']*(width-len(row))])+' |')
+                        emit('| '+' | '.join(escape_text(value).replace('\n','<br>') for value in [*row,*['']*(width-len(row))])+' |')
                         if n==0: emit('| '+' | '.join(['---']*width)+' |')
                     emit('')
                     continue
@@ -1277,24 +1334,21 @@ def _markdown(doc,pages,output,options=None):
                     begin_line(); stream.write(f'![Imagem da página {i+1}](data:image/{block.get("ext","png")};base64,')
                     _write_base64(stream,block['image']); stream.write(')')
                     continue
-                for line in block['lines']:
+                for line_index,line in enumerate(block['lines']):
                     text=''.join(span['text'] for span in line['spans']).strip()
                     if not text: continue
-                    size=max(span['size'] for span in line['spans'])
-                    prefix='# ' if size>=body*1.7 else '## ' if size>=body*1.3 else ''
-                    fragments=[]
-                    for span in line['spans']:
-                        value=re.sub(r'([`*_{}\[\]#!])',r'\\\1',escaped(span['text']))
-                        marker='***' if span.get('flags',0)&18==18 else '**' if span.get('flags',0)&16 else '*' if span.get('flags',0)&2 else ''
-                        fragments.append(marker+value+marker if value.strip() else value)
-                    emit(prefix+''.join(fragments).strip())
+                    listing=lists.get((block_index,line_index))
+                    if listing:
+                        prefix,skip=listing
+                        emit(prefix+linked_line(line,links,skip).strip())
+                    else:
+                        size=max(span['size'] for span in line['spans'])
+                        prefix='# ' if size>=body*1.7 else '## ' if size>=body*1.3 else ''
+                        emit(prefix+inert_line(linked_line(line,links).strip()))
                 emit('')
-            for link in page.get_links():
-                if link.get('uri'):
-                    uri=str(link['uri'])
-                    if uri.startswith(('https://','http://','mailto:')):
-                        label=escaped(page.get_textbox(link['from']).strip() or 'Link').replace('[','\\[').replace(']','\\]')
-                        emit(f'[{label}]({uri.replace("(","%28").replace(")","%29")})')
+            for link in links:
+                if not link['used']:
+                    emit('['+escape_text(link['label']).replace('\n',' ')+']('+link['target']+')')
 
 
 def _word(doc,pages,output,options=None):

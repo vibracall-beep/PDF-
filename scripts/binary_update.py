@@ -213,12 +213,18 @@ def verify_manifest(distribution):
     actual = {}
     folded = set()
     total = 0
+    storage = {'schemaVersion': 1, 'distributionBytes': 0, 'bundleBytes': 0,
+               'distributionEntries': 1, 'bundleEntries': 0}
     for parent, directories, files in os.walk(distribution, followlinks=False):
         for name in list(directories) + files:
             path = Path(parent) / name
             relative = path.relative_to(distribution).as_posix()
             if relative == 'manifest.json':
                 continue
+            storage['distributionEntries'] += 1
+            bundled = relative == 'PDF.app' or relative.startswith('PDF.app/')
+            if bundled:
+                storage['bundleEntries'] += 1
             if any(ord(c) < 32 for c in relative) or relative.casefold() in folded:
                 raise ValueError('Nome de arquivo inválido ou ambíguo.')
             folded.add(relative.casefold())
@@ -233,6 +239,9 @@ def verify_manifest(distribution):
                 continue
             elif stat.S_ISREG(info.st_mode):
                 total += info.st_size
+                storage['distributionBytes'] += info.st_size
+                if bundled:
+                    storage['bundleBytes'] += info.st_size
                 if total > LIMIT:
                     raise ValueError('Pacote excede 12 GiB.')
                 digest = hashlib.sha256()
@@ -250,6 +259,13 @@ def verify_manifest(distribution):
                 raise ValueError('Arquivo especial recusado: ' + relative)
     if actual != expected:
         raise ValueError('O manifesto não corresponde exatamente ao pacote extraído.')
+    # Optional only for previously delivered schema-1 packages. New packages
+    # bind the pre-extraction estimate to the actual files/directories too.
+    if 'storageRequirements' in manifest:
+        declared = manifest['storageRequirements']
+        if (not isinstance(declared, dict) or any(type(value) is not int for value in declared.values())
+                or declared != storage):
+            raise ValueError('A estimativa de espaço não corresponde exatamente ao pacote extraído.')
     app = distribution / 'PDF.app'
     verify_bundle_identity(app)
     return manifest

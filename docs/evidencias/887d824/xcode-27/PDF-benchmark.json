@@ -1,0 +1,180 @@
+{
+  "activeProcessorCount" : 3,
+  "applicationVersion" : "0.7.0",
+  "architecture" : "arm64",
+  "createdAt" : "2026-10-25T18:46:36Z",
+  "energyMeasurement" : "Não coletada. Tempo de CPU é medido por getrusage; filhos incluem somente processos já recolhidos. CPU não equivale a energia, ocupação da GPU ou uso do Neural Engine.",
+  "fixture" : "text-and-vector-v1",
+  "graphicsDevice" : "Apple Paravirtual device",
+  "lowPowerMode" : false,
+  "lowPowerModeAtEnd" : false,
+  "lowPowerModeAtStart" : false,
+  "methodology" : "Processo dedicado pelo aplicativo; arquivo de entrada copiado para pasta privada e removido ao terminar; uma execução de aquecimento e repetições sequenciais. Não limpa caches. Pico de RSS inclui geração\/leitura da amostra, aquecimento e todas as operações. A amostra sintética contém texto e vetores; use o mesmo arquivo e SHA-256 para comparações entre Macs. O nome da GPU identifica disponibilidade, não mede ocupação nem uso do Neural Engine. Erros de uma operação são registrados, não convertidos em tempos zero.",
+  "metrics" : [
+    {
+      "detail" : "Abrir o arquivo e resolver primeira e última página; cache do sistema preservado.",
+      "id" : "open",
+      "name" : "Abrir documento",
+      "processCPUMilliseconds" : [
+        0.2650000000000148,
+        0.242999999999995,
+        0.22800000000000864
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        0.242583,
+        0.229625,
+        0.215958
+      ]
+    },
+    {
+      "detail" : "Percorrer o texto de todas as páginas.",
+      "id" : "extract",
+      "name" : "Extrair texto",
+      "processCPUMilliseconds" : [
+        4.961999999999989,
+        4.673000000000002,
+        4.563000000000045
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        4.977375,
+        4.672875,
+        4.562667
+      ]
+    },
+    {
+      "detail" : "Termo fixo: benchmark; 100 ocorrências na amostra selecionada.",
+      "id" : "search",
+      "name" : "Buscar no documento",
+      "processCPUMilliseconds" : [
+        1.0339999999999918,
+        1.1030000000000086,
+        1.0480000000000018
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        1.033375,
+        1.103333,
+        1.047417
+      ]
+    },
+    {
+      "detail" : "Primeira, central e última página; miniatura de até 1.200 × 1.600 pontos.",
+      "id" : "render",
+      "name" : "Renderizar páginas",
+      "processCPUMilliseconds" : [
+        4.026999999999987,
+        3.444000000000017,
+        3.4569999999999936
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        4.026042,
+        3.442708,
+        3.455584
+      ]
+    },
+    {
+      "detail" : "Core Image com contexto Metal quando disponível; mesma primeira página.",
+      "id" : "contrast",
+      "name" : "Processar imagem",
+      "processCPUMilliseconds" : [
+        2.4119999999999777,
+        2.5130000000000337,
+        2.3489999999999895
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        5.288875,
+        5.49875,
+        5.318541
+      ]
+    },
+    {
+      "detail" : "OCR local na primeira página, inglês. Cada amostra identifica o motor usado. O tempo inclui tentativas e processos auxiliares; a memória é somente do processo principal, sem somar os filhos. Não mede utilização da NPU.",
+      "id" : "ocr",
+      "name" : "Reconhecer texto",
+      "ocrSamples" : [
+        {
+          "backend" : "tesseract",
+          "fallbackReason" : "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). CPU: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Revisão compatível 2: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Nenhum resultado foi publicado. Processo nativo isolado: PDF.VisionWorker.RuntimeFailure (1): O processo isolado do Vision falhou durante o reconhecimento: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=PDF.VisionExecutionFailure(underlying: Foundation._GenericObjCError.nilError)"
+        },
+        {
+          "backend" : "tesseract",
+          "fallbackReason" : "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). CPU: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Revisão compatível 2: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Nenhum resultado foi publicado. Processo nativo isolado: PDF.VisionWorker.RuntimeFailure (1): O processo isolado do Vision falhou durante o reconhecimento: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=PDF.VisionExecutionFailure(underlying: Foundation._GenericObjCError.nilError)"
+        },
+        {
+          "backend" : "tesseract",
+          "fallbackReason" : "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). CPU: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Revisão compatível 2: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Nenhum resultado foi publicado. Processo nativo isolado: PDF.VisionWorker.RuntimeFailure (1): O processo isolado do Vision falhou durante o reconhecimento: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=PDF.VisionExecutionFailure(underlying: Foundation._GenericObjCError.nilError)"
+        }
+      ],
+      "ocrWarmup" : {
+        "backend" : "tesseract",
+        "fallbackReason" : "O reconhecimento falhou nas três tentativas nativas em modo preciso. Automática: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). CPU: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Revisão compatível 2: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.). Nenhum resultado foi publicado. Processo nativo isolado: PDF.VisionWorker.RuntimeFailure (1): O processo isolado do Vision falhou durante o reconhecimento: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=PDF.VisionExecutionFailure(underlying: Foundation._GenericObjCError.nilError)"
+      },
+      "processCPUMilliseconds" : [
+        224.48799999999994,
+        235.10899999999992,
+        230.86900000000014
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        1234.259,
+        1097.27,
+        1097.993
+      ],
+      "samplesMilliseconds" : [
+        1581.242041,
+        1489.15,
+        1441.507875
+      ]
+    }
+  ],
+  "operatingSystem" : "Version 27.0.1 (Build 26A434)",
+  "pageCount" : 100,
+  "physicalMemoryBytes" : 7516192768,
+  "processPeakMemoryBytes" : 150650880,
+  "processor" : "Apple M1 (Virtual)",
+  "repetitions" : 3,
+  "resourcePolicy" : {
+    "constrained" : false,
+    "memoryBudgetBytes" : 2505397589,
+    "mode" : "balanced",
+    "threadsPerWorker" : 1,
+    "workerCount" : 2
+  },
+  "resourcePolicyAtStart" : {
+    "constrained" : false,
+    "memoryBudgetBytes" : 2505397589,
+    "mode" : "balanced",
+    "threadsPerWorker" : 1,
+    "workerCount" : 2
+  },
+  "schemaVersion" : 1,
+  "sourceBytes" : 198275,
+  "sourceName" : "Amostra sintética PDF v1",
+  "sourceSHA256" : "b8922e60bc698064522d345a3023d0442b8a7666cb46ba03539863319c0d825d",
+  "thermalLevelAtEnd" : 0,
+  "thermalLevelAtStart" : 0,
+  "virtualization" : "Virtualização detectada nos indicadores do sistema."
+}

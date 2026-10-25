@@ -1,5 +1,7 @@
 # Instalação do PDF por comando
 
+**Correção 0.7 em validação:** a auditoria encontrou dados residuais em tags e anexos depois de usar Ocultar PDF na versão 0.6. Não considere a aparência ocultada como confirmação de remoção desses dados. A [auditoria atual](AUDITORIA-0.7.md) registra a correção e sua validação; o pacote histórico abaixo ainda não contém as alterações 0.7.
+
 **Estado da versão 0.6:** os pacotes de `437a8f4` passaram na matriz [40137438618](https://github.com/vibracall-beep/PDF-/actions/runs/40137438618), nos dois sistemas, incluindo isolamento, primeira instalação, atualização, recusa de checksum incorreto e preservação da configuração de controle. [Originais e contagens](evidencias/437a8f4/README.md). O mesmo tar do macOS 26 também passou no macOS 27, sem recompilar, com runtime isolado e interface instalada: [40141728214](https://github.com/vibracall-beep/PDF-/actions/runs/40141728214), [evidências do teste cruzado](evidencias/cross-437a8f4/README.md). A [entrega privada](https://github.com/vibracall-beep/PDF-/releases/tag/untagged-46d8b6e9889cc9181621) foi retida e conferida na execução [40143091839](https://github.com/vibracall-beep/PDF-/actions/runs/40143091839); está disponível ao proprietário autenticado, sem publicação pública. [Procedência e checksums](evidencias/delivery-437a8f4/README.md). Consulte [VALIDACAO.md](VALIDACAO.md) para o estado de cada etapa.
 
 ## Requisitos comuns

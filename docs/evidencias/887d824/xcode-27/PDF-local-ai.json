@@ -1,0 +1,148 @@
+{
+  "availabilityReason" : "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+  "createdAt" : "2026-10-25T18:46:28Z",
+  "documents" : [
+    {
+      "documentID" : "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8",
+      "pages" : 2,
+      "revisionID" : "B577738F-77F2-424F-AEF4-BD7A687953A8",
+      "sha256" : "4dfed50e4054a2ef839a5e57129d76fdafa48412c244ce1995f9b3c5b0937fd8",
+      "title" : "Plano operacional"
+    },
+    {
+      "documentID" : "1EAD935C-5B57-4194-ABAC-CD844B207EC7",
+      "pages" : 2,
+      "revisionID" : "3324AF8B-F39D-46F5-A933-E4ECCC57C667",
+      "sha256" : "360551b1b4b2af731ae59ea9aec8eb74ae028edda172cfc912c52bbd91bd38f1",
+      "title" : "Revisão de cronograma"
+    }
+  ],
+  "fixtureVersion" : "aurora-pt-BR-v1",
+  "hardware" : "Apple Paravirtual device · 3 núcleos disponíveis · 7 GB de memória",
+  "items" : [
+    {
+      "checks" : [
+
+      ],
+      "citations" : [
+
+      ],
+      "error" : "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+      "expectation" : "Beatriz Lima, com citação do Plano operacional, página 1.",
+      "id" : "responsavel",
+      "milliseconds" : 9.700374999738415,
+      "modelAttempted" : false,
+      "question" : "Quem é a responsável técnica do Projeto Aurora?",
+      "retrievalMethod" : "Termos pt-BR · sem modelo semântico nesta consulta",
+      "retrievedSourceIDs" : [
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:1:0",
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:2:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:1:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:2:0"
+      ],
+      "status" : "unavailable"
+    },
+    {
+      "checks" : [
+
+      ],
+      "citations" : [
+
+      ],
+      "error" : "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+      "expectation" : "R$ 48.000, com citação do Plano operacional, página 1.",
+      "id" : "orcamento",
+      "milliseconds" : 2.5854583327600267,
+      "modelAttempted" : false,
+      "question" : "Qual é o orçamento aprovado do Projeto Aurora?",
+      "retrievalMethod" : "Termos pt-BR · sem modelo semântico nesta consulta",
+      "retrievedSourceIDs" : [
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:1:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:1:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:2:0",
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:2:0"
+      ],
+      "status" : "unavailable"
+    },
+    {
+      "checks" : [
+
+      ],
+      "citations" : [
+
+      ],
+      "error" : "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+      "expectation" : "24 participantes, com citação do Plano operacional, página 2.",
+      "id" : "participantes",
+      "milliseconds" : 2.7539166667338577,
+      "modelAttempted" : false,
+      "question" : "Quantos participantes a oficina do Projeto Aurora admite?",
+      "retrievalMethod" : "Termos pt-BR · sem modelo semântico nesta consulta",
+      "retrievedSourceIDs" : [
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:2:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:1:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:2:0",
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:1:0"
+      ],
+      "status" : "unavailable"
+    },
+    {
+      "checks" : [
+
+      ],
+      "citations" : [
+
+      ],
+      "error" : "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+      "expectation" : "Recusa explícita por falta de evidência; nenhuma citação apresentada como apoio ao CPF.",
+      "id" : "sem-apoio",
+      "milliseconds" : 3.083791666540492,
+      "modelAttempted" : false,
+      "question" : "Qual é o CPF de Beatriz Lima, responsável técnica do Projeto Aurora?",
+      "retrievalMethod" : "Termos pt-BR · sem modelo semântico nesta consulta",
+      "retrievedSourceIDs" : [
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:1:0",
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:2:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:2:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:1:0"
+      ],
+      "status" : "unavailable"
+    },
+    {
+      "checks" : [
+
+      ],
+      "citations" : [
+
+      ],
+      "error" : "Apple Intelligence indisponível neste Mac: deviceNotEligible. A busca e as citações continuam disponíveis.",
+      "expectation" : "Possível divergência: 18 de novembro de 2026 no Plano operacional e 25 de novembro de 2026 na Revisão de cronograma; documentos e citações distintos.",
+      "id" : "divergencia",
+      "milliseconds" : 4.688083333348914,
+      "modelAttempted" : false,
+      "question" : "Os documentos do Projeto Aurora apresentam prazos diferentes para a entrega contratada? Compare as datas sem decidir qual prevalece.",
+      "retrievalMethod" : "Termos pt-BR · sem modelo semântico nesta consulta",
+      "retrievedSourceIDs" : [
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:1:0",
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:1:0",
+        "1EAD935C-5B57-4194-ABAC-CD844B207EC7:3324AF8B-F39D-46F5-A933-E4ECCC57C667:2:0",
+        "F24E8435-ACEA-44F0-A4B3-70E2A13F16E8:B577738F-77F2-424F-AEF4-BD7A687953A8:2:0"
+      ],
+      "status" : "unavailable"
+    }
+  ],
+  "language" : "pt-BR",
+  "limitations" : [
+    "Cinco casos e uma amostra por caso não estimam a qualidade geral, variabilidade entre execuções ou desempenho em documentos complexos.",
+    "Os testes de fatos usam vocabulário afirmativo controlado e recusam negações, nomes e números adicionais. Esse critério conservador pode reprovar uma formulação correta mais complexa; passar não prova entailment geral nem substitui revisão humana.",
+    "O idioma é identificado automaticamente apenas em respostas com pelo menos 60 caracteres; respostas curtas ficam sem avaliação linguística.",
+    "Tempos incluem busca e validação, sem aquecimento; refletem este Mac, versão do sistema e disponibilidade corrente do modelo.",
+    "Se Apple Intelligence estiver indisponível, todos os itens registram unavailable e nenhuma qualidade de geração é aprovada."
+  ],
+  "methodology" : "Dois PDFs sintéticos de duas páginas são criados, importados em biblioteca privada, extraídos e pesquisados pelo pipeline de produção. Cinco solicitações independentes usam LibraryAnswering.respond\/compare e o modelo Apple disponível. Cada citação é revalidada por identidade, revisão, SHA, página e trecho literal após normalização de espaços\/NFC. Gabaritos verificam fatos controlados e atribuição à fonte; não há resposta simulada, rede, download de modelo nem documentos do usuário.",
+  "model" : "Apple FoundationModels · SystemLanguageModel.default · geração local real",
+  "operatingSystem" : "Version 27.0.1 (Build 26A434)",
+  "schemaVersion" : 1,
+  "status" : "unavailable",
+  "totalMilliseconds" : 89.7241666671107
+}

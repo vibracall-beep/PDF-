@@ -600,7 +600,8 @@ enum MacPreview {
         present(.advanced("library")); try await capture("biblioteca", auditRequired: ["pdf.library"])
         try await presentAccessibilityFixture(source: documents.reference, directory: scratchDirectory)
         try await capture("corrigir-acessibilidade", auditRequired: ["pdf.accessibility.tag.title", "pdf.accessibility.tag.alt",
-            "pdf.accessibility.tag.actual-text", "pdf.accessibility.tag.language", "pdf.accessibility.tag.scope"])
+            "pdf.accessibility.tag.actual-text", "pdf.accessibility.tag.language", "pdf.accessibility.tag.scope",
+            "pdf.accessibility.table.row-span", "pdf.accessibility.table.column-span", "pdf.accessibility.table.replace-headers"])
         present(.advanced("signatures")); try await capture("solicitar-assinaturas")
         present(.advanced("automation")); try await capture("automacao")
         for mode in [ProductionMode.preflight, .bates, .measure, .pdfx] {
@@ -630,17 +631,47 @@ enum MacPreview {
               let hash = inspected["input_sha256"] as? String, LibraryFiles.validHash(hash),
               let nodes = inspected["nodes"] as? [[String: Any]],
               let node = nodes.first(where: { $0["role"] as? String == "P" && $0["page"] as? Int == 1 }),
-              let identity = node["id"] as? String else {
+              let identity = node["id"] as? String,
+              let dataNode = nodes.first(where: { $0["role"] as? String == "P" && $0["page"] as? Int == 2 }),
+              let dataIdentity = dataNode["id"] as? String else {
             throw MacPreview.failure(30, "A inspeção real não recuperou a tag da amostra acessível.")
         }
-        let expected = ["title": "Prazo de entrega", "alt": "Cabeçalho da coluna com o prazo de entrega.",
+        let expectedAttributes = ["title": "Prazo de entrega", "alt": "Cabeçalho da coluna com o prazo de entrega.",
                         "actual_text": "Prazo de entrega em dias úteis", "language": "pt-BR", "scope": "Column"]
-        var edit: [String: Any] = expected
+        var edit: [String: Any] = expectedAttributes
         edit["id"] = identity; edit["role"] = "TH"
         MacPreview.trace("accessibility fixture: apply real TH attributes")
-        let prepared = try await previewOperation("accessibility-remediate", source: tagged,
-            output: directory.appendingPathComponent("Cabeçalho com atributos.pdf"),
-            options: ["input_sha256": hash, "edits": [edit]])
+        let rows = try await previewOperation("accessibility-remediate", source: tagged,
+            output: directory.appendingPathComponent("Linhas acessíveis.pdf"),
+            options: ["input_sha256": hash, "edits": [edit, ["id": dataIdentity, "role": "TD"]],
+                      "groups": [["children": [identity], "role": "TR"], ["children": [dataIdentity], "role": "TR"]]])
+        let rowsInspection = try await previewOperation("accessibility-inspect", source: rows,
+            output: directory.appendingPathComponent("Linhas acessíveis.json"), options: [:])
+        guard let rowReport = try JSONSerialization.jsonObject(with: Data(contentsOf: rowsInspection)) as? [String: Any],
+              let rowNodes = rowReport["nodes"] as? [[String: Any]],
+              let rowHash = rowReport["input_sha256"] as? String, LibraryFiles.validHash(rowHash) else {
+            throw MacPreview.failure(30, "A inspeção não recuperou as linhas estruturais reais.")
+        }
+        let rowIDs = rowNodes.filter { $0["role"] as? String == "TR" }.compactMap { $0["id"] as? String }
+        guard rowIDs.count == 2 else { throw MacPreview.failure(30, "A amostra precisa conter exatamente duas linhas TR.") }
+        let prepared = try await previewOperation("accessibility-remediate", source: rows,
+            output: directory.appendingPathComponent("Tabela com cabeçalho associado.pdf"),
+            options: ["input_sha256": rowHash, "groups": [["children": rowIDs, "role": "Table"]],
+                      "edits": [["id": identity, "row_span": 1, "column_span": 2],
+                                ["id": dataIdentity, "row_span": 1, "column_span": 2, "headers": [identity]]]])
+        let tableInspection = try await previewOperation("accessibility-inspect", source: prepared,
+            output: directory.appendingPathComponent("Tabela com cabeçalho associado.json"), options: [:])
+        guard let tableReport = try JSONSerialization.jsonObject(with: Data(contentsOf: tableInspection)) as? [String: Any],
+              let tableNodes = tableReport["nodes"] as? [[String: Any]],
+              let header = tableNodes.first(where: { $0["id"] as? String == identity }),
+              let cell = tableNodes.first(where: { $0["id"] as? String == dataIdentity }),
+              let tableID = header["table_id"] as? String, cell["table_id"] as? String == tableID,
+              cell["headers"] as? [String] == [identity], header["row_span"] as? Int == 1,
+              header["column_span"] as? Int == 2, cell["column_span"] as? Int == 2 else {
+            throw MacPreview.failure(30, "A inspeção real não confirmou as extensões e a associação TH da amostra.")
+        }
+        var expected = expectedAttributes
+        expected["row_span"] = "1"; expected["column_span"] = "2"; expected["headers"] = ""
         let expectedHash = LibraryFiles.hash(try Data(contentsOf: prepared))
         // The view obtains its own report from the production inspection action.
         // This callback resumes only after its actual selected fields are loaded.

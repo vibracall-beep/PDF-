@@ -77,7 +77,8 @@ class PreviewArtifactTests(unittest.TestCase):
     def test_accessibility_tag_fields_require_all_five_named_controls(self):
         name='PDF-preview.corrigir-acessibilidade.accessibility.json'
         expected={'pdf.accessibility.tag.title','pdf.accessibility.tag.alt','pdf.accessibility.tag.actual-text',
-                  'pdf.accessibility.tag.language','pdf.accessibility.tag.scope'}
+                  'pdf.accessibility.tag.language','pdf.accessibility.tag.scope',
+                  'pdf.accessibility.table.row-span','pdf.accessibility.table.column-span','pdf.accessibility.table.replace-headers'}
         self.assertEqual(preview.REQUIRED_AX[name],expected)
         for identifier in sorted(expected):
             with self.subTest(identifier=identifier):

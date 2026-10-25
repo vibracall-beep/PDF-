@@ -1,0 +1,176 @@
+{
+  "activeProcessorCount" : 3,
+  "applicationVersion" : "0.7.0",
+  "architecture" : "arm64",
+  "createdAt" : "2026-10-25T18:48:23Z",
+  "energyMeasurement" : "Não coletada. Tempo de CPU é medido por getrusage; filhos incluem somente processos já recolhidos. CPU não equivale a energia, ocupação da GPU ou uso do Neural Engine.",
+  "fixture" : "text-and-vector-v1",
+  "graphicsDevice" : "Apple Paravirtual device",
+  "lowPowerMode" : false,
+  "lowPowerModeAtEnd" : false,
+  "lowPowerModeAtStart" : false,
+  "methodology" : "Processo dedicado pelo aplicativo; arquivo de entrada copiado para pasta privada e removido ao terminar; uma execução de aquecimento e repetições sequenciais. Não limpa caches. Pico de RSS inclui geração\/leitura da amostra, aquecimento e todas as operações. A amostra sintética contém texto e vetores; use o mesmo arquivo e SHA-256 para comparações entre Macs. O nome da GPU identifica disponibilidade, não mede ocupação nem uso do Neural Engine. Erros de uma operação são registrados, não convertidos em tempos zero.",
+  "metrics" : [
+    {
+      "detail" : "Abrir o arquivo e resolver primeira e última página; cache do sistema preservado.",
+      "id" : "open",
+      "name" : "Abrir documento",
+      "processCPUMilliseconds" : [
+        0.22100000000000364,
+        0.15500000000000114,
+        0.22800000000000864
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        0.262334,
+        0.155375,
+        0.226625
+      ]
+    },
+    {
+      "detail" : "Percorrer o texto de todas as páginas.",
+      "id" : "extract",
+      "name" : "Extrair texto",
+      "processCPUMilliseconds" : [
+        5.0639999999999645,
+        5.212999999999965,
+        5.074000000000012
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        5.063125,
+        5.216458,
+        5.071458
+      ]
+    },
+    {
+      "detail" : "Termo fixo: benchmark; 100 ocorrências na amostra selecionada.",
+      "id" : "search",
+      "name" : "Buscar no documento",
+      "processCPUMilliseconds" : [
+        1.271000000000015,
+        1.2490000000000236,
+        1.2139999999999986
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        1.270167,
+        1.249375,
+        1.213375
+      ]
+    },
+    {
+      "detail" : "Primeira, central e última página; miniatura de até 1.200 × 1.600 pontos.",
+      "id" : "render",
+      "name" : "Renderizar páginas",
+      "processCPUMilliseconds" : [
+        5.0190000000000055,
+        4.8139999999999645,
+        4.764999999999986
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        5.01825,
+        4.813334,
+        4.763166
+      ]
+    },
+    {
+      "detail" : "Core Image com contexto Metal quando disponível; mesma primeira página.",
+      "id" : "contrast",
+      "name" : "Processar imagem",
+      "processCPUMilliseconds" : [
+        5.31899999999996,
+        4.492000000000019,
+        4.997000000000014
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        13.1485,
+        10.895625,
+        10.31925
+      ]
+    },
+    {
+      "detail" : "OCR local na primeira página, inglês. Cada amostra identifica o motor usado. O tempo inclui tentativas e processos auxiliares; a memória é somente do processo principal, sem somar os filhos. Não mede utilização da NPU.",
+      "id" : "ocr",
+      "name" : "Reconhecer texto",
+      "ocrSamples" : [
+        {
+          "backend" : "apple-vision"
+        },
+        {
+          "backend" : "apple-vision"
+        },
+        {
+          "backend" : "apple-vision"
+        }
+      ],
+      "ocrWarmup" : {
+        "backend" : "apple-vision"
+      },
+      "processCPUMilliseconds" : [
+        1552.0819999999999,
+        1615.17,
+        1607.759
+      ],
+      "reapedChildrenCPUMilliseconds" : [
+        0,
+        0,
+        0
+      ],
+      "samplesMilliseconds" : [
+        1593.904584,
+        1642.734917,
+        1646.598292
+      ]
+    }
+  ],
+  "operatingSystem" : "Version 26.6.2 (Build 25G83)",
+  "pageCount" : 100,
+  "physicalMemoryBytes" : 7516192768,
+  "processPeakMemoryBytes" : 301744128,
+  "processor" : "Apple M1 (Virtual)",
+  "repetitions" : 3,
+  "resourcePolicy" : {
+    "constrained" : false,
+    "memoryBudgetBytes" : 2505397589,
+    "mode" : "balanced",
+    "threadsPerWorker" : 1,
+    "workerCount" : 2
+  },
+  "resourcePolicyAtStart" : {
+    "constrained" : false,
+    "memoryBudgetBytes" : 2505397589,
+    "mode" : "balanced",
+    "threadsPerWorker" : 1,
+    "workerCount" : 2
+  },
+  "schemaVersion" : 1,
+  "sourceBytes" : 198313,
+  "sourceName" : "Amostra sintética PDF v1",
+  "sourceSHA256" : "b7cc65b374ef8a6341166fea937422a2cf879d7a132b0e9088b04ca34a62a631",
+  "thermalLevelAtEnd" : 0,
+  "thermalLevelAtStart" : 0,
+  "virtualization" : "Virtualização detectada nos indicadores do sistema."
+}

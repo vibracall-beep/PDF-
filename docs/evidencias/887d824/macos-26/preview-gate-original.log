@@ -1,0 +1,178 @@
+﻿2026-10-25T18:48:07.6713640Z ##[group]Run python3 scripts/check_preview_artifacts.py "$RUNNER_TEMP"
+2026-10-25T18:48:07.6714730Z [36;1mpython3 scripts/check_preview_artifacts.py "$RUNNER_TEMP"[0m
+2026-10-25T18:48:07.7270610Z shell: /bin/bash -e {0}
+2026-10-25T18:48:07.7270960Z ##[endgroup]
+2026-10-25T18:48:08.2567440Z Preview artifact failure: PDF-preview.corrigir-acessibilidade.accessibility.json: accessibility checker failed
+2026-10-25T18:48:08.2569430Z PDF-preview.png: PNG 1050 × 772
+2026-10-25T18:48:08.2917510Z Preview artifact failure: PDF-preview.menus.accessibility.json: required node identifiers missing: pdf.menus.quick-add, pdf.menus.quick-title
+2026-10-25T18:48:08.2918720Z PDF-preview.leitor.png: PNG 1050 × 772
+2026-10-25T18:48:08.3147710Z Preview artifact failure: PDF-preview.menus.accessibility.json: accessibility checker failed
+2026-10-25T18:48:08.3148470Z PDF-preview.abas.png: PNG 1050 × 772
+2026-10-25T18:48:08.3281660Z PDF-preview.lado-a-lado.png: PNG 1050 × 772
+2026-10-25T18:48:08.3383310Z PDF-preview.anotacoes.png: PNG 1050 × 772
+2026-10-25T18:48:08.3485670Z PDF-preview.recuperacao.png: PNG 1050 × 772
+2026-10-25T18:48:08.3584840Z PDF-preview.personalizar.png: PNG 1050 × 752
+2026-10-25T18:48:08.3688020Z PDF-preview.ferramentas.png: PNG 1050 × 752
+2026-10-25T18:48:08.3769960Z PDF-preview.navegacao.png: PNG 1050 × 752
+2026-10-25T18:48:08.3771930Z PDF-preview.opcoes-leitura.png: PNG 1050 × 752
+2026-10-25T18:48:08.3773880Z PDF-preview.arquivos.png: PNG 1050 × 752
+2026-10-25T18:48:08.3774340Z PDF-preview.escuro.png: PNG 1050 × 772
+2026-10-25T18:48:08.3774950Z PDF-preview.lista.png: PNG 1050 × 772
+2026-10-25T18:48:08.3775510Z PDF-preview.configuracao-ferramenta.png: PNG 1050 × 772
+2026-10-25T18:48:08.3776000Z PDF-preview.fluxo-lote.png: PNG 1050 × 752
+2026-10-25T18:48:08.3776500Z PDF-preview.assinatura-digital.png: PNG 1050 × 752
+2026-10-25T18:48:08.3777260Z PDF-preview.verificar-assinaturas.png: PNG 1050 × 752
+2026-10-25T18:48:08.3777820Z PDF-preview.validar-pdfa.png: PNG 1050 × 752
+2026-10-25T18:48:08.3778340Z PDF-preview.auditar-pdfua.png: PNG 1050 × 752
+2026-10-25T18:48:08.3778790Z PDF-preview.atalhos.png: PNG 1050 × 752
+2026-10-25T18:48:08.3779200Z PDF-preview.perfis.png: PNG 1050 × 752
+2026-10-25T18:48:08.3780230Z PDF-preview.menus.png: PNG 1050 × 752
+2026-10-25T18:48:08.3780690Z PDF-preview.paleta.png: PNG 1050 × 752
+2026-10-25T18:48:08.3781010Z PDF-preview.editor-conteudo.png: PNG 1050 × 752
+2026-10-25T18:48:08.3781460Z PDF-preview.revisao-ocr.png: PNG 1050 × 752
+2026-10-25T18:48:08.3781910Z PDF-preview.biblioteca.png: PNG 1050 × 752
+2026-10-25T18:48:08.3782260Z PDF-preview.corrigir-acessibilidade.png: PNG 1050 × 752
+2026-10-25T18:48:08.3782800Z PDF-preview.solicitar-assinaturas.png: PNG 1050 × 752
+2026-10-25T18:48:08.3783260Z PDF-preview.automacao.png: PNG 1050 × 752
+2026-10-25T18:48:08.3783850Z PDF-preview.producao-print-preflight.png: PNG 1050 × 752
+2026-10-25T18:48:08.3784260Z PDF-preview.producao-bates.png: PNG 1050 × 752
+2026-10-25T18:48:08.3784620Z PDF-preview.producao-measure.png: PNG 1050 × 752
+2026-10-25T18:48:08.3785020Z PDF-preview.producao-pdfx.png: PNG 1050 × 752
+2026-10-25T18:48:08.3785510Z PDF-preview.accessibility.json: 425 nodes, 0 failures, 11 controls to review
+2026-10-25T18:48:08.3786500Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 99)
+2026-10-25T18:48:08.3787250Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 100)
+2026-10-25T18:48:08.3788100Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 101)
+2026-10-25T18:48:08.3788900Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 102)
+2026-10-25T18:48:08.3789610Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 103)
+2026-10-25T18:48:08.3790580Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 104)
+2026-10-25T18:48:08.3792160Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 105)
+2026-10-25T18:48:08.3792920Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 107)
+2026-10-25T18:48:08.3793780Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 113)
+2026-10-25T18:48:08.3795380Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 114)
+2026-10-25T18:48:08.3796210Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 116)
+2026-10-25T18:48:08.3796830Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3797660Z PDF-preview.anotacoes.accessibility.json: 626 nodes, 0 failures, 27 controls to review
+2026-10-25T18:48:08.3798360Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 49)
+2026-10-25T18:48:08.3799070Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 50)
+2026-10-25T18:48:08.3799820Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 51)
+2026-10-25T18:48:08.3800560Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 52)
+2026-10-25T18:48:08.3801480Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 53)
+2026-10-25T18:48:08.3802130Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 54)
+2026-10-25T18:48:08.3802770Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 55)
+2026-10-25T18:48:08.3803410Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 57)
+2026-10-25T18:48:08.3804070Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 128)
+2026-10-25T18:48:08.3804790Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 129)
+2026-10-25T18:48:08.3805430Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 130)
+2026-10-25T18:48:08.3806090Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 131)
+2026-10-25T18:48:08.3806740Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 132)
+2026-10-25T18:48:08.3807380Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 133)
+2026-10-25T18:48:08.3808130Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 134)
+2026-10-25T18:48:08.3808800Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 136)
+2026-10-25T18:48:08.3809450Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 171)
+2026-10-25T18:48:08.3810100Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 172)
+2026-10-25T18:48:08.3810790Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 173)
+2026-10-25T18:48:08.3811460Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 174)
+2026-10-25T18:48:08.3812120Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 175)
+2026-10-25T18:48:08.3812770Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 176)
+2026-10-25T18:48:08.3813670Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 177)
+2026-10-25T18:48:08.3814350Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 179)
+2026-10-25T18:48:08.3814990Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 188)
+2026-10-25T18:48:08.3815640Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 189)
+2026-10-25T18:48:08.3816290Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 193)
+2026-10-25T18:48:08.3816840Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3817350Z PDF-preview.biblioteca.accessibility.json: 235 nodes, 0 failures, 6 controls to review
+2026-10-25T18:48:08.3818000Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 17)
+2026-10-25T18:48:08.3818680Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 19)
+2026-10-25T18:48:08.3819320Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 21)
+2026-10-25T18:48:08.3819960Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 58)
+2026-10-25T18:48:08.3821830Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 59)
+2026-10-25T18:48:08.3822540Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 63)
+2026-10-25T18:48:08.3823100Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3823850Z PDF-preview.corrigir-acessibilidade.accessibility.json: 260 nodes, 4 failures, 11 controls to review
+2026-10-25T18:48:08.3824590Z   unnamed-app-control: Interactive element has no exposed label, title, placeholder, or text child. (node 53)
+2026-10-25T18:48:08.3825260Z   unnamed-app-control: Public AX client returned an interactive app element without an accessible name. (node 242)
+2026-10-25T18:48:08.3825790Z   unnamed-app-control: pdf.accessibility.group.role (node 53)
+2026-10-25T18:48:08.3826180Z   unnamed-app-control: pdf.accessibility.group.role (node 242)
+2026-10-25T18:48:08.3826800Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 59)
+2026-10-25T18:48:08.3827660Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 60)
+2026-10-25T18:48:08.3828390Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 61)
+2026-10-25T18:48:08.3829130Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 62)
+2026-10-25T18:48:08.3829780Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 63)
+2026-10-25T18:48:08.3830480Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 64)
+2026-10-25T18:48:08.3831790Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 65)
+2026-10-25T18:48:08.3832460Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 67)
+2026-10-25T18:48:08.3833090Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 70)
+2026-10-25T18:48:08.3833930Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 71)
+2026-10-25T18:48:08.3834770Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 75)
+2026-10-25T18:48:08.3835450Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3837160Z PDF-preview.lado-a-lado.accessibility.json: 679 nodes, 0 failures, 27 controls to review
+2026-10-25T18:48:08.3837920Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 49)
+2026-10-25T18:48:08.3838600Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 50)
+2026-10-25T18:48:08.3839270Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 51)
+2026-10-25T18:48:08.3839970Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 52)
+2026-10-25T18:48:08.3841480Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 53)
+2026-10-25T18:48:08.3842240Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 54)
+2026-10-25T18:48:08.3842950Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 55)
+2026-10-25T18:48:08.3843620Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 57)
+2026-10-25T18:48:08.3844300Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 132)
+2026-10-25T18:48:08.3845720Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 133)
+2026-10-25T18:48:08.3847290Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 134)
+2026-10-25T18:48:08.3847990Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 135)
+2026-10-25T18:48:08.3848650Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 136)
+2026-10-25T18:48:08.3849340Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 137)
+2026-10-25T18:48:08.3850130Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 138)
+2026-10-25T18:48:08.3861610Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 140)
+2026-10-25T18:48:08.3862430Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 190)
+2026-10-25T18:48:08.3863070Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 191)
+2026-10-25T18:48:08.3863760Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 192)
+2026-10-25T18:48:08.3864440Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 193)
+2026-10-25T18:48:08.3865140Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 194)
+2026-10-25T18:48:08.3865840Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 195)
+2026-10-25T18:48:08.3866480Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 196)
+2026-10-25T18:48:08.3867140Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 198)
+2026-10-25T18:48:08.3867950Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 214)
+2026-10-25T18:48:08.3870410Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 215)
+2026-10-25T18:48:08.3872440Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 219)
+2026-10-25T18:48:08.3873930Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3876830Z PDF-preview.leitor.accessibility.json: 514 nodes, 0 failures, 19 controls to review
+2026-10-25T18:48:08.3878430Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 46)
+2026-10-25T18:48:08.3880190Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 47)
+2026-10-25T18:48:08.3882040Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 48)
+2026-10-25T18:48:08.3884650Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 49)
+2026-10-25T18:48:08.3886460Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 50)
+2026-10-25T18:48:08.3887170Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 51)
+2026-10-25T18:48:08.3887840Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 52)
+2026-10-25T18:48:08.3888490Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 54)
+2026-10-25T18:48:08.3889240Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 124)
+2026-10-25T18:48:08.3890370Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 125)
+2026-10-25T18:48:08.3891110Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 126)
+2026-10-25T18:48:08.3891830Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 127)
+2026-10-25T18:48:08.3892570Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 128)
+2026-10-25T18:48:08.3893380Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 129)
+2026-10-25T18:48:08.3894160Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 130)
+2026-10-25T18:48:08.3894920Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 132)
+2026-10-25T18:48:08.3895670Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 143)
+2026-10-25T18:48:08.3897710Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 144)
+2026-10-25T18:48:08.3900070Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 148)
+2026-10-25T18:48:08.3900920Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3902680Z PDF-preview.menus.accessibility.json: 758 nodes, 7 failures, 11 controls to review
+2026-10-25T18:48:08.3904750Z   unnamed-app-control: Interactive element has no exposed label, title, placeholder, or text child. (node 53)
+2026-10-25T18:48:08.3906490Z   unnamed-app-control: Public AX client returned an interactive app element without an accessible name. (node 614)
+2026-10-25T18:48:08.3907380Z   missing-required-identifier: pdf.menus.quick-title (node -)
+2026-10-25T18:48:08.3908180Z   missing-required-identifier: pdf.menus.quick-add (node -)
+2026-10-25T18:48:08.3909610Z   missing-required-identifier: pdf.menus.quick-title, pdf.menus.quick-add (node -)
+2026-10-25T18:48:08.3910410Z   unnamed-app-control: pdf.customization.menus (node 53)
+2026-10-25T18:48:08.3911010Z   unnamed-app-control: pdf.customization.menus (node 614)
+2026-10-25T18:48:08.3911800Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 184)
+2026-10-25T18:48:08.3913190Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 185)
+2026-10-25T18:48:08.3916810Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 186)
+2026-10-25T18:48:08.3917940Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 187)
+2026-10-25T18:48:08.3919650Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 188)
+2026-10-25T18:48:08.3920760Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 189)
+2026-10-25T18:48:08.3921840Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 190)
+2026-10-25T18:48:08.3924050Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 192)
+2026-10-25T18:48:08.3925980Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 196)
+2026-10-25T18:48:08.3928850Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 197)
+2026-10-25T18:48:08.3931080Z   unnamed-control-review: Interactive element has no exposed label, title, placeholder, or text child. (node 201)
+2026-10-25T18:48:08.3933060Z   VoiceOver interaction, contrast and PDF reading order require separate checks.
+2026-10-25T18:48:08.3941030Z ##[error]Process completed with exit code 1.

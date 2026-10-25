@@ -1,5 +1,6 @@
 import SwiftUI
 import PDFKit
+import AppKit
 
 struct OCRCorrectionState {
     private(set) var values: [String: String] = [:]
@@ -23,25 +24,51 @@ struct OCRCorrectionState {
 
 struct OCRReviewView: View {
     @EnvironmentObject private var model: Workspace
-    @StateObject private var controller: AdvancedDocumentController
-    @State private var page = 1
-    @State private var selection: String?
-    @State private var recognition: OCRRecognitionConfiguration
-    @State private var corrections = OCRCorrectionState()
-    @State private var replacement = ""
-    @State private var lowConfidenceOnly = false
-    @State private var confidenceThreshold = 80.0
-    @State private var validation = ""
-    @MainActor init(controller: AdvancedDocumentController? = nil) {
-        let value = controller ?? AdvancedDocumentController()
-        _controller = StateObject(wrappedValue: value)
-        _recognition = State(initialValue: value.review?.recognitionConfiguration ?? OCRRecognitionConfiguration())
+    private let initialController: AdvancedDocumentController?
+    @MainActor init(controller: AdvancedDocumentController? = nil) { initialController = controller }
+    var body: some View {
+        OCRReviewWorkspace(session: model.toolDrafts.session(id: "ocr-review") { OCRReviewSession(controller: initialController) })
+            .environmentObject(model)
     }
-    private var allPageWords: [OCRReviewWord] { controller.review?.words.filter { $0.page == page } ?? [] }
-    private var visibleWords: [OCRReviewWord] { allPageWords.filter { !lowConfidenceOnly || $0.confidence * 100 < confidenceThreshold } }
-    private var selected: OCRReviewWord? { controller.review?.words.first { $0.id == selection } }
-    private var pendingRecognitionChanges: Bool {
-        controller.review.map { recognition != $0.recognitionConfiguration } ?? false
+}
+
+private struct OCRReviewWorkspace: View {
+    @EnvironmentObject private var model: Workspace
+    @ObservedObject private var session: OCRReviewSession
+    @ObservedObject private var controller: AdvancedDocumentController
+    @MainActor init(session: OCRReviewSession) { self.session = session; self.controller = session.controller }
+    private var page: Int { session.page }
+    private var recognition: OCRRecognitionConfiguration { session.recognition }
+    private var buffer: OCRReviewBuffer { session.buffer }
+    private var lowConfidenceOnly: Bool { session.lowConfidenceOnly }
+    private var confidenceThreshold: Double { session.confidenceThreshold }
+    private var validation: String { get { session.validation } nonmutating set { session.validation = newValue } }
+    private var visibleWords: [OCRReviewWord] { session.visibleWords }
+    private var selected: OCRReviewWord? { session.selected }
+    private var pendingRecognitionChanges: Bool { session.pendingRecognitionChanges }
+    private var selectionBinding: Binding<String?> { Binding(get: { session.selection }, set: { session.select($0) }) }
+    private var pageBinding: Binding<Int> { Binding(get: { page }, set: { session.changePage($0) }) }
+    private var replacementBinding: Binding<String> { Binding(get: { session.replacement }, set: { session.setReplacement($0) }) }
+    private var filterBinding: Binding<Bool> { Binding(get: { lowConfidenceOnly }, set: {
+        session.retainCurrent(); session.lowConfidenceOnly = $0; session.selectFirstWord()
+    }) }
+    private var confidenceBinding: Binding<Double> { Binding(get: { confidenceThreshold }, set: {
+        session.retainCurrent(); session.confidenceThreshold = $0; session.selectFirstWord()
+    }) }
+    private func recognize() {
+        if session.hasUnexportedCorrections {
+            let alert = NSAlert()
+            alert.messageText = "Reconhecer novamente e descartar esta revisão?"
+            alert.informativeText = "Há correções OCR ainda não exportadas. Você pode manter a revisão para exportar primeiro ou substituí-la por um novo reconhecimento."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "Manter revisão")
+            alert.addButton(withTitle: "Reconhecer novamente")
+            guard alert.runModal() == .alertSecondButtonReturn else { return }
+        }
+        if controller.load(model: model, ocr: true, language: recognition.language,
+                           deskew: recognition.deskew, segmentation: recognition.segmentation) {
+            session.resetForAcceptedLoad()
+        }
     }
     var body: some View {
         GeometryReader { geometry in
@@ -54,6 +81,7 @@ struct OCRReviewView: View {
                 }
                 Spacer()
                 Button("Abrir PDF…") { model.open() }.disabled(controller.working || model.busy)
+                    .help("Abre o documento no leitor. Use Reconhecer versão salva para iniciar uma nova revisão OCR.")
             }
             Text(controller.review == nil ? "Opções de reconhecimento" : "Opções para reconhecer novamente").font(.headline)
             ViewThatFits(in: .horizontal) {
@@ -61,18 +89,14 @@ struct OCRReviewView: View {
                 VStack(alignment: .leading, spacing: 10) { languagePicker; layoutPicker }
             }.disabled(controller.working)
             HStack {
-                Button("Reconhecer versão salva") {
-                    if controller.load(model: model, ocr: true, language: recognition.language,
-                                       deskew: recognition.deskew, segmentation: recognition.segmentation) {
-                        page = 1; selection = nil; corrections.reset(); replacement = ""; validation = ""
-                    }
-                }.buttonStyle(.borderedProminent).disabled(model.document == nil || model.busy || controller.working)
+                Button("Reconhecer versão salva") { recognize() }
+                    .buttonStyle(.borderedProminent).disabled(model.document == nil || model.busy || controller.working)
                 Spacer()
-                if controller.review != nil {
+                if session.review != nil {
                     Button("Exportar PDF pesquisável…") { export() }.disabled(controller.working || model.busy)
                 }
             }
-            Toggle("Compensar pequena inclinação durante o reconhecimento", isOn: $recognition.deskew)
+            Toggle("Compensar pequena inclinação durante o reconhecimento", isOn: $session.recognition.deskew)
                 .disabled(controller.working)
                 .help("Compensa até 7° quando há evidência suficiente em uma grade ou em várias linhas de texto. Páginas ambíguas permanecem sem rotação. A imagem original fica intacta; reconheça novamente para aplicar a opção.")
             if pendingRecognitionChanges {
@@ -81,19 +105,19 @@ struct OCRReviewView: View {
             }
             Text("Use um PDF digitalizado sem texto selecionável. Confira cada trecho contra a imagem. A exportação mantém a página original e aplica uma camada de texto invisível; a imagem impressa não muda com as correções.")
                 .font(.callout).foregroundStyle(.secondary)
-            if let review = controller.review, let document = controller.preview {
+            if let review = session.review, let document = controller.preview {
                 ContentReviewActions {
-                    Picker("Página", selection: $page) { ForEach(review.pages) { Text("\($0.page)").tag($0.page) } }.frame(width: 150)
-                    Toggle("Mostrar apenas baixa confiança", isOn: $lowConfidenceOnly)
+                    Picker("Página", selection: pageBinding) { ForEach(review.pages) { Text("\($0.page)").tag($0.page) } }.frame(width: 150)
+                    Toggle("Mostrar apenas baixa confiança", isOn: filterBinding)
                     if lowConfidenceOnly {
                         HStack {
-                            Slider(value: $confidenceThreshold, in: 0...100, step: 5).frame(width: 110).accessibilityLabel("Limite de confiança OCR")
+                            Slider(value: confidenceBinding, in: 0...100, step: 5).frame(width: 110).accessibilityLabel("Limite de confiança OCR")
                             Text("< \(Int(confidenceThreshold))%").monospacedDigit()
                         }
                     }
                     ContentReviewActions {
-                        Text("\(PortugueseCount.label(corrections.values.count, "correção", "correções"))").foregroundStyle(.secondary)
-                        Button("Descartar correções") { corrections.reset(); updateSelection() }.disabled(corrections.values.isEmpty)
+                        Text("\(PortugueseCount.label(buffer.modifiedIDs.count, "correção", "correções"))").foregroundStyle(.secondary)
+                        Button("Descartar correções") { session.discardAll() }.disabled(!buffer.hasChanges || controller.working)
                     }
                 }
                 ContentReviewWorkspace(availableHeight: geometry.size.height,
@@ -101,8 +125,8 @@ struct OCRReviewView: View {
                     ContentPagePreview(document: document, page: review.pages[page - 1], regions: visibleWords.map {
                         ContentPreviewRegion(id: $0.id, rect: $0.rect,
                             label: "OCR: \($0.text), confiança \(Int($0.confidence * 100)) por cento",
-                            changed: corrections.values[$0.id] != nil, warning: $0.confidence * 100 < confidenceThreshold)
-                    }, selection: $selection)
+                            changed: buffer.contains($0.id), warning: $0.confidence * 100 < confidenceThreshold)
+                    }, selection: selectionBinding)
                 } inspector: {
                     VStack(alignment: .leading, spacing: 12) {
                         Text("Palavras reconhecidas").font(.headline).fixedSize(horizontal: false, vertical: true)
@@ -110,11 +134,11 @@ struct OCRReviewView: View {
                             .font(.caption).foregroundStyle(.secondary)
                         Text("Motor: \(review.backend)" + (review.recognitionConfiguration.deskew ? " · compensação de inclinação solicitada" : ""))
                             .font(.caption).foregroundStyle(.secondary)
-                        List(visibleWords, selection: $selection) { word in
+                        List(visibleWords, selection: selectionBinding) { word in
                             HStack(alignment: .top) {
                                 VStack(alignment: .leading, spacing: 3) {
-                                    Text(corrections.values[word.id] ?? word.text).lineLimit(3)
-                                    if corrections.values[word.id] != nil { Text("Original: \(word.text)").font(.caption).foregroundStyle(.secondary).lineLimit(2) }
+                                    Text(buffer.value(for: word)).lineLimit(3)
+                                    if buffer.contains(word.id) { Text("Original: \(word.text)").font(.caption).foregroundStyle(.secondary).lineLimit(2) }
                                 }
                                 Spacer()
                                 Text("\(Int(word.confidence * 100))%").font(.caption.monospacedDigit()).foregroundStyle(word.confidence * 100 < confidenceThreshold ? Color.orange : Color.secondary)
@@ -123,12 +147,12 @@ struct OCRReviewView: View {
                         if let selected {
                             Text("Original: \(selected.text)").font(.callout).textSelection(.enabled)
                                 .fixedSize(horizontal: false, vertical: true)
-                            TextEditor(text: $replacement).frame(height: 120).border(.quaternary)
+                            TextEditor(text: replacementBinding).frame(height: 120).border(.quaternary).disabled(controller.working)
                                 .accessibilityLabel("Correção do trecho OCR selecionado")
                             ContentReviewActions {
-                                Button("Guardar correção") { saveCorrection(selected) }.buttonStyle(.borderedProminent)
-                                Button("Restaurar original") { corrections.remove(selected.id); updateSelection() }
-                                    .disabled(corrections.values[selected.id] == nil)
+                                Button("Guardar correção") { saveCorrection() }.buttonStyle(.borderedProminent)
+                                Button("Restaurar original") { session.restoreSelected() }
+                                    .disabled(!buffer.contains(selected.id))
                             }.disabled(controller.working)
                         } else { Text("Selecione uma palavra na lista ou na página para corrigir o texto.").foregroundStyle(.secondary) }
                     }
@@ -148,21 +172,13 @@ struct OCRReviewView: View {
             }
         }.padding(24)
         }
-        }.onChange(of: selection) { _, _ in updateSelection() }
-            .onAppear { selectFirstWord() }
-            .onChange(of: controller.review?.recognitionConfiguration) { _, value in
-                if let value { recognition = value }
-            }
-            .onChange(of: controller.review?.review_sha256 ?? controller.review?.source_sha256) { _, _ in selectFirstWord() }
-            .onChange(of: page) { _, _ in selection = nil; selectFirstWord() }
-            .onChange(of: lowConfidenceOnly) { _, _ in selectFirstWord() }
-            .onChange(of: confidenceThreshold) { _, _ in selectFirstWord() }
-            .onDisappear { controller.close(model: model) }
+        }.onAppear { session.synchronizeReview() }
+            .onChange(of: controller.review?.review_sha256 ?? controller.review?.source_sha256) { _, _ in session.synchronizeReview() }
     }
     private var languagePicker: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Idioma do OCR").font(.callout)
-            Picker("Idioma do OCR", selection: $recognition.language) {
+            Picker("Idioma do OCR", selection: $session.recognition.language) {
                 Text("Português + inglês").tag("por+eng"); Text("Português").tag("por")
                 Text("Inglês").tag("eng"); Text("Espanhol").tag("spa")
                 if !["por+eng", "por", "eng", "spa"].contains(recognition.language) {
@@ -174,7 +190,7 @@ struct OCRReviewView: View {
     private var layoutPicker: some View {
         VStack(alignment: .leading, spacing: 4) {
             Text("Organização do texto").font(.callout)
-            Picker("Organização do texto", selection: $recognition.segmentation) {
+            Picker("Organização do texto", selection: $session.recognition.segmentation) {
                 Text("Página automática").tag(3)
                 Text("Bloco de texto uniforme").tag(6)
                 Text("Texto esparso").tag(11)
@@ -185,20 +201,18 @@ struct OCRReviewView: View {
                 .help("Página automática separa títulos, colunas e corpo. Bloco uniforme trata a página como um único bloco. Texto esparso procura trechos separados; confira a ordem de leitura.")
         }.frame(minWidth: 240, maxWidth: 330, alignment: .leading)
     }
-    private func updateSelection() { replacement = selected.map { corrections.values[$0.id] ?? $0.text } ?? ""; validation = "" }
-    private func selectFirstWord() {
-        if !visibleWords.contains(where: { $0.id == selection }) {
-            selection = visibleWords.min(by: { $0.confidence < $1.confidence })?.id
-            updateSelection()
-        }
-    }
-    private func saveCorrection(_ word: OCRReviewWord) {
-        do { try corrections.set(replacement, for: word); validation = "Correção guardada para exportação." }
+    private func saveCorrection() {
+        do { try session.prepareSelected() }
         catch { validation = error.localizedDescription }
     }
     private func export() {
-        guard let review = controller.review else { return }
-        do { controller.apply(model: model, edits: [], corrections: try corrections.payload(words: review.words)) }
+        do {
+            let corrections = try session.prepareExport()
+            let identity = try session.planIdentity()
+            controller.apply(model: model, edits: [], corrections: corrections, completion: { result in
+                if case .success = result { session.didExport(identity) }
+            })
+        }
         catch { validation = error.localizedDescription }
     }
 }

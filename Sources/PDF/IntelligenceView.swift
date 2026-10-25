@@ -659,7 +659,13 @@ struct LocalIntelligenceView: View {
             defer { working = false; operation = nil }
             do {
                 try Task.checkCancellation()
-                let blocks = try await LayoutExtraction.blocks(from: source)
+                // Freeze the exact reader revision before suspending for extraction or
+                // generation. The path on disk may have been replaced since opening.
+                guard documentKey == key else { throw CancellationError() }
+                let snapshot = try await TranslationSourceSnapshot.capture(document: document)
+                var handedToEngine = false
+                defer { if !handedToEngine { snapshot.remove() } }
+                let blocks = try await LayoutExtraction.blocks(from: snapshot.url)
                 guard !blocks.isEmpty else { status = "Nenhum bloco de texto encontrado. Execute OCR primeiro."; return }
                 var edits: [[String: Any]] = []
                 var completed: [String] = []
@@ -675,7 +681,7 @@ struct LocalIntelligenceView: View {
                         translated.append(try IntelligenceText.validatedResponse(response.content))
                     }
                     let text = translated.joined(separator: "\n")
-                    edits.append(["id": block.id, "page": block.page, "rect": block.rect, "text": text,
+                    edits.append(["id": block.id, "source_sha256": block.source_sha256, "page": block.page, "rect": block.rect, "text": text,
                                   "font_size": block.font_size, "color": block.color, "source_text": block.text])
                     completed.append("### Página \(block.page) · bloco \(index + 1)\n\n" + text)
                     resultReferences.append(SourceReference(excerpt: block.id, page: block.page, quote: String(block.text.prefix(240))))
@@ -685,8 +691,12 @@ struct LocalIntelligenceView: View {
                 try Task.checkCancellation()
                 guard documentKey == key else { throw CancellationError() }
                 guard !model.busy else { status = "Outro processamento está em curso. As traduções de texto foram preservadas para exportação; execute novamente quando terminar."; return }
-                model.execute(operation: "translate-layout", inputs: [source], output: destination,
-                              options: ["edits": edits, "min_font_size": 8], title: "Gerando PDF traduzido")
+                // Completion owns the private input until the engine finishes or
+                // refuses the job; cancellation of generation removes it above.
+                handedToEngine = true
+                model.execute(operation: "translate-layout", inputs: [snapshot.url], output: destination,
+                              options: ["edits": edits, "min_font_size": 8], title: "Gerando PDF traduzido",
+                              completion: { _ in snapshot.remove() })
                 status = "Tradução concluída. O motor está aplicando os blocos e verificando o encaixe; acompanhe o resultado na barra de estado."
             } catch is CancellationError { status = "Tradução cancelada. Nenhum PDF foi publicado; os blocos concluídos continuam disponíveis para exportação." }
             catch { status = "Tradução interrompida: \(error.localizedDescription). Os blocos concluídos foram preservados." }
@@ -784,13 +794,136 @@ struct LocalIntelligenceView: View {
 }
 #endif
 
+/// A translation must read the displayed revision, never reopen a mutable source URL.
+/// Protected PDFs are refused before serialization: no decrypted temporary is created.
+final class TranslationSourceSnapshot {
+    let url: URL
+    private let directory: URL
+
+    @MainActor static func capture(document: PDFDocument) async throws -> TranslationSourceSnapshot {
+        try Task.checkCancellation()
+        guard !document.isEncrypted, !document.isLocked else {
+            throw NSError(domain: "PDF.TranslationLayout", code: 3, userInfo: [NSLocalizedDescriptionKey:
+                "Desbloqueie uma cópia explicitamente antes de traduzir um PDF protegido."])
+        }
+        // The shared serializer captures the reader baseline before invoking
+        // PDFKit and validates structure, Unicode, fields and page appearance.
+        let prepared = try NativePDFSerialization.prepare(document: document)
+        let cancellation = NativeCancellation()
+        let worker = Task.detached(priority: .userInitiated) {
+            try NativePDFSerialization.finish(prepared, cancellation: cancellation)
+        }
+        let data = try await withTaskCancellationHandler(operation: {
+            try await worker.value
+        }, onCancel: { cancellation.cancel(); worker.cancel() })
+        try Task.checkCancellation()
+        return try TranslationSourceSnapshot(verifiedData: data)
+    }
+
+    private init(verifiedData data: Data) throws {
+        guard !data.isEmpty, data.count <= 256 * 1024 * 1024 else {
+            throw NSError(domain: "PDF.TranslationLayout", code: 3, userInfo: [NSLocalizedDescriptionKey:
+                "A revisão aberta excedeu o limite de 256 MiB para tradução."])
+        }
+        directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-translation-source-\(UUID().uuidString)", isDirectory: true)
+        url = directory.appendingPathComponent("source.pdf")
+        try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        do { try NativeOutput.write(data, to: url) }
+        catch { try? FileManager.default.removeItem(at: directory); throw error }
+    }
+    func remove() { try? FileManager.default.removeItem(at: directory) }
+    deinit { try? FileManager.default.removeItem(at: directory) }
+
+    @MainActor static func runAuditChecks() throws {
+        func require(_ condition: Bool, _ detail: String) throws {
+            guard condition else { throw NSError(domain: "PDF.TranslationLayout", code: 4,
+                userInfo: [NSLocalizedDescriptionKey: detail]) }
+        }
+        let buffer = NSMutableData()
+        guard let consumer = CGDataConsumer(data: buffer as CFMutableData),
+              let context = CGContext(consumer: consumer, mediaBox: nil, nil) else {
+            throw NSError(domain: "PDF.TranslationLayout", code: 5)
+        }
+        context.beginPDFPage(nil); context.endPDFPage(); context.closePDF()
+        guard let opened = PDFDocument(data: buffer as Data), let replacement = PDFDocument(data: buffer as Data) else {
+            throw NSError(domain: "PDF.TranslationLayout", code: 6)
+        }
+        opened.documentAttributes = [PDFDocumentAttribute.titleAttribute: "Revisão aberta"]
+        replacement.documentAttributes = [PDFDocumentAttribute.titleAttribute: "Arquivo substituído"]
+        let source = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-translation-external-\(UUID().uuidString).pdf")
+        defer { try? FileManager.default.removeItem(at: source) }
+        guard let original = opened.dataRepresentation(), let changed = replacement.dataRepresentation() else {
+            throw NSError(domain: "PDF.TranslationLayout", code: 7)
+        }
+        try NativeOutput.write(original, to: source)
+        // Replace the source before capture, matching the previously unprotected interval.
+        try changed.write(to: source, options: .atomic)
+        let verified = try NativePDFSerialization.finish(NativePDFSerialization.prepare(document: opened))
+        let snapshot = try Self(verifiedData: verified)
+        defer { snapshot.remove() }
+        let captured = try LibraryFiles.read(snapshot.url, maximum: 256 * 1024 * 1024)
+        let title = PDFDocument(data: captured)?.documentAttributes?[PDFDocumentAttribute.titleAttribute] as? String
+        try require(title == "Revisão aberta", "A tradução capturou uma revisão diferente da aberta.")
+        try require(try Data(contentsOf: source) == changed, "A captura alterou o arquivo externo.")
+        for (url, permission) in [(snapshot.url, 0o600), (snapshot.directory, 0o700)] {
+            let attributes = try FileManager.default.attributesOfItem(atPath: url.path)
+            try require((attributes[.posixPermissions] as? NSNumber)?.intValue == permission,
+                        "A cópia da tradução não ficou restrita ao usuário.")
+        }
+        snapshot.remove()
+        try require(!FileManager.default.fileExists(atPath: snapshot.directory.path), "A captura não removeu a cópia privada.")
+    }
+}
+
 struct TranslationLayoutBlock: Codable {
     let id: String
+    let source_sha256: String
     let page: Int
     let rect: [Double]
     let text: String
     let font_size: Double
     let color: String
+
+    static func validate(_ blocks: [Self]) throws {
+        guard blocks.count <= 100_000, Set(blocks.map(\.id)).count == blocks.count,
+              Set(blocks.map(\.source_sha256)).count <= 1,
+              blocks.allSatisfy({ block in
+                  block.source_sha256.range(of: "^[0-9a-f]{64}$", options: .regularExpression) != nil &&
+                  block.page > 0 && block.id.range(of: "^p\(block.page)-b[0-9]+$", options: .regularExpression) != nil &&
+                  block.rect.count == 4 && block.rect.allSatisfy(\.isFinite) &&
+                  block.rect[0] < block.rect[2] && block.rect[1] < block.rect[3] &&
+                  block.font_size.isFinite && block.font_size > 0 && block.font_size <= 1000 &&
+                  block.color.range(of: "^#[0-9a-fA-F]{6}$", options: .regularExpression) != nil &&
+                  !block.text.isEmpty && block.text.utf8.count <= 16 * 1024 * 1024 && !block.text.utf8.contains(0)
+              }), blocks.reduce(0, { $0 + $1.text.utf8.count }) <= 16 * 1024 * 1024 else {
+            throw NSError(domain: "PDF.TranslationLayout", code: 1, userInfo: [NSLocalizedDescriptionKey:
+                "A análise da tradução não contém blocos válidos vinculados à mesma versão do PDF. Extraia o layout novamente."])
+        }
+    }
+    @MainActor static func runAuditChecks() throws {
+        try TranslationSourceSnapshot.runAuditChecks()
+        let original: [String: Any] = ["id": "p1-b0", "source_sha256": String(repeating: "a", count: 64),
+            "page": 1, "rect": [20.0, 30.0, 300.0, 90.0], "text": "Ação e\u{301} preservada",
+            "font_size": 12, "color": "#102030"]
+        func decode(_ values: [[String: Any]]) throws -> [Self] {
+            try JSONDecoder().decode([Self].self, from: JSONSerialization.data(withJSONObject: values))
+        }
+        try validate(decode([original])); try validate([])
+        var candidates: [[[String: Any]]] = [[original, original]]
+        for (key, value) in [("source_sha256", "" as Any), ("source_sha256", String(repeating: "A", count: 64)),
+                             ("page", 2), ("rect", [30, 30, 20, 90]), ("font_size", 0), ("color", "red")] {
+            var changed = original; changed[key] = value; candidates.append([changed])
+        }
+        var other = original; other["id"] = "p1-b1"; other["source_sha256"] = String(repeating: "b", count: 64)
+        candidates.append([original, other])
+        var legacy = original; legacy.removeValue(forKey: "source_sha256"); candidates.append([legacy])
+        for candidate in candidates {
+            var refused = false
+            do { try validate(decode(candidate)) } catch { refused = true }
+            guard refused else { throw NSError(domain: "PDF.TranslationLayout", code: 2,
+                userInfo: [NSLocalizedDescriptionKey: "A auditoria aceitou blocos sem vínculo íntegro à origem."]) }
+        }
+    }
 }
 
 private final class LayoutExtractionCancellation: @unchecked Sendable {
@@ -864,7 +997,9 @@ private enum LayoutExtraction {
                             let raw = String(data: bytes, encoding: .utf8) ?? "Falha na extração de blocos."
                             throw NSError(domain: "PDF", code: Int(exit.status), userInfo: [NSLocalizedDescriptionKey: String(raw.suffix(2_000))])
                         }
-                        let blocks = try JSONDecoder().decode([TranslationLayoutBlock].self, from: Data(contentsOf: output))
+                        let blocks = try JSONDecoder().decode([TranslationLayoutBlock].self, from: LibraryFiles.read(output, maximum: 32 * 1024 * 1024))
+                        try TranslationLayoutBlock.validate(blocks)
+                        try cancellation.check()
                         continuation.resume(returning: blocks)
                     } catch { continuation.resume(throwing: error) }
                 }

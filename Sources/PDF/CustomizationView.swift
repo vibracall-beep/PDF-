@@ -120,7 +120,10 @@ struct CustomizationView:View {
                     HStack {
                         Image(systemName:"line.3.horizontal").foregroundStyle(.secondary).draggable("pdf-customize-tool:"+tool.id).help("Arrastar para reordenar").accessibilityLabel("Arrastar "+preferences.title(for:tool))
                         Toggle("Mostrar",isOn:Binding(get:{ !preferences.state.hiddenTools.contains(tool.id) },set:{ visible in setMembership(tool.id,in:&preferences.state.hiddenTools,included:!visible) })).labelsHidden().accessibilityLabel("Mostrar " + preferences.title(for:tool))
-                        TextField(tool.name,text:Binding(get:{ preferences.title(for:tool) },set:{ value in if value.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty || value == tool.name { preferences.state.toolTitles.removeValue(forKey:tool.id) } else { preferences.state.toolTitles[tool.id] = String(value.prefix(60)) } })).textFieldStyle(.roundedBorder)
+                        PreferenceNameField("Nome de "+tool.name,value:Binding(get:{ preferences.title(for:tool) },set:{ value in
+                            if value == tool.name { preferences.state.toolTitles.removeValue(forKey:tool.id) }
+                            else { preferences.state.toolTitles[tool.id] = value }
+                        }),maximum:60,fallback:tool.name)
                         iconPicker(value:Binding(get:{ preferences.icon(for:tool) },set:{ preferences.state.toolIcons[tool.id] = $0 }),original:tool.icon,label:"Ícone de " + preferences.title(for:tool))
                         Button { reorderTool(index,index-1) } label:{ Image(systemName:"arrow.up") }.disabled(index == 0).accessibilityLabel("Mover " + preferences.title(for:tool) + " para cima")
                         Button { reorderTool(index,index+1) } label:{ Image(systemName:"arrow.down") }.disabled(index == ordered.count-1).accessibilityLabel("Mover " + preferences.title(for:tool) + " para baixo")
@@ -146,7 +149,7 @@ struct CustomizationView:View {
                 HStack {
                     Image(systemName:"line.3.horizontal").foregroundStyle(.secondary).draggable("pdf-customize-sidebar:"+item.id).help("Arrastar para reordenar").accessibilityLabel("Arrastar "+item.label)
                     Toggle("Mostrar",isOn:Binding(get:{ preferences.state.sidebar[index].visible },set:{ preferences.state.sidebar[index].visible = $0 })).labelsHidden().disabled(item.id == "Início").accessibilityLabel("Mostrar " + item.label)
-                    TextField(item.id,text:Binding(get:{ preferences.state.sidebar[index].label },set:{ preferences.state.sidebar[index].label = $0.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty ? item.id : String($0.prefix(40)) })).textFieldStyle(.roundedBorder)
+                    PreferenceNameField("Nome da seção "+item.id,value:Binding(get:{ preferences.state.sidebar[index].label },set:{ preferences.state.sidebar[index].label = $0 }),maximum:40,fallback:item.id)
                     iconPicker(value:Binding(get:{ preferences.state.sidebar[index].icon },set:{ preferences.state.sidebar[index].icon = $0 }),original:item.icon,label:"Ícone da seção " + item.label)
                     Button { preferences.state.sidebar.swapAt(index,index-1) } label:{ Image(systemName:"arrow.up") }.disabled(index == 0).accessibilityLabel("Mover " + item.label + " para cima")
                     Button { preferences.state.sidebar.swapAt(index,index+1) } label:{ Image(systemName:"arrow.down") }.disabled(index == preferences.state.sidebar.count-1).accessibilityLabel("Mover " + item.label + " para baixo")

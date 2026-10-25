@@ -1,0 +1,704 @@
+{
+  "attempts": {
+    "12610341296": {
+      "id": 12610341296,
+      "name": "PDF-local-AI-xcode-27",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 2184,
+      "githubDigest": "sha256:50f658a29da5d0c7ff9ed3b5db1940f5069c21a0406f7940bdec211cfc124de9",
+      "attemptedAt": 1792954534.7146044,
+      "downloaded": true,
+      "archiveSHA256": "50f658a29da5d0c7ff9ed3b5db1940f5069c21a0406f7940bdec211cfc124de9",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-local-AI-xcode-27",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-local-ai.json",
+          "bytes": 7660,
+          "sha256": "0a7d281270fe09ea02d236991dc9fa692bf9f0b32d7d9a2f4b59b5702643db20"
+        }
+      ]
+    },
+    "12610176901": {
+      "id": 12610176901,
+      "name": "PDF-Apple-Vision-capability-xcode-27",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 2079,
+      "githubDigest": "sha256:7490e319f13c66fb84cc5718714459ec91aa6a9dc380c0f7550cee2fac7ecc4f",
+      "attemptedAt": 1792954535.2358987,
+      "downloaded": true,
+      "archiveSHA256": "7490e319f13c66fb84cc5718714459ec91aa6a9dc380c0f7550cee2fac7ecc4f",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-Apple-Vision-capability-xcode-27",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-vision-audit.json",
+          "bytes": 1621,
+          "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc"
+        },
+        {
+          "name": "PDF-vision-audit.log",
+          "bytes": 7815,
+          "sha256": "88d236060ed6090073446f532989ea22f60d387de73e184f7103f9cdd4ab655f"
+        }
+      ]
+    },
+    "12610151736": {
+      "id": 12610151736,
+      "name": "PDF-native-checks-xcode-27",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 14777,
+      "githubDigest": "sha256:4502487576c6a704202fb96b3d62470b6a925e6ad930ebc60c50488160e7e732",
+      "attemptedAt": 1792954535.7196534,
+      "downloaded": true,
+      "archiveSHA256": "4502487576c6a704202fb96b3d62470b6a925e6ad930ebc60c50488160e7e732",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-native-checks-xcode-27",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-native-checks.log",
+          "bytes": 338332,
+          "sha256": "9ad7a04c0f6824023bb9891f818743d1c32ee868e0539878a9ee3de1664802ff"
+        }
+      ]
+    },
+    "12610142074": {
+      "id": 12610142074,
+      "name": "PDF-macOS-benchmark-xcode-27",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 2218,
+      "githubDigest": "sha256:4e65907e0236e595d0c2024b193eb1438cc757543714fc933504ab96b5baeab5",
+      "attemptedAt": 1792954536.0457244,
+      "downloaded": true,
+      "archiveSHA256": "4e65907e0236e595d0c2024b193eb1438cc757543714fc933504ab96b5baeab5",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-macOS-benchmark-xcode-27",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-benchmark.json",
+          "bytes": 8528,
+          "sha256": "063c592c150e176db57110a86ebc9e2fb01bd2c3937aead834db509f61ea2bb2"
+        }
+      ]
+    },
+    "12610126989": {
+      "id": 12610126989,
+      "name": "PDF-macOS-preview-xcode-27",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 3400338,
+      "githubDigest": "sha256:d37807012ead51261d5d1871db1955acbc6772176696f9c991c4dd855fc55fe5",
+      "attemptedAt": 1792954536.5623503,
+      "downloaded": true,
+      "archiveSHA256": "d37807012ead51261d5d1871db1955acbc6772176696f9c991c4dd855fc55fe5",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-macOS-preview-xcode-27",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-preview.abas.png",
+          "bytes": 118946,
+          "sha256": "742d86b366e43d12513c7baf2d53764758f6fccac6cac0cce972fc0d2ac6c26d"
+        },
+        {
+          "name": "PDF-preview.accessibility.json",
+          "bytes": 105278,
+          "sha256": "73f2465289aecee41806dc4b4ee9c25de7b486d24eeb41b150b39afdeb0d3432"
+        },
+        {
+          "name": "PDF-preview.anotacoes.accessibility.json",
+          "bytes": 144849,
+          "sha256": "664d86ee6510d6d2ff17451c89b46ed1f2e197fbd625f641b483396691972377"
+        },
+        {
+          "name": "PDF-preview.anotacoes.png",
+          "bytes": 150935,
+          "sha256": "282eecd1a35476b7a03471464e2ccd6a6c31314c9f6b223791d6592c1d080d66"
+        },
+        {
+          "name": "PDF-preview.arquivos.png",
+          "bytes": 78391,
+          "sha256": "1fe95b2fbb936bbf24c1f7dda1cad8f098abd239f8834d408260c855185aaa53"
+        },
+        {
+          "name": "PDF-preview.assinatura-digital.png",
+          "bytes": 86312,
+          "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee"
+        },
+        {
+          "name": "PDF-preview.atalhos.png",
+          "bytes": 76662,
+          "sha256": "ecdcbba75e5e8b2cc12bef7d4102986ebc163243bd7570f7dfa2c7ab01245954"
+        },
+        {
+          "name": "PDF-preview.auditar-pdfua.png",
+          "bytes": 71581,
+          "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+        },
+        {
+          "name": "PDF-preview.automacao.png",
+          "bytes": 96109,
+          "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d"
+        },
+        {
+          "name": "PDF-preview.biblioteca.accessibility.json",
+          "bytes": 52831,
+          "sha256": "695c921ae26ad46bd5e1d650023e5c0ac51d82c9f5bea757771e6d9a15e97c89"
+        },
+        {
+          "name": "PDF-preview.biblioteca.png",
+          "bytes": 114493,
+          "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c"
+        },
+        {
+          "name": "PDF-preview.configuracao-ferramenta.png",
+          "bytes": 89948,
+          "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+          "bytes": 60474,
+          "sha256": "7189d0a87073299897f303b1c842c08bfbd42b468b3354dde4f86f6aa4760a05"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.png",
+          "bytes": 97877,
+          "sha256": "9bd06bdab4982a68d77651f5ebd516dc6a2c534e6dcc70f084b0ae0d84c23645"
+        },
+        {
+          "name": "PDF-preview.editor-conteudo.png",
+          "bytes": 117327,
+          "sha256": "228ac28179b4330c4a6823bcb419e505c4ea7b2397ca636771c3a7fdc34b3de1"
+        },
+        {
+          "name": "PDF-preview.escuro.png",
+          "bytes": 402042,
+          "sha256": "5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3"
+        },
+        {
+          "name": "PDF-preview.ferramentas.png",
+          "bytes": 88831,
+          "sha256": "380ee81e25e8eabeb86018501c18ed6758b9fe7d947a9fafa3402d451ef6952f"
+        },
+        {
+          "name": "PDF-preview.fluxo-lote.png",
+          "bytes": 107998,
+          "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.accessibility.json",
+          "bytes": 151349,
+          "sha256": "70c317ff3c30c66bd5ad44e6ae3c4237a7ca90f123318395a774b7e703e4c277"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.png",
+          "bytes": 132768,
+          "sha256": "ed057d791cb057fc1ef0babe74077534e7d04cd0aa879fd1b5ec2d66eb05f3e1"
+        },
+        {
+          "name": "PDF-preview.leitor.accessibility.json",
+          "bytes": 114668,
+          "sha256": "00b3382327e1ce9848c9271c6571f0a2078a61d0879c5e8beae9b9cf1dc13375"
+        },
+        {
+          "name": "PDF-preview.leitor.png",
+          "bytes": 116420,
+          "sha256": "e4370cf74e1903096bcf6617ca3f5bcb4127f0656fa5db7921c72a7ece16a4c8"
+        },
+        {
+          "name": "PDF-preview.lista.png",
+          "bytes": 92678,
+          "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86"
+        },
+        {
+          "name": "PDF-preview.menus.accessibility.json",
+          "bytes": 187004,
+          "sha256": "cfb058a17cbf721715bc9b3462bc1b7854122a9339598a905e15ced87dce35ac"
+        },
+        {
+          "name": "PDF-preview.menus.png",
+          "bytes": 81204,
+          "sha256": "f723dacc0dea19b2163c2264ea7a32407b88134bb7ae2a51e74b1fd2002674cb"
+        },
+        {
+          "name": "PDF-preview.navegacao.png",
+          "bytes": 81084,
+          "sha256": "e7f314deee4f5513754776080e01c7a0156a679f97b19755e2f0848e48ed8125"
+        },
+        {
+          "name": "PDF-preview.opcoes-leitura.png",
+          "bytes": 86373,
+          "sha256": "488267bd9fd20767f073a661df4ee82378238c0fa584544c4b8f405a2e7891cf"
+        },
+        {
+          "name": "PDF-preview.paleta.png",
+          "bytes": 64648,
+          "sha256": "c8087732640dbb6685f14c7d3c6fd0fb9e6b96e99b9a3b245f8eccf95349feb0"
+        },
+        {
+          "name": "PDF-preview.perfis.png",
+          "bytes": 63822,
+          "sha256": "257a0f5ca24461dc50ec328b6e05708375d7bb5b3ff8963a41cb49cd1b8f8951"
+        },
+        {
+          "name": "PDF-preview.personalizar.png",
+          "bytes": 101366,
+          "sha256": "9243600812fb7d0cb93863ed091667a5ea0fdd8f78f0fb4dadb724f70e28a7c3"
+        },
+        {
+          "name": "PDF-preview.png",
+          "bytes": 348669,
+          "sha256": "85d41c2c713c2a4999e1370413c9c4d32bb9aa68d864a4d7cac4d1be5d30663e"
+        },
+        {
+          "name": "PDF-preview.producao-bates.png",
+          "bytes": 66392,
+          "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f"
+        },
+        {
+          "name": "PDF-preview.producao-measure.png",
+          "bytes": 76071,
+          "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae"
+        },
+        {
+          "name": "PDF-preview.producao-pdfx.png",
+          "bytes": 76823,
+          "sha256": "ba4ec748dd463dc10fcebc8fdfe43c829a2b78719d6ef0cefe2b6edd3bdd306c"
+        },
+        {
+          "name": "PDF-preview.producao-print-preflight.png",
+          "bytes": 75282,
+          "sha256": "700e0df373f5a1527fdcf11078083bb45805acdfc96fbccc36d1b172f5584e3a"
+        },
+        {
+          "name": "PDF-preview.recuperacao.png",
+          "bytes": 69592,
+          "sha256": "df28a567a4f682a1398a2ac58b1e4827608e1400447ebdd1ca43dbfe8994b76b"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.analysis.json",
+          "bytes": 10098,
+          "sha256": "dd1c35d87303c4768b47e17fa601535b91d7097d46ea2587d4cbe839e203e635"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.png",
+          "bytes": 133312,
+          "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.source.pdf",
+          "bytes": 121931,
+          "sha256": "a2c1bf8e0edb2f36ca2764677d839a4e668ae2bf15915111871e7eb95fbb8e1b"
+        },
+        {
+          "name": "PDF-preview.solicitar-assinaturas.png",
+          "bytes": 100763,
+          "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5"
+        },
+        {
+          "name": "PDF-preview.validar-pdfa.png",
+          "bytes": 64131,
+          "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+        },
+        {
+          "name": "PDF-preview.verificar-assinaturas.png",
+          "bytes": 74744,
+          "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17"
+        }
+      ]
+    },
+    "12609882595": {
+      "id": 12609882595,
+      "name": "PDF-native-checks-macos-26",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 8477,
+      "githubDigest": "sha256:cce7a232c5c65ef67c8c645c0582b845ed9a1e0e4974603bc0336d0bfa1f179b",
+      "attemptedAt": 1792954537.463669,
+      "downloaded": true,
+      "archiveSHA256": "cce7a232c5c65ef67c8c645c0582b845ed9a1e0e4974603bc0336d0bfa1f179b",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-native-checks-macos-26",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-native-checks.log",
+          "bytes": 83673,
+          "sha256": "ab86a13e0ea61a8e9a9fd98a133d446755ec870a6f5eec3dc1cf5562deb4f37e"
+        }
+      ]
+    },
+    "12609797815": {
+      "id": 12609797815,
+      "name": "PDF-local-AI-macos-26",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 2182,
+      "githubDigest": "sha256:38edad5ac644d3e8a4963473c6d0bcd68d91ea13c70298c8fa0c8a551f12c54c",
+      "attemptedAt": 1792954537.95275,
+      "downloaded": true,
+      "archiveSHA256": "38edad5ac644d3e8a4963473c6d0bcd68d91ea13c70298c8fa0c8a551f12c54c",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-local-AI-macos-26",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-local-ai.json",
+          "bytes": 7661,
+          "sha256": "878f0ce2d7fee0650a5ef3cb46dbc7312f341b88f1dd98e8a1482de869c8d46c"
+        }
+      ]
+    },
+    "12609748019": {
+      "id": 12609748019,
+      "name": "PDF-Apple-Vision-capability-macos-26",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 887,
+      "githubDigest": "sha256:742b067b5abc399b571219f2cb1c514a79d4c75a9fef4513b2de5110831987e8",
+      "attemptedAt": 1792954538.442308,
+      "downloaded": true,
+      "archiveSHA256": "742b067b5abc399b571219f2cb1c514a79d4c75a9fef4513b2de5110831987e8",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-Apple-Vision-capability-macos-26",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-vision-audit.json",
+          "bytes": 432,
+          "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582"
+        },
+        {
+          "name": "PDF-vision-audit.log",
+          "bytes": 772,
+          "sha256": "084df60fa8e0eb5bc88d71e1138ab2ba93a30f2a944c3109af820986e5d63ec9"
+        }
+      ]
+    },
+    "12609703246": {
+      "id": 12609703246,
+      "name": "PDF-macOS-benchmark-macos-26",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 1884,
+      "githubDigest": "sha256:ee34781a8682112dccc7414c2ad8c8a66ef81bd7082d7177b7d0c894f1abd4d0",
+      "attemptedAt": 1792954538.8840318,
+      "downloaded": true,
+      "archiveSHA256": "ee34781a8682112dccc7414c2ad8c8a66ef81bd7082d7177b7d0c894f1abd4d0",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-macOS-benchmark-macos-26",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-benchmark.json",
+          "bytes": 5144,
+          "sha256": "d795f4b4ab9b1b024f496e1f82a07978d6461d3353ab1ca64c24f13d3801b6f5"
+        }
+      ]
+    },
+    "12609623652": {
+      "id": 12609623652,
+      "name": "PDF-macOS-preview-macos-26",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 3375853,
+      "githubDigest": "sha256:e5425b4d52e3401d3edf354bda0f536be14c37172604fafeda54b875a1bb01e5",
+      "attemptedAt": 1792954539.397912,
+      "downloaded": true,
+      "archiveSHA256": "e5425b4d52e3401d3edf354bda0f536be14c37172604fafeda54b875a1bb01e5",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-macOS-preview-macos-26",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-preview.abas.png",
+          "bytes": 124057,
+          "sha256": "8b59fef2f330cec8b671a1018eecf455e74ed9e5654add5a5032904f40c0df58"
+        },
+        {
+          "name": "PDF-preview.accessibility.json",
+          "bytes": 105739,
+          "sha256": "a43aeff922be9bfe8c81b6991b4aad907659ac445ee93bd5ed67f590f600105e"
+        },
+        {
+          "name": "PDF-preview.anotacoes.accessibility.json",
+          "bytes": 146726,
+          "sha256": "157541ffa1d31ac5e5044108bd7ec589e15e7fe0b9a4022658cbc1e246662aab"
+        },
+        {
+          "name": "PDF-preview.anotacoes.png",
+          "bytes": 155431,
+          "sha256": "a414e0083c73cf27547638b45ebc19bcd888bba45464f45babdc02fbeaf210d4"
+        },
+        {
+          "name": "PDF-preview.arquivos.png",
+          "bytes": 77306,
+          "sha256": "a8fe7b7e3418ce2289d3554b0f1ac3721557ddf082c9a5be59db770509a38b49"
+        },
+        {
+          "name": "PDF-preview.assinatura-digital.png",
+          "bytes": 84324,
+          "sha256": "96bf99a028edac865a2b378330a7459db6638b74598652f9520578bd497eab8b"
+        },
+        {
+          "name": "PDF-preview.atalhos.png",
+          "bytes": 75595,
+          "sha256": "2d251e30325d1edd021bbf6bde1e52a89193509b1493cd68aed9828f81241df3"
+        },
+        {
+          "name": "PDF-preview.auditar-pdfua.png",
+          "bytes": 70265,
+          "sha256": "8dde7c59314eaac2a771225ae9cfaacc33ef574073493719b1aa125a57f0b4bf"
+        },
+        {
+          "name": "PDF-preview.automacao.png",
+          "bytes": 93918,
+          "sha256": "e86301c350608686c653a532d6264cf43a9662bf937fc6a585eb2773e23dab9e"
+        },
+        {
+          "name": "PDF-preview.biblioteca.accessibility.json",
+          "bytes": 56090,
+          "sha256": "6f119490336b566c27a3984dddeaac07aefbc037474d035d942c3a3f14cb6f6f"
+        },
+        {
+          "name": "PDF-preview.biblioteca.png",
+          "bytes": 111884,
+          "sha256": "0ce02953f3b545157bf276a8118b215f9078d68271bb091020afd3c386053f12"
+        },
+        {
+          "name": "PDF-preview.configuracao-ferramenta.png",
+          "bytes": 88095,
+          "sha256": "f0f07f1ea94c10ba3f1d1ed6541260c5248de1e5724b1a4da8fe894d175b338a"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+          "bytes": 63127,
+          "sha256": "9234818f07d57280a2b67e52c4e98b91e05192b6406c691a0284f0119e93c380"
+        },
+        {
+          "name": "PDF-preview.corrigir-acessibilidade.png",
+          "bytes": 96040,
+          "sha256": "24857894bb08a9756d260eb1e08243a543324719155fef19f8011c91a5facb35"
+        },
+        {
+          "name": "PDF-preview.editor-conteudo.png",
+          "bytes": 115289,
+          "sha256": "70033973a044ee722c5b7b8df3aac92979822762c1d06e12f5c29fc9e8ab5916"
+        },
+        {
+          "name": "PDF-preview.escuro.png",
+          "bytes": 399127,
+          "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e"
+        },
+        {
+          "name": "PDF-preview.ferramentas.png",
+          "bytes": 87759,
+          "sha256": "5cf2d8f68b5e42cf83bf7c8235a6dd8628b3201f016dbf3cc46fffbb61bdf5c6"
+        },
+        {
+          "name": "PDF-preview.fluxo-lote.png",
+          "bytes": 105251,
+          "sha256": "7b58ff7ea4801595227f5212141d2c07d2c959f1a5cd56bd31dc8645d505ad0d"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.accessibility.json",
+          "bytes": 158061,
+          "sha256": "503fb1cea1124c0b3f729dfd3e46a8e93245e71d8dde178ce2d210e358cad4bc"
+        },
+        {
+          "name": "PDF-preview.lado-a-lado.png",
+          "bytes": 138433,
+          "sha256": "f9bf140109371164adaa988a0ce52f1bb324f7cffc97336b67b41c45119dc5dd"
+        },
+        {
+          "name": "PDF-preview.leitor.accessibility.json",
+          "bytes": 120716,
+          "sha256": "9623e8fb5c863fc85c73d82b19b4e26172f3a689d7ea1774c1d9a2b293fa5323"
+        },
+        {
+          "name": "PDF-preview.leitor.png",
+          "bytes": 120849,
+          "sha256": "8ff027aefee3ba7d343475457b5f7a82c4bbe589912b5ee714bf6e765623c491"
+        },
+        {
+          "name": "PDF-preview.lista.png",
+          "bytes": 94729,
+          "sha256": "7124ad2c0e5754d2e414f3a8efd47691c45ec6a73f351d6530f0183eea24eadd"
+        },
+        {
+          "name": "PDF-preview.menus.accessibility.json",
+          "bytes": 196481,
+          "sha256": "2896899c71c55f678b319cdfc578c249ea9dc279689b74f0db292ced5a2a5e22"
+        },
+        {
+          "name": "PDF-preview.menus.png",
+          "bytes": 80369,
+          "sha256": "9ad3fd64e2209200d52c192fb49356f16a05353c7aa7e1ebf5955596a086b4a5"
+        },
+        {
+          "name": "PDF-preview.navegacao.png",
+          "bytes": 80150,
+          "sha256": "a9396e2490149fb5cfdcc553d12b652aa8adfabc04952e228b942f76bcfa119f"
+        },
+        {
+          "name": "PDF-preview.opcoes-leitura.png",
+          "bytes": 83941,
+          "sha256": "ecee24a41fd1aad72b3e6cd4d4142d287954316491c36d451806f341e9aaab3f"
+        },
+        {
+          "name": "PDF-preview.paleta.png",
+          "bytes": 63062,
+          "sha256": "2a6e44f58b18e159d88c8489272f4e8cef21bff511353de116b89e424d8cfc61"
+        },
+        {
+          "name": "PDF-preview.perfis.png",
+          "bytes": 62720,
+          "sha256": "12e1789ee3a569602e4701bcf61f1b5f419b526f96ecfb27832f20ca5d3b5df0"
+        },
+        {
+          "name": "PDF-preview.personalizar.png",
+          "bytes": 100235,
+          "sha256": "9191514015309549dd74c2effaf15915a26a86a3304ec950679de795e4e832e5"
+        },
+        {
+          "name": "PDF-preview.png",
+          "bytes": 348716,
+          "sha256": "3abb578412f16ea8aa18059a705644c95e3de889ebaa258d3e04f842cf6f3974"
+        },
+        {
+          "name": "PDF-preview.producao-bates.png",
+          "bytes": 64205,
+          "sha256": "390e8ff9de2e46cc957200e4a94d724b1f092d976c8c6b6363261754563731a7"
+        },
+        {
+          "name": "PDF-preview.producao-measure.png",
+          "bytes": 73628,
+          "sha256": "f23a69b7cc88c88c1fa61ee98d593a62249682e0fb7d51e29a0bb23f37744aa2"
+        },
+        {
+          "name": "PDF-preview.producao-pdfx.png",
+          "bytes": 75044,
+          "sha256": "14ffab59b726bcfbe7dd5fc298b9c47c10b8e4d7d03e21845e1e1e1ea7abefc9"
+        },
+        {
+          "name": "PDF-preview.producao-print-preflight.png",
+          "bytes": 73176,
+          "sha256": "c2630c2ec96c9249bfca7698b5be6b35f30cdabc19c0944cfa39dedd50448fb1"
+        },
+        {
+          "name": "PDF-preview.recuperacao.png",
+          "bytes": 68073,
+          "sha256": "550b70755c33ca9ef2d2e45acc4b15469418cb7e7d9ae62dd882fa54f194a5a9"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.analysis.json",
+          "bytes": 10087,
+          "sha256": "0a727fef1a21b8f1806d7f8b45ad61feaa574e47030f36882479debce7ed058d"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.png",
+          "bytes": 131586,
+          "sha256": "119675073fc4f066dc21427429648e19f2e986f1c375aa089e66a0f9f13e34b4"
+        },
+        {
+          "name": "PDF-preview.revisao-ocr.source.pdf",
+          "bytes": 121986,
+          "sha256": "411ec13fa53fb31b55cef0c1dc082980e787993b25d023be0543396489e0e664"
+        },
+        {
+          "name": "PDF-preview.solicitar-assinaturas.png",
+          "bytes": 99164,
+          "sha256": "ed3153117498882bd7727936d2fecdfb724acd35c5af3aff4a8b4d92d057dafe"
+        },
+        {
+          "name": "PDF-preview.validar-pdfa.png",
+          "bytes": 62268,
+          "sha256": "9cf0bdcf82f346cbb0d9be66deb96101bd1e16cbae361352643b3bd1db8edd30"
+        },
+        {
+          "name": "PDF-preview.verificar-assinaturas.png",
+          "bytes": 73581,
+          "sha256": "9b97ce5fcbe08823e7d29ddc7917089eb14099ebd11e0429bc8d6c1f8c0309f7"
+        }
+      ]
+    },
+    "12611185915": {
+      "id": 12611185915,
+      "name": "PDF-source-unvalidated-xcode-27",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 18094594,
+      "githubDigest": "sha256:85ae73ca8ad6e1f10ba75c58f9af1a05a27e55a58b82e34e0f591efaa28057d4",
+      "attemptedAt": 1792956034.3938975,
+      "downloaded": true,
+      "archiveSHA256": "85ae73ca8ad6e1f10ba75c58f9af1a05a27e55a58b82e34e0f591efaa28057d4",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-source-unvalidated-xcode-27",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-benchmark.json",
+          "bytes": 8528,
+          "sha256": "063c592c150e176db57110a86ebc9e2fb01bd2c3937aead834db509f61ea2bb2"
+        },
+        {
+          "name": "PDF-local-ai.json",
+          "bytes": 7660,
+          "sha256": "0a7d281270fe09ea02d236991dc9fa692bf9f0b32d7d9a2f4b59b5702643db20"
+        },
+        {
+          "name": "PDF-source.tar.gz",
+          "bytes": 18085474,
+          "sha256": "fff177c4ecf923be17711eb3e6d64fe972217c93745535c6a85bba2b8b51151d"
+        },
+        {
+          "name": "PDF-source.tar.gz.sha256",
+          "bytes": 84,
+          "sha256": "4c37f797323a0eae45094e02676c8ad651357ad4bd8d417aeb7c4d34ea073257"
+        },
+        {
+          "name": "PDF-vision-audit.json",
+          "bytes": 1621,
+          "sha256": "f9689ccdb8f75b092eda53444ffc6f68cba0c12fde44731a8343b8f3e1823edc"
+        }
+      ]
+    },
+    "12610478604": {
+      "id": 12610478604,
+      "name": "PDF-source-unvalidated-macos-26",
+      "sourceSHA": "887d82453e08621084635f31434c15ef4b4c76f4",
+      "runID": 40221525855,
+      "archiveBytes": 18093982,
+      "githubDigest": "sha256:455a2c15c4f77bdb328c6cc9bcbd828b214ee108aebf0909250654d7c54fd230",
+      "attemptedAt": 1792956035.6225054,
+      "downloaded": true,
+      "archiveSHA256": "455a2c15c4f77bdb328c6cc9bcbd828b214ee108aebf0909250654d7c54fd230",
+      "directory": "/tmp/pdf-native-887d824/extracted/PDF-source-unvalidated-macos-26",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-benchmark.json",
+          "bytes": 5144,
+          "sha256": "d795f4b4ab9b1b024f496e1f82a07978d6461d3353ab1ca64c24f13d3801b6f5"
+        },
+        {
+          "name": "PDF-local-ai.json",
+          "bytes": 7661,
+          "sha256": "878f0ce2d7fee0650a5ef3cb46dbc7312f341b88f1dd98e8a1482de869c8d46c"
+        },
+        {
+          "name": "PDF-source.tar.gz",
+          "bytes": 18085474,
+          "sha256": "fff177c4ecf923be17711eb3e6d64fe972217c93745535c6a85bba2b8b51151d"
+        },
+        {
+          "name": "PDF-source.tar.gz.sha256",
+          "bytes": 84,
+          "sha256": "4c37f797323a0eae45094e02676c8ad651357ad4bd8d417aeb7c4d34ea073257"
+        },
+        {
+          "name": "PDF-vision-audit.json",
+          "bytes": 432,
+          "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582"
+        }
+      ]
+    }
+  }
+}

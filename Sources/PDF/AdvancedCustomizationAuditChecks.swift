@@ -99,8 +99,104 @@ import SwiftUI
         store.deleteProfile(profileID)
         try check(AdvancedCustomizationStore(defaults:defaults).profiles.isEmpty,"excluir perfil deve persistir sem excluir ajustes atuais")
         try menuAndToolbarRoundTrip()
+        try await sequentialNameEditing()
         try await readerProfileRoundTrip()
         print("Advanced customization audit passed: shortcut conflicts, persistence, profiles, menu/toolbar ordering, hidden-command reachability and atomic legacy import")
+    }
+    private static func sequentialNameEditing() async throws {
+        let suite = "PDF.NameTyping.Audit."+UUID().uuidString
+        let defaults = try require(UserDefaults(suiteName:suite))
+        defer { defaults.removePersistentDomain(forName:suite) }
+        let preferences = AppearancePreferences(defaults:defaults),store = preferences.advanced
+        let name = "Meus documentos revisados"
+        func check(_ value:Bool,_ message:String) throws {
+            guard value else { throw PreferenceError.invalid("Digitação de nomes: "+message) }
+        }
+        func typeName(_ original:String,maximum:Int,publish:(String)throws -> Void) throws {
+            var draft = PreferenceNameDraft(text:original,maximum:maximum)
+            while !draft.text.isEmpty {
+                draft.text.removeLast()
+                if let value = draft.liveValue { try publish(value) }
+            }
+            try check(draft.text.isEmpty && draft.liveValue == nil,"apagar o nome não preservou o campo vazio para nova digitação")
+            var typed = ""
+            for character in name {
+                typed.append(character); draft.text.append(character)
+                let value = try require(draft.liveValue)
+                try publish(value)
+                try check(value.utf8.elementsEqual(typed.utf8),"uma tecla perdeu espaço ou foi substituída pelo valor persistido")
+                if character == " " { try check(value.last == " ","espaço intermediário foi removido antes da próxima tecla") }
+            }
+            draft.text += "  "
+            try check(draft.liveValue?.hasSuffix("  ") == true,"o rascunho normalizou antes de confirmar")
+            try publish(try draft.committedValue(fallback:original))
+            var invalid = PreferenceNameDraft(text:String(repeating:"x",count:maximum+1),maximum:maximum)
+            try check(invalid.liveValue == nil,"um nome muito longo chegou à persistência")
+            var refused = false
+            do { _ = try invalid.committedValue(fallback:original) } catch { refused = true }
+            try check(refused,"confirmar aceitou o nome muito longo")
+            invalid.text = "inválido\u{0000}"
+            try check(invalid.liveValue == nil,"um controle invisível chegou à persistência")
+            invalid.text = "   "
+            try check(try invalid.committedValue(fallback:original) == original,"confirmar vazio não restaurou o nome original")
+        }
+        try typeName(store.menu.quickTitle,maximum:40) { value in var menu = store.menu; menu.quickTitle = value; try store.applyMenu(menu) }
+        try typeName("Converter",maximum:40) { value in var menu = store.menu; menu.categoryTitles["Converter"] = value; try store.applyMenu(menu) }
+        try typeName("Buscar",maximum:80) { value in var menu = store.menu; menu.actionTitles["action:search"] = value; try store.applyMenu(menu) }
+        try typeName("Abrir PDF",maximum:80) { value in var menu = store.menu; menu.actionTitles["action:open"] = value; try store.applyMenu(menu) }
+        try typeName("Juntar PDF",maximum:60) { preferences.state.toolTitles["merge"] = $0 }
+        try typeName(preferences.state.sidebar[0].label,maximum:40) { preferences.state.sidebar[0].label = $0 }
+        var profile = ""
+        for character in "Perfil de revisão local" { profile.append(character) }
+        try store.saveProfile(name:profile,settings:preferences.exportData())
+        let restored = AppearancePreferences(defaults:defaults)
+        try check(restored.advanced.menu.quickTitle == name && restored.advanced.menu.categoryTitles["Converter"] == name &&
+                  restored.advanced.menu.actionTitles["action:search"] == name && restored.advanced.menu.actionTitles["action:open"] == name,
+                  "os nomes de menu digitados sequencialmente não persistiram")
+        try check(restored.state.toolTitles["merge"] == name && restored.state.sidebar[0].label == name,
+                  "nomes de ferramenta e navegação digitados sequencialmente não persistiram")
+        try check(restored.advanced.profiles.first?.name == profile,"o nome do perfil com várias palavras não persistiu")
+        let before = store.menu
+        var invalid = before; invalid.quickTitle = "\n"
+        var refused = false
+        do { try store.applyMenu(invalid) } catch { refused = true }
+        try check(refused && store.menu == before,"a edição interativa enfraqueceu a validação atômica dos menus")
+        // Send sequential insertions through the production NSTextField's
+        // field editor, not only through the value model. This catches setters
+        // that silently trim a space before the next key is inserted.
+        let window = NSWindow(contentRect:NSRect(x:0,y:0,width:900,height:700),styleMask:[.titled],backing:.buffered,defer:false)
+        window.isReleasedWhenClosed = false
+        defer { window.orderOut(nil); window.contentView = nil; window.close() }
+        let host = NSHostingView(rootView:ScrollView { MenuCustomizationControls(store:store).environmentObject(preferences).padding(20) })
+        window.contentView = host; window.makeKeyAndOrderFront(nil)
+        func settle() async {
+            window.contentView?.layoutSubtreeIfNeeded()
+            await withCheckedContinuation { (continuation:CheckedContinuation<Void,Never>) in DispatchQueue.main.async { continuation.resume() } }
+            window.contentView?.layoutSubtreeIfNeeded()
+        }
+        func fields(_ view:NSView) -> [NSTextField] { (view as? NSTextField).map { [$0] } ?? view.subviews.flatMap(fields) }
+        await settle()
+        let deadline = ProcessInfo.processInfo.systemUptime+5
+        while !fields(host).contains(where:{ $0.placeholderString == "Nome do menu de acesso rápido" }) && ProcessInfo.processInfo.systemUptime < deadline {
+            try await Task.sleep(for:.milliseconds(20)); await settle()
+        }
+        let field = try require(fields(host).first { $0.placeholderString == "Nome do menu de acesso rápido" })
+        try check(window.makeFirstResponder(field),"não foi possível focar o campo real de nome do menu")
+        await settle()
+        let editor = try require(field.currentEditor() as? NSTextView)
+        editor.selectAll(nil); editor.insertText("",replacementRange:editor.selectedRange())
+        await settle()
+        try check(editor.string.isEmpty,"o campo real restaurou o nome anterior enquanto era apagado")
+        var typed = ""
+        for character in "Meu menu de trabalho" {
+            typed.append(character)
+            editor.insertText(String(character),replacementRange:editor.selectedRange())
+            await settle()
+            try check(editor.string.utf8.elementsEqual(typed.utf8) && store.menu.quickTitle.utf8.elementsEqual(typed.utf8),
+                      "a digitação sequencial no NSTextField perdeu ou substituiu uma tecla")
+        }
+        window.makeFirstResponder(nil); await settle()
+        try check(AdvancedCustomizationStore(defaults:defaults).menu.quickTitle == typed,"o nome digitado no campo real não persistiu")
     }
     private static func menuAndToolbarRoundTrip() throws {
         let suite = "PDF.MenuBars.Audit." + UUID().uuidString

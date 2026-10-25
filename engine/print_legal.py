@@ -29,7 +29,7 @@ def preflight(source, output, options):
 
 def _preflight_snapshot(source, output, options):
     from pdf_engine import open_pdf, number
-    from print_inspection import inspect_structure, rendered_ink_coverage
+    from print_inspection import inspect_structure, rendered_ink_coverage, UNSAFE_RESOURCE_FINDINGS
     minimum = number(options.get('minimum_dpi', 200), 'Resolução mínima', 36, 2400)
     render_inks = options.get('render_inks', False)
     if not isinstance(render_inks, bool):
@@ -37,6 +37,18 @@ def _preflight_snapshot(source, output, options):
     findings, pages = [], []
     structure = inspect_structure(source, options.get('password', ''))
     findings.extend(structure['findings'])
+    if any(item['code'] in UNSAFE_RESOURCE_FINDINGS for item in findings):
+        # Opening/rendering the same file with another library could expand
+        # the rejected ICC again. Preserve a useful partial structural report
+        # without passing its bytes to MuPDF or Ghostscript in this operation.
+        reason = 'Geometria e renderização não executadas: há perfil ICC ou recurso de impressão inválido, além dos limites ou não inspecionado.'
+        findings.append(dict(page=None, code='print-geometry-not-inspected', detail=reason))
+        _json(output, dict(schema_version=2, source_sha256=hashlib.sha256(Path(source).read_bytes()).hexdigest(),
+                           page_count=len(structure['pages']), minimum_dpi=minimum, pages=[], findings=findings,
+                           output_intents_present=bool(structure['output_intents']), independently_certified=False,
+                           structure=structure, ink_coverage=None, geometry_status='not_inspected',
+                           scope=reason + ' As verificações estruturais registradas não certificam PDF/X.'))
+        return
     with open_pdf(source, options.get('password', '')) as document:
         for index, page in enumerate(document):
             fonts, images = [], []
@@ -75,6 +87,7 @@ def _preflight_snapshot(source, output, options):
                            page_count=len(document), minimum_dpi=minimum, pages=pages, findings=findings,
                            output_intents_present=intent[0] != 'null', independently_certified=False,
                            structure=structure, ink_coverage=coverage,
+                           geometry_status='inspected',
                            scope='Fontes, resolução efetiva, caixas, ICC, tintas especiais e estados de sobreimpressão/transparência declarados. '
                                  'Medição CMYK renderizada quando solicitada. Checks PDF/X enumerados por parser independente; não certifica ISO 15930 nem cor física.'))
 
@@ -115,8 +128,9 @@ def prepare_print(source, output, options):
 
 def pdfx(source, output, options):
     from pdf_engine import open_pdf, _external
-    from print_inspection import read_cmyk_profile, inspect_structure
+    from print_inspection import read_cmyk_profile, inspect_structure, UNSAFE_RESOURCE_FINDINGS
     from pdf_signatures import _snapshot
+    from pyhanko.pdf_utils.misc import PdfError
     data, profile_info = read_cmyk_profile(options.get('icc_profile', ''))
     condition = options.get('output_condition', 'User supplied CMYK printing condition')
     if not isinstance(condition, str) or not re.fullmatch(r'[A-Za-z0-9 ._/-]{1,120}', condition):
@@ -125,6 +139,14 @@ def pdfx(source, output, options):
     if not executable:
         raise RuntimeError('Ghostscript não está instalado.')
     with _snapshot(source) as snapshot, tempfile.TemporaryDirectory(prefix='pdf-print-') as temporary:
+        try:
+            source_inspection = inspect_structure(snapshot, options.get('password', ''))
+        except (PdfError, ValueError, OSError, TypeError, IndexError) as exc:
+            if isinstance(exc, ValueError) and str(exc).startswith('Senha necessária'):
+                raise
+            raise ValueError('Não foi possível inspecionar com segurança a estrutura da origem. Repare uma cópia com a ferramenta Reparar PDF e revise o diagnóstico antes de preparar PDF/X.') from exc
+        if any(item['code'] in UNSAFE_RESOURCE_FINDINGS for item in source_inspection['findings']):
+            raise ValueError('A origem contém perfil ICC não inspecionado ou recurso de impressão inválido, por limite ou formato não suportado. A conversão não foi executada. Repare uma cópia e revise o diagnóstico de impressão antes de preparar PDF/X.')
         with open_pdf(snapshot, options.get('password', '')) as document:
             if document.metadata.get('encryption'):
                 raise ValueError('PDF/X não permite criptografia. Desbloqueie uma cópia explicitamente.')

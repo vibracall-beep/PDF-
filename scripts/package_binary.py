@@ -610,10 +610,16 @@ def sign_if_needed(path, deep=False):
 
 def write_manifest(root, commit):
     files = {}
+    storage = {'schemaVersion': 1, 'distributionBytes': 0, 'bundleBytes': 0,
+               'distributionEntries': 1, 'bundleEntries': 0}
     for path in sorted(root.rglob('*')):
         relative = path.relative_to(root).as_posix()
         if relative == 'manifest.json':
             continue
+        storage['distributionEntries'] += 1
+        bundled = relative == 'PDF.app' or relative.startswith('PDF.app/')
+        if bundled:
+            storage['bundleEntries'] += 1
         if path.is_symlink():
             contained_link(path, os.readlink(path), root)
             files[relative] = {'type': 'symlink', 'target': os.readlink(path)}
@@ -622,10 +628,16 @@ def write_manifest(root, commit):
             with path.open('rb') as stream:
                 for block in iter(lambda: stream.read(1024 * 1024), b''):
                     digest.update(block)
-            files[relative] = {'type': 'file', 'size': path.stat().st_size,
+            size = path.stat().st_size
+            storage['distributionBytes'] += size
+            if bundled:
+                storage['bundleBytes'] += size
+            files[relative] = {'type': 'file', 'size': size,
                                'mode': stat.S_IMODE(path.stat().st_mode), 'sha256': digest.hexdigest()}
+    # The manifest excludes its own byte count to avoid a circular encoding;
+    # the installer adds the authenticated manifest's measured size separately.
     (root / 'manifest.json').write_text(json.dumps({'schemaVersion': 1, 'architecture': 'arm64',
-        'commit': commit, 'files': files}, sort_keys=True, separators=(',', ':')) + '\n')
+        'commit': commit, 'files': files, 'storageRequirements': storage}, sort_keys=True, separators=(',', ':')) + '\n')
 
 
 def archive(root, output):
@@ -634,7 +646,13 @@ def archive(root, output):
         raise FileExistsError('Pacote ou checksum de destino já existe.')
     with output.open('xb') as raw:
         with tarfile.open(fileobj=raw, mode='w:gz', dereference=False) as tar:
-            tar.add(root, arcname='PDF-distribution', recursive=True)
+            # Authenticate once, then let the destination inspect this small
+            # first member before expanding any application/runtime files.
+            tar.add(root, arcname='PDF-distribution', recursive=False)
+            tar.add(root / 'manifest.json', arcname='PDF-distribution/manifest.json', recursive=False)
+            for child in sorted(root.iterdir()):
+                if child.name != 'manifest.json':
+                    tar.add(child, arcname='PDF-distribution/' + child.name, recursive=True)
     digest = hashlib.sha256()
     with output.open('rb') as stream:
         for block in iter(lambda: stream.read(1024 * 1024), b''):

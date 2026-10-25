@@ -239,6 +239,8 @@ struct ProductionToolsView: View {
         let codes = ["font-not-embedded": "Fonte não incorporada", "low-image-resolution": "Imagem abaixo da resolução escolhida", "no-distinct-trim": "Área de corte igual à folha",
                      "invalid-output-intents": "Condição de impressão inválida", "invalid-output-profile": "Perfil ICC de saída inválido", "missing-output-intent": "Condição de impressão ausente",
                      "invalid-color-profile": "Perfil de cor inválido", "registration-color": "Cor de registro em todas as chapas", "spot-inks-declared": "Tintas especiais declaradas",
+                     "uninspected-output-profile": "Perfil de saída não inspecionado: limite ou formato não suportado", "uninspected-color-profile": "Perfil de cor não inspecionado: limite ou formato não suportado",
+                     "print-geometry-not-inspected": "Geometria e renderização não executadas devido a perfil ICC não inspecionado",
                      "overprint-declared": "Sobreimpressão declarada", "transparency-declared": "Transparência declarada", "uninspected-print-resources": "Há recursos não inspecionados",
                      "direct-encryption-dictionary": "Criptografia legada: estrutura estrita não aprovada"]
         var summary = "\(PortugueseCount.label(object["page_count"] as? Int ?? 0, "página analisada", "páginas analisadas")) · \(PortugueseCount.label(findings.count, "observação", "observações"))."

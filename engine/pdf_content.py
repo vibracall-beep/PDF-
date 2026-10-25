@@ -118,6 +118,38 @@ def _font_spec(doc, page, name, fonts=None):
     return None
 
 
+def _embedded_image_profile(doc,xref):
+    """Read an image's actual, possibly indirect, color-space declaration."""
+    from pyhanko.pdf_utils import generic as g
+    value=g.read_object(io.BytesIO((doc.xref_get_key(xref,'ColorSpace')[1]+'\n').encode('utf-8')),g.Reference(xref))
+    seen=set()
+    while isinstance(value,g.IndirectObject):
+        if value.idnum in seen or len(seen)>32: raise ValueError('O espaço de cor da imagem é recursivo.')
+        seen.add(value.idnum)
+        value=g.read_object(io.BytesIO(doc.xref_object(value.idnum).encode('utf-8')),g.Reference(value.idnum))
+    if isinstance(value,g.NameObject): return str(value),None,None
+    if isinstance(value,g.ArrayObject) and len(value)==2 and str(value.raw_get(0))=='/ICCBased' and isinstance(value.raw_get(1),g.IndirectObject):
+        profile=value.raw_get(1).idnum;channels=doc.xref_get_key(profile,'N')
+        if channels[0]!='int' or not doc.xref_is_stream(profile): raise ValueError('O perfil incorporado da imagem não é válido.')
+        return '/ICCBased',int(channels[1]),doc.xref_stream(profile)
+    return 'unsupported',None,None
+
+
+def _replace_image_preserving_order(page,xref,data):
+    """Do not copy an image object onto itself after library deduplication."""
+    doc=page.parent
+    # Layer membership and structure-tree links belong to this placement,
+    # not to the incoming image asset; importing pixels must not discard them.
+    placement={key:doc.xref_get_key(xref,key)[1] for key in ('OC','StructParent')}
+    replacement=page.insert_image(page.rect,stream=data)
+    if replacement!=xref: doc.xref_copy(replacement,xref)
+    for key,value in placement.items(): doc.xref_set_key(xref,key,value)
+    # The insertion only imports the new image resource. Its temporary draw
+    # operation is removed; the original invocation keeps its precise stacking.
+    doc.update_stream(page.get_contents()[-1],b' ')
+    page._image_info=None
+
+
 def _content_paint(doc, index):
     """Exclude annotation appearances from content-stream clipping evidence.
 
@@ -171,12 +203,12 @@ def _paragraph_records(records, source_hash, page, image_areas, vector_areas, in
             substitution_font=first['substitution_font'],member_ids=ids,line_spacing=round(spacing,5),alignment=alignment(lines),
             editable=not limitations,limitations=sorted(set(limitations)))
         entry['id']=_digest([source_hash,'paragraph',page,entry])
-        result.append((entry,dict(font=members[0][1]['font'],member_ids=ids)))
+        result.append((entry,dict(font=members[0][1]['font'],member_ids=ids,source_color=members[0][1].get('source_color'))))
     for blocks in by_block.values():
         group=[]
         for number,records_on_line in sorted(blocks.items()):
             ordered=sorted(records_on_line,key=lambda record:record[0]['rect'][0])
-            styles={(entry['font'],round(entry['font_size'],5),entry['color'],internal['flags']) for entry,internal in ordered}
+            styles={(entry['font'],round(entry['font_size'],5),entry['color'],internal['flags'],internal.get('source_color')) for entry,internal in ordered}
             baselines=[internal['origin'][1] for _,internal in ordered]
             if len(styles)!=1 or max(baselines)-min(baselines)>0.25 or any(_overlap(a[0]['rect'],b[0]['rect']) for a,b in zip(ordered,ordered[1:])):
                 emit(group);group=[];continue
@@ -204,6 +236,9 @@ def _inspect(doc, source_hash, pages):
         page_reports.append(dict(page=index+1,width=bounds.width,height=bounds.height,rotation=page.rotation,
             cropbox=_numbers(page.cropbox)))
         traces,paint,drawings,raw=_content_paint(doc,index)
+        from pdf_vector_state import prove as prove_graphics_state
+        text_color_proof=prove_graphics_state(doc,page,paint,include_text=True)
+        graphics_proof=prove_graphics_state(doc,page,paint)
         def restricts_page(drawing):
             if drawing['type']!='clip': return False
             items=drawing.get('items',[])
@@ -241,6 +276,9 @@ def _inspect(doc, source_hash, pages):
                         limitations.append('later-object-overlap')
                     if span.get('alpha',255)!=255 or any((t['type']!=0 or t.get('opacity',1)!=1) and _overlap(rect,t['bbox']) for t in traces):
                         limitations.append('nonstandard-or-invisible-text-rendering')
+                    colors={text_color_proof.get(sequence) for sequence in sequences} if text_color_proof is not None else set()
+                    source_color=next(iter(colors)) if len(colors)==1 and None not in colors else None
+                    if source_color is None: limitations.append('content-graphics-state-unproven')
                     key=(_font_name(span['font']),tuple(font[0] for font in fonts if _font_name(font[3])==_font_name(span['font'])))
                     if key not in font_cache: font_cache[key]=_font_spec(doc,page,span['font'],fonts)
                     spec=font_cache[key]
@@ -248,7 +286,7 @@ def _inspect(doc, source_hash, pages):
                         font_size=span['size'],color=f"#{span['color']:06x}",
                         font_status='original' if spec else 'substitution-required',substitution_font='MuPDF Unicode fallback (sans-serif)',limitations=limitations)
                     text_records.append((entry,dict(font=spec,chars=[tuple(c['bbox']) for c in span['chars']],
-                        block=block_number,line=line_number,origin=span['origin'],flags=span['flags'],base_limitations=list(limitations))))
+                        block=block_number,line=line_number,origin=span['origin'],flags=span['flags'],source_color=source_color,base_limitations=list(limitations))))
                     if len(text_records)>10000: raise ValueError('A página excede 10.000 trechos de texto. Use uma página ou região menos complexa.')
         active=[];overlapping=set();comparisons=0
         for position in sorted(range(len(text_records)),key=lambda offset:text_records[offset][0]['rect'][1]):
@@ -271,19 +309,26 @@ def _inspect(doc, source_hash, pages):
             elif image_uses[xref]!=1: limitations.append('shared-image-object')
             if abs(matrix.b)>0.0001 or abs(matrix.c)>0.0001 or matrix.a<=0 or matrix.d<=0: limitations.append('rotated-skewed-or-reflected-image')
             if not bounds.contains(rect): limitations.append('image-outside-visible-page')
-            if xref and any(doc.xref_get_key(xref,key)[0]!='null' for key in ('SMask','Mask')): limitations.append('image-mask')
+            if xref and (any(doc.xref_get_key(xref,key)[0]!='null' for key in ('SMask','Mask')) or doc.xref_get_key(xref,'ImageMask')==('bool','true')): limitations.append('image-mask')
             if any(_overlap(rect,area) for area in interactive): limitations.append('interactive-overlap')
             if pending: limitations.append('pending-redaction')
+            # Moving/deleting changes the image xref. Without a proved structure
+            # rewrite, an OBJR/ParentTree could retain a stale Figure reference.
+            structured=doc.xref_get_key(doc.pdf_catalog(),'StructTreeRoot')[0]!='null' or (xref and doc.xref_get_key(xref,'StructParent')[0]!='null')
+            actions=['replace'] if structured else (['replace','delete'] if clipped or unusual_group or graphics_proof is None else ['replace','move','delete'])
             entry=dict(kind='image',page=index+1,rect=_numbers(rect),width=info['width'],height=info['height'],
-                editable=not limitations,limitations=limitations,supported_actions=['replace','delete'] if clipped or unusual_group else ['replace','move','delete'])
+                editable=not limitations,limitations=limitations,supported_actions=actions)
             entry['id']=_digest([source_hash,'image',index,position,xref,entry])
-            objects.append(entry);private[entry['id']]=dict(xref=xref,clipped=clipped or unusual_group)
-        vectors=[drawing['rect']+(-0.5,-0.5,0.5,0.5) for drawing in page.get_drawings()]
+            objects.append(entry);private[entry['id']]=dict(xref=xref,clipped=clipped or unusual_group or graphics_proof is None)
+        vectors=[area for kind,area in paint if kind in ('fill-path','stroke-path')]
+        from pdf_vector_content import inspect as inspect_vectors
+        for entry,internal in inspect_vectors(page,index,source_hash,drawings,paint,interactive,clipped,unusual_group,pending):
+            objects.append(entry);private[entry['id']]=internal
         for entry,internal in _paragraph_records(text_records,source_hash,index,[info['bbox'] for info in image_info],vectors,interactive):
             objects.append(entry);private[entry['id']]=internal
         if len(objects)>OBJECT_LIMIT: raise ValueError('O PDF excede 100.000 objetos inspecionáveis. Selecione menos páginas.')
     return dict(version=1,source_sha256=source_hash,page_count=len(doc),pages=page_reports,objects=objects,
-        limitations=['Only isolated horizontal text runs, homogeneous consecutive paragraph groups and uniquely placed axis-aligned images are editable.',
+        limitations=['Only isolated horizontal text runs, homogeneous consecutive paragraph groups, uniquely placed axis-aligned images and isolated rectangle/axis-aligned line primitives are editable.',
                      'Font substitution requires explicit consent; arbitrary content-stream reconstruction is not claimed.']),private
 
 
@@ -327,8 +372,13 @@ def _text_plan(doc, entry, internal, edit):
     if tracking and (spec is None or any(unicodedata.bidirectional(char) in ('R','AL','AN') or
         unicodedata.category(char).startswith('M') or char in '\u200c\u200d\t' for char in text)):
         raise ValueError('O espaçamento entre caracteres exige uma fonte disponível e texto sem composição complexa ou tabulações.')
+    requested_color=edit.get('color',entry['color']);ink=engine.color(requested_color);color_profile=None
+    if isinstance(requested_color,str) and requested_color.casefold()==entry['color'].casefold() and internal.get('source_color'):
+        ink=internal['source_color'][1]
+        source_space=internal['source_color'][0]
+        if isinstance(source_space,tuple) and source_space[0]=='/ICCBased': color_profile=doc.xref_stream(source_space[2])
     return dict(text=text,rect=rect,size=size,align=('left','center','right','justify').index(alignment),
-        ink=engine.color(edit.get('color',entry['color'])),font=spec,substitution=substitution,
+        ink=ink,font=spec,substitution=substitution,color_profile=color_profile,
         character_spacing=tracking,paragraph=entry['kind']=='paragraph',
         line_spacing=engine.number(edit.get('line_spacing',entry.get('line_spacing',1.5)),'Espaçamento',1,3))
 
@@ -402,13 +452,26 @@ def _prove_spaced_text(plan, tag):
 
 
 def _place_text(page, plan, tag):
+    first_xref=page.parent.xref_length()
+    _place_text_body(page,plan,tag)
+    if plan.get('color_profile') is not None:
+        from pdf_vector_state import preserve_generated_color_profile
+        expected=tuple(round(value*255)/255 for value in plan['ink']) if plan['font'] is None and len(plan['ink'])==3 else plan['ink']
+        preserve_generated_color_profile(page,first_xref,plan['color_profile'],plan['ink'],expected)
+
+
+def _place_text_body(page, plan, tag):
     rect=plan['rect'];spec=plan['font'];text=plan['text'];size=plan['size']
     if plan['character_spacing']:
         _prove_spaced_text(plan,tag)
         _place_spaced_text(page,plan,tag)
         return
     if spec is None:
-        _engine()._html_text(page,rect,text,size,plan['ink'],align=plan['align'],line_spacing=plan['line_spacing']);return
+        if len(plan['ink'])==1:
+            from pdf_vector_state import place_shaped_gray
+            place_shaped_gray(page,rect,text,size,plan['ink'][0],plan['align'],plan['line_spacing'])
+        else: _engine()._html_text(page,rect,text,size,plan['ink'],align=plan['align'],line_spacing=plan['line_spacing'])
+        return
     name=spec['name'] if spec['buffer'] is None else tag
     if spec['buffer']: page.insert_font(fontname=name,fontbuffer=spec['buffer'])
     font=fitz.Font(fontbuffer=spec['buffer']) if spec['buffer'] else fitz.Font(fontname=name)
@@ -460,6 +523,8 @@ def apply_edits(source, output, options):
             claimed.update(members)
             if not entry['editable']: raise ValueError('Este objeto não pode ser editado com preservação comprovada: '+', '.join(entry['limitations']))
             if action not in ('replace','move','delete'): raise ValueError('Ação de conteúdo desconhecida.')
+            if entry['kind']=='image' and action not in entry['supported_actions'] and entry['supported_actions']==['replace']:
+                raise ValueError('A estrutura acessível da imagem exige preservar o objeto original. Apenas substituir na mesma área é suportado; revise o texto alternativo depois.')
             plan=None
             if entry['kind'] in ('text','paragraph') and action!='delete':
                 plan=_text_plan(doc,entry,private[identity],edit)
@@ -470,7 +535,8 @@ def apply_edits(source, output, options):
                         raise ValueError('A área de destino sobrepõe outro objeto original. Escolha uma área livre.')
                 if entry['kind']=='paragraph' or moved:
                     page=doc[entry['page']-1]
-                    occupied=[drawing['rect']+(-0.5,-0.5,0.5,0.5) for drawing in page.get_drawings()]
+                    _,paint,_,_=_content_paint(doc,entry['page']-1)
+                    occupied=[area for kind,area in paint if kind in ('fill-path','stroke-path')]
                     occupied.extend(a.rect for a in page.annots() or [])
                     occupied.extend(w.rect for w in page.widgets() or [])
                     occupied.extend(link['from'] for link in page.get_links())
@@ -479,6 +545,18 @@ def apply_edits(source, output, options):
                 with fitz.open() as preview:
                     bounds=_bounds(doc[entry['page']-1]);scratch=preview.new_page(width=bounds.width,height=bounds.height)
                     _place_text(scratch,plan,'preflightfont')
+            elif entry['kind']=='vector' and action!='delete':
+                from pdf_vector_content import plan as vector_plan
+                plan=vector_plan(doc,entry,private[identity],edit)
+                page=doc[entry['page']-1]
+                traces,paint,drawings,raw=_content_paint(doc,entry['page']-1)
+                own=private[identity]['paint_indices']
+                occupied=[area for offset,(_,area) in enumerate(paint) if offset not in own]
+                occupied.extend(a.rect for a in page.annots() or [])
+                occupied.extend(w.rect for w in page.widgets() or [])
+                occupied.extend(link['from'] for link in page.get_links())
+                if any(_overlap(plan['rect'],area) for area in occupied):
+                    raise ValueError('A área de destino do vetor sobrepõe outro conteúdo ou objeto interativo. Escolha uma área livre.')
             elif entry['kind']=='image' and action!='delete':
                 page=doc[entry['page']-1];rect=_rect(edit.get('rect',entry['rect']),page)
                 if action=='replace':
@@ -488,24 +566,37 @@ def apply_edits(source, output, options):
                     if not isinstance(edit.get('image_path'),str): raise ValueError('Selecione a imagem de substituição.')
                     data=_read_regular(edit['image_path'],64*1024*1024)
                     from PIL import Image
+                    replacement_profile=None
                     with Image.open(io.BytesIO(data)) as image:
                         if image.width*image.height>40_000_000: raise ValueError('A imagem excede 40 milhões de pixels.')
                         if getattr(image,'n_frames',1)!=1: raise ValueError('Selecione uma imagem estática de um único quadro.')
+                        if image.info.get('icc_profile'):
+                            from print_inspection import icc_description
+                            profile=image.info['icc_profile'];description=icc_description(profile)
+                            expected={'RGB':('RGB',3),'RGBA':('RGB',3),'L':('GRAY',1),'LA':('GRAY',1),'CMYK':('CMYK',4)}.get(image.mode)
+                            if expected is None or description['color_space']!=expected[0]:
+                                raise ValueError('O perfil ICC não corresponde aos canais da imagem. Exporte uma imagem RGB, cinza ou CMYK com perfil compatível.')
+                            replacement_profile=(profile,expected[1])
                         image.verify()
                     with fitz.open(stream=data) as image:
                         if len(image)!=1 or image.is_pdf: raise ValueError('Selecione uma imagem estática.')
+                    with fitz.open() as imported:
+                        imported_page=imported.new_page();imported_xref=imported_page.insert_image(imported_page.rect,stream=data)
+                        expected_color_space=_embedded_image_profile(imported,imported_xref)
+                        expected_image_properties={key:imported.xref_get_key(imported_xref,key) for key in ('Decode','Intent')}
                 else:
                     if private[identity]['clipped']:
                         raise ValueError('Mover esta imagem poderia remover um recorte ou composição original. Apenas substituir na mesma área ou excluir é suportado.')
                     occupied=[o['rect'] for o in report['objects'] if o['kind']!='paragraph' and o['page']==entry['page'] and o['id']!=identity]
-                    occupied.extend(drawing['rect'] for drawing in page.get_drawings())
+                    _,paint,_,_=_content_paint(doc,entry['page']-1)
+                    occupied.extend(area for kind,area in paint if kind in ('fill-path','stroke-path'))
                     occupied.extend(a.rect for a in page.annots() or [])
                     occupied.extend(w.rect for w in page.widgets() or [])
                     occupied.extend(link['from'] for link in page.get_links())
                     if any(_overlap(rect,other) for other in occupied):
                         raise ValueError('Mover a imagem sobre outro objeto poderia alterar a ordem das camadas. Escolha uma área livre.')
-                    data=doc.extract_image(private[identity]['xref'])['image']
-                plan=dict(rect=rect,data=data)
+                plan=dict(rect=rect,data=data,icc=replacement_profile,expected_color_space=expected_color_space,
+                    expected_image_properties=expected_image_properties) if action=='replace' else dict(rect=rect,xref=private[identity]['xref'])
             if plan and any(old_plan and old_entry['page']==entry['page'] and _overlap(plan['rect'],old_plan['rect'])
                 for old_entry,_,old_plan in planned):
                 raise ValueError('As áreas de destino de duas alterações se sobrepõem. Nenhuma cópia foi criada.')
@@ -518,12 +609,41 @@ def apply_edits(source, output, options):
                 page.add_redact_annot(fitz.Rect(entry['rect']),fill=False)
                 page.apply_redactions(images=0,graphics=0,text=0)
                 if plan: _place_text(page,plan,'editedfont'+entry['id'][:12])
+            elif entry['kind']=='vector':
+                from pdf_vector_content import erase as erase_vector,place as place_vector
+                erase_vector(page,entry,private[entry['id']])
+                if plan: place_vector(page,plan)
             else:
                 xref=private[entry['id']]['xref']
-                if action=='replace': page.replace_image(xref,stream=plan['data'])
+                if action=='replace':
+                    _replace_image_preserving_order(page,xref,plan['data'])
+                    if plan['icc']:
+                        profile,channels=plan['icc']
+                        expected={1:'/DeviceGray',3:'/DeviceRGB',4:'/DeviceCMYK'}[channels]
+                        embedded_kind,embedded_channels,embedded_profile=_embedded_image_profile(doc,xref)
+                        if embedded_kind=='/ICCBased':
+                            if embedded_channels!=channels or embedded_profile!=profile:
+                                raise ValueError('A imagem incorporada mudou seu perfil ICC; nenhuma cópia foi criada.')
+                        elif embedded_kind==expected:
+                            profile_xref=doc.get_new_xref();doc.update_object(profile_xref,f'<< /N {channels} /Alternate {expected} >>')
+                            doc.update_stream(profile_xref,profile);doc.xref_set_key(xref,'ColorSpace',f'[/ICCBased {profile_xref} 0 R]')
+                        else:
+                            raise ValueError('A imagem incorporada mudou de canais; o perfil ICC não pode ser aplicado com segurança.')
+                    if _embedded_image_profile(doc,xref)!=plan['expected_color_space'] or any(doc.xref_get_key(xref,key)!=value for key,value in plan['expected_image_properties'].items()):
+                        raise ValueError('A imagem deduplicada não preservou a cor, o perfil ou a interpretação do novo arquivo. Nenhuma cópia foi criada.')
                 else:
+                    clone=None
+                    if plan:
+                        # Clone the original PDF image object, including its
+                        # ICC/Decode/Intent and encoded bytes. Extracting to a
+                        # generic bitmap would discard those print properties.
+                        clone=doc.get_new_xref();doc.update_object(clone,'<<>>');doc.xref_copy(xref,clone)
+                        source_properties={key:doc.xref_get_key(xref,key) for key in doc.xref_get_keys(xref)}
+                        cloned_properties={key:doc.xref_get_key(clone,key) for key in doc.xref_get_keys(clone)}
+                        if source_properties!=cloned_properties or doc.xref_stream_raw(xref)!=doc.xref_stream_raw(clone):
+                            raise ValueError('Não foi possível preservar os dados e o perfil da imagem original.')
                     page.delete_image(xref)
-                    if plan: page.insert_image(plan['rect'],stream=plan['data'],keep_proportion=False)
+                    if plan: page.insert_image(plan['rect'],xref=clone,keep_proportion=False)
         _save(doc,output)
     finally: doc.close()
 

@@ -72,6 +72,8 @@ struct ReaderBarCustomizationControls: View {
             }
         }.animation(preferences.animation(reduceMotion: reduceMotion), value: toolbarOrder)
             .animation(preferences.animation(reduceMotion: reduceMotion), value: annotationOrder)
+            .accessibilityElement(children:.contain)
+            .accessibilityLabel("Ordem e visibilidade das barras do leitor")
             .accessibilityIdentifier("pdf.customization.reader-bars")
     }
 

@@ -15,6 +15,8 @@ import Darwin
         func rejects(_ operation: () throws -> Void) -> Bool {
             do { try operation(); return false } catch { return true }
         }
+        try TranslationLayoutBlock.runAuditChecks()
+        try FormValueDraft.runAuditChecks()
         let directory = FileManager.default.temporaryDirectory.appendingPathComponent("PDF-audit-\(UUID().uuidString)", isDirectory: true)
         try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
         defer { try? FileManager.default.removeItem(at: directory) }

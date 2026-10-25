@@ -113,3 +113,18 @@ class PrintIntegration(unittest.TestCase):
             self.assertEqual(coverage['dpi'], 100)
             self.assertEqual(len(coverage['pages']), 1)
             self.assertGreater(sum(coverage['pages'][0][channel] for channel in ('cyan', 'magenta', 'yellow', 'black')), .1)
+
+    def test_pdfx_source_inspection_preserves_refusal_of_encrypted_documents(self):
+        profile = cmyk_profile()
+        self.assertIsNotNone(profile)
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary); source = root / 'protected.pdf'; output = root / 'output.pdf'
+            with fitz.open() as document:
+                document.new_page().insert_text((40, 80), 'Protected source must remain encrypted')
+                document.save(source, encryption=fitz.PDF_ENCRYPT_AES_256, owner_pw='owner', user_pw='secret')
+            original = source.read_bytes()
+            with self.assertRaisesRegex(ValueError, 'PDF/X não permite criptografia'):
+                run('pdfx', [source], output, {'icc_profile': str(profile), 'password': 'secret'})
+            self.assertFalse(output.exists())
+            self.assertEqual(source.read_bytes(), original)
+            self.assertFalse(list(root.glob('.pdf-output-*')))

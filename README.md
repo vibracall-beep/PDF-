@@ -2,6 +2,8 @@
 
 Aplicativo nativo macOS, em português, com **71 ferramentas e leitor permanente**, SwiftUI/PDFKit e Liquid Glass. Preserva as 54 ferramentas anteriores e amplia edição, conversões, biblioteca, automação e produção de documentos.
 
+**Revisão 0.7 em validação:** a nova auditoria reproduziu dados residuais em tags e anexos após usar **Ocultar PDF** na versão 0.6. A aparência ocultada dessa versão não comprova a remoção desses dados. A correção e os demais resultados da revisão estão na [auditoria 0.7](docs/AUDITORIA-0.7.md) e na [matriz por ferramenta](docs/MATRIZ-0.7.md); a aprovação histórica abaixo não se transfere automaticamente ao código novo.
+
 **A matriz nativa e a compatibilidade do pacote da versão 0.6 foram aprovadas.** O mesmo binário do macOS 26 foi instalado e executado no macOS 27, incluindo sua interface real. O instalador está disponível ao proprietário autenticado no [rascunho privado da entrega](https://github.com/vibracall-beep/PDF-/releases/tag/untagged-46d8b6e9889cc9181621), com [instruções por comando](docs/INSTALACAO.md). A auditoria mantém requisitos parcialmente atendidos e ensaios dependentes de M4 físico, modelo Apple ou serviço externo. Veja a [matriz das 17 ampliações](docs/AMPLIACOES-2026-10.md); não há afirmação de ausência universal de erros ou superioridade comprovada a concorrentes.
 
 ## Estado verificável
@@ -64,9 +66,9 @@ Use o checkout existente em `/workspace/PDF-`, sem criar worktrees salvo pedido 
 ```bash
 bash scripts/setup-cloud.sh
 .venv/bin/python engine/pdf_engine.py --capabilities
-.venv/bin/python -m unittest discover -s tests -p 'test_*.py'
-PDF_CHROMIUM_EXECUTABLE=/usr/bin/chromium .venv/bin/python -m unittest discover -s tests -p 'integration_*.py'
-.venv/bin/python -m unittest discover -s scripts -p 'test_*.py'
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python -m unittest discover -s tests -p 'test_*.py'
+PATH="$PWD/.venv/bin:$PATH" PDF_CHROMIUM_EXECUTABLE=/usr/bin/chromium .venv/bin/python -m unittest discover -s tests -p 'integration_*.py'
+PATH="$PWD/.venv/bin:$PATH" .venv/bin/python -m unittest discover -s scripts -p 'test_*.py'
 ```
 
 Integrações exigem as dependências reais descritas no instalador: LibreOffice, OCRmyPDF, Tesseract, Ghostscript, Chromium, pyHanko, Java e veraPDF fixado. O Linux desta tarefa tem OCR inglês; use `language=eng` nele. O instalador macOS inclui português/inglês. HTML remoto acessa os recursos da página. Serviços externos exigem configuração própria; credenciais não devem aparecer em comandos, logs ou no chat.

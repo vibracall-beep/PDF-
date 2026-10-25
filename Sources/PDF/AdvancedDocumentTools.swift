@@ -38,6 +38,9 @@ struct ContentObjectDescriptor: Codable, Identifiable, Sendable {
     var member_ids: [String]? = nil
     var line_spacing: Double? = nil
     var alignment: String? = nil
+    var vector_shape: String? = nil
+    var stroke_width: Double? = nil
+    var fill_color: String? = nil
     var supportedActions: [String] { supported_actions ?? ["replace", "move", "delete"] }
     var isText: Bool { kind == "text" || kind == "paragraph" }
 }
@@ -54,7 +57,7 @@ struct ContentInspection: Codable, Sendable {
         var grouped = Set<String>()
         for item in objects {
             try Task.checkCancellation()
-            guard !item.id.isEmpty, item.id.utf8.count <= 256, ["text", "image", "paragraph"].contains(item.kind),
+            guard !item.id.isEmpty, item.id.utf8.count <= 256, ["text", "image", "paragraph", "vector"].contains(item.kind),
                   (item.text?.utf8.count ?? 0) <= 1_048_576,
                   !item.supportedActions.isEmpty, Set(item.supportedActions).count == item.supportedActions.count,
                   item.supportedActions.allSatisfy({ ["replace", "move", "delete"].contains($0) }),
@@ -63,6 +66,14 @@ struct ContentInspection: Codable, Sendable {
                 throw AdvancedDocumentValidation.failure("Um objeto de conteúdo não pôde ser validado.")
             }
             try AdvancedDocumentValidation.rect(item.rect, page: item.page, pages: pages, withinPage: item.editable)
+            if item.kind == "vector" {
+                guard ["line", "rectangle"].contains(item.vector_shape ?? ""), let width = item.stroke_width,
+                      width.isFinite, width >= 0, (!item.editable || width <= 100),
+                      [item.color, item.fill_color].allSatisfy({ value in value == nil || value!.range(of: "^#[0-9a-fA-F]{6}$", options: .regularExpression) != nil }),
+                      item.color != nil || item.fill_color != nil else {
+                    throw AdvancedDocumentValidation.failure("A forma vetorial não contém geometria e estilo válidos.")
+                }
+            }
             if item.kind == "paragraph" {
                 guard let members = item.member_ids, members.count >= 2, members.count <= objects.count,
                       Set(members).count == members.count, grouped.isDisjoint(with: members),
@@ -378,7 +389,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
             }
         })
     }
-    func apply(model: Workspace, edits: [[String: Any]], corrections: [[String: Any]]? = nil) {
+    func apply(model: Workspace, edits: [[String: Any]], corrections: [[String: Any]]? = nil, completion:((Result<URL,Error>)->Void)? = nil) {
         guard !working, !model.busy, ApplicationWork.isAcceptingWork, let source, let originalURL else { return }
         let ocr = corrections != nil
         guard ocr ? review != nil : content != nil else { return }
@@ -395,6 +406,7 @@ private enum AdvancedDecodedAnalysis: Sendable {
             case .success(let url): output = url; status = "Cópia concluída: \(url.lastPathComponent). Abra o resultado para revisar a apresentação."
             case .failure(let error): status = error.localizedDescription
             }
+            completion?(result)
             if closed { clearSource() }
         })
     }

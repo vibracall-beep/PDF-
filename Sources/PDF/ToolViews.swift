@@ -31,16 +31,115 @@ private struct FormFieldDraft: Identifiable {
         return value
     }
 }
-private struct FormValueDraft: Identifiable {
-    var id:String { name }; var name:String; var value:String; var checkbox = false; var checked = false
-    var choices:[String] = []
-    var choiceLabels:[String:String] = [:]
+struct FormChoiceItem: Decodable, Identifiable {
+    let value: String
+    let label: String
+    var id: Data { Data(value.utf8) }
+}
+
+struct FormValueDraft: Identifiable {
+    var id: Data { Data(name.utf8) }
+    var name: String
+    var value: String
+    var checkbox = false
+    var checked = false
+    var choices: [FormChoiceItem] = []
     var allowsEmpty = false
     var readOnly = false
     var originalValue = ""
     var originallyChecked = false
-    var jsonValue:Any { checkbox ? checked as Any : value as Any }
-    var changed:Bool { !readOnly && (checkbox ? checked != originallyChecked : value != originalValue) }
+    var jsonValue: Any { checkbox ? checked as Any : value as Any }
+    var changed: Bool { !readOnly && (checkbox ? checked != originallyChecked : !value.utf8.elementsEqual(originalValue.utf8)) }
+    var selectionBytes: Data {
+        get { Data(value.utf8) }
+        set { if let decoded = String(data: newValue, encoding: .utf8) { value = decoded } }
+    }
+    var entry: [String: Any] { ["name": name, "value": jsonValue] }
+
+    private struct Record: Decodable {
+        let name: String?
+        let value: String?
+        let type: String
+        let choices: [String]?
+        let choice_items: [FormChoiceItem]?
+        let choice_labels: [String: String]?
+        let readonly: Bool?
+    }
+    static func decode(_ data: Data) throws -> [Self] {
+        let records = try JSONDecoder().decode([Record].self, from: data)
+        guard records.count <= 100_000 else { throw failure("A leitura excedeu 100.000 campos.") }
+        var result: [Self] = [], seen: [Data: Int] = [:]
+        for item in records {
+            guard ["Text", "CheckBox", "ComboBox", "ListBox", "RadioButton"].contains(item.type) else { continue }
+            guard let name = item.name, !name.isEmpty else { throw failure("Há um campo sem nome identificável.") }
+            let value = item.value ?? "", values = item.choices ?? []
+            let options: [FormChoiceItem]
+            if let exact = item.choice_items {
+                guard exact.map(\.id) == values.map({ Data($0.utf8) }) else { throw failure("Os valores e rótulos do formulário não correspondem.") }
+                options = exact
+            } else {
+                guard Set(values).count == Set(values.map { Data($0.utf8) }).count else {
+                    throw failure("O relatório antigo não distingue opções Unicode. Leia os campos novamente com o motor atualizado.")
+                }
+                options = values.map { FormChoiceItem(value: $0, label: item.choice_labels?[$0] ?? $0) }
+            }
+            guard Set(options.map(\.id)).count == options.count else { throw failure("Há opções de seleção repetidas sem identidade inequívoca.") }
+            let checked = !value.isEmpty && value != "Off"
+            let field = Self(name: name, value: value, checkbox: item.type == "CheckBox", checked: checked,
+                             choices: options, allowsEmpty: true, readOnly: item.readonly ?? false,
+                             originalValue: value, originallyChecked: checked)
+            if let index = seen[field.id] {
+                let prior = result[index]
+                guard prior.value.utf8.elementsEqual(value.utf8), prior.checkbox == field.checkbox,
+                      prior.choices.map(\.id) == options.map(\.id),
+                      prior.choices.map({ Data($0.label.utf8) }) == options.map({ Data($0.label.utf8) }) else {
+                    throw failure("Campos com o mesmo nome têm estados incompatíveis. Revise o formulário antes de preencher.")
+                }
+                result[index].readOnly = prior.readOnly || field.readOnly
+            } else { seen[field.id] = result.count; result.append(field) }
+        }
+        return result
+    }
+    private static func failure(_ detail: String) -> NSError {
+        NSError(domain: "PDF.Forms", code: 2, userInfo: [NSLocalizedDescriptionKey: detail])
+    }
+    static func runAuditChecks() throws {
+        func require(_ condition: Bool, _ detail: String) throws { if !condition { throw failure(detail) } }
+        let composed = "é", decomposed = "e\u{301}"
+        let options: [[String: String]] = [["value": composed, "label": "Primeira"], ["value": decomposed, "label": "Segunda"]]
+        let records: [[String: Any]] = [
+            ["name": composed, "value": composed, "type": "ComboBox", "choices": [composed, decomposed], "choice_items": options],
+            ["name": decomposed, "value": "Original", "type": "Text", "choices": [], "choice_items": []]
+        ]
+        var fields = try decode(JSONSerialization.data(withJSONObject: records))
+        try require(fields.count == 2 && fields[0].id != fields[1].id && fields[0].choices[0].id != fields[0].choices[1].id,
+                    "A leitura juntou nomes ou opções Unicode diferentes.")
+        fields[0].selectionBytes = Data(decomposed.utf8)
+        fields[1].value = "Original alterado"
+        try require(fields[0].changed && fields[0].value.utf8.elementsEqual(decomposed.utf8), "A seleção descartou uma alteração NFC/NFD.")
+        let payload = try JSONSerialization.data(withJSONObject: ["value_entries": fields.map(\.entry)])
+        let decoded = try JSONSerialization.jsonObject(with: payload) as? [String: [[String: String]]]
+        try require(decoded?["value_entries"]?.count == 2 && decoded?["value_entries"]?[0]["value"]?.utf8.elementsEqual(decomposed.utf8) == true,
+                    "A publicação perdeu nomes ou valores Unicode distintos.")
+        fields[0].readOnly = true
+        try require(!fields[0].changed, "O formulário permitiu alterar campo somente leitura.")
+        var checkbox = Self(name: "check", value: "Off", checkbox: true)
+        checkbox.checked = true; try require(checkbox.changed, "A alteração da caixa foi ignorada.")
+        checkbox.readOnly = true; try require(!checkbox.changed, "A caixa bloqueada foi alterada.")
+        var text = Self(name: "text", value: decomposed, originalValue: composed)
+        try require(text.changed, "O campo de texto descartou bytes NFC/NFD.")
+        text.value = composed; try require(!text.changed, "Restaurar os bytes originais manteve uma alteração inexistente.")
+        var radio = records[0]; radio["type"] = "RadioButton"
+        let radioFields = try decode(JSONSerialization.data(withJSONObject: [radio]))
+        try require(radioFields[0].choices.map(\.id) == [Data(composed.utf8), Data(decomposed.utf8)], "O grupo radio perdeu opções Unicode.")
+        var locked = records[1]; locked["readonly"] = true
+        let joined = try decode(JSONSerialization.data(withJSONObject: [records[1], locked]))
+        try require(joined.count == 1 && joined[0].readOnly, "Uma ocorrência bloqueada foi ignorada ao agrupar widgets.")
+        var different = records[1]; different["value"] = "Divergente"
+        var rejected = false
+        do { _ = try decode(JSONSerialization.data(withJSONObject: [records[1], different])) } catch { rejected = true }
+        try require(rejected, "A leitura omitiu valores incompatíveis de widgets homônimos.")
+    }
 }
 
 private struct DetectedTablePreview: Identifiable {
@@ -376,7 +475,7 @@ struct ToolConfigurationView: View {
             if operation == "watermark" { Picker("Marca",selection:$watermarkMode) { Text("Texto").tag("text"); Text("Imagem").tag("image") }.pickerStyle(.segmented) }
             if (operation != "watermark" || watermarkMode == "text") && (operation != "redact" || redactMode == "text") { TextField(operation == "edit" || operation == "redact" ? "Texto a localizar" : "Texto",text:$text).textFieldStyle(.roundedBorder) }
             if operation == "edit" { TextField("Substituir por",text:$replacement).textFieldStyle(.roundedBorder); Text("A substituição pode alterar a diagramação. Revise a cópia gerada.").font(.caption).foregroundStyle(.secondary) }
-            if operation == "redact" { Text("As ocorrências encontradas serão removidas permanentemente da cópia. Revise também imagens e outros dados antes de compartilhá-la.").font(.caption).foregroundStyle(.secondary) }
+            if operation == "redact" { Text("Cria uma cópia sanitizada: remove o conteúdo selecionado, anexos, metadados, estrutura de acessibilidade e texto invisível, incluindo camadas OCR. Anotações e campos restantes tornam-se aparência estática; links e navegação privada são removidos. A cópia pode perder pesquisa e interatividade. Os originais são preservados. Revise as páginas e ocorrências fora da seleção antes de compartilhar.").font(.caption).foregroundStyle(.secondary) }
         }
         if ["signature","image"].contains(operation) || (operation == "watermark" && watermarkMode == "image") {
             HStack { Button("Escolher imagem…") { chooseImage() }; Text(imageURL?.lastPathComponent ?? "Nenhuma imagem").foregroundStyle(.secondary).lineLimit(1) }
@@ -594,9 +693,9 @@ struct ToolConfigurationView: View {
                     VStack(alignment:.leading,spacing:4) {
                         if field.checkbox { Toggle(field.name,isOn:$field.checked) }
                         else if !field.choices.isEmpty {
-                            Picker(field.name,selection:$field.value) {
-                                if field.allowsEmpty || field.value.isEmpty { Text("Sem seleção").tag("") }
-                                ForEach(field.choices,id:\.self) { Text(field.choiceLabels[$0] ?? $0).tag($0) }
+                            Picker(field.name,selection:$field.selectionBytes) {
+                                if field.allowsEmpty || field.value.isEmpty { Text("Sem seleção").tag(Data()) }
+                                ForEach(field.choices) { Text($0.label).tag($0.id) }
                             }
                         }
                         else { TextField(field.name,text:$field.value).textFieldStyle(.roundedBorder) }
@@ -637,18 +736,7 @@ struct ToolConfigurationView: View {
             defer { try? FileManager.default.removeItem(at:directory); if model.lastOutput == output { model.lastOutput = nil } }
             do {
                 let file = try result.get()
-                guard let records = try JSONSerialization.jsonObject(with:Data(contentsOf:file)) as? [[String:Any]] else {
-                    throw NSError(domain:"PDF.Forms",code:2,userInfo:[NSLocalizedDescriptionKey:"A leitura dos campos retornou uma resposta inválida."])
-                }
-                var seen = Set<String>()
-                values = records.compactMap { item in
-                    guard let name = item["name"] as? String, !name.isEmpty, seen.insert(name).inserted else { return nil }
-                    let kind = item["type"] as? String ?? ""
-                    guard ["Text","CheckBox","ComboBox","ListBox","RadioButton"].contains(kind) else { return nil }
-                    let value = item["value"] as? String ?? ""
-                    let checked = !value.isEmpty && value != "Off"
-                    return FormValueDraft(name:name,value:value,checkbox:kind == "CheckBox",checked:checked,choices:item["choices"] as? [String] ?? [],choiceLabels:item["choice_labels"] as? [String:String] ?? [:],allowsEmpty:true,readOnly:item["readonly"] as? Bool ?? false,originalValue:value,originallyChecked:checked)
-                }
+                values = try FormValueDraft.decode(LibraryFiles.read(file, maximum: 32 * 1024 * 1024))
             } catch { values = []; self.error = error.localizedDescription }
         })
     }
@@ -763,14 +851,14 @@ struct ToolConfigurationView: View {
         if operation == "protect" { options["new_password"] = newPassword }
         if operation == "form-create" {
             let included = fields.filter(\.included)
-            guard !included.isEmpty, Set(included.map(\.name)).count == included.count, included.allSatisfy({ !$0.name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }) else { error = "Inclua ao menos um campo e use nomes únicos."; return }
+            guard !included.isEmpty, Set(included.map { Data($0.name.utf8) }).count == included.count, included.allSatisfy({ !$0.name.trimmingCharacters(in:.whitespacesAndNewlines).isEmpty }) else { error = "Inclua ao menos um campo e use nomes únicos."; return }
             options["fields"] = included.map(\.options)
         }
         if operation == "form-fill" {
             guard !values.isEmpty else { error = "Leia os campos antes de preencher."; return }
             let changes = values.filter(\.changed)
             guard !changes.isEmpty else { error = "Nenhum campo editável foi alterado."; return }
-            options["values"] = Dictionary(uniqueKeysWithValues:changes.map { ($0.name,$0.jsonValue) })
+            options["value_entries"] = changes.map(\.entry)
         }
         let batch = operation == "rotate" && selectedInputs.count > 1
         guard let output = model.selectOutput(extension:outputSuffix,directory:batch || ["split","jpg","png"].contains(operation),toolName:appearance.title(for:tool),originalURL:selectedInputs.first) else { return }

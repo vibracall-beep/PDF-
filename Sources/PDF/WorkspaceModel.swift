@@ -73,6 +73,7 @@ enum ReaderAnnotationStyle {
 }
 
 @MainActor final class Workspace: ObservableObject {
+    let toolDrafts = ToolDraftRegistry()
     @Published var document: PDFDocument?
     @Published var url: URL?
     @Published var message = "" {
@@ -129,6 +130,7 @@ enum ReaderAnnotationStyle {
         let sessions: [TerminationSessionState]
         let active: UUID?
         let comparison: UUID?
+        let toolDrafts: [ToolDraftCheckpoint]
     }
     private var terminationDecision: TerminationState?
     private var cancelled = false
@@ -961,7 +963,7 @@ enum ReaderAnnotationStyle {
                 widgets: PDFDocumentSession.widgetState(session.document), source: session.sourceURL,
                 saved: session.savedURL, title: Data(session.title.utf8), page: session.page, zoom: session.zoom,
                 autoScale: session.autoScale, bookmarks: session.bookmarks.sorted())
-        }, active: activeSessionID, comparison: comparisonSessionID)
+        }, active: activeSessionID, comparison: comparisonSessionID,toolDrafts:toolDrafts.checkpoints)
     }
     private func refuseTermination(_ detail: String) -> Bool {
         preparingForTermination = false; terminationDecision = nil

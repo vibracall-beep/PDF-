@@ -1,0 +1,48 @@
+{
+  "0_native-application (xcode-27).txt": {
+    "suiteCounts": [
+      "Ran 138 tests in 22.449s",
+      "Ran 364 tests in 107.947s",
+      "Ran 57 tests in 60.035s"
+    ],
+    "successSummaries": [
+      "OK",
+      "OK (skipped=1)",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK"
+    ],
+    "nativeGroupSuccesses": 378,
+    "potentialCredentialPatterns": false,
+    "signedURLPatterns": false
+  },
+  "1_native-application (macos-26).txt": {
+    "suiteCounts": [
+      "Ran 138 tests in 27.830s",
+      "Ran 364 tests in 109.186s",
+      "Ran 57 tests in 59.558s"
+    ],
+    "successSummaries": [
+      "OK",
+      "OK (skipped=1)",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK",
+      "OK"
+    ],
+    "nativeGroupSuccesses": 378,
+    "potentialCredentialPatterns": false,
+    "signedURLPatterns": false
+  }
+}

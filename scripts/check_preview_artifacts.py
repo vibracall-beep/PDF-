@@ -35,6 +35,7 @@ REQUIRED_AX = {
     'PDF-preview.corrigir-acessibilidade.accessibility.json': {
         'pdf.accessibility.tag.title', 'pdf.accessibility.tag.alt', 'pdf.accessibility.tag.actual-text',
         'pdf.accessibility.tag.language', 'pdf.accessibility.tag.scope',
+        'pdf.accessibility.table.row-span', 'pdf.accessibility.table.column-span', 'pdf.accessibility.table.replace-headers',
     },
 }
 PNG_SIGNATURE = b'\x89PNG\r\n\x1a\n'

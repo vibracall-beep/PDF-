@@ -1,0 +1,86 @@
+[
+  {
+    "id": 12611185915,
+    "name": "PDF-source-unvalidated-xcode-27",
+    "bytes": 18094594,
+    "digest": "sha256:85ae73ca8ad6e1f10ba75c58f9af1a05a27e55a58b82e34e0f591efaa28057d4"
+  },
+  {
+    "id": 12611091049,
+    "name": "PDF-binary-unvalidated-xcode-27",
+    "bytes": 1443103501,
+    "digest": "sha256:6e744a2a459a732e6a11e2c2265e22a3665f518f9eeaa5c49289b28a10302590"
+  },
+  {
+    "id": 12610478604,
+    "name": "PDF-source-unvalidated-macos-26",
+    "bytes": 18093982,
+    "digest": "sha256:455a2c15c4f77bdb328c6cc9bcbd828b214ee108aebf0909250654d7c54fd230"
+  },
+  {
+    "id": 12610438531,
+    "name": "PDF-binary-unvalidated-macos-26",
+    "bytes": 1445100010,
+    "digest": "sha256:e76dc1339f5debb3027477ea8cca939a3d88051d1034e5eb4da2b991cf9173c9"
+  },
+  {
+    "id": 12610341296,
+    "name": "PDF-local-AI-xcode-27",
+    "bytes": 2184,
+    "digest": "sha256:50f658a29da5d0c7ff9ed3b5db1940f5069c21a0406f7940bdec211cfc124de9"
+  },
+  {
+    "id": 12610176901,
+    "name": "PDF-Apple-Vision-capability-xcode-27",
+    "bytes": 2079,
+    "digest": "sha256:7490e319f13c66fb84cc5718714459ec91aa6a9dc380c0f7550cee2fac7ecc4f"
+  },
+  {
+    "id": 12610151736,
+    "name": "PDF-native-checks-xcode-27",
+    "bytes": 14777,
+    "digest": "sha256:4502487576c6a704202fb96b3d62470b6a925e6ad930ebc60c50488160e7e732"
+  },
+  {
+    "id": 12610142074,
+    "name": "PDF-macOS-benchmark-xcode-27",
+    "bytes": 2218,
+    "digest": "sha256:4e65907e0236e595d0c2024b193eb1438cc757543714fc933504ab96b5baeab5"
+  },
+  {
+    "id": 12610126989,
+    "name": "PDF-macOS-preview-xcode-27",
+    "bytes": 3400338,
+    "digest": "sha256:d37807012ead51261d5d1871db1955acbc6772176696f9c991c4dd855fc55fe5"
+  },
+  {
+    "id": 12609882595,
+    "name": "PDF-native-checks-macos-26",
+    "bytes": 8477,
+    "digest": "sha256:cce7a232c5c65ef67c8c645c0582b845ed9a1e0e4974603bc0336d0bfa1f179b"
+  },
+  {
+    "id": 12609797815,
+    "name": "PDF-local-AI-macos-26",
+    "bytes": 2182,
+    "digest": "sha256:38edad5ac644d3e8a4963473c6d0bcd68d91ea13c70298c8fa0c8a551f12c54c"
+  },
+  {
+    "id": 12609748019,
+    "name": "PDF-Apple-Vision-capability-macos-26",
+    "bytes": 887,
+    "digest": "sha256:742b067b5abc399b571219f2cb1c514a79d4c75a9fef4513b2de5110831987e8"
+  },
+  {
+    "id": 12609703246,
+    "name": "PDF-macOS-benchmark-macos-26",
+    "bytes": 1884,
+    "digest": "sha256:ee34781a8682112dccc7414c2ad8c8a66ef81bd7082d7177b7d0c894f1abd4d0"
+  },
+  {
+    "id": 12609623652,
+    "name": "PDF-macOS-preview-macos-26",
+    "bytes": 3375853,
+    "digest": "sha256:e5425b4d52e3401d3edf354bda0f536be14c37172604fafeda54b875a1bb01e5"
+  }
+]

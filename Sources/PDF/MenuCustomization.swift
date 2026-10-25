@@ -86,9 +86,10 @@ struct MenuCustomizationControls: View {
             Text("Organize Documento, Ferramentas e seu Acesso rápido. Comandos recolhidos continuam em Outros comandos, nas buscas e com seus atalhos. Os menus do macOS mantêm os controles do sistema.")
                 .font(.caption).foregroundStyle(.secondary)
             if !message.isEmpty { Text(message).foregroundStyle(.secondary).accessibilityIdentifier("pdf.menus.feedback") }
-            TextField("Nome do menu de acesso rápido", text: Binding(get: { store.menu.quickTitle }, set: { value in
-                update { $0.quickTitle = value.trimmingCharacters(in: .whitespacesAndNewlines) }
-            })).textFieldStyle(.roundedBorder).accessibilityIdentifier("pdf.menus.quick-title")
+            PreferenceNameField("Nome do menu de acesso rápido", value: Binding(get: { store.menu.quickTitle }, set: { value in
+                update { $0.quickTitle = value }
+            }),maximum:40,fallback:PDFMenuSnapshot().quickTitle)
+                .accessibilityIdentifier("pdf.menus.quick-title")
             Text("Acesso rápido").font(.headline)
             Text("Arraste pela alça, use as setas ou remova uma entrada. Remover daqui preserva a ferramenta no catálogo.").font(.caption).foregroundStyle(.secondary)
             ForEach(Array(store.menu.quickCommands.enumerated()), id: \.element) { index, id in
@@ -109,7 +110,8 @@ struct MenuCustomizationControls: View {
                 HStack {
                     Picker("Adicionar comando", selection: $selectedCommand) {
                         ForEach(candidates) { command in Text(title(command)).tag(command.id) }
-                    }.accessibilityIdentifier("pdf.menus.quick-add")
+                    }.accessibilityLabel("Adicionar comando ao acesso rápido")
+                        .accessibilityIdentifier("pdf.menus.quick-add")
                     Button("Adicionar") {
                         let id = candidates.contains(where: { $0.id == selectedCommand }) ? selectedCommand : candidates[0].id
                         update { $0.quickCommands.append(id) }
@@ -124,9 +126,9 @@ struct MenuCustomizationControls: View {
             ForEach(Array(categories.enumerated()), id: \.element) { index, category in
                 HStack {
                     handle("category", id: category, title: category)
-                    TextField(category, text: Binding(get: { store.menu.categoryTitles[category] ?? category }, set: { value in
+                    PreferenceNameField("Nome da categoria " + category, value: Binding(get: { store.menu.categoryTitles[category] ?? category }, set: { value in
                         update { if value == category { $0.categoryTitles.removeValue(forKey: category) } else { $0.categoryTitles[category] = value } }
-                    })).textFieldStyle(.roundedBorder).accessibilityLabel("Nome da categoria " + category)
+                    }),maximum:40,fallback:category)
                     moveButtons(index: index, ids: categories, title: category) { values in update { $0.categoryOrder = values } }
                 }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
                     drop(items, namespace: "category", target: category, values: categories) { values in update { $0.categoryOrder = values } }
@@ -145,9 +147,9 @@ struct MenuCustomizationControls: View {
                         Toggle("Mostrar", isOn: Binding(get: { !store.menu.hiddenDocumentCommands.contains(id) }, set: { visible in
                             update { $0.hiddenDocumentCommands.removeAll { $0 == id }; if !visible { $0.hiddenDocumentCommands.append(id) } }
                         })).labelsHidden().accessibilityLabel("Mostrar " + title(command) + " diretamente no menu Documento")
-                        TextField(command.title, text: Binding(get: { title(command) }, set: { value in
+                        PreferenceNameField("Nome de " + command.title, value: Binding(get: { title(command) }, set: { value in
                             update { if value == command.title { $0.actionTitles.removeValue(forKey: id) } else { $0.actionTitles[id] = value } }
-                        })).textFieldStyle(.roundedBorder).accessibilityLabel("Nome de " + command.title)
+                        }),maximum:80,fallback:command.title)
                         moveButtons(index: index, ids: documentIDs, title: title(command)) { values in update { $0.documentOrder = values } }
                     }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
                         drop(items, namespace: "document", target: id, values: documentIDs) { values in update { $0.documentOrder = values } }
@@ -159,13 +161,18 @@ struct MenuCustomizationControls: View {
             ForEach(PDFCommandCatalog.all.filter { $0.id.hasPrefix("action:") && $0.id != "action:palette" && !PDFMenuLayout.documentDefaults.contains($0.id) }) { command in
                 HStack {
                     Image(systemName:command.icon).frame(width:22).accessibilityHidden(true)
-                    TextField(command.title,text:Binding(get:{ title(command) },set:{ value in
+                    PreferenceNameField("Nome de "+command.title,value:Binding(get:{ title(command) },set:{ value in
                         update { if value == command.title { $0.actionTitles.removeValue(forKey:command.id) } else { $0.actionTitles[command.id] = value } }
-                    })).textFieldStyle(.roundedBorder).accessibilityLabel("Nome de "+command.title)
+                    }),maximum:80,fallback:command.title)
                 }
             }
             Button("Restaurar menus e acesso rápido") { update { $0 = PDFMenuSnapshot() } }
         }.animation(preferences.animation(reduceMotion: reduceMotion), value: store.menu)
+            // A plain VStack's identifier is inherited by its descendants and
+            // overrides the individual field identifiers on macOS. Give the
+            // group its own AX node while preserving all interactive children.
+            .accessibilityElement(children:.contain)
+            .accessibilityLabel("Personalização dos menus do aplicativo")
             .accessibilityIdentifier("pdf.customization.menus")
     }
 

@@ -28,6 +28,7 @@ import AppKit
         if waitingForOperationCleanup { return .terminateLater }
         guard model?.confirmDiscardEdits() != false else { return .terminateCancel }
         guard let model else { return .terminateNow }
+        guard model.toolDrafts.confirmDiscardForExit() else { return .terminateCancel }
         model.captureTerminationDecision()
         waitingForOperationCleanup = true
         Task { @MainActor in
@@ -37,6 +38,9 @@ import AppKit
             sender.reply(toApplicationShouldTerminate: authorized)
         }
         return .terminateLater
+    }
+    func applicationWillTerminate(_ notification:Notification) {
+        if let model { model.toolDrafts.dispose(model:model) }
     }
 }
 
@@ -66,7 +70,10 @@ struct WorkspaceWindowGuard:NSViewRepresentable {
         }
         func windowShouldClose(_ sender:NSWindow) -> Bool {
             guard model?.confirmDiscardEdits() != false else { return false }
+            guard model?.toolDrafts.confirmDiscardForExit() != false else { return false }
+            let drafts = model?.toolDrafts.checkpoints
             let close = previous?.windowShouldClose?(sender) ?? true
+            guard drafts == model?.toolDrafts.checkpoints else { return false }
             if close { model?.cancelDocumentOpenings() }
             return close
         }

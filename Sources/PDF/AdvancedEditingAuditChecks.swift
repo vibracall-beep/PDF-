@@ -82,6 +82,46 @@ enum AdvancedEditingAuditChecks {
         var nested = paragraph; nested.member_ids = [paragraph.id, item.id]
         let invalidGroup = ContentInspection(version: 1, source_sha256: hash, page_count: 1, pages: [page], objects: [item, secondLine, nested])
         try require(rejects { try invalidGroup.validate(digest: hash) }, "aceitou um grupo que referencia outro parágrafo")
+        var vector = ContentObjectDescriptor(id: "p1-vector0", kind: "vector", page: 1, rect: [20, 100, 120, 150], text: nil,
+            font: nil, font_size: nil, color: "#224466", editable: true, limitations: [], font_status: nil, substitution_font: nil)
+        vector.vector_shape = "rectangle"; vector.stroke_width = 2; vector.fill_color = "#ffffff"
+        let vectorInspection = ContentInspection(version: 1, source_sha256: hash, page_count: 1, pages: [page], objects: [vector])
+        let decodedVector = try JSONDecoder().decode(ContentInspection.self, from: JSONEncoder().encode(vectorInspection))
+        try decodedVector.validate(digest: hash)
+        var vectorDraft = ContentEditDraft(decodedVector.objects[0])
+        try require(vectorDraft.action == "move", "o vetor não inicia em movimento com estilo preservado")
+        let movement = try vectorDraft.options(for: vector, pages: [page])
+        try require(movement["stroke_color"] == nil && movement["fill_color"] == nil && movement["image_path"] == nil,
+                    "mover o vetor alterou cores ou exigiu uma imagem")
+        vectorDraft.action = "replace"; vectorDraft.strokeEnabled = false; vectorDraft.fillColor = "#00ff00"
+        let vectorStyle = try vectorDraft.options(for: vector, pages: [page])
+        try require(vectorStyle["stroke_color"] is NSNull && vectorStyle["fill_color"] as? String == "#00ff00",
+                    "a edição de estilo perdeu preenchimento ou remoção de traço")
+        _ = try JSONSerialization.data(withJSONObject: vectorStyle, options: [.sortedKeys])
+        vectorDraft.fillEnabled = false
+        try require(rejects { _ = try vectorDraft.options(for: vector, pages: [page]) }, "aceitou vetor sem traço ou preenchimento")
+        vector.vector_shape = "line"; vector.fill_color = nil
+        vectorDraft = ContentEditDraft(vector); vectorDraft.action = "replace"; vectorDraft.fillEnabled = true
+        try require(rejects { _ = try vectorDraft.options(for: vector, pages: [page]) }, "aceitou preenchimento em uma linha")
+        vector.vector_shape = "arbitrary-curve"
+        try require(rejects {
+            try ContentInspection(version: 1, source_sha256: hash, page_count: 1, pages: [page], objects: [vector]).validate(digest: hash)
+        }, "aceitou um tipo vetorial não implementado")
+        var wideReadonly = ContentObjectDescriptor(id:"wide-vector",kind:"vector",page:1,rect:[-900,-900,1200,1300],text:nil,
+            font:nil,font_size:nil,color:"#ff0000",editable:false,limitations:["unsupported-vector-stroke","vector-outside-visible-page"],font_status:nil,substitution_font:nil)
+        wideReadonly.vector_shape = "rectangle"; wideReadonly.stroke_width = 2000
+        try ContentInspection(version:1,source_sha256:hash,page_count:1,pages:[page],objects:[item,wideReadonly]).validate(digest:hash)
+        try require(rejects { _ = try ContentEditDraft(wideReadonly).options(for:wideReadonly,pages:[page]) },
+                    "um traço somente leitura passou a aceitar edição")
+        for invalidWidth in [-1, Double.infinity, Double.nan] {
+            wideReadonly.stroke_width = invalidWidth
+            try require(rejects { try ContentInspection(version:1,source_sha256:hash,page_count:1,pages:[page],objects:[wideReadonly]).validate(digest:hash) },
+                        "traço somente leitura aceitou valor negativo ou não finito")
+        }
+        vector.vector_shape = "rectangle"; vector.stroke_width = 100.1
+        try require(rejects { try ContentInspection(version:1,source_sha256:hash,page_count:1,pages:[page],objects:[vector]).validate(digest:hash) },
+                    "um vetor editável excedeu o limite de 100 pontos")
+        try ContentEditBufferAudit.run()
         let word = OCRReviewWord(id: "word-1", page: 1, rect: box, text: "a\u{301}", confidence: 0.65)
         let review = OCRReviewDocument(version: 1, source_sha256: hash, page_count: 1, pages: [page], words: [word], backend: "tesseract", language: "por")
         try review.validate(digest: hash)
@@ -128,6 +168,7 @@ enum AdvancedEditingAuditChecks {
         try require(rejects { try corrections.set("  ", for: word) }, "aceitou correção vazia")
         corrections.remove(word.id)
         try require(try corrections.payload(words: [word]).isEmpty, "restaurar o original não removeu a correção")
+        try OCRReviewSession.runAuditChecks()
         let invalid = OCRReviewDocument(version: 1, source_sha256: hash, page_count: 1, pages: [page],
             words: [OCRReviewWord(id: "bad", page: 1, rect: box, text: "x", confidence: .nan)], backend: "tesseract", language: "por")
         try require(rejects { try invalid.validate(digest: hash) }, "aceitou confiança OCR inválida")

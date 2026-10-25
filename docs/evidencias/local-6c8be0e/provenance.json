@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "6c8be0e740826064e363515fa5aa86f57eccb1ee",
+  "gitTree": "54e2a447544a4ad4689a654dbd1d81da6db7e39a",
+  "scope": "Linux development validation, not native approval",
+  "files": [
+    {
+      "path": "manifest-original.json",
+      "bytes": 1229,
+      "sha256": "2bc620c377246a5828ae1eb3ea287ab94e92320f202a0c8a4e7087dedae7bfef",
+      "origin": "/tmp/pdf07-local-consolidated.json, unchanged"
+    },
+    {
+      "path": "runtime.json",
+      "bytes": 1288,
+      "sha256": "85ad61f9b28b42f2573ce59a023b34ddbca7daa98ac8dea249f9c4b5615269df",
+      "origin": "/tmp/pdf07-local-runtime.json, unchanged"
+    },
+    {
+      "path": "core.log",
+      "bytes": 87865,
+      "sha256": "f77a077b02e17a0e0d96315d9bd6862ae3913c884eca3c6902105a960f0c4704",
+      "origin": "/tmp/pdf07-core-consolidated.log, unchanged"
+    },
+    {
+      "path": "integration.log",
+      "bytes": 10750,
+      "sha256": "143f49c50c1ff0230490b5fe82dd0d2769548d82da92d836b7645ec8b3be30b8",
+      "origin": "/tmp/pdf07-integration-consolidated.log, unchanged"
+    },
+    {
+      "path": "scripts.log",
+      "bytes": 24939,
+      "sha256": "38c8e9acc70c62bdb1d97d3fd2ddc4043bd494072c5efc4f317b85043eecddd6",
+      "origin": "/tmp/pdf07-scripts-consolidated.log, unchanged"
+    },
+    {
+      "path": "diagnostics.log",
+      "bytes": 43266,
+      "sha256": "eca456be98ea23306479f9e50b52119859783aad66e84f9c48c98d3f61312f64",
+      "origin": "/tmp/pdf07-diagnostics-consolidated.log, unchanged"
+    },
+    {
+      "path": "manifest.json",
+      "bytes": 2455,
+      "sha256": "8ee414cbdd35330c500c3e9e5cc6612dacf58781dd0f45eedc31ab9cbeb063c3",
+      "origin": "Derived copy: original manifest plus verified commit/tree binding and retained paths"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "6c8be0e740826064e363515fa5aa86f57eccb1ee",
+  "runID": 40228648128,
+  "runAttempt": 1,
+  "runURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40228648128",
+  "conclusion": "failure",
+  "failedStep": "Verify installer integrity",
+  "compilationReached": false,
+  "files": [
+    {
+      "path": "run.json",
+      "bytes": 12328,
+      "sha256": "6f648deb9e366d2a3cd09fb363fb9b635d2bdfef4bf6208f2bb4029ded59d0a4",
+      "origin": "Authenticated gh api repository run response",
+      "runID": 40228648128
+    },
+    {
+      "path": "jobs.json",
+      "bytes": 11286,
+      "sha256": "15873df85ba87f14c21acfec57238e601c7c0d30bbe31ffd277de0fb1968c327",
+      "origin": "Authenticated gh api repository jobs response",
+      "runID": 40228648128
+    },
+    {
+      "path": "xcode-27.log",
+      "bytes": 71095,
+      "sha256": "ed18e8522e90ca89659c6af936c8e57a5e4cee707f82cc909895d0892af187a1",
+      "origin": "Authenticated GitHub job-log collection",
+      "jobID": 121275450621,
+      "jobName": "native-application (xcode-27)",
+      "jobURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40228648128/job/121275450621",
+      "logAPI": "https://api.github.com/repos/vibracall-beep/PDF-/actions/jobs/121275450621/logs"
+    },
+    {
+      "path": "macos-26.log",
+      "bytes": 71184,
+      "sha256": "fe5196fdebd16aa7c5d21bf0cc597beeff80b05dd86fcdcc400e4a8b7deced35",
+      "origin": "Authenticated GitHub job-log collection",
+      "jobID": 121275450755,
+      "jobName": "native-application (macos-26)",
+      "jobURL": "https://github.com/vibracall-beep/PDF-/actions/runs/40228648128/job/121275450755",
+      "logAPI": "https://api.github.com/repos/vibracall-beep/PDF-/actions/jobs/121275450755/logs"
+    },
+    {
+      "path": "source-6c8be0e/install-binary.sh",
+      "bytes": 8375,
+      "sha256": "8c68f32a89820d263f8c4d71fed8ea1df125b5e8ba93db3ebcb4e2a5cef00839",
+      "origin": "Exact historical git blob",
+      "commit": "6c8be0e740826064e363515fa5aa86f57eccb1ee",
+      "gitPath": "scripts/install-binary.sh"
+    },
+    {
+      "path": "source-6c8be0e/test_binary_space.py",
+      "bytes": 10280,
+      "sha256": "022aaea46f2bb106ad2e02fbb9e37f62a4b930b1c1f6e1fd4cee4c2a954cb0e1",
+      "origin": "Exact historical git blob",
+      "commit": "6c8be0e740826064e363515fa5aa86f57eccb1ee",
+      "gitPath": "scripts/test_binary_space.py"
+    }
+  ]
+}

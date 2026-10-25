@@ -1,0 +1,330 @@
+...........Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+.Authenticated source and cross-platform runs: 123 456
+..............................................MEASUREMENT measurement {"exit": -15, "originalLogBytes": {"stderr.txt": 0, "stdout.txt": 0}, "pid": 110473, "seconds": 0.151, "stderr": "stderr.txt", "stdout": "stdout.txt", "stoppedBecause": "deadline"}
+..MEASUREMENT measurement {"exit": 0, "originalLogBytes": {"stderr.txt": 0, "stdout.txt": 0}, "pid": 110474, "seconds": 0.051, "stderr": "stderr.txt", "stdout": "stdout.txt", "stoppedBecause": null}
+...................Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+.Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+....Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+.Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+.Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+..Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+.Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+....Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+.Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+...Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+..Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+.Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+.Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+.........
+----------------------------------------------------------------------
+Ran 116 tests in 3.139s
+
+OK

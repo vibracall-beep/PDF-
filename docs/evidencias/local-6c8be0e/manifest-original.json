@@ -1,0 +1,43 @@
+{
+  "indexTree": "54e2a447544a4ad4689a654dbd1d81da6db7e39a",
+  "sourceCommit": null,
+  "suites": [
+    {
+      "suite": "core",
+      "methods": 510,
+      "passed": 510,
+      "skipped": 0,
+      "seconds": 93.211,
+      "log": "/tmp/pdf07-core-consolidated.log",
+      "logSHA256": "f77a077b02e17a0e0d96315d9bd6862ae3913c884eca3c6902105a960f0c4704"
+    },
+    {
+      "suite": "integration",
+      "methods": 60,
+      "passed": 60,
+      "skipped": 0,
+      "seconds": 128.589,
+      "log": "/tmp/pdf07-integration-consolidated.log",
+      "logSHA256": "143f49c50c1ff0230490b5fe82dd0d2769548d82da92d836b7645ec8b3be30b8"
+    },
+    {
+      "suite": "scripts",
+      "methods": 143,
+      "passed": 136,
+      "skipped": 7,
+      "seconds": 5.841,
+      "log": "/tmp/pdf07-scripts-consolidated.log",
+      "logSHA256": "38c8e9acc70c62bdb1d97d3fd2ddc4043bd494072c5efc4f317b85043eecddd6"
+    },
+    {
+      "suite": "diagnostics",
+      "methods": 116,
+      "passed": 116,
+      "skipped": 0,
+      "seconds": 5.333,
+      "log": "/tmp/pdf07-diagnostics-consolidated.log",
+      "logSHA256": "eca456be98ea23306479f9e50b52119859783aad66e84f9c48c98d3f61312f64"
+    }
+  ],
+  "pythonRuntimeReport": "/tmp/pdf07-local-runtime.json"
+}

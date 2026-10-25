@@ -1,0 +1,71 @@
+[
+  {
+    "command": [
+      ".venv/bin/python",
+      "--version"
+    ],
+    "executable": ".venv/bin/python",
+    "exit": 0,
+    "output": [
+      "Python 3.12.14"
+    ]
+  },
+  {
+    "command": [
+      ".venv/bin/qpdf",
+      "--version"
+    ],
+    "executable": ".venv/bin/qpdf",
+    "exit": 0,
+    "output": [
+      "qpdf version 12.2.0",
+      "Run qpdf --copyright to see copyright and license information."
+    ]
+  },
+  {
+    "command": [
+      "gs",
+      "--version"
+    ],
+    "executable": "/usr/bin/gs",
+    "exit": 0,
+    "output": [
+      "10.05.1"
+    ]
+  },
+  {
+    "command": [
+      "soffice",
+      "--version"
+    ],
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/bin/override/soffice",
+    "exit": 0,
+    "output": [
+      "LibreOfficeDev 26.8.0.0.alpha0 2c87e51eeaa2b413ff4ae097b2705eea1995d8e5",
+      ""
+    ]
+  },
+  {
+    "command": [
+      "tesseract",
+      "--version"
+    ],
+    "executable": "/usr/bin/tesseract",
+    "exit": 0,
+    "output": [
+      "tesseract 5.5.0",
+      " leptonica-1.84.1"
+    ]
+  },
+  {
+    "command": [
+      "/usr/bin/chromium",
+      "--version"
+    ],
+    "executable": "/usr/bin/chromium",
+    "exit": 0,
+    "output": [
+      "Chromium 154.0.8037.57 built on Debian GNU/Linux 13 (trixie)"
+    ]
+  }
+]

@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "gitTree": "6e3d614edc2bf79abc5cb488421d05542c9dd689",
+  "changedSinceConsolidated6c8be0e": [
+    "scripts/install-binary.sh",
+    "scripts/test_binary_space.py"
+  ],
+  "scope": "Focal Linux validation after installer metadata representation fix; not full repeat or native approval",
+  "nativeRunID": 40229486932,
+  "nativeApproved": false,
+  "suites": [
+    {
+      "suite": "scripts",
+      "methods": 143,
+      "passed": 136,
+      "skipped": 7,
+      "seconds": 3.713,
+      "log": "scripts.log"
+    },
+    {
+      "suite": "diagnostics",
+      "methods": 116,
+      "passed": 116,
+      "skipped": 0,
+      "seconds": 3.139,
+      "log": "diagnostics.log"
+    }
+  ],
+  "files": [
+    {
+      "path": "scripts.log",
+      "bytes": 24939,
+      "sha256": "ad7af38beb63de15b15576a30590ba912ba24cf866c2ccae6969ec78fc2f843a",
+      "origin": "/tmp/pdf07-scripts-plutil-fix.log",
+      "unchanged": true
+    },
+    {
+      "path": "diagnostics.log",
+      "bytes": 22314,
+      "sha256": "225ae9e0c02ad9bcf7f98792b2407b39105895bd083afa3b2c90c41a7acbe43f",
+      "origin": "/tmp/pdf07-diagnostics-plutil-fix.log",
+      "unchanged": true
+    }
+  ],
+  "nativeProgressReported": {
+    "source": "Authenticated API status relayed during active run",
+    "verifyInstallerIntegrity": "success in both jobs",
+    "compileNativeApplication": "in_progress",
+    "completeLogsAndCountsRetained": false
+  }
+}

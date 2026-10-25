@@ -1,0 +1,446 @@
+test_archive_mutation_and_stale_capture_fail_before_receipt_or_marker (test_cross_gui_evidence.CrossGUIEvidenceTests.test_archive_mutation_and_stale_capture_fail_before_receipt_or_marker) ... ok
+test_complete_originals_are_bound_to_binary_and_source_without_human_claims (test_cross_gui_evidence.CrossGUIEvidenceTests.test_complete_originals_are_bound_to_binary_and_source_without_human_claims) ... ok
+test_corrupt_png_ax_and_ocr_are_refused_even_with_recomputed_receipt_hashes (test_cross_gui_evidence.CrossGUIEvidenceTests.test_corrupt_png_ax_and_ocr_are_refused_even_with_recomputed_receipt_hashes) ... ok
+test_every_original_is_mandatory_and_extras_are_refused (test_cross_gui_evidence.CrossGUIEvidenceTests.test_every_original_is_mandatory_and_extras_are_refused) ... ok
+test_final_report_is_impossible_without_complete_gui_evidence (test_cross_gui_evidence.CrossGUIEvidenceTests.test_final_report_is_impossible_without_complete_gui_evidence) ... ok
+test_modified_original_log_identity_and_capture_claims_are_rejected (test_cross_gui_evidence.CrossGUIEvidenceTests.test_modified_original_log_identity_and_capture_claims_are_rejected) ... ok
+test_ocr_observation_structure_is_checked_even_with_recomputed_hashes (test_cross_gui_evidence.CrossGUIEvidenceTests.test_ocr_observation_structure_is_checked_even_with_recomputed_hashes) ... ok
+test_prepare_and_finish_preserve_bundle_tar_and_refuse_stale_capture_or_mutation (test_cross_gui_evidence.CrossGUIEvidenceTests.test_prepare_and_finish_preserve_bundle_tar_and_refuse_stale_capture_or_mutation) ... ok
+test_resource_and_sidecar_cannot_change_together_after_archive_authentication (test_cross_gui_evidence.CrossGUIEvidenceTests.test_resource_and_sidecar_cannot_change_together_after_archive_authentication) ... ok
+test_source_checkout_must_be_exact_and_clean (test_cross_gui_evidence.CrossGUIEvidenceTests.test_source_checkout_must_be_exact_and_clean) ... ok
+test_symlinks_and_fifo_originals_never_follow_or_block (test_cross_gui_evidence.CrossGUIEvidenceTests.test_symlinks_and_fifo_originals_never_follow_or_block) ... ok
+test_byte_parts_preserve_the_original_independently_reviewed_whole_hash (test_deliver_binary.DeliveryTests.test_byte_parts_preserve_the_original_independently_reviewed_whole_hash) ... Authenticated source and cross-platform runs: 123 456
+ok
+test_cross_report_cannot_relabel_another_binary_or_rebuild (test_deliver_binary.DeliveryTests.test_cross_report_cannot_relabel_another_binary_or_rebuild) ... Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+ok
+test_exact_binary_original_sources_and_limits_are_retained_in_a_draft (test_deliver_binary.DeliveryTests.test_exact_binary_original_sources_and_limits_are_retained_in_a_draft) ... Authenticated source and cross-platform runs: 123 456
+ok
+test_gui_gates_originals_receipt_and_source_scripts_are_mandatory_before_draft (test_deliver_binary.DeliveryTests.test_gui_gates_originals_receipt_and_source_scripts_are_mandatory_before_draft) ... Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+ok
+test_idempotent_rerun_compares_bytes_and_published_or_changed_assets_are_refused (test_deliver_binary.DeliveryTests.test_idempotent_rerun_compares_bytes_and_published_or_changed_assets_are_refused) ... Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+ok
+test_installer_and_dirty_sources_cannot_be_delivered (test_deliver_binary.DeliveryTests.test_installer_and_dirty_sources_cannot_be_delivered) ... Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+ok
+test_interrupted_draft_is_completed_without_replacing_existing_assets (test_deliver_binary.DeliveryTests.test_interrupted_draft_is_completed_without_replacing_existing_assets) ... Authenticated source and cross-platform runs: 123 456
+Authenticated source and cross-platform runs: 123 456
+ok
+test_state_changed_during_final_download_is_not_reported_as_a_draft (test_deliver_binary.DeliveryTests.test_state_changed_during_final_download_is_not_reported_as_a_draft) ... Authenticated source and cross-platform runs: 123 456
+ok
+test_wrong_run_attempt_repository_gates_and_artifact_origin_are_rejected (test_deliver_binary.DeliveryTests.test_wrong_run_attempt_repository_gates_and_artifact_origin_are_rejected) ... ok
+test_archive_change_and_nonregular_inputs_are_refused_without_clobber (test_delivery_archives.DeliveryArchiveTests.test_archive_change_and_nonregular_inputs_are_refused_without_clobber) ... ok
+test_central_directory_limits_precede_zip_allocation (test_delivery_archives.DeliveryArchiveTests.test_central_directory_limits_precede_zip_allocation) ... ok
+test_crc_failure_removes_only_its_new_destination (test_delivery_archives.DeliveryArchiveTests.test_crc_failure_removes_only_its_new_destination) ... ok
+test_duplicate_casefold_and_unicode_aliases_are_refused (test_delivery_archives.DeliveryArchiveTests.test_duplicate_casefold_and_unicode_aliases_are_refused) ... ok
+test_extracts_only_exact_flat_inventory_with_private_permissions (test_delivery_archives.DeliveryArchiveTests.test_extracts_only_exact_flat_inventory_with_private_permissions) ... ok
+test_installer_must_match_source_bytes_and_authenticated_manifest (test_delivery_archives.DeliveryArchiveTests.test_installer_must_match_source_bytes_and_authenticated_manifest) ... ok
+test_limits_and_disk_preflight_fail_before_output_is_created (test_delivery_archives.DeliveryArchiveTests.test_limits_and_disk_preflight_fail_before_output_is_created) ... ok
+test_links_special_files_encryption_and_other_compression_are_refused (test_delivery_archives.DeliveryArchiveTests.test_links_special_files_encryption_and_other_compression_are_refused) ... ok
+test_source_and_installer_authenticate_without_extracting_or_running (test_delivery_archives.DeliveryArchiveTests.test_source_and_installer_authenticate_without_extracting_or_running) ... ok
+test_source_hash_build_identity_and_dirty_tree_are_mandatory (test_delivery_archives.DeliveryArchiveTests.test_source_hash_build_identity_and_dirty_tree_are_mandatory) ... ok
+test_source_inventory_rejects_prefetched_tail_and_concatenated_archives (test_delivery_archives.DeliveryArchiveTests.test_source_inventory_rejects_prefetched_tail_and_concatenated_archives) ... ok
+test_source_manifest_must_cover_all_files_with_exact_hashes (test_delivery_archives.DeliveryArchiveTests.test_source_manifest_must_cover_all_files_with_exact_hashes) ... ok
+test_source_tar_refuses_links_paths_duplicates_and_oversized_expansion (test_delivery_archives.DeliveryArchiveTests.test_source_tar_refuses_links_paths_duplicates_and_oversized_expansion) ... ok
+test_source_truncation_and_nonregular_archive_are_refused (test_delivery_archives.DeliveryArchiveTests.test_source_truncation_and_nonregular_archive_are_refused) ... ok
+test_traversal_absolute_backslash_nul_and_extra_entries_are_rejected (test_delivery_archives.DeliveryArchiveTests.test_traversal_absolute_backslash_nul_and_extra_entries_are_rejected) ... ok
+test_zip64_directory_is_supported_without_large_allocation (test_delivery_archives.DeliveryArchiveTests.test_zip64_directory_is_supported_without_large_allocation) ... ok
+test_cleanup_preserves_foreign_directory_and_symbolic_replacements (test_delivery_parts.DeliveryPartsTests.test_cleanup_preserves_foreign_directory_and_symbolic_replacements) ... ok
+test_default_output_is_beside_script_and_does_not_run_installer (test_delivery_parts.DeliveryPartsTests.test_default_output_is_beside_script_and_does_not_run_installer) ... ok
+test_existing_and_racing_outputs_are_never_replaced (test_delivery_parts.DeliveryPartsTests.test_existing_and_racing_outputs_are_never_replaced) ... ok
+test_materialization_refuses_racing_destination_without_leaving_partial (test_delivery_parts.DeliveryPartsTests.test_materialization_refuses_racing_destination_without_leaving_partial) ... ok
+test_materialization_rejects_existing_destination_and_corruption (test_delivery_parts.DeliveryPartsTests.test_materialization_rejects_existing_destination_and_corruption) ... ok
+test_plan_validation_refuses_duplicates_reordering_paths_and_wrong_totals (test_delivery_parts.DeliveryPartsTests.test_plan_validation_refuses_duplicates_reordering_paths_and_wrong_totals) ... ok
+test_reassembly_checks_whole_hash_after_valid_parts (test_delivery_parts.DeliveryPartsTests.test_reassembly_checks_whole_hash_after_valid_parts) ... ok
+test_reassembly_rejects_duplicate_payload_and_same_size_tampering (test_delivery_parts.DeliveryPartsTests.test_reassembly_rejects_duplicate_payload_and_same_size_tampering) ... ok
+test_reassembly_rejects_missing_part (test_delivery_parts.DeliveryPartsTests.test_reassembly_rejects_missing_part) ... ok
+test_reassembly_rejects_swapped_parts (test_delivery_parts.DeliveryPartsTests.test_reassembly_rejects_swapped_parts) ... ok
+test_reassembly_rejects_symbolic_link_and_fifo_parts (test_delivery_parts.DeliveryPartsTests.test_reassembly_rejects_symbolic_link_and_fifo_parts) ... ok
+test_reassembly_runs_from_another_directory_and_preserves_parts (test_delivery_parts.DeliveryPartsTests.test_reassembly_runs_from_another_directory_and_preserves_parts) ... ok
+test_single_asset_below_limit_and_split_at_exact_limit (test_delivery_parts.DeliveryPartsTests.test_single_asset_below_limit_and_split_at_exact_limit) ... ok
+test_source_change_during_hashing_is_detected (test_delivery_parts.DeliveryPartsTests.test_source_change_during_hashing_is_detected) ... ok
+test_special_sources_links_limits_and_invalid_ranges_are_refused (test_delivery_parts.DeliveryPartsTests.test_special_sources_links_limits_and_invalid_ranges_are_refused) ... ok
+test_streaming_records_have_exact_ranges_and_hashes (test_delivery_parts.DeliveryPartsTests.test_streaming_records_have_exact_ranges_and_hashes) ... ok
+test_archive_bytes_cannot_be_changed_after_expected_hash (test_portable_compatibility.PortableCompatibilityTests.test_archive_bytes_cannot_be_changed_after_expected_hash) ... ok
+test_artifact_cannot_be_expired_unvalidated_duplicated_or_from_another_run (test_portable_compatibility.PortableCompatibilityTests.test_artifact_cannot_be_expired_unvalidated_duplicated_or_from_another_run) ... ok
+test_checksum_sidecar_cannot_replace_independent_expected_hash (test_portable_compatibility.PortableCompatibilityTests.test_checksum_sidecar_cannot_replace_independent_expected_hash) ... ok
+test_exact_source_and_archive_are_bound_before_execution (test_portable_compatibility.PortableCompatibilityTests.test_exact_source_and_archive_are_bound_before_execution) ... ok
+test_inputs_reject_ref_names_partial_hashes_and_shell_text (test_portable_compatibility.PortableCompatibilityTests.test_inputs_reject_ref_names_partial_hashes_and_shell_text) ... ok
+test_report_must_identify_the_same_source_and_actual_passes (test_portable_compatibility.PortableCompatibilityTests.test_report_must_identify_the_same_source_and_actual_passes) ... ok
+test_sidecar_manifest_must_match_the_sole_internal_manifest (test_portable_compatibility.PortableCompatibilityTests.test_sidecar_manifest_must_match_the_sole_internal_manifest) ... ok
+test_source_requires_whole_success_exact_commit_and_same_repository (test_portable_compatibility.PortableCompatibilityTests.test_source_requires_whole_success_exact_commit_and_same_repository) ... ok
+test_special_evidence_never_blocks_or_follows_symlinks (test_portable_compatibility.PortableCompatibilityTests.test_special_evidence_never_blocks_or_follows_symlinks) ... ok
+test_candidate_policy_adds_only_the_calculated_unix_literal (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_candidate_policy_adds_only_the_calculated_unix_literal) ... ok
+test_causal_denial_cannot_be_a_timeout_signal_or_unrelated_error (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_causal_denial_cannot_be_a_timeout_signal_or_unrelated_error) ... ok
+test_darwin_eperm_requires_a_real_zombie_only_group (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_darwin_eperm_requires_a_real_zombie_only_group) ... ok
+test_deadline_terminates_owned_group_and_preserves_failure (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_deadline_terminates_owned_group_and_preserves_failure) ... MEASUREMENT measurement {"exit": -15, "originalLogBytes": {"stderr.txt": 0, "stdout.txt": 0}, "pid": 121119, "seconds": 0.153, "stderr": "stderr.txt", "stdout": "stdout.txt", "stoppedBecause": "deadline"}
+ok
+test_denied_network_requires_bind_eperm_not_an_absent_listener (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_denied_network_requires_bind_eperm_not_an_absent_listener) ... ok
+test_exited_leader_cannot_leave_term_ignoring_child_holding_file_lock (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_exited_leader_cannot_leave_term_ignoring_child_holding_file_lock) ... MEASUREMENT measurement {"exit": 0, "originalLogBytes": {"stderr.txt": 0, "stdout.txt": 0}, "pid": 121123, "seconds": 0.051, "stderr": "stderr.txt", "stdout": "stdout.txt", "stoppedBecause": null}
+ok
+test_live_group_eperm_remains_fatal_and_leader_is_collected (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_live_group_eperm_remains_fatal_and_leader_is_collected) ... ok
+test_normal_exit_remains_unreaped_until_group_cleanup_finishes (test_portable_office_diagnostics.OfficeDiagnosticProcessTests.test_normal_exit_remains_unreaped_until_group_cleanup_finishes) ... ok
+test_access_denial_requires_completed_wok_errno (test_private_ipc_diagnostics.PrivateIPCReportTests.test_access_denial_requires_completed_wok_errno) ... ok
+test_browser_receipt_requires_matching_real_bytes_not_only_success (test_private_ipc_diagnostics.PrivateIPCReportTests.test_browser_receipt_requires_matching_real_bytes_not_only_success) ... ok
+test_candidate_retains_every_base_rule_and_only_opens_private_unix_paths (test_private_ipc_diagnostics.PrivateIPCReportTests.test_candidate_retains_every_base_rule_and_only_opens_private_unix_paths) ... ok
+test_manifest_detects_mutation_new_file_and_external_link (test_private_ipc_diagnostics.PrivateIPCReportTests.test_manifest_detects_mutation_new_file_and_external_link) ... ok
+test_symlink_root_is_not_a_private_policy_namespace (test_private_ipc_diagnostics.PrivateIPCReportTests.test_symlink_root_is_not_a_private_policy_namespace) ... ok
+test_worker_success_requires_real_result_and_cleanup (test_private_ipc_diagnostics.PrivateIPCReportTests.test_worker_success_requires_real_result_and_cleanup) ... ok
+test_existing_report_and_symlink_are_never_replaced (test_private_ipc_worker.PrivateIPCWorkerTests.test_existing_report_and_symlink_are_never_replaced) ... ok
+test_occupied_manager_socket_fails_without_clobber (test_private_ipc_worker.PrivateIPCWorkerTests.test_occupied_manager_socket_fails_without_clobber) ... ok
+test_real_spawn_manager_exchange_and_shutdown (test_private_ipc_worker.PrivateIPCWorkerTests.test_real_spawn_manager_exchange_and_shutdown) ... ok
+test_symlinked_or_nonprivate_ipc_directory_is_rejected (test_private_ipc_worker.PrivateIPCWorkerTests.test_symlinked_or_nonprivate_ipc_directory_is_rejected) ... ok
+test_cleanup_failure_preserves_original_timeout_and_receipt_is_not_complete (test_qpdf_crypto_diagnostics.CryptoDiagnosticTests.test_cleanup_failure_preserves_original_timeout_and_receipt_is_not_complete) ... ok
+test_encryption_whitelist_drops_credentials_and_requires_typed_parameters (test_qpdf_crypto_diagnostics.CryptoDiagnosticTests.test_encryption_whitelist_drops_credentials_and_requires_typed_parameters) ... ok
+test_legacy_cause_requires_exact_error_completed_exit_and_cleanup (test_qpdf_crypto_diagnostics.CryptoDiagnosticTests.test_legacy_cause_requires_exact_error_completed_exit_and_cleanup) ... ok
+test_real_stdin_and_stderr_do_not_leave_credentials_in_retained_receipt (test_qpdf_crypto_diagnostics.CryptoDiagnosticTests.test_real_stdin_and_stderr_do_not_leave_credentials_in_retained_receipt) ... ok
+test_actions_redirects_and_release_assets_use_their_required_accept_headers (test_retain_evidence.EvidenceRetentionTests.test_actions_redirects_and_release_assets_use_their_required_accept_headers) ... ok
+test_asset_verification_preserves_a_preexisting_scratch_file (test_retain_evidence.EvidenceRetentionTests.test_asset_verification_preserves_a_preexisting_scratch_file) ... ok
+test_changed_asset_bytes_and_foreign_assets_are_not_overwritten (test_retain_evidence.EvidenceRetentionTests.test_changed_asset_bytes_and_foreign_assets_are_not_overwritten) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+ok
+test_failed_source_native_successes_are_retained_without_execution_or_approval (test_retain_evidence.EvidenceRetentionTests.test_failed_source_native_successes_are_retained_without_execution_or_approval) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+ok
+test_foreign_run_commit_workflow_and_incomplete_gates_are_rejected (test_retain_evidence.EvidenceRetentionTests.test_foreign_run_commit_workflow_and_incomplete_gates_are_rejected) ... ok
+test_http_failure_reports_only_status_origin_host_and_exit_without_raw_stderr (test_retain_evidence.EvidenceRetentionTests.test_http_failure_reports_only_status_origin_host_and_exit_without_raw_stderr) ... ok
+test_input_shell_fragments_and_path_traversal_are_rejected (test_retain_evidence.EvidenceRetentionTests.test_input_shell_fragments_and_path_traversal_are_rejected) ... ok
+test_interrupted_export_can_add_missing_assets_without_replacing_any (test_retain_evidence.EvidenceRetentionTests.test_interrupted_export_can_add_missing_assets_without_replacing_any) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+ok
+test_missing_duplicate_stale_expired_and_tampered_artifacts_are_rejected (test_retain_evidence.EvidenceRetentionTests.test_missing_duplicate_stale_expired_and_tampered_artifacts_are_rejected) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+ok
+test_published_or_changed_release_is_refused_without_any_write (test_retain_evidence.EvidenceRetentionTests.test_published_or_changed_release_is_refused_without_any_write) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+ok
+test_real_stream_enforces_hash_size_and_does_not_echo_process_errors (test_retain_evidence.EvidenceRetentionTests.test_real_stream_enforces_hash_size_and_does_not_echo_process_errors) ... ok
+test_release_changed_during_final_verification_is_not_reported_as_a_draft (test_retain_evidence.EvidenceRetentionTests.test_release_changed_during_final_verification_is_not_reported_as_a_draft) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+ok
+test_rerun_compares_existing_bytes_and_never_reuploads_them (test_retain_evidence.EvidenceRetentionTests.test_rerun_compares_existing_bytes_and_never_reuploads_them) ... Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+Authenticated failed source run: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-macOS-preview-xcode-27 ID: 206
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Retaining original complete log ZIP for source attempt: 1
+ok
+test_token_is_used_only_through_job_environment_and_host_is_fixed (test_retain_evidence.EvidenceRetentionTests.test_token_is_used_only_through_job_environment_and_host_is_fixed) ... ok
+test_both_failed_captures_can_lack_only_their_own_preview (test_retain_partial_evidence.PartialEvidenceTests.test_both_failed_captures_can_lack_only_their_own_preview) ... ok
+test_failed_validation_with_present_preview_is_retained_without_labeling_it_passed (test_retain_partial_evidence.PartialEvidenceTests.test_failed_validation_with_present_preview_is_retained_without_labeling_it_passed) ... ok
+test_final_readback_detects_release_published_during_verification (test_retain_partial_evidence.PartialEvidenceTests.test_final_readback_detects_release_published_during_verification) ... Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+ok
+test_incomplete_api_inventory_and_existing_local_output_are_refused (test_retain_partial_evidence.PartialEvidenceTests.test_incomplete_api_inventory_and_existing_local_output_are_refused) ... Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+ok
+test_inconsistent_preview_states_or_nonfailed_job_are_refused (test_retain_partial_evidence.PartialEvidenceTests.test_inconsistent_preview_states_or_nonfailed_job_are_refused) ... ok
+test_missing_foreign_duplicate_expired_and_malformed_artifacts_are_refused (test_retain_partial_evidence.PartialEvidenceTests.test_missing_foreign_duplicate_expired_and_malformed_artifacts_are_refused) ... ok
+test_missing_preview_is_explicit_and_original_zip_bytes_stay_opaque (test_retain_partial_evidence.PartialEvidenceTests.test_missing_preview_is_explicit_and_original_zip_bytes_stay_opaque) ... Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+ok
+test_partial_audit_does_not_change_strict_retention_contract (test_retain_partial_evidence.PartialEvidenceTests.test_partial_audit_does_not_change_strict_retention_contract) ... ok
+test_published_modified_draft_or_asset_is_never_overwritten (test_retain_partial_evidence.PartialEvidenceTests.test_published_modified_draft_or_asset_is_never_overwritten) ... Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+ok
+test_rerun_is_byte_identical_and_adds_only_missing_assets (test_retain_partial_evidence.PartialEvidenceTests.test_rerun_is_byte_identical_and_adds_only_missing_assets) ... Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+ok
+test_wrong_download_digest_and_missing_logs_prevent_any_draft_creation (test_retain_partial_evidence.PartialEvidenceTests.test_wrong_download_digest_and_missing_logs_prevent_any_draft_creation) ... Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Authenticated failed source run with partial visual evidence: 123 commit: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+Retaining original artifact: PDF-native-checks-macos-26 ID: 200
+Retaining original artifact: PDF-macOS-preview-macos-26 ID: 201
+Retaining original artifact: PDF-Apple-Vision-capability-macos-26 ID: 202
+Retaining original artifact: PDF-local-AI-macos-26 ID: 203
+Retaining original artifact: PDF-macOS-benchmark-macos-26 ID: 204
+Retaining original artifact: PDF-native-checks-xcode-27 ID: 205
+Retaining original artifact: PDF-Apple-Vision-capability-xcode-27 ID: 207
+Retaining original artifact: PDF-local-AI-xcode-27 ID: 208
+Retaining original artifact: PDF-macOS-benchmark-xcode-27 ID: 209
+ok
+test_wrong_source_identity_attempt_and_required_gate_are_refused (test_retain_partial_evidence.PartialEvidenceTests.test_wrong_source_identity_attempt_and_required_gate_are_refused) ... ok
+test_ambiguous_or_missing_anchor_is_rejected (test_startup_observation.StartupObservationTests.test_ambiguous_or_missing_anchor_is_rejected) ... ok
+test_exact_sources_are_required_and_original_bytes_unchanged (test_startup_observation.StartupObservationTests.test_exact_sources_are_required_and_original_bytes_unchanged) ... ok
+test_launch_completion_alone_never_means_a_window (test_startup_observation.StartupObservationTests.test_launch_completion_alone_never_means_a_window) ... ok
+test_responsive_application_can_have_no_attached_scene (test_startup_observation.StartupObservationTests.test_responsive_application_can_have_no_attached_scene) ... ok
+test_stage_preserves_installer_and_records_exact_patch (test_startup_observation.StartupObservationTests.test_stage_preserves_installer_and_records_exact_patch) ... ok
+test_visible_window_still_requires_real_scene_and_queue (test_startup_observation.StartupObservationTests.test_visible_window_still_requires_real_scene_and_queue) ... ok
+test_wrong_baseline_commit_is_rejected_before_creating_output (test_startup_observation.StartupObservationTests.test_wrong_baseline_commit_is_rejected_before_creating_output) ... ok
+
+----------------------------------------------------------------------
+Ran 116 tests in 3.221s
+
+OK

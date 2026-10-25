@@ -1,0 +1,597 @@
+﻿2026-10-25T21:55:04.8643410Z Current runner version: '2.338.0'
+2026-10-25T21:55:04.8657530Z ##[group]Runner Image Provisioner
+2026-10-25T21:55:04.8658040Z Hosted Compute Agent
+2026-10-25T21:55:04.8658400Z Version: 20261012.601
+2026-10-25T21:55:04.8658950Z Commit: f3dc54e1fb89da6852db922499a0233137369e1d
+2026-10-25T21:55:04.8659530Z Build Date: 2026-10-12T17:48:21Z
+2026-10-25T21:55:04.8660070Z Worker ID: {adc07a7e-ab4a-4d95-83e7-3399449ff8a0}
+2026-10-25T21:55:04.8660530Z Region: westus
+2026-10-25T21:55:04.8660860Z Cloud: MacCloud
+2026-10-25T21:55:04.8661210Z ##[endgroup]
+2026-10-25T21:55:04.8662290Z ##[group]Operating System
+2026-10-25T21:55:04.8662780Z macOS
+2026-10-25T21:55:04.8663180Z 26.6.2
+2026-10-25T21:55:04.8663520Z 25G83
+2026-10-25T21:55:04.8663840Z ##[endgroup]
+2026-10-25T21:55:04.8664190Z ##[group]Runner Image
+2026-10-25T21:55:04.8664600Z Image: macos-26-arm64
+2026-10-25T21:55:04.8665120Z Version: 20261013.0424.1
+2026-10-25T21:55:04.8666120Z Included Software: https://github.com/actions/runner-images/blob/macos-26-arm64/20261013.0424/images/macos/macos-26-arm64-Readme.md
+2026-10-25T21:55:04.8667690Z Image Release: https://github.com/actions/runner-images/releases/tag/macos-26-arm64%2F20261013.0424
+2026-10-25T21:55:04.8668620Z ##[endgroup]
+2026-10-25T21:55:04.8669470Z ##[group]GITHUB_TOKEN Permissions
+2026-10-25T21:55:04.8671150Z Contents: read
+2026-10-25T21:55:04.8671510Z Metadata: read
+2026-10-25T21:55:04.8671950Z ##[endgroup]
+2026-10-25T21:55:04.8673570Z Secret source: Actions
+2026-10-25T21:55:04.8674170Z Cache mode: write
+2026-10-25T21:55:04.8674700Z Prepare workflow directory
+2026-10-25T21:55:04.8889690Z Prepare all required actions
+2026-10-25T21:55:04.8925770Z Getting action download info
+2026-10-25T21:55:05.1634950Z Download action repository 'actions/checkout@11d5960a326750d5838078e36cf38b85af677262' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-10-25T21:55:05.4126520Z Download action repository 'actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02' (SHA:ea165f8d65b6e75b540449e92b4886f43607fa02)
+2026-10-25T21:55:05.7128290Z Complete job name: native-application (macos-26)
+2026-10-25T21:55:05.7711000Z ##[group]Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+2026-10-25T21:55:05.7711600Z with:
+2026-10-25T21:55:05.7711920Z   repository: vibracall-beep/PDF-
+2026-10-25T21:55:05.7714360Z   token: ***
+2026-10-25T21:55:05.7714650Z   ssh-strict: true
+2026-10-25T21:55:05.7714940Z   ssh-user: git
+2026-10-25T21:55:05.7715240Z   persist-credentials: true
+2026-10-25T21:55:05.7715560Z   clean: true
+2026-10-25T21:55:05.7715860Z   sparse-checkout-cone-mode: true
+2026-10-25T21:55:05.7716210Z   fetch-depth: 1
+2026-10-25T21:55:05.7716500Z   fetch-tags: false
+2026-10-25T21:55:05.7716800Z   show-progress: true
+2026-10-25T21:55:05.7717100Z   lfs: false
+2026-10-25T21:55:05.7717390Z   submodules: false
+2026-10-25T21:55:05.7717700Z   set-safe-directory: true
+2026-10-25T21:55:05.7718050Z   allow-unsafe-pr-checkout: false
+2026-10-25T21:55:05.7718490Z ##[endgroup]
+2026-10-25T21:55:06.1698250Z Syncing repository: vibracall-beep/PDF-
+2026-10-25T21:55:06.1699810Z ##[group]Getting Git version info
+2026-10-25T21:55:06.1700270Z Working directory is '/Users/runner/work/PDF-/PDF-'
+2026-10-25T21:55:06.1700980Z [command]/opt/homebrew/bin/git version
+2026-10-25T21:55:06.1937320Z git version 2.56.0
+2026-10-25T21:55:06.1952840Z ##[endgroup]
+2026-10-25T21:55:06.1959440Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/671478a3-4068-411d-b234-ac8bdb3ddc56/.gitconfig'
+2026-10-25T21:55:06.1966130Z Temporarily overriding HOME='/Users/runner/work/_temp/671478a3-4068-411d-b234-ac8bdb3ddc56' before making global git config changes
+2026-10-25T21:55:06.1967180Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-25T21:55:06.1969480Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/PDF-/PDF-
+2026-10-25T21:55:06.2072510Z Deleting the contents of '/Users/runner/work/PDF-/PDF-'
+2026-10-25T21:55:06.2075180Z ##[group]Initializing the repository
+2026-10-25T21:55:06.2078930Z [command]/opt/homebrew/bin/git init /Users/runner/work/PDF-/PDF-
+2026-10-25T21:55:06.2323940Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-10-25T21:55:06.2324790Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-10-25T21:55:06.2325620Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-10-25T21:55:06.2326270Z hint: call:
+2026-10-25T21:55:06.2326600Z hint:
+2026-10-25T21:55:06.2327030Z hint: 	git config --global init.defaultBranch <name>
+2026-10-25T21:55:06.2327470Z hint:
+2026-10-25T21:55:06.2327980Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-10-25T21:55:06.2328690Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-10-25T21:55:06.2329210Z hint:
+2026-10-25T21:55:06.2329540Z hint: 	git branch -m <name>
+2026-10-25T21:55:06.2329970Z hint:
+2026-10-25T21:55:06.2330470Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-10-25T21:55:06.2333180Z Initialized empty Git repository in /Users/runner/work/PDF-/PDF-/.git/
+2026-10-25T21:55:06.2342760Z [command]/opt/homebrew/bin/git remote add origin https://github.com/vibracall-beep/PDF-
+2026-10-25T21:55:06.2430870Z ##[endgroup]
+2026-10-25T21:55:06.2431910Z ##[group]Disabling automatic garbage collection
+2026-10-25T21:55:06.2433990Z [command]/opt/homebrew/bin/git config --local gc.auto 0
+2026-10-25T21:55:06.2507980Z ##[endgroup]
+2026-10-25T21:55:06.2527180Z ##[group]Setting up auth
+2026-10-25T21:55:06.2527920Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T21:55:06.2577150Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T21:55:06.3830800Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T21:55:06.3894330Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T21:55:06.4683570Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T21:55:06.4745530Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T21:55:06.5514310Z [command]/opt/homebrew/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-10-25T21:55:06.5583580Z ##[endgroup]
+2026-10-25T21:55:06.5584620Z ##[group]Fetching the repository
+2026-10-25T21:55:06.5589410Z [command]/opt/homebrew/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +6a388b55ed9ae85b2f8cbc3a508d37708358b8d6:refs/remotes/origin/main
+2026-10-25T21:55:08.4373010Z From https://github.com/vibracall-beep/PDF-
+2026-10-25T21:55:08.4373960Z  * [new ref]         6a388b55ed9ae85b2f8cbc3a508d37708358b8d6 -> origin/main
+2026-10-25T21:55:08.4494720Z ##[endgroup]
+2026-10-25T21:55:08.4495460Z ##[group]Determining the checkout info
+2026-10-25T21:55:08.4496260Z ##[endgroup]
+2026-10-25T21:55:08.4502170Z [command]/opt/homebrew/bin/git sparse-checkout disable
+2026-10-25T21:55:08.5018220Z [command]/opt/homebrew/bin/git config --local --unset-all extensions.worktreeConfig
+2026-10-25T21:55:08.5088260Z ##[group]Checking out the ref
+2026-10-25T21:55:08.5090230Z [command]/opt/homebrew/bin/git checkout --progress --force -B main refs/remotes/origin/main
+2026-10-25T21:55:08.8679270Z Switched to a new branch 'main'
+2026-10-25T21:55:08.8682150Z branch 'main' set up to track 'origin/main'.
+2026-10-25T21:55:08.8691970Z ##[endgroup]
+2026-10-25T21:55:08.8873180Z [command]/opt/homebrew/bin/git log -1 --format=%H
+2026-10-25T21:55:08.8941310Z 6a388b55ed9ae85b2f8cbc3a508d37708358b8d6
+2026-10-25T21:55:08.9589340Z ##[group]Run uname -m
+2026-10-25T21:55:08.9589710Z [36;1muname -m[0m
+2026-10-25T21:55:08.9589930Z [36;1msw_vers -productVersion[0m
+2026-10-25T21:55:08.9590220Z [36;1msysctl -n machdep.cpu.brand_string[0m
+2026-10-25T21:55:08.9590490Z [36;1msysctl -n hw.ncpu[0m
+2026-10-25T21:55:08.9590700Z [36;1mxcodebuild -version[0m
+2026-10-25T21:55:08.9590970Z [36;1mxcrun --sdk macosx --show-sdk-version[0m
+2026-10-25T21:55:08.9591450Z [36;1m# Read-only SDK discovery; actual App Intents extraction will be a[0m
+2026-10-25T21:55:08.9591990Z [36;1m# separate required bundle check, not inferred from this help text.[0m
+2026-10-25T21:55:08.9592410Z [36;1mif xcrun --find appintentsmetadataprocessor; then[0m
+2026-10-25T21:55:08.9592800Z [36;1m  xcrun appintentsmetadataprocessor --help || true[0m
+2026-10-25T21:55:08.9593110Z [36;1mfi[0m
+2026-10-25T21:55:08.9669620Z shell: /bin/bash -e {0}
+2026-10-25T21:55:08.9670420Z ##[endgroup]
+2026-10-25T21:55:09.0121730Z arm64
+2026-10-25T21:55:09.0389220Z 26.6.2
+2026-10-25T21:55:09.0737080Z Apple M1 (Virtual)
+2026-10-25T21:55:09.0762180Z 3
+2026-10-25T21:55:09.9071280Z Xcode 26.6
+2026-10-25T21:55:09.9080500Z Build version 17F113
+2026-10-25T21:55:11.9872510Z 26.5
+2026-10-25T21:55:12.6925080Z /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor
+2026-10-25T21:55:12.8142860Z 2026-10-25 21:55:12.813 appintentsmetadataprocessor[3168:13610] error: Unable to parse options
+2026-10-25T21:55:12.8146310Z USAGE: /Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/appintentsmetadataprocessor [<options>] --output <output> --toolchain-dir <toolchain-dir> --module-name <module-name> --sdk-root <sdk-root> --xcode-version <xcode-version> --platform-family <platform-family> --deployment-target <deployment-target> --target-triple <target-triple> --source-file-list <source-file-list> --swift-const-vals-list <swift-const-vals-list>
+2026-10-25T21:55:12.8191500Z 
+2026-10-25T21:55:12.8191870Z OPTIONS:
+2026-10-25T21:55:12.8192520Z   -o, --output <output>                          The path to produce the compiled output bundle.
+2026-10-25T21:55:12.8193260Z   -c, --toolchain-dir <toolchain-dir>            Toolchain path used for build.
+2026-10-25T21:55:12.8193750Z   -m, --module-name <module-name>                Module name of target.
+2026-10-25T21:55:12.8194320Z   -r, --sdk-root <sdk-root>                      SDK root file path.
+2026-10-25T21:55:12.8195370Z   -xcv, --xcode-version  <xcode-version>         Xcode product build version.
+2026-10-25T21:55:12.8195940Z   -pf, --platform-family   <platform-family>     Platform family for target.
+2026-10-25T21:55:12.8196450Z   -dt, --deployment-target <deployment-target>   Deployment target.
+2026-10-25T21:55:12.8197040Z   -t, --target-triple <target-triple>            Target triple used for build.
+2026-10-25T21:55:12.8197570Z   -p, --dependency-file <dependency-file>        Dependency info file path.
+2026-10-25T21:55:12.8198120Z   -g, --stringsdata-file <stringsdata-file>      stringsdata file path.
+2026-10-25T21:55:12.8198990Z   -sl, --source-file-list <source-file-list>     Path to file containing a list of source file paths to produce the compiled output bundle.
+2026-10-25T21:55:12.8199940Z   -mfl, --metadata-file-list <metadata-file-list>                 Path to file containing a list of App Intents metadata files for this target's dependencies.
+2026-10-25T21:55:12.8201000Z   -smfl, --static-metadata-file-list <static-metadata-file-list>  Path to file containing a list of App Intents metadata files for this target's static dependencies.
+2026-10-25T21:55:12.8202000Z   -scl, --swift-const-vals-list <swift-const-vals-list>           Path to file containing a list of Swift compiler-produced supplementary constant value metadata.
+2026-10-25T21:55:12.8202650Z   --force                                        Force execution - Disregard dependency file.
+2026-10-25T21:55:12.8203740Z   --quiet-warnings                               Filter warning messages.
+2026-10-25T21:55:12.8204600Z   --force-metadata-output                        Produce metadata output while skipping errors.
+2026-10-25T21:55:12.8205070Z   -d, --disable                                  Disable output generation.
+2026-10-25T21:55:12.8205550Z   --deployment-aware-processing                  Deployment aware processing enabled.
+2026-10-25T21:55:12.8206110Z   --validate-assistant-intents                   Validate Assistant Intent Providers.
+2026-10-25T21:55:12.8206730Z   --assistant-intents-app-name-override          Override looking for ${applicationName} in AssistantIntent phrases
+2026-10-25T21:55:12.8207550Z   --app-shortcuts-app-name-override              Override looking for ${applicationName} in AppShortcut phrases
+2026-10-25T21:55:12.8208160Z   --no-app-shortcuts-localization                Indicates that App shortcuts phrases were not localized
+2026-10-25T21:55:12.8208650Z   -h, --help                                     Show help information.
+2026-10-25T21:55:12.8255250Z ##[group]Run python3 -m unittest discover -s scripts -p 'test_*.py' -v
+2026-10-25T21:55:12.8255810Z [36;1mpython3 -m unittest discover -s scripts -p 'test_*.py' -v[0m
+2026-10-25T21:55:12.8291320Z shell: /bin/bash -e {0}
+2026-10-25T21:55:12.8291560Z ##[endgroup]
+2026-10-25T21:55:13.5303490Z test_cli_rejects_symlink_and_fifo_without_blocking (test_accessibility_report.AccessibilityReportTests.test_cli_rejects_symlink_and_fifo_without_blocking) ... ok
+2026-10-25T21:55:13.5309630Z test_complete_report_and_review_only_findings_remain_valid (test_accessibility_report.AccessibilityReportTests.test_complete_report_and_review_only_findings_remain_valid) ... ok
+2026-10-25T21:55:13.5313340Z test_empty_tree_and_failure_flags_fail_without_findings (test_accessibility_report.AccessibilityReportTests.test_empty_tree_and_failure_flags_fail_without_findings) ... ok
+2026-10-25T21:55:13.5323990Z test_incomplete_or_malformed_report_cannot_be_accepted (test_accessibility_report.AccessibilityReportTests.test_incomplete_or_malformed_report_cannot_be_accepted) ... ok
+2026-10-25T21:55:13.5330410Z test_oversized_report_is_rejected_before_json_decoding (test_accessibility_report.AccessibilityReportTests.test_oversized_report_is_rejected_before_json_decoding) ... ok
+2026-10-25T21:55:13.5342880Z test_actual_sdk26_metadata_has_both_actions_provider_entity_and_query (test_app_intents_metadata.AppIntentsMetadataTests.test_actual_sdk26_metadata_has_both_actions_provider_entity_and_query) ... ok
+2026-10-25T21:55:13.5360750Z test_document_parameter_must_restrict_input_to_pdf (test_app_intents_metadata.AppIntentsMetadataTests.test_document_parameter_must_restrict_input_to_pdf) ... ok
+2026-10-25T21:55:13.5378090Z test_incomplete_action_or_hidden_action_cannot_pass (test_app_intents_metadata.AppIntentsMetadataTests.test_incomplete_action_or_hidden_action_cannot_pass) ... ok
+2026-10-25T21:55:13.5391750Z test_provider_or_phrase_absence_is_rejected (test_app_intents_metadata.AppIntentsMetadataTests.test_provider_or_phrase_absence_is_rejected) ... ok
+2026-10-25T21:55:13.5400490Z test_symlink_and_fifo_metadata_are_rejected (test_app_intents_metadata.AppIntentsMetadataTests.test_symlink_and_fifo_metadata_are_rejected) ... ok
+2026-10-25T21:55:13.5413860Z test_workflow_entity_must_have_a_real_discovery_query (test_app_intents_metadata.AppIntentsMetadataTests.test_workflow_entity_must_have_a_real_discovery_query) ... ok
+2026-10-25T21:55:13.5420910Z test_zero_exit_without_output_cannot_pass_verification (test_app_intents_metadata.AppIntentsMetadataTests.test_zero_exit_without_output_cannot_pass_verification) ... ok
+2026-10-25T21:55:13.5431940Z test_compares_actual_medians_and_retains_samples (test_benchmark_comparison.BenchmarkComparisonTests.test_compares_actual_medians_and_retains_samples) ... ok
+2026-10-25T21:55:13.5442090Z test_failed_or_duplicate_operations_are_not_speedups (test_benchmark_comparison.BenchmarkComparisonTests.test_failed_or_duplicate_operations_are_not_speedups) ... ok
+2026-10-25T21:55:13.5463030Z test_invalid_or_partial_condition_evidence_is_refused (test_benchmark_comparison.BenchmarkComparisonTests.test_invalid_or_partial_condition_evidence_is_refused) ... ok
+2026-10-25T21:55:13.5474960Z test_operation_scope_change_is_not_a_speedup (test_benchmark_comparison.BenchmarkComparisonTests.test_operation_scope_change_is_not_a_speedup) ... ok
+2026-10-25T21:55:13.5497800Z test_rejects_hardware_and_source_changes (test_benchmark_comparison.BenchmarkComparisonTests.test_rejects_hardware_and_source_changes) ... ok
+2026-10-25T21:55:13.5514630Z test_thermal_and_power_conditions_must_match_and_remain_stable (test_benchmark_comparison.BenchmarkComparisonTests.test_thermal_and_power_conditions_must_match_and_remain_stable) ... ok
+2026-10-25T21:55:13.5533240Z test_zero_negative_nonfinite_missing_and_boolean_samples_fail (test_benchmark_comparison.BenchmarkComparisonTests.test_zero_negative_nonfinite_missing_and_boolean_samples_fail) ... ok
+2026-10-25T21:55:13.5872650Z test_authenticated_archive_roundtrip_preserves_modes_links_and_executable (test_binary_archive.BinaryArchiveExtractionTests.test_authenticated_archive_roundtrip_preserves_modes_links_and_executable) ... ok
+2026-10-25T21:55:13.6193710Z test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected (test_binary_archive.BinaryArchiveExtractionTests.test_historical_umask_loss_and_subsequent_mode_tampering_remain_rejected) ... ok
+2026-10-25T21:55:14.7392480Z test_actual_native_preflight_accepts_valid_legacy_and_rejects_invalid_metadata (test_binary_space.BinaryStorageTests.test_actual_native_preflight_accepts_valid_legacy_and_rejects_invalid_metadata) ... ok
+2026-10-25T21:55:26.6651540Z test_actual_native_preflight_refuses_real_low_space_without_changing_existing_app (test_binary_space.BinaryStorageTests.test_actual_native_preflight_refuses_real_low_space_without_changing_existing_app) ... ok
+2026-10-25T21:55:26.6819490Z test_legacy_manifest_remains_compatible_but_wrong_present_totals_are_rejected (test_binary_space.BinaryStorageTests.test_legacy_manifest_remains_compatible_but_wrong_present_totals_are_rejected) ... ok
+2026-10-25T21:55:26.7021630Z test_native_archive_size_measures_the_copied_target_of_a_symlink (test_binary_space.BinaryStorageTests.test_native_archive_size_measures_the_copied_target_of_a_symlink) ... ok
+2026-10-25T21:55:26.7067090Z test_totals_cover_files_empty_directories_and_symlinks_without_following (test_binary_space.BinaryStorageTests.test_totals_cover_files_empty_directories_and_symlinks_without_following) ... ok
+2026-10-25T21:55:26.7147920Z test_activation_validation_failure_restores_old_and_preserves_failed (test_binary_update.BinaryUpdateTests.test_activation_validation_failure_restores_old_and_preserves_failed) ... ok
+2026-10-25T21:55:26.7216000Z test_concurrent_destination_is_never_overwritten_during_recovery (test_binary_update.BinaryUpdateTests.test_concurrent_destination_is_never_overwritten_during_recovery) ... ok
+2026-10-25T21:55:26.7253030Z test_corrupt_committed_staging_marker_still_refuses_recovery (test_binary_update.BinaryUpdateTests.test_corrupt_committed_staging_marker_still_refuses_recovery) ... ok
+2026-10-25T21:55:26.7332000Z test_failed_staging_validation_does_not_accumulate_copies (test_binary_update.BinaryUpdateTests.test_failed_staging_validation_does_not_accumulate_copies) ... ok
+2026-10-25T21:55:26.7360320Z test_fifo_lock_is_rejected_without_blocking (test_binary_update.BinaryUpdateTests.test_fifo_lock_is_rejected_without_blocking) ... ok
+2026-10-25T21:55:26.7396500Z test_fixture_cleanup_preserves_failures_and_never_ignores_persistent_busy (test_binary_update.BinaryUpdateTests.test_fixture_cleanup_preserves_failures_and_never_ignores_persistent_busy) ... ok
+2026-10-25T21:55:26.7427520Z test_fixture_cleanup_retries_busy_only_on_the_owned_image (test_binary_update.BinaryUpdateTests.test_fixture_cleanup_retries_busy_only_on_the_owned_image) ... ok
+2026-10-25T21:55:26.7453320Z test_journal_cannot_redirect_recovery_to_user_paths (test_binary_update.BinaryUpdateTests.test_journal_cannot_redirect_recovery_to_user_paths) ... ok
+2026-10-25T21:55:26.7487850Z test_manifest_rejects_external_symlink_before_installation (test_binary_update.BinaryUpdateTests.test_manifest_rejects_external_symlink_before_installation) ... ok
+2026-10-25T21:55:26.7539060Z test_manifest_rejects_tampering_added_file_and_changed_mode (test_binary_update.BinaryUpdateTests.test_manifest_rejects_tampering_added_file_and_changed_mode) ... ok
+2026-10-25T21:55:26.7595360Z test_partial_copy_failure_removes_only_this_staging_directory (test_binary_update.BinaryUpdateTests.test_partial_copy_failure_removes_only_this_staging_directory) ... ok
+2026-10-25T21:55:26.7596900Z test_real_enospc_after_backup_restores_old_bundle (test_binary_update.BinaryUpdateTests.test_real_enospc_after_backup_restores_old_bundle) ... skipped 'Linux /dev/full supplies a real ENOSPC write'
+2026-10-25T21:55:28.5213920Z test_real_full_disk_during_update_can_recover_after_space_is_freed (test_binary_update.BinaryUpdateTests.test_real_full_disk_during_update_can_recover_after_space_is_freed) ... ok
+2026-10-25T21:55:29.1173290Z test_sigkill_before_journal_and_during_copy_reclaims_only_registered_staging (test_binary_update.BinaryUpdateTests.test_sigkill_before_journal_and_during_copy_reclaims_only_registered_staging) ... ok
+2026-10-25T21:55:29.9725590Z test_sigkill_between_each_publication_step_recovers_on_new_process (test_binary_update.BinaryUpdateTests.test_sigkill_between_each_publication_step_recovers_on_new_process) ... ok
+2026-10-25T21:55:30.2409530Z test_sigkill_while_staging_marker_is_empty_or_partial_does_not_block_retry (test_binary_update.BinaryUpdateTests.test_sigkill_while_staging_marker_is_empty_or_partial_does_not_block_retry) ... ok
+2026-10-25T21:55:30.2455790Z test_staging_cleanup_preserves_directory_and_lease_replacements (test_binary_update.BinaryUpdateTests.test_staging_cleanup_preserves_directory_and_lease_replacements) ... ok
+2026-10-25T21:55:30.2491530Z test_staging_cleanup_refuses_live_runtime_lease_then_recovers (test_binary_update.BinaryUpdateTests.test_staging_cleanup_refuses_live_runtime_lease_then_recovers) ... ok
+2026-10-25T21:55:30.2531090Z test_staging_cleanup_rejects_marker_links_fifo_and_parent_rebinding (test_binary_update.BinaryUpdateTests.test_staging_cleanup_rejects_marker_links_fifo_and_parent_rebinding) ... ok
+2026-10-25T21:55:30.2586160Z test_staging_failure_preserves_foreign_replacement (test_binary_update.BinaryUpdateTests.test_staging_failure_preserves_foreign_replacement) ... ok
+2026-10-25T21:55:30.2614490Z test_staging_record_publication_refuses_replacement_and_existing_target (test_binary_update.BinaryUpdateTests.test_staging_record_publication_refuses_replacement_and_existing_target) ... ok
+2026-10-25T21:55:30.2684990Z test_valid_update_preserves_previous_bundle_and_preferences (test_binary_update.BinaryUpdateTests.test_valid_update_preserves_previous_bundle_and_preferences) ... ok
+2026-10-25T21:55:30.2709510Z test_foreign_inherited_descriptor_is_refused (test_bundle_lease.BundleLeaseTests.test_foreign_inherited_descriptor_is_refused) ... ok
+2026-10-25T21:55:30.2736680Z test_legacy_bundle_is_preserved_without_unsafe_update (test_bundle_lease.BundleLeaseTests.test_legacy_bundle_is_preserved_without_unsafe_update) ... ok
+2026-10-25T21:55:30.2982440Z test_restart_preserves_open_candidate_and_journal_until_closed (test_bundle_lease.BundleLeaseTests.test_restart_preserves_open_candidate_and_journal_until_closed) ... ok
+2026-10-25T21:55:30.3338840Z test_running_reader_blocks_update_then_real_kill_releases_lease (test_bundle_lease.BundleLeaseTests.test_running_reader_blocks_update_then_real_kill_releases_lease) ... ok
+2026-10-25T21:55:30.3904920Z test_source_shell_retains_lock_after_python_child_exits (test_bundle_lease.BundleLeaseTests.test_source_shell_retains_lock_after_python_child_exits) ... ok
+2026-10-25T21:55:30.5295850Z test_wrapper_passes_same_descriptor_without_unlocking_parent (test_bundle_lease.BundleLeaseTests.test_wrapper_passes_same_descriptor_without_unlocking_parent) ... ok
+2026-10-25T21:55:30.5319610Z test_writable_or_symlink_lease_is_not_trusted (test_bundle_lease.BundleLeaseTests.test_writable_or_symlink_lease_is_not_trusted) ... ok
+2026-10-25T21:55:30.5363310Z test_changed_public_rule_cannot_import_host_configuration (test_fontconfig_runtime.PrivateFontConfigurationTests.test_changed_public_rule_cannot_import_host_configuration) ... ok
+2026-10-25T21:55:30.5434690Z test_only_public_defaults_are_selected_and_cache_is_outside_bundle (test_fontconfig_runtime.PrivateFontConfigurationTests.test_only_public_defaults_are_selected_and_cache_is_outside_bundle) ... ok
+2026-10-25T21:55:30.5476890Z test_symlinked_public_rule_is_refused (test_fontconfig_runtime.PrivateFontConfigurationTests.test_symlinked_public_rule_is_refused) ... ok
+2026-10-25T21:55:30.7116420Z test_archive_is_reproducible_and_manifest_matches_every_file (test_installation.ArchiveTests.test_archive_is_reproducible_and_manifest_matches_every_file) ... ok
+2026-10-25T21:55:30.8130120Z test_existing_output_and_dangling_symlinks_are_preserved (test_installation.ArchiveTests.test_existing_output_and_dangling_symlinks_are_preserved) ... ok
+2026-10-25T21:55:30.8705490Z test_extract_preserves_existing_destination (test_installation.ArchiveTests.test_extract_preserves_existing_destination) ... ok
+2026-10-25T21:55:30.9468210Z test_extract_rejects_symlinks_and_manifest_mismatch (test_installation.ArchiveTests.test_extract_rejects_symlinks_and_manifest_mismatch) ... ok
+2026-10-25T21:55:31.0947030Z test_extract_rejects_traversal_case_and_file_directory_collisions (test_installation.ArchiveTests.test_extract_rejects_traversal_case_and_file_directory_collisions) ... ok
+2026-10-25T21:55:31.1548030Z test_secret_filename_patterns_and_caches_are_excluded (test_installation.ArchiveTests.test_secret_filename_patterns_and_caches_are_excluded) ... ok
+2026-10-25T21:55:31.2658040Z test_source_symlink_and_fifo_are_rejected (test_installation.ArchiveTests.test_source_symlink_and_fifo_are_rejected) ... ok
+2026-10-25T21:55:31.7300990Z test_exit_status_and_timeout_are_preserved (test_installation.DeadlineTests.test_exit_status_and_timeout_are_preserved) ... ok
+2026-10-25T21:55:31.7313380Z test_changed_source_is_preserved (test_installation.PublicationTests.test_changed_source_is_preserved) ... ok
+2026-10-25T21:55:31.7321320Z test_exclusive_move_preserves_identity_and_content (test_installation.PublicationTests.test_exclusive_move_preserves_identity_and_content) ... ok
+2026-10-25T21:55:31.7335210Z test_existing_directory_file_and_symlinks_are_not_replaced (test_installation.PublicationTests.test_existing_directory_file_and_symlinks_are_not_replaced) ... ok
+2026-10-25T21:55:31.7347170Z test_failed_activation_can_restore_original_without_deleting_new_bundle (test_installation.PublicationTests.test_failed_activation_can_restore_original_without_deleting_new_bundle) ... ok
+2026-10-25T21:55:31.7351070Z test_source_symlink_is_rejected (test_installation.PublicationTests.test_source_symlink_is_rejected) ... ok
+2026-10-25T21:55:31.7377620Z test_invalid_offsets_sizes_alignment_and_slice_headers_are_rejected (test_macho_format.MachOFormatTests.test_invalid_offsets_sizes_alignment_and_slice_headers_are_rejected) ... ok
+2026-10-25T21:55:31.7389220Z test_load_command_area_must_fit_its_own_slice (test_macho_format.MachOFormatTests.test_load_command_area_must_fit_its_own_slice) ... ok
+2026-10-25T21:55:31.7394990Z test_overlapping_slices_and_duplicate_architectures_are_rejected (test_macho_format.MachOFormatTests.test_overlapping_slices_and_duplicate_architectures_are_rejected) ... ok
+2026-10-25T21:55:31.7399610Z test_real_java_class_with_same_magic_is_not_a_universal_binary (test_macho_format.MachOFormatTests.test_real_java_class_with_same_magic_is_not_a_universal_binary) ... ok
+2026-10-25T21:55:31.7429280Z test_regular_files_only_and_sparse_slice_offsets_are_bounded (test_macho_format.MachOFormatTests.test_regular_files_only_and_sparse_slice_offsets_are_bounded) ... ok
+2026-10-25T21:55:31.7438510Z test_thin_headers_cover_both_widths_and_byte_orders (test_macho_format.MachOFormatTests.test_thin_headers_cover_both_widths_and_byte_orders) ... ok
+2026-10-25T21:55:31.7447710Z test_truncated_and_oversized_headers_are_rejected (test_macho_format.MachOFormatTests.test_truncated_and_oversized_headers_are_rejected) ... ok
+2026-10-25T21:55:31.7457020Z test_universal_headers_cover_fat32_fat64_and_both_byte_orders (test_macho_format.MachOFormatTests.test_universal_headers_cover_fat32_fat64_and_both_byte_orders) ... ok
+2026-10-25T21:55:31.7458350Z test_library_names_preserve_spaces_and_parentheses_before_version_metadata (test_macho_relocation.MachORelocationTests.test_library_names_preserve_spaces_and_parentheses_before_version_metadata) ... ok
+2026-10-25T21:55:35.2295450Z test_real_helpers_with_parentheses_relocate_and_execute_without_external_fallback (test_macho_relocation.MachORelocationTests.test_real_helpers_with_parentheses_relocate_and_execute_without_external_fallback) ... ok
+2026-10-25T21:55:35.2297120Z test_unrecognized_dependency_records_cannot_be_silently_ignored (test_macho_relocation.MachORelocationTests.test_unrecognized_dependency_records_cannot_be_silently_ignored) ... ok
+2026-10-25T21:55:35.2590720Z test_cli_error_exit_and_diagnostic_are_preserved (test_ocr_dispatcher.OCRDispatcherTests.test_cli_error_exit_and_diagnostic_are_preserved) ... ok
+2026-10-25T21:55:35.4410190Z test_spawn_imports_generated_launcher_without_rerunning_cli (test_ocr_dispatcher.OCRDispatcherTests.test_spawn_imports_generated_launcher_without_rerunning_cli) ... ok
+2026-10-25T21:55:35.5082310Z test_every_pem_block_is_required_to_validate (test_package_binary.BinaryCertificateRelocationTests.test_every_pem_block_is_required_to_validate) ... ok
+2026-10-25T21:55:35.5552940Z test_global_ca_reference_maps_to_public_store_without_copying_host_trust (test_package_binary.BinaryCertificateRelocationTests.test_global_ca_reference_maps_to_public_store_without_copying_host_trust) ... ok
+2026-10-25T21:55:35.6117610Z test_other_external_configuration_is_still_rejected (test_package_binary.BinaryCertificateRelocationTests.test_other_external_configuration_is_still_rejected) ... ok
+2026-10-25T21:55:35.6585910Z test_public_store_rejects_private_material_invalid_pem_and_special_files (test_package_binary.BinaryCertificateRelocationTests.test_public_store_rejects_private_material_invalid_pem_and_special_files) ... ok
+2026-10-25T21:55:35.8919040Z test_utf8_certificate_descriptions_are_preserved_outside_valid_pem (test_package_binary.BinaryCertificateRelocationTests.test_utf8_certificate_descriptions_are_preserved_outside_valid_pem) ... ok
+2026-10-25T21:55:35.8920670Z test_denied_controls_require_eperm_and_exact_types (test_portable_isolation.PortableIsolationTests.test_denied_controls_require_eperm_and_exact_types) ... ok
+2026-10-25T21:55:36.0285470Z test_failed_checker_does_not_delete_root_held_by_other_session (test_portable_isolation.PortableIsolationTests.test_failed_checker_does_not_delete_root_held_by_other_session) ... 
+2026-10-25T21:55:36.0683540Z ok
+2026-10-25T21:55:36.0692500Z test_policy_preserves_base_and_opens_only_canonical_private_namespace (test_portable_isolation.PortableIsolationTests.test_policy_preserves_base_and_opens_only_canonical_private_namespace) ... ok
+2026-10-25T21:55:36.1146380Z test_real_exit_is_preserved_and_namespace_removed_after_collection (test_portable_isolation.PortableIsolationTests.test_real_exit_is_preserved_and_namespace_removed_after_collection) ... 
+2026-10-25T21:55:36.1155780Z ok
+2026-10-25T21:55:36.1162060Z test_replaced_namespace_is_not_deleted (test_portable_isolation.PortableIsolationTests.test_replaced_namespace_is_not_deleted) ... ok
+2026-10-25T21:55:36.1178540Z test_snapshot_detects_data_mode_addition_and_rejects_external_links (test_portable_isolation.PortableIsolationTests.test_snapshot_detects_data_mode_addition_and_rejects_external_links) ... ok
+2026-10-25T21:55:36.1184800Z test_uncertain_collection_preserves_namespace_and_original_timeout (test_portable_isolation.PortableIsolationTests.test_uncertain_collection_preserves_namespace_and_original_timeout) ... ok
+2026-10-25T21:55:36.1191250Z test_worker_receipt_requires_actual_parent_and_pdf_bytes (test_portable_isolation.PortableIsolationTests.test_worker_receipt_requires_actual_parent_and_pdf_bytes) ... ok
+2026-10-25T21:55:36.1620390Z test_accessibility_tag_fields_require_all_five_named_controls (test_preview_artifacts.PreviewArtifactTests.test_accessibility_tag_fields_require_all_five_named_controls) ... ok
+2026-10-25T21:55:36.2508740Z test_all_32_images_and_6_ax_reports_are_required (test_preview_artifacts.PreviewArtifactTests.test_all_32_images_and_6_ax_reports_are_required) ... ok
+2026-10-25T21:55:36.2620520Z test_ax_failure_flags_are_enforced_without_findings (test_preview_artifacts.PreviewArtifactTests.test_ax_failure_flags_are_enforced_without_findings) ... ok
+2026-10-25T21:55:36.2754300Z test_existing_accessibility_checker_failures_are_not_weakened (test_preview_artifacts.PreviewArtifactTests.test_existing_accessibility_checker_failures_are_not_weakened) ... ok
+2026-10-25T21:55:36.2843190Z test_extra_accessibility_reports_are_checked_too (test_preview_artifacts.PreviewArtifactTests.test_extra_accessibility_reports_are_checked_too) ... ok
+2026-10-25T21:55:36.2933890Z test_missing_identifier_fails_even_without_emitted_finding (test_preview_artifacts.PreviewArtifactTests.test_missing_identifier_fails_even_without_emitted_finding) ... ok
+2026-10-25T21:55:36.3127100Z test_non_png_small_truncated_and_bad_checksum_images_fail (test_preview_artifacts.PreviewArtifactTests.test_non_png_small_truncated_and_bad_checksum_images_fail) ... ok
+2026-10-25T21:55:36.3217770Z test_owned_unnamed_control_is_rejected_without_a_finding (test_preview_artifacts.PreviewArtifactTests.test_owned_unnamed_control_is_rejected_without_a_finding) ... ok
+2026-10-25T21:55:36.3348960Z test_raster_limits_and_illegal_pixel_formats_fail_before_allocation (test_preview_artifacts.PreviewArtifactTests.test_raster_limits_and_illegal_pixel_formats_fail_before_allocation) ... ok
+2026-10-25T21:55:36.3772970Z test_real_sized_rgba_and_adam7_rasters_pass_incremental_decoding (test_preview_artifacts.PreviewArtifactTests.test_real_sized_rgba_and_adam7_rasters_pass_incremental_decoding) ... ok
+2026-10-25T21:55:36.3862200Z test_symlink_image_is_not_accepted_as_a_capture (test_preview_artifacts.PreviewArtifactTests.test_symlink_image_is_not_accepted_as_a_capture) ... ok
+2026-10-25T21:55:36.4059200Z test_undecodable_and_wrong_sized_rasters_fail_with_valid_chunk_checksums (test_preview_artifacts.PreviewArtifactTests.test_undecodable_and_wrong_sized_rasters_fail_with_valid_chunk_checksums) ... ok
+2026-10-25T21:55:36.8872470Z Binary package SHA-256: 62072b90a9349e6e215d60b98b0246351c0fccb90e6d4406a9a5e248f0260fef
+2026-10-25T21:55:36.8877300Z Binary package SHA-256: 98d7cbecdb12e4f0b92911d6f25ba5e191d6bba5b2dccd0f48676091adfe468d
+2026-10-25T21:55:36.8879580Z Binary package SHA-256: 6d021b79742c6df40e49c2440b8ecd2589f6167611956e81bd28ba7bd50d51ff
+2026-10-25T21:55:36.8899670Z Binary package SHA-256: 56a9d333fd7e19d3e81e5cb6f2c7f218c9c3ff98ed8f242cacf090d843525ba8
+2026-10-25T21:55:36.8903750Z Binary package SHA-256: 37a99e7b3c86db16d98e44c05a90f9a58547baa6d89b40c810947b28a1a6d951
+2026-10-25T21:55:36.8907790Z Binary package SHA-256: 1361d6aa0dfeea3d8c7254a84ff085df74ebed6e294d9ffc0587eed6b5cacf41
+2026-10-25T21:55:36.8909870Z Binary package SHA-256: 1f359f5d7b93521e36f4d4abd837195135560f0254fdf76203c71f961b4b2954
+2026-10-25T21:55:36.8912000Z Binary package SHA-256: a7d2f37344f9d685a9e8d904332b9a0e2868cd43b4076c438a7ffe644818d9ce
+2026-10-25T21:55:36.8940410Z Binary package SHA-256: b2aa235a6d3ea898d7f8ec98094baf8a17de1bf30a5c8a9742be534bb3258960
+2026-10-25T21:55:36.8946680Z Binary package SHA-256: 0aea44a08850470964684ec621fbac3b41c141a4f144be961a2c8ddc7420503a
+2026-10-25T21:55:36.8982410Z Binary package SHA-256: b71743231eb162da128cadb58b0b20ff48daae89ef031c6535e409f6b4644cc6
+2026-10-25T21:55:36.8987740Z Binary package SHA-256: a4e613c2c6fbba6d85937c35c4968ef9fb1572aa2b6c32d7028411e1128911c0
+2026-10-25T21:55:36.9008330Z Binary package SHA-256: 8f2651f494a3c7bb26c7b44a1db64c57abe63c2cb96b6d82574d1c02e4d1c118
+2026-10-25T21:55:36.9009130Z Binary package SHA-256: 260a3522a1d2b227550deec82bf7fe0549a7c8e743239a00fedfc89e247ec94e
+2026-10-25T21:55:36.9012320Z Binary package SHA-256: c79de7adb16d7e8bcb5bc628ad42010f35a5b3cd0fd8923adb719e8ef0ef185d
+2026-10-25T21:55:36.9017110Z Binary package SHA-256: 5d434ee8a574170c5c3183999e9e6933b6648095b05c1ea10acb17ca4a3e0cc7
+2026-10-25T21:55:36.9017790Z Binary package SHA-256: 32dadb634cbaeac4515c57d303a9dc58da186626bb0afe683b8213cb7c699b36
+2026-10-25T21:55:36.9020230Z Binary package SHA-256: 373178cdcbd853ef35732649156df0ed1bdef4333dac2e7180f5b8720d31bc5e
+2026-10-25T21:55:36.9020930Z Binary package SHA-256: 4a254cef450e5e91d95ea5d781fc3285dcc3040420471a6926b85fa115ca9bfd
+2026-10-25T21:55:36.9021620Z Binary package SHA-256: 724ad642c1229bff9dbe2e182293e0426676d1562482bce634306b578d863fee
+2026-10-25T21:55:36.9024820Z Binary package SHA-256: 570bf29a1f4a382ddb3a69966b440c591a4f1d3d91efad7f7649f6cd0df474ef
+2026-10-25T21:55:36.9027210Z Binary package SHA-256: 2bebe9e69ed62c3bbebf5a066ff9790cdfd2f31d507534d51f8541b73b355025
+2026-10-25T21:55:36.9040270Z PROCESS OWNERSHIP CASE False-solo.json {"candidateControlMatched": true, "exit": 0, "expectedCandidateAllZombies": true, "externalBeforeSignals": {"complete": true, "exit": 0, "members": [{"pgid": 4123, "pid": 4123, "status": "Z<"}], "requestedPGID": 4123, "stdoutBytes": 9112}, "measurementComplete": true, "mode": "solo", "observedAllZombies": {"libproc": true, "sysctl": true}, "probePID": 4121, "records": [{"descendantPID": 0, "event": "ready", "exitObservedWithoutReap": true, "leaderPGID": 4123, "leaderPID": 4123, "leaderSID": 4123, "mode": "solo", "observationErrno": 0, "observed": 1, "owned": true, "probePGID": 4121, "probePID": 4121, "psStat": {"gid": 0, "mode": 2541, "result": 0, "setgid": false, "setuid": true, "uid": 0}, "registered": 0, "registrationErrno": 0, "sdk": {"bsdPGIDOffset": 100, "bsdStatusOffset": 4, "kinfoProcSize": 648, "procBSDInfoSize": 136, "zombieState": 5}, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2220, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4123, "pid": 4123, "status": 5}, "requestedPID": 4123}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 9112, "complete": true, "members": [{"pgid": 4123, "pid": 4123, "status": "Z<"}], "spawnErrno": 0, "waitStatus": 0}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4123, "pid": 4123, "status": 5}], "result": 0}}}, {"acknowledged": true, "errno": 1, "event": "after-term", "result": -1, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2228, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4123, "pid": 4123, "status": 5}, "requestedPID": 4123}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 9112, "complete": true, "members": [{"pgid": 4123, "pid": 4123, "status": "Z<"}], "spawnErrno": 0, "waitStatus": 0}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4123, "pid": 4123, "status": 5}], "result": 0}}}, {"errno": 1, "event": "after-kill", "livenessPipeClosed": true, "result": -1, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2240, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4123, "pid": 4123, "status": 5}, "requestedPID": 4123}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 9197, "complete": true, "members": [{"pgid": 4123, "pid": 4123, "status": "Z<"}], "spawnErrno": 0, "waitStatus": 0}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4123, "pid": 4123, "status": 5}], "result": 0}}}, {"event": "reaped", "exitCode": 7, "interrupted": 0, "pid": 4123, "signal": 0, "waitStatus": 1792}], "sandboxed": false, "stderrBytes": 0, "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "stdoutSHA256": "db66e48d76e11ef156eb7f8589742ef4e67471377d0fc9dfc2b80e790684b22a"}
+2026-10-25T21:55:36.9927650Z PROCESS OWNERSHIP CASE False-live.json {"candidateControlMatched": true, "exit": 0, "expectedCandidateAllZombies": false, "externalBeforeSignals": {"complete": true, "exit": 0, "members": [{"pgid": 4170, "pid": 4170, "status": "Z<"}, {"pgid": 4170, "pid": 4171, "status": "S<"}], "requestedPGID": 4170, "stdoutBytes": 9231}, "measurementComplete": true, "mode": "live", "observedAllZombies": {"libproc": false, "sysctl": false}, "probePID": 4168, "records": [{"descendantPID": 4171, "event": "ready", "exitObservedWithoutReap": true, "leaderPGID": 4170, "leaderPID": 4170, "leaderSID": 4170, "mode": "live", "observationErrno": 0, "observed": 1, "owned": true, "probePGID": 4168, "probePID": 4168, "psStat": {"gid": 0, "mode": 2541, "result": 0, "setgid": false, "setuid": true, "uid": 0}, "registered": 0, "registrationErrno": 0, "sdk": {"bsdPGIDOffset": 100, "bsdStatusOffset": 4, "kinfoProcSize": 648, "procBSDInfoSize": 136, "zombieState": 5}, "snapshot": {"libproc": {"allZombies": false, "bytes": 8, "estimateErrno": 0, "estimatedBytes": 2248, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4171, "status": 2}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4171, "status": 2}, "requestedPID": 4171}, {"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4170, "status": 5}, "requestedPID": 4170}], "secondBytes": 8, "secondErrno": 0, "stable": true}, "ps": {"bytes": 9231, "complete": true, "members": [{"pgid": 4170, "pid": 4170, "status": "Z<"}, {"pgid": 4170, "pid": 4171, "status": "S<"}], "spawnErrno": 0, "waitStatus": 0}, "sysctl": {"allZombies": false, "bytes": 1296, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 4536, "leaderPresent": true, "members": [{"pgid": 4170, "pid": 4171, "status": 2}, {"pgid": 4170, "pid": 4170, "status": 5}], "result": 0}}}, {"acknowledged": true, "errno": 0, "event": "after-term", "result": 0, "snapshot": {"libproc": {"allZombies": false, "bytes": 8, "estimateErrno": 0, "estimatedBytes": 2248, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4171, "status": 2}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4171, "status": 2}, "requestedPID": 4171}, {"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4170, "status": 5}, "requestedPID": 4170}], "secondBytes": 8, "secondErrno": 0, "stable": true}, "ps": {"bytes": 9214, "complete": true, "members": [{"pgid": 4170, "pid": 4170, "status": "Z<"}, {"pgid": 4170, "pid": 4171, "status": "S<"}], "spawnErrno": 0, "waitStatus": 0}, "sysctl": {"allZombies": false, "bytes": 1296, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 4536, "leaderPresent": true, "members": [{"pgid": 4170, "pid": 4171, "status": 2}, {"pgid": 4170, "pid": 4170, "status": 5}], "result": 0}}}, {"errno": 0, "event": "after-kill", "livenessPipeClosed": true, "result": 0, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2248, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4170, "pid": 4170, "status": 5}, "requestedPID": 4170}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 9214, "complete": true, "members": [{"pgid": 4170, "pid": 4170, "status": "Z<"}], "spawnErrno": 0, "waitStatus": 0}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4170, "pid": 4170, "status": 5}], "result": 0}}}, {"event": "reaped", "exitCode": 7, "interrupted": 0, "pid": 4170, "signal": 0, "waitStatus": 1792}], "sandboxed": false, "stderrBytes": 0, "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "stdoutSHA256": "75da1f040cf429547e5e72507ea99c107105a62f18ab6e04ac9cced0b578ca47"}
+2026-10-25T21:55:37.1013100Z PROCESS OWNERSHIP CASE True-solo.json {"candidateControlMatched": true, "exit": 0, "expectedCandidateAllZombies": true, "externalBeforeSignals": {"complete": true, "exit": 0, "members": [{"pgid": 4229, "pid": 4229, "status": "Z<"}], "requestedPGID": 4229, "stdoutBytes": 9197}, "measurementComplete": true, "mode": "solo", "observedAllZombies": {"libproc": true, "sysctl": true}, "probePID": 4215, "records": [{"descendantPID": 0, "event": "ready", "exitObservedWithoutReap": true, "leaderPGID": 4229, "leaderPID": 4229, "leaderSID": 4229, "mode": "solo", "observationErrno": 0, "observed": 1, "owned": true, "probePGID": 4215, "probePID": 4215, "psStat": {"gid": 0, "mode": 2541, "result": 0, "setgid": false, "setuid": true, "uid": 0}, "registered": 0, "registrationErrno": 0, "sdk": {"bsdPGIDOffset": 100, "bsdStatusOffset": 4, "kinfoProcSize": 648, "procBSDInfoSize": 136, "zombieState": 5}, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2240, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4229, "pid": 4229, "status": 5}, "requestedPID": 4229}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 0, "complete": false, "members": [], "spawnErrno": 1, "waitStatus": -1}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4229, "pid": 4229, "status": 5}], "result": 0}}}, {"acknowledged": true, "errno": 1, "event": "after-term", "result": -1, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2244, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4229, "pid": 4229, "status": 5}, "requestedPID": 4229}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 0, "complete": false, "members": [], "spawnErrno": 1, "waitStatus": -1}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4229, "pid": 4229, "status": 5}], "result": 0}}}, {"errno": 1, "event": "after-kill", "livenessPipeClosed": true, "result": -1, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2248, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4229, "pid": 4229, "status": 5}, "requestedPID": 4229}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 0, "complete": false, "members": [], "spawnErrno": 1, "waitStatus": -1}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4229, "pid": 4229, "status": 5}], "result": 0}}}, {"event": "reaped", "exitCode": 7, "interrupted": 0, "pid": 4229, "signal": 0, "waitStatus": 1792}], "sandboxed": true, "stderrBytes": 0, "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "stdoutSHA256": "a198191ca9f696fe989b7a6729f40e51f741c3dca5b3ae5ca2af2676992aec25"}
+2026-10-25T21:55:37.1860680Z PROCESS OWNERSHIP CASE True-live.json {"candidateControlMatched": true, "exit": 0, "expectedCandidateAllZombies": false, "externalBeforeSignals": {"complete": true, "exit": 0, "members": [{"pgid": 4268, "pid": 4268, "status": "Z<"}, {"pgid": 4268, "pid": 4269, "status": "S<"}], "requestedPGID": 4268, "stdoutBytes": 9214}, "measurementComplete": true, "mode": "live", "observedAllZombies": {"libproc": false, "sysctl": false}, "probePID": 4264, "records": [{"descendantPID": 4269, "event": "ready", "exitObservedWithoutReap": true, "leaderPGID": 4268, "leaderPID": 4268, "leaderSID": 4268, "mode": "live", "observationErrno": 0, "observed": 1, "owned": true, "probePGID": 4264, "probePID": 4264, "psStat": {"gid": 0, "mode": 2541, "result": 0, "setgid": false, "setuid": true, "uid": 0}, "registered": 0, "registrationErrno": 0, "sdk": {"bsdPGIDOffset": 100, "bsdStatusOffset": 4, "kinfoProcSize": 648, "procBSDInfoSize": 136, "zombieState": 5}, "snapshot": {"libproc": {"allZombies": false, "bytes": 8, "estimateErrno": 0, "estimatedBytes": 2248, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4269, "status": 2}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4269, "status": 2}, "requestedPID": 4269}, {"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4268, "status": 5}, "requestedPID": 4268}], "secondBytes": 8, "secondErrno": 0, "stable": true}, "ps": {"bytes": 0, "complete": false, "members": [], "spawnErrno": 1, "waitStatus": -1}, "sysctl": {"allZombies": false, "bytes": 1296, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 4536, "leaderPresent": true, "members": [{"pgid": 4268, "pid": 4269, "status": 2}, {"pgid": 4268, "pid": 4268, "status": 5}], "result": 0}}}, {"acknowledged": true, "errno": 0, "event": "after-term", "result": 0, "snapshot": {"libproc": {"allZombies": false, "bytes": 8, "estimateErrno": 0, "estimatedBytes": 2248, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4269, "status": 2}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4269, "status": 2}, "requestedPID": 4269}, {"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4268, "status": 5}, "requestedPID": 4268}], "secondBytes": 8, "secondErrno": 0, "stable": true}, "ps": {"bytes": 0, "complete": false, "members": [], "spawnErrno": 1, "waitStatus": -1}, "sysctl": {"allZombies": false, "bytes": 1296, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 4536, "leaderPresent": true, "members": [{"pgid": 4268, "pid": 4269, "status": 2}, {"pgid": 4268, "pid": 4268, "status": 5}], "result": 0}}}, {"errno": 0, "event": "after-kill", "livenessPipeClosed": true, "result": 0, "snapshot": {"libproc": {"allZombies": true, "bytes": 4, "estimateErrno": 0, "estimatedBytes": 2244, "leaderPresent": true, "listErrno": 0, "members": [{"arg0": {"bytes": 0, "errno": 3, "pgid": 0, "pid": 0, "status": 0}, "arg1": {"bytes": 136, "errno": 0, "pgid": 4268, "pid": 4268, "status": 5}, "requestedPID": 4268}], "secondBytes": 4, "secondErrno": 0, "stable": true}, "ps": {"bytes": 0, "complete": false, "members": [], "spawnErrno": 1, "waitStatus": -1}, "sysctl": {"allZombies": true, "bytes": 648, "complete": true, "errno": 0, "estimateErrno": 0, "estimateResult": 0, "estimatedBytes": 3888, "leaderPresent": true, "members": [{"pgid": 4268, "pid": 4268, "status": 5}], "result": 0}}}, {"event": "reaped", "exitCode": 7, "interrupted": 0, "pid": 4268, "signal": 0, "waitStatus": 1792}], "sandboxed": true, "stderrBytes": 0, "stderrSHA256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", "stdoutSHA256": "88b946d2b8c7e20e7850fb7aed503c441f2e74829ef0bc60228bf2f0aa0fc41f"}
+2026-10-25T21:55:37.1872850Z test_real_consensus_rejects_live_descendant_and_accepts_only_zombies_in_both_profiles (test_process_group_snapshot.NativeProcessGroupSnapshotTests.test_real_consensus_rejects_live_descendant_and_accepts_only_zombies_in_both_profiles) ... ok
+2026-10-25T21:55:37.1900150Z test_conflicting_entries_and_external_links_are_not_overwritten (test_python_framework.PythonFrameworkTests.test_conflicting_entries_and_external_links_are_not_overwritten) ... ok
+2026-10-25T21:55:37.1923690Z test_existing_valid_discovery_links_are_preserved (test_python_framework.PythonFrameworkTests.test_existing_valid_discovery_links_are_preserved) ... ok
+2026-10-25T21:55:37.1958170Z test_missing_altinstall_links_are_restored_without_changing_payload (test_python_framework.PythonFrameworkTests.test_missing_altinstall_links_are_restored_without_changing_payload) ... ok
+2026-10-25T21:55:37.1985770Z test_missing_or_external_payload_and_special_plist_are_refused (test_python_framework.PythonFrameworkTests.test_missing_or_external_payload_and_special_plist_are_refused) ... ok
+2026-10-25T21:55:37.3307170Z test_real_framework_fails_before_repair_then_signs_verifies_and_loads (test_python_framework.PythonFrameworkTests.test_real_framework_fails_before_repair_then_signs_verifies_and_loads) ... /private/var/folders/n6/hn37q6pj7sj_9dmqqc2113800000gn/T/PDF private framework rkpe0dn5/vendor/python@3.12/Frameworks/Python.framework/Versions/3.12/Python: replacing existing signature
+2026-10-25T21:55:37.3587860Z ok
+2026-10-25T21:55:37.3614800Z test_wrong_payload_metadata_and_extra_versions_fail_before_adding_links (test_python_framework.PythonFrameworkTests.test_wrong_payload_metadata_and_extra_versions_fail_before_adding_links) ... ok
+2026-10-25T21:55:37.4919320Z test_real_isolated_startup_no_longer_executes_host_pth_and_keeps_imports (test_python_startup.PythonStartupIsolationTests.test_real_isolated_startup_no_longer_executes_host_pth_and_keeps_imports) ... ok
+2026-10-25T21:55:37.5794360Z test_real_virtualenv_runner_uses_the_same_synthetic_framework_startup (test_python_startup.PythonStartupIsolationTests.test_real_virtualenv_runner_uses_the_same_synthetic_framework_startup) ... ok
+2026-10-25T21:55:37.5817060Z test_startup_fifo_or_link_is_rejected_without_reading_its_target (test_python_startup.PythonStartupIsolationTests.test_startup_fifo_or_link_is_rejected_without_reading_its_target) ... ok
+2026-10-25T21:55:37.5839160Z test_unknown_or_cached_startup_is_preserved_and_refused (test_python_startup.PythonStartupIsolationTests.test_unknown_or_cached_startup_is_preserved_and_refused) ... ok
+2026-10-25T21:55:37.6392800Z test_actual_wrapper_survives_relocation_and_scopes_modules_to_qpdf (test_qpdf_crypto.QPDFCryptoPackagingTests.test_actual_wrapper_survives_relocation_and_scopes_modules_to_qpdf) ... ok
+2026-10-25T21:55:37.6430360Z test_missing_external_or_mismatched_provider_is_rejected (test_qpdf_crypto.QPDFCryptoPackagingTests.test_missing_external_or_mismatched_provider_is_rejected) ... ok
+2026-10-25T21:55:37.6493970Z test_missing_or_ambiguous_crypto_and_nonexplicit_load_paths_are_rejected (test_qpdf_crypto.QPDFCryptoPackagingTests.test_missing_or_ambiguous_crypto_and_nonexplicit_load_paths_are_rejected) ... ok
+2026-10-25T21:55:37.6508530Z test_overlapping_formula_ownership_is_rejected (test_qpdf_crypto.QPDFCryptoPackagingTests.test_overlapping_formula_ownership_is_rejected) ... ok
+2026-10-25T21:55:37.6533780Z test_selects_actual_linked_abi_when_multiple_openssl_versions_are_present (test_qpdf_crypto.QPDFCryptoPackagingTests.test_selects_actual_linked_abi_when_multiple_openssl_versions_are_present) ... ok
+2026-10-25T21:55:37.6560830Z test_wrapper_refuses_external_and_shell_expanding_paths (test_qpdf_crypto.QPDFCryptoPackagingTests.test_wrapper_refuses_external_and_shell_expanding_paths) ... ok
+2026-10-25T21:55:38.0226920Z test_direct_converter_retains_lease_after_engine_sigkill (test_runtime_lease.RuntimeLeaseTests.test_direct_converter_retains_lease_after_engine_sigkill) ... ok
+2026-10-25T21:55:38.0531560Z test_exclusive_parent_cannot_be_silently_downgraded (test_runtime_lease.RuntimeLeaseTests.test_exclusive_parent_cannot_be_silently_downgraded) ... ok
+2026-10-25T21:55:38.1638750Z test_exec_preserves_private_stdin_and_restores_combined_stderr (test_runtime_lease.RuntimeLeaseTests.test_exec_preserves_private_stdin_and_restores_combined_stderr) ... ok
+2026-10-25T21:55:38.2742580Z test_qpdf_carrier_preserves_stdin_and_does_not_pollute_json_stdout (test_runtime_lease.RuntimeLeaseTests.test_qpdf_carrier_preserves_stdin_and_does_not_pollute_json_stdout) ... ok
+2026-10-25T21:55:38.3261420Z test_qpdf_carrier_rejects_other_programs_and_command_line_credentials (test_runtime_lease.RuntimeLeaseTests.test_qpdf_carrier_rejects_other_programs_and_command_line_credentials) ... ok
+2026-10-25T21:55:38.3523770Z test_wrong_bundle_identity_is_rejected_without_echoing_payload (test_runtime_lease.RuntimeLeaseTests.test_wrong_bundle_identity_is_rejected_without_echoing_payload) ... ok
+2026-10-25T21:55:38.3536010Z test_cleanup_errors_preserve_original_timeout_and_restore_signal_handlers (test_timeout_diagnostics.TimeoutDiagnosticTests.test_cleanup_errors_preserve_original_timeout_and_restore_signal_handlers) ... ok
+2026-10-25T21:55:38.3537490Z test_exited_child_is_never_sampled (test_timeout_diagnostics.TimeoutDiagnosticTests.test_exited_child_is_never_sampled) ... ok
+2026-10-25T21:55:38.3538430Z test_non_darwin_never_launches_sample (test_timeout_diagnostics.TimeoutDiagnosticTests.test_non_darwin_never_launches_sample) ... ok
+2026-10-25T21:55:38.3539810Z test_nonzero_sampling_status_is_diagnostic_only (test_timeout_diagnostics.TimeoutDiagnosticTests.test_nonzero_sampling_status_is_diagnostic_only) ... ok
+2026-10-25T21:55:38.4805410Z test_normal_command_exit_is_preserved_with_opt_in (test_timeout_diagnostics.TimeoutDiagnosticTests.test_normal_command_exit_is_preserved_with_opt_in) ... ok
+2026-10-25T21:55:38.4809630Z test_sample_targets_only_owned_live_pid_and_inherits_logs (test_timeout_diagnostics.TimeoutDiagnosticTests.test_sample_targets_only_owned_live_pid_and_inherits_logs) ... ok
+2026-10-25T21:55:38.4830990Z test_sampling_failures_keep_exit_124_and_cleanup (test_timeout_diagnostics.TimeoutDiagnosticTests.test_sampling_failures_keep_exit_124_and_cleanup) ... ok
+2026-10-25T21:55:38.4834600Z test_timeout_without_opt_in_does_not_sample (test_timeout_diagnostics.TimeoutDiagnosticTests.test_timeout_without_opt_in_does_not_sample) ... ok
+2026-10-25T21:55:38.4839100Z test_existing_symlink_is_preserved (test_verapdf_installer.ValidatorInstallTests.test_existing_symlink_is_preserved) ... ok
+2026-10-25T21:55:38.4844840Z test_existing_wrong_file_is_preserved (test_verapdf_installer.ValidatorInstallTests.test_existing_wrong_file_is_preserved) ... ok
+2026-10-25T21:55:38.4850010Z test_wrong_download_checksum_never_publishes (test_verapdf_installer.ValidatorInstallTests.test_wrong_download_checksum_never_publishes) ... ok
+2026-10-25T21:55:38.6362500Z test_cli_binds_exact_bytes_refuses_overwriting_receipt_and_does_not_authenticate_source (test_window_lifecycle.WindowLifecycleContractTests.test_cli_binds_exact_bytes_refuses_overwriting_receipt_and_does_not_authenticate_source) ... ok
+2026-10-25T21:55:38.6364090Z test_complete_controlled_fixture_schema_is_accepted_without_claiming_native_execution (test_window_lifecycle.WindowLifecycleContractTests.test_complete_controlled_fixture_schema_is_accepted_without_claiming_native_execution) ... ok
+2026-10-25T21:55:38.6365650Z test_event_evidence_cannot_be_missing_reordered_or_claim_ready_without_a_window (test_window_lifecycle.WindowLifecycleContractTests.test_event_evidence_cannot_be_missing_reordered_or_claim_ready_without_a_window) ... ok
+2026-10-25T21:55:38.6368020Z test_failure_missing_checks_duplicate_checks_and_contradictory_summaries_rejected (test_window_lifecycle.WindowLifecycleContractTests.test_failure_missing_checks_duplicate_checks_and_contradictory_summaries_rejected) ... ok
+2026-10-25T21:55:38.6369280Z test_json_duplicate_keys_and_nonregular_or_symlink_reports_refused (test_window_lifecycle.WindowLifecycleContractTests.test_json_duplicate_keys_and_nonregular_or_symlink_reports_refused) ... ok
+2026-10-25T21:55:38.6387850Z test_minimal_bundle_has_exact_production_metadata_lease_and_no_runtime (test_window_lifecycle.WindowLifecycleContractTests.test_minimal_bundle_has_exact_production_metadata_lease_and_no_runtime) ... ok
+2026-10-25T21:55:38.6398440Z test_minimal_bundle_refuses_symlink_input_and_cleans_only_its_own_new_directory (test_window_lifecycle.WindowLifecycleContractTests.test_minimal_bundle_refuses_symlink_input_and_cleans_only_its_own_new_directory) ... ok
+2026-10-25T21:55:38.6399270Z 
+2026-10-25T21:55:38.6399390Z ----------------------------------------------------------------------
+2026-10-25T21:55:38.6399750Z Ran 150 tests in 25.221s
+2026-10-25T21:55:38.6399870Z 
+2026-10-25T21:55:38.6400080Z OK (skipped=1)
+2026-10-25T21:55:38.6596550Z ##[group]Run echo "::add-matcher::.github/swift-problem-matcher.json"
+2026-10-25T21:55:38.6596950Z [36;1mecho "::add-matcher::.github/swift-problem-matcher.json"[0m
+2026-10-25T21:55:38.6597270Z [36;1mxcrun swift build -c release --arch arm64 --jobs 3[0m
+2026-10-25T21:55:38.6627280Z shell: /bin/bash -e {0}
+2026-10-25T21:55:38.6627450Z ##[endgroup]
+2026-10-25T21:55:47.9743580Z Building for production...
+2026-10-25T21:55:47.9790860Z [0/4] Write sources
+2026-10-25T21:55:48.0880190Z [1/4] Write swift-version-7974D3F7F03D5E95.txt
+2026-10-25T21:56:20.3607680Z [3/5] Compiling PDF AccessibilityAudit.swift
+2026-10-25T21:56:20.3676540Z ##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/MacPreview.swift:13:77: warning: main actor-isolated static property 'argument' can not be referenced from a nonisolated autoclosure; this is an error in the Swift 6 language mode
+2026-10-25T21:56:20.3684350Z  11 |     static func record(_ phase: StaticString, details: String = "") {
+2026-10-25T21:56:20.3685070Z  12 |         guard CommandLine.arguments.contains("--render-preview")
+2026-10-25T21:56:20.3685740Z  13 |                 || CommandLine.arguments.contains(WindowSceneLifecycleAudit.argument) else { return }
+2026-10-25T21:56:20.3686870Z     |                                                                             `- warning: main actor-isolated static property 'argument' can not be referenced from a nonisolated autoclosure; this is an error in the Swift 6 language mode
+2026-10-25T21:56:20.3687880Z  14 |         let hasSwiftTask = withUnsafeCurrentTask { $0 != nil }
+2026-10-25T21:56:20.3688620Z  15 |         let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0); swiftTask=\(hasSwiftTask)\(details)\n"
+2026-10-25T21:56:20.3689070Z 
+2026-10-25T21:56:20.3689500Z /Users/runner/work/PDF-/PDF-/Sources/PDF/WindowSceneLifecycleAudit.swift:53:16: note: static property declared here
+2026-10-25T21:56:20.3690280Z  51 | /// constructs an NSWindow, NSHostingView or a substitute scene itself.
+2026-10-25T21:56:20.3690750Z  52 | @MainActor final class WindowSceneLifecycleAudit {
+2026-10-25T21:56:20.3691210Z  53 |     static let argument = "--window-lifecycle-audit"
+2026-10-25T21:56:20.3691570Z     |                `- note: static property declared here
+2026-10-25T21:56:20.3691970Z  54 |     private let output: URL
+2026-10-25T21:56:20.3692300Z  55 |     private let session: MacPreviewSession
+2026-10-25T21:56:20.3692530Z 
+2026-10-25T21:56:20.3693990Z ##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/MenuCustomization.swift:104:25: warning: result of call to 'drop(_:namespace:target:values:apply:)' is unused [#no-usage]
+2026-10-25T21:56:20.3696540Z 102 |                             .accessibilityLabel("Remover " + title(command) + " do acesso rápido")
+2026-10-25T21:56:20.3697160Z 103 |                     }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
+2026-10-25T21:56:20.3697970Z 104 |                         drop(items, namespace: "quick", target: id, values: store.menu.quickCommands) { values in update { $0.quickCommands = values } }
+2026-10-25T21:56:20.3698720Z     |                         `- warning: result of call to 'drop(_:namespace:target:values:apply:)' is unused [#no-usage]
+2026-10-25T21:56:20.3699260Z 105 |                     }
+2026-10-25T21:56:20.3699590Z 106 |                 }
+2026-10-25T21:56:20.3699760Z 
+2026-10-25T21:56:20.3700690Z ##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/MenuCustomization.swift:134:21: warning: result of call to 'drop(_:namespace:target:values:apply:)' is unused [#no-usage]
+2026-10-25T21:56:20.3707990Z 132 |                     moveButtons(index: index, ids: categories, title: category) { values in update { $0.categoryOrder = values } }
+2026-10-25T21:56:20.3708740Z 133 |                 }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
+2026-10-25T21:56:20.3709990Z 134 |                     drop(items, namespace: "category", target: category, values: categories) { values in update { $0.categoryOrder = values } }
+2026-10-25T21:56:20.3710770Z     |                     `- warning: result of call to 'drop(_:namespace:target:values:apply:)' is unused [#no-usage]
+2026-10-25T21:56:20.3711320Z 135 |                 }
+2026-10-25T21:56:20.3711550Z 136 |             }
+2026-10-25T21:56:20.3711730Z 
+2026-10-25T21:56:20.3712880Z ##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/MenuCustomization.swift:155:25: warning: result of call to 'drop(_:namespace:target:values:apply:)' is unused [#no-usage]
+2026-10-25T21:56:20.3714260Z 153 |                         moveButtons(index: index, ids: documentIDs, title: title(command)) { values in update { $0.documentOrder = values } }
+2026-10-25T21:56:20.3714980Z 154 |                     }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
+2026-10-25T21:56:20.3715820Z 155 |                         drop(items, namespace: "document", target: id, values: documentIDs) { values in update { $0.documentOrder = values } }
+2026-10-25T21:56:20.3716550Z     |                         `- warning: result of call to 'drop(_:namespace:target:values:apply:)' is unused [#no-usage]
+2026-10-25T21:56:20.3717370Z 156 |                     }
+2026-10-25T21:56:20.3717600Z 157 |                 }
+2026-10-25T21:56:20.3717790Z 
+2026-10-25T21:56:20.3718720Z ##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+2026-10-25T21:56:20.3720120Z 120 |         // Deliberately exercise this deprecated public switch separately from
+2026-10-25T21:56:20.3721820Z 121 |         // setComputeDevice; it is a CLI diagnostic, never a production policy.
+2026-10-25T21:56:20.3722690Z 122 |         if cpuOnly { request.usesCPUOnly = true }
+2026-10-25T21:56:20.3723590Z     |                              `- warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+2026-10-25T21:56:20.3725650Z 123 |         let supported = try request.supportedRecognitionLanguages()
+2026-10-25T21:56:20.3726560Z 124 |         request.recognitionLanguages = (language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]).filter { supported.contains($0) }
+2026-10-25T21:56:20.3727640Z 
+2026-10-25T21:56:20.3735720Z ##[error]/Users/runner/work/PDF-/PDF-/Sources/PDF/WorkspaceLifecycle.swift:107:31: error: call to main actor-isolated instance method 'windowAttached' in a synchronous nonisolated context [#ActorIsolatedCall]
+2026-10-25T21:56:20.3742910Z 101 |             self.model = model; self.sceneCoordinator = sceneCoordinator; self.lifecycleAudit = lifecycleAudit
+2026-10-25T21:56:20.3744550Z 102 |         }
+2026-10-25T21:56:20.3745400Z 103 |         func install(on window:NSWindow?) {
+2026-10-25T21:56:20.3747730Z     |              `- note: add '@MainActor' to make instance method 'install(on:)' part of global actor 'MainActor'
+2026-10-25T21:56:20.3748620Z 104 |             guard let window, installedWindow !== window else { return }
+2026-10-25T21:56:20.3749930Z 105 |             if let installedWindow, installedWindow.delegate === self { installedWindow.delegate = previous }
+2026-10-25T21:56:20.3751220Z 106 |             previous = window.delegate; installedWindow = window; window.delegate = self
+2026-10-25T21:56:20.3752890Z 107 |             sceneCoordinator?.windowAttached(window)
+2026-10-25T21:56:20.3754110Z     |                               `- error: call to main actor-isolated instance method 'windowAttached' in a synchronous nonisolated context [#ActorIsolatedCall]
+2026-10-25T21:56:20.3756180Z 108 |             if let model { lifecycleAudit?.windowAttached(window,model:model) }
+2026-10-25T21:56:20.3756960Z 109 |         }
+2026-10-25T21:56:20.3757280Z 
+2026-10-25T21:56:20.3758060Z /Users/runner/work/PDF-/PDF-/Sources/PDF/WorkspaceSceneCoordinator.swift:138:10: note: calls to instance method 'windowAttached' from outside of its actor context are implicitly asynchronous
+2026-10-25T21:56:20.3759880Z 136 |         if workspaceWindows.isEmpty { presentation.sceneConstructionBegan() }
+2026-10-25T21:56:20.3761210Z 137 |     }
+2026-10-25T21:56:20.3762630Z 138 |     func windowAttached(_ window: NSWindow) {
+2026-10-25T21:56:20.3764060Z     |          `- note: calls to instance method 'windowAttached' from outside of its actor context are implicitly asynchronous
+2026-10-25T21:56:20.3766210Z 139 |         windows.add(window)
+2026-10-25T21:56:20.3767800Z 140 |         presentation.windowAttached()
+2026-10-25T21:56:20.3768150Z 
+2026-10-25T21:56:20.3772020Z ##[error]/Users/runner/work/PDF-/PDF-/Sources/PDF/WorkspaceLifecycle.swift:108:44: error: call to main actor-isolated instance method 'windowAttached(_:model:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+2026-10-25T21:56:20.3776660Z 101 |             self.model = model; self.sceneCoordinator = sceneCoordinator; self.lifecycleAudit = lifecycleAudit
+2026-10-25T21:56:20.3779540Z 102 |         }
+2026-10-25T21:56:20.3780720Z 103 |         func install(on window:NSWindow?) {
+2026-10-25T21:56:20.3782670Z     |              `- note: add '@MainActor' to make instance method 'install(on:)' part of global actor 'MainActor'
+2026-10-25T21:56:20.3783570Z 104 |             guard let window, installedWindow !== window else { return }
+2026-10-25T21:56:20.3786240Z 105 |             if let installedWindow, installedWindow.delegate === self { installedWindow.delegate = previous }
+2026-10-25T21:56:20.3787840Z 106 |             previous = window.delegate; installedWindow = window; window.delegate = self
+2026-10-25T21:56:20.3790280Z 107 |             sceneCoordinator?.windowAttached(window)
+2026-10-25T21:56:20.3792320Z 108 |             if let model { lifecycleAudit?.windowAttached(window,model:model) }
+2026-10-25T21:56:20.3793150Z     |                                            `- error: call to main actor-isolated instance method 'windowAttached(_:model:)' in a synchronous nonisolated context [#ActorIsolatedCall]
+2026-10-25T21:56:20.3793810Z 109 |         }
+2026-10-25T21:56:20.3794150Z 110 |         func windowShouldClose(_ sender:NSWindow) -> Bool {
+2026-10-25T21:56:20.3794710Z 
+2026-10-25T21:56:20.3795390Z /Users/runner/work/PDF-/PDF-/Sources/PDF/WindowSceneLifecycleAudit.swift:133:10: note: calls to instance method 'windowAttached(_:model:)' from outside of its actor context are implicitly asynchronous
+2026-10-25T21:56:20.3796330Z 131 |     /// This callback is installed in the genuine WindowGroup's guard, after
+2026-10-25T21:56:20.3799210Z 132 |     /// SwiftUI has attached its content to an AppKit window.
+2026-10-25T21:56:20.3800720Z 133 |     func windowAttached(_ window: NSWindow, model: Workspace) {
+2026-10-25T21:56:20.3802000Z     |          `- note: calls to instance method 'windowAttached(_:model:)' from outside of its actor context are implicitly asynchronous
+2026-10-25T21:56:20.3803500Z 134 |         guard !finished else { return }
+2026-10-25T21:56:20.3804680Z 135 |         let identity = ObjectIdentifier(window)
+2026-10-25T21:56:20.3806070Z 
+2026-10-25T21:56:20.3808910Z ##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/WorkspaceSceneCoordinator.swift:110:68: warning: passing non-Sendable parameter 'operation' to function expecting a '@Sendable' closure
+2026-10-25T21:56:20.3810450Z 108 |     private let windows = NSHashTable<NSWindow>.weakObjects()
+2026-10-25T21:56:20.3812090Z 109 |     private lazy var presentation = WorkspaceScenePresentation(
+2026-10-25T21:56:20.3812800Z 110 |         schedule: { operation in DispatchQueue.main.async(execute: operation) },
+2026-10-25T21:56:20.3814410Z     |                     |                                              `- warning: passing non-Sendable parameter 'operation' to function expecting a '@Sendable' closure
+2026-10-25T21:56:20.3815550Z     |                     `- note: parameter 'operation' is implicitly non-Sendable
+2026-10-25T21:56:20.3816110Z 111 |         presentExisting: { [weak self] in self?.presentExistingWindow() ?? false },
+2026-10-25T21:56:20.3818440Z 112 |         trace: { PreviewStartupTrace.record("workspace scene", details: "; " + $0) })
+2026-10-25T21:56:20.3818880Z 
+2026-10-25T21:56:20.3819550Z [#ActorIsolatedCall]: <https://docs.swift.org/compiler/documentation/diagnostics/actor-isolated-call>
+2026-10-25T21:56:20.3821270Z [#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+2026-10-25T21:56:20.3879330Z ##[error]Process completed with exit code 1.
+2026-10-25T21:56:20.4115130Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:20.4115650Z with:
+2026-10-25T21:56:20.4115830Z   name: PDF-window-lifecycle-macos-26
+2026-10-25T21:56:20.4116270Z   path: /Users/runner/work/_temp/PDF-window-lifecycle/*.json
+/Users/runner/work/_temp/PDF-window-lifecycle/*.log
+
+2026-10-25T21:56:20.4116720Z   if-no-files-found: ignore
+2026-10-25T21:56:20.4116900Z   compression-level: 6
+2026-10-25T21:56:20.4117070Z   overwrite: false
+2026-10-25T21:56:20.4117230Z   include-hidden-files: false
+2026-10-25T21:56:20.4117410Z ##[endgroup]
+2026-10-25T21:56:20.8316600Z (node:5183) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:20.8317560Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:20.8328400Z No files were found with the provided path: /Users/runner/work/_temp/PDF-window-lifecycle/*.json
+2026-10-25T21:56:20.8329250Z /Users/runner/work/_temp/PDF-window-lifecycle/*.log. No artifacts will be uploaded.
+2026-10-25T21:56:20.8483060Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:20.8483440Z with:
+2026-10-25T21:56:20.8483610Z   name: PDF-native-checks-macos-26
+2026-10-25T21:56:20.8483880Z   path: /Users/runner/work/_temp/PDF-native-checks.log
+2026-10-25T21:56:20.8484140Z   if-no-files-found: ignore
+2026-10-25T21:56:20.8484340Z   compression-level: 6
+2026-10-25T21:56:20.8484520Z   overwrite: false
+2026-10-25T21:56:20.8484710Z   include-hidden-files: false
+2026-10-25T21:56:20.8484900Z ##[endgroup]
+2026-10-25T21:56:20.9888870Z (node:5184) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:20.9889510Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:20.9896990Z No files were found with the provided path: /Users/runner/work/_temp/PDF-native-checks.log. No artifacts will be uploaded.
+2026-10-25T21:56:21.0017370Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:21.0017740Z with:
+2026-10-25T21:56:21.0018030Z   name: PDF-macOS-preview-macos-26
+2026-10-25T21:56:21.0018880Z   path: /Users/runner/work/_temp/PDF-preview*.png
+/Users/runner/work/_temp/PDF-preview*accessibility.json
+/Users/runner/work/_temp/PDF-preview.revisao-ocr.source.pdf
+/Users/runner/work/_temp/PDF-preview.revisao-ocr.analysis.json
+
+2026-10-25T21:56:21.0019740Z   if-no-files-found: ignore
+2026-10-25T21:56:21.0019920Z   compression-level: 6
+2026-10-25T21:56:21.0020110Z   overwrite: false
+2026-10-25T21:56:21.0020310Z   include-hidden-files: false
+2026-10-25T21:56:21.0020500Z ##[endgroup]
+2026-10-25T21:56:21.1569670Z (node:5185) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:21.1570640Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:21.1611640Z No files were found with the provided path: /Users/runner/work/_temp/PDF-preview*.png
+2026-10-25T21:56:21.1612470Z /Users/runner/work/_temp/PDF-preview*accessibility.json
+2026-10-25T21:56:21.1613460Z /Users/runner/work/_temp/PDF-preview.revisao-ocr.source.pdf
+2026-10-25T21:56:21.1614050Z /Users/runner/work/_temp/PDF-preview.revisao-ocr.analysis.json. No artifacts will be uploaded.
+2026-10-25T21:56:21.1706380Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:21.1706720Z with:
+2026-10-25T21:56:21.1706900Z   name: PDF-Apple-Vision-capability-macos-26
+2026-10-25T21:56:21.1707310Z   path: /Users/runner/work/_temp/PDF-vision-audit.json
+/Users/runner/work/_temp/PDF-vision-audit.log
+
+2026-10-25T21:56:21.1707700Z   if-no-files-found: ignore
+2026-10-25T21:56:21.1707870Z   compression-level: 6
+2026-10-25T21:56:21.1708060Z   overwrite: false
+2026-10-25T21:56:21.1708230Z   include-hidden-files: false
+2026-10-25T21:56:21.1708420Z ##[endgroup]
+2026-10-25T21:56:21.3200000Z (node:5188) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:21.3200670Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:21.3227460Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-25T21:56:21.3228710Z The least common ancestor is /Users/runner/work/_temp. This will be the root directory of the artifact
+2026-10-25T21:56:21.3229300Z No files were found with the provided path: /Users/runner/work/_temp/PDF-vision-audit.json
+2026-10-25T21:56:21.3229880Z /Users/runner/work/_temp/PDF-vision-audit.log. No artifacts will be uploaded.
+2026-10-25T21:56:21.3312390Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:21.3312750Z with:
+2026-10-25T21:56:21.3312910Z   name: PDF-local-AI-macos-26
+2026-10-25T21:56:21.3313150Z   path: /Users/runner/work/_temp/PDF-local-ai.json
+2026-10-25T21:56:21.3313410Z   if-no-files-found: ignore
+2026-10-25T21:56:21.3313600Z   compression-level: 6
+2026-10-25T21:56:21.3313790Z   overwrite: false
+2026-10-25T21:56:21.3313970Z   include-hidden-files: false
+2026-10-25T21:56:21.3314180Z ##[endgroup]
+2026-10-25T21:56:21.4713780Z (node:5189) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:21.4714490Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:21.4724000Z No files were found with the provided path: /Users/runner/work/_temp/PDF-local-ai.json. No artifacts will be uploaded.
+2026-10-25T21:56:21.4803990Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:21.4804360Z with:
+2026-10-25T21:56:21.4804530Z   name: PDF-macOS-benchmark-macos-26
+2026-10-25T21:56:21.4804800Z   path: /Users/runner/work/_temp/PDF-benchmark.json
+2026-10-25T21:56:21.4805050Z   if-no-files-found: ignore
+2026-10-25T21:56:21.4805230Z   compression-level: 6
+2026-10-25T21:56:21.4805400Z   overwrite: false
+2026-10-25T21:56:21.4805610Z   include-hidden-files: false
+2026-10-25T21:56:21.4805820Z ##[endgroup]
+2026-10-25T21:56:21.6157410Z (node:5190) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:21.6158110Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:21.6166310Z No files were found with the provided path: /Users/runner/work/_temp/PDF-benchmark.json. No artifacts will be uploaded.
+2026-10-25T21:56:21.6308280Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:21.6308760Z with:
+2026-10-25T21:56:21.6308960Z   name: PDF-binary-unvalidated-macos-26
+2026-10-25T21:56:21.6309310Z   path: /Users/runner/work/_temp/PDF-binary-artifact/*
+2026-10-25T21:56:21.6309620Z   if-no-files-found: ignore
+2026-10-25T21:56:21.6309840Z   retention-days: 7
+2026-10-25T21:56:21.6310070Z   compression-level: 6
+2026-10-25T21:56:21.6310310Z   overwrite: false
+2026-10-25T21:56:21.6310520Z   include-hidden-files: false
+2026-10-25T21:56:21.6310750Z ##[endgroup]
+2026-10-25T21:56:21.7597180Z (node:5191) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:21.7598220Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:21.7605150Z No files were found with the provided path: /Users/runner/work/_temp/PDF-binary-artifact/*. No artifacts will be uploaded.
+2026-10-25T21:56:21.7694110Z ##[group]Run actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+2026-10-25T21:56:21.7694450Z with:
+2026-10-25T21:56:21.7694640Z   name: PDF-source-unvalidated-macos-26
+2026-10-25T21:56:21.7695160Z   path: dist/PDF-source.tar.gz
+dist/PDF-source.tar.gz.sha256
+dist/PDF-vision-audit.json
+dist/PDF-benchmark.json
+dist/PDF-local-ai.json
+
+2026-10-25T21:56:21.7695670Z   if-no-files-found: ignore
+2026-10-25T21:56:21.7695870Z   compression-level: 6
+2026-10-25T21:56:21.7696040Z   overwrite: false
+2026-10-25T21:56:21.7696220Z   include-hidden-files: false
+2026-10-25T21:56:21.7696420Z ##[endgroup]
+2026-10-25T21:56:21.8908220Z (node:5192) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-10-25T21:56:21.8908970Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-10-25T21:56:21.8936170Z Multiple search paths detected. Calculating the least common ancestor of all paths
+2026-10-25T21:56:21.8937770Z The least common ancestor is /Users/runner/work/PDF-/PDF-/dist. This will be the root directory of the artifact
+2026-10-25T21:56:21.8938350Z No files were found with the provided path: dist/PDF-source.tar.gz
+2026-10-25T21:56:21.8938750Z dist/PDF-source.tar.gz.sha256
+2026-10-25T21:56:21.8938990Z dist/PDF-vision-audit.json
+2026-10-25T21:56:21.8939210Z dist/PDF-benchmark.json
+2026-10-25T21:56:21.8939460Z dist/PDF-local-ai.json. No artifacts will be uploaded.
+2026-10-25T21:56:21.9056560Z Post job cleanup.
+2026-10-25T21:56:21.9843770Z [command]/opt/homebrew/bin/git version
+2026-10-25T21:56:21.9951900Z git version 2.56.0
+2026-10-25T21:56:21.9972750Z Copying '/Users/runner/.gitconfig' to '/Users/runner/work/_temp/99fbe186-330e-4de4-8037-1e0dc338a5c3/.gitconfig'
+2026-10-25T21:56:21.9980260Z Temporarily overriding HOME='/Users/runner/work/_temp/99fbe186-330e-4de4-8037-1e0dc338a5c3' before making global git config changes
+2026-10-25T21:56:21.9981100Z Adding repository directory to the temporary git global config as a safe directory
+2026-10-25T21:56:21.9983900Z [command]/opt/homebrew/bin/git config --global --add safe.directory /Users/runner/work/PDF-/PDF-
+2026-10-25T21:56:22.0056550Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-10-25T21:56:22.0125490Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-10-25T21:56:22.1061470Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-10-25T21:56:22.1122530Z http.https://github.com/.extraheader
+2026-10-25T21:56:22.1130220Z [command]/opt/homebrew/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-10-25T21:56:22.1199300Z [command]/opt/homebrew/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-10-25T21:56:22.1950350Z [command]/opt/homebrew/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-10-25T21:56:22.2015450Z [command]/opt/homebrew/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-10-25T21:56:22.2868600Z Cleaning up orphan processes
+2026-10-25T21:56:22.7313480Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

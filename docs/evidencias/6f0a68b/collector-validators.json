@@ -1,0 +1,22 @@
+[
+  {
+    "path": "diagnostics/delivery_archives.py",
+    "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+    "sha256": "deac8885c9d2bd396a1530b19a027a6773162af50e9226b986237de117d14635"
+  },
+  {
+    "path": "scripts/check_preview_artifacts.py",
+    "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+    "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+  },
+  {
+    "path": "scripts/check_accessibility_report.py",
+    "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+    "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+  },
+  {
+    "path": "scripts/check_window_lifecycle.py",
+    "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+    "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+  }
+]

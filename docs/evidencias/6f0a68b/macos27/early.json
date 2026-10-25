@@ -1,0 +1,512 @@
+{
+  "automaticPresentationDeliberatelySuppressed" : true,
+  "bundleIdentifier" : "local.pdf.desktop",
+  "checks" : [
+    {
+      "detail" : "Modelo e preferências privados, sem PDF, rascunho sujo, motor ou captura de imagens.",
+      "id" : "isolated-state",
+      "passed" : true
+    },
+    {
+      "detail" : "Nenhuma janela foi criada antes do primeiro pedido explícito; apresentação automática e restauração estão desativadas somente nesta condição diagnóstica artificial.",
+      "id" : "automatic-presentation-suppressed",
+      "passed" : true
+    },
+    {
+      "detail" : "openWindow apresentou uma única WindowGroup com o Workspace e o guard reais do produto.",
+      "id" : "first-real-window",
+      "passed" : true
+    },
+    {
+      "detail" : "Os oito pedidos iniciais concluíram suas ações somente com a janela real anexada.",
+      "id" : "queued-actions-use-attached-window",
+      "passed" : true
+    },
+    {
+      "detail" : "Pedidos repetidos reapresentaram a mesma janela sem criar outra cena anexada.",
+      "id" : "existing-window-no-duplicates",
+      "passed" : true
+    },
+    {
+      "detail" : "O fechamento usa os guards reais em um modelo vazio; nenhum diálogo de descarte é contornado.",
+      "id" : "close-without-modal-data-loss",
+      "passed" : true
+    },
+    {
+      "detail" : "performClose atravessou WorkspaceWindowGuard e produziu willClose; a registry ficou vazia.",
+      "id" : "last-window-closed-through-product-guard",
+      "passed" : true
+    },
+    {
+      "detail" : "A ação compartilhada reapresentou uma WindowGroup real após fechar a última janela.",
+      "id" : "reopened-real-window",
+      "passed" : true
+    },
+    {
+      "detail" : "A cena reaberta recebeu a mesma instância de Workspace, seção e preferências privadas.",
+      "id" : "workspace-and-private-preferences-preserved",
+      "passed" : true
+    },
+    {
+      "detail" : "Vinte e quatro pedidos reais, em três fases, mantiveram no máximo uma janela de trabalho anexada.",
+      "id" : "all-requests-no-duplicate-windows",
+      "passed" : true
+    },
+    {
+      "detail" : "O encerramento compartilhado aguardou as tarefas reais antes de remover seus dados privados.",
+      "id" : "background-work-drained",
+      "passed" : true
+    },
+    {
+      "detail" : "O domínio de preferências e o diretório privados fornecidos ao Workspace foram removidos.",
+      "id" : "private-state-cleanup",
+      "passed" : true
+    }
+  ],
+  "createdAt" : "2026-10-25T22:04:49Z",
+  "events" : [
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 0.318125000035252,
+      "phase" : "diagnostic-created",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1117.6395416666765,
+      "phase" : "application-did-finish-launching",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.464041666669,
+      "phase" : "suppressed-launch-observed-without-window",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.6314583333392,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.6481666667014,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.6593750000206,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.6640833333563,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.6686666667065,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.674083333331,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.67916666668,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1475.6834166666977,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 1,
+      "contentViewClass" : "SwiftUI.(unknown context at $1d260196c).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.LazyView<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d25d7dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.WorkspaceSceneCoordinator>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>, SwiftUI.RootModifier>>",
+      "milliseconds" : 2260.991458333365,
+      "phase" : "real-window-attached",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 0,
+      "windowNumber" : 29,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.0949166666933,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.1167083333476,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.136666666673,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.1442916666965,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.148374999991,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.1522916666763,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.1675416666662,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 3526.177750000045,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.074249999998,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.09500000003,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.1013333333485,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.1069583333765,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.113083333346,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.118875000042,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.124583333374,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 4265.130208333347,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.61604166669,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.626833333372,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.631791666678,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.636041666696,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.640166666672,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.644083333356,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.64795833336,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 4768.65329166668,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "contentViewClass" : "SwiftUI.(unknown context at $1d260196c).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.LazyView<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d25d7dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.WorkspaceSceneCoordinator>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>, SwiftUI.RootModifier>>",
+      "milliseconds" : 5171.234875000038,
+      "phase" : "perform-close-on-last-workspace",
+      "visibleWorkspaceWindows" : 1,
+      "windowNumber" : 29,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "contentViewClass" : "SwiftUI.(unknown context at $1d260196c).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.LazyView<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d25d7dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.WorkspaceSceneCoordinator>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>, SwiftUI.RootModifier>>",
+      "milliseconds" : 5171.5874583333625,
+      "phase" : "product-close-guard-entered",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 1,
+      "windowNumber" : 29,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "contentViewClass" : "SwiftUI.(unknown context at $1d260196c).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.LazyView<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d25d7dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.WorkspaceSceneCoordinator>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>, SwiftUI.RootModifier>>",
+      "milliseconds" : 5171.883125000022,
+      "phase" : "appkit-window-will-close",
+      "visibleWorkspaceWindows" : 0,
+      "windowNumber" : 29,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.152875000023,
+      "phase" : "last-workspace-closed",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.184458333362,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.190833333361,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.195208333364,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.199541666687,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.221916666701,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.2440833333685,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.249666666659,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5190.253958333358,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 3,
+      "contentViewClass" : "SwiftUI.(unknown context at $1d260196c).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.LazyView<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d25d7dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.WorkspaceSceneCoordinator>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>, SwiftUI.RootModifier>>",
+      "milliseconds" : 5260.844875000032,
+      "phase" : "real-window-attached",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 0,
+      "windowNumber" : 39,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.180958333378,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.191583333337,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.195708333369,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.204625000042,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.213208333325,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.216666666693,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.219833333351,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 5858.233833333372,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "contentViewClass" : "SwiftUI.(unknown context at $1d260196c).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.LazyView<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.(unknown context at $1d25d7dac).SceneBridgeReader<SwiftUI.SubscriptionView<Combine.PassthroughSubject<Any, Swift.Never>, SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.ModifiedContent<SwiftUI.Group<SwiftUI._ConditionalContent<SwiftUI.IDView<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.ContentView, PDF.CustomizationView>, SwiftUI._ConditionalContent<PDF.RecoveryDocumentsView, Swift.Optional<PDF.ToolConfigurationView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.WorkflowView, PDF.VerificationView>, SwiftUI._ConditionalContent<PDF.CommandPaletteView, PDF.ProductionToolsView>>>, SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<SwiftUI._ConditionalContent<PDF.AdvancedContentEditorView, PDF.OCRReviewView>, SwiftUI._ConditionalContent<PDF.DocumentLibraryView, PDF.AccessibilityRemediationView>>, SwiftUI._ConditionalContent<PDF.SignatureRequestView, PDF.AutomationView>>>, Swift.String>, PDF.ContentView>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.Workspace>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.AppearancePreferences>>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<PDF.WorkspaceSceneCoordinator>>>, SwiftUI._EnvironmentKeyWritingModifier<__C.NSUserDefaults>>, SwiftUI._EnvironmentKeyWritingModifier<Swift.Optional<SwiftUI.AnyShapeStyle>>>, SwiftUI._PreferenceWritingModifier<SwiftUI.PreferredColorSchemeKey>>, SwiftUI._FlexFrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.WorkspaceWindowGuard, SwiftUI._FrameLayout>>>, SwiftUI._BackgroundModifier<SwiftUI.ModifiedContent<PDF.MacPreviewWindowObserver, SwiftUI._FrameLayout>>>, SwiftUI._AppearanceActionModifier>>, SwiftUI.RootModifier>>",
+      "milliseconds" : 6261.769750000041,
+      "phase" : "lifecycle-checks-completed",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 1,
+      "windowNumber" : 39,
+      "workspaceWindows" : 1
+    }
+  ],
+  "guardCloseRequests" : 1,
+  "hardware" : "Apple Paravirtual device · 3 núcleos disponíveis · 7 GB de memória",
+  "limitations" : [
+    "A supressão inicial e a restauração desativada são condições artificiais controladas; passar não reproduz nem demonstra a causa do timeout histórico do SwiftUI. O modo normal conserva sua política de restauração.",
+    "O modelo fica sem documentos e sem rascunhos sujos. O ensaio não valida escolhas humanas de descarte, recuperação de PDFs ou todos os percursos de restauração.",
+    "O relatório mede o ciclo de janela observado nesta execução; não aprova sozinho o pacote, os 33 PNGs\/relatórios AX da prévia ou compatibilidade geral entre sistemas."
+  ],
+  "maximumAttachedWorkspaceWindows" : 1,
+  "methodology" : "Uma WindowGroup real do produto inicia com a apresentação automática e a restauração deliberadamente desativadas somente no modo diagnóstico. A ação compartilhada do coordenador chama openWindow, reapresenta sem duplicar, fecha a última janela com performClose e o guard real e reabre preservando o Workspace. Nenhuma NSWindow\/NSHostingView substituta, mock, captura de imagem, PDF ou motor externo é criado pela auditoria.",
+  "observedWindowCloses" : 1,
+  "operatingSystem" : "Version 27.0.1 (Build 26A434)",
+  "presentationRequests" : 24,
+  "previewCaptureEnabled" : false,
+  "privateState" : true,
+  "privateStateCleaned" : true,
+  "readyActionsExecuted" : 24,
+  "realSwiftUIWindowGroup" : true,
+  "restorationDeliberatelyDisabled" : true,
+  "schemaVersion" : 1,
+  "status" : "passed",
+  "totalMilliseconds" : 6298.891583333329
+}

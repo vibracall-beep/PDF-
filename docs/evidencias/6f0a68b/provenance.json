@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+  "runID": 40238135021,
+  "runConclusion": "cancelled",
+  "noApplicationBinaryOrSourceTarIncluded": true,
+  "files": [
+    {
+      "path": "collector-run.json",
+      "bytes": 12350,
+      "sha256": "92af7246ebdde68658f132f3298fd711887dbfac20fa4c440699024fe47162b9",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-run.json"
+    },
+    {
+      "path": "collector-jobs.json",
+      "bytes": 12510,
+      "sha256": "af1c7e8bce5c3f7c0d08fe3efae2da99ae990a2415452e03f58d4f648ec9c970",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-jobs.json"
+    },
+    {
+      "path": "collector-artifacts.json",
+      "bytes": 2119,
+      "sha256": "3041feadb3bee0877ede0d1cb9e9f3cf00eac596f6335dee18cf2aa3b28c153b",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-artifacts.json"
+    },
+    {
+      "path": "collector-artifact-state.json",
+      "bytes": 6608,
+      "sha256": "fe0f5d544816284f769aa07722cca2e55d3f1681ddb54a5a89aa4281bacd9733",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-artifact-state.json"
+    },
+    {
+      "path": "collector-configuration.json",
+      "bytes": 275,
+      "sha256": "8b0714cda288fe8416145294311135f774117a9381e9f0e0d896ca2463eeb12f",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-configuration.json"
+    },
+    {
+      "path": "collector-validators.json",
+      "bytes": 807,
+      "sha256": "8c675b43008cbf629d179eab7002c2efa5557aeb6fd4c5fc791c0caf48aa1145",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-validators.json"
+    },
+    {
+      "path": "collector-summary.json",
+      "bytes": 1309,
+      "sha256": "87030921f8657c6f41a3fab6c55b9e4ed5038457d7c31f37e7451d4fba4404c4",
+      "origin": "Unchanged final collector API response or derived collector record",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/collector-summary.json"
+    },
+    {
+      "path": "before-cancellation/jobs.json",
+      "bytes": 11450,
+      "sha256": "8f0cfd98877bbd640c47e03327a9b8f89ab5117fbea8696a0d248076a3375bb9",
+      "origin": "Unchanged authenticated pre-cancellation collector snapshot",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/snapshots/1792965965126991458-123857/jobs.json"
+    },
+    {
+      "path": "before-cancellation/run.json",
+      "bytes": 12345,
+      "sha256": "f70fb766d3674131929e0cab094a92436f10c817d198185600a6668b685cd991",
+      "origin": "Unchanged authenticated pre-cancellation collector snapshot",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/snapshots/1792965965126991458-123857/run.json"
+    },
+    {
+      "path": "before-cancellation/artifacts.json",
+      "bytes": 1425,
+      "sha256": "229e59de56e6dd22dc046ebbc8617d691e4ad255590702234e4025b8e9f0a701",
+      "origin": "Unchanged authenticated pre-cancellation collector snapshot",
+      "originalPath": "/workspace/.cache/pdf-native-6f0a68b/snapshots/1792965965126991458-123857/artifacts.json"
+    },
+    {
+      "path": "before-cancellation/jobs-owner-snapshot.json",
+      "bytes": 11450,
+      "sha256": "8f0cfd98877bbd640c47e03327a9b8f89ab5117fbea8696a0d248076a3375bb9",
+      "origin": "Original authenticated jobs snapshot taken by coordinator before requesting cancellation",
+      "originalPath": "/tmp/pdf-scene-6f0a68b-jobs-before-cancel.json"
+    },
+    {
+      "path": "source/scripts/check_window_lifecycle.py",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828",
+      "origin": "Exact historical Git blob",
+      "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "gitPath": "scripts/check_window_lifecycle.py"
+    },
+    {
+      "path": "source/Sources/PDF/WorkspaceSceneCoordinator.swift",
+      "bytes": 6618,
+      "sha256": "e1ac40ee276c0bb9964bdfbc7c0fd9604500b1e0100e2d7f7af1105df5767323",
+      "origin": "Exact historical Git blob",
+      "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "gitPath": "Sources/PDF/WorkspaceSceneCoordinator.swift"
+    },
+    {
+      "path": "source/Sources/PDF/PDFApp.swift",
+      "bytes": 42893,
+      "sha256": "1149bab70c3f396db53a4239a6094f1df8e89946cf8796e3f68f47ad76cd7e87",
+      "origin": "Exact historical Git blob",
+      "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "gitPath": "Sources/PDF/PDFApp.swift"
+    },
+    {
+      "path": "source/.github/workflows/macos.yml",
+      "bytes": 26537,
+      "sha256": "aa3c0c2875be3757f99539b31318f794b0c176e7fadb3cd83384ea1990be1069",
+      "origin": "Exact historical Git blob",
+      "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "gitPath": ".github/workflows/macos.yml"
+    },
+    {
+      "path": "macos26/artifact-original.zip",
+      "bytes": 3731,
+      "sha256": "f19e4d610b5286eacdfe43d399a9c14afcfeab102e926bc0936956d4abcbbdc2",
+      "origin": "Original authenticated GitHub artifact ZIP; digest matched API",
+      "artifactID": 12615955413,
+      "artifactName": "PDF-window-lifecycle-macos-26",
+      "githubDigest": "sha256:f19e4d610b5286eacdfe43d399a9c14afcfeab102e926bc0936956d4abcbbdc2"
+    },
+    {
+      "path": "macos26/early.json",
+      "bytes": 14199,
+      "sha256": "459953e4aaec358fb2a772c417e7051e03086f604d980eb19e3c4e1b7560175f",
+      "origin": "Exact original artifact ZIP member",
+      "artifactID": 12615955413,
+      "archiveSHA256": "f19e4d610b5286eacdfe43d399a9c14afcfeab102e926bc0936956d4abcbbdc2",
+      "member": "early.json"
+    },
+    {
+      "path": "macos26/early.log",
+      "bytes": 12998,
+      "sha256": "7bf226913bfe8c65ac95adfe25d2bbe33a5bec84d13e234940d8b64412307cc5",
+      "origin": "Exact original artifact ZIP member",
+      "artifactID": 12615955413,
+      "archiveSHA256": "f19e4d610b5286eacdfe43d399a9c14afcfeab102e926bc0936956d4abcbbdc2",
+      "member": "early.log"
+    },
+    {
+      "path": "macos26/job-complete.log",
+      "bytes": 97124,
+      "sha256": "18b1b692e5620c694ca405c3c4997d0e1eba75bcef085a8eb07ae2cdac905bc2",
+      "origin": "Original complete authenticated job log supplied by coordinator",
+      "jobID": 121304006266,
+      "endpoint": "repos/vibracall-beep/PDF-/actions/jobs/121304006266/logs"
+    },
+    {
+      "path": "macos27/artifact-original.zip",
+      "bytes": 5390,
+      "sha256": "bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78",
+      "origin": "Original authenticated GitHub artifact ZIP; digest matched API",
+      "artifactID": 12615888226,
+      "artifactName": "PDF-window-lifecycle-xcode-27",
+      "githubDigest": "sha256:bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78"
+    },
+    {
+      "path": "macos27/early-receipt.json",
+      "bytes": 937,
+      "sha256": "a7442bbd82b5683542a36050c09241f5037ab887f8f48dc792599c0cf7bdadb5",
+      "origin": "Exact original artifact ZIP member",
+      "artifactID": 12615888226,
+      "archiveSHA256": "bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78",
+      "member": "early-receipt.json"
+    },
+    {
+      "path": "macos27/early.json",
+      "bytes": 28705,
+      "sha256": "b538fa541e086e6ce10cdd962338f939727b10a51595c9844d5d60e3e5613dd9",
+      "origin": "Exact original artifact ZIP member",
+      "artifactID": 12615888226,
+      "archiveSHA256": "bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78",
+      "member": "early.json"
+    },
+    {
+      "path": "macos27/early.log",
+      "bytes": 15497,
+      "sha256": "d9326a688272ec0b5c096628a96494308456c58fcd8085ec4a57bc2f7105c80a",
+      "origin": "Exact original artifact ZIP member",
+      "artifactID": 12615888226,
+      "archiveSHA256": "bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78",
+      "member": "early.log"
+    },
+    {
+      "path": "macos27/job-complete.log",
+      "bytes": 145255,
+      "sha256": "c1d019e3e51fbd0ec25e41c8c34894fa3ed97dce974c4f22689f955d43faae08",
+      "origin": "Original complete authenticated job log supplied by coordinator",
+      "jobID": 121304006424,
+      "endpoint": "repos/vibracall-beep/PDF-/actions/jobs/121304006424/logs"
+    },
+    {
+      "path": "recheck.json",
+      "bytes": 3811,
+      "sha256": "1b178403dbab9caf42b6d145b47d2c390876a0d313000585ff70100472877d4d",
+      "origin": "Derived independent artifact/hash/checker verification and source-attributed cancellation record"
+    }
+  ]
+}

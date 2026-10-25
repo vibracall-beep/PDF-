@@ -1,0 +1,50 @@
+{
+  "runID": 40238135021,
+  "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+  "runAttempt": 1,
+  "status": "completed",
+  "conclusion": "cancelled",
+  "jobs": [
+    {
+      "id": 121304006266,
+      "name": "native-application (macos-26)",
+      "status": "completed",
+      "conclusion": "failure"
+    },
+    {
+      "id": 121304006424,
+      "name": "native-application (xcode-27)",
+      "status": "completed",
+      "conclusion": "cancelled"
+    }
+  ],
+  "publishedArtifacts": 3,
+  "processedThisPass": [
+    {
+      "name": "PDF-window-lifecycle-macos-26",
+      "files": 2,
+      "inventoryComplete": false,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": false
+    },
+    {
+      "name": "PDF-window-lifecycle-xcode-27",
+      "files": 3,
+      "inventoryComplete": false,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": false
+    },
+    {
+      "name": "PDF-source-unvalidated-macos-26",
+      "files": 2,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    }
+  ],
+  "deferred": [],
+  "verifiedArchives": 3,
+  "snapshotDirectory": "/workspace/.cache/pdf-native-6f0a68b/snapshots/1792966178420218694-124322",
+  "noBinaryDownloaded": true,
+  "completeApplicationApproved": false
+}

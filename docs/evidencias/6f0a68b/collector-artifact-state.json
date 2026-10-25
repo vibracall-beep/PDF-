@@ -1,0 +1,176 @@
+{
+  "runID": 40238135021,
+  "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+  "runAttempt": 1,
+  "attempts": {
+    "12615955413": {
+      "id": 12615955413,
+      "name": "PDF-window-lifecycle-macos-26",
+      "runID": 40238135021,
+      "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "runAttempt": 1,
+      "jobID": 121304006266,
+      "archiveBytes": 3731,
+      "githubDigest": "sha256:f19e4d610b5286eacdfe43d399a9c14afcfeab102e926bc0936956d4abcbbdc2",
+      "downloadAttempts": 1,
+      "attemptedAt": 1792965966.3700483,
+      "downloaded": true,
+      "archiveSHA256": "f19e4d610b5286eacdfe43d399a9c14afcfeab102e926bc0936956d4abcbbdc2",
+      "extractionVerified": true,
+      "directory": "/workspace/.cache/pdf-native-6f0a68b/extracted/PDF-window-lifecycle-macos-26",
+      "missingRequiredFiles": [
+        "early-receipt.json",
+        "installed-receipt.json",
+        "installed.json",
+        "installed.log"
+      ],
+      "inventoryComplete": false,
+      "files": [
+        {
+          "name": "early.json",
+          "bytes": 14199,
+          "sha256": "459953e4aaec358fb2a772c417e7051e03086f604d980eb19e3c4e1b7560175f"
+        },
+        {
+          "name": "early.log",
+          "bytes": 12998,
+          "sha256": "7bf226913bfe8c65ac95adfe25d2bbe33a5bec84d13e234940d8b64412307cc5"
+        }
+      ],
+      "lifecycleStages": {
+        "early": {
+          "scope": "minimal-diagnostic",
+          "missingFiles": [
+            "early-receipt.json"
+          ],
+          "reportReceiptValidated": false,
+          "workflowStepPassed": false,
+          "passed": false
+        },
+        "installed": {
+          "scope": "installed-application",
+          "missingFiles": [
+            "installed-receipt.json",
+            "installed.json",
+            "installed.log"
+          ],
+          "reportReceiptValidated": false,
+          "workflowStepPassed": false,
+          "passed": false
+        }
+      },
+      "lifecycleAllStagesPassed": false,
+      "lifecycleValidationScope": "Exact-source report checker, raw-report/receipt binding, declared source matched to authenticated run/job and original ZIP digest; bundle file hashes are original workflow assertions, not locally rehashed app binaries. No complete app, historical-cause, preview or human VoiceOver approval."
+    },
+    "12614864904": {
+      "id": 12614864904,
+      "name": "PDF-source-unvalidated-macos-26",
+      "runID": 40238135021,
+      "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "runAttempt": 1,
+      "jobID": 121304006266,
+      "archiveBytes": 21018321,
+      "githubDigest": "sha256:a833c2775fb8543ebb54b6bb33242b35ecede7b8efb6a808e355a1c31f61b8b1",
+      "downloadAttempts": 1,
+      "attemptedAt": 1792965966.8746285,
+      "downloaded": true,
+      "archiveSHA256": "a833c2775fb8543ebb54b6bb33242b35ecede7b8efb6a808e355a1c31f61b8b1",
+      "extractionVerified": true,
+      "directory": "/workspace/.cache/pdf-native-6f0a68b/extracted/PDF-source-unvalidated-macos-26",
+      "missingRequiredFiles": [],
+      "inventoryComplete": true,
+      "files": [
+        {
+          "name": "PDF-source.tar.gz",
+          "bytes": 21018671,
+          "sha256": "b146151d8c4ec8561e4f2a000688989505f859803e79985f8aabe3d4e3b91f26"
+        },
+        {
+          "name": "PDF-source.tar.gz.sha256",
+          "bytes": 84,
+          "sha256": "234f27ee69896dd688e7d0e7db2a1fafc62b07a286c31ef20d5a7cc6a8026cf2"
+        }
+      ],
+      "sourceArchiveChecksumVerified": true
+    },
+    "12615888226": {
+      "id": 12615888226,
+      "name": "PDF-window-lifecycle-xcode-27",
+      "runID": 40238135021,
+      "sourceSHA": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+      "runAttempt": 1,
+      "jobID": 121304006424,
+      "archiveBytes": 5390,
+      "githubDigest": "sha256:bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78",
+      "downloadAttempts": 1,
+      "attemptedAt": 1792966179.4582086,
+      "downloaded": true,
+      "archiveSHA256": "bf47b2e672194c31ac601ffcbdf8509eb54612e524f387db3e1db54f33e17f78",
+      "extractionVerified": true,
+      "directory": "/workspace/.cache/pdf-native-6f0a68b/extracted/PDF-window-lifecycle-xcode-27",
+      "missingRequiredFiles": [
+        "installed-receipt.json",
+        "installed.json",
+        "installed.log"
+      ],
+      "inventoryComplete": false,
+      "files": [
+        {
+          "name": "early-receipt.json",
+          "bytes": 937,
+          "sha256": "a7442bbd82b5683542a36050c09241f5037ab887f8f48dc792599c0cf7bdadb5"
+        },
+        {
+          "name": "early.json",
+          "bytes": 28705,
+          "sha256": "b538fa541e086e6ce10cdd962338f939727b10a51595c9844d5d60e3e5613dd9"
+        },
+        {
+          "name": "early.log",
+          "bytes": 15497,
+          "sha256": "d9326a688272ec0b5c096628a96494308456c58fcd8085ec4a57bc2f7105c80a"
+        }
+      ],
+      "lifecycleStages": {
+        "early": {
+          "scope": "minimal-diagnostic",
+          "missingFiles": [],
+          "reportReceiptValidated": true,
+          "workflowStepPassed": true,
+          "passed": true,
+          "report": {
+            "bytes": 28705,
+            "sha256": "b538fa541e086e6ce10cdd962338f939727b10a51595c9844d5d60e3e5613dd9"
+          },
+          "reportChecks": 12,
+          "installedBundleFiles": {
+            "Contents/MacOS/PDF": {
+              "bytes": 19060960,
+              "sha256": "672b617ca64e66ede86518af79d7af5a48c0e6d7c198d3c9832a95fb164bfb9b"
+            },
+            "Contents/Info.plist": {
+              "bytes": 2034,
+              "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+            }
+          },
+          "bundleFilesIndependentlyRehashedHere": false,
+          "totalMilliseconds": 6298.891583333329,
+          "workflowStep": "Audit the real window early without installing the engine runtime"
+        },
+        "installed": {
+          "scope": "installed-application",
+          "missingFiles": [
+            "installed-receipt.json",
+            "installed.json",
+            "installed.log"
+          ],
+          "reportReceiptValidated": false,
+          "workflowStepPassed": false,
+          "passed": false
+        }
+      },
+      "lifecycleAllStagesPassed": false,
+      "lifecycleValidationScope": "Exact-source report checker, raw-report/receipt binding, declared source matched to authenticated run/job and original ZIP digest; bundle file hashes are original workflow assertions, not locally rehashed app binaries. No complete app, historical-cause, preview or human VoiceOver approval."
+    }
+  }
+}

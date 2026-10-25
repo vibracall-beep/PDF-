@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "scope": "minimal-diagnostic",
+  "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+  "sourceCommitAuthenticatedByThisValidator": false,
+  "status": "passed",
+  "report": {
+    "bytes": 28705,
+    "sha256": "b538fa541e086e6ce10cdd962338f939727b10a51595c9844d5d60e3e5613dd9"
+  },
+  "installedBundleFiles": {
+    "Contents/MacOS/PDF": {
+      "bytes": 19060960,
+      "sha256": "672b617ca64e66ede86518af79d7af5a48c0e6d7c198d3c9832a95fb164bfb9b"
+    },
+    "Contents/Info.plist": {
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    }
+  },
+  "nativeDiagnosticDeadlineSeconds": 55,
+  "nativeCleanupMaximumSeconds": 3,
+  "externalDeadlineSeconds": 60,
+  "sampleOnTimeout": true,
+  "completeApplicationApproved": false,
+  "historicalTimeoutCauseDemonstrated": false,
+  "humanVoiceOverTested": false,
+  "previewArtifactsValidatedByThisReport": false
+}

@@ -1,0 +1,116 @@
+{
+  "sourceCommit": "6f0a68b6ef70a4e2d5d58b9aecd4bd4bad629828",
+  "runID": 40238135021,
+  "runConclusion": "cancelled",
+  "runUpdatedAt": "2026-10-25T22:07:28Z",
+  "cancellation": {
+    "decisionSource": "Coordinator statement in the task conversation",
+    "reason": "Stopped the longer macOS 27 installation after macOS 26 had already failed the early real-window reopening audit",
+    "APIConfirmsJob27Cancelled": true,
+    "preCancellationSnapshotRetained": true,
+    "notASecondGUIFailure": true
+  },
+  "systems": {
+    "macos26": {
+      "jobID": 121304006266,
+      "jobConclusion": "failure",
+      "scripts": {
+        "methods": 150,
+        "passed": 149,
+        "skipped": 1,
+        "seconds": 25.833
+      },
+      "compile": "success",
+      "earlyReportStatus": "failed",
+      "earlyChecksRecorded": 9,
+      "earlyChecksPassed": 9,
+      "requests": 24,
+      "readyActions": 16,
+      "milliseconds": 17891.160833333346,
+      "guardCloseRequests": 1,
+      "observedWindowCloses": 1,
+      "maximumAttachedWorkspaceWindows": 1,
+      "privateStateCleaned": true,
+      "eventPhaseCounts": {
+        "diagnostic-created": 1,
+        "application-did-finish-launching": 1,
+        "suppressed-launch-observed-without-window": 1,
+        "shared-presentation-requested": 24,
+        "real-window-attached": 1,
+        "shared-presentation-action-ready": 16,
+        "perform-close-on-last-workspace": 1,
+        "product-close-guard-entered": 1,
+        "appkit-window-will-close": 1,
+        "last-workspace-closed": 1
+      },
+      "historicalCheckerReplayPassed": false,
+      "historicalCheckerReplayError": "Invalid window lifecycle report: native diagnostic did not pass",
+      "receiptPresent": false,
+      "bundleFilesIndependentlyRehashedHere": false,
+      "nativeGroupsExecuted": 0,
+      "installedGUIExecuted": false,
+      "previewExecuted": false
+    },
+    "macos27": {
+      "jobID": 121304006424,
+      "jobConclusion": "cancelled",
+      "scripts": {
+        "methods": 150,
+        "passed": 149,
+        "skipped": 1,
+        "seconds": 25.395
+      },
+      "compile": "success",
+      "earlyReportStatus": "passed",
+      "earlyChecksRecorded": 12,
+      "earlyChecksPassed": 12,
+      "requests": 24,
+      "readyActions": 24,
+      "milliseconds": 6298.891583333329,
+      "guardCloseRequests": 1,
+      "observedWindowCloses": 1,
+      "maximumAttachedWorkspaceWindows": 1,
+      "privateStateCleaned": true,
+      "eventPhaseCounts": {
+        "diagnostic-created": 1,
+        "application-did-finish-launching": 1,
+        "suppressed-launch-observed-without-window": 1,
+        "shared-presentation-requested": 24,
+        "real-window-attached": 2,
+        "shared-presentation-action-ready": 24,
+        "perform-close-on-last-workspace": 1,
+        "product-close-guard-entered": 1,
+        "appkit-window-will-close": 1,
+        "last-workspace-closed": 1,
+        "lifecycle-checks-completed": 1
+      },
+      "historicalCheckerReplayPassed": true,
+      "historicalCheckerReplayError": null,
+      "receiptPresent": true,
+      "bundleFilesIndependentlyRehashedHere": false,
+      "nativeGroupsExecuted": 0,
+      "installedGUIExecuted": false,
+      "previewExecuted": false
+    }
+  },
+  "observedMac26Sequence": {
+    "firstWindowCreated": true,
+    "closedThroughRealGuard": true,
+    "builderEvaluatedAfterClose": true,
+    "sceneConstructionBeganAfterClose": true,
+    "secondOpenWindowInvocationObserved": false,
+    "reopeningFailed": true,
+    "historicalCross817CauseProved": false
+  },
+  "approval": {
+    "completeNativeMatrix": false,
+    "completeInstalledApplication": false,
+    "cross": false,
+    "delivery": false
+  },
+  "omittedPayloads": [
+    "source tar and source ZIP",
+    "application binaries",
+    "PNGs (not generated)"
+  ]
+}

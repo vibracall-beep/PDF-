@@ -1,0 +1,135 @@
+/Users/runner/work/_temp/PDF-window-lifecycle/early/PDF.app/Contents/Info.plist: OK
+/Users/runner/work/_temp/PDF-window-lifecycle/early/PDF.app/Contents/MacOS/PDF: replacing existing signature
+/Users/runner/work/_temp/PDF-window-lifecycle/early/PDF.app: replacing existing signature
+Diagnostic-only minimal bundle, with exact production Info.plist and installation lease: /Users/runner/work/_temp/PDF-window-lifecycle/early/PDF.app
+No Python runtime, engine, icon or App Intents metadata was installed; this is not distribution approval.
+PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false
+PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false
+PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false
+PDF preview startup: preview session init begin; mainThread=true; swiftTask=false
+PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false
+PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false
+PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false
+PDF preview startup: workspace ready; mainThread=true; swiftTask=false
+PDF preview startup: preview session init end; mainThread=true; swiftTask=false
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=diagnostic-created; workspaceWindows=0
+PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false
+PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; openWindow action registered
+PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown
+PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=true
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=application-did-finish-launching; workspaceWindows=0
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=suppressed-launch-observed-without-window; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; openWindow action invoked
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; scene construction began
+PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false
+PDF preview startup: window observer creation end; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false
+PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; workspace window attached
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=real-window-attached; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; existing workspace presented
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=1
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; existing workspace presented
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=perform-close-on-last-workspace; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=product-close-guard-entered; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; last workspace closed
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=appkit-window-will-close; workspaceWindows=0
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=true
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=last-workspace-closed; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=true; presentation requested: showWorkspace
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=shared-presentation-requested; workspaceWindows=0
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; openWindow action invoked
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; scene construction began
+PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false
+PDF preview startup: window observer creation end; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false
+PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; workspace window attached
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=real-window-attached; workspaceWindows=1
+PDF preview startup: workspace scene; mainThread=true; swiftTask=false; existing workspace presented
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=false; phase=shared-presentation-action-ready; workspaceWindows=1
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false
+PDF preview startup: window lifecycle audit; mainThread=true; swiftTask=true; phase=lifecycle-checks-completed; workspaceWindows=1
+PDF real WindowGroup lifecycle audit passed
+All 12 real-window diagnostic checks passed: minimal-diagnostic
+Controlled automatic-presentation/restoration suppression; no full application or historical-cause approval.
+Hardware: Apple Paravirtual device · 3 núcleos disponíveis · 7 GB de memória | Version 27.0.1 (Build 26A434)

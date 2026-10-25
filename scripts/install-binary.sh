@@ -83,11 +83,18 @@ done < "$PDF_EXTRACT/members.txt"
 # PDF_STORAGE_CHECK_BEGIN
 # The archive has already passed SHA-256 authentication. Read only metadata
 # before expanding the app. New archives place it first; --fast-read is bsdtar.
-PDF_MANIFEST="$PDF_EXTRACT/storage-manifest.json"
-/usr/bin/tar -xOzf "$PDF_ARCHIVE" --fast-read PDF-distribution/manifest.json > "$PDF_MANIFEST"
-PDF_MANIFEST_BYTES="$(/usr/bin/stat -f '%z' "$PDF_MANIFEST")"
+PDF_MANIFEST_JSON="$PDF_EXTRACT/storage-manifest.json"
+/usr/bin/tar -xOzf "$PDF_ARCHIVE" --fast-read PDF-distribution/manifest.json > "$PDF_MANIFEST_JSON"
+PDF_MANIFEST_BYTES="$(/usr/bin/stat -f '%z' "$PDF_MANIFEST_JSON")"
 [[ "$PDF_MANIFEST_BYTES" =~ ^[1-9][0-9]{0,7}$ && "$PDF_MANIFEST_BYTES" -le 33554432 ]] || fail 'O manifesto excede o limite de 32 MiB.'
-/usr/bin/plutil -lint "$PDF_MANIFEST" >/dev/null || fail 'O manifesto JSON é inválido.'
+# plutil's lint/type/extract operations read property lists, not JSON. Its
+# explicit converter accepts JSON and preserves integer/real/boolean types.
+# Keep the authenticated JSON untouched; all queries use the same private plist.
+PDF_MANIFEST="$PDF_EXTRACT/storage-manifest.plist"
+/usr/bin/plutil -convert xml1 -o "$PDF_MANIFEST" -- "$PDF_MANIFEST_JSON" >/dev/null || fail 'O manifesto JSON é inválido.'
+/usr/bin/plutil -lint "$PDF_MANIFEST" >/dev/null || fail 'A representação do manifesto é inválida.'
+PDF_MANIFEST_SCHEMA="$(/usr/bin/plutil -extract schemaVersion raw -expect integer -o - "$PDF_MANIFEST" 2>/dev/null)" || fail 'A versão do manifesto é inválida.'
+[[ "$PDF_MANIFEST_SCHEMA" == 1 ]] || fail 'A versão do manifesto não é suportada.'
 if PDF_STORAGE_TYPE="$(/usr/bin/plutil -type storageRequirements "$PDF_MANIFEST" 2>/dev/null)"; then
   [[ "$PDF_STORAGE_TYPE" == dictionary ]] || fail 'A estimativa autenticada de espaço não é um objeto válido.'
   PDF_STORAGE_SCHEMA="$(pdf_storage_integer schemaVersion 1)"

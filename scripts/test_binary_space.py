@@ -74,6 +74,13 @@ class BinaryStorageTests(unittest.TestCase):
         result = self.preflight(parent, legacy, legacy_order=True)
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn('Pacote anterior', result.stdout)
+        # A missing optional estimate is permitted only in a valid schema-1
+        # manifest; malformed roots must not take the compatibility branch.
+        for invalid in (None, [], 'invalid', {}, {'schemaVersion': True},
+                        dict(legacy, schemaVersion=1.0), dict(legacy, schemaVersion=2)):
+            result = self.preflight(parent, invalid)
+            self.assertNotEqual(result.returncode, 0, invalid)
+            self.assertNotIn('Pacote anterior', result.stdout)
         for value in (None, [], 'invalid', True,
                       dict(self.manifest['storageRequirements'], distributionBytes=-1),
                       dict(self.manifest['storageRequirements'], bundleBytes=True),

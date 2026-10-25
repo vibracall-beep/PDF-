@@ -16,7 +16,7 @@ import Combine
     private var launchFinished = false
     private var pending = false
     private var scheduled = false
-    private var constructing = false
+    private var attachingGuards: Set<UUID> = []
     private var opening = false
     private var actions: [() -> Void] = []
 
@@ -53,19 +53,25 @@ import Combine
         requestPresentation(reason: .activation)
     }
 
-    func sceneConstructionBegan() {
-        constructing = true
-        trace("scene construction began")
+    func windowAttachmentBegan(id: UUID) {
+        attachingGuards.insert(id)
+        trace("guard will attach to AppKit window")
     }
 
-    func windowAttached() {
-        constructing = false; opening = false
+    func windowAttachmentEnded(id: UUID) {
+        guard attachingGuards.remove(id) != nil else { return }
+        trace("guard attachment ended")
+        enqueue()
+    }
+
+    func windowAttached(guardID: UUID) {
+        attachingGuards.remove(guardID); opening = false
         trace("workspace window attached")
         enqueue()
     }
 
     func allWindowsClosed() {
-        constructing = false; opening = false
+        opening = false
         trace("last workspace closed")
         // Closing the last window is not itself a request to reopen it.
         enqueue()
@@ -92,10 +98,12 @@ import Combine
             for action in ready { action() }
             return
         }
-        // Automatic restoration may already be building the same scene.
+        // Automatic restoration may already be attaching a genuine AppKit
+        // window. Evaluating a scene builder or making an unattached NSView
+        // does not establish that fact and must never block this request.
         // Registration, activation and repeated menu actions must not create
         // another window while either automatic or explicit opening is pending.
-        guard !constructing, !opening else { return }
+        guard attachingGuards.isEmpty, !opening else { return }
         opening = true
         trace("openWindow action invoked")
         openWindow()
@@ -133,12 +141,15 @@ import Combine
                              action: (() -> Void)? = nil) {
         presentation.requestPresentation(reason: reason, action: action)
     }
-    func sceneConstructionBegan() {
-        if workspaceWindows.isEmpty { presentation.sceneConstructionBegan() }
+    func windowAttachmentBegan(id: UUID) {
+        presentation.windowAttachmentBegan(id: id)
     }
-    func windowAttached(_ window: NSWindow) {
+    func windowAttachmentEnded(id: UUID) {
+        presentation.windowAttachmentEnded(id: id)
+    }
+    func windowAttached(_ window: NSWindow, guardID: UUID) {
         windows.add(window)
-        presentation.windowAttached()
+        presentation.windowAttached(guardID: guardID)
     }
     func windowClosed(_ window: NSWindow) {
         guard windows.contains(window) else { return }

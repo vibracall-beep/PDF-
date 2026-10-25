@@ -236,7 +236,6 @@ struct PDFApp: App {
             explicitPreview:preview.isEnabled,lifecycleAudit:lifecycleAudit)
         WindowGroup(id:WorkspaceSceneCoordinator.workspaceID) {
             let _ = PreviewStartupTrace.record("WindowGroup content builder evaluated")
-            let _ = sceneCoordinator.sceneConstructionBegan()
             Group {
                 if preview.isEnabled { preview.content.id(preview.routeIdentity) }
                 else { ContentView() }

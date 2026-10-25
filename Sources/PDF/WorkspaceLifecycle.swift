@@ -81,15 +81,36 @@ import AppKit
     func makeCoordinator() -> Coordinator {
         Coordinator(model:model,sceneCoordinator:sceneCoordinator,lifecycleAudit:lifecycleAudit)
     }
-    func makeNSView(context:Context) -> GuardView { let view = GuardView(); view.coordinator = context.coordinator; return view }
-    func updateNSView(_ nsView:GuardView,context:Context) { context.coordinator.model = model; context.coordinator.install(on:nsView.window) }
+    func makeNSView(context:Context) -> GuardView {
+        let view = GuardView(); view.coordinator = context.coordinator
+        PreviewStartupTrace.record("workspace guard view created")
+        return view
+    }
+    func updateNSView(_ nsView:GuardView,context:Context) {
+        context.coordinator.model = model
+        context.coordinator.install(on:nsView.window,guardID:nsView.guardID)
+    }
     static func dismantleNSView(_ nsView:GuardView,coordinator:Coordinator) {
+        coordinator.sceneCoordinator?.windowAttachmentEnded(id:nsView.guardID)
         if let window = coordinator.installedWindow, window.delegate === coordinator { window.delegate = coordinator.previous }
         coordinator.installedWindow = nil
     }
     @MainActor final class GuardView:NSView {
+        let guardID = UUID()
         weak var coordinator:Coordinator?
-        override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); coordinator?.install(on:window) }
+        override func viewWillMove(toWindow newWindow:NSWindow?) {
+            // A non-nil AppKit destination is evidence of actual association.
+            // SwiftUI may evaluate/discard the old scene after it closes, so a
+            // declarative builder or an unattached guard cannot supply this.
+            if newWindow != nil { coordinator?.sceneCoordinator?.windowAttachmentBegan(id:guardID) }
+            else { coordinator?.sceneCoordinator?.windowAttachmentEnded(id:guardID) }
+            super.viewWillMove(toWindow:newWindow)
+        }
+        override func viewDidMoveToWindow() {
+            super.viewDidMoveToWindow()
+            if window == nil { coordinator?.sceneCoordinator?.windowAttachmentEnded(id:guardID) }
+            else { coordinator?.install(on:window,guardID:guardID) }
+        }
     }
     final class Coordinator:NSObject,NSWindowDelegate {
         @MainActor weak var model:Workspace?
@@ -103,11 +124,15 @@ import AppKit
         @MainActor init(model:Workspace,sceneCoordinator:WorkspaceSceneCoordinator,lifecycleAudit:WindowSceneLifecycleAudit?) {
             self.model = model; self.sceneCoordinator = sceneCoordinator; self.lifecycleAudit = lifecycleAudit
         }
-        @MainActor func install(on window:NSWindow?) {
-            guard let window, installedWindow !== window else { return }
+        @MainActor func install(on window:NSWindow?,guardID:UUID) {
+            guard let window else { return }
+            guard installedWindow !== window else {
+                sceneCoordinator?.windowAttachmentEnded(id:guardID)
+                return
+            }
             if let installedWindow, installedWindow.delegate === self { installedWindow.delegate = previous }
             previous = window.delegate; installedWindow = window; window.delegate = self
-            sceneCoordinator?.windowAttached(window)
+            sceneCoordinator?.windowAttached(window,guardID:guardID)
             if let model { lifecycleAudit?.windowAttached(window,model:model) }
         }
         @MainActor func windowShouldClose(_ sender:NSWindow) -> Bool {

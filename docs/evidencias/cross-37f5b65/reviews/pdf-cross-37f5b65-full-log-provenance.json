@@ -1,0 +1,97 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+  "runID": 40243611339,
+  "attempt": 1,
+  "scope": "Derived offline log review; automated cross passed, independent visual blocker prevents delivery. Original collector and repository unchanged.",
+  "outputs": [
+    {
+      "path": "/tmp/pdf-cross-37f5b65-full-log-review.json",
+      "bytes": 30691,
+      "sha256": "2028e4001f189bb845ff882ceef38fb2371fcede2e2a133bbfe52cf32c5ec095"
+    },
+    {
+      "path": "/tmp/pdf-cross-37f5b65-full-log-review.md",
+      "bytes": 7889,
+      "sha256": "aa17ed5cff221187c6955d2659b711157d1adfc8ddf5ffb84f64162e24c7a78d"
+    }
+  ],
+  "analysisSources": [
+    {
+      "path": "/tmp/pdf37_review_cross_logs.py",
+      "bytes": 17698,
+      "sha256": "40dc20206bbd7dc6d18c09ee085c01e94e5efd920cdf855d02a594df668847f0"
+    },
+    {
+      "path": "/tmp/pdf37_finalize_cross_log_review.py",
+      "bytes": 12774,
+      "sha256": "dc3baf87eb865054e38c69f0174b4b436b5ccace3f832718f536c4cd48df2af3"
+    },
+    {
+      "path": "/tmp/pdf_collect_37_logs.py",
+      "bytes": 23083,
+      "sha256": "b61b5e574a613630c146a0f972f4f09b77c9405daf430042d265f1af916ee2a9"
+    }
+  ],
+  "officialLogArchive": {
+    "path": "/workspace/.cache/pdf-cross-37f5b65/downloads/run-40243611339-attempt-1-logs.zip",
+    "bytes": 98516,
+    "sha256": "20587424d8624d096405179dadb6ad9ae3e6f7d3052f11dc599aece3f6335e69",
+    "authenticatedByRootCollector": true,
+    "upstreamDigestProvided": false,
+    "allCRCVerified": true,
+    "memberCount": 20,
+    "expandedBytes": 536414,
+    "limits": {
+      "archive": 67108864,
+      "member": 33554432,
+      "total": 134217728
+    }
+  },
+  "fullJobLog": {
+    "path": "/workspace/.cache/pdf-cross-37f5b65/official-attempt-1-logs/0_compatible-binary.txt",
+    "bytes": 267884,
+    "sha256": "5b48c5e7c8edec5732a9b828e3ad61e0b0fcd870bff792fb6360e2fa7cc1e043"
+  },
+  "metadataOriginals": [
+    {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-run.json",
+      "bytes": 12380,
+      "sha256": "914644a7963e9bbbb07ee1ea743cf47052c322f76bd1c0577a2a436fb4f5a684",
+      "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40243611339",
+      "authenticatedAPIResponse": true
+    },
+    {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-jobs.json",
+      "bytes": 4456,
+      "sha256": "98946d4c4599a38d94aeede9e2043dfc5e37caff4f7a139e9856dae0d43568d1",
+      "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40243611339/attempts/1/jobs?per_page=100",
+      "authenticatedAPIResponse": true
+    },
+    {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-artifacts.json",
+      "bytes": 1411,
+      "sha256": "5e727e6cf2fe875dc693d028696f5f1c7e2ac1c6d7390199cfa30f6d585bfbc5",
+      "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40243611339/artifacts?per_page=100",
+      "authenticatedAPIResponse": true
+    }
+  ],
+  "visualReviewReports": [
+    {
+      "path": "/tmp/pdf-cross-37f5b65-visual-review.json",
+      "bytes": 27773,
+      "sha256": "d7abf81d8274359b30d9b76ea4c42a3c34fea1f8fd9035bc87d6ed2cfb03c72b"
+    },
+    {
+      "path": "/tmp/pdf-cross-37f5b65-visual-review.md",
+      "bytes": 17520,
+      "sha256": "a25c4ff9365b868ecdf7cf1b7290983132546ee5e451410ff89d372f9424c898"
+    }
+  ],
+  "blockingImage": {
+    "path": "/workspace/.cache/pdf-cross-37f5b65/extracted/PDF-cross-platform-validated/PDF-preview.escuro.png",
+    "bytes": 401682,
+    "sha256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a"
+  }
+}

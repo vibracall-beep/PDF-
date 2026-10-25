@@ -1,0 +1,252 @@
+[
+  {
+    "artifactID": 12618361902,
+    "name": "PDF-cross-platform-validated",
+    "archive": {
+      "bytes": 3421238,
+      "sha256": "196e62ea761dd6291a5c14e2db6c36bffee467c2dd3002655ecd9e93e552d665"
+    },
+    "githubDigest": "sha256:196e62ea761dd6291a5c14e2db6c36bffee467c2dd3002655ecd9e93e552d665",
+    "runID": 40243611339,
+    "jobID": 121320462461,
+    "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "directory": "/workspace/.cache/pdf-cross-37f5b65/extracted/PDF-cross-platform-validated",
+    "missingRequiredFiles": [],
+    "files": {
+      "PDF-cross-gui-before.json": {
+        "bytes": 1491,
+        "sha256": "3b2e6f739c47562689f2124d1a70ffbcb025d69d4501e3f31534289a32774187"
+      },
+      "PDF-cross-gui-capture.log": {
+        "bytes": 57549,
+        "sha256": "95ab714edad0c5ff4e95e51ced0a11de62d58a8f4cbbc23ec508b786c9f7b137"
+      },
+      "PDF-cross-gui-validation.log": {
+        "bytes": 15940,
+        "sha256": "f3909052a762fb9096ce6264a2be48e18f8091b292e53d115ebed6f91edf7c0d"
+      },
+      "PDF-cross-gui.json": {
+        "bytes": 8562,
+        "sha256": "bf36a30a118d2da459cd88f235e4206b85da97c44e2bb0e293d20b8f395a4035"
+      },
+      "PDF-cross-isolation.log": {
+        "bytes": 29835,
+        "sha256": "f4f3d35089b4112c0d6058718a6d41f1ad0c214d01f0d2768999629b4f2f4be7"
+      },
+      "PDF-cross-origin.json": {
+        "bytes": 461,
+        "sha256": "2c7046f0d0ffd1a815c383040063c60d0c2c5bd16385b779ebef38867d8cb80d"
+      },
+      "PDF-cross-platform.json": {
+        "bytes": 1655,
+        "sha256": "a7f2e12355aad1034374154dad30b87cad032821dfe59605eeb37ededabc76f1"
+      },
+      "PDF-cross-verified.json": {
+        "bytes": 796,
+        "sha256": "930f0657375b4f6c55b8371c003d8f848db06fa045ac69a665a65a72a967ca47"
+      },
+      "PDF-preview.abas.png": {
+        "bytes": 118946,
+        "sha256": "742d86b366e43d12513c7baf2d53764758f6fccac6cac0cce972fc0d2ac6c26d"
+      },
+      "PDF-preview.accessibility.json": {
+        "bytes": 101735,
+        "sha256": "b1d9fa2f8eca86831488e1a2ccb9a543af0e3b11e6ec9621728f958fcc2c6487"
+      },
+      "PDF-preview.anotacoes.accessibility.json": {
+        "bytes": 141308,
+        "sha256": "8ceac39104da867dadef84f7fbc812f8730151875ce80cff6ea5e3bee60b34ff"
+      },
+      "PDF-preview.anotacoes.png": {
+        "bytes": 150949,
+        "sha256": "2f1e7f271215995a083b1b77d680431656d45f3d6b009cadc00483c76e671698"
+      },
+      "PDF-preview.arquivos.png": {
+        "bytes": 78391,
+        "sha256": "1fe95b2fbb936bbf24c1f7dda1cad8f098abd239f8834d408260c855185aaa53"
+      },
+      "PDF-preview.assinatura-digital.png": {
+        "bytes": 86312,
+        "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee"
+      },
+      "PDF-preview.atalhos.png": {
+        "bytes": 76686,
+        "sha256": "33de89ef91ae965ea071278595d4543ecc7e8699eeec8707764d8a19befcf47d"
+      },
+      "PDF-preview.auditar-pdfua.png": {
+        "bytes": 71581,
+        "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418"
+      },
+      "PDF-preview.automacao.png": {
+        "bytes": 96109,
+        "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d"
+      },
+      "PDF-preview.biblioteca.accessibility.json": {
+        "bytes": 50733,
+        "sha256": "1882d33368f6edb834075f585571dc87f452b3deda67b856656a43e2dea765da"
+      },
+      "PDF-preview.biblioteca.png": {
+        "bytes": 114493,
+        "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c"
+      },
+      "PDF-preview.configuracao-ferramenta.png": {
+        "bytes": 89948,
+        "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7"
+      },
+      "PDF-preview.corrigir-acessibilidade.accessibility.json": {
+        "bytes": 74294,
+        "sha256": "3ffa70970a68204f6e1fa3dda2b70f7db3ea17dec6b1d9cd34b1cd76f086d0f7"
+      },
+      "PDF-preview.corrigir-acessibilidade.png": {
+        "bytes": 101757,
+        "sha256": "2b6f50e8b74b852ccc3ffe2dd8dab54658cba47a8719a6ca6bf49b7f17c05d43"
+      },
+      "PDF-preview.editor-conteudo.png": {
+        "bytes": 117571,
+        "sha256": "c634aa93ad5057bfcc3fdd25321bc2d41875341df805387283ed0f190b85d553"
+      },
+      "PDF-preview.escuro.png": {
+        "bytes": 401682,
+        "sha256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a"
+      },
+      "PDF-preview.ferramentas.png": {
+        "bytes": 88831,
+        "sha256": "380ee81e25e8eabeb86018501c18ed6758b9fe7d947a9fafa3402d451ef6952f"
+      },
+      "PDF-preview.fluxo-lote.png": {
+        "bytes": 107998,
+        "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735"
+      },
+      "PDF-preview.lado-a-lado.accessibility.json": {
+        "bytes": 147809,
+        "sha256": "1edb28c470df120ea0ac193f225d021c7839e066ab41b1163481cb0da0e27ac7"
+      },
+      "PDF-preview.lado-a-lado.png": {
+        "bytes": 132768,
+        "sha256": "ed057d791cb057fc1ef0babe74077534e7d04cd0aa879fd1b5ec2d66eb05f3e1"
+      },
+      "PDF-preview.leitor.accessibility.json": {
+        "bytes": 111127,
+        "sha256": "1efdaed2748066c0cbdcf0487b5c2a0eb525c2ede3329160fcaef5155aa3996f"
+      },
+      "PDF-preview.leitor.png": {
+        "bytes": 116420,
+        "sha256": "e4370cf74e1903096bcf6617ca3f5bcb4127f0656fa5db7921c72a7ece16a4c8"
+      },
+      "PDF-preview.lista.png": {
+        "bytes": 92678,
+        "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86"
+      },
+      "PDF-preview.menus.accessibility.json": {
+        "bytes": 178093,
+        "sha256": "e9568e96abd1e3cc3ce119e73a43af06395bd0b5244c8be4dbc5a86c9d34d021"
+      },
+      "PDF-preview.menus.png": {
+        "bytes": 81214,
+        "sha256": "64ffd68aab12f7b517332186f698d76d7a6394427a33d3be30c7f069619156e9"
+      },
+      "PDF-preview.navegacao.png": {
+        "bytes": 81084,
+        "sha256": "e7f314deee4f5513754776080e01c7a0156a679f97b19755e2f0848e48ed8125"
+      },
+      "PDF-preview.opcoes-leitura.png": {
+        "bytes": 86373,
+        "sha256": "488267bd9fd20767f073a661df4ee82378238c0fa584544c4b8f405a2e7891cf"
+      },
+      "PDF-preview.paleta.png": {
+        "bytes": 64705,
+        "sha256": "5437e2d1415a3e6a8f0cd38c342297988b0542ade5180afa11786bf0a4d4984b"
+      },
+      "PDF-preview.perfis.png": {
+        "bytes": 63822,
+        "sha256": "257a0f5ca24461dc50ec328b6e05708375d7bb5b3ff8963a41cb49cd1b8f8951"
+      },
+      "PDF-preview.personalizar.png": {
+        "bytes": 101366,
+        "sha256": "9243600812fb7d0cb93863ed091667a5ea0fdd8f78f0fb4dadb724f70e28a7c3"
+      },
+      "PDF-preview.png": {
+        "bytes": 348641,
+        "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b"
+      },
+      "PDF-preview.producao-bates.png": {
+        "bytes": 66392,
+        "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f"
+      },
+      "PDF-preview.producao-measure.png": {
+        "bytes": 76071,
+        "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae"
+      },
+      "PDF-preview.producao-pdfx.png": {
+        "bytes": 76823,
+        "sha256": "ba4ec748dd463dc10fcebc8fdfe43c829a2b78719d6ef0cefe2b6edd3bdd306c"
+      },
+      "PDF-preview.producao-print-preflight.png": {
+        "bytes": 75282,
+        "sha256": "700e0df373f5a1527fdcf11078083bb45805acdfc96fbccc36d1b172f5584e3a"
+      },
+      "PDF-preview.recuperacao.png": {
+        "bytes": 69350,
+        "sha256": "0826f969ce7b6cdb66191ffbd3e6aa2ab12809d36ac042e2c7ced94544763e55"
+      },
+      "PDF-preview.revisao-ocr.analysis.json": {
+        "bytes": 10098,
+        "sha256": "0d1c134130c5dfe5dc8cfb5889a10cec08885e3ac3a12358ab71f64d76750d7f"
+      },
+      "PDF-preview.revisao-ocr.png": {
+        "bytes": 133312,
+        "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207"
+      },
+      "PDF-preview.revisao-ocr.source.pdf": {
+        "bytes": 121931,
+        "sha256": "5b88bb92a3095eb681f170515c33a41ea0472e5183fdf5821d883d5bdd2d575c"
+      },
+      "PDF-preview.solicitar-assinaturas.png": {
+        "bytes": 100763,
+        "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5"
+      },
+      "PDF-preview.validar-pdfa.png": {
+        "bytes": 64131,
+        "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53"
+      },
+      "PDF-preview.verificar-assinaturas.png": {
+        "bytes": 74744,
+        "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17"
+      }
+    },
+    "sourceBinaryAndGUIReceiptVerified": true,
+    "lifecycleReceiptVerified": false
+  },
+  {
+    "artifactID": 12617224816,
+    "name": "PDF-cross-lifecycle",
+    "archive": {
+      "bytes": 5272,
+      "sha256": "9f842412e7022e076ce9c438cbf879207ad2274a01debe1642fd484c890c4e17"
+    },
+    "githubDigest": "sha256:9f842412e7022e076ce9c438cbf879207ad2274a01debe1642fd484c890c4e17",
+    "runID": 40243611339,
+    "jobID": 121320462461,
+    "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "directory": "/workspace/.cache/pdf-cross-37f5b65/extracted/PDF-cross-lifecycle",
+    "missingRequiredFiles": [],
+    "files": {
+      "cross-receipt.json": {
+        "bytes": 941,
+        "sha256": "df75d7b360b5d389438c8aee95c9d734e9e667c481f600c73a9633fc74ad8950"
+      },
+      "cross.json": {
+        "bytes": 28720,
+        "sha256": "e7d82ad369db5bb1388a5ce94002a83c91b01f55b905dfa164311398df8d6a43"
+      },
+      "cross.log": {
+        "bytes": 15152,
+        "sha256": "04d8243bb2a670e5fd39d85c090e155b71db9e6e3fc19f7fe9445d76d94e3546"
+      }
+    },
+    "sourceBinaryAndGUIReceiptVerified": false,
+    "lifecycleReceiptVerified": true
+  }
+]

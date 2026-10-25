@@ -1,0 +1,1623 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+  "crossRunID": 40243611339,
+  "visualApproval": false,
+  "deliveryAllowed": false,
+  "scope": "Every retained file except inventory.json and SHA256SUMS; SHA256SUMS also covers inventory.json.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4005,
+      "sha256": "161a51519ff300e5228dd850d668ec4fb80987e0fbfd317ea15ac33dae42b987",
+      "kind": "derived-cross-retention-readme",
+      "origin": {
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "crossRunID": 40243611339
+      }
+    },
+    {
+      "path": "collection-tools/pdf37_finalize_cross_log_review.py",
+      "bytes": 12774,
+      "sha256": "dc3baf87eb865054e38c69f0174b4b436b5ccace3f832718f536c4cd48df2af3",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf37_finalize_cross_log_review.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf37_review_cross_logs.py",
+      "bytes": 17698,
+      "sha256": "40dc20206bbd7dc6d18c09ee085c01e94e5efd920cdf855d02a594df668847f0",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf37_review_cross_logs.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_collect_37_logs.py",
+      "bytes": 23083,
+      "sha256": "b61b5e574a613630c146a0f972f4f09b77c9405daf430042d265f1af916ee2a9",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_collect_37_logs.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_collect_cross437.py",
+      "bytes": 4807,
+      "sha256": "39123e496d235924a5556da1c551bbe142a01a29491c500acd068918cba4f385",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_collect_cross437.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_collect_scene_cross.py",
+      "bytes": 31248,
+      "sha256": "bf7dcff1341b8038d4ebccc8640d72a46528bcb7378a2fe017358ff22d6498e9",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_collect_scene_cross.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_count_cross437.py",
+      "bytes": 1719,
+      "sha256": "7c44e93c8fd3f7a27132ae7929359623da5ca73903e64c6858fa16b6d7baea18",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_count_cross437.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_cross_37f5b65_visual_report.py",
+      "bytes": 11265,
+      "sha256": "ef7a2a7f8646b0a8c7ca3d4763258a09151e671caa8f7aace7c624f53a61edd5",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_cross_37f5b65_visual_report.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_preserve_cross437.py",
+      "bytes": 7225,
+      "sha256": "ac8fa7464085883814ef7a85f8f6774d0a49e94bed15838f8403d3730d4a0042",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_preserve_cross437.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_stage_cross37_evidence.py",
+      "bytes": 22971,
+      "sha256": "f0fbd5cba187e7b8f5104e5316d0d986d0d8a7f063a41dda8211bcfc97791725",
+      "kind": "derived-local-collection-review-code",
+      "origin": {
+        "path": "/tmp/pdf_stage_cross37_evidence.py",
+        "notProductSource": true
+      }
+    },
+    {
+      "path": "exact-source/application/.github/workflows/portable-compatibility.yml",
+      "bytes": 8520,
+      "sha256": "38755b5dba17a0e33d85093eaf01718db657d3ba40e3becdd705e78e48487c63",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": ".github/workflows/portable-compatibility.yml",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/AppearancePreferences.swift",
+      "bytes": 21280,
+      "sha256": "169c0551602cb1785d44688aab5c828132093e03bc8682e556098afdacc83aea",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "Sources/PDF/AppearancePreferences.swift",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/MacPreview.swift",
+      "bytes": 48294,
+      "sha256": "18bf8e50d6736531d8363cbad4ba9139fb092e8e5d54413d3243fcf4cea50eb0",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "Sources/PDF/MacPreview.swift",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/PDFApp.swift",
+      "bytes": 42831,
+      "sha256": "5a2c1f6b488383df7f64a55ccad17acdc3189caaddccd33f0d88f104207b529e",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "Sources/PDF/PDFApp.swift",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/WindowSceneLifecycleAudit.swift",
+      "bytes": 19725,
+      "sha256": "44d6c22015a978bbb461a73c45f41dc72cc555468caa3e5e781609342da3bc2b",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "Sources/PDF/WindowSceneLifecycleAudit.swift",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/WorkspaceViews.swift",
+      "bytes": 21848,
+      "sha256": "99204ffd4aa8fb10d9174eae9280b54b3dc1ce8f41352bed6080b8937940e436",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "Sources/PDF/WorkspaceViews.swift",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/git-commit-object.txt",
+      "bytes": 291,
+      "sha256": "a09fe1609b0a18feca686991d84268372f5997944306fb25d51b85826ec0d873",
+      "kind": "exact-git-commit-object",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/PDF-Info.plist",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/binary_update.py",
+      "bytes": 26522,
+      "sha256": "a076f9ad76efb58ccb93816d0ee4bdd1a81ceb58d90708c0ae0df01878a04db0",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/binary_update.py",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/check_accessibility_report.py",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/check_preview_artifacts.py",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/check_window_lifecycle.py",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/check_window_lifecycle.py",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/install-binary.sh",
+      "bytes": 9062,
+      "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/install-binary.sh",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/prepare-window-audit-bundle.py",
+      "bytes": 4147,
+      "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/prepare-window-audit-bundle.py",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/run-with-timeout.py",
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "gitPath": "scripts/run-with-timeout.py",
+        "role": "application"
+      }
+    },
+    {
+      "path": "exact-source/controller/.github/workflows/portable-compatibility.yml",
+      "bytes": 8520,
+      "sha256": "38755b5dba17a0e33d85093eaf01718db657d3ba40e3becdd705e78e48487c63",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": ".github/workflows/portable-compatibility.yml",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/cross_gui_evidence.py",
+      "bytes": 16647,
+      "sha256": "d2a0d10fa26787e831d055875edeedb79ff9249cc0ca7ea107062120e777bd85",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/cross_gui_evidence.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/deliver_binary.py",
+      "bytes": 29764,
+      "sha256": "77c3209725f633d77e41fd547270c3275e5cb488aaa86ff160a3c647bf800666",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/deliver_binary.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/delivery_archives.py",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/delivery_archives.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/delivery_lifecycle.py",
+      "bytes": 9558,
+      "sha256": "aaa4f178039c058621ff27e1d57745b93bf23a1d4b65c4f34b2d0f3462cb1895",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/delivery_lifecycle.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/delivery_parts.py",
+      "bytes": 12990,
+      "sha256": "00603ed0884688683054d425431bad7a527848391927c60a372c67f6abe88fad",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/delivery_parts.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/portable_compatibility.py",
+      "bytes": 13339,
+      "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/portable_compatibility.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/retain_evidence.py",
+      "bytes": 22812,
+      "sha256": "fa780b0a601d9b3a1592e05cdbb02723abf82b0d25d4ce9955f3450336ca6aa9",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "diagnostics/retain_evidence.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/git-commit-object.txt",
+      "bytes": 288,
+      "sha256": "fc2a8e25e1b084995d1cf7b1002e65c796807c7d9f3418f83ab5e68a637b970c",
+      "kind": "exact-git-commit-object",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "scripts/PDF-Info.plist",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "scripts/check_accessibility_report.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "scripts/check_preview_artifacts.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/controller/scripts/check_window_lifecycle.py",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828",
+      "kind": "exact-git-source",
+      "origin": {
+        "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+        "gitPath": "scripts/check_window_lifecycle.py",
+        "role": "controller"
+      }
+    },
+    {
+      "path": "exact-source/selected-source-manifest.json",
+      "bytes": 6942,
+      "sha256": "e6cd366815157b4a66b78326a0b7d3f02ed24cb9912bc04c491a50ebb031d260",
+      "kind": "derived-selected-source-index",
+      "origin": {
+        "method": "git show exact commit with lazy network fetch disabled; comparison against collector cached source"
+      }
+    },
+    {
+      "path": "originals/downloads/12617224816.zip",
+      "bytes": 5272,
+      "sha256": "9f842412e7022e076ce9c438cbf879207ad2274a01debe1642fd484c890c4e17",
+      "kind": "original-cross-artifact-zip",
+      "origin": {
+        "artifactID": 12617224816,
+        "artifactName": "PDF-cross-lifecycle",
+        "runID": 40243611339,
+        "githubDigest": "sha256:9f842412e7022e076ce9c438cbf879207ad2274a01debe1642fd484c890c4e17"
+      }
+    },
+    {
+      "path": "originals/downloads/12618361902.zip",
+      "bytes": 3421238,
+      "sha256": "196e62ea761dd6291a5c14e2db6c36bffee467c2dd3002655ecd9e93e552d665",
+      "kind": "original-cross-artifact-zip",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "githubDigest": "sha256:196e62ea761dd6291a5c14e2db6c36bffee467c2dd3002655ecd9e93e552d665"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-lifecycle/cross-receipt.json",
+      "bytes": 941,
+      "sha256": "df75d7b360b5d389438c8aee95c9d734e9e667c481f600c73a9633fc74ad8950",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12617224816,
+        "artifactName": "PDF-cross-lifecycle",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "cross-receipt.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-lifecycle/cross.json",
+      "bytes": 28720,
+      "sha256": "e7d82ad369db5bb1388a5ce94002a83c91b01f55b905dfa164311398df8d6a43",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12617224816,
+        "artifactName": "PDF-cross-lifecycle",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "cross.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-lifecycle/cross.log",
+      "bytes": 15152,
+      "sha256": "04d8243bb2a670e5fd39d85c090e155b71db9e6e3fc19f7fe9445d76d94e3546",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12617224816,
+        "artifactName": "PDF-cross-lifecycle",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "cross.log"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-gui-before.json",
+      "bytes": 1491,
+      "sha256": "3b2e6f739c47562689f2124d1a70ffbcb025d69d4501e3f31534289a32774187",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-gui-before.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-gui-capture.log",
+      "bytes": 57549,
+      "sha256": "95ab714edad0c5ff4e95e51ced0a11de62d58a8f4cbbc23ec508b786c9f7b137",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-gui-capture.log"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-gui-validation.log",
+      "bytes": 15940,
+      "sha256": "f3909052a762fb9096ce6264a2be48e18f8091b292e53d115ebed6f91edf7c0d",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-gui-validation.log"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-gui.json",
+      "bytes": 8562,
+      "sha256": "bf36a30a118d2da459cd88f235e4206b85da97c44e2bb0e293d20b8f395a4035",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-gui.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-isolation.log",
+      "bytes": 29835,
+      "sha256": "f4f3d35089b4112c0d6058718a6d41f1ad0c214d01f0d2768999629b4f2f4be7",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-isolation.log"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-origin.json",
+      "bytes": 461,
+      "sha256": "2c7046f0d0ffd1a815c383040063c60d0c2c5bd16385b779ebef38867d8cb80d",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-origin.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-platform.json",
+      "bytes": 1655,
+      "sha256": "a7f2e12355aad1034374154dad30b87cad032821dfe59605eeb37ededabc76f1",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-platform.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-cross-verified.json",
+      "bytes": 796,
+      "sha256": "930f0657375b4f6c55b8371c003d8f848db06fa045ac69a665a65a72a967ca47",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-cross-verified.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.abas.png",
+      "bytes": 118946,
+      "sha256": "742d86b366e43d12513c7baf2d53764758f6fccac6cac0cce972fc0d2ac6c26d",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.abas.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.accessibility.json",
+      "bytes": 101735,
+      "sha256": "b1d9fa2f8eca86831488e1a2ccb9a543af0e3b11e6ec9621728f958fcc2c6487",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.anotacoes.accessibility.json",
+      "bytes": 141308,
+      "sha256": "8ceac39104da867dadef84f7fbc812f8730151875ce80cff6ea5e3bee60b34ff",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.anotacoes.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.anotacoes.png",
+      "bytes": 150949,
+      "sha256": "2f1e7f271215995a083b1b77d680431656d45f3d6b009cadc00483c76e671698",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.anotacoes.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.arquivos.png",
+      "bytes": 78391,
+      "sha256": "1fe95b2fbb936bbf24c1f7dda1cad8f098abd239f8834d408260c855185aaa53",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.arquivos.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.assinatura-digital.png",
+      "bytes": 86312,
+      "sha256": "41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.assinatura-digital.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.atalhos.png",
+      "bytes": 76686,
+      "sha256": "33de89ef91ae965ea071278595d4543ecc7e8699eeec8707764d8a19befcf47d",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.atalhos.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.auditar-pdfua.png",
+      "bytes": 71581,
+      "sha256": "558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.auditar-pdfua.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.automacao.png",
+      "bytes": 96109,
+      "sha256": "d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.automacao.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.biblioteca.accessibility.json",
+      "bytes": 50733,
+      "sha256": "1882d33368f6edb834075f585571dc87f452b3deda67b856656a43e2dea765da",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.biblioteca.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.biblioteca.png",
+      "bytes": 114493,
+      "sha256": "915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.biblioteca.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.configuracao-ferramenta.png",
+      "bytes": 89948,
+      "sha256": "6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.configuracao-ferramenta.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.corrigir-acessibilidade.accessibility.json",
+      "bytes": 74294,
+      "sha256": "3ffa70970a68204f6e1fa3dda2b70f7db3ea17dec6b1d9cd34b1cd76f086d0f7",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.corrigir-acessibilidade.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.corrigir-acessibilidade.png",
+      "bytes": 101757,
+      "sha256": "2b6f50e8b74b852ccc3ffe2dd8dab54658cba47a8719a6ca6bf49b7f17c05d43",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.corrigir-acessibilidade.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.editor-conteudo.png",
+      "bytes": 117571,
+      "sha256": "c634aa93ad5057bfcc3fdd25321bc2d41875341df805387283ed0f190b85d553",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.editor-conteudo.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.escuro.png",
+      "bytes": 401682,
+      "sha256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.escuro.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.ferramentas.png",
+      "bytes": 88831,
+      "sha256": "380ee81e25e8eabeb86018501c18ed6758b9fe7d947a9fafa3402d451ef6952f",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.ferramentas.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.fluxo-lote.png",
+      "bytes": 107998,
+      "sha256": "650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.fluxo-lote.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.lado-a-lado.accessibility.json",
+      "bytes": 147809,
+      "sha256": "1edb28c470df120ea0ac193f225d021c7839e066ab41b1163481cb0da0e27ac7",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.lado-a-lado.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.lado-a-lado.png",
+      "bytes": 132768,
+      "sha256": "ed057d791cb057fc1ef0babe74077534e7d04cd0aa879fd1b5ec2d66eb05f3e1",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.lado-a-lado.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.leitor.accessibility.json",
+      "bytes": 111127,
+      "sha256": "1efdaed2748066c0cbdcf0487b5c2a0eb525c2ede3329160fcaef5155aa3996f",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.leitor.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.leitor.png",
+      "bytes": 116420,
+      "sha256": "e4370cf74e1903096bcf6617ca3f5bcb4127f0656fa5db7921c72a7ece16a4c8",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.leitor.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.lista.png",
+      "bytes": 92678,
+      "sha256": "c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.lista.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.menus.accessibility.json",
+      "bytes": 178093,
+      "sha256": "e9568e96abd1e3cc3ce119e73a43af06395bd0b5244c8be4dbc5a86c9d34d021",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.menus.accessibility.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.menus.png",
+      "bytes": 81214,
+      "sha256": "64ffd68aab12f7b517332186f698d76d7a6394427a33d3be30c7f069619156e9",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.menus.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.navegacao.png",
+      "bytes": 81084,
+      "sha256": "e7f314deee4f5513754776080e01c7a0156a679f97b19755e2f0848e48ed8125",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.navegacao.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.opcoes-leitura.png",
+      "bytes": 86373,
+      "sha256": "488267bd9fd20767f073a661df4ee82378238c0fa584544c4b8f405a2e7891cf",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.opcoes-leitura.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.paleta.png",
+      "bytes": 64705,
+      "sha256": "5437e2d1415a3e6a8f0cd38c342297988b0542ade5180afa11786bf0a4d4984b",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.paleta.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.perfis.png",
+      "bytes": 63822,
+      "sha256": "257a0f5ca24461dc50ec328b6e05708375d7bb5b3ff8963a41cb49cd1b8f8951",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.perfis.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.personalizar.png",
+      "bytes": 101366,
+      "sha256": "9243600812fb7d0cb93863ed091667a5ea0fdd8f78f0fb4dadb724f70e28a7c3",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.personalizar.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.png",
+      "bytes": 348641,
+      "sha256": "a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.producao-bates.png",
+      "bytes": 66392,
+      "sha256": "99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.producao-bates.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.producao-measure.png",
+      "bytes": 76071,
+      "sha256": "0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.producao-measure.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.producao-pdfx.png",
+      "bytes": 76823,
+      "sha256": "ba4ec748dd463dc10fcebc8fdfe43c829a2b78719d6ef0cefe2b6edd3bdd306c",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.producao-pdfx.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.producao-print-preflight.png",
+      "bytes": 75282,
+      "sha256": "700e0df373f5a1527fdcf11078083bb45805acdfc96fbccc36d1b172f5584e3a",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.producao-print-preflight.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.recuperacao.png",
+      "bytes": 69350,
+      "sha256": "0826f969ce7b6cdb66191ffbd3e6aa2ab12809d36ac042e2c7ced94544763e55",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.recuperacao.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.revisao-ocr.analysis.json",
+      "bytes": 10098,
+      "sha256": "0d1c134130c5dfe5dc8cfb5889a10cec08885e3ac3a12358ab71f64d76750d7f",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.revisao-ocr.analysis.json"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.revisao-ocr.png",
+      "bytes": 133312,
+      "sha256": "7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.revisao-ocr.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.revisao-ocr.source.pdf",
+      "bytes": 121931,
+      "sha256": "5b88bb92a3095eb681f170515c33a41ea0472e5183fdf5821d883d5bdd2d575c",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.revisao-ocr.source.pdf"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.solicitar-assinaturas.png",
+      "bytes": 100763,
+      "sha256": "39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.solicitar-assinaturas.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.validar-pdfa.png",
+      "bytes": 64131,
+      "sha256": "83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.validar-pdfa.png"
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-cross-platform-validated/PDF-preview.verificar-assinaturas.png",
+      "bytes": 74744,
+      "sha256": "6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17",
+      "kind": "original-cross-artifact-member",
+      "origin": {
+        "artifactID": 12618361902,
+        "artifactName": "PDF-cross-platform-validated",
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "PDF-preview.verificar-assinaturas.png"
+      }
+    },
+    {
+      "path": "originals/full-run-logs/0_compatible-binary.txt",
+      "bytes": 267884,
+      "sha256": "5b48c5e7c8edec5732a9b828e3ad61e0b0fcd870bff792fb6360e2fa7cc1e043",
+      "kind": "original-official-cross-job-log",
+      "origin": {
+        "runID": 40243611339,
+        "jobID": 121320462461,
+        "zipMember": "0_compatible-binary.txt"
+      }
+    },
+    {
+      "path": "originals/full-run-logs/run-40243611339-attempt-1-logs.zip",
+      "bytes": 98516,
+      "sha256": "20587424d8624d096405179dadb6ad9ae3e6f7d3052f11dc599aece3f6335e69",
+      "kind": "original-official-cross-log-zip",
+      "origin": {
+        "runID": 40243611339,
+        "upstreamDigestProvided": false,
+        "note": "Official authenticated endpoint, no independent upstream digest; hash identifies received bytes."
+      }
+    },
+    {
+      "path": "originals/native-inputs/binary-small/PDF-arm64.tar.gz.sha256",
+      "bytes": 83,
+      "sha256": "4ea6b533302656ce927b3f89e19a8521c6615cd1689e0d1094fa01eb26e29e93",
+      "kind": "original-native-binary-metadata",
+      "origin": {
+        "sourceArtifactID": 12617457782,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "tarSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "scope": "Small bytes rehashed against completed native streaming collector; large binary ZIP/TAR not reopened by stager."
+      }
+    },
+    {
+      "path": "originals/native-inputs/binary-small/distribution-manifest.json",
+      "bytes": 12263013,
+      "sha256": "23f87211253d3a06593a5e457d1c95ccb31f875527e308d8cebd6f6608f19a87",
+      "kind": "original-native-binary-metadata",
+      "origin": {
+        "sourceArtifactID": 12617457782,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "tarSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "scope": "Small bytes rehashed against completed native streaming collector; large binary ZIP/TAR not reopened by stager."
+      }
+    },
+    {
+      "path": "originals/native-inputs/binary-small/distribution-validation.json",
+      "bytes": 667,
+      "sha256": "a3b63a2d4f7e39e911f87cb022c474e926bfc9426175e6d7b58d69bf25ae70f7",
+      "kind": "original-native-binary-metadata",
+      "origin": {
+        "sourceArtifactID": 12617457782,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "tarSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "scope": "Small bytes rehashed against completed native streaming collector; large binary ZIP/TAR not reopened by stager."
+      }
+    },
+    {
+      "path": "originals/native-inputs/binary-small/install-binary.sh",
+      "bytes": 9062,
+      "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5",
+      "kind": "original-native-binary-metadata",
+      "origin": {
+        "sourceArtifactID": 12617457782,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "tarSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "scope": "Small bytes rehashed against completed native streaming collector; large binary ZIP/TAR not reopened by stager."
+      }
+    },
+    {
+      "path": "originals/native-inputs/source/PDF-benchmark.json",
+      "bytes": 5149,
+      "sha256": "0c790264a4b67439398db8b5cd020c0399ccb582b555ab837700bd93e549936f",
+      "kind": "original-native-source-metadata",
+      "origin": {
+        "sourceArtifactID": 12617342983,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceTarNotRetained": true
+      }
+    },
+    {
+      "path": "originals/native-inputs/source/PDF-local-ai.json",
+      "bytes": 7656,
+      "sha256": "4721ee1190007e644656a30a157eef98e7537d6bd80d1985a6bdfcfed45d112a",
+      "kind": "original-native-source-metadata",
+      "origin": {
+        "sourceArtifactID": 12617342983,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceTarNotRetained": true
+      }
+    },
+    {
+      "path": "originals/native-inputs/source/PDF-source.tar.gz.sha256",
+      "bytes": 84,
+      "sha256": "fec253e455d9e7af0357f781a2d61ce305aa2a5f0fbea059196588ee1e640f8a",
+      "kind": "original-native-source-metadata",
+      "origin": {
+        "sourceArtifactID": 12617342983,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceTarNotRetained": true
+      }
+    },
+    {
+      "path": "originals/native-inputs/source/PDF-vision-audit.json",
+      "bytes": 432,
+      "sha256": "c36d1c17910bab4f6f1a6b1702c98894054b64d411bbeabaca02fef717376582",
+      "kind": "original-native-source-metadata",
+      "origin": {
+        "sourceArtifactID": 12617342983,
+        "sourceRunID": 40239018570,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceTarNotRetained": true
+      }
+    },
+    {
+      "path": "provenance/collector-artifact-state.json",
+      "bytes": 9822,
+      "sha256": "9e51e6d09b4afa73f134ce3597c5481101dab52991a7552867c4c2061fd7c7c5",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-artifact-state.json"
+      }
+    },
+    {
+      "path": "provenance/collector-configuration.json",
+      "bytes": 485,
+      "sha256": "3ed8f9857c0951ffa05fdec55c37e63c81d49532e5687aeaf0751db3817c9da4",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-configuration.json"
+      }
+    },
+    {
+      "path": "provenance/collector-cross-artifacts.json",
+      "bytes": 1411,
+      "sha256": "5e727e6cf2fe875dc693d028696f5f1c7e2ac1c6d7390199cfa30f6d585bfbc5",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-cross-artifacts.json"
+      }
+    },
+    {
+      "path": "provenance/collector-cross-jobs.json",
+      "bytes": 4456,
+      "sha256": "98946d4c4599a38d94aeede9e2043dfc5e37caff4f7a139e9856dae0d43568d1",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-cross-jobs.json"
+      }
+    },
+    {
+      "path": "provenance/collector-cross-run.json",
+      "bytes": 12380,
+      "sha256": "914644a7963e9bbbb07ee1ea743cf47052c322f76bd1c0577a2a436fb4f5a684",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-cross-run.json"
+      }
+    },
+    {
+      "path": "provenance/collector-native-artifacts.json",
+      "bytes": 11145,
+      "sha256": "d981afde1db2053725f5b9ed8c4573983a1682c77ec887000392075c4a5ad0a7",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-native-artifacts.json"
+      }
+    },
+    {
+      "path": "provenance/collector-native-jobs.json",
+      "bytes": 12506,
+      "sha256": "35e7fbcd474acb1cf4f02bb66e364ad6c56302f1533620513814f6242c3c8e01",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-native-jobs.json"
+      }
+    },
+    {
+      "path": "provenance/collector-native-run.json",
+      "bytes": 12352,
+      "sha256": "720f55a1dd8c9c6bf5d539cd28182e6db68e820c7266fb873ef7963ffdf67775",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-native-run.json"
+      }
+    },
+    {
+      "path": "provenance/collector-summary.json",
+      "bytes": 1343,
+      "sha256": "6b1e5931d1d6d2d379180575341559820d0aa4bce181b45d63b82033cd03a9ed",
+      "kind": "original-cross-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/collector-summary.json"
+      }
+    },
+    {
+      "path": "provenance/native-binding/collector-artifact-state.json",
+      "bytes": 37811,
+      "sha256": "27f3d6f849768f5ee16321b3f1ecd04355ea22e706975dcb11331d46e86cfcdf",
+      "kind": "original-native-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-native-37f5b65/collector-artifact-state.json",
+        "scope": "Origin binding only; native37 success does not transfer visual approval to cross or future patches."
+      }
+    },
+    {
+      "path": "provenance/native-binding/collector-binary-downloads.json",
+      "bytes": 8046,
+      "sha256": "fa7d95599839159721d71b863d5a024fd757d01711b6c2288ea646fdeaa129f6",
+      "kind": "original-native-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-native-37f5b65/collector-binary-downloads.json",
+        "scope": "Origin binding only; native37 success does not transfer visual approval to cross or future patches."
+      }
+    },
+    {
+      "path": "provenance/native-binding/collector-binary-summary.json",
+      "bytes": 872,
+      "sha256": "0a67415ab449dcfb736451a2502677edc728bd33ef9a41b5adadff12aee13b3a",
+      "kind": "original-native-collector-record",
+      "origin": {
+        "path": "/workspace/.cache/pdf-native-37f5b65/collector-binary-summary.json",
+        "scope": "Origin binding only; native37 success does not transfer visual approval to cross or future patches."
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/application-files.json",
+      "bytes": 1011,
+      "sha256": "8d109e86d0bbb7db66a2c78dbe170b94ee767da05853dab355731732caf8ce05",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/application-files.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/controller-files.json",
+      "bytes": 1602,
+      "sha256": "7e5ff7104d6088da176972416f4b388379a134e217614f9b49863d6dedd67876",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/controller-files.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-archive-verification.json",
+      "bytes": 796,
+      "sha256": "ecaed73a924d7b128bf639cd912fbf9ea2ef58023e2714d0a641bbf564602f7a",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-archive-verification.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-artifacts-record.json",
+      "bytes": 228,
+      "sha256": "acddfee7b9e8b98034107a8e3cf5fea808aed8ab995504d7878b37aa110cca2d",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-artifacts-record.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-artifacts.json",
+      "bytes": 1411,
+      "sha256": "5e727e6cf2fe875dc693d028696f5f1c7e2ac1c6d7390199cfa30f6d585bfbc5",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-artifacts.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-jobs-record.json",
+      "bytes": 234,
+      "sha256": "22712887b93f56e012f0aba873b64d9e12b5c1ab3b39ac235f0ea0103b7b5227",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-jobs-record.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-jobs.json",
+      "bytes": 4456,
+      "sha256": "98946d4c4599a38d94aeede9e2043dfc5e37caff4f7a139e9856dae0d43568d1",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-jobs.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-lifecycle-verification.json",
+      "bytes": 1570,
+      "sha256": "5d519a7b72fa685b32f3d062c59b8d3ebb71489006215641c9f9af3edcbab0aa",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-lifecycle-verification.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-run-record.json",
+      "bytes": 206,
+      "sha256": "aa5ff871a9df093076a7d0af5fd0587d15b057cf7378fa1ae58c7805a73d8339",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-run-record.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/cross-run.json",
+      "bytes": 12380,
+      "sha256": "914644a7963e9bbbb07ee1ea743cf47052c322f76bd1c0577a2a436fb4f5a684",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-run.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-artifacts-record.json",
+      "bytes": 229,
+      "sha256": "32c7f12a0ab7f7ed0f6dc8b898b626bd661ff17d4a1d2a4bad92f4a967ccf0e8",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-artifacts-record.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-artifacts.json",
+      "bytes": 11145,
+      "sha256": "d981afde1db2053725f5b9ed8c4573983a1682c77ec887000392075c4a5ad0a7",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-artifacts.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-binary-verification.json",
+      "bytes": 408,
+      "sha256": "408ededcb88bed22213be6f2dc668ef22e1d17ac8687e98dfa73157dc2f58006",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-binary-verification.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-jobs-record.json",
+      "bytes": 235,
+      "sha256": "c5c66b7c8e750339cab1e26c2f4fbd548dc0a68c825d02ca67f0b5028348df90",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-jobs-record.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-jobs.json",
+      "bytes": 12506,
+      "sha256": "35e7fbcd474acb1cf4f02bb66e364ad6c56302f1533620513814f6242c3c8e01",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-jobs.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-run-record.json",
+      "bytes": 206,
+      "sha256": "90d1a94e0a002b0fe138eaab7c849177a4e238e17ba6503a8ea4f0bd372c3748",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-run-record.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-run.json",
+      "bytes": 12352,
+      "sha256": "720f55a1dd8c9c6bf5d539cd28182e6db68e820c7266fb873ef7963ffdf67775",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-run.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/native-source-verification.json",
+      "bytes": 1538,
+      "sha256": "ecfbf413b6ea507341ca54f9231dc707b0fc9d46c34483b893fa0417f2925d44",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/native-source-verification.json"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792970812637196177-131035/run-logs-record.json",
+      "bytes": 286,
+      "sha256": "d1d6ecd454b4372f848172ee3b2bf833f36252612f8d95fdad9bff0e0b1123a8",
+      "kind": "original-collector-api-snapshot",
+      "origin": {
+        "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/run-logs-record.json"
+      }
+    },
+    {
+      "path": "retention-summary.json",
+      "bytes": 4284,
+      "sha256": "b3d349ac65b2c45bc7fed211631bffe49772a19b322f1b2b6545b9b45abc7be1",
+      "kind": "derived-cross-retention-summary",
+      "origin": {
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "crossRunID": 40243611339
+      }
+    },
+    {
+      "path": "reviews/pdf-cross-37f5b65-full-log-provenance.json",
+      "bytes": 3686,
+      "sha256": "c0899d5369a8c9dd500837e1886d9934e049b9773f78c81208e71b4bc2e3cb7c",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross-37f5b65-full-log-provenance.json",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    },
+    {
+      "path": "reviews/pdf-cross-37f5b65-full-log-review.json",
+      "bytes": 30691,
+      "sha256": "2028e4001f189bb845ff882ceef38fb2371fcede2e2a133bbfe52cf32c5ec095",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross-37f5b65-full-log-review.json",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    },
+    {
+      "path": "reviews/pdf-cross-37f5b65-full-log-review.md",
+      "bytes": 7889,
+      "sha256": "aa17ed5cff221187c6955d2659b711157d1adfc8ddf5ffb84f64162e24c7a78d",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross-37f5b65-full-log-review.md",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    },
+    {
+      "path": "reviews/pdf-cross-37f5b65-visual-review.json",
+      "bytes": 27773,
+      "sha256": "d7abf81d8274359b30d9b76ea4c42a3c34fea1f8fd9035bc87d6ed2cfb03c72b",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross-37f5b65-visual-review.json",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    },
+    {
+      "path": "reviews/pdf-cross-37f5b65-visual-review.md",
+      "bytes": 17520,
+      "sha256": "a25c4ff9365b868ecdf7cf1b7290983132546ee5e451410ff89d372f9424c898",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross-37f5b65-visual-review.md",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    },
+    {
+      "path": "reviews/pdf-cross37-dark-toolbar-pixels.json",
+      "bytes": 6686,
+      "sha256": "5ff58704d593fa50113af22774b5c2e6146d4540ef96cb40a571166e45cfd410",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross37-dark-toolbar-pixels.json",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    },
+    {
+      "path": "reviews/pdf-cross37-dark-toolbar-review.md",
+      "bytes": 6440,
+      "sha256": "aa76ad500c33f396e7c758767db33a429f2d011d4372c4a109fdeeeca6da6196",
+      "kind": "derived-independent-review",
+      "origin": {
+        "path": "/tmp/pdf-cross37-dark-toolbar-review.md",
+        "scope": "Preserved source-specific review; no future patch approval."
+      }
+    }
+  ]
+}

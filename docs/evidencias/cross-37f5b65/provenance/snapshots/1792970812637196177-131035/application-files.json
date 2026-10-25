@@ -1,0 +1,30 @@
+{
+  "scripts/run-with-timeout.py": {
+    "bytes": 4709,
+    "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+  },
+  "scripts/check_preview_artifacts.py": {
+    "bytes": 10439,
+    "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+  },
+  "scripts/check_accessibility_report.py": {
+    "bytes": 4010,
+    "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+  },
+  "scripts/binary_update.py": {
+    "bytes": 26522,
+    "sha256": "a076f9ad76efb58ccb93816d0ee4bdd1a81ceb58d90708c0ae0df01878a04db0"
+  },
+  "scripts/check_window_lifecycle.py": {
+    "bytes": 9894,
+    "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+  },
+  "scripts/PDF-Info.plist": {
+    "bytes": 2034,
+    "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+  },
+  "scripts/prepare-window-audit-bundle.py": {
+    "bytes": 4147,
+    "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683"
+  }
+}

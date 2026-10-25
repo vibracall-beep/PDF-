@@ -1,0 +1,368 @@
+[
+  {
+    "source": "native26",
+    "file": "/workspace/.cache/pdf-native-37f5b65/extracted/PDF-macOS-preview-macos-26/PDF-preview.escuro.png",
+    "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e",
+    "iccSHA256": "c30addea67f0461a8f15c926c523afe30130290202854b30a5a3cf704c702ce7",
+    "rois": {
+      "command": {
+        "rectangle": [
+          978,
+          18,
+          996,
+          35
+        ],
+        "minLuma": 20.0,
+        "maxLuma": 231.0,
+        "pixelsBelow128": 214,
+        "pixels": 306,
+        "mostCommon": [
+          [
+            [
+              20,
+              20,
+              20
+            ],
+            138
+          ],
+          [
+            [
+              231,
+              231,
+              231
+            ],
+            14
+          ],
+          [
+            [
+              99,
+              99,
+              99
+            ],
+            10
+          ]
+        ]
+      },
+      "customize": {
+        "rectangle": [
+          1012,
+          18,
+          1030,
+          35
+        ],
+        "minLuma": 20.0,
+        "maxLuma": 224.0,
+        "pixelsBelow128": 212,
+        "pixels": 306,
+        "mostCommon": [
+          [
+            [
+              20,
+              20,
+              20
+            ],
+            171
+          ],
+          [
+            [
+              158,
+              158,
+              158
+            ],
+            11
+          ],
+          [
+            [
+              201,
+              201,
+              201
+            ],
+            10
+          ]
+        ]
+      },
+      "sidebar": {
+        "rectangle": [
+          185,
+          18,
+          204,
+          35
+        ],
+        "minLuma": 30.0,
+        "maxLuma": 232.0,
+        "pixelsBelow128": 224,
+        "pixels": 323,
+        "mostCommon": [
+          [
+            [
+              30,
+              30,
+              30
+            ],
+            142
+          ],
+          [
+            [
+              232,
+              232,
+              232
+            ],
+            46
+          ],
+          [
+            [
+              155,
+              155,
+              155
+            ],
+            13
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "source": "native27",
+    "file": "/workspace/.cache/pdf-native-37f5b65/extracted/PDF-macOS-preview-xcode-27/PDF-preview.escuro.png",
+    "sha256": "5b220db5ac325264bfa4b901257411724bffa28b5fd304061b06b09613cc0560",
+    "iccSHA256": "b6c0968d40a5b85c695bb708a72c640c8b96d0756e4d41d4295130945fc668e7",
+    "rois": {
+      "command": {
+        "rectangle": [
+          978,
+          18,
+          996,
+          35
+        ],
+        "minLuma": 43.0,
+        "maxLuma": 223.0,
+        "pixelsBelow128": 207,
+        "pixels": 306,
+        "mostCommon": [
+          [
+            [
+              43,
+              43,
+              43
+            ],
+            140
+          ],
+          [
+            [
+              206,
+              206,
+              206
+            ],
+            12
+          ],
+          [
+            [
+              218,
+              218,
+              218
+            ],
+            8
+          ]
+        ]
+      },
+      "customize": {
+        "rectangle": [
+          1012,
+          18,
+          1030,
+          35
+        ],
+        "minLuma": 43.0,
+        "maxLuma": 220.0,
+        "pixelsBelow128": 204,
+        "pixels": 306,
+        "mostCommon": [
+          [
+            [
+              43,
+              43,
+              43
+            ],
+            175
+          ],
+          [
+            [
+              168,
+              168,
+              168
+            ],
+            10
+          ],
+          [
+            [
+              147,
+              147,
+              147
+            ],
+            10
+          ]
+        ]
+      },
+      "sidebar": {
+        "rectangle": [
+          175,
+          18,
+          194,
+          35
+        ],
+        "minLuma": 22.0,
+        "maxLuma": 220.0,
+        "pixelsBelow128": 240,
+        "pixels": 323,
+        "mostCommon": [
+          [
+            [
+              22,
+              22,
+              22
+            ],
+            144
+          ],
+          [
+            [
+              220,
+              220,
+              220
+            ],
+            37
+          ],
+          [
+            [
+              47,
+              47,
+              47
+            ],
+            12
+          ]
+        ]
+      }
+    }
+  },
+  {
+    "source": "cross26on27",
+    "file": "/workspace/.cache/pdf-cross-37f5b65/extracted/PDF-cross-platform-validated/PDF-preview.escuro.png",
+    "sha256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a",
+    "iccSHA256": "b6c0968d40a5b85c695bb708a72c640c8b96d0756e4d41d4295130945fc668e7",
+    "rois": {
+      "command": {
+        "rectangle": [
+          978,
+          18,
+          996,
+          35
+        ],
+        "minLuma": 251.0,
+        "maxLuma": 254.0,
+        "pixelsBelow128": 0,
+        "pixels": 306,
+        "mostCommon": [
+          [
+            [
+              251,
+              251,
+              251
+            ],
+            156
+          ],
+          [
+            [
+              254,
+              254,
+              254
+            ],
+            77
+          ],
+          [
+            [
+              252,
+              252,
+              252
+            ],
+            46
+          ]
+        ]
+      },
+      "customize": {
+        "rectangle": [
+          1012,
+          18,
+          1030,
+          35
+        ],
+        "minLuma": 251.0,
+        "maxLuma": 254.0,
+        "pixelsBelow128": 0,
+        "pixels": 306,
+        "mostCommon": [
+          [
+            [
+              251,
+              251,
+              251
+            ],
+            191
+          ],
+          [
+            [
+              253,
+              253,
+              253
+            ],
+            54
+          ],
+          [
+            [
+              254,
+              254,
+              254
+            ],
+            48
+          ]
+        ]
+      },
+      "sidebar": {
+        "rectangle": [
+          175,
+          18,
+          194,
+          35
+        ],
+        "minLuma": 251.0,
+        "maxLuma": 255.0,
+        "pixelsBelow128": 0,
+        "pixels": 323,
+        "mostCommon": [
+          [
+            [
+              251,
+              251,
+              251
+            ],
+            164
+          ],
+          [
+            [
+              252,
+              252,
+              252
+            ],
+            48
+          ],
+          [
+            [
+              255,
+              255,
+              255
+            ],
+            46
+          ]
+        ]
+      }
+    }
+  }
+]

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "repository": "vibracall-beep/PDF-",
+  "sourceRunID": 40239018570,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "sourceWorkflow": ".github/workflows/macos.yml",
+  "sourceArtifactID": 12617457782,
+  "sourceArtifactName": "PDF-binary-validated-macos-26",
+  "sourceArtifactBytes": 1445409831,
+  "sourceRunner": "macos-26",
+  "expectedArchiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+  "archiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+  "archiveBytes": 1449079284,
+  "archiveManifestMatched": true,
+  "sourceValidationMatched": true,
+  "manifestSHA256": "dd6d288653c5af179df82240dd6808e684afd26133b8fb5d5bf41d0df2d6bee8",
+  "manifestEntries": 56826,
+  "applicationVersion": "0.7.0"
+}

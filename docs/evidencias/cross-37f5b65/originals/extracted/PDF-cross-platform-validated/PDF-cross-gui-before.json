@@ -1,0 +1,43 @@
+{
+  "archiveBytes": 1449079284,
+  "archiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+  "captureAttempts": 1,
+  "captureDeadlineSeconds": 300,
+  "dependencyIsolationSeparate": true,
+  "guiOutsideDependencySandbox": true,
+  "installedBinary": {
+    "PDF.app/Contents/Info.plist": {
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    "PDF.app/Contents/MacOS/PDF": {
+      "bytes": 19092208,
+      "sha256": "6e77c1f17f0a1bc9836d51e2b7b8e345738b897989d2ad757f5d7224f10007cd"
+    }
+  },
+  "manifestSHA256": "dd6d288653c5af179df82240dd6808e684afd26133b8fb5d5bf41d0df2d6bee8",
+  "rebuiltOnDestination": false,
+  "repository": "vibracall-beep/PDF-",
+  "schemaVersion": 1,
+  "sourceArtifactID": 12617457782,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "sourceRunID": 40239018570,
+  "sourceScripts": {
+    "binary_update.py": {
+      "bytes": 26522,
+      "sha256": "a076f9ad76efb58ccb93816d0ee4bdd1a81ceb58d90708c0ae0df01878a04db0"
+    },
+    "check_accessibility_report.py": {
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+    },
+    "check_preview_artifacts.py": {
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+    },
+    "run-with-timeout.py": {
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    }
+  }
+}

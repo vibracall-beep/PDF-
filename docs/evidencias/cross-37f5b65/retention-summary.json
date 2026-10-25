@@ -1,0 +1,114 @@
+{
+  "schemaVersion": 1,
+  "createdAtUTC": "2026-10-25T23:36:16.030815+00:00",
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "sourceRunID": 40239018570,
+  "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+  "crossRunID": 40243611339,
+  "crossAttempt": 1,
+  "crossJobID": 121320462461,
+  "archiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+  "automatedNativeAndCrossChecksPassed": true,
+  "visualReviewPassed": false,
+  "visualBlockers": [
+    {
+      "id": "CROSS-DARK-TOOLBAR-CONTRAST",
+      "status": "confirmed-in-original-capture",
+      "image": "PDF-preview.escuro.png",
+      "imageSHA256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a",
+      "title": "Ícones dos controles superiores quase invisíveis no tema escuro",
+      "observation": "Falha visível: os três ícones dos controles superiores (barra lateral, paleta e personalização) têm cor quase branca sobre cápsulas quase brancas no tema escuro e ficam praticamente ilegíveis. O conteúdo principal do início permanece legível.",
+      "affectedControls": [
+        "Alternar barra lateral",
+        "Paleta de comandos",
+        "Personalizar"
+      ],
+      "approximateRegionsTopLeftPixels": [
+        [
+          166,
+          8,
+          202,
+          45
+        ],
+        [
+          968,
+          8,
+          1043,
+          45
+        ]
+      ],
+      "impact": "Dificulta identificar visualmente três controles principais da barra superior.",
+      "causeEstablished": false,
+      "permanenceAfterTransitionEstablished": false,
+      "clickFailureEstablished": false,
+      "numericalContrastRatioMeasured": false,
+      "blocksUnqualifiedVisualApproval": true,
+      "requiredFollowup": "Investigar a aparência dos controles superiores no binário macOS 26 instalado em macOS 27; preservar os originais e produzir nova evidência autenticada após a correção ou demonstração da causa."
+    }
+  ],
+  "deliveryAllowed": false,
+  "privateDelivery": {
+    "status": "not_performed_due_to_confirmed_visual_blocker",
+    "approved": false
+  },
+  "completeApplicationApproved": false,
+  "approvalTransferredToFuturePatch": false,
+  "originalNative37ApprovalChanged": false,
+  "artifacts": [
+    {
+      "artifactID": 12618361902,
+      "name": "PDF-cross-platform-validated",
+      "bytes": 3421238,
+      "sha256": "196e62ea761dd6291a5c14e2db6c36bffee467c2dd3002655ecd9e93e552d665",
+      "members": 50,
+      "originalZipAndMembersReverified": true
+    },
+    {
+      "artifactID": 12617224816,
+      "name": "PDF-cross-lifecycle",
+      "bytes": 5272,
+      "sha256": "9f842412e7022e076ce9c438cbf879207ad2274a01debe1642fd484c890c4e17",
+      "members": 3,
+      "originalZipAndMembersReverified": true
+    }
+  ],
+  "counts": {
+    "originalArtifactFiles": 53,
+    "originalPNGs": 33,
+    "originalAXReports": 7,
+    "originalOCRFiles": 2,
+    "lifecycleFiles": 3,
+    "nativeGroups": 44,
+    "nativeExecutions": 3,
+    "nativeStarts": 132,
+    "nativePasses": 132,
+    "controllerPythonMethods": 20
+  },
+  "excludedLargeFiles": [
+    {
+      "artifactID": 12617457782,
+      "binaryZIPBytes": 1445409831,
+      "binaryZIPSHA256": "26f4833161da2b9755331e17fc06278df42b1c2ee86b7f0eade8012ad8dc11ae",
+      "tarBytes": 1449079284,
+      "tarSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+      "reason": "Binary ZIP/TAR not copied or extracted."
+    },
+    {
+      "artifactID": 12617342983,
+      "sourceZIPBytes": 21034067,
+      "sourceZIPSHA256": "d1480243c229657ec498662c48075eb1eed817b18093852c14117d358a0c5c4e",
+      "sourceTar": {
+        "name": "PDF-source.tar.gz",
+        "bytes": 21029466,
+        "sha256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c"
+      },
+      "reason": "Source ZIP/TAR deliberately omitted; small source metadata preserved."
+    }
+  ],
+  "limits": [
+    "Automated success does not imply visual approval.",
+    "Static PNG review does not establish click failure, causal mechanism or persistence after transitions.",
+    "Prior native37 success remains historical and is not transferred to any new patched source.",
+    "No M4 physical, Neural Engine/energy, human VoiceOver or production service approval."
+  ]
+}

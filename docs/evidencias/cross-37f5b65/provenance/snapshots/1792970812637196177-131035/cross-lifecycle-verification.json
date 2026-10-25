@@ -1,0 +1,46 @@
+{
+  "policy": "window-lifecycle-v1",
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "jobID": 121320462461,
+  "files": {
+    "cross.json": {
+      "bytes": 28720,
+      "sha256": "e7d82ad369db5bb1388a5ce94002a83c91b01f55b905dfa164311398df8d6a43"
+    },
+    "cross-receipt.json": {
+      "bytes": 941,
+      "sha256": "df75d7b360b5d389438c8aee95c9d734e9e667c481f600c73a9633fc74ad8950"
+    },
+    "cross.log": {
+      "bytes": 15152,
+      "sha256": "04d8243bb2a670e5fd39d85c090e155b71db9e6e3fc19f7fe9445d76d94e3546"
+    }
+  },
+  "reports": [
+    {
+      "scope": "cross-installed-binary",
+      "report": "cross.json",
+      "receipt": "cross-receipt.json",
+      "log": "cross.log",
+      "installedBundleFiles": {
+        "Contents/MacOS/PDF": {
+          "bytes": 19092208,
+          "sha256": "6e77c1f17f0a1bc9836d51e2b7b8e345738b897989d2ad757f5d7224f10007cd"
+        },
+        "Contents/Info.plist": {
+          "bytes": 2034,
+          "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+        }
+      },
+      "deliveredBundleIdentityVerified": true,
+      "operatingSystem": "Version 27.0.1 (Build 26A434)",
+      "hardware": "Apple Paravirtual device · 3 núcleos disponíveis · 7 GB de memória",
+      "checksPassed": 12
+    }
+  ],
+  "completeApplicationApproved": false,
+  "historicalTimeoutCauseDemonstrated": false,
+  "humanVoiceOverTested": false,
+  "sourceAuthentication": "enclosing exact same-repository run/job/artifact and verified source archive",
+  "sourceCommitAuthenticatedByReportValidator": false
+}

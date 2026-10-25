@@ -1,0 +1,46 @@
+{
+  "diagnostics/deliver_binary.py": {
+    "bytes": 29764,
+    "sha256": "77c3209725f633d77e41fd547270c3275e5cb488aaa86ff160a3c647bf800666"
+  },
+  "diagnostics/delivery_archives.py": {
+    "bytes": 17378,
+    "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+  },
+  "diagnostics/cross_gui_evidence.py": {
+    "bytes": 16647,
+    "sha256": "d2a0d10fa26787e831d055875edeedb79ff9249cc0ca7ea107062120e777bd85"
+  },
+  "diagnostics/portable_compatibility.py": {
+    "bytes": 13339,
+    "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+  },
+  "diagnostics/retain_evidence.py": {
+    "bytes": 22812,
+    "sha256": "fa780b0a601d9b3a1592e05cdbb02723abf82b0d25d4ce9955f3450336ca6aa9"
+  },
+  "diagnostics/delivery_lifecycle.py": {
+    "bytes": 9558,
+    "sha256": "aaa4f178039c058621ff27e1d57745b93bf23a1d4b65c4f34b2d0f3462cb1895"
+  },
+  "diagnostics/delivery_parts.py": {
+    "bytes": 12990,
+    "sha256": "00603ed0884688683054d425431bad7a527848391927c60a372c67f6abe88fad"
+  },
+  "scripts/check_preview_artifacts.py": {
+    "bytes": 10439,
+    "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+  },
+  "scripts/check_accessibility_report.py": {
+    "bytes": 4010,
+    "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+  },
+  "scripts/check_window_lifecycle.py": {
+    "bytes": 9894,
+    "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+  },
+  "scripts/PDF-Info.plist": {
+    "bytes": 2034,
+    "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+  }
+}

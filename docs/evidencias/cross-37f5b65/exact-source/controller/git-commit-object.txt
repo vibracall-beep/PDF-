@@ -1,0 +1,6 @@
+tree 96caaef4cc637ba771412313dcc7f0846b0bdd58
+parent 37f5b65e35a9f70c716cfcd64db7ba69837f5c21
+author Willian Carvalho <vibra_call@msn.com> 1792966388 +0000
+committer Willian Carvalho <vibra_call@msn.com> 1792966388 +0000
+
+Retain macOS 26 reopen failure and separate macOS 27 cancellation

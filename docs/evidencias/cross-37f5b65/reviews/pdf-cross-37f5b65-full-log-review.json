@@ -1,0 +1,763 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+  "runID": 40243611339,
+  "attempt": 1,
+  "jobID": 121320462461,
+  "APIConclusion": "success",
+  "stepResults": [
+    {
+      "number": 1,
+      "name": "Set up job",
+      "conclusion": "success"
+    },
+    {
+      "number": 2,
+      "name": "Check out this validation control",
+      "conclusion": "success"
+    },
+    {
+      "number": 3,
+      "name": "Authenticate the completed source run and approved macOS 26 artifact",
+      "conclusion": "success"
+    },
+    {
+      "number": 4,
+      "name": "Check out only the authenticated source commit for installation checks",
+      "conclusion": "success"
+    },
+    {
+      "number": 5,
+      "name": "Download the exact approved same-repository artifact",
+      "conclusion": "success"
+    },
+    {
+      "number": 6,
+      "name": "Verify the independent hash and both internal and published evidence",
+      "conclusion": "success"
+    },
+    {
+      "number": 7,
+      "name": "Install the unchanged macOS 26 binary on macOS 27",
+      "conclusion": "success"
+    },
+    {
+      "number": 8,
+      "name": "Audit the unchanged binary real window before GUI capture",
+      "conclusion": "success"
+    },
+    {
+      "number": 9,
+      "name": "Retain separate cross-OS window lifecycle diagnostics",
+      "conclusion": "success"
+    },
+    {
+      "number": 10,
+      "name": "Deny host dependencies and validate runtime, metadata and native operations",
+      "conclusion": "success"
+    },
+    {
+      "number": 11,
+      "name": "Bind the installed GUI to the unchanged authenticated archive",
+      "conclusion": "success"
+    },
+    {
+      "number": 12,
+      "name": "Capture the installed binary GUI once outside the dependency sandbox",
+      "conclusion": "success"
+    },
+    {
+      "number": 13,
+      "name": "Validate and bind all original GUI artifacts",
+      "conclusion": "success"
+    },
+    {
+      "number": 14,
+      "name": "Publish the exact cross-OS measurement and target hardware identity",
+      "conclusion": "success"
+    },
+    {
+      "number": 15,
+      "name": "Retain evidence without relabeling a failed installation",
+      "conclusion": "success"
+    },
+    {
+      "number": 29,
+      "name": "Post Check out only the authenticated source commit for installation checks",
+      "conclusion": "success"
+    },
+    {
+      "number": 30,
+      "name": "Post Check out this validation control",
+      "conclusion": "success"
+    },
+    {
+      "number": 31,
+      "name": "Complete job",
+      "conclusion": "success"
+    }
+  ],
+  "officialLogArchive": {
+    "path": "/workspace/.cache/pdf-cross-37f5b65/downloads/run-40243611339-attempt-1-logs.zip",
+    "bytes": 98516,
+    "sha256": "20587424d8624d096405179dadb6ad9ae3e6f7d3052f11dc599aece3f6335e69",
+    "authenticatedByRootCollector": true,
+    "upstreamDigestProvided": false,
+    "allCRCVerified": true,
+    "memberCount": 20,
+    "expandedBytes": 536414,
+    "limits": {
+      "archive": 67108864,
+      "member": 33554432,
+      "total": 134217728
+    }
+  },
+  "officialLogMembers": [
+    {
+      "name": "0_compatible-binary.txt",
+      "bytes": 267884,
+      "sha256": "5b48c5e7c8edec5732a9b828e3ad61e0b0fcd870bff792fb6360e2fa7cc1e043"
+    },
+    {
+      "name": "compatible-binary/system.txt",
+      "bytes": 595,
+      "sha256": "b5453c97a776859fad9c35e140f25cd39687f5a55aedfcc3e913680a1403d88a"
+    },
+    {
+      "name": "compatible-binary/1_Set up job.txt",
+      "bytes": 2350,
+      "sha256": "57eaea1d8456a377b3aadb177ea024312cc6f3cc48543202613f2fbab98f6892"
+    },
+    {
+      "name": "compatible-binary/2_Check out this validation control.txt",
+      "bytes": 7733,
+      "sha256": "37df31658284ec9df6d27b785ac8086f649f16f2838cf96d0bf4a7712bd402b9"
+    },
+    {
+      "name": "compatible-binary/3_Authenticate the completed source run and approved macOS 26 artifact.txt",
+      "bytes": 6056,
+      "sha256": "3bfdc8b89823edde16b38f156851e5c13abe409d535b5a339aaa33645415bec1"
+    },
+    {
+      "name": "compatible-binary/4_Check out only the authenticated source commit for installation checks.txt",
+      "bytes": 7702,
+      "sha256": "f5fd0dfeb7313c437151c96e120b4a62a4963ba5529f1e340fb251a6a36d6d79"
+    },
+    {
+      "name": "compatible-binary/5_Download the exact approved same-repository artifact.txt",
+      "bytes": 2897,
+      "sha256": "c2b376026c3adc76f8ff0f196ce9ff112a74eb9d60129797ae7d0694fad46726"
+    },
+    {
+      "name": "compatible-binary/6_Verify the independent hash and both internal and published evidence.txt",
+      "bytes": 1075,
+      "sha256": "ba7fe5467230257a4a85e3d1bd25ee3844581d3ede44474a57e02478a56ef1c0"
+    },
+    {
+      "name": "compatible-binary/7_Install the unchanged macOS 26 binary on macOS 27.txt",
+      "bytes": 68929,
+      "sha256": "96a31631a5324083991c2846616bd0d2559aba4700435fddfe81196c4c89336b"
+    },
+    {
+      "name": "compatible-binary/8_Audit the unchanged binary real window before GUI capture.txt",
+      "bytes": 20765,
+      "sha256": "7073c31f15f73effb552aa7c2797a42350fcf55ee556dd6b68d2550881fed623"
+    },
+    {
+      "name": "compatible-binary/9_Retain separate cross-OS window lifecycle diagnostics.txt",
+      "bytes": 2455,
+      "sha256": "ecbaed964d47385f6b645d256b50f9f6a17af8c720a526bc52bdbd6a8dac8b0b"
+    },
+    {
+      "name": "compatible-binary/10_Deny host dependencies and validate runtime, metadata and native operations.txt",
+      "bytes": 38822,
+      "sha256": "c1aa0cca3631a2d4874bbeeb6c7027ac2b9cebccdf006be541dba548fa62e88b"
+    },
+    {
+      "name": "compatible-binary/11_Bind the installed GUI to the unchanged authenticated archive.txt",
+      "bytes": 1292,
+      "sha256": "798dded903afad70099acb339f57b2763d39ecd2ef1cf3c021480513beaec510"
+    },
+    {
+      "name": "compatible-binary/12_Capture the installed binary GUI once outside the dependency sandbox.txt",
+      "bytes": 75300,
+      "sha256": "c0dc6267b24aefa1affad5ec4e36db8617ca160ccfac0a6683dd43c1c0dfd5fa"
+    },
+    {
+      "name": "compatible-binary/13_Validate and bind all original GUI artifacts.txt",
+      "bytes": 22230,
+      "sha256": "4809bfe342892050ee21629f45f8becf37c9be9c55def7f3ed3a85b51da33568"
+    },
+    {
+      "name": "compatible-binary/14_Publish the exact cross-OS measurement and target hardware identity.txt",
+      "bytes": 3875,
+      "sha256": "b5813fe0b9dffe5dd0f1210c0a2457964c7abb1073bc352e97ec1be048e51f68"
+    },
+    {
+      "name": "compatible-binary/15_Retain evidence without relabeling a failed installation.txt",
+      "bytes": 2429,
+      "sha256": "7adff3c6ebf3f4f9bbfd3c359e381ed76af24df4c7975b55b42c8af3a2d40e83"
+    },
+    {
+      "name": "compatible-binary/29_Post Check out only the authenticated source commit for installation checks.txt",
+      "bytes": 1745,
+      "sha256": "8efac3a7ee91ae1a51acef7df6e5a4bf41c108d3227ba281c8a5a15dc9ff7df3"
+    },
+    {
+      "name": "compatible-binary/30_Post Check out this validation control.txt",
+      "bytes": 1760,
+      "sha256": "e85db850fce6b3c87df8a671aca8ba311e162408f31bf1fee903524e0698246a"
+    },
+    {
+      "name": "compatible-binary/31_Complete job.txt",
+      "bytes": 520,
+      "sha256": "d0575713abe8de5ca546df91af81811d98637ea950d6ea13e7c0a11671063416"
+    }
+  ],
+  "fullJobLog": {
+    "path": "/workspace/.cache/pdf-cross-37f5b65/official-attempt-1-logs/0_compatible-binary.txt",
+    "bytes": 267884,
+    "sha256": "5b48c5e7c8edec5732a9b828e3ad61e0b0fcd870bff792fb6360e2fa7cc1e043"
+  },
+  "metadataOriginals": [
+    {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-run.json",
+      "bytes": 12380,
+      "sha256": "914644a7963e9bbbb07ee1ea743cf47052c322f76bd1c0577a2a436fb4f5a684",
+      "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40243611339",
+      "authenticatedAPIResponse": true
+    },
+    {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-jobs.json",
+      "bytes": 4456,
+      "sha256": "98946d4c4599a38d94aeede9e2043dfc5e37caff4f7a139e9856dae0d43568d1",
+      "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40243611339/attempts/1/jobs?per_page=100",
+      "authenticatedAPIResponse": true
+    },
+    {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/snapshots/1792970812637196177-131035/cross-artifacts.json",
+      "bytes": 1411,
+      "sha256": "5e727e6cf2fe875dc693d028696f5f1c7e2ac1c6d7390199cfa30f6d585bfbc5",
+      "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40243611339/artifacts?per_page=100",
+      "authenticatedAPIResponse": true
+    }
+  ],
+  "native": {
+    "distinctGroups": 44,
+    "starts": 132,
+    "passes": 132,
+    "repetitionsPerGroup": 3,
+    "startPassMultisetEqual": true,
+    "perStepCountersMatchAggregate": true,
+    "startCounts": {
+      "Accessibility optional tag edit contract": 3,
+      "Adaptive resource limits": 3,
+      "Advanced editing and OCR review contracts": 3,
+      "App Intents input and private temporary files": 3,
+      "Appearance and reader preferences": 3,
+      "Application task cancellation and cleanup ownership": 3,
+      "Capture import and orientation": 3,
+      "Command palette shortcuts and workspace profiles": 3,
+      "Core Image processing": 3,
+      "Explicit settings and bookmark exchange": 3,
+      "Independent stream-length rejection and repair": 3,
+      "Library interrupted publications and catalog recovery": 3,
+      "Library revisions synchronization and Portuguese sources": 3,
+      "Native AES-256 and Unicode credentials": 3,
+      "Native AES-256 and original permissions": 3,
+      "Native regression audit": 3,
+      "Native serialization editable annotation and form roundtrips": 3,
+      "Native serialization fidelity and encryption guards": 3,
+      "Native serialization private process and cancellation": 3,
+      "Opt-in folder automation": 3,
+      "Owned child processes and termination recovery": 3,
+      "PDFKit, capture encoding, AI text helpers and protected output": 3,
+      "Pages isolated copy": 3,
+      "Performance measurement harness": 3,
+      "Portuguese AI experiment acceptance criteria": 3,
+      "Preview WindowServer geometry consistency": 3,
+      "Private engine input and cleanup": 3,
+      "Product searchable PDF": 3,
+      "Published native copy structural integrity": 3,
+      "Published protected copy structural integrity": 3,
+      "Reader sessions and annotation editing": 3,
+      "Real crash and recovery": 3,
+      "Recovery storage and encryption": 3,
+      "Runtime lease across native process termination": 3,
+      "Semantic retrieval and verifiable citations": 3,
+      "Tesseract installed runtime and transport": 3,
+      "Tool presets": 3,
+      "Tool review drafts across navigation and termination": 3,
+      "Typed-string repair graph and Unicode parser": 3,
+      "Typed-string repair privacy and interruption": 3,
+      "Unicode field identity and byte-exact fidelity": 3,
+      "Unsupported ink curve loss is refused": 3,
+      "Workflow presets and credentials": 3,
+      "Workspace scene presentation and reopening policy": 3
+    },
+    "passCounts": {
+      "Accessibility optional tag edit contract": 3,
+      "Adaptive resource limits": 3,
+      "Advanced editing and OCR review contracts": 3,
+      "App Intents input and private temporary files": 3,
+      "Appearance and reader preferences": 3,
+      "Application task cancellation and cleanup ownership": 3,
+      "Capture import and orientation": 3,
+      "Command palette shortcuts and workspace profiles": 3,
+      "Core Image processing": 3,
+      "Explicit settings and bookmark exchange": 3,
+      "Independent stream-length rejection and repair": 3,
+      "Library interrupted publications and catalog recovery": 3,
+      "Library revisions synchronization and Portuguese sources": 3,
+      "Native AES-256 and Unicode credentials": 3,
+      "Native AES-256 and original permissions": 3,
+      "Native regression audit": 3,
+      "Native serialization editable annotation and form roundtrips": 3,
+      "Native serialization fidelity and encryption guards": 3,
+      "Native serialization private process and cancellation": 3,
+      "Opt-in folder automation": 3,
+      "Owned child processes and termination recovery": 3,
+      "PDFKit, capture encoding, AI text helpers and protected output": 3,
+      "Pages isolated copy": 3,
+      "Performance measurement harness": 3,
+      "Portuguese AI experiment acceptance criteria": 3,
+      "Preview WindowServer geometry consistency": 3,
+      "Private engine input and cleanup": 3,
+      "Product searchable PDF": 3,
+      "Published native copy structural integrity": 3,
+      "Published protected copy structural integrity": 3,
+      "Reader sessions and annotation editing": 3,
+      "Real crash and recovery": 3,
+      "Recovery storage and encryption": 3,
+      "Runtime lease across native process termination": 3,
+      "Semantic retrieval and verifiable citations": 3,
+      "Tesseract installed runtime and transport": 3,
+      "Tool presets": 3,
+      "Tool review drafts across navigation and termination": 3,
+      "Typed-string repair graph and Unicode parser": 3,
+      "Typed-string repair privacy and interruption": 3,
+      "Unicode field identity and byte-exact fidelity": 3,
+      "Unsupported ink curve loss is refused": 3,
+      "Workflow presets and credentials": 3,
+      "Workspace scene presentation and reopening policy": 3
+    },
+    "byStep": [
+      {
+        "step": "Install the unchanged macOS 26 binary on macOS 27",
+        "member": "compatible-binary/7_Install the unchanged macOS 26 binary on macOS 27.txt",
+        "starts": 88,
+        "passes": 88,
+        "groups": 44,
+        "executions": 2,
+        "startPassMultisetEqual": true
+      },
+      {
+        "step": "Deny host dependencies and validate runtime, metadata and native operations",
+        "member": "compatible-binary/10_Deny host dependencies and validate runtime, metadata and native operations.txt",
+        "starts": 44,
+        "passes": 44,
+        "groups": 44,
+        "executions": 1,
+        "startPassMultisetEqual": true
+      }
+    ],
+    "completeSmokeMarkers": 3
+  },
+  "controlPythonSuites": [
+    {
+      "cases": 9,
+      "passed": 9,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "expectedFailures": 0,
+      "unexpectedSuccesses": 0,
+      "status": "passed",
+      "seconds": 0.02,
+      "line": 25,
+      "label": "test_portable_compatibility.py",
+      "step": "Authenticate the completed source run and approved macOS 26 artifact",
+      "member": "compatible-binary/3_Authenticate the completed source run and approved macOS 26 artifact.txt",
+      "classification": "controller diagnostics; not PDF tool execution",
+      "labelEvidence": "exact verbose test module names before this summary and ordered commands in the same original step log"
+    },
+    {
+      "cases": 11,
+      "passed": 11,
+      "skipped": 0,
+      "failures": 0,
+      "errors": 0,
+      "expectedFailures": 0,
+      "unexpectedSuccesses": 0,
+      "status": "passed",
+      "seconds": 0.404,
+      "line": 41,
+      "label": "test_cross_gui_evidence.py",
+      "step": "Authenticate the completed source run and approved macOS 26 artifact",
+      "member": "compatible-binary/3_Authenticate the completed source run and approved macOS 26 artifact.txt",
+      "classification": "controller diagnostics; not PDF tool execution",
+      "labelEvidence": "exact verbose test module names before this summary and ordered commands in the same original step log"
+    }
+  ],
+  "originalArtifacts": [
+    {
+      "id": 12618361902,
+      "name": "PDF-cross-platform-validated",
+      "path": "/workspace/.cache/pdf-cross-37f5b65/downloads/12618361902.zip",
+      "bytes": 3421238,
+      "sha256": "196e62ea761dd6291a5c14e2db6c36bffee467c2dd3002655ecd9e93e552d665",
+      "members": 50,
+      "expandedBytes": 4660610,
+      "githubDigestMatched": true,
+      "allMemberCRCAndHashesVerified": true
+    },
+    {
+      "id": 12617224816,
+      "name": "PDF-cross-lifecycle",
+      "path": "/workspace/.cache/pdf-cross-37f5b65/downloads/12617224816.zip",
+      "bytes": 5272,
+      "sha256": "9f842412e7022e076ce9c438cbf879207ad2274a01debe1642fd484c890c4e17",
+      "members": 3,
+      "expandedBytes": 44813,
+      "githubDigestMatched": true,
+      "allMemberCRCAndHashesVerified": true
+    }
+  ],
+  "lifecycle": {
+    "status": "passed",
+    "checks": 12,
+    "requests": 24,
+    "readyActions": 24,
+    "milliseconds": 4592.985208333175,
+    "scope": "cross-installed-binary",
+    "privateStateCleaned": true,
+    "receiptHashAndBinaryBindingVerified": true,
+    "allChecksReplayedWithExactControllerGit": true,
+    "bundleBytesIndependentlyRehashedHere": false,
+    "limitations": [
+      "A supressão inicial e a restauração desativada são condições artificiais controladas; passar não reproduz nem demonstra a causa do timeout histórico do SwiftUI. O modo normal conserva sua política de restauração.",
+      "O modelo fica sem documentos e sem rascunhos sujos. O ensaio não valida escolhas humanas de descarte, recuperação de PDFs ou todos os percursos de restauração.",
+      "O relatório mede o ciclo de janela observado nesta execução; não aprova sozinho o pacote, os 33 PNGs/relatórios AX da prévia ou compatibilidade geral entre sistemas."
+    ]
+  },
+  "gui": {
+    "PNGCount": 33,
+    "ownWindowAXCount": 7,
+    "originalOCRFileCount": 2,
+    "captureAttempts": 1,
+    "captureDeadlineSeconds": 300,
+    "rebuiltOnDestination": false,
+    "originalsAndLogsBoundToReceipt": true,
+    "sameInstalledBinaryAsLifecycle": true,
+    "AXSummaries": [
+      {
+        "file": "PDF-preview.accessibility.json",
+        "nodes": 419,
+        "failures": 0,
+        "controlsToReview": 11
+      },
+      {
+        "file": "PDF-preview.anotacoes.accessibility.json",
+        "nodes": 612,
+        "failures": 0,
+        "controlsToReview": 27
+      },
+      {
+        "file": "PDF-preview.biblioteca.accessibility.json",
+        "nodes": 215,
+        "failures": 0,
+        "controlsToReview": 7
+      },
+      {
+        "file": "PDF-preview.corrigir-acessibilidade.accessibility.json",
+        "nodes": 308,
+        "failures": 0,
+        "controlsToReview": 12
+      },
+      {
+        "file": "PDF-preview.lado-a-lado.accessibility.json",
+        "nodes": 643,
+        "failures": 0,
+        "controlsToReview": 28
+      },
+      {
+        "file": "PDF-preview.leitor.accessibility.json",
+        "nodes": 480,
+        "failures": 0,
+        "controlsToReview": 19
+      },
+      {
+        "file": "PDF-preview.menus.accessibility.json",
+        "nodes": 718,
+        "failures": 0,
+        "controlsToReview": 12
+      }
+    ],
+    "AXControlsToReviewTotal": 116,
+    "humanVoiceOverTested": false,
+    "humanVisualReviewPerformedByThisTask": false
+  },
+  "platform": {
+    "appIntentsMetadataVerified": true,
+    "appleNotarized": false,
+    "applicationVersion": "0.7.0",
+    "architecture": "arm64",
+    "archiveBytes": 1449079284,
+    "archiveManifestMatched": true,
+    "archiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+    "crossOSTestPassed": true,
+    "developerToolsOnDestinationRequired": false,
+    "expectedArchiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+    "freshInstallPassed": true,
+    "guiCaptureAttempts": 1,
+    "guiCaptureDeadlineSeconds": 300,
+    "guiOriginalOCRFileCount": 2,
+    "guiOutsideDependencySandbox": true,
+    "guiOwnWindowAXCount": 7,
+    "guiPNGCount": 33,
+    "guiReceiptSHA256": "bf36a30a118d2da459cd88f235e4206b85da97c44e2bb0e293d20b8f395a4035",
+    "humanVoiceOverTested": false,
+    "installedBinaryGUIPassed": true,
+    "isolatedRuntimePassed": true,
+    "manifestEntries": 56826,
+    "manifestSHA256": "dd6d288653c5af179df82240dd6808e684afd26133b8fb5d5bf41d0df2d6bee8",
+    "nativeSmokePassed": true,
+    "neuralEngineMeasured": false,
+    "physicalM4Measured": false,
+    "rebuiltOnDestination": false,
+    "repository": "vibracall-beep/PDF-",
+    "schemaVersion": 1,
+    "signing": "ad-hoc",
+    "sourceArtifactBytes": 1445409831,
+    "sourceArtifactID": 12617457782,
+    "sourceArtifactName": "PDF-binary-validated-macos-26",
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sourceRunID": 40239018570,
+    "sourceRunner": "macos-26",
+    "sourceValidationMatched": true,
+    "sourceWorkflow": ".github/workflows/macos.yml",
+    "targetLogicalCPUs": 3,
+    "targetOperatingSystem": "27.0.1",
+    "targetProcessor": "Apple M1 (Virtual)",
+    "targetRunner": "xcode-27"
+  },
+  "rawPDFKitBaselineDiagnostics": [
+    {
+      "line": 339,
+      "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 344,
+      "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 438,
+      "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 657,
+      "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 662,
+      "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 756,
+      "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 1172,
+      "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 1177,
+      "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    },
+    {
+      "line": 1271,
+      "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+    }
+  ],
+  "coreGraphicsWarnings": [
+    {
+      "line": 434,
+      "negativeControlThenSuccessfulNormalization": true
+    },
+    {
+      "line": 752,
+      "negativeControlThenSuccessfulNormalization": true
+    },
+    {
+      "line": 1267,
+      "negativeControlThenSuccessfulNormalization": true
+    }
+  ],
+  "warningRecords": [
+    {
+      "line": 269,
+      "text": "(node:29816) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.",
+      "classification": "Node punycode deprecated"
+    },
+    {
+      "line": 273,
+      "text": "(node:29816) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+      "classification": "Node url.parse deprecated"
+    },
+    {
+      "line": 280,
+      "text": "(node:29816) [DEP0005] DeprecationWarning: Buffer() is deprecated due to security and usability issues. Please use the Buffer.alloc(), Buffer.allocUnsafe(), or Buffer.from() methods instead.",
+      "classification": "Node Buffer constructor deprecated"
+    },
+    {
+      "line": 1119,
+      "text": "(node:54037) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.",
+      "classification": "Node punycode deprecated"
+    },
+    {
+      "line": 1125,
+      "text": "(node:54037) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+      "classification": "Node url.parse deprecated"
+    },
+    {
+      "line": 2374,
+      "text": "(node:71671) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.",
+      "classification": "Node punycode deprecated"
+    },
+    {
+      "line": 2380,
+      "text": "(node:71671) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities.",
+      "classification": "Node url.parse deprecated"
+    },
+    {
+      "line": 2415,
+      "text": "##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/",
+      "classification": "GitHub actions Node20 forced to Node24"
+    }
+  ],
+  "fatalMarkers": [],
+  "validators": [
+    {
+      "gitPath": "diagnostics/delivery_archives.py",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b",
+      "executedFromGitVerifiedBytes": true
+    },
+    {
+      "gitPath": "scripts/check_window_lifecycle.py",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828",
+      "executedFromGitVerifiedBytes": true
+    }
+  ],
+  "pureLocalParser": {
+    "path": "/tmp/pdf_collect_37_logs.py",
+    "bytes": 23083,
+    "sha256": "b61b5e574a613630c146a0f972f4f09b77c9405daf430042d265f1af916ee2a9"
+  },
+  "noNewDownload": true,
+  "noArtifactCodeExecuted": true,
+  "privateDeliveryApprovedByThisReport": false,
+  "scope": "Authenticated macOS26 tar installed unchanged on macOS27: automated protocol passed, independent visual review found a blocking contrast defect. No final delivery approval, universal feature completeness, physical M4/Neural Engine/energy measurement or human VoiceOver approval.",
+  "warningSummary": {
+    "byClassification": {
+      "Node punycode deprecated": 3,
+      "Node url.parse deprecated": 3,
+      "Node Buffer constructor deprecated": 1,
+      "GitHub actions Node20 forced to Node24": 1
+    },
+    "unclassified": 0,
+    "scope": "Infrastructure deprecations retained; not Swift compilation (the destination did not rebuild)."
+  },
+  "independentVisualReview": {
+    "reviewer": "visual_candidate — revisão visual independente por agente",
+    "reports": [
+      {
+        "path": "/tmp/pdf-cross-37f5b65-visual-review.json",
+        "bytes": 27773,
+        "sha256": "d7abf81d8274359b30d9b76ea4c42a3c34fea1f8fd9035bc87d6ed2cfb03c72b"
+      },
+      {
+        "path": "/tmp/pdf-cross-37f5b65-visual-review.md",
+        "bytes": 17520,
+        "sha256": "a25c4ff9365b868ecdf7cf1b7290983132546ee5e451410ff89d372f9424c898"
+      }
+    ],
+    "reviewedPNGCount": 33,
+    "allPNGsOpenedIndividually": true,
+    "visualApproval": false,
+    "status": "blocked by a confirmed visible contrast defect",
+    "confirmedVisualBlockers": [
+      {
+        "id": "CROSS-DARK-TOOLBAR-CONTRAST",
+        "status": "confirmed-in-original-capture",
+        "image": "PDF-preview.escuro.png",
+        "imageSHA256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a",
+        "title": "Ícones dos controles superiores quase invisíveis no tema escuro",
+        "observation": "Falha visível: os três ícones dos controles superiores (barra lateral, paleta e personalização) têm cor quase branca sobre cápsulas quase brancas no tema escuro e ficam praticamente ilegíveis. O conteúdo principal do início permanece legível.",
+        "affectedControls": [
+          "Alternar barra lateral",
+          "Paleta de comandos",
+          "Personalizar"
+        ],
+        "approximateRegionsTopLeftPixels": [
+          [
+            166,
+            8,
+            202,
+            45
+          ],
+          [
+            968,
+            8,
+            1043,
+            45
+          ]
+        ],
+        "impact": "Dificulta identificar visualmente três controles principais da barra superior.",
+        "causeEstablished": false,
+        "permanenceAfterTransitionEstablished": false,
+        "clickFailureEstablished": false,
+        "numericalContrastRatioMeasured": false,
+        "blocksUnqualifiedVisualApproval": true,
+        "requiredFollowup": "Investigar a aparência dos controles superiores no binário macOS 26 instalado em macOS 27; preservar os originais e produzir nova evidência autenticada após a correção ou demonstração da causa."
+      }
+    ],
+    "blockingImage": {
+      "path": "/workspace/.cache/pdf-cross-37f5b65/extracted/PDF-cross-platform-validated/PDF-preview.escuro.png",
+      "bytes": 401682,
+      "sha256": "13dcfebf3a4ec930d6ee42360004ec4da89072da1d2b0e39a64249ad9aa0387a"
+    },
+    "observedOCRLimitation": {
+      "image": "PDF-preview.revisao-ocr.png",
+      "language": "eng",
+      "backend": "tesseract",
+      "recognizedText": "informag6es",
+      "intendedText": "informações",
+      "confidence": 0.37141106,
+      "settings": {
+        "language": "eng",
+        "min_confidence": 0.0,
+        "ocr_deskew": false,
+        "ocr_dpi": 200,
+        "ocr_psm": 3
+      },
+      "analysisFile": "PDF-preview.revisao-ocr.analysis.json",
+      "analysisSHA256": "0d1c134130c5dfe5dc8cfb5889a10cec08885e3ac3a12358ab71f64d76750d7f",
+      "sourceSHA256": "5b88bb92a3095eb681f170515c33a41ea0472e5183fdf5821d883d5bdd2d575c",
+      "reviewSHA256": "429b0e327837ada11322e5869b791c13ee966cfb57b283e503c40112a139ec91"
+    },
+    "humanVoiceOverTested": false,
+    "humanVisualReview": false,
+    "assessment": "Revisão de 33/33 imagens concluída com um impedimento visual confirmado: controles superiores quase ilegíveis no tema escuro. Demais estados sem novo bloqueio visual confirmado nos viewports vistos.",
+    "performedByLogReviewer": false,
+    "rootIndependentlyConfirmedBlocker": true,
+    "originalAutomatedReceiptsUnmodified": true
+  },
+  "automatedCrossProtocolPassed": true,
+  "releaseReady": false,
+  "deliveryBlocker": "CROSS-DARK-TOOLBAR-CONTRAST: three main toolbar controls almost illegible in original dark-theme cross capture; new authenticated evidence required after correction/investigation."
+}

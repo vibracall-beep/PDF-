@@ -1,0 +1,22 @@
+{
+  "schemaVersion": 1,
+  "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "runner": "macos-26",
+  "isolatedRuntimePassed": true,
+  "freshInstallPassed": true,
+  "transactionalUpdatePassed": true,
+  "preferencesPreserved": true,
+  "wrongChecksumRejected": true,
+  "manifestEntries": 56826,
+  "developerToolsOnDestinationRequired": false,
+  "applicationVersion": "0.7.0",
+  "signing": "ad-hoc",
+  "appleNotarized": false,
+  "appIntentsMetadataVerified": true,
+  "localAIStatus": "unavailable",
+  "localAIGenerationSamplePassed": false,
+  "physicalM4Measured": false,
+  "neuralEngineMeasured": false,
+  "energyMeasured": false,
+  "humanVoiceOverTested": false
+}

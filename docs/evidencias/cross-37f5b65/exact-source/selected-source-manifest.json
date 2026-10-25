@@ -1,0 +1,189 @@
+{
+  "applicationCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+  "completeSourceArchiveRetained": false,
+  "files": [
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/run-with-timeout.py",
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/binary_update.py",
+      "bytes": 26522,
+      "sha256": "a076f9ad76efb58ccb93816d0ee4bdd1a81ceb58d90708c0ae0df01878a04db0"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/check_window_lifecycle.py",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/prepare-window-audit-bundle.py",
+      "bytes": 4147,
+      "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": ".github/workflows/portable-compatibility.yml",
+      "bytes": 8520,
+      "sha256": "38755b5dba17a0e33d85093eaf01718db657d3ba40e3becdd705e78e48487c63"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "Sources/PDF/PDFApp.swift",
+      "bytes": 42831,
+      "sha256": "5a2c1f6b488383df7f64a55ccad17acdc3189caaddccd33f0d88f104207b529e"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "Sources/PDF/WorkspaceViews.swift",
+      "bytes": 21848,
+      "sha256": "99204ffd4aa8fb10d9174eae9280b54b3dc1ce8f41352bed6080b8937940e436"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "Sources/PDF/AppearancePreferences.swift",
+      "bytes": 21280,
+      "sha256": "169c0551602cb1785d44688aab5c828132093e03bc8682e556098afdacc83aea"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "Sources/PDF/MacPreview.swift",
+      "bytes": 48294,
+      "sha256": "18bf8e50d6736531d8363cbad4ba9139fb092e8e5d54413d3243fcf4cea50eb0"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "Sources/PDF/WindowSceneLifecycleAudit.swift",
+      "bytes": 19725,
+      "sha256": "44d6c22015a978bbb461a73c45f41dc72cc555468caa3e5e781609342da3bc2b"
+    },
+    {
+      "role": "application",
+      "commit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "gitPath": "scripts/install-binary.sh",
+      "bytes": 9062,
+      "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/deliver_binary.py",
+      "bytes": 29764,
+      "sha256": "77c3209725f633d77e41fd547270c3275e5cb488aaa86ff160a3c647bf800666"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/delivery_archives.py",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/cross_gui_evidence.py",
+      "bytes": 16647,
+      "sha256": "d2a0d10fa26787e831d055875edeedb79ff9249cc0ca7ea107062120e777bd85"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/portable_compatibility.py",
+      "bytes": 13339,
+      "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/retain_evidence.py",
+      "bytes": 22812,
+      "sha256": "fa780b0a601d9b3a1592e05cdbb02723abf82b0d25d4ce9955f3450336ca6aa9"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/delivery_lifecycle.py",
+      "bytes": 9558,
+      "sha256": "aaa4f178039c058621ff27e1d57745b93bf23a1d4b65c4f34b2d0f3462cb1895"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "diagnostics/delivery_parts.py",
+      "bytes": 12990,
+      "sha256": "00603ed0884688683054d425431bad7a527848391927c60a372c67f6abe88fad"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "scripts/check_window_lifecycle.py",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": "scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    {
+      "role": "controller",
+      "commit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+      "gitPath": ".github/workflows/portable-compatibility.yml",
+      "bytes": 8520,
+      "sha256": "38755b5dba17a0e33d85093eaf01718db657d3ba40e3becdd705e78e48487c63"
+    }
+  ]
+}

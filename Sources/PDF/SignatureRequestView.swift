@@ -59,7 +59,10 @@ struct SignatureRequestView: View {
     @State private var attemptRecord: URL?
     @State private var requestID = ""
     @State private var resultText = ""
+    @State private var resultRequestID = ""
+    @State private var downloadedRequestID = ""
     @State private var resultURL: URL?
+    @State private var downloadedURL: URL?
     @State private var error = ""
     @State private var credentialNotice = ""
 
@@ -134,12 +137,22 @@ struct SignatureRequestView: View {
                 HStack {
                     TextField("Identificador de solicitação", text: $requestID).textFieldStyle(.roundedBorder)
                     Button("Consultar estado…") { status() }.disabled(requestID.isEmpty)
+                    Button("Baixar PDF concluído…") { download() }.disabled(requestID.isEmpty)
+                        .accessibilityIdentifier("signature.download")
+                        .help("Confere o estado no Dropbox Sign e baixa o PDF concluído, preservando seus bytes e assinaturas.")
                 }
                 if let attemptRecord, FileManager.default.fileExists(atPath: attemptRecord.path) {
                     Button("Abrir registro local da tentativa") { NSWorkspace.shared.open(attemptRecord) }
                 }
-                if !resultText.isEmpty { Text(resultText).textSelection(.enabled) }
-                if let resultURL { Button("Abrir relatório completo") { NSWorkspace.shared.open(resultURL) } }
+                if !resultText.isEmpty, resultRequestID == requestID { Text(resultText).textSelection(.enabled) }
+                if let resultURL, resultRequestID == requestID { Button("Abrir relatório completo") { NSWorkspace.shared.open(resultURL) } }
+                if let downloadedURL, downloadedRequestID == requestID {
+                    HStack {
+                        Button("Abrir PDF recebido") { model.open(url: downloadedURL) }
+                        Button("Mostrar PDF no Finder") { NSWorkspace.shared.activateFileViewerSelecting([downloadedURL]) }
+                    }
+                    Text("O PDF recebido foi preservado byte a byte. A conclusão no serviço não certifica a integridade criptográfica: use Verificar assinaturas para examinar certificados e confiança.").font(.caption).foregroundStyle(.secondary)
+                }
                 if !error.isEmpty { Text(error).foregroundStyle(.red).textSelection(.enabled) }
             }.padding(24).disabled(model.busy)
         }.safeAreaInset(edge: .bottom) {
@@ -153,7 +166,7 @@ struct SignatureRequestView: View {
     }
     private func choose() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
-        if panel.runModal() == .OK { source = panel.url; draft = nil; attemptRecord = nil; resultText = ""; resultURL = nil; error = "" }
+        if panel.runModal() == .OK { source = panel.url; draft = nil; attemptRecord = nil; resultText = ""; resultURL = nil; downloadedURL = nil; error = "" }
     }
     private func storeCredential() {
         do { try SignatureServiceCredential.save(apiKey); apiKey = ""; credentialNotice = "Chave guardada no Chaves deste Mac." }
@@ -205,11 +218,28 @@ struct SignatureRequestView: View {
             model.execute(operation: "signature-request-status", inputs: [source ?? URL(fileURLWithPath: "/dev/null")], output: output, options: options, title: "Consultando solicitação", completion: { outcome in handle(outcome, sending: false) })
         } catch { self.error = error.localizedDescription }
     }
+    private func download() {
+        guard let output = NativeOutput.destination(model: model, toolName: "PDF assinado recebido", extension: "pdf", originalURL: source) else { return }
+        do {
+            var options: [String: Any] = ["request_id": requestID, "confirm_download": true]
+            if let key = try credential() { options["api_key"] = key }
+            apiKey = ""; error = ""; downloadedURL = nil; resultURL = nil; resultText = ""
+            model.execute(operation: "signature-request-download", inputs: [source ?? URL(fileURLWithPath: "/dev/null")], output: output,
+                          options: options, title: "Baixando PDF concluído", completion: { outcome in
+                do {
+                    downloadedURL = try outcome.get()
+                    downloadedRequestID = requestID; resultRequestID = requestID
+                    resultText = "PDF concluído recebido do Dropbox Sign. O download não enviou solicitações nem emails."
+                } catch { self.error = error.localizedDescription }
+            })
+        } catch { self.error = error.localizedDescription }
+    }
     private func handle(_ outcome: Result<URL, Error>, sending: Bool) {
         do {
             let url = try outcome.get(); let data = try Data(contentsOf: url)
             guard data.count <= 2 * 1024 * 1024, let result = try JSONSerialization.jsonObject(with: data) as? [String: Any] else { throw NSError(domain: "PDF.SignatureRequest", code: 2) }
             requestID = result["signature_request_id"] as? String ?? requestID
+            resultRequestID = requestID
             let completed = result["is_complete"] as? Bool == true
             let failed = result["has_error"] as? Bool == true
             let heading = failed ? "O serviço informou um erro na solicitação." : completed ? "Solicitação concluída no Dropbox Sign." : sending ? "Solicitação enviada ao Dropbox Sign." : "Solicitação em andamento."

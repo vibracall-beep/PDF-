@@ -21,7 +21,7 @@ PREVIEW_STATES = (
     'personalizar', 'ferramentas', 'navegacao', 'opcoes-leitura', 'arquivos',
     'escuro', 'lista', 'configuracao-ferramenta', 'fluxo-lote',
     'assinatura-digital', 'verificar-assinaturas', 'validar-pdfa', 'auditar-pdfua',
-    'atalhos', 'perfis', 'paleta', 'editor-conteudo', 'revisao-ocr', 'biblioteca',
+    'atalhos', 'perfis', 'menus', 'paleta', 'editor-conteudo', 'revisao-ocr', 'biblioteca',
     'corrigir-acessibilidade', 'solicitar-assinaturas', 'automacao',
     'producao-print-preflight', 'producao-bates', 'producao-measure', 'producao-pdfx',
 )
@@ -31,6 +31,7 @@ REQUIRED_AX = {
     'PDF-preview.lado-a-lado.accessibility.json': {'pdf.reader.document', 'pdf.reader.reference'},
     'PDF-preview.anotacoes.accessibility.json': {'pdf.reader.document', 'pdf.reader.inspector'},
     'PDF-preview.biblioteca.accessibility.json': {'pdf.library'},
+    'PDF-preview.menus.accessibility.json': {'pdf.menus.quick-title', 'pdf.menus.quick-add'},
     'PDF-preview.corrigir-acessibilidade.accessibility.json': {
         'pdf.accessibility.tag.title', 'pdf.accessibility.tag.alt', 'pdf.accessibility.tag.actual-text',
         'pdf.accessibility.tag.language', 'pdf.accessibility.tag.scope',

@@ -183,12 +183,12 @@ def page_elements(page, options=None):
                 cells=[tuple(cell) if cell else None for cell in table.cells],**geometry))
     table_rects=[fitz.Rect(table['bbox']) for table in verified]
     entries=list(verified)
-    for block in blocks:
+    for block_number,block in enumerate(blocks):
         if block['type']!=0:
             entries.append(block);continue
         # Keep individual lines so a PDF text block spanning two columns does
         # not force row-wise interleaving. Character boxes retain mixed spans.
-        for line in block['lines']:
+        for line_number,line in enumerate(block['lines']):
             spans=[]
             for source in line['spans']:
                 kept=[]
@@ -204,7 +204,7 @@ def page_elements(page, options=None):
             if not spans or not any(span['text'].strip() for span in spans): continue
             area=_bounds(spans)
             new_line={**line,'spans':spans,'bbox':tuple(area)}
-            entries.append(dict(type=0,bbox=tuple(area),lines=[new_line]))
+            entries.append(dict(type=0,bbox=tuple(area),lines=[new_line],source_block=block_number,source_line=line_number))
     if len(entries)>25000: raise ValueError('A página excede 25.000 elementos de layout. Selecione uma região menor.')
     return reading_order(entries)
 
@@ -212,6 +212,69 @@ def page_elements(page, options=None):
 def table_groups(page, options=None):
     """Tables remain separate; prose outside them remains available in Excel."""
     return page_elements(page,options)
+
+
+def marginal_line_key(line, bounds):
+    """Identify repeated margin text by content, style and normalized position.
+
+    Repeated margin placement is evidence for a running header/footer, not for
+    footnote semantics. Numeric page labels are matched but their original text
+    is retained independently in each section; no page field is invented.
+    """
+    if 'bbox' not in line: return None
+    rect=fitz.Rect(line['bbox'])
+    if not bounds.contains(rect) or bounds.width<=0 or bounds.height<=0: return None
+    zone='header' if rect.y1<=bounds.y0+bounds.height*0.1 else 'footer' if rect.y0>=bounds.y0+bounds.height*0.9 else None
+    if zone is None: return None
+    text=''.join(span['text'] for span in line['spans'])
+    if not text.strip() or len(text)>1024: return None
+    normalized=text.strip()
+    if re.fullmatch(r'(?:\d+|(?:p[aá]g(?:ina)?\.?|page)\s+\d+(?:\s*(?:de|of|/)\s*\d+)?)',normalized,re.IGNORECASE):
+        normalized=re.sub(r'\d+','#',normalized)
+    styles=tuple((re.sub(r'^[A-Z]{6}\+','',span.get('font','')),round(span['size'],1),span.get('flags',0),span.get('color',0)) for span in line['spans'])
+    return (zone,normalized,round((rect.x0-bounds.x0)/bounds.width,2),round((rect.y0-bounds.y0)/bounds.height,2),styles)
+
+
+def recurring_marginal_lines(doc, pages):
+    """Require the same line in the same margin on a majority of selected pages."""
+    if len(pages)<2: return set()
+    counts=Counter()
+    for index in pages:
+        page=doc[index];bounds=page.rect*page.derotation_matrix
+        blocks=page.get_text('dict',flags=fitz.TEXTFLAGS_DICT & ~fitz.TEXT_PRESERVE_IMAGES)['blocks']
+        keys={marginal_line_key(line,bounds) for block in blocks if block['type']==0 for line in block['lines']}
+        counts.update(key for key in keys if key is not None)
+    minimum=max(2,math.ceil(len(pages)*0.6))
+    return {key for key,count in counts.items() if count>=minimum}
+
+
+def word_paragraphs(blocks):
+    """Rejoin consecutive lines of the same PDF block without losing styles.
+
+    The ordering/table extraction remains authoritative. No grouping crosses a
+    table/image, a column, a list marker or a substantially different baseline.
+    Ambiguous lines retain separate paragraphs rather than guessing semantics.
+    """
+    result=[]
+    for block in blocks:
+        prior=result[-1] if result else None
+        if block['type']==0 and prior and prior['type']==0 and 'source_block' in block and prior.get('source_block')==block['source_block']:
+            before=prior['lines'][-1];after=block['lines'][0]
+            first=''.join(span['text'] for span in after['spans']).lstrip()
+            a=fitz.Rect(before['bbox']);b=fitz.Rect(after['bbox'])
+            sizes=[span['size'] for span in [*before['spans'],*after['spans']] if span['text'].strip()]
+            normal=sorted(sizes)[len(sizes)//2] if sizes else 11
+            baseline_a=before['spans'][0].get('origin',(a.x0,a.y1))[1]
+            baseline_b=after['spans'][0].get('origin',(b.x0,b.y1))[1]
+            same=block.get('source_line')==prior.get('source_line',-1)+1 and tuple(before.get('dir',(1,0)))==tuple(after.get('dir',(1,0)))==(1,0)
+            same=same and abs(a.x0-b.x0)<=max(2,normal*0.2) and 0.9*normal<=baseline_b-baseline_a<=1.8*normal
+            same=same and max(sizes,default=normal)<=min(sizes,default=normal)*1.25 and not re.match(r'(?:[•●▪‣]|[-–]\s|\(?\d+[.)]\s|[A-Za-z][.)]\s)',first)
+            if same:
+                result[-1]={**prior,'bbox':tuple(fitz.Rect(prior['bbox'])|fitz.Rect(block['bbox'])),
+                    'lines':[*prior['lines'],*block['lines']],'source_line':block['source_line']}
+                continue
+        result.append(block)
+    return result
 
 
 def spreadsheet_text(value):
@@ -257,9 +320,11 @@ def _editable_structure(data, extension):
                 raise ValueError('O documento Office excede os limites de inspeção ZIP.')
             if len({entry.filename for entry in entries})!=len(entries): raise ValueError('O documento Office contém entradas ZIP duplicadas.')
             names=archive.namelist()
-            patterns={'.docx':r'word/document\.xml', '.pptx':r'ppt/slides/slide\d+\.xml', '.xlsx':r'xl/worksheets/sheet\d+\.xml', '.odt':r'content\.xml'}
+            patterns={'.docx':r'word/(?:document|header\d+|footer\d+|footnotes|endnotes)\.xml', '.pptx':r'ppt/slides/slide\d+\.xml', '.xlsx':r'xl/worksheets/sheet\d+\.xml', '.odt':r'content\.xml'}
             selected=[name for name in names if re.fullmatch(patterns[extension],name)]
             if not selected: raise ValueError('A estrutura Office não corresponde ao formato selecionado.')
+            if extension=='.docx' and 'word/document.xml' not in selected:
+                raise ValueError('O documento Word não contém o corpo principal.')
             counts=Counter()
             for name in selected:
                 encoded=archive.read(name)
@@ -308,6 +373,8 @@ def _comparison_metrics(source, converted):
             source_words=sum(a.values()),converted_words=sum(b.values()),matched_words=sum((a&b).values()))
         if original is not None and result is not None:
             record['source_size']=[original.rect.width,original.rect.height];record['converted_size']=[result.rect.width,result.rect.height]
+            record['size_difference_pt']=[round(b-a,6) for a,b in zip(record['source_size'],record['converted_size'])]
+            record['page_geometry_matches']=all(abs(delta)<=0.1 for delta in record['size_difference_pt'])
             width=max(1,round(max(original.rect.width,result.rect.width)));height=max(1,round(max(original.rect.height,result.rect.height)))
             scale=min(1,1200/max(width,height),math.sqrt(1_000_000/(width*height)))
             size=(max(1,math.ceil(width*scale)),max(1,math.ceil(height*scale)))
@@ -326,6 +393,7 @@ def _comparison_metrics(source, converted):
         pages.append(record)
     overlap=sum((source_words&converted_words).values());total=sum(source_words.values())
     return dict(source_pages=len(source),converted_pages=len(converted),pages=pages,
+        geometry_tolerance_pt=0.1,page_geometry_matches=len(source)==len(converted) and all(page.get('page_geometry_matches',False) for page in pages),
         source_word_count=total,converted_word_count=sum(converted_words.values()),matched_word_count=overlap,
         source_word_recall=round(overlap/total,6) if total else None,
         font_name_differences=dict(only_source=sorted(source_fonts-converted_fonts),only_converted=sorted(converted_fonts-source_fonts)))
@@ -356,6 +424,7 @@ def conversion_audit(source, converted, output, options):
                 roundtrip_sha256=hashlib.sha256(roundtrip.read_bytes()).hexdigest(),editable_structure=structure,
                 metrics=_comparison_metrics(original,restored),review_required=True,conformance_claim=False,
                 limitations=['Office round-trip depends on LibreOffice and installed fonts.',
+                    'Office may snap custom paper dimensions to a nearby format; size differences above 0.1 pt are flagged.',
                     'Word overlap ignores order and is not semantic equivalence.',
                     'Pixel differences use page-aligned rendering and are not a fidelity score.',
                     'Text outside page bounds is reported; hidden frame overflow is not universally detectable.',

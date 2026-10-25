@@ -4,8 +4,9 @@ import CryptoKit
 import Darwin
 
 /// A real process-loss regression, confined to disposable files and preferences.
-/// It proves recovery after a completed automatic checkpoint and SIGKILL. It
-/// does not claim that every possible interruption inside a disk write is covered.
+/// It exercises a completed automatic checkpoint plus incomplete PDF,
+/// metadata and navigation writes. Evidence remains bounded to named phases;
+/// no test claims every possible hardware/write interruption.
 @MainActor enum CrashRecoveryAudit {
     static let argument = "--recovery-crash-worker"
     private static let directoryPrefix = "PDF-crash-audit-"
@@ -19,7 +20,17 @@ import Darwin
         let id: UUID
         let sourceSHA256: String
         let password: String
+        var boundary: String? = nil
     }
+    private struct WriteReady: Codable {
+        let version: Int
+        let id: UUID
+        let processID: Int32
+        let boundary: String
+        let sourceSHA256: String
+    }
+    private static let writeBoundaries = ["staging-registered", "pdf-partial", "metadata-partial", "generation-synchronized",
+                                          "generation-published", "navigation-partial", "navigation-written", "navigation-published"]
     private struct Ready: Codable {
         let version: Int
         let id: UUID
@@ -180,6 +191,7 @@ import Darwin
                         "o recibo ou metadados persistiram conteúdo privado da sessão.")
         }
         print("[Crash recovery] real automatic checkpoint + SIGKILL + authenticated reader restore: PASS")
+        try await interruptedWrites(original: original, changed: recovered, password: password)
     }
 
     private static func worker(directory: URL) async throws {
@@ -191,6 +203,10 @@ import Darwin
         let source = directory.appendingPathComponent("source.pdf")
         try require(digest(try privateFile(source, limit: 16 * 1_024 * 1_024)) == request.sourceSHA256,
                     "a fixture original mudou antes da abertura.")
+        if let boundary = request.boundary {
+            try writeWorker(directory: directory, request: request, boundary: boundary)
+            return
+        }
         _ = NSApplication.shared
         let suiteName = suite(request.id, role: "worker")
         guard let defaults = UserDefaults(suiteName: suiteName) else { throw AuditFailure(step: "preferências privadas indisponíveis.") }
@@ -255,6 +271,102 @@ import Darwin
             await context.settle()
             throw error
         }
+    }
+
+    private static func interruptedWrites(original: Data, changed: Data, password: String) async throws {
+        try require(original != changed, "as versões da fixture de escrita são iguais.")
+        for boundary in writeBoundaries {
+            let id = UUID()
+            let directory = FileManager.default.temporaryDirectory.appendingPathComponent(directoryPrefix + id.uuidString, isDirectory: true)
+            try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+            defer { try? FileManager.default.removeItem(at: directory) }
+            let source = directory.appendingPathComponent("source.pdf")
+            try NativeOutput.write(original, to: source)
+            try NativeOutput.write(changed, to: directory.appendingPathComponent("changed.pdf"))
+            let store = RecoveryStore(directory: directory.appendingPathComponent("Recovery", isDirectory: true))
+            let baseline = try store.save(documentData: original, sourceURL: source, sessionID: id, encrypted: true,
+                                          title: "Antes da interrupção", state: RecoverySessionState(page: 1, zoom: 1.25))
+            var request = Request(version: 1, id: id, sourceSHA256: digest(original), password: password)
+            request.boundary = boundary
+            try NativeOutput.write(try encode(request), to: directory.appendingPathComponent("request.json"))
+            let process = Process()
+            guard let executable = Bundle.main.executableURL else { throw AuditFailure(step: "executável indisponível para a auditoria de escrita.") }
+            process.executableURL = executable; process.arguments = [argument, directory.path]
+            process.standardInput = FileHandle.nullDevice; process.standardOutput = FileHandle.nullDevice; process.standardError = FileHandle.nullDevice
+            let lease = try BundleRuntimeLease.configureChild(process)
+            defer { try? lease?.close() }
+            let deadline = ProcessInfo.processInfo.systemUptime + 15
+            try process.run()
+            do {
+                let readyURL = directory.appendingPathComponent("write-ready.json")
+                while !FileManager.default.fileExists(atPath: readyURL.path) {
+                    try Task.checkCancellation()
+                    try require(process.isRunning && ProcessInfo.processInfo.systemUptime < deadline - 4,
+                                "o filho não atingiu a fronteira real de escrita " + boundary)
+                    await pause()
+                }
+                let ready = try JSONDecoder().decode(WriteReady.self, from: privateFile(readyURL, limit: 16_384))
+                try require(ready.version == 1 && ready.id == id && ready.processID == process.processIdentifier &&
+                            ready.boundary == boundary && ready.sourceSHA256 == digest(original), "o recibo da escrita não pertence à fixture.")
+                let pendingBefore = try FileManager.default.contentsOfDirectory(at: store.directory, includingPropertiesForKeys: nil)
+                    .filter { $0.lastPathComponent.hasPrefix(".pending-") }
+                if boundary != "generation-published" {
+                    try require(pendingBefore.count == 1, "a fronteira de escrita não tem seu staging privado.")
+                }
+                if boundary == "pdf-partial" || boundary == "metadata-partial" || boundary == "navigation-partial" {
+                    let name = boundary == "pdf-partial" ? "document.pdf" : boundary == "metadata-partial" ? "record.json" : "navigation.json"
+                    let bytes = try privateFile(pendingBefore[0].appendingPathComponent(name), limit: 16 * 1_024 * 1_024)
+                    if boundary == "pdf-partial" { try require(bytes.count < changed.count, "a escrita PDF marcada como parcial já está completa.") }
+                    else { try require((try? JSONSerialization.jsonObject(with: bytes)) == nil, "a escrita de metadados marcada como parcial já contém JSON completo.") }
+                }
+                // A second store/process may list a prior checkpoint, but may
+                // never reap the first writer's incomplete files while live.
+                _ = try store.list()
+                let pendingWhileLive = try FileManager.default.contentsOfDirectory(at: store.directory, includingPropertiesForKeys: nil)
+                    .filter { $0.lastPathComponent.hasPrefix(".pending-") }
+                try require(Set(pendingWhileLive) == Set(pendingBefore), "listar recuperações removeu o staging de um escritor ativo.")
+                try require(Darwin.kill(process.processIdentifier, SIGKILL) == 0, "SIGKILL não foi enviado à escrita interrompida.")
+                while process.isRunning && ProcessInfo.processInfo.systemUptime < deadline { await pause() }
+                try require(!process.isRunning, "o escritor interrompido não terminou no prazo.")
+                process.waitUntilExit()
+                try require(process.terminationReason == .uncaughtSignal && process.terminationStatus == SIGKILL,
+                            "a escrita não terminou por SIGKILL real.")
+            } catch { await stop(process, deadline: deadline); throw error }
+            let listed = try store.list()
+            try require(listed.count == 1 && store.warnings.isEmpty, "a recuperação após escrita parcial perdeu a sessão ou encontrou um resíduo inseguro.")
+            guard let record = listed.first else { throw AuditFailure(step: "geração ausente após escrita parcial.") }
+            let expected = boundary == "generation-published" ? changed : original
+            try require(try store.load(record) == expected && record.encrypted, "a escrita interrompida publicou bytes incompletos ou perdeu a proteção.")
+            let expectedPage = boundary == "generation-published" || boundary == "navigation-published" ? 2 : 1
+            try require(record.state.page == expectedPage, "a navegação após interrupção não corresponde ao último commit completo.")
+            if boundary != "generation-published" { try require(try store.load(baseline) == original, "a geração anterior foi alterada por escrita incompleta.") }
+            let pendingAfter = try FileManager.default.contentsOfDirectory(at: store.directory, includingPropertiesForKeys: nil)
+                .filter { $0.lastPathComponent.hasPrefix(".pending-") }
+            try require(pendingAfter.isEmpty && (try privateFile(source, limit: 16 * 1_024 * 1_024)) == original,
+                        "um staging registrado sobreviveu à recuperação ou o documento original mudou.")
+            print("[Crash recovery] real SIGKILL at " + boundary + ": PASS")
+        }
+    }
+
+    private static func writeWorker(directory: URL, request: Request, boundary: String) throws {
+        try require(writeBoundaries.contains(boundary), "fronteira de escrita desconhecida.")
+        let source = directory.appendingPathComponent("source.pdf")
+        let recovery = directory.appendingPathComponent("Recovery", isDirectory: true)
+        let oldStore = RecoveryStore(directory: recovery)
+        let records = try oldStore.list()
+        guard let baseline = records.first, records.count == 1 && baseline.id == request.id else { throw AuditFailure(step: "checkpoint anterior ausente.") }
+        try require(digest(try oldStore.load(baseline)) == request.sourceSHA256, "o checkpoint anterior não corresponde à fixture.")
+        let changed = try privateFile(directory.appendingPathComponent("changed.pdf"), limit: 16 * 1_024 * 1_024)
+        let store = RecoveryStore(directory: recovery, checkpoint: { phase in
+            guard phase == boundary else { return }
+            let ready = WriteReady(version: 1, id: request.id, processID: getpid(), boundary: boundary, sourceSHA256: request.sourceSHA256)
+            try NativeOutput.write(try encode(ready), to: directory.appendingPathComponent("write-ready.json"))
+            while true { try Task.checkCancellation(); usleep(25_000) }
+        })
+        let state = RecoverySessionState(page: 2, zoom: 1.75, autoScale: false, bookmarks: [1, 2])
+        if boundary.hasPrefix("navigation-") { _ = try store.updateState(record: baseline, state: state) }
+        else { _ = try store.save(documentData: changed, sourceURL: source, sessionID: request.id, encrypted: true, title: "Depois da interrupção", state: state) }
+        throw AuditFailure(step: "a escrita terminou sem atingir sua fronteira declarada.")
     }
 
     private static func fixture(password: String) throws -> Data {

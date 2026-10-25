@@ -31,10 +31,23 @@ def load(path):
     if not isinstance(metrics, list) or not metrics:
         raise ValueError('Não há medições.')
     identifiers = set()
+    for key in ('thermalLevelAtStart', 'thermalLevelAtEnd'):
+        if key in value and (type(value[key]) is not int or not 0 <= value[key] <= 3):
+            raise ValueError('O estado térmico do benchmark é inválido.')
+    for key in ('lowPowerMode', 'lowPowerModeAtStart', 'lowPowerModeAtEnd'):
+        if key in value and type(value[key]) is not bool:
+            raise ValueError('O modo de energia do benchmark é inválido.')
+    for start, end in [('thermalLevelAtStart', 'thermalLevelAtEnd'), ('lowPowerModeAtStart', 'lowPowerModeAtEnd')]:
+        if (start in value) != (end in value):
+            raise ValueError('O benchmark não informa as duas condições de início e fim.')
+        if start in value and value[start] != value[end]:
+            raise ValueError('As condições de temperatura ou energia mudaram durante o benchmark. Repita em condições estáveis.')
     for metric in metrics:
         if not isinstance(metric, dict) or not isinstance(metric.get('id'), str) or not metric['id'] or metric['id'] in identifiers:
             raise ValueError('Operação ausente ou repetida no relatório.')
         identifiers.add(metric['id'])
+        if not isinstance(metric.get('detail'), str) or not metric['detail'].strip():
+            raise ValueError('Uma operação não descreve o método e o alcance da medição.')
         samples = metric.get('samplesMilliseconds')
         if metric.get('error') or not isinstance(samples, list) or len(samples) != repetitions or any(type(x) not in (float, int) or not math.isfinite(x) or x <= 0 for x in samples):
             raise ValueError('Uma operação falhou ou não contém amostras positivas completas.')
@@ -50,7 +63,8 @@ def compare(baseline, candidate):
     for key in required:
         if key not in first or key not in second or first[key] != second[key]:
             raise ValueError('Comparação recusada: entradas, hardware ou método diferem em ' + key + '.')
-    for key in ('resourcePolicy', 'lowPowerMode'):
+    for key in ('resourcePolicy', 'resourcePolicyAtStart', 'lowPowerMode', 'lowPowerModeAtStart', 'lowPowerModeAtEnd',
+                'thermalLevelAtStart', 'thermalLevelAtEnd'):
         if first.get(key) != second.get(key):
             raise ValueError('Comparação recusada: a política de processamento difere em ' + key + '.')
     initial = {item['id']: item for item in first['metrics']}
@@ -59,6 +73,8 @@ def compare(baseline, candidate):
     results = []
     for current in second['metrics']:
         previous = initial[current['id']]
+        if previous['detail'] != current['detail']:
+            raise ValueError('Comparação recusada: o método ou alcance da operação ' + current['id'] + ' mudou.')
         before, after = median(previous['samplesMilliseconds']), median(current['samplesMilliseconds'])
         different_backend = previous.get('ocrSamples') != current.get('ocrSamples')
         results.append(dict(operation=current['id'], baseline_median_ms=before, candidate_median_ms=after,
@@ -67,7 +83,7 @@ def compare(baseline, candidate):
                             backend_evidence_changed=different_backend))
     return dict(schema_version=1, baseline_report_sha256=first_hash, candidate_report_sha256=second_hash,
                 source_sha256=first['sourceSHA256'], processor=first['processor'], results=results,
-                scope='Comparação descritiva de amostras. Não comprova significância estatística, qualidade equivalente, consumo de energia ou superioridade de mercado.')
+                scope='Comparação descritiva de amostras com método por operação e condições registradas equivalentes. A identidade física do Mac não é atestada pelos nomes do processador/GPU; relatórios antigos podem não conter todas as condições de energia. Não comprova significância estatística, qualidade equivalente, consumo de energia ou superioridade de mercado.')
 
 
 def main():

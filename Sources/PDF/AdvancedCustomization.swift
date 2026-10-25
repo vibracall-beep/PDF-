@@ -61,6 +61,7 @@ enum PDFCommandCatalog {
             ("share","Compartilhar documento","square.and.arrow.up","s",["command","control"])
         ]
         return definitions.map { PDFCommandDefinition(id:"action:"+$0.0,title:$0.1,category:"Comandos",icon:$0.2,defaultBinding:.init(key:$0.3,modifiers:$0.4)) } +
+            [PDFCommandDefinition(id:"action:rotate",title:"Girar página atual",category:"Comandos",icon:"rotate.right",defaultBinding:nil)] +
             tools.map { PDFCommandDefinition(id:"tool:"+$0.id,title:$0.name,category:$0.category,icon:$0.icon,defaultBinding:nil) }
     }
     static var reserved: Set<PDFKeyboardBinding> {
@@ -85,9 +86,11 @@ enum PDFProfileConflictPolicy:Equatable { case keepBoth, replaceMatchingIdentifi
 @MainActor final class AdvancedCustomizationStore: ObservableObject {
     static let bindingKey = "PDF.CommandBindings.v1"
     static let profileKey = "PDF.WorkspaceProfiles.v1"
+    static let menuKey = "PDF.CommandMenus.v1"
     @Published private(set) var bindings: [String:PDFKeyboardBinding] = [:]
     @Published private(set) var disabled: [String] = []
     @Published private(set) var profiles: [PDFWorkspaceProfile] = []
+    @Published private(set) var menu = PDFMenuSnapshot()
     @Published private(set) var recentCommands: [String] = []
     @Published private(set) var loadWarning = ""
     private let defaults: UserDefaults
@@ -103,6 +106,13 @@ enum PDFProfileConflictPolicy:Equatable { case keepBoth, replaceMatchingIdentifi
                 guard values.count <= 30,Set(values.map(\.id)).count == values.count else { throw PreferenceError.invalid("Biblioteca de perfis inválida.") }
                 profiles = try values.map(Self.canonicalProfile)
             } catch { loadWarning = "Os perfis salvos não puderam ser carregados: " + error.localizedDescription }
+        }
+        if let data = defaults.data(forKey:Self.menuKey) {
+            do {
+                guard data.count <= 65_536 else { throw PreferenceError.invalid("A organização dos menus excede 64 KB.") }
+                let value = try JSONDecoder().decode(PDFMenuSnapshot.self, from:data)
+                try value.validate(); menu = value
+            } catch { loadWarning = "Os menus salvos não puderam ser carregados: " + error.localizedDescription }
         }
     }
     var snapshot: PDFShortcutSnapshot { .init(bindings:bindings,disabled:disabled) }
@@ -136,6 +146,12 @@ enum PDFProfileConflictPolicy:Equatable { case keepBoth, replaceMatchingIdentifi
         try apply(candidate)
     }
     func restoreBindings() { bindings = [:]; disabled = []; persistBindings() }
+    func applyMenu(_ value: PDFMenuSnapshot) throws {
+        try value.validate()
+        let data = try JSONEncoder().encode(value)
+        guard data.count <= 65_536 else { throw PreferenceError.invalid("A organização dos menus excede 64 KB.") }
+        defaults.set(data,forKey:Self.menuKey); menu = value
+    }
     private func persistBindings() { if let data = try? JSONEncoder().encode(snapshot) { defaults.set(data,forKey:Self.bindingKey) } }
     func record(_ id:String) { recentCommands.removeAll { $0 == id }; recentCommands.insert(id,at:0); recentCommands = Array(recentCommands.prefix(20)) }
     private static func validateProfile(_ profile:PDFWorkspaceProfile) throws -> CustomizationSnapshot {
@@ -144,6 +160,7 @@ enum PDFProfileConflictPolicy:Equatable { case keepBoth, replaceMatchingIdentifi
         try snapshot.appearance.validate(); try snapshot.reader.validate()
         if let shortcuts = snapshot.shortcuts { try validate(shortcuts) }
         if let output = snapshot.output { try output.validate() }
+        if let menu = snapshot.menu { try menu.validate() }
         return snapshot
     }
     private static func canonicalProfile(_ profile:PDFWorkspaceProfile) throws -> PDFWorkspaceProfile {

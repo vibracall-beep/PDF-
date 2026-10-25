@@ -20,9 +20,23 @@ def _json(output, value):
 
 
 def preflight(source, output, options):
+    from pdf_signatures import _snapshot
+    # All readers and the optional renderer see the same immutable, private
+    # snapshot. The report cannot accidentally combine two revisions.
+    with _snapshot(source) as snapshot:
+        _preflight_snapshot(snapshot, output, options)
+
+
+def _preflight_snapshot(source, output, options):
     from pdf_engine import open_pdf, number
+    from print_inspection import inspect_structure, rendered_ink_coverage
     minimum = number(options.get('minimum_dpi', 200), 'Resolução mínima', 36, 2400)
+    render_inks = options.get('render_inks', False)
+    if not isinstance(render_inks, bool):
+        raise ValueError('A opção de medir tintas precisa ser booleana.')
     findings, pages = [], []
+    structure = inspect_structure(source, options.get('password', ''))
+    findings.extend(structure['findings'])
     with open_pdf(source, options.get('password', '')) as document:
         for index, page in enumerate(document):
             fonts, images = [], []
@@ -54,10 +68,15 @@ def preflight(source, output, options):
             pages.append(dict(page=index + 1, media=list(page.mediabox), crop=list(page.cropbox),
                               trim=list(page.trimbox), bleed=list(page.bleedbox), fonts=fonts, images=images))
         intent = document.xref_get_key(document.pdf_catalog(), 'OutputIntents')
-        _json(output, dict(schema_version=1, source_sha256=hashlib.sha256(Path(source).read_bytes()).hexdigest(),
+        coverage = rendered_ink_coverage(source, options, structure['encrypted']) if render_inks else None
+        if coverage and len(coverage['pages']) != len(document):
+            raise RuntimeError('A medição de tintas não corresponde à quantidade de páginas da origem.')
+        _json(output, dict(schema_version=2, source_sha256=hashlib.sha256(Path(source).read_bytes()).hexdigest(),
                            page_count=len(document), minimum_dpi=minimum, pages=pages, findings=findings,
                            output_intents_present=intent[0] != 'null', independently_certified=False,
-                           scope='Fontes, resolução efetiva e caixas. Não certifica PDF/X, separações, sobreimpressão ou fidelidade de cor.'))
+                           structure=structure, ink_coverage=coverage,
+                           scope='Fontes, resolução efetiva, caixas, ICC, tintas especiais e estados de sobreimpressão/transparência declarados. '
+                                 'Medição CMYK renderizada quando solicitada. Checks PDF/X enumerados por parser independente; não certifica ISO 15930 nem cor física.'))
 
 
 def prepare_print(source, output, options):
@@ -96,22 +115,20 @@ def prepare_print(source, output, options):
 
 def pdfx(source, output, options):
     from pdf_engine import open_pdf, _external
-    profile = Path(options.get('icc_profile', ''))
-    if not profile.is_file() or profile.is_symlink() or not 128 <= profile.stat().st_size <= 16 * 1024**2:
-        raise ValueError('Escolha um perfil ICC CMYK regular, de até 16 MiB, fornecido pela gráfica.')
-    data = profile.read_bytes()
-    if data[36:40] != b'acsp' or data[16:20] != b'CMYK' or int.from_bytes(data[:4], 'big') != len(data):
-        raise ValueError('O perfil precisa ser um ICC CMYK válido, com tamanho declarado correto.')
+    from print_inspection import read_cmyk_profile, inspect_structure
+    from pdf_signatures import _snapshot
+    data, profile_info = read_cmyk_profile(options.get('icc_profile', ''))
     condition = options.get('output_condition', 'User supplied CMYK printing condition')
     if not isinstance(condition, str) or not re.fullmatch(r'[A-Za-z0-9 ._/-]{1,120}', condition):
         raise ValueError('Descreva a condição de impressão usando até 120 caracteres ASCII simples.')
-    with open_pdf(source, options.get('password', '')) as document:
-        if document.metadata.get('encryption'):
-            raise ValueError('PDF/X não permite criptografia. Desbloqueie uma cópia explicitamente.')
     executable = shutil.which('gs')
     if not executable:
         raise RuntimeError('Ghostscript não está instalado.')
-    with tempfile.TemporaryDirectory(prefix='pdf-print-') as temporary:
+    with _snapshot(source) as snapshot, tempfile.TemporaryDirectory(prefix='pdf-print-') as temporary:
+        with open_pdf(snapshot, options.get('password', '')) as document:
+            if document.metadata.get('encryption'):
+                raise ValueError('PDF/X não permite criptografia. Desbloqueie uma cópia explicitamente.')
+            page_count = len(document)
         folder = Path(temporary)
         icc = folder / 'output.icc'; icc.write_bytes(data)
         # Hex strings avoid interpreting paths or labels as PostScript code.
@@ -133,13 +150,22 @@ def pdfx(source, output, options):
                    '-sDEVICE=pdfwrite', '-dCompatibilityLevel=1.3', '-dEmbedAllFonts=true',
                    '-sColorConversionStrategy=CMYK', '-sProcessColorModel=DeviceCMYK',
                    '-sOutputICCProfile=' + str(icc), '--permit-file-read=' + str(icc),
-                   '-sOutputFile=' + str(output), str(definition), str(source)], timeout=300)
+                   '-sOutputFile=' + str(output), str(definition), str(snapshot)], timeout=300)
         with fitz.open(output) as result:
             intent = result.xref_get_key(result.pdf_catalog(), 'OutputIntents')
             metadata = result.xref_get_key(-1, 'Info')
             info = result.xref_object(int(metadata[1].split()[0])) if metadata[0] == 'xref' else ''
-            if intent[0] == 'null' or 'GTS_PDFXVersion' not in info or len(result) == 0:
+            if intent[0] == 'null' or 'GTS_PDFXVersion' not in info or len(result) != page_count:
                 raise RuntimeError('O conversor não produziu a identificação PDF/X e o perfil de saída esperados.')
+        # This independent parser verifies the exact embedded bytes, rather
+        # than accepting a metadata label as proof of conversion.
+        inspection = inspect_structure(output)
+        profiles = [item.get('profile') for item in inspection['output_intents'] if item.get('subtype') == '/GTS_PDFX']
+        if len(profiles) != 1 or not profiles[0] or profiles[0]['sha256'] != profile_info['sha256']:
+            raise RuntimeError('O perfil ICC incorporado não corresponde ao arquivo escolhido.')
+        failed = [item['code'] for item in inspection['pdfx_checks']['checks'] if item['status'] != 'passed']
+        if failed:
+            raise RuntimeError('A cópia falhou nas verificações estruturais de impressão: ' + ', '.join(failed))
 
 
 def bates(source, output, options):

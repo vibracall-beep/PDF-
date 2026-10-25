@@ -3,6 +3,15 @@ import PDFKit
 import CryptoKit
 import Darwin
 
+/// Only the isolated crash-audit child installs an observer. Normal publication
+/// has no process-global switch and cannot be paused by an environment value.
+enum LibraryWriteAudit {
+    @TaskLocal static var observer: (@Sendable (String, URL) throws -> Void)?
+    static func checkpoint(_ phase: String, at destination: URL) throws {
+        try observer?(phase, destination)
+    }
+}
+
 struct LibraryLabels: Codable, Sendable, Equatable {
     var title: String
     var collection: String
@@ -136,16 +145,20 @@ enum LibraryFiles {
         let fd = Darwin.open(temp.path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW, mode_t(0o600))
         guard fd >= 0 else { throw LibraryFailure.unsafePath }
         defer { Darwin.close(fd); unlink(temp.path) }
+        try LibraryWriteAudit.checkpoint("created", at: url)
         try bytes.withUnsafeBytes { raw in
             var position = 0
             while position < raw.count {
                 try Task.checkCancellation()
-                let written = Darwin.write(fd, raw.baseAddress!.advanced(by: position), raw.count - position)
+                let written = Darwin.write(fd, raw.baseAddress!.advanced(by: position), min(128 * 1_024, raw.count - position))
                 if written < 0 { if errno == EINTR { continue }; throw POSIXError(.EIO) }
+                guard written > 0 else { throw POSIXError(.EIO) }
                 position += written
+                try LibraryWriteAudit.checkpoint(position < raw.count ? "partial" : "written", at: url)
             }
         }
         guard fsync(fd) == 0 else { throw POSIXError(.EIO) }
+        try LibraryWriteAudit.checkpoint("synced", at: url)
         try Task.checkCancellation()
         guard link(temp.path, url.path) == 0 else {
             if errno == EEXIST { throw LibraryFailure.destinationExists }
@@ -154,6 +167,7 @@ enum LibraryFiles {
         // Persist the directory entry as well as the bytes. In particular the
         // current-catalog pointer must never outlive an unsynced object link.
         try synchronizeDirectory(url.deletingLastPathComponent())
+        try LibraryWriteAudit.checkpoint("published", at: url)
     }
 
     static func synchronizeDirectory(_ url: URL) throws {
@@ -292,8 +306,10 @@ actor DocumentLibraryStore {
         let temporary = directory.appendingPathComponent(".pointer-" + UUID().uuidString)
         defer { unlink(temporary.path) }
         try LibraryFiles.publish(LibraryFiles.encode(Pointer(version: 1, hash: hash)), to: temporary)
+        try LibraryWriteAudit.checkpoint("pointer-staged", at: currentFile)
         try Task.checkCancellation()
         guard rename(temporary.path, currentFile.path) == 0 else { throw POSIXError(.EIO) }
+        try LibraryWriteAudit.checkpoint("pointer-replaced", at: currentFile)
         try LibraryFiles.synchronizeDirectory(directory)
     }
     func list() throws -> LibraryCatalog { try locked { try readCatalog() } }
@@ -568,8 +584,10 @@ extension DocumentLibraryStore {
         let temporary = directory.appendingPathComponent(".smart-folder-pointer-" + UUID().uuidString)
         defer { unlink(temporary.path) }
         try LibraryFiles.publish(LibraryFiles.encode(Pointer(version: 1, hash: hash)), to: temporary)
+        try LibraryWriteAudit.checkpoint("pointer-staged", at: smartFolderPointer)
         try Task.checkCancellation()
         guard rename(temporary.path, smartFolderPointer.path) == 0 else { throw POSIXError(.EIO) }
+        try LibraryWriteAudit.checkpoint("pointer-replaced", at: smartFolderPointer)
         try LibraryFiles.synchronizeDirectory(directory)
     }
     func smartFolders() throws -> [LibrarySmartFolder] { try locked { try readSmartFolders() } }

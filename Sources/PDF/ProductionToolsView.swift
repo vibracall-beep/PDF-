@@ -39,6 +39,8 @@ struct ProductionToolsView: View {
     @State private var inset = 24.0
     @State private var bleed = 9.0
     @State private var minimumDPI = 200.0
+    @State private var renderInks = false
+    @State private var inkDPI = 72
     @State private var profile: URL?
     @State private var condition = "CMYK printing condition"
     @State private var page = 1
@@ -101,7 +103,7 @@ struct ProductionToolsView: View {
     }
     private var reportSettings: [String] {
         [password, pages, prefix, String(start), String(digits), stamp, String(inset), String(bleed),
-         String(minimumDPI), profile?.path ?? "", condition, String(page), String(scale), unit, String(closed)]
+         String(minimumDPI), String(renderInks), String(inkDPI), profile?.path ?? "", condition, String(page), String(scale), unit, String(closed)]
         + points.flatMap { [String($0.x), String($0.y)] }
     }
     private func invalidateReport() { report = ""; error = "" }
@@ -111,7 +113,19 @@ struct ProductionToolsView: View {
                 switch mode {
                 case .preflight:
                     LabeledContent("Resolução mínima de imagens, em DPI") { TextField("Resolução mínima de imagens, em DPI", value: $minimumDPI, format: .number).labelsHidden() }
-                    Text("Verifica fontes incorporadas, resolução efetiva das imagens e caixas da página. O relatório não certifica PDF/X nem a fidelidade das cores.").font(.callout)
+                    Toggle("Medir cobertura CMYK renderizada", isOn: $renderInks)
+                        .accessibilityIdentifier("pdf.production.renderInks")
+                    if renderInks {
+                        Picker("Resolução da medição de tintas", selection: $inkDPI) {
+                            Text("72 DPI").tag(72); Text("100 DPI").tag(100); Text("150 DPI").tag(150)
+                        }
+                        HStack {
+                            Button(profile?.lastPathComponent ?? "Escolher perfil ICC CMYK da gráfica (opcional)…") { chooseProfile() }
+                            if profile != nil { Button("Usar perfil padrão") { profile = nil } }
+                        }
+                        Text("Mede a fração de pixels com tinta por canal em todas as páginas. Tintas especiais são simuladas em CMYK. Não representa carga máxima de tinta; PDFs protegidos exigem uma cópia desbloqueada explicitamente.").font(.caption).foregroundStyle(.secondary)
+                    }
+                    Text("Inspeciona fontes, resolução, caixas, perfis ICC, tintas especiais, sobreimpressão e transparência nos recursos declarados. Verificações PDF/X-3 usam um parser separado do conversor; o relatório identifica a cobertura e não equivale à certificação ISO ou à prova de cor física.").font(.callout)
                 case .prepare:
                     LabeledContent("Margem de corte em pontos") { TextField("Margem de corte em pontos", value: $inset, format: .number).labelsHidden() }
                     LabeledContent("Sangria em pontos") { TextField("Sangria em pontos", value: $bleed, format: .number).labelsHidden() }
@@ -119,7 +133,7 @@ struct ProductionToolsView: View {
                 case .pdfx:
                     Button(profile?.lastPathComponent ?? "Escolher perfil ICC CMYK da gráfica…") { chooseProfile() }
                     LabeledContent("Condição de impressão (ASCII)") { TextField("Condição de impressão (ASCII)", text: $condition).labelsHidden() }
-                    Text("Gera uma cópia PDF/X-3:2002 com Ghostscript e o perfil escolhido. Cores e transparências podem ser convertidas. Confirme o resultado com a gráfica; este conversor não substitui uma certificação independente.").font(.callout)
+                    Text("Gera uma cópia candidata a PDF/X-3:2002 com Ghostscript e verifica o perfil incorporado, fontes e estrutura com um parser independente. Cores e transparências podem ser convertidas. Confirme o resultado com a gráfica; as verificações enumeradas não substituem uma certificação ISO completa.").font(.callout)
                 case .bates:
                     LabeledContent("Prefixo") { TextField("Prefixo", text: $prefix).labelsHidden() }
                     LabeledContent("Número inicial") { TextField("Número inicial", value: $start, format: .number).labelsHidden() }
@@ -155,7 +169,7 @@ struct ProductionToolsView: View {
         if panel.runModal() == .OK { if mode == .dossier { inputs.append(contentsOf: panel.urls) } else { inputs = panel.urls } }
     }
     private func chooseProfile() {
-        let panel = NSOpenPanel(); panel.allowedContentTypes = [UTType(filenameExtension: "icc") ?? .data]
+        let panel = NSOpenPanel(); panel.allowedContentTypes = ["icc", "icm"].compactMap { UTType(filenameExtension: $0) }
         if panel.runModal() == .OK { profile = panel.url }
     }
     private func chooseOffice() {
@@ -176,7 +190,9 @@ struct ProductionToolsView: View {
         var options: [String: Any] = ["password": password]
         if !pages.isEmpty { options["pages"] = pages }
         switch mode {
-        case .preflight: options["minimum_dpi"] = minimumDPI
+        case .preflight:
+            options["minimum_dpi"] = minimumDPI; options["render_inks"] = renderInks; options["ink_dpi"] = inkDPI
+            if renderInks, let profile { options["icc_profile"] = profile.path }
         case .prepare: options["trim_inset"] = inset; options["bleed"] = bleed; options["crop_marks"] = true
         case .pdfx: options["icc_profile"] = profile?.path; options["output_condition"] = condition
         case .bates: options["prefix"] = prefix; options["start"] = start; options["digits"] = digits
@@ -220,8 +236,39 @@ struct ProductionToolsView: View {
             return text
         }
         let findings = object["findings"] as? [[String: Any]] ?? []
-        let codes = ["font-not-embedded": "Fonte não incorporada", "low-image-resolution": "Imagem abaixo da resolução escolhida", "no-distinct-trim": "Área de corte igual à folha"]
-        let rows = findings.prefix(200).map { "Página \($0["page"] as? Int ?? 0): \(codes[$0["code"] as? String ?? ""] ?? "Revisão necessária")" }
-        return "\(PortugueseCount.label(object["page_count"] as? Int ?? 0, "página analisada", "páginas analisadas")) · \(PortugueseCount.label(findings.count, "observação", "observações")).\n" + rows.joined(separator: "\n") + (findings.count > 200 ? "\nAs demais observações estão no relatório exportado." : "")
+        let codes = ["font-not-embedded": "Fonte não incorporada", "low-image-resolution": "Imagem abaixo da resolução escolhida", "no-distinct-trim": "Área de corte igual à folha",
+                     "invalid-output-intents": "Condição de impressão inválida", "invalid-output-profile": "Perfil ICC de saída inválido", "missing-output-intent": "Condição de impressão ausente",
+                     "invalid-color-profile": "Perfil de cor inválido", "registration-color": "Cor de registro em todas as chapas", "spot-inks-declared": "Tintas especiais declaradas",
+                     "overprint-declared": "Sobreimpressão declarada", "transparency-declared": "Transparência declarada", "uninspected-print-resources": "Há recursos não inspecionados",
+                     "direct-encryption-dictionary": "Criptografia legada: estrutura estrita não aprovada"]
+        var summary = "\(PortugueseCount.label(object["page_count"] as? Int ?? 0, "página analisada", "páginas analisadas")) · \(PortugueseCount.label(findings.count, "observação", "observações"))."
+        if let structure = object["structure"] as? [String: Any] {
+            let pages = structure["pages"] as? [[String: Any]] ?? []
+            let spots = Set(pages.flatMap { $0["spot_inks"] as? [String] ?? [] }).sorted()
+            if !spots.isEmpty { summary += "\nTintas especiais nos recursos: " + spots.joined(separator: ", ") }
+            if let checks = structure["pdfx_checks"] as? [String: Any], let rows = checks["checks"] as? [[String: Any]] {
+                let passed = rows.filter { $0["status"] as? String == "passed" }.count
+                summary += "\nPDF/X-3: \(passed)/\(rows.count) verificações estruturais aprovadas. Não é certificação completa."
+            }
+            for intent in structure["output_intents"] as? [[String: Any]] ?? [] {
+                if let profile = intent["profile"] as? [String: Any], let description = profile["description"] as? String {
+                    summary += "\nPerfil incorporado: " + description
+                }
+            }
+        }
+        if let coverage = object["ink_coverage"] as? [String: Any], let pages = coverage["pages"] as? [[String: Any]] {
+            summary += "\n\nCobertura de pixels por canal — \(coverage["dpi"] as? Int ?? 0) DPI."
+            for page in pages.prefix(20) {
+                summary += String(format: "\nPágina %d: C %.2f%% · M %.2f%% · Y %.2f%% · K %.2f%%", page["page"] as? Int ?? 0,
+                                  100 * (page["cyan"] as? Double ?? 0), 100 * (page["magenta"] as? Double ?? 0),
+                                  100 * (page["yellow"] as? Double ?? 0), 100 * (page["black"] as? Double ?? 0))
+            }
+            if pages.count > 20 { summary += "\nA cobertura de todas as páginas está no relatório exportado." }
+        }
+        let rows = findings.prefix(200).map { finding in
+            let location = (finding["page"] as? Int).map { "Página \($0)" } ?? "Documento"
+            return "\(location): \(codes[finding["code"] as? String ?? ""] ?? "Revisão necessária")"
+        }
+        return summary + "\n\n" + rows.joined(separator: "\n") + (findings.count > 200 ? "\nAs demais observações estão no relatório exportado." : "")
     }
 }

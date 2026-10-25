@@ -315,7 +315,7 @@ jobs:
           report = {'schemaVersion': 1, 'commit': os.environ['GITHUB_SHA'], 'runner': '${{ matrix.runner }}',
                     'isolatedRuntimePassed': True, 'freshInstallPassed': True, 'transactionalUpdatePassed': True, 'preferencesPreserved': True, 'wrongChecksumRejected': True,
                     'manifestEntries': len(manifest['files']), 'developerToolsOnDestinationRequired': False,
-                    'applicationVersion': '0.6.0', 'signing': 'ad-hoc', 'appleNotarized': False,
+                    'applicationVersion': '0.7.0', 'signing': 'ad-hoc', 'appleNotarized': False,
                     'appIntentsMetadataVerified': True, 'localAIStatus': ai_status,
                     'localAIGenerationSamplePassed': ai_status == 'sample_passed',
                     'physicalM4Measured': False, 'neuralEngineMeasured': False, 'energyMeasured': False,

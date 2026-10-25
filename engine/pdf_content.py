@@ -323,13 +323,90 @@ def _text_plan(doc, entry, internal, edit):
         substitution=True
     if substitution and edit.get('allow_font_substitution') is not True:
         raise ValueError('A troca de fonte exige allow_font_substitution:true.')
+    tracking=engine.number(edit.get('character_spacing',0),'Espaçamento entre caracteres',-5,20)
+    if tracking and (spec is None or any(unicodedata.bidirectional(char) in ('R','AL','AN') or
+        unicodedata.category(char).startswith('M') or char in '\u200c\u200d\t' for char in text)):
+        raise ValueError('O espaçamento entre caracteres exige uma fonte disponível e texto sem composição complexa ou tabulações.')
     return dict(text=text,rect=rect,size=size,align=('left','center','right','justify').index(alignment),
         ink=engine.color(edit.get('color',entry['color'])),font=spec,substitution=substitution,
-        paragraph=entry['kind']=='paragraph',line_spacing=engine.number(edit.get('line_spacing',entry.get('line_spacing',1.5)),'Espaçamento',1,3))
+        character_spacing=tracking,paragraph=entry['kind']=='paragraph',
+        line_spacing=engine.number(edit.get('line_spacing',entry.get('line_spacing',1.5)),'Espaçamento',1,3))
+
+
+def _place_spaced_text(page, plan, tag):
+    """Emit PDF character spacing, with wrapping measured using the same font.
+
+    Only our own newly generated text stream is changed. Source content is never
+    parsed or rewritten here. A separate rendering/extraction proof rejects
+    overflow and lost glyphs before a transaction can publish any output.
+    """
+    spec=plan['font'];rect=plan['rect'];size=plan['size'];tracking=plan['character_spacing']
+    font=fitz.Font(fontbuffer=spec['buffer']) if spec['buffer'] else fitz.Font(fontname=spec['name'])
+    name=tag;buffer=spec['buffer'] or font.buffer
+    page.insert_font(fontname=name,fontbuffer=buffer)
+    def width(text): return font.text_length(text,fontsize=size)+max(0,len(text)-1)*tracking
+    if any(font.text_length(char,fontsize=size)+tracking<=0 for char in plan['text'] if char not in '\r\n'):
+        raise ValueError('O espaçamento faria os caracteres recuarem ou se sobreporem totalmente. Aumente o valor.')
+    lines=[]
+    for raw in plan['text'].replace('\r\n','\n').replace('\r','\n').split('\n'):
+        # Preserve every character, including explicit spaces. Break only at an
+        # existing space; an oversized word is refused instead of truncated.
+        advances=[0.0]
+        for advance in font.char_lengths(raw,fontsize=size): advances.append(advances[-1]+advance+tracking)
+        stops=[match.end() for match in re.finditer(r' +',raw) if match.end()<len(raw)]
+        start=0
+        while advances[-1]-advances[start]-tracking>rect.width+0.01:
+            end=bisect_right(advances,advances[start]+rect.width+tracking+0.01)-1
+            choice=bisect_right(stops,end)-1
+            if choice<0 or stops[choice]<=start:
+                raise ValueError('Uma palavra não cabe com este espaçamento. Amplie a área ou reduza a fonte/espaçamento.')
+            cut=stops[choice];lines.append((raw[start:cut],False));start=cut
+        lines.append((raw[start:],True))
+    baseline=rect.y0+font.ascender*size
+    if baseline-font.descender*size+(len(lines)-1)*size*plan['line_spacing']>rect.y1+0.05:
+        raise ValueError('O texto não cabe na altura com este espaçamento. Nenhuma cópia foi criada.')
+    shape=page.new_shape()
+    for offset,(text,last) in enumerate(lines):
+        if not text: continue
+        measured=width(text);extra=0
+        # A line wrapped by this routine can be justified with word spacing.
+        # Explicit final lines keep the same semantics as ordinary textboxes.
+        if plan['align']==3 and not last:
+            gaps=text.count(' ')
+            if gaps: extra=max(0,(rect.width-measured)/gaps)
+        x=rect.x0+(rect.width-measured)*({0:0,1:0.5,2:1,3:0}[plan['align']])
+        start=len(shape.text_cont)
+        shape.insert_text((x,baseline+offset*size*plan['line_spacing']),text,fontname=name,fontsize=size,color=plan['ink'])
+        own=shape.text_cont[start:]
+        if own.count('BT\n')!=1: raise ValueError('O gerador de texto não forneceu um fluxo verificável.')
+        # PDF Tw affects only single-byte space encodings, while this font is
+        # emitted as a CID font. Use Tc uniformly; justified spaced lines are
+        # refused rather than falsely claiming word-space support.
+        if extra>0.01: raise ValueError('Use alinhamento à esquerda, centro ou direita com espaçamento adicional e quebra automática.')
+        shape.text_cont=shape.text_cont[:start]+own.replace('BT\n',f'BT\n{tracking:.8f} Tc\n',1)
+    shape.commit()
+
+
+def _prove_spaced_text(plan, tag):
+    rect=plan['rect']
+    with fitz.open() as trial:
+        proof=trial.new_page(width=max(72,rect.x1+1),height=max(72,rect.y1+1))
+        _place_spaced_text(proof,plan,tag)
+        flags=fitz.TEXTFLAGS_RAWDICT | fitz.TEXT_INHIBIT_SPACES
+        chars=[char for block in proof.get_text('rawdict',flags=flags,clip=fitz.INFINITE_RECT())['blocks']
+            if block['type']==0 for line in block['lines'] for span in line['spans'] for char in span['chars']]
+        actual=''.join(char['c'] for char in chars if not char['c'].isspace())
+        expected=''.join(char for char in plan['text'] if not char.isspace())
+        if actual!=expected or any(not (rect+(-0.05,-0.05,0.05,0.05)).contains(fitz.Rect(char['bbox'])) for char in chars if not char['c'].isspace()):
+            raise ValueError('A prova geométrica do texto espaçado não preservou todos os caracteres dentro da área.')
 
 
 def _place_text(page, plan, tag):
     rect=plan['rect'];spec=plan['font'];text=plan['text'];size=plan['size']
+    if plan['character_spacing']:
+        _prove_spaced_text(plan,tag)
+        _place_spaced_text(page,plan,tag)
+        return
     if spec is None:
         _engine()._html_text(page,rect,text,size,plan['ink'],align=plan['align'],line_spacing=plan['line_spacing']);return
     name=spec['name'] if spec['buffer'] is None else tag
@@ -386,18 +463,19 @@ def apply_edits(source, output, options):
             plan=None
             if entry['kind'] in ('text','paragraph') and action!='delete':
                 plan=_text_plan(doc,entry,private[identity],edit)
+                moved=any(abs(a-b)>0.001 for a,b in zip(plan['rect'],entry['rect']))
                 for other in report['objects']:
-                    kinds=('text','image') if entry['kind']=='paragraph' else ('text',)
+                    kinds=('text','image') if entry['kind']=='paragraph' or moved else ('text',)
                     if other['kind'] in kinds and other['page']==entry['page'] and other['id'] not in members and _overlap(plan['rect'],other['rect']):
                         raise ValueError('A área de destino sobrepõe outro objeto original. Escolha uma área livre.')
-                if entry['kind']=='paragraph':
+                if entry['kind']=='paragraph' or moved:
                     page=doc[entry['page']-1]
                     occupied=[drawing['rect']+(-0.5,-0.5,0.5,0.5) for drawing in page.get_drawings()]
                     occupied.extend(a.rect for a in page.annots() or [])
                     occupied.extend(w.rect for w in page.widgets() or [])
                     occupied.extend(link['from'] for link in page.get_links())
                     if any(_overlap(plan['rect'],area) for area in occupied):
-                        raise ValueError('A área do parágrafo sobrepõe gráficos, anotações ou campos. Escolha uma área livre.')
+                        raise ValueError('A área de destino sobrepõe gráficos, anotações ou campos. Escolha uma área livre.')
                 with fitz.open() as preview:
                     bounds=_bounds(doc[entry['page']-1]);scratch=preview.new_page(width=bounds.width,height=bounds.height)
                     _place_text(scratch,plan,'preflightfont')
@@ -421,12 +499,14 @@ def apply_edits(source, output, options):
                         raise ValueError('Mover esta imagem poderia remover um recorte ou composição original. Apenas substituir na mesma área ou excluir é suportado.')
                     occupied=[o['rect'] for o in report['objects'] if o['kind']!='paragraph' and o['page']==entry['page'] and o['id']!=identity]
                     occupied.extend(drawing['rect'] for drawing in page.get_drawings())
+                    occupied.extend(a.rect for a in page.annots() or [])
+                    occupied.extend(w.rect for w in page.widgets() or [])
+                    occupied.extend(link['from'] for link in page.get_links())
                     if any(_overlap(rect,other) for other in occupied):
                         raise ValueError('Mover a imagem sobre outro objeto poderia alterar a ordem das camadas. Escolha uma área livre.')
                     data=doc.extract_image(private[identity]['xref'])['image']
                 plan=dict(rect=rect,data=data)
-            if plan and any(old_plan and old_entry['page']==entry['page'] and
-                (entry['kind']=='paragraph' or old_entry['kind']=='paragraph') and _overlap(plan['rect'],old_plan['rect'])
+            if plan and any(old_plan and old_entry['page']==entry['page'] and _overlap(plan['rect'],old_plan['rect'])
                 for old_entry,_,old_plan in planned):
                 raise ValueError('As áreas de destino de duas alterações se sobrepõem. Nenhuma cópia foi criada.')
             planned.append((entry,action,plan))

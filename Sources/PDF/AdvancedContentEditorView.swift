@@ -14,6 +14,7 @@ struct ContentEditDraft: Equatable {
     var color: String
     var alignment = "left"
     var lineSpacing: Double
+    var characterSpacing = 0.0
     var allowFontSubstitution = false
     var imageURL: URL?
     var fontURL: URL?
@@ -41,6 +42,10 @@ struct ContentEditDraft: Equatable {
             try AdvancedDocumentValidation.text(text, maximum: 65_536)
             value["text"] = text; value["font_size"] = fontSize; value["alignment"] = alignment
             value["color"] = color
+            guard characterSpacing.isFinite, (-5...20).contains(characterSpacing) else {
+                throw AdvancedDocumentValidation.failure("Use espaçamento adicional entre caracteres de −5 a 20 pontos.")
+            }
+            value["character_spacing"] = characterSpacing
             if item.kind == "paragraph" {
                 guard lineSpacing.isFinite, (1...3).contains(lineSpacing) else { throw AdvancedDocumentValidation.failure("Use espaçamento entre linhas de 1 a 3 vezes o tamanho da fonte.") }
                 value["line_spacing"] = lineSpacing
@@ -166,6 +171,14 @@ struct AdvancedContentEditorView: View {
                         }
                         Picker("Alinhamento", selection: draft.alignment) {
                             Text("Esquerda").tag("left"); Text("Centro").tag("center"); Text("Direita").tag("right"); Text("Justificado").tag("justify")
+                        }
+                        LabeledContent("Espaçamento adicional (pt)") {
+                            TextField("Entre caracteres", value: draft.characterSpacing, format: .number).frame(width: 100)
+                                .accessibilityLabel("Espaçamento adicional entre caracteres em pontos, de menos 5 a 20")
+                        }
+                        if draft.wrappedValue.characterSpacing != 0 {
+                            Text("A exportação verifica os caracteres e seus limites. Espaçamento adicional exige fonte disponível e texto sem composição complexa; use esquerda, centro ou direita se houver quebra automática.")
+                                .font(.caption).foregroundStyle(.secondary)
                         }
                         if item.kind == "paragraph" {
                             HStack {

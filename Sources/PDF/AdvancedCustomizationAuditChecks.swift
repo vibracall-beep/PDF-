@@ -19,6 +19,12 @@ import SwiftUI
         try check(preferences.orderedTools().map(\.id) == catalogIDs,"a personalização inicial deve incluir todas as ferramentas")
         let originalTools:Set<String> = ["merge", "split", "compress", "word", "powerpoint", "excel", "word-pdf", "powerpoint-pdf", "excel-pdf", "edit", "jpg", "images", "signature", "watermark", "rotate", "html", "unlock", "protect", "organize", "pdfa", "repair", "numbers", "scan", "ocr", "compare", "redact", "crop", "forms", "summary", "translate", "markdown", "workflow", "png", "odt-pdf", "txt-pdf", "rtf-pdf", "epub-pdf", "csv-pdf", "pages-pdf", "flatten", "delete-pages", "extract-pages", "converter", "share", "annotate", "fill-forms", "chat", "quiz", "sign-service", "digital-sign", "verify-signatures", "validate-pdfa", "validate-pdfua", "benchmark"]
         try check(originalTools.isSubset(of:Set(catalogIDs)),"a expansão não pode remover ferramentas existentes")
+        let requiredExpansions: Set<String> = ["content-editor", "conversion-audit", "ocr-review", "library",
+            "document-history", "collection-research", "sync-library", "accessibility-edit", "signature-request",
+            "print-preflight", "print-prepare", "pdfx", "bates", "dossier", "stamp", "measure", "automation"]
+        try check(requiredExpansions.isDisjoint(with: originalTools) &&
+                  originalTools.union(requiredExpansions).isSubset(of: Set(catalogIDs)),
+                  "todas as 71 ferramentas entregues devem permanecer disponíveis após a ampliação")
         let original = store.binding(for:"action:open")
         do { try store.assign(.init(key:"q"),to:"action:open"); throw PreferenceError.invalid("Atalho reservado foi aceito.") }
         catch { try check(store.binding(for:"action:open") == original,"rejeitar tecla reservada deve preservar o atalho anterior") }
@@ -92,8 +98,112 @@ import SwiftUI
         try preferences.importData(JSONSerialization.data(withJSONObject:legacy))
         store.deleteProfile(profileID)
         try check(AdvancedCustomizationStore(defaults:defaults).profiles.isEmpty,"excluir perfil deve persistir sem excluir ajustes atuais")
+        try menuAndToolbarRoundTrip()
         try await readerProfileRoundTrip()
-        print("Advanced customization audit passed: shortcut conflicts, persistence, profiles, ordering and atomic legacy import")
+        print("Advanced customization audit passed: shortcut conflicts, persistence, profiles, menu/toolbar ordering, hidden-command reachability and atomic legacy import")
+    }
+    private static func menuAndToolbarRoundTrip() throws {
+        let suite = "PDF.MenuBars.Audit." + UUID().uuidString
+        let defaults = try require(UserDefaults(suiteName:suite))
+        defer { defaults.removePersistentDomain(forName:suite) }
+        let preferences = AppearancePreferences(defaults:defaults), store = preferences.advanced
+        func check(_ value:Bool,_ message:String) throws {
+            guard value else { throw PreferenceError.invalid("Menus e barras: " + message) }
+        }
+        var menu = PDFMenuSnapshot()
+        menu.quickTitle = "Minha revisão"
+        menu.quickCommands = ["tool:ocr", "action:rotate", "action:save", "tool:library"]
+        menu.categoryOrder = Array(AppearanceState.categories.reversed())
+        menu.categoryTitles = ["Capturar":"Digitalização local"]
+        menu.documentOrder = Array(PDFMenuLayout.documentDefaults.reversed())
+        menu.hiddenDocumentCommands = ["action:share", "action:search"]
+        menu.actionTitles = ["action:save":"Guardar resultado", "action:share":"Enviar uma cópia"]
+        try store.applyMenu(menu)
+        try check(AdvancedCustomizationStore(defaults:defaults).menu == menu,"a configuração dos menus não persistiu")
+        preferences.state.hiddenTools = ["ocr"]
+        preferences.state.hiddenCategories = ["Converter"]
+        preferences.state.toolOrder = ["pdfa", "ocr", "merge"]
+        let shown = PDFMenuLayout.menuTools(preferences,hidden:false).map(\.id)
+        let hidden = PDFMenuLayout.menuTools(preferences,hidden:true).map(\.id)
+        try check(Set(shown).isDisjoint(with:Set(hidden)) && Set(shown+hidden) == Set(tools.map(\.id)),
+                  "a personalização deve conservar cada ferramenta exatamente uma vez entre menus visíveis e recolhidos")
+        try check(shown.first == "merge" && hidden.prefix(2) == ["pdfa","ocr"],"os menus ignoraram a ordem ou visibilidade do catálogo")
+        let documentShown = PDFMenuLayout.documentCommands(menu,hidden:false).map(\.id)
+        let documentHidden = PDFMenuLayout.documentCommands(menu,hidden:true).map(\.id)
+        try check(documentShown == menu.documentOrder.filter { !menu.hiddenDocumentCommands.contains($0) } &&
+                  documentHidden == menu.documentOrder.filter { menu.hiddenDocumentCommands.contains($0) },"Documento precisa respeitar ordem e recolhimento sem trocar IDs")
+        try check(Set(documentShown+documentHidden) == Set(PDFMenuLayout.documentDefaults),"recolher um comando o removeu de Documento")
+        let shortcut = try require(store.binding(for:"action:search"))
+        try check(shortcut.normalized == PDFKeyboardBinding(key:"f").normalized,"um comando recolhido perdeu o atalho")
+        menu.hiddenDocumentCommands = PDFMenuLayout.documentDefaults
+        try store.applyMenu(menu)
+        try check(PDFMenuLayout.documentCommands(menu,hidden:false).isEmpty && PDFMenuLayout.documentCommands(menu,hidden:true).count == PDFMenuLayout.documentDefaults.count,
+                  "recolher todos os comandos deve manter o submenu completo")
+        menu.hiddenDocumentCommands = ["action:share", "action:search"]; try store.applyMenu(menu)
+        var reader = ReaderSettingsSnapshot(defaults:defaults)
+        reader.toolbarOrder = "save,search,fit,open,zoom,compare,options,customize,sidebar"
+        reader.annotationOrder = "bookmark,history,editor,ink,note,highlight"
+        reader.hiddenToolbar = "options,sidebar"
+        reader.hiddenAnnotations = "ink"
+        reader.pinSave = false
+        try reader.validate(); reader.apply(to:defaults)
+        try check(ReaderBarLayout.visible(reader.toolbarOrder ?? "",hidden:reader.hiddenToolbar,defaults:ReaderBarLayout.primary).map(\.id) ==
+                  ["save","search","fit","open","zoom","compare","customize"],"a barra não aplicou a ordem configurada")
+        try check(ReaderBarLayout.visible(reader.toolbarOrder ?? "",hidden:reader.hiddenToolbar,defaults:ReaderBarLayout.primary,pinSave:true).map(\.id) ==
+                  ["search","fit","open","zoom","compare","customize"],"Salvar fixo apareceu também na área rolável")
+        try check(ReaderBarLayout.visible(reader.annotationOrder ?? "",hidden:reader.hiddenAnnotations,defaults:ReaderBarLayout.annotations).map(\.id) ==
+                  ["bookmark","history","editor","note","highlight"],"a barra de anotações ignorou visibilidade ou ordem")
+        try check(ReaderBarLayout.ordered("search,unknown,search",defaults:ReaderBarLayout.primary).map(\.id) ==
+                  ["search"] + ReaderBarLayout.primary.map(\.id).filter { $0 != "search" },"resolver ordem local não conservou controles novos/obrigatórios")
+        try check(ReaderBarLayout.visible("",hidden:ReaderBarLayout.primary.map(\.id).joined(separator:","),defaults:ReaderBarLayout.primary).map(\.id) == ["customize"],
+                  "uma preferência local alterada tornou Personalizar leitor inacessível")
+        let exported = try preferences.exportData()
+        try store.saveProfile(name:"Menus e barras",settings:exported)
+        let profile = try require(store.profiles.first)
+        try store.applyMenu(PDFMenuSnapshot()); preferences.resetReader()
+        try preferences.importData(profile.settings)
+        try check(store.menu == menu && defaults.string(forKey:"readerToolbarOrder") == reader.toolbarOrder &&
+                  defaults.string(forKey:"readerAnnotationOrder") == reader.annotationOrder && !defaults.bool(forKey:"readerPinSave"),
+                  "um perfil deixou de restaurar menus e ambas as barras")
+        try check(try preferences.exportData() == exported,"a ida e volta alterou os bytes das preferências")
+        let baseline = try preferences.exportData(), storedMenu = defaults.data(forKey:AdvancedCustomizationStore.menuKey)
+        func rejectMenu(_ modify:(inout PDFMenuSnapshot)->Void) throws {
+            var snapshot = try JSONDecoder().decode(CustomizationSnapshot.self,from:baseline)
+            snapshot.appearance.fontSize = 18
+            var invalid = menu; modify(&invalid); snapshot.menu = invalid
+            var rejected = false
+            do { try preferences.importData(JSONEncoder().encode(snapshot)) } catch { rejected = true }
+            try check(rejected && (try preferences.exportData()) == baseline && defaults.data(forKey:AdvancedCustomizationStore.menuKey) == storedMenu,
+                      "uma importação inválida alterou parte das preferências")
+        }
+        try rejectMenu { $0.quickCommands = ["tool:missing"] }
+        try rejectMenu { $0.quickCommands = ["tool:ocr","tool:ocr"] }
+        try rejectMenu { $0.documentOrder = ["action:open"] }
+        try rejectMenu { $0.hiddenDocumentCommands = ["action:missing"] }
+        try rejectMenu { $0.categoryOrder = ["Capturar","Capturar"] }
+        try rejectMenu { $0.categoryTitles = ["missing":"Nome"] }
+        try rejectMenu { $0.actionTitles = ["tool:ocr":"Renomeado fora do catálogo"] }
+        try rejectMenu { $0.actionTitles = ["action:save":"Nome\ninválido"] }
+        try rejectMenu { $0.quickTitle = " " }
+        for order in ["search,search","unknown",",open","open,"] {
+            var snapshot = try JSONDecoder().decode(CustomizationSnapshot.self,from:baseline)
+            snapshot.reader.toolbarOrder = order; snapshot.appearance.fontSize = 19
+            var rejected = false
+            do { try preferences.importData(JSONEncoder().encode(snapshot)) } catch { rejected = true }
+            try check(rejected && (try preferences.exportData()) == baseline,"ordem inválida alterou preferências")
+        }
+        var legacy = try JSONSerialization.jsonObject(with:baseline) as! [String:Any]
+        legacy.removeValue(forKey:"menu")
+        if var legacyReader = legacy["reader"] as? [String:Any] {
+            legacyReader.removeValue(forKey:"toolbarOrder"); legacyReader.removeValue(forKey:"annotationOrder"); legacyReader.removeValue(forKey:"pinSave")
+            legacy["reader"] = legacyReader
+        }
+        try preferences.importData(JSONSerialization.data(withJSONObject:legacy))
+        try check(store.menu == menu && defaults.string(forKey:"readerToolbarOrder") == "" && defaults.bool(forKey:"readerPinSave"),
+                  "exportação antiga precisa restaurar barras padrão e preservar menus fora do seu escopo")
+        preferences.resetReader()
+        try check(defaults.object(forKey:"readerToolbarOrder") == nil && defaults.object(forKey:"readerAnnotationOrder") == nil && defaults.object(forKey:"readerPinSave") == nil,
+                  "restaurar leitor não removeu as preferências novas")
     }
     private static func readerProfileRoundTrip() async throws {
         let suite = "PDF.ProfileReader.Audit." + UUID().uuidString

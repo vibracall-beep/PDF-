@@ -22,15 +22,38 @@ struct AdvancedCommandMenu: Commands {
             Button("Buscar comandos e ferramentas…") { actions?.showPalette() }
                 .configuredShortcut("action:palette",store:store).disabled(actions == nil)
             Divider()
-            ForEach(AppearanceState.categories,id:\.self) { category in
-                Menu(category) {
-                    ForEach(tools.filter { $0.category == category }) { tool in
-                        Button(preferences.title(for:tool)) { actions?.execute("tool:"+tool.id) }
-                            .configuredShortcut("tool:"+tool.id,store:store).disabled(actions == nil)
+            ForEach(PDFMenuLayout.ordered(store.menu.categoryOrder,defaults:AppearanceState.categories),id:\.self) { category in
+                let visible = PDFMenuLayout.menuTools(preferences,hidden:false).filter { $0.category == category }
+                if !visible.isEmpty {
+                    Menu(store.menu.categoryTitles[category] ?? category) {
+                        ForEach(visible) { tool in toolButton(tool) }
                     }
                 }
             }
+            let hidden = PDFMenuLayout.menuTools(preferences,hidden:true)
+            if !hidden.isEmpty {
+                Divider()
+                Menu("Ferramentas ocultas no início") { ForEach(hidden) { tool in toolButton(tool) } }
+            }
         }
+        CommandMenu(store.menu.quickTitle) {
+            ForEach(store.menu.quickCommands,id:\.self) { id in
+                if let command = PDFCommandCatalog.all.first(where:{$0.id == id}) {
+                    Button(commandTitle(command)) { actions?.execute(id) }.disabled(actions == nil)
+                }
+            }
+            if store.menu.quickCommands.isEmpty { Text("Adicione comandos em Personalizar › Menus") }
+            Divider()
+            Button("Buscar todos os comandos…") { actions?.showPalette() }.disabled(actions == nil)
+        }
+    }
+    private func toolButton(_ tool:Tool) -> some View {
+        Button { actions?.execute("tool:"+tool.id) } label: { Label(preferences.title(for:tool),systemImage:preferences.icon(for:tool)) }
+            .configuredShortcut("tool:"+tool.id,store:store).disabled(actions == nil)
+    }
+    private func commandTitle(_ command:PDFCommandDefinition) -> String {
+        if let tool = tools.first(where:{ "tool:"+$0.id == command.id }) { return preferences.title(for:tool) }
+        return store.menu.actionTitles[command.id] ?? command.title
     }
 }
 
@@ -90,7 +113,7 @@ struct CommandPaletteView: View {
             .animation(preferences.animation(reduceMotion:reduceMotion),value:query)
     }
     private func title(_ command:PDFCommandDefinition)->String {
-        guard command.id.hasPrefix("tool:"),let tool = tools.first(where:{"tool:"+$0.id == command.id}) else { return command.title }
+        guard command.id.hasPrefix("tool:"),let tool = tools.first(where:{"tool:"+$0.id == command.id}) else { return preferences.advanced.menu.actionTitles[command.id] ?? command.title }
         return preferences.title(for:tool)
     }
     private func icon(_ command:PDFCommandDefinition)->String {

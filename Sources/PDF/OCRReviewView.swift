@@ -74,7 +74,7 @@ struct OCRReviewView: View {
             }
             Toggle("Compensar pequena inclinação durante o reconhecimento", isOn: $recognition.deskew)
                 .disabled(controller.working)
-                .help("Aplica compensação apenas com evidência suficiente de linhas inclinadas. A imagem original permanece intacta. Reconheça novamente para aplicar a opção.")
+                .help("Compensa até 7° quando há evidência suficiente em uma grade ou em várias linhas de texto. Páginas ambíguas permanecem sem rotação. A imagem original fica intacta; reconheça novamente para aplicar a opção.")
             if pendingRecognitionChanges {
                 Text("Opções alteradas. Reconheça novamente para aplicá-las; a lista e a exportação ainda usam a análise anterior.")
                     .font(.callout).foregroundStyle(.orange)

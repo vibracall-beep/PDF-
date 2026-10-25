@@ -108,8 +108,8 @@ class MemoryGitHub:
                             'PDF-cross-platform.json': encoded(report), 'PDF-cross-isolation.log': b'Original complete isolation log\n'}
         self.cross_files.update(synthetic_gui_files(verified, self.manifest))
         report.update(installedBinaryGUIPassed=True, guiOutsideDependencySandbox=True,
-                      guiCaptureAttempts=1, guiCaptureDeadlineSeconds=300, guiPNGCount=32,
-                      guiOwnWindowAXCount=6, guiOriginalOCRFileCount=2,
+                      guiCaptureAttempts=1, guiCaptureDeadlineSeconds=300, guiPNGCount=33,
+                      guiOwnWindowAXCount=7, guiOriginalOCRFileCount=2,
                       guiReceiptSHA256=record(self.cross_files[gate.gui.RECEIPT])['sha256'])
         self.cross_files['PDF-cross-platform.json'] = encoded(report)
         self.add_artifact(456, 'PDF-cross-platform-validated', zip_bytes(self.cross_files))
@@ -176,7 +176,7 @@ class DeliveryTests(unittest.TestCase):
 
     def test_exact_binary_original_sources_and_limits_are_retained_in_a_draft(self):
         result = self.deliver()
-        self.assertTrue(result['draft']); self.assertEqual(result['verifiedAssets'], 71)
+        self.assertTrue(result['draft']); self.assertEqual(result['verifiedAssets'], 73)
         self.assertEqual(result['archiveSHA256'], self.api.sha)
         self.assertNotIn('applicationApproved', result)
         provenance = json.loads((self.root / 'delivery/payload' / gate.PROVENANCE).read_text())
@@ -258,20 +258,20 @@ class DeliveryTests(unittest.TestCase):
 
     def test_idempotent_rerun_compares_bytes_and_published_or_changed_assets_are_refused(self):
         first = self.deliver(); second = self.deliver(name='second')
-        self.assertEqual(first, second); self.assertEqual(self.api.upload_count, 71)
+        self.assertEqual(first, second); self.assertEqual(self.api.upload_count, 73)
         api = copy.deepcopy(self.api); api.release['draft'] = False
         with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, 'published')
-        self.assertEqual(api.upload_count, 71)
+        self.assertEqual(api.upload_count, 73)
         api = copy.deepcopy(self.api); asset = api.assets[0]; asset.pop('digest')
         api.payloads['/releases/assets/' + str(asset['id'])] = b'x' * asset['size']
         with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, 'tampered')
-        self.assertEqual(api.upload_count, 71)
+        self.assertEqual(api.upload_count, 73)
 
     def test_interrupted_draft_is_completed_without_replacing_existing_assets(self):
         self.deliver(); missing = self.api.assets.pop()
         self.api.payloads.pop('/releases/assets/' + str(missing['id']))
         self.deliver(name='resumed')
-        self.assertEqual(self.api.upload_count, 72); self.assertEqual(len(self.api.assets), 71)
+        self.assertEqual(self.api.upload_count, 74); self.assertEqual(len(self.api.assets), 73)
 
     def test_state_changed_during_final_download_is_not_reported_as_a_draft(self):
         original = self.api.download

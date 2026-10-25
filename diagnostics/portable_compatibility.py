@@ -205,7 +205,7 @@ def report(verified, destination, gui_directory):
                   appIntentsMetadataVerified=True, nativeSmokePassed=True,
                   installedBinaryGUIPassed=True, guiOutsideDependencySandbox=True,
                   guiCaptureAttempts=1, guiCaptureDeadlineSeconds=300,
-                  guiPNGCount=32, guiOwnWindowAXCount=6, guiOriginalOCRFileCount=2,
+                  guiPNGCount=len(gui.PNG_NAMES), guiOwnWindowAXCount=len(gui.AX_NAMES), guiOriginalOCRFileCount=2,
                   guiReceiptSHA256=gui.hashed_file(gui_directory / gui.RECEIPT, 32768)['sha256'],
                   rebuiltOnDestination=False, developerToolsOnDestinationRequired=False,
                   appleNotarized=False, signing='ad-hoc', physicalM4Measured=False,

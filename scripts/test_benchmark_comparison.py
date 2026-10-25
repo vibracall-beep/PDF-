@@ -15,7 +15,7 @@ class BenchmarkComparisonTests(unittest.TestCase):
                            activeProcessorCount=10, physicalMemoryBytes=16 * 1024**3,
                            graphicsDevice='Test GPU', virtualization='not established', fixture=None,
                            repetitions=3, methodology='same input warmed once',
-                           metrics=[dict(id='open', samplesMilliseconds=[10, 12, 14], error=None)])
+                           metrics=[dict(id='open', detail='Abrir e resolver primeira e última página.', samplesMilliseconds=[10, 12, 14], error=None)])
 
     def tearDown(self):
         self.temporary.cleanup()
@@ -49,3 +49,27 @@ class BenchmarkComparisonTests(unittest.TestCase):
         with self.assertRaises(ValueError): self.run_comparison(after)
         after = copy.deepcopy(self.report); after['metrics'].append(copy.deepcopy(after['metrics'][0]))
         with self.assertRaises(ValueError): self.run_comparison(after)
+
+    def test_operation_scope_change_is_not_a_speedup(self):
+        after = copy.deepcopy(self.report)
+        after['metrics'][0]['detail'] = 'Abrir somente o cabeçalho sem resolver páginas.'
+        with self.assertRaisesRegex(ValueError, 'alcance'): self.run_comparison(after)
+        del after['metrics'][0]['detail']
+        with self.assertRaises(ValueError): self.run_comparison(after)
+
+    def test_thermal_and_power_conditions_must_match_and_remain_stable(self):
+        self.report.update(thermalLevelAtStart=0, thermalLevelAtEnd=0,
+                           lowPowerMode=False, lowPowerModeAtStart=False, lowPowerModeAtEnd=False)
+        for change in [dict(thermalLevelAtStart=1, thermalLevelAtEnd=1),
+                       dict(thermalLevelAtEnd=1), dict(lowPowerModeAtEnd=True),
+                       dict(lowPowerMode=True, lowPowerModeAtStart=True, lowPowerModeAtEnd=True)]:
+            after = copy.deepcopy(self.report); after.update(change)
+            with self.subTest(change=change), self.assertRaises(ValueError): self.run_comparison(after)
+        self.assertEqual(len(self.run_comparison(copy.deepcopy(self.report))['results']), 1)
+
+    def test_invalid_or_partial_condition_evidence_is_refused(self):
+        for change in [dict(thermalLevelAtStart=0), dict(thermalLevelAtStart=True, thermalLevelAtEnd=True),
+                       dict(thermalLevelAtStart=4, thermalLevelAtEnd=4), dict(lowPowerMode='false'),
+                       dict(lowPowerModeAtEnd=False), dict(lowPowerModeAtStart=0, lowPowerModeAtEnd=0)]:
+            after = copy.deepcopy(self.report); after.update(change)
+            with self.subTest(change=change), self.assertRaises(ValueError): self.run_comparison(after)

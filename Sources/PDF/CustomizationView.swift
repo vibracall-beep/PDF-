@@ -14,7 +14,7 @@ struct CustomizationView:View {
     @State private var toolSearch = ""
     init(closable:Bool = true, initialTab:String = "Aparência") {
         self.closable = closable
-        _tab = State(initialValue:["Aparência","Ferramentas","Navegação","Leitor","Arquivos","Atalhos","Perfis"].contains(initialTab) ? initialTab : "Aparência")
+        _tab = State(initialValue:["Aparência","Ferramentas","Navegação","Menus","Leitor","Arquivos","Atalhos","Perfis"].contains(initialTab) ? initialTab : "Aparência")
     }
     var body:some View {
         VStack(alignment:.leading,spacing:16) {
@@ -23,13 +23,14 @@ struct CustomizationView:View {
                 Spacer()
                 if closable { Button("Concluir") { dismiss() }.keyboardShortcut(.defaultAction) }
             }
-            Picker("Personalização",selection:$tab) { ForEach(["Aparência","Ferramentas","Navegação","Leitor","Arquivos","Atalhos","Perfis"],id:\.self) { Text($0) } }.pickerStyle(.segmented).labelsHidden().accessibilityLabel("Seção da personalização")
+            Picker("Personalização",selection:$tab) { ForEach(["Aparência","Ferramentas","Navegação","Menus","Leitor","Arquivos","Atalhos","Perfis"],id:\.self) { Text($0) } }.pickerStyle(.segmented).labelsHidden().accessibilityLabel("Seção da personalização")
             HStack(alignment:.top,spacing:22) {
                 ScrollView {
                     VStack(alignment:.leading,spacing:20) {
                         switch tab {
                         case "Ferramentas": toolSettings
                         case "Navegação": navigationSettings
+                        case "Menus": MenuCustomizationControls(store:preferences.advanced)
                         case "Leitor": ReaderCustomizationControls()
                         case "Arquivos": OutputCustomizationControls()
                         case "Atalhos": AdvancedShortcutControls(store:preferences.advanced)
@@ -50,7 +51,8 @@ struct CustomizationView:View {
             Divider()
             HStack {
                 Menu("Restaurar") {
-                    Button("Aparência e menu padrão") { preferences.reset() }
+                    Button("Aparência e catálogo padrão") { preferences.reset() }
+                    Button("Menus padrão") { do { try preferences.advanced.applyMenu(PDFMenuSnapshot()) } catch { message = error.localizedDescription } }
                     Button("Leitor padrão") { preferences.resetReader(); model.setReaderMagnification(zoom: 1, autoScale: true) }
                 }
                 Button("Importar…") { importSettings() }
@@ -240,10 +242,7 @@ struct ReaderCustomizationControls:View {
             }
             Text("Os ajustes são usados nas próximas anotações. As anotações existentes mantêm o estilo original.").font(.caption).foregroundStyle(.secondary)
             Divider()
-            Text("Controles da barra principal").font(.headline)
-            ForEach([("open","Abrir arquivo"),("search","Busca"),("zoom","Botões de zoom"),("fit","Ajustar à janela"),("save","Salvar cópia"),("compare","Leitura de dois documentos")],id:\.0) { id,label in Toggle(label,isOn:visibility(id,in:$hiddenToolbar)) }
-            Text("Controles de anotação").font(.headline)
-            ForEach([("highlight","Realçar"),("note","Notas"),("ink","Desenhar"),("bookmark","Marcar página"),("editor","Editar anotações"),("history","Desfazer e refazer")],id:\.0) { id,label in Toggle(label,isOn:visibility(id,in:$hiddenAnnotations)) }.disabled(!annotations)
+            ReaderBarCustomizationControls()
         }
     }
     func colorBinding(_ binding:Binding<String>) -> Binding<Color> { Binding(get:{ AppearanceColor.color(binding.wrappedValue) },set:{ binding.wrappedValue = AppearanceColor.hex($0) }) }

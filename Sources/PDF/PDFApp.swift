@@ -112,7 +112,7 @@ let tools: [Tool] = [
         if OwnedChildProcessAudit.handleCommandLineIfNeeded() { return }
         VisionWorker.handleCommandLineIfNeeded()
         let arguments = CommandLine.arguments
-        if arguments.contains(CrashRecoveryAudit.argument) || arguments.contains("--smoke-test") || arguments.contains("--ai-audit") {
+        if arguments.contains(CrashRecoveryAudit.argument) || arguments.contains(LibraryCrashAudit.argument) || arguments.contains("--smoke-test") || arguments.contains("--ai-audit") {
             runAsyncCLI()
         }
         // SE-0323 allows async main to resume on the main queue after a
@@ -149,6 +149,7 @@ let tools: [Tool] = [
 
     @MainActor private static func performAsyncCLI() async -> Never {
         if await CrashRecoveryAudit.handleCommandLineIfNeeded() { exit(0) }
+        if await LibraryCrashAudit.handleCommandLineIfNeeded() { exit(0) }
         if CommandLine.arguments.contains("--ai-audit") {
             do {
                 let arguments = CommandLine.arguments

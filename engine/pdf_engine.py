@@ -31,6 +31,7 @@ TOOLS = {
     'accessibility-inspect':'Inspecionar estrutura acessível', 'accessibility-remediate':'Corrigir estrutura acessível',
     'signature-request-prepare':'Preparar solicitação de assinatura', 'signature-request-send':'Enviar solicitação de assinatura',
     'signature-request-status':'Consultar solicitação de assinatura',
+    'signature-request-download':'Baixar PDF de solicitação concluída',
     'content-inspect':'Inspecionar conteúdo original', 'content-apply':'Editar conteúdo original',
     'ocr-review':'Revisar reconhecimento', 'ocr-apply':'Aplicar revisão OCR',
     'print-preflight':'Diagnóstico de impressão', 'print-prepare':'Preparar corte e sangria',
@@ -405,10 +406,10 @@ def _execute(operation, inputs, output, options):
         from pdf_accessibility import inspect_pdf, remediate_pdf
         (inspect_pdf if operation == 'accessibility-inspect' else remediate_pdf)(inputs[0],output,options)
         return
-    if operation in ('signature-request-prepare','signature-request-send','signature-request-status'):
-        from signature_requests import prepare_request, send_request, request_status
+    if operation in ('signature-request-prepare','signature-request-send','signature-request-status','signature-request-download'):
+        from signature_requests import prepare_request, send_request, request_status, download_request
         {'signature-request-prepare':prepare_request,'signature-request-send':send_request,
-         'signature-request-status':request_status}[operation](inputs[0],output,options)
+         'signature-request-status':request_status,'signature-request-download':download_request}[operation](inputs[0],output,options)
         return
     if operation in ('content-inspect','content-apply','ocr-review','ocr-apply'):
         from pdf_content import inspect_pdf, apply_edits, review_ocr, apply_ocr
@@ -1300,19 +1301,65 @@ def _word(doc,pages,output,options=None):
     from docx import Document
     from docx.image.exceptions import UnrecognizedImageError, InvalidImageStreamError, UnexpectedEndOfFileError
     from docx.shared import Pt, Inches, RGBColor
+    from docx.enum.section import WD_SECTION_START
+    from document_layout import recurring_marginal_lines, marginal_line_key, word_paragraphs
     from PIL import Image
     from scan_analysis import analyze, elements, source_mode
     options=options or {}
     result = Document()
     result.core_properties.title=doc.metadata.get('title','')
     result.core_properties.author=doc.metadata.get('author','')
+    margins=recurring_marginal_lines(doc,pages)
+    def write_paragraph(paragraph,lines):
+        paragraph.paragraph_format.space_after=Pt(0)
+        paragraph.paragraph_format.space_before=Pt(0)
+        for j,line in enumerate(lines):
+            if j:
+                prior=''.join(span['text'] for span in lines[j-1]['spans'])
+                following=''.join(span['text'] for span in line['spans'])
+                if prior.endswith(('-','\u00ad')): paragraph.add_run('\n')
+                elif not prior[-1:].isspace() and not following[:1].isspace(): paragraph.add_run(' ')
+            for span in line['spans']:
+                run=paragraph.add_run(span['text']);run.font.size=Pt(span['size'])
+                run.font.name=re.sub(r'^[A-Z]{6}\+','',span.get('font','Arial'))
+                run.bold=bool(span['flags']&16);run.italic=bool(span['flags']&2);run.font.superscript=bool(span['flags']&1)
+                ink=span.get('color',0);run.font.color.rgb=RGBColor((ink>>16)&255,(ink>>8)&255,ink&255)
     for count,i in enumerate(pages):
         page = doc[i]
-        if count: result.add_page_break()
+        section=result.add_section(WD_SECTION_START.NEW_PAGE) if count else result.sections[0]
+        bounds=page.rect*page.derotation_matrix
+        # Word supports pages up to 22 inches. Preserve source page dimensions
+        # in that range; keep its standard page for oversized engineering PDFs.
+        if 72<=bounds.width<=1584 and 72<=bounds.height<=1584:
+            section.page_width=Pt(bounds.width);section.page_height=Pt(bounds.height)
+        section.left_margin=section.right_margin=Pt(min(36,section.page_width.pt*0.1))
+        section.top_margin=section.bottom_margin=Pt(min(36,section.page_height.pt*0.1))
+        available_width=section.page_width.pt-section.left_margin.pt-section.right_margin.pt
         if source_mode(page,options)=='ocr':
             analysis=analyze(page,i+1,options,_external)
             blocks=elements(analysis) if analysis['words'] else _page_elements(page,options)
         else: blocks=_page_elements(page,options)
+        marginal={'header':[],'footer':[]};body_blocks=[]
+        for block in blocks:
+            key=marginal_line_key(block['lines'][0],bounds) if block['type']==0 and len(block['lines'])==1 else None
+            if key in margins: marginal[key[0]].append(block)
+            else: body_blocks.append(block)
+        # Each selected PDF page has its own section. Do not let a missing or
+        # changed header inherit text from the previous source page.
+        for zone in ('header','footer'):
+            container=getattr(section,zone);container.is_linked_to_previous=False
+            entries=sorted(marginal[zone],key=lambda block:(block['bbox'][1],block['bbox'][0]))
+            for number,block in enumerate(entries):
+                paragraph=container.paragraphs[0] if number==0 else container.add_paragraph()
+                write_paragraph(paragraph,block['lines'])
+            if entries:
+                if zone=='header':
+                    distance=max(0,entries[0]['bbox'][1]);section.header_distance=Pt(distance)
+                    section.top_margin=Pt(min(section.page_height.pt*0.35,max(section.top_margin.pt,max(block['bbox'][3] for block in entries)+8)))
+                else:
+                    distance=max(0,bounds.height-max(block['bbox'][3] for block in entries));section.footer_distance=Pt(distance)
+                    section.bottom_margin=Pt(min(section.page_height.pt*0.35,max(section.bottom_margin.pt,bounds.height-min(block['bbox'][1] for block in entries)+8)))
+        blocks=word_paragraphs(body_blocks)
         sizes=sorted(span['size'] for block in blocks if block['type']==0 for line in block['lines'] for span in line['spans'] if span['text'].strip())
         body=sizes[len(sizes)//2] if sizes else 11
         for block in blocks:
@@ -1321,6 +1368,12 @@ def _word(doc,pages,output,options=None):
                 if rows:
                     table=result.add_table(rows=len(rows),cols=max(map(len,rows)))
                     table.style='Table Grid'
+                    widths=block.get('column_widths')
+                    if widths and len(widths)==len(table.columns) and sum(widths)>0:
+                        factor=min(1,available_width/sum(widths));table.autofit=False
+                        for column,width in zip(table.columns,widths):
+                            column.width=Pt(width*factor)
+                            for cell in column.cells: cell.width=Pt(width*factor)
                     covered=set()
                     for merge in block.get('merges',[]):
                         r,c=merge['row'],merge['column'];end_r=r+merge['row_span'];end_c=c+merge['column_span']
@@ -1331,24 +1384,19 @@ def _word(doc,pages,output,options=None):
                             if (r,c) not in covered: table.cell(r,c).text=str(value or '')
                 continue
             if block['type']==1:
-                try: result.add_picture(io.BytesIO(block['image']),width=Inches(min(6,(block['bbox'][2]-block['bbox'][0])/72)))
+                try: result.add_picture(io.BytesIO(block['image']),width=Pt(min(available_width,block['bbox'][2]-block['bbox'][0])))
                 except (ValueError,TypeError,UnrecognizedImageError,InvalidImageStreamError,UnexpectedEndOfFileError):
                     # Convert a supported PDF image encoding to PNG instead of
                     # silently omitting it from the exported document.
                     with Image.open(io.BytesIO(block['image'])) as image:
                         encoded=io.BytesIO();image.convert('RGBA').save(encoded,format='PNG');encoded.seek(0)
-                    result.add_picture(encoded,width=Inches(min(6,(block['bbox'][2]-block['bbox'][0])/72)))
+                    result.add_picture(encoded,width=Pt(min(available_width,block['bbox'][2]-block['bbox'][0])))
                 continue
             paragraph=result.add_paragraph()
             size=max(span['size'] for line in block['lines'] for span in line['spans'])
             if size>=body*1.7: paragraph.style='Heading 1'
             elif size>=body*1.3: paragraph.style='Heading 2'
-            for j,line in enumerate(block['lines']):
-                if j: paragraph.add_run('\n')
-                for span in line['spans']:
-                    run=paragraph.add_run(span['text']); run.font.size=Pt(span['size']);run.font.name=re.sub(r'^[A-Z]{6}\+','',span.get('font','Arial'))
-                    run.bold=bool(span['flags']&16); run.italic=bool(span['flags']&2)
-                    ink=span.get('color',0); run.font.color.rgb=RGBColor((ink>>16)&255,(ink>>8)&255,ink&255)
+            write_paragraph(paragraph,block['lines'])
     result.save(output)
 
 
@@ -1488,7 +1536,7 @@ def capabilities():
     pyhanko=importlib.util.find_spec('pyhanko') is not None
     tesseract=bool(shutil.which('tesseract'))
     return dict(
-        version='0.6.0',operations=list(TOOLS),
+        version='0.7.0',operations=list(TOOLS),
         dependencies=dict(office=bool(office),ocr=bool(shutil.which('ocrmypdf')),tesseract=tesseract,
                           html=importlib.util.find_spec('playwright') is not None,pyhanko=pyhanko,
                           java=bool(java),verapdf=jar_status=='verified'),
@@ -1530,7 +1578,7 @@ def main():
         if not args.operation or not args.output: parser.error('operation e --output são obrigatórios.')
         options=json.load(sys.stdin) if os.getenv('PDF_OPTIONS_STDIN')=='1' else json.loads(args.options)
         signature_steps=options.get('steps',[]) if isinstance(options,dict) and isinstance(options.get('steps',[]),list) else []
-        private_operations={'digital-sign','signature-request-send','signature-request-status'}
+        private_operations={'digital-sign','signature-request-send','signature-request-status','signature-request-download'}
         private_signing=args.operation in private_operations or any(isinstance(step,dict) and step.get('operation') in private_operations for step in signature_steps)
         if private_signing and os.getenv('PDF_OPTIONS_STDIN')!='1': raise ValueError('Assinaturas exigem opções por stdin (PDF_OPTIONS_STDIN=1), para manter PINs e credenciais fora dos argumentos do processo.')
         run(args.operation,args.inputs,args.output,options)

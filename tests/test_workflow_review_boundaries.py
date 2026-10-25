@@ -18,7 +18,7 @@ class WorkflowReviewBoundaries(unittest.TestCase):
             root=Path(directory);source=root/'source.pdf'
             with fitz.open() as doc: doc.new_page();doc.save(source)
             operations=['content-apply','ocr-apply','accessibility-remediate','dossier',
-                'signature-request-prepare','signature-request-send','signature-request-status']
+                'signature-request-prepare','signature-request-send','signature-request-status','signature-request-download']
             for operation in operations:
                 for batch in (False,True):
                     with self.subTest(operation=operation,batch=batch),patch('workflow_batch.check_dependencies') as dependencies,self.assertRaises(ValueError):

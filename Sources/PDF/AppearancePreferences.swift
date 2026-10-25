@@ -139,11 +139,11 @@ enum PreferenceError:LocalizedError {
     }
     func reset() { state = AppearanceState() }
     func resetReader() {
-        for key in ["readerMode","readerDirection","readerDisplayBox","readerPageBackground","readerAutoScale","readerZoom","readerDisplayPageBreaks","readerSidebar","readerShowAnnotations","readerHiddenToolbar","readerHiddenAnnotations","readerHighlightColor","readerNoteColor","readerInkColor","readerInkWidth","readerShowTabs","readerSplitDirection"] { defaults.removeObject(forKey:key) }
+        for key in ["readerMode","readerDirection","readerDisplayBox","readerPageBackground","readerAutoScale","readerZoom","readerDisplayPageBreaks","readerSidebar","readerShowAnnotations","readerHiddenToolbar","readerHiddenAnnotations","readerHighlightColor","readerNoteColor","readerInkColor","readerInkWidth","readerShowTabs","readerSplitDirection","readerToolbarOrder","readerAnnotationOrder","readerPinSave"] { defaults.removeObject(forKey:key) }
     }
     func exportData() throws -> Data {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]
-        return try encoder.encode(CustomizationSnapshot(appearance:state,reader:ReaderSettingsSnapshot(defaults:defaults),shortcuts:advanced.snapshot,output:PDFOutputPreferencesSnapshot(defaults:defaults)))
+        return try encoder.encode(CustomizationSnapshot(appearance:state,reader:ReaderSettingsSnapshot(defaults:defaults),shortcuts:advanced.snapshot,output:PDFOutputPreferencesSnapshot(defaults:defaults),menu:advanced.menu))
     }
     func importData(_ data:Data) throws {
         guard data.count <= 1_048_576 else { throw PreferenceError.invalid("O arquivo de personalização é muito grande.") }
@@ -151,8 +151,11 @@ enum PreferenceError:LocalizedError {
         try snapshot.appearance.validate(); try snapshot.reader.validate()
         if let shortcuts = snapshot.shortcuts { try AdvancedCustomizationStore.validate(shortcuts) }
         if let output = snapshot.output { try output.validate() }
+        if let menu = snapshot.menu { try menu.validate() }
         // Reader sessions retain their own navigation and magnification. These
         // values are defaults, not an explicit zoom command for an open PDF.
+        // Validate and encode the bounded menu before publishing any other part.
+        if let menu = snapshot.menu { try advanced.applyMenu(menu) }
         state = snapshot.appearance; snapshot.reader.apply(to:defaults)
         if let shortcuts = snapshot.shortcuts { try advanced.apply(shortcuts) }
         snapshot.output?.apply(to:defaults)
@@ -253,6 +256,7 @@ struct CustomizationSnapshot:Codable {
     var reader:ReaderSettingsSnapshot
     var shortcuts:PDFShortcutSnapshot? = nil
     var output:PDFOutputPreferencesSnapshot? = nil
+    var menu:PDFMenuSnapshot? = nil
 }
 struct ReaderSettingsSnapshot:Codable {
     var mode:Int
@@ -273,6 +277,9 @@ struct ReaderSettingsSnapshot:Codable {
     var inkWidth:Double?
     var showTabs:Bool?
     var splitDirection:String?
+    var toolbarOrder:String?
+    var annotationOrder:String?
+    var pinSave:Bool?
     init(defaults:UserDefaults = .standard) {
         mode = defaults.integer(forKey:"readerMode")
         direction = defaults.string(forKey:"readerDirection") ?? "vertical"
@@ -291,12 +298,18 @@ struct ReaderSettingsSnapshot:Codable {
         inkWidth = defaults.object(forKey:"readerInkWidth") as? Double ?? 2.5
         showTabs = defaults.object(forKey:"readerShowTabs") as? Bool ?? true
         splitDirection = defaults.string(forKey:"readerSplitDirection") ?? "horizontal"
+        toolbarOrder = defaults.string(forKey:"readerToolbarOrder") ?? ""
+        annotationOrder = defaults.string(forKey:"readerAnnotationOrder") ?? ""
+        pinSave = defaults.object(forKey:"readerPinSave") as? Bool ?? true
     }
     func validate() throws {
         try validateAnnotationStyle()
         guard ["horizontal","vertical"].contains(splitDirection ?? "horizontal") else { throw PreferenceError.invalid("A disposição dos documentos é inválida.") }
         guard (0...2).contains(mode),["vertical","horizontal"].contains(direction),["crop","media"].contains(displayBox),AppearanceColor.isValid(background),zoom.isFinite,(0.1...8).contains(zoom) else { throw PreferenceError.invalid("Há uma opção de leitura inválida.") }
-        guard Set(hiddenToolbar.split(separator:",").map(String.init)).isSubset(of:["open","search","zoom","fit","save","compare"]),Set(hiddenAnnotations.split(separator:",").map(String.init)).isSubset(of:["highlight","note","ink","bookmark","editor","history"]) else { throw PreferenceError.invalid("A barra de ferramentas contém uma ação desconhecida.") }
+        try ReaderBarLayout.validate(hiddenToolbar, allowed: Set(ReaderBarLayout.primary.map(\.id)).subtracting(["customize"]))
+        try ReaderBarLayout.validate(hiddenAnnotations, allowed: Set(ReaderBarLayout.annotations.map(\.id)))
+        try ReaderBarLayout.validate(toolbarOrder ?? "", allowed: Set(ReaderBarLayout.primary.map(\.id)))
+        try ReaderBarLayout.validate(annotationOrder ?? "", allowed: Set(ReaderBarLayout.annotations.map(\.id)))
     }
     func validateAnnotationStyle() throws {
         let colors = [highlightColor ?? "#FFE600",noteColor ?? "#FFCC00",inkColor ?? "#007AFF"]
@@ -306,5 +319,8 @@ struct ReaderSettingsSnapshot:Codable {
     func apply(to defaults:UserDefaults = .standard) {
         let values:[String:Any] = ["readerMode":mode,"readerDirection":direction,"readerDisplayBox":displayBox,"readerPageBackground":background,"readerAutoScale":autoScale,"readerZoom":zoom,"readerDisplayPageBreaks":pageBreaks,"readerSidebar":sidebar,"readerShowAnnotations":annotations,"readerHiddenToolbar":hiddenToolbar,"readerHiddenAnnotations":hiddenAnnotations,"readerHighlightColor":highlightColor ?? "#FFE600","readerNoteColor":noteColor ?? "#FFCC00","readerInkColor":inkColor ?? "#007AFF","readerInkWidth":inkWidth ?? 2.5,"readerShowTabs":showTabs ?? true,"readerSplitDirection":splitDirection ?? "horizontal"]
         for (key,value) in values { defaults.set(value,forKey:key) }
+        defaults.set(toolbarOrder ?? "",forKey:"readerToolbarOrder")
+        defaults.set(annotationOrder ?? "",forKey:"readerAnnotationOrder")
+        defaults.set(pinSave ?? true,forKey:"readerPinSave")
     }
 }

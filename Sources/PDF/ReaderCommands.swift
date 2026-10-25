@@ -36,9 +36,9 @@ struct PDFMenuCommands:Commands {
     @FocusedValue(\.recoveryAction) private var recoveryAction
     var body:some Commands {
             CommandGroup(replacing:.newItem) {
-                Button("Abrir PDF…") { model.open() }.configuredShortcut("action:open",store:shortcutStore)
-                Button("Abrir PDF em nova aba…") { model.open() }.configuredShortcut("action:new-tab",store:shortcutStore)
-                Button("Fechar aba atual") { if let id = model.activeSessionID { model.closeSession(id) } }.configuredShortcut("action:close-tab",store:shortcutStore).disabled(model.activeSessionID == nil)
+                Button(actionTitle("action:open",fallback:"Abrir PDF…")) { model.open() }.configuredShortcut("action:open",store:shortcutStore)
+                Button(actionTitle("action:new-tab",fallback:"Abrir PDF em nova aba…")) { model.open() }.configuredShortcut("action:new-tab",store:shortcutStore)
+                Button(actionTitle("action:close-tab",fallback:"Fechar aba atual")) { if let id = model.activeSessionID { model.closeSession(id) } }.configuredShortcut("action:close-tab",store:shortcutStore).disabled(model.activeSessionID == nil)
                 Menu("Abrir recente") {
                     ForEach(model.recentURLs, id:\.path) { url in Button(url.lastPathComponent) { model.open(url:url) } }
                     Divider()
@@ -46,36 +46,38 @@ struct PDFMenuCommands:Commands {
                 }
             }
             CommandGroup(replacing:.saveItem) {
-                Button("Salvar cópia…") { model.save() }.configuredShortcut("action:save",store:shortcutStore).disabled(model.document == nil)
+                Button(actionTitle("action:save",fallback:"Salvar cópia…")) { model.save() }.configuredShortcut("action:save",store:shortcutStore).disabled(model.document == nil)
             }
             CommandGroup(replacing:.printItem) {
-                Button("Imprimir…") { model.printDocument() }.configuredShortcut("action:print",store:shortcutStore).disabled(model.document == nil)
+                Button(actionTitle("action:print",fallback:"Imprimir…")) { model.printDocument() }.configuredShortcut("action:print",store:shortcutStore).disabled(model.document == nil)
             }
             CommandMenu("Documento") {
-                Button("Buscar…") {
-                    if model.section == "Leitor",let actions = readerActions { actions.focusSearch() }
-                    else { catalogSearch?() }
-                }.configuredShortcut("action:search",store:shortcutStore)
-                Button("Próxima ocorrência") { readerActions?.findNext() }.configuredShortcut("action:find-next",store:shortcutStore).disabled(model.section != "Leitor" || model.document == nil)
-                Button("Ir para página…") { readerActions?.focusPage() }.configuredShortcut("action:page",store:shortcutStore).disabled(model.section != "Leitor" || model.document == nil)
-                Divider()
-                Button("Aba anterior") { activateNeighbor(-1) }.configuredShortcut("action:previous-tab",store:shortcutStore).disabled(model.sessions.count < 2)
-                Button("Próxima aba") { activateNeighbor(1) }.configuredShortcut("action:next-tab",store:shortcutStore).disabled(model.sessions.count < 2)
-                Button("Recuperar trabalho…") { recoveryAction?() }.configuredShortcut("action:recovery",store:shortcutStore)
-                Divider()
-                Button("Página anterior") { model.previousPage() }.configuredShortcut("action:previous-page",store:shortcutStore)
-                Button("Próxima página") { model.nextPage() }.configuredShortcut("action:next-page",store:shortcutStore)
-                Divider()
-                Button("Realçar seleção") { model.highlight() }.configuredShortcut("action:highlight",store:shortcutStore)
-                Button("Marcar página") { model.toggleBookmark() }.configuredShortcut("action:bookmark",store:shortcutStore)
-                Button("Girar página atual") { model.rotatePage() }
-                Button("Editar anotações…") { readerActions?.toggleInspector() }.configuredShortcut("action:inspector",store:shortcutStore).disabled(model.section != "Leitor" || model.document == nil)
-                Button("Desfazer anotação") { model.undoAnnotation() }.configuredShortcut("action:undo-annotation",store:shortcutStore).disabled(!model.canUndoAnnotation)
-                Button("Refazer anotação") { model.redoAnnotation() }.configuredShortcut("action:redo-annotation",store:shortcutStore).disabled(!model.canRedoAnnotation)
-                Divider()
-                Button("Mostrar/ocultar páginas e sumário") { readerActions?.toggleSidebar() }.configuredShortcut("action:sidebar",store:shortcutStore).disabled(model.section != "Leitor")
-                Button("Compartilhar…") { readerActions?.share() }.configuredShortcut("action:share",store:shortcutStore).disabled(model.section != "Leitor" || model.document == nil)
+                ForEach(PDFMenuLayout.documentCommands(shortcutStore.menu,hidden:false)) { command in documentButton(command) }
+                let hidden = PDFMenuLayout.documentCommands(shortcutStore.menu,hidden:true)
+                if !hidden.isEmpty {
+                    Divider()
+                    Menu("Outros comandos") { ForEach(hidden) { command in documentButton(command) } }
+                }
             }
+    }
+    private func actionTitle(_ id:String,fallback:String) -> String { shortcutStore.menu.actionTitles[id] ?? fallback }
+    private func documentButton(_ command:PDFCommandDefinition) -> some View {
+        Button(shortcutStore.menu.actionTitles[command.id] ?? command.title) {
+            PDFCommandExecution.perform(command.id,model:model,reader:readerActions,
+                search:{ catalogSearch?() },recovery:{ recoveryAction?() })
+        }.configuredShortcut(command.id,store:shortcutStore).disabled(!commandEnabled(command.id))
+    }
+    private func commandEnabled(_ id:String) -> Bool {
+        switch id {
+        case "action:search": return (model.section == "Leitor" && readerActions != nil) || catalogSearch != nil
+        case "action:recovery": return recoveryAction != nil
+        case "action:previous-tab","action:next-tab": return model.sessions.count > 1
+        case "action:sidebar": return model.section == "Leitor" && readerActions != nil
+        case "action:find-next","action:page","action:inspector","action:share": return model.section == "Leitor" && model.document != nil && readerActions != nil
+        case "action:undo-annotation": return model.canUndoAnnotation
+        case "action:redo-annotation": return model.canRedoAnnotation
+        default: return model.document != nil
+        }
     }
     private func activateNeighbor(_ offset:Int) {
         guard !model.sessions.isEmpty else { return }
@@ -99,6 +101,7 @@ struct PDFMenuCommands:Commands {
         case "action:next-page": model.nextPage()
         case "action:highlight": model.highlight()
         case "action:bookmark": model.toggleBookmark()
+        case "action:rotate": model.rotatePage()
         case "action:inspector": reader?.toggleInspector()
         case "action:undo-annotation": model.undoAnnotation()
         case "action:redo-annotation": model.redoAnnotation()

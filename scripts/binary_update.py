@@ -60,6 +60,139 @@ def write_journal(parent, data):
         temporary.unlink(missing_ok=True)
 
 
+
+def publish_staging_record(parent, temporary, destination, expected_identity):
+    """Atomically publish a regular marker without replacing another file.
+
+    A hard-link would leave nlink=2 if killed before unlinking the temporary;
+    use the same exclusive rename primitive as directory publication instead.
+    """
+    descriptor = os.open(parent, os.O_RDONLY | os.O_DIRECTORY | os.O_NOFOLLOW)
+    try:
+        info = os.stat(temporary.name, dir_fd=descriptor, follow_symlinks=False)
+        if (not stat.S_ISREG(info.st_mode) or info.st_uid != os.getuid()
+                or info.st_nlink != 1 or stat.S_IMODE(info.st_mode) & 0o077
+                or (info.st_dev, info.st_ino) != expected_identity):
+            raise ValueError('O registro temporário mudou antes da publicação.')
+        library = ctypes.CDLL(None, use_errno=True)
+        if sys.platform == 'darwin':
+            rename, flags = library.renameatx_np, 0x00000004  # RENAME_EXCL
+        elif sys.platform.startswith('linux'):
+            rename, flags = library.renameat2, 1  # RENAME_NOREPLACE
+        else:
+            raise OSError(errno.ENOTSUP, 'Publicação exclusiva indisponível.')
+        rename.argtypes = [ctypes.c_int, ctypes.c_char_p, ctypes.c_int, ctypes.c_char_p, ctypes.c_uint]
+        rename.restype = ctypes.c_int
+        if rename(descriptor, os.fsencode(temporary.name), descriptor, os.fsencode(destination.name), flags):
+            failure = ctypes.get_errno()
+            raise OSError(failure, os.strerror(failure), str(destination))
+    finally:
+        os.close(descriptor)
+
+
+def register_staging(parent, token, incoming, checkpoint=lambda _: None):
+    """Bind unpublished bytes to their inode before any multi-GB copy starts.
+
+    Filename resemblance never authorizes cleanup. The private record must
+    match this exact parent, directory and read-only runtime lease, and a new
+    process must acquire both the installation and runtime locks first.
+    """
+    resource = incoming / 'Contents/Resources/installation.lock'
+    resource.parent.mkdir(parents=True)
+    fd = os.open(resource, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o444)
+    os.fchmod(fd, 0o444)
+    os.close(fd)
+    descriptor = open_resource(incoming)
+    try:
+        lease_identity = ':'.join(map(str, check_descriptor(descriptor)))
+    finally:
+        os.close(descriptor)
+    path = parent / ('.pdf-staging.' + token + '.json')
+    record = {'schemaVersion': 1, 'transaction': token, 'parentIdentity': identity(parent),
+              'incomingIdentity': identity(incoming), 'leaseIdentity': lease_identity}
+    # Incomplete markers are never visible under the committed .json name.
+    # Before publication a crash can leave only a tiny unregistered directory
+    # and marker, which are preserved without blocking later installations.
+    temporary = parent / ('.pdf-staging.' + token + '.pending')
+    fd = os.open(temporary, os.O_WRONLY | os.O_CREAT | os.O_EXCL | os.O_NOFOLLOW, 0o600)
+    temporary_identity = (os.fstat(fd).st_dev, os.fstat(fd).st_ino)
+    try:
+        with os.fdopen(fd, 'wb', buffering=0) as stream:
+            checkpoint('staging-marker-empty')
+            data = (json.dumps(record, sort_keys=True) + '\n').encode()
+            boundary = len(data) // 2
+            def write_all(block):
+                view = memoryview(block)
+                while view:
+                    written = stream.write(view)
+                    if not written:
+                        raise OSError(errno.EIO, 'Gravação incompleta do registro temporário.')
+                    view = view[written:]
+            write_all(data[:boundary])
+            checkpoint('staging-marker-partial')
+            write_all(data[boundary:])
+            os.fsync(stream.fileno())
+        sync_directory(resource.parent)
+        sync_directory(incoming / 'Contents')
+        sync_directory(incoming)
+        publish_staging_record(parent, temporary, path, temporary_identity)
+        sync_directory(parent)
+    finally:
+        if os.path.lexists(temporary):
+            info = temporary.lstat()
+            if (info.st_dev, info.st_ino) == temporary_identity:
+                temporary.unlink()
+    return path
+
+
+def cleanup_staging(parent, held_descriptors=()):
+    """Only under installation_lock; malformed/unregistered/changed items stay."""
+    removed = 0
+    for path in sorted(parent.glob('.pdf-staging.*.json')):
+        token = path.name.removeprefix('.pdf-staging.').removesuffix('.json')
+        info = path.lstat()
+        if (not re.fullmatch('[0-9a-f]{32}', token) or not stat.S_ISREG(info.st_mode)
+                or info.st_uid != os.getuid() or info.st_nlink != 1
+                or stat.S_IMODE(info.st_mode) & 0o077):
+            raise ValueError('Registro da cópia temporária inseguro; todos os arquivos foram preservados.')
+        record = json.loads(regular_bytes(path, 32768))
+        if (record.get('schemaVersion') != 1 or record.get('transaction') != token
+                or record.get('parentIdentity') != identity(parent)
+                or not re.fullmatch(r'\d+:\d+', record.get('incomingIdentity', ''))
+                or not re.fullmatch(r'\d+:\d+', record.get('leaseIdentity', ''))):
+            raise ValueError('Registro da cópia temporária inválido; arquivos foram preservados.')
+        incoming = parent / ('.pdf-incoming.' + token + '.app')
+        if os.path.lexists(incoming):
+            if not same(incoming, record['incomingIdentity']):
+                raise ValueError('A cópia temporária mudou de identidade; arquivos foram preservados.')
+            with ExitStack() as leases:
+                descriptor = open_resource(incoming)
+                try:
+                    key = check_descriptor(descriptor)
+                finally:
+                    os.close(descriptor)
+                if ':'.join(map(str, key)) != record['leaseIdentity']:
+                    raise ValueError('O bloqueio da cópia temporária mudou; arquivos foram preservados.')
+                retained = next((fd for fd in held_descriptors if check_descriptor(fd) == key), None)
+                if retained is None:
+                    leases.enter_context(exclusive(incoming))
+                else:
+                    validate_inherited(incoming, retained)
+                # Check again after acquiring the lifetime lease. rmtree does
+                # not follow bundle symlinks. Replacements and active apps are
+                # never selected merely by a name, age or process ID.
+                if not same(incoming, record['incomingIdentity']):
+                    raise ValueError('A cópia temporária mudou durante a limpeza; arquivos preservados.')
+                shutil.rmtree(incoming)
+                sync_directory(parent)
+                removed += 1
+        current = path.lstat()
+        if (current.st_dev, current.st_ino) != (info.st_dev, info.st_ino):
+            raise ValueError('O registro da cópia temporária mudou durante a limpeza.')
+        path.unlink()
+        sync_directory(parent)
+    return removed
+
 def contained_link(path, target, root):
     if not target or os.path.isabs(target):
         raise ValueError('Link absoluto ou vazio recusado: ' + str(path))
@@ -202,6 +335,7 @@ def same(path, expected):
 def recover(parent, held_descriptors=()):
     path = parent / '.pdf-update.json'
     if not os.path.lexists(path):
+        cleanup_staging(parent, held_descriptors)
         return None
     journal = json.loads(regular_bytes(path, 32768))
     destination, incoming, backup, failed = journal_paths(parent, journal)
@@ -224,7 +358,9 @@ def recover(parent, held_descriptors=()):
                 recovery_leases.enter_context(exclusive(candidate))
             else:
                 validate_inherited(candidate, retained)
-        return recover_locked(parent, journal, destination, incoming, backup, failed)
+        result = recover_locked(parent, journal, destination, incoming, backup, failed)
+    cleanup_staging(parent, held_descriptors)
+    return result
 
 
 def recover_locked(parent, journal, destination, incoming, backup, failed):
@@ -298,11 +434,27 @@ def install(distribution, parent, *, validate=None, checkpoint=lambda _: None):
         incoming.mkdir(mode=0o700)
         incoming_id = identity(incoming)
         try:
-            shutil.copytree(distribution / 'PDF.app', incoming, symlinks=True,
-                            copy_function=copy_regular_file, dirs_exist_ok=True)
-            verify_copied_bundle(incoming, manifest)
+            register_staging(parent, token, incoming, checkpoint=checkpoint)
             descriptor = leases.enter_context(exclusive(incoming))
             held_descriptors.append(descriptor)
+            checkpoint('registered-staging')
+            lease_path = incoming / 'Contents/Resources/installation.lock'
+            def copy_file(source, target):
+                if Path(target) == lease_path:
+                    # Never replace/chmod the inode locked before copying.
+                    source_fd = os.open(source, os.O_RDONLY | os.O_NOFOLLOW | os.O_NONBLOCK)
+                    try:
+                        check_descriptor(source_fd)
+                    finally:
+                        os.close(source_fd)
+                    return target
+                result = copy_regular_file(source, target)
+                checkpoint('copied-file')
+                return result
+            shutil.copytree(distribution / 'PDF.app', incoming, symlinks=True,
+                            copy_function=copy_file, dirs_exist_ok=True)
+            validate_inherited(incoming, descriptor)
+            verify_copied_bundle(incoming, manifest)
             if validate is None:
                 validate_product(incoming, descriptor)
             else:
@@ -334,10 +486,14 @@ def install(distribution, parent, *, validate=None, checkpoint=lambda _: None):
             write_journal(parent, journal)
             checkpoint('committed')
             recover(parent, held_descriptors)
-        except BaseException:
+        except BaseException as failure:
             # ENOSPC may prevent writing, but rollback itself only renames and
             # removes the old journal. If that also fails, the next run retries.
-            recover(parent, held_descriptors)
+            try:
+                recover(parent, held_descriptors)
+            except Exception as recovery_error:
+                failure.add_note('A recuperação também foi recusada; arquivos preservados: ' + str(recovery_error))
+                raise failure
             # Recovery succeeded (or publication never began). Do not leave a
             # multi-GB failed copy on each ordinary retry. An interrupted or
             # foreign directory is never identified by its filename alone.

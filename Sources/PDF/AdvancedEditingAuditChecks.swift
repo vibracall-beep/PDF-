@@ -33,6 +33,14 @@ enum AdvancedEditingAuditChecks {
         let payload = try draft.options(for: item, pages: [page])
         try require(payload["text"] as? String == "Parágrafo corrigido" && payload["alignment"] as? String == "justify" &&
                     payload["allow_font_substitution"] as? Bool == false, "o texto ou o consentimento de fonte mudou")
+        draft.characterSpacing = 0.75
+        try require(try draft.options(for: item, pages: [page])["character_spacing"] as? Double == 0.75,
+                    "perdeu o espaçamento adicional entre caracteres")
+        for invalidTracking in [-5.01, 20.01, Double.nan, Double.infinity] {
+            draft.characterSpacing = invalidTracking
+            try require(rejects { _ = try draft.options(for: item, pages: [page]) }, "aceitou espaçamento adicional inválido")
+        }
+        draft.characterSpacing = 0
         draft.width = .infinity
         try require(rejects { _ = try draft.options(for: item, pages: [page]) }, "aceitou geometria não finita")
         let image = ContentObjectDescriptor(id: "p1-image0", kind: "image", page: 1, rect: box, text: nil, font: nil,

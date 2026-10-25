@@ -66,9 +66,12 @@ struct BenchmarkReport: Codable, Sendable {
     let metrics:[BenchmarkMetric]
     let methodology:String
     var resourcePolicy: PerformanceBudget? = nil
+    var resourcePolicyAtStart: PerformanceBudget? = nil
     var thermalLevelAtStart: Int? = nil
     var thermalLevelAtEnd: Int? = nil
     var lowPowerMode: Bool? = nil
+    var lowPowerModeAtStart: Bool? = nil
+    var lowPowerModeAtEnd: Bool? = nil
     var energyMeasurement: String? = nil
     var processorIdentifiesM4OrLater:Bool {
         guard let range = processor.range(of:"Apple M[0-9]+",options:.regularExpression),
@@ -111,6 +114,8 @@ struct BenchmarkReport: Codable, Sendable {
         let hash = SHA256.hash(data:data).map { String(format:"%02x",$0) }.joined()
         var metrics:[BenchmarkMetric] = []
         let thermalStart = ProcessInfo.processInfo.thermalState.rawValue
+        let lowPowerStart = ProcessInfo.processInfo.isLowPowerModeEnabled
+        let policyAtStart = AdaptivePerformance.current
         func cpuMilliseconds(_ who: Int32) -> Double {
             var usage = rusage()
             guard getrusage(who, &usage) == 0 else { return 0 }
@@ -203,9 +208,12 @@ struct BenchmarkReport: Codable, Sendable {
                                fixture:input == nil ? "text-and-vector-v1" : nil,repetitions:repetitions,metrics:metrics,
                                methodology:"Processo dedicado pelo aplicativo; arquivo de entrada copiado para pasta privada e removido ao terminar; uma execução de aquecimento e repetições sequenciais. Não limpa caches. Pico de RSS inclui geração/leitura da amostra, aquecimento e todas as operações. A amostra sintética contém texto e vetores; use o mesmo arquivo e SHA-256 para comparações entre Macs. O nome da GPU identifica disponibilidade, não mede ocupação nem uso do Neural Engine. Erros de uma operação são registrados, não convertidos em tempos zero.")
         report.resourcePolicy = AdaptivePerformance.current
+        report.resourcePolicyAtStart = policyAtStart
         report.thermalLevelAtStart = thermalStart
         report.thermalLevelAtEnd = ProcessInfo.processInfo.thermalState.rawValue
         report.lowPowerMode = ProcessInfo.processInfo.isLowPowerModeEnabled
+        report.lowPowerModeAtStart = lowPowerStart
+        report.lowPowerModeAtEnd = report.lowPowerMode
         report.energyMeasurement = "Não coletada. Tempo de CPU é medido por getrusage; filhos incluem somente processos já recolhidos. CPU não equivale a energia, ocupação da GPU ou uso do Neural Engine."
         return report
     }

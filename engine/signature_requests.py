@@ -12,6 +12,7 @@ import json
 import os
 from pathlib import Path
 import re
+import tempfile
 import uuid
 
 import aiohttp
@@ -20,6 +21,7 @@ from pdf_signatures import _bounded_file, _snapshot, _text
 
 BASE_URL='https://api.hellosign.com/v3'
 MAX_ATTACHMENT=40*1024*1024
+MAX_COMPLETED_PDF=128*1024*1024
 
 
 def _field_bounds(pdf,fields):
@@ -106,7 +108,9 @@ async def _call(method,path,key,form=None):
                 if not isinstance(data,dict): raise ValueError('Resposta inválida do serviço.')
                 return data
     except (aiohttp.ClientError,asyncio.TimeoutError,OSError,json.JSONDecodeError):
-        raise RuntimeError('A resposta do Dropbox Sign não pôde ser confirmada. Um envio pode ter ocorrido: consulte a conta antes de repetir.') from None
+        message=('A resposta do Dropbox Sign não pôde ser confirmada. Um envio pode ter ocorrido: consulte a conta antes de repetir.'
+                 if method=='POST' else 'A consulta ao Dropbox Sign não pôde ser concluída. Tente consultar o estado novamente.')
+        raise RuntimeError(message) from None
 
 
 def _key(options):
@@ -121,12 +125,21 @@ def _result(data,action):
     if not isinstance(request,dict): raise ValueError('O serviço não retornou uma solicitação reconhecível.')
     identifier=request.get('signature_request_id')
     if not isinstance(identifier,str) or not re.fullmatch('[A-Za-z0-9_-]{1,128}',identifier): raise ValueError('Identificador de solicitação inválido.')
+    if any(type(request.get(key)) is not bool for key in ('is_complete','has_error','test_mode')):
+        raise ValueError('O serviço retornou estados de solicitação inválidos.')
     signatures=request.get('signatures',[])
     if not isinstance(signatures,list) or len(signatures)>100: raise ValueError('Lista de assinaturas inválida.')
     # Whitelist response fields. Never persist OAuth tokens, signing URLs or keys.
     clean=[]
     for signature in signatures:
         if not isinstance(signature,dict): raise ValueError('Resposta de assinatura inválida.')
+        for field,limit in (('signer_name',200),('signer_email_address',254),('status_code',80)):
+            value=signature.get(field)
+            if value is not None and (not isinstance(value,str) or len(value)>limit or '\0' in value):
+                raise ValueError('O serviço retornou dados de destinatário inválidos.')
+        signed_at=signature.get('signed_at')
+        if signed_at is not None and (type(signed_at) is not int or not 0<=signed_at<=253402300799):
+            raise ValueError('O serviço retornou uma data de assinatura inválida.')
         clean.append({k:signature.get(k) for k in ('signer_name','signer_email_address','status_code','signed_at')})
     return {'schema_version':1,'provider':'dropbox-sign','action':action,'network_access':True,
             'signature_request_id':identifier,'test_mode':request.get('test_mode'),
@@ -195,9 +208,92 @@ def send_request(input_path,output_path,options):
 
 def request_status(input_path,output_path,options):
     if os.path.lexists(output_path): raise FileExistsError('O destino já existe.')
-    identifier=_text(options,'request_id',limit=128)
-    if not re.fullmatch('[A-Za-z0-9_-]{1,128}',identifier): raise ValueError('Informe um identificador de solicitação válido.')
+    identifier=_request_identifier(options)
     result=_result(asyncio.run(_call('GET','/signature_request/'+identifier,_key(options))),'status')
     if result['signature_request_id']!=identifier: raise ValueError('O serviço retornou outra solicitação.')
     with Path(output_path).open('x',encoding='utf-8') as destination:json.dump(result,destination,ensure_ascii=False,indent=2)
+    return result
+
+
+def _request_identifier(options):
+    identifier=_text(options,'request_id',limit=128)
+    if not re.fullmatch('[A-Za-z0-9_-]{1,128}',identifier):
+        raise ValueError('Informe um identificador de solicitação válido.')
+    return identifier
+
+
+async def _download_completed_pdf(identifier,key,path):
+    """Fetch bytes from the authenticated files endpoint, never an API-supplied URL.
+
+    The service returns PDF bytes with file_type=pdf. Redirects and decompression
+    are refused so neither credentials nor bytes can silently cross an origin or
+    exceed the bounded streamed payload. No local PDF rewrite may invalidate a
+    signature, and the returned receipt does not assert cryptographic validity.
+    """
+    try:
+        async with aiohttp.ClientSession(trust_env=False,auto_decompress=False,
+                timeout=aiohttp.ClientTimeout(total=120)) as session:
+            async with session.get(BASE_URL+'/signature_request/files/'+identifier+'?file_type=pdf',
+                    headers={'Accept':'application/pdf','Accept-Encoding':'identity',
+                             'Authorization':aiohttp.encode_basic_auth(key,'')},allow_redirects=False) as response:
+                if response.status!=200:
+                    raise ValueError(f'O Dropbox Sign não disponibilizou o PDF (HTTP {response.status}). Nenhuma repetição automática foi realizada.')
+                if response.content_type!='application/pdf' or response.headers.get('Content-Encoding','identity').lower()!='identity':
+                    raise ValueError('O serviço não retornou um PDF sem compressão de transporte.')
+                if response.content_length is not None and not 0<response.content_length<=MAX_COMPLETED_PDF:
+                    raise ValueError('O PDF concluído está vazio ou excede o limite local de 128 MiB.')
+                size=0;digest=hashlib.sha256()
+                with path.open('xb') as destination:
+                    os.chmod(path,0o600)
+                    async for chunk in response.content.iter_chunked(65536):
+                        size+=len(chunk)
+                        if size>MAX_COMPLETED_PDF:
+                            raise ValueError('O PDF concluído excede o limite local de 128 MiB.')
+                        destination.write(chunk);digest.update(chunk)
+                    destination.flush();os.fsync(destination.fileno())
+                if not size:
+                    raise ValueError('O serviço retornou um arquivo vazio.')
+                return size,digest.hexdigest()
+    except (aiohttp.ClientError,asyncio.TimeoutError,OSError):
+        raise RuntimeError('O download do PDF não pôde ser concluído. Nenhum arquivo parcial foi publicado; consulte o estado antes de tentar novamente.') from None
+
+
+def download_request(input_path,output_path,options):
+    """Download a completed request on an explicit user action, without email."""
+    output=Path(output_path)
+    if os.path.lexists(output): raise FileExistsError('O destino já existe.')
+    if options.get('confirm_download') is not True:
+        raise ValueError('Confirme o download do PDF da solicitação selecionada.')
+    identifier=_request_identifier(options);key=_key(options)
+    result=_result(asyncio.run(_call('GET','/signature_request/'+identifier,key)),'downloaded')
+    if result['signature_request_id']!=identifier:
+        raise ValueError('O serviço retornou outra solicitação.')
+    if not result['is_complete'] or result['has_error']:
+        raise ValueError('A solicitação ainda não está concluída sem erros; nenhum PDF foi baixado.')
+    # Private staging and no-clobber hard-link publication also protect direct
+    # callers; pdf_engine adds its outer transaction and destination race checks.
+    with tempfile.TemporaryDirectory(prefix='.pdf-signature-download-',dir=output.parent) as temporary:
+        staged=Path(temporary)/'completed.pdf'
+        size,digest=asyncio.run(_download_completed_pdf(identifier,key,staged))
+        with staged.open('rb') as stream:
+            if not stream.read(8).startswith(b'%PDF-'):
+                raise ValueError('O arquivo recebido não tem um cabeçalho PDF válido.')
+        try:
+            with fitz.open(staged) as document:
+                if not document.is_pdf or document.is_repaired or document.needs_pass or (document.metadata or {}).get('encryption') or not 1<=len(document)<=10000:
+                    raise ValueError('O serviço retornou um PDF danificado, criptografado, vazio ou com mais de 10 mil páginas.')
+                pages=len(document)
+                # Resolve every page now; a readable header alone is insufficient.
+                for page in document:
+                    if page.rect.is_empty or page.rect.is_infinite:
+                        raise ValueError('O PDF recebido contém uma página inválida.')
+        except (fitz.FileDataError,RuntimeError):
+            raise ValueError('O serviço retornou um PDF ilegível; nenhum arquivo foi publicado.') from None
+        os.link(staged,output,follow_symlinks=False)
+        directory_fd=os.open(output.parent,os.O_RDONLY|getattr(os,'O_DIRECTORY',0))
+        try:os.fsync(directory_fd)
+        finally:os.close(directory_fd)
+    result.update(output_sha256=digest,output_bytes=size,pages=pages,
+                  cryptographic_signatures_verified=False,
+                  summary='PDF concluído recebido do Dropbox Sign, preservado byte a byte. Use Verificar assinaturas para examinar integridade e confiança; a conclusão do serviço não é uma validação criptográfica.')
     return result

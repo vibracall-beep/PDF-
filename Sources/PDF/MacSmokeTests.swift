@@ -364,6 +364,7 @@ enum MacSmokeTests {
         await auditAsync("Command palette shortcuts and workspace profiles") { try await AdvancedCustomizationAuditChecks.run() }
         await auditAsync("Opt-in folder automation") { try await AutomationAuditChecks.run() }
         await auditAsync("Library revisions synchronization and Portuguese sources") { try await LibraryAuditChecks.run() }
+        await auditAsync("Library interrupted publications and catalog recovery") { try await LibraryCrashAudit.run() }
         await auditAsync("Real crash and recovery") { try await CrashRecoveryAudit.run() }
         await auditAsync("Runtime lease across native process termination") { try await BundleRuntimeLeaseAudit.run() }
         await auditAsync("Explicit settings and bookmark exchange") { try await SettingsExchangeAuditChecks.run() }

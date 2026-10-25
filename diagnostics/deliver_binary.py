@@ -194,7 +194,7 @@ def verify_cross_reports(directory, origin, verified, manifest, source_verified)
                 and report.get('guiReceiptSHA256') == gui.hashed_file(directory / gui.RECEIPT, 32768)['sha256'],
                 'Cross report does not bind the mandatory installed-binary GUI evidence.')
         for key, expected in (('guiCaptureAttempts', 1), ('guiCaptureDeadlineSeconds', 300),
-                              ('guiPNGCount', 32), ('guiOwnWindowAXCount', 6), ('guiOriginalOCRFileCount', 2)):
+                              ('guiPNGCount', len(gui.PNG_NAMES)), ('guiOwnWindowAXCount', len(gui.AX_NAMES)), ('guiOriginalOCRFileCount', 2)):
             require(type(report.get(key)) is int and report[key] == expected, 'Invalid cross GUI contract: ' + key)
     except (OSError, ValueError, KeyError, TypeError) as error:
         raise evidence.EvidenceFailure('Cross GUI evidence rejected: ' + str(error)) from error

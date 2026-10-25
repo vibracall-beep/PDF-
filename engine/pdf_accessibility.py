@@ -19,6 +19,9 @@ ROLES = {'Document','Part','Sect','Div','P','H','H1','H2','H3','H4','H5','H6',
          'L','LI','Lbl','LBody','Table','TR','TH','TD','THead','TBody','TFoot',
          'Figure','Formula','Caption','Note','Link','Span','Quote','BlockQuote'}
 TEXT_FIELDS = {'alt':'/Alt', 'actual_text':'/ActualText', 'title':'/T', 'language':'/Lang'}
+GROUP_ROLES = {'Part','Sect','Div','L','LI','LBody','Table','TR','THead','TBody','TFoot','Quote','BlockQuote'}
+GROUP_CHILD_ROLES = {'L': {'LI'}, 'LI': {'Lbl','LBody'}, 'Table': {'TR','THead','TBody','TFoot','Caption'},
+                     'TR': {'TH','TD'}, 'THead': {'TR'}, 'TBody': {'TR'}, 'TFoot': {'TR'}}
 
 
 def _raw(obj, key, default=None):
@@ -187,6 +190,68 @@ def _set_table_scope(node, scope):
         node[g.pdf_name('/A')]=result[0] if isinstance(original,g.DictionaryObject) and len(result)==1 else g.ArrayObject(result)
 
 
+def _validate_parent_links(writer,nodes,index):
+    """A visible /K tree must agree with its parent links before any edit."""
+    root_ref=_raw(writer.root,'/StructTreeRoot')
+    if not isinstance(root_ref,g.IndirectObject):
+        raise ValueError('A raiz de tags precisa ser indireta para preservar seus vínculos durante a correção.')
+    for record in nodes:
+        expected=index[record['parent']][0] if record['parent'] is not None else root_ref
+        if _id(_raw(index[record['id']][1],'/P'))!=_id(expected):
+            raise ValueError('Os vínculos /P e /K da árvore de tags discordam; normalize a estrutura antes de editar.')
+
+
+def _group_siblings(writer,specifications):
+    """Wrap explicit, contiguous siblings without reallocating any content.
+
+    Existing MCIDs, object references, inherited pages and ParentTree mappings
+    remain identical. Multiple passes can reconstruct rows, tables, lists and
+    sections; no layout or semantic role is guessed from the appearance.
+    """
+    if not isinstance(specifications,list) or len(specifications)>1000:
+        raise ValueError('Informe até 1.000 grupos explícitos de tags irmãs.')
+    tree,nodes,index,_=_tree(writer);records={node['id']:node for node in nodes}
+    _validate_parent_links(writer,nodes,index)
+    plans=[];used=set()
+    for specification in specifications:
+        if not isinstance(specification,dict) or set(specification)-{'children','role','title'}:
+            raise ValueError('Um grupo aceita somente children, role e title.')
+        identities=specification.get('children');role=specification.get('role')
+        if (not isinstance(identities,list) or not 1<=len(identities)<=10000
+            or not all(isinstance(identity,str) and identity in index for identity in identities)
+            or len(set(identities))!=len(identities) or used.intersection(identities)):
+            raise ValueError('Selecione tags conhecidas, distintas e ainda não usadas em outro grupo.')
+        if not isinstance(role,str) or role not in GROUP_ROLES:
+            raise ValueError('Escolha um papel de agrupamento: seção, lista, tabela ou linha.')
+        parent=records[identities[0]]['parent']
+        if any(records[identity]['parent']!=parent for identity in identities):
+            raise ValueError('Um novo grupo exige tags do mesmo pai.')
+        parent_ref,parent_object=index[parent] if parent is not None else (_raw(writer.root,'/StructTreeRoot'),tree)
+        current=_array(_raw(parent_object,'/K'));current_ids=[_id(value) for value in current]
+        first=current_ids.index(identities[0])
+        if current_ids[first:first+len(identities)]!=identities:
+            raise ValueError('Agrupe tags contíguas na ordem atual; reordene os irmãos antes de agrupar.')
+        children=[index[identity][0] for identity in identities]
+        permitted=GROUP_CHILD_ROLES.get(role)
+        if permitted is not None and any(str(index[identity][1]['/S']).lstrip('/') not in permitted for identity in identities):
+            raise ValueError('Os papéis dos filhos não são compatíveis com este grupo. Revise células, linhas ou itens primeiro.')
+        title=_text(specification['title'],'Título do grupo') if 'title' in specification else None
+        plans.append((identities,role,title,parent_ref,parent_object,children));used.update(identities)
+    for identities,role,title,parent_ref,parent_object,children in plans:
+        group=g.DictionaryObject({g.pdf_name('/Type'):g.pdf_name('/StructElem'),g.pdf_name('/S'):g.pdf_name('/'+role),
+            g.pdf_name('/P'):parent_ref,g.pdf_name('/K'):g.ArrayObject(children)})
+        if title is not None: group[g.pdf_name('/T')]=g.pdf_string(title)
+        group_ref=writer.add_object(group)
+        current=_array(_raw(parent_object,'/K'));current_ids=[_id(value) for value in current]
+        first=current_ids.index(identities[0])
+        parent_object[g.pdf_name('/K')]=g.ArrayObject(current[:first]+[group_ref]+current[first+len(identities):])
+        writer.mark_update(parent_ref)
+        for identity in identities:
+            reference,node=index[identity];node[g.pdf_name('/P')]=group_ref;writer.mark_update(reference)
+    # Bound depth after all groups too, including groups of ancestor siblings.
+    _,nodes,index,_=_tree(writer);_validate_parent_links(writer,nodes,index)
+
+
 def remediate_pdf(input_path,output_path,options):
     edits=options.get('edits',[])
     if not isinstance(edits,list) or len(edits)>10000 or not all(isinstance(e,dict) for e in edits):
@@ -200,6 +265,7 @@ def remediate_pdf(input_path,output_path,options):
             raise ValueError('Inspecione novamente o documento: a correção exige o SHA-256 exato da origem revisada.')
         if options.get('create_page_tags') is not None: _create_page_tags(writer,options['create_page_tags'])
         _,nodes,index,_=_tree(writer)
+        if '/StructTreeRoot' in writer.root: _validate_parent_links(writer,nodes,index)
         seen=set()
         for edit in edits:
             identity=edit.get('id')
@@ -236,6 +302,7 @@ def remediate_pdf(input_path,output_path,options):
                     raise ValueError('Reordene somente todos os filhos estruturais do mesmo pai, sem remover conteúdo nem mover MCIDs.')
                 references=dict(zip(ids,current)); node[g.pdf_name('/K')]=g.ArrayObject([references[i] for i in order])
             writer.mark_update(reference)
+        if 'groups' in options: _group_siblings(writer,options['groups'])
         if 'language' in options: writer.root[g.pdf_name('/Lang')]=g.pdf_string(_language(options['language']))
         writer.update_root()
         # A missing tree is not "fixed" with Marked=true or PDF/UA metadata.

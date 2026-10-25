@@ -3,8 +3,9 @@ from __future__ import annotations
 
 import math
 import statistics
+import re
 import fitz
-from PIL import Image
+from PIL import Image, ImageDraw
 
 
 def _axes(lines, tolerance):
@@ -69,8 +70,90 @@ def rectangular_grid(horizontal,vertical,tolerance):
     return dict(rows=rows,columns=columns,cells=cells,rect=[xs[0][0],ys[0][0],xs[-1][0],ys[-1][0]])
 
 
+def _text_mask(binary):
+    """Keep measured, disconnected glyph-sized components for projection.
+
+    Long rules, filled artwork and tiny speckles cannot vote for a text angle.
+    Run-length components bound memory independently from the full-resolution
+    OCR raster; the caller supplies a sample of at most 1,000 pixels per side.
+    """
+    width,height=binary.size;data=binary.tobytes();runs=[];parents=[];previous=[]
+    def root(index):
+        while parents[index]!=index:
+            parents[index]=parents[parents[index]];index=parents[index]
+        return index
+    for y in range(height):
+        current=[];cursor=0
+        for match in re.finditer(b'\x00+',data[y*width:(y+1)*width]):
+            left,right=match.span();index=len(runs)
+            if index>=100000: return None,None
+            runs.append((left,right,y));parents.append(index);current.append(index)
+            while cursor<len(previous) and runs[previous[cursor]][1]<left: cursor+=1
+            for offset in range(cursor,len(previous)):
+                prior=previous[offset]
+                if runs[prior][0]>right: break
+                a,b=root(index),root(prior)
+                if a!=b: parents[a]=b
+        previous=current
+    boxes={}
+    for index,(left,right,y) in enumerate(runs):
+        identity=root(index)
+        if identity not in boxes: boxes[identity]=[left,y,right,y+1,right-left]
+        else:
+            box=boxes[identity];box[0]=min(box[0],left);box[2]=max(box[2],right)
+            box[3]=y+1;box[4]+=right-left
+    retained={identity:box for identity,box in boxes.items()
+        if 3<=box[3]-box[1]<=min(80,height*.12)
+        and 1<=box[2]-box[0]<=min(100,width*.12)
+        and .08<=(box[2]-box[0])/(box[3]-box[1])<=6
+        and .06<=box[4]/((box[2]-box[0])*(box[3]-box[1]))<=.92}
+    if len(retained)<30: return None,None
+    mask=Image.new('L',binary.size,255);draw=ImageDraw.Draw(mask)
+    for index,(left,right,y) in enumerate(runs):
+        if root(index) in retained: draw.line((left,y,right-1,y),fill=0)
+    return mask,statistics.median(box[3]-box[1] for box in retained.values())
+
+
+def _text_angle(sample):
+    """Require a strong interior projection maximum and several distinct lines."""
+    mask,glyph_height=_text_mask(sample)
+    if mask is None: return None
+    def projection(angle):
+        with mask.rotate(angle,Image.Resampling.NEAREST,expand=True,fillcolor=255) as rotated:
+            width,height=rotated.size;data=rotated.tobytes()
+            rows=[data.count(b'\x00',y*width,(y+1)*width) for y in range(height)]
+            return sum(value*value for value in rows),rows
+    try:
+        zero,_=projection(0)
+        candidates=[(projection(step/2)[0],step/2) for step in range(-14,15)]
+        best,angle=max(candidates,key=lambda item:(item[0],-abs(item[1])))
+        refined=[(projection(round(angle+step/10,1))[0],round(angle+step/10,1))
+                 for step in range(-4,5) if abs(angle+step/10)<=7]
+        best,angle=max([*refined,(best,angle)],key=lambda item:(item[0],-abs(item[1])))
+        if abs(angle)<.5 or abs(angle)>=6.9 or not zero or best<zero*1.18: return None
+        # Reject broad maxima (photographs/noise) and optimum at the angle cap.
+        neighbours=[projection(angle+offset)[0] for offset in (-1,1)]
+        if best<max(neighbours)*1.06: return None
+        _,rows=projection(angle);threshold=max(12,max(rows)*.12)
+        bands=[];start=None
+        for index,value in enumerate([*rows,0]):
+            if value>=threshold and start is None: start=index
+            elif value<threshold and start is not None:
+                if 2<=index-start<=glyph_height*2.2: bands.append((start,index))
+                start=None
+        if not 4<=len(bands)<=100: return None
+        covered=sum(sum(rows[start:end]) for start,end in bands)
+        if covered<sum(rows)*.6: return None
+        return angle,dict(projection_gain=round(best/zero,4),text_line_bands=len(bands))
+    finally: mask.close()
+
+
 def deskew(image,scale,segments,components):
-    """Estimate only small ruling-line rotations; text-only pages are unchanged."""
+    """Estimate a small angle from a grid or several measured text baselines.
+
+    Correction affects only the recognition raster, never the source pixels.
+    Ambiguous, sparse, photographic and out-of-range pages stay unchanged.
+    """
     original=image.size;ratio=min(1,1000/max(image.size))
     sample=image.resize((max(1,round(image.width*ratio)),max(1,round(image.height*ratio))),Image.Resampling.BILINEAR)
     sample=sample.point(lambda value:0 if value<180 else 255)
@@ -85,20 +168,28 @@ def deskew(image,scale,segments,components):
             if not any(rectangular_grid(hs,vs,tolerance) is not None for hs,vs in components(horizontal,vertical,tolerance)): return 0
             return sum((line['end']-line['start'])**2 for line in horizontal+vertical)
         finally: rotated.close()
+    evidence={};status='ruling-line-evidence'
     try:
         zero=score(0);candidates=[(score(step/2),step/2) for step in range(-14,15)]
         best,angle=max(candidates,key=lambda item:(item[0],-abs(item[1])))
         refined=[(score(round(angle+step/10,1)),round(angle+step/10,1)) for step in range(-4,5) if abs(angle+step/10)<=7]
         best,angle=max([*refined,(best,angle)],key=lambda item:(item[0],-abs(item[1])))
+        if not best or abs(angle)<0.5 or best<zero*1.35:
+            # A measured upright frame takes precedence over differently tilted
+            # text inside it. Do not rotate a valid table to follow a text inset.
+            if best:
+                return image,dict(applied=False,rotation_degrees=0,status='upright-or-insufficient-grid-evidence',original_size=list(original),processed_size=list(original))
+            text_result=_text_angle(sample)
+            if text_result is None:
+                return image,dict(applied=False,rotation_degrees=0,status='upright-or-insufficient-evidence',original_size=list(original),processed_size=list(original))
+            angle,evidence=text_result;status='text-line-projection-evidence'
     finally: sample.close()
-    if not best or abs(angle)<0.5 or best<zero*1.35:
-        return image,dict(applied=False,rotation_degrees=0,status='upright-or-insufficient-grid-evidence',original_size=list(original),processed_size=list(original))
     radians=math.radians(angle)
     predicted=(math.ceil(abs(image.width*math.cos(radians))+abs(image.height*math.sin(radians)))+2,
                math.ceil(abs(image.width*math.sin(radians))+abs(image.height*math.cos(radians)))+2)
     if predicted[0]*predicted[1]>40_000_000: raise ValueError('A correção de inclinação excede 40 milhões de pixels. Reduza o DPI.')
     corrected=image.rotate(angle,Image.Resampling.BICUBIC,expand=True,fillcolor=255)
-    return corrected,dict(applied=True,rotation_degrees=angle,status='ruling-line-evidence',original_size=list(original),processed_size=list(corrected.size))
+    return corrected,dict(applied=True,rotation_degrees=angle,status=status,original_size=list(original),processed_size=list(corrected.size),**evidence)
 
 
 def original_geometry(rect,preprocessing,scale,bounds):

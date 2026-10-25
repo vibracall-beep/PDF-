@@ -12,6 +12,9 @@ struct ReaderWorkspaceView: View {
     @AppStorage("readerShowAnnotations") private var showAnnotations = true
     @AppStorage("readerHiddenToolbar") private var hiddenToolbar = ""
     @AppStorage("readerHiddenAnnotations") private var hiddenAnnotations = ""
+    @AppStorage("readerToolbarOrder") private var toolbarOrder = ""
+    @AppStorage("readerAnnotationOrder") private var annotationOrder = ""
+    @AppStorage("readerPinSave") private var pinSave = true
     @AppStorage("readerHighlightColor") private var highlightColor = "#FFE600"
     @AppStorage("readerNoteColor") private var noteColor = "#FFCC00"
     @AppStorage("readerShowTabs") private var showTabs = true
@@ -66,6 +69,11 @@ struct ReaderWorkspaceView: View {
         .onChange(of:hiddenToolbar) { _,hidden in if hidden.split(separator:",").contains("search") { model.cancelSearch() } }
         .animation(preferences.animation(reduceMotion:reduceMotion),value:showSidebar)
         .animation(preferences.animation(reduceMotion:reduceMotion),value:showAnnotations)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:toolbarOrder)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:annotationOrder)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:hiddenToolbar)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:hiddenAnnotations)
+        .animation(preferences.animation(reduceMotion:reduceMotion),value:pinSave)
         .sheet(isPresented:$showSharing) { SharePDFView().environmentObject(model).frame(width:620,height:460) }
         .sheet(isPresented:$showNote) {
             VStack(alignment:.leading,spacing:16) {
@@ -102,10 +110,8 @@ struct ReaderWorkspaceView: View {
                     toolbarContent.frame(minWidth:geometry.size.width,alignment:.leading)
                 }.help("Role horizontalmente para acessar todos os controles de leitura")
             }
-            if visible("save",in:hiddenToolbar) {
-                Button("Salvar cópia",systemImage:"square.and.arrow.down") { model.save() }
-                    .fixedSize(horizontal:true,vertical:false).disabled(model.document == nil)
-                    .help("Salvar uma nova cópia do documento · ⇧⌘S")
+            if pinSave && visible("save",in:hiddenToolbar) {
+                saveButton
             }
         }.frame(height:34).padding(.horizontal,12).padding(.vertical,7).background(surface)
             .popover(isPresented:$showReaderSettings) { readerSettingsPanel }
@@ -120,10 +126,21 @@ struct ReaderWorkspaceView: View {
     }
     var toolbarContent:some View {
         HStack(spacing:10) {
+            ForEach(ReaderBarLayout.visible(toolbarOrder,hidden:hiddenToolbar,defaults:ReaderBarLayout.primary,pinSave:pinSave)) { item in
+                HStack(spacing:0) { toolbarItem(item.id) }
+                    .accessibilityElement(children:.contain).accessibilityLabel(item.title)
+                    .accessibilityIdentifier("pdf.reader.toolbar."+item.id)
+            }
+        }
+    }
+    @ViewBuilder private func toolbarItem(_ id:String) -> some View {
+        switch id {
+        case "sidebar":
             Button { showSidebar.toggle() } label: { Image(systemName:"sidebar.left") }
                 .help("Mostrar páginas e sumário").accessibilityLabel(showSidebar ? "Ocultar páginas e sumário" : "Mostrar páginas e sumário")
-            if visible("open",in:hiddenToolbar) { Button("Abrir",systemImage:"folder") { model.open() } }
-            if visible("search",in:hiddenToolbar) {
+        case "open": Button("Abrir",systemImage:"folder") { model.open() }
+        case "search":
+            HStack(spacing:8) {
                 TextField("Buscar no documento",text:$search).textFieldStyle(.roundedBorder).frame(minWidth:110,maxWidth:200).focused($focusedField,equals:.search).onSubmit { find() }.accessibilityIdentifier("pdf.reader.search")
                 if model.searching {
                     Button { model.cancelSearch() } label: { Image(systemName:"xmark.circle") }.help("Cancelar busca").accessibilityLabel("Cancelar busca")
@@ -132,13 +149,15 @@ struct ReaderWorkspaceView: View {
                     Button { find() } label: { Image(systemName:"magnifyingglass") }.help("Próxima ocorrência").accessibilityLabel("Buscar próxima ocorrência")
                 }
             }
-            Spacer(minLength:0)
-            if visible("zoom",in:hiddenToolbar) {
+        case "zoom":
+            HStack(spacing:8) {
                 Button { changeZoom(increase:false) } label: { Image(systemName:"minus.magnifyingglass") }.help("Reduzir").accessibilityLabel("Reduzir zoom")
                 Button { changeZoom(increase:true) } label: { Image(systemName:"plus.magnifyingglass") }.help("Ampliar").accessibilityLabel("Ampliar zoom")
             }
-            if visible("compare",in:hiddenToolbar) { comparisonMenu }
-            if visible("fit",in:hiddenToolbar) { Button("Ajustar") { model.setReaderMagnification(autoScale: true) }.help("Ajustar à janela") }
+        case "compare": comparisonMenu
+        case "fit": Button("Ajustar") { model.setReaderMagnification(autoScale: true) }.help("Ajustar à janela")
+        case "save": saveButton
+        case "options":
             Menu {
                 Picker("Leitura",selection:$mode) { Text("Contínua").tag(0); Text("Página única").tag(1); Text("Duas páginas").tag(2) }
                 Toggle("Barra de anotações",isOn:$showAnnotations)
@@ -154,31 +173,49 @@ struct ReaderWorkspaceView: View {
                 Divider()
                 Button("Personalizar leitor…") { showReaderSettings = true }
             } label: { Image(systemName:"ellipsis.circle") }.help("Opções do documento").accessibilityLabel("Opções do documento")
+        case "customize":
             Button { showReaderSettings = true } label: { Image(systemName:"slider.horizontal.3") }
                 .help("Personalizar visualização e barras do leitor").accessibilityLabel("Personalizar leitor")
+        default: EmptyView()
         }
+    }
+    private var saveButton:some View {
+        Button("Salvar cópia",systemImage:"square.and.arrow.down") { model.save() }
+            .fixedSize(horizontal:true,vertical:false).disabled(model.document == nil)
+            .help("Salvar uma nova cópia do documento")
+            .accessibilityIdentifier("pdf.reader.save-copy")
     }
     var annotationToolbar:some View {
         ScrollView(.horizontal,showsIndicators:false) {
             HStack {
-                if visible("highlight",in:hiddenAnnotations) { Button("Realçar",systemImage:"highlighter") { model.highlight(colorHex:highlightColor) } }
-                if visible("note",in:hiddenAnnotations) { Button("Nota",systemImage:"note.text") { showNote = true } }
-                if visible("ink",in:hiddenAnnotations) { Toggle(isOn:$model.inkMode) { Label("Desenhar",systemImage:"pencil.tip") }.toggleStyle(.button) }
-                if visible("editor",in:hiddenAnnotations) {
-                    Button("Editar anotações",systemImage:"cursorarrow.rays") { model.inkMode = false; showInspector.toggle() }
-                        .accessibilityIdentifier("pdf.annotation.inspector")
+                ForEach(ReaderBarLayout.visible(annotationOrder,hidden:hiddenAnnotations,defaults:ReaderBarLayout.annotations)) { item in
+                    HStack(spacing:0) { annotationItem(item.id) }
+                        .accessibilityElement(children:.contain).accessibilityLabel(item.title)
+                        .accessibilityIdentifier("pdf.reader.annotation."+item.id)
                 }
-                if visible("history",in:hiddenAnnotations) {
-                    Button { model.undoAnnotation() } label:{ Image(systemName:"arrow.uturn.backward") }.disabled(!model.canUndoAnnotation).help("Desfazer anotação").accessibilityLabel("Desfazer anotação")
-                    Button { model.redoAnnotation() } label:{ Image(systemName:"arrow.uturn.forward") }.disabled(!model.canRedoAnnotation).help("Refazer anotação").accessibilityLabel("Refazer anotação")
-                }
-                if visible("bookmark",in:hiddenAnnotations) { Button(model.bookmarks.contains(model.currentPage) ? "Desmarcar página" : "Marcar página",systemImage:model.bookmarks.contains(model.currentPage) ? "bookmark.fill" : "bookmark") { model.toggleBookmark() } }
                 Spacer()
                 if model.hasEdits {
                     Label("Anotações ainda não salvas",systemImage:"pencil").font(.caption).foregroundStyle(.secondary)
                         .help("Campos de formulário são verificados ao salvar, fechar ou abrir outro documento.")
                 }
             }.padding(.horizontal,14).padding(.vertical,8)
+        }
+    }
+    @ViewBuilder private func annotationItem(_ id:String) -> some View {
+        switch id {
+        case "highlight": Button("Realçar",systemImage:"highlighter") { model.highlight(colorHex:highlightColor) }
+        case "note": Button("Nota",systemImage:"note.text") { showNote = true }
+        case "ink": Toggle(isOn:$model.inkMode) { Label("Desenhar",systemImage:"pencil.tip") }.toggleStyle(.button)
+        case "editor":
+            Button("Editar anotações",systemImage:"cursorarrow.rays") { model.inkMode = false; showInspector.toggle() }
+                .accessibilityIdentifier("pdf.annotation.inspector")
+        case "history":
+            HStack(spacing:8) {
+                Button { model.undoAnnotation() } label:{ Image(systemName:"arrow.uturn.backward") }.disabled(!model.canUndoAnnotation).help("Desfazer anotação").accessibilityLabel("Desfazer anotação")
+                Button { model.redoAnnotation() } label:{ Image(systemName:"arrow.uturn.forward") }.disabled(!model.canRedoAnnotation).help("Refazer anotação").accessibilityLabel("Refazer anotação")
+            }
+        case "bookmark": Button(model.bookmarks.contains(model.currentPage) ? "Desmarcar página" : "Marcar página",systemImage:model.bookmarks.contains(model.currentPage) ? "bookmark.fill" : "bookmark") { model.toggleBookmark() }
+        default: EmptyView()
         }
     }
     func readerSidebar(_ document:PDFDocument) -> some View {

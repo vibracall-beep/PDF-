@@ -141,4 +141,14 @@ class SignatureRequestTests(unittest.TestCase):
         self.assertEqual(rotated.read_bytes(),before)
         self.assertEqual(self.requests,[])
 
+    def test_result_rejects_nested_data_booleans_and_invalid_timestamps(self):
+        base={'signature_request_id':'fixture-id','test_mode':True,'is_complete':False,'has_error':False,
+              'signatures':[{'signer_name':'Local Test','signer_email_address':'test@example.invalid',
+                             'status_code':'signed','signed_at':1700000000}]}
+        self.assertEqual(adapter._result({'signature_request':base},'status')['signatures'][0]['signed_at'],1700000000)
+        for changes in ({'signer_name':{'api_key':'never-persist'}},{'status_code':['signed']},
+                        {'signer_email_address':'a'*255},{'signed_at':True},{'signed_at':-1}):
+            with self.subTest(changes=changes),self.assertRaises(ValueError):
+                adapter._result({'signature_request':{**base,'signatures':[{**base['signatures'][0],**changes}]}},'status')
+
 if __name__=='__main__':unittest.main()

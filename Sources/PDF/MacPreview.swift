@@ -530,9 +530,9 @@ enum MacPreview {
         try await capture("recuperacao")
 
         // Keep the original personalization captures, now without residual document chrome.
-        for (tab,name) in [("Aparência","personalizar"),("Ferramentas","ferramentas"),("Navegação","navegacao"),("Leitor","opcoes-leitura"),("Arquivos","arquivos"),("Atalhos","atalhos"),("Perfis","perfis")] {
+        for (tab,name) in [("Aparência","personalizar"),("Ferramentas","ferramentas"),("Navegação","navegacao"),("Leitor","opcoes-leitura"),("Arquivos","arquivos"),("Atalhos","atalhos"),("Perfis","perfis"),("Menus","menus")] {
             present(.customization(tab))
-            try await capture(name)
+            try await capture(name, auditRequired: name == "menus" ? ["pdf.menus.quick-title", "pdf.menus.quick-add"] : nil)
         }
         preferences.state.colorScheme = "dark"
         preferences.state.accentHex = "#AF52DE"

@@ -8,9 +8,26 @@ import fitz
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'engine'))
 import pdf_accessibility
 import pdf_standards
+from tests.test_accessibility_grouping import tagged_cells
 
 
 class AccessibilityIndependentValidation(unittest.TestCase):
+    def test_explicit_row_and_table_reconstruction_still_requires_independent_pdfua_review(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root=Path(temporary);source=tagged_cells(root)
+            inspected=pdf_accessibility.inspect_pdf(source,root/'source.json')
+            ids=[node['id'] for node in inspected['nodes'][1:]];rows=root/'rows.pdf'
+            pdf_accessibility.remediate_pdf(source,rows,dict(input_sha256=inspected['input_sha256'],groups=[
+                dict(children=ids[:2],role='TR'),dict(children=ids[2:],role='TR')]))
+            inspected=pdf_accessibility.inspect_pdf(rows,root/'rows.json');table=root/'table.pdf'
+            pdf_accessibility.remediate_pdf(rows,table,dict(input_sha256=inspected['input_sha256'],groups=[
+                dict(children=[node['id'] for node in inspected['nodes'] if node['role']=='TR'],role='Table')]))
+            report=pdf_standards.validate_pdf(table,root/'validation.json',{'flavour':'ua1'},standard='pdfua')
+            self.assertTrue(report['accessibility_preflight']['has_structure_tree'])
+            self.assertFalse(report['compliant']);self.assertGreater(report['counts']['failedRules'],0)
+            self.assertTrue(report['manual_review_required']);self.assertFalse(report['accessibility_certified'])
+            self.assertIn('veraPDF',report['validator']['name'])
+
     def test_remediated_structure_is_reported_but_incomplete_pdfua_is_not_certified(self):
         with tempfile.TemporaryDirectory() as temporary:
             root=Path(temporary);source=root/'original.pdf';target=root/'tagged.pdf'

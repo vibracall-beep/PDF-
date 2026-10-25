@@ -323,7 +323,7 @@ def analyze(page, page_number, options, external):
                 limitations=['Scores are OCR evidence, not calibrated accuracy.','Merged cells require a strong rectangular frame and unambiguous interior borders.',
                     'Automatic rule removal requires thin borders; standalone field lines require blank adjacent bands. Ambiguous shapes need manual review.',
                     'Borderless tables require explicit aligned mode, repeated columns and numeric evidence.',
-                    'Optional deskew uses ruling lines within seven degrees; text-only skew and handwriting are not corrected.',
+                    'Optional deskew uses ruling lines or multiple measured text baselines within seven degrees; sparse, ambiguous and handwritten pages may remain unchanged.',
                     'Inverse-mapped rectangles enclose original quadrilaterals; rotated form fields require manual review.'])
 
 
@@ -342,6 +342,7 @@ def elements(analysis):
     for group in groups:
         ordered=sorted(group['words'],key=lambda word:word['rect'][0]); bounds=fitz.Rect(ordered[0]['rect'])
         for word in ordered[1:]: bounds |= fitz.Rect(word['rect'])
-        spans=[dict(text=word['text']+(' ' if index<len(ordered)-1 else ''),size=max(4,fitz.Rect(word['rect']).height),flags=0,color=0) for index,word in enumerate(ordered)]
-        entries.append(dict(type=0,bbox=list(bounds),lines=[dict(spans=spans)]))
+        spans=[dict(text=word['text']+(' ' if index<len(ordered)-1 else ''),bbox=list(word['rect']),
+                    size=max(4,fitz.Rect(word['rect']).height),flags=0,color=0) for index,word in enumerate(ordered)]
+        entries.append(dict(type=0,bbox=list(bounds),lines=[dict(bbox=list(bounds),spans=spans)]))
     return sorted(entries,key=lambda entry:(round(entry['bbox'][1]/8),entry['bbox'][0]))

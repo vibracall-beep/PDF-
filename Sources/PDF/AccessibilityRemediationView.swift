@@ -48,6 +48,39 @@ struct AccessibilityInspectedSelection: Sendable {
     let values: [String: String]
 }
 
+/// The UI stages only an explicit contiguous group; the engine revalidates the
+/// actual structure and page/content bindings against the inspected SHA-256.
+enum AccessibilityGroupingEdits {
+    static let roles = ["Sect", "Part", "Div", "L", "LI", "LBody", "Table", "TR", "THead", "TBody", "TFoot", "Quote", "BlockQuote"]
+    static func stage(selected: Set<String>, siblings: [String], role: String, title: String) throws -> [String: Any] {
+        guard !selected.isEmpty, selected.count <= 10000, selected.isSubset(of: Set(siblings)),
+              let first = siblings.firstIndex(where: { selected.contains($0) }),
+              first + selected.count <= siblings.count,
+              Set(siblings[first..<(first + selected.count)]) == selected,
+              roles.contains(role), title.count <= 16384, !title.contains("\0") else {
+            throw NSError(domain: "PDF.AccessibilityGrouping", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: "Marque tags irmãs contíguas e escolha um papel de grupo. Reordene os irmãos antes de agrupar."])
+        }
+        var result: [String: Any] = ["children": Array(siblings[first..<(first + selected.count)]), "role": role]
+        if !title.isEmpty { result["title"] = title }
+        return result
+    }
+    static func runAuditChecks() throws {
+        let group = try stage(selected: ["2:0", "3:0"], siblings: ["1:0", "2:0", "3:0", "4:0"], role: "TR", title: "Linha revisada")
+        guard group["children"] as? [String] == ["2:0", "3:0"], group["role"] as? String == "TR" else {
+            throw NSError(domain: "PDF.AccessibilityGrouping", code: 2)
+        }
+        let rejected: [Set<String>] = [[], ["1:0", "3:0"], ["9:0"]]
+        for selection in rejected {
+            do {
+                _ = try stage(selected: selection, siblings: ["1:0", "2:0", "3:0"], role: "Sect", title: "")
+            } catch { continue }
+            throw NSError(domain: "PDF.AccessibilityGrouping", code: 3,
+                userInfo: [NSLocalizedDescriptionKey: "O agrupamento aceitou tags desconhecidas ou não contíguas."])
+        }
+    }
+}
+
 /// The edit protocol distinguishes omission (preserve), null (remove), and text.
 /// Keep this independent from SwiftUI state so the actual JSON contract is audited.
 enum AccessibilityTagEdits {
@@ -115,6 +148,7 @@ enum AccessibilityTagEdits {
         let restored = stage(id: "1:0", originalRole: "TH", role: "TH", original: original,
             values: original, present: ["title", "actual_text", "scope"], existing: cleared)
         try require(Set(restored.keys) == ["id"])
+        try AccessibilityGroupingEdits.runAuditChecks()
     }
 }
 
@@ -133,6 +167,10 @@ struct AccessibilityRemediationView: View {
     @State private var scope = ""
     @State private var language = "pt-BR"
     @State private var edits: [String: [String: Any]] = [:]
+    @State private var groupSelection = Set<String>()
+    @State private var groupRole = "Sect"
+    @State private var groupTitle = ""
+    @State private var groups: [[String: Any]] = []
     @State private var pageRoles: [String] = []
     @State private var pageAlternatives: [String] = []
     @State private var reviewedPages = false
@@ -175,6 +213,7 @@ struct AccessibilityRemediationView: View {
                     Label(result.lastPathComponent, systemImage: "doc.badge.checkmark")
                     Button("Validar PDF/UA…") { showValidation = true }
                     Button("Mostrar cópia") { NSWorkspace.shared.activateFileViewerSelecting([result]) }
+                    Button("Continuar nesta cópia") { source = result; inspect() }.disabled(model.busy)
                 }
             }
             if model.busy { HStack { ProgressView().controlSize(.small); Text(model.message); Button("Cancelar") { model.cancel() } } }
@@ -196,9 +235,17 @@ struct AccessibilityRemediationView: View {
         HStack(alignment: .top, spacing: 18) {
             List(selection: $selection) {
                 ForEach(orderedNodes(report)) { node in
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("\(edits[node.id]?["role"] as? String ?? node.role)\(node.page.map { " · página \($0)" } ?? "")").font(.headline)
-                        Text(node.title.isEmpty ? node.alt : node.title).font(.caption).lineLimit(2)
+                    HStack(alignment: .top, spacing: 8) {
+                        Toggle("Incluir \(node.role) \(node.id) no grupo", isOn: Binding(
+                            get: { groupSelection.contains(node.id) },
+                            set: { if $0 { groupSelection.insert(node.id) } else { groupSelection.remove(node.id) } }))
+                            .toggleStyle(.checkbox).labelsHidden()
+                            .accessibilityLabel("Incluir tag \(node.role) \(node.id) no grupo")
+                            .disabled(model.busy || groups.contains { ($0["children"] as? [String] ?? []).contains(node.id) })
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("\(edits[node.id]?["role"] as? String ?? node.role)\(node.page.map { " · página \($0)" } ?? "")").font(.headline)
+                            Text(node.title.isEmpty ? node.alt : node.title).font(.caption).lineLimit(2)
+                        }
                     }.padding(.leading, CGFloat(min(node.depth, 8)) * 10).tag(node.id)
                 }
             }.frame(minWidth: 260).onChange(of: selection) { _, _ in loadSelection() }
@@ -244,6 +291,23 @@ struct AccessibilityRemediationView: View {
                     HStack { Button("Ler antes") { reorder(-1) }; Button("Ler depois") { reorder(1) } }
                     Text("A ordem muda somente entre tags do mesmo pai. MCIDs, objetos e páginas permanecem vinculados ao conteúdo original.").font(.caption).foregroundStyle(.secondary)
                 } else { Text("Selecione uma tag para revisar.").foregroundStyle(.secondary) }
+                Divider()
+                Text("Reconstruir grupos de leitura").font(.headline)
+                Text("Marque tags irmãs contíguas para formar uma seção, lista, linha ou tabela. Defina TH/TD antes de agrupar uma linha e TR antes de agrupar uma tabela.")
+                    .font(.caption).foregroundStyle(.secondary)
+                Picker("Papel do novo grupo", selection: $groupRole) {
+                    ForEach(AccessibilityGroupingEdits.roles, id: \.self) { Text($0).tag($0) }
+                }.accessibilityIdentifier("pdf.accessibility.group.role")
+                TextField("Título do grupo (opcional)", text: $groupTitle).textFieldStyle(.roundedBorder)
+                    .accessibilityLabel("Título do novo grupo")
+                Button("Agrupar tags marcadas") { stageGroup(report) }
+                    .disabled(groupSelection.isEmpty).accessibilityIdentifier("pdf.accessibility.group.stage")
+                if !groups.isEmpty {
+                    Text("\(PortugueseCount.label(groups.count, "grupo", "grupos")) para criar ao salvar").font(.caption)
+                    Button("Descartar agrupamentos") { groups = []; groupSelection = [] }
+                }
+                Text("Os grupos preservam os vínculos com o conteúdo. Salve e continue na cópia para construir níveis adicionais; confirme depois a leitura com tecnologia assistiva.")
+                    .font(.caption).foregroundStyle(.secondary)
               }.frame(maxWidth: .infinity, alignment: .leading)
             }.frame(minWidth: 320).disabled(model.busy)
         }.frame(minHeight: 320)
@@ -267,7 +331,7 @@ struct AccessibilityRemediationView: View {
     }
     private func choose() {
         let panel = NSOpenPanel(); panel.allowedContentTypes = [.pdf]
-        if panel.runModal() == .OK { source = panel.url; report = nil; selection = nil; edits = [:]; result = nil; error = "" }
+        if panel.runModal() == .OK { source = panel.url; report = nil; selection = nil; edits = [:]; groups = []; groupSelection = []; result = nil; error = "" }
     }
     private func inspect(request: AccessibilityInspectionRequest? = nil) {
         guard let source, !model.busy else {
@@ -294,7 +358,7 @@ struct AccessibilityRemediationView: View {
                           value.nodes.allSatisfy({ (0...128).contains($0.depth) && ($0.page == nil || (1...value.pages).contains($0.page!)) }) else { throw NSError(domain: "PDF.Accessibility", code: 2) }
                     report = value; language = value.language.isEmpty ? "pt-BR" : value.language
                     pageRoles = Array(repeating: "P", count: value.pages); pageAlternatives = Array(repeating: "", count: value.pages)
-                    reviewedPages = false; edits = [:]; selection = nil; result = nil
+                    reviewedPages = false; edits = [:]; groups = []; groupSelection = []; selection = nil; result = nil
                     if let request {
                         let candidates = value.nodes.filter { $0.role == request.selectedRole }
                         guard candidates.count == 1, let chosen = candidates.first else {
@@ -370,9 +434,30 @@ struct AccessibilityRemediationView: View {
         guard let index = order.firstIndex(of: node.id), order.indices.contains(index + offset) else { return }
         order.swapAt(index, index + offset); var edit = edits[parent] ?? ["id": parent]; edit["children"] = order; edits[parent] = edit
     }
+    private func stageGroup(_ report: AccessibilityTreeReport) {
+        do {
+            let selected = report.nodes.filter { groupSelection.contains($0.id) }
+            guard let first = selected.first, selected.allSatisfy({ $0.parent == first.parent }) else {
+                throw NSError(domain: "PDF.AccessibilityGrouping", code: 4,
+                    userInfo: [NSLocalizedDescriptionKey: "Marque somente tags do mesmo pai."])
+            }
+            let siblings: [String]
+            if let parent = first.parent, let parentNode = report.nodes.first(where: { $0.id == parent }) {
+                siblings = edits[parent]?["children"] as? [String] ?? parentNode.children
+            } else { siblings = report.nodes.filter { $0.parent == nil }.map(\.id) }
+            let occupied = Set(groups.flatMap { $0["children"] as? [String] ?? [] })
+            guard occupied.isDisjoint(with: groupSelection) else {
+                throw NSError(domain: "PDF.AccessibilityGrouping", code: 5,
+                    userInfo: [NSLocalizedDescriptionKey: "Uma tag marcada já pertence a um agrupamento pendente."])
+            }
+            groups.append(try AccessibilityGroupingEdits.stage(selected: groupSelection, siblings: siblings, role: groupRole, title: groupTitle))
+            groupSelection = []; groupTitle = ""; error = ""
+        } catch { self.error = error.localizedDescription }
+    }
     private func save() {
         guard let source, let report, let output = NativeOutput.destination(model: model, toolName: "Acessibilidade", extension: "pdf", originalURL: source) else { return }
         var options: [String: Any] = ["input_sha256": report.input_sha256, "language": language, "edits": Array(edits.values)]
+        if !groups.isEmpty { options["groups"] = groups }
         if !report.has_structure_tree {
             options["create_page_tags"] = (0..<report.pages).map { ["page": $0 + 1, "role": pageRoles[$0], "alt": pageAlternatives[$0]] as [String: Any] }
         }

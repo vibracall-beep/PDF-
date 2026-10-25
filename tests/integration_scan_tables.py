@@ -119,7 +119,10 @@ class ScanTableIntegrationTests(unittest.TestCase):
 
     def test_no_numeric_evidence_and_text_only_skew_do_not_invent_tables(self):
         source,_=self.source(kind='prose',skew=3);analysis=self.detect(source,table_detection='aligned',ocr_deskew=True)
-        self.assertFalse(analysis['preprocessing']['applied']);self.assertEqual(analysis['tables'],[]);self.assert_words_retained(analysis)
+        self.assertTrue(analysis['preprocessing']['applied'])
+        self.assertEqual(analysis['preprocessing']['status'],'text-line-projection-evidence')
+        self.assertAlmostEqual(analysis['preprocessing']['rotation_degrees'],-3,delta=.3)
+        self.assertEqual(analysis['tables'],[]);self.assert_words_retained(analysis)
 
     def test_markdown_default_keeps_raster_and_unknown_options_refuse_atomically(self):
         source,_=self.source();target=self.root/'default.md';run('markdown',[source],target)

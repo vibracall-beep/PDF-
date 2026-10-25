@@ -62,7 +62,7 @@ def synthetic_gui_files(verified, manifest):
     logs = {gui.CAPTURE_LOG: b'Synthetic capture exit0; not a real Mac execution.\n',
             gui.VALIDATION_LOG: b'Synthetic validator log.\n'}
     receipt = dict(binding, installedBundleManifestMatchedBeforeAndAfter=True, archiveUnchanged=True,
-        guiCapturePassed=True, pngCount=32, ownWindowAXCount=6, originalOCRFileCount=2,
+        guiCapturePassed=True, pngCount=33, ownWindowAXCount=7, originalOCRFileCount=2,
         humanVisualReview=False, humanVoiceOverTested=False,
         originals={name: record(data) for name, data in originals.items()},
         logs={name: record(data) for name, data in logs.items()}, beforeSHA256=record(before)['sha256'])
@@ -99,7 +99,7 @@ class CrossGUIEvidenceTests(unittest.TestCase):
 
     def test_complete_originals_are_bound_to_binary_and_source_without_human_claims(self):
         self.populate(); result = self.check()
-        self.assertEqual(len(result['originals']), 40)
+        self.assertEqual(len(result['originals']), 42)
         self.assertTrue(result['guiOutsideDependencySandbox'])
         self.assertFalse(result['humanVisualReview']); self.assertFalse(result['humanVoiceOverTested'])
         self.assertEqual(result['captureAttempts'], 1)

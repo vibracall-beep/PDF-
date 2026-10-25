@@ -49,8 +49,8 @@ class PreviewArtifactTests(unittest.TestCase):
             return preview.check_directory(self.root)
 
     def test_all_32_images_and_6_ax_reports_are_required(self):
-        self.assertEqual(len(preview.PREVIEW_STATES),32)
-        self.assertEqual(len(preview.REQUIRED_AX),6)
+        self.assertEqual(len(preview.PREVIEW_STATES),33)
+        self.assertEqual(len(preview.REQUIRED_AX),7)
         self.assertTrue(self.check())
         for state in preview.PREVIEW_STATES:
             path=self.root/('PDF-preview'+('.'+state if state else '')+'.png')

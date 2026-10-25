@@ -194,6 +194,171 @@ class BinaryUpdateTests(unittest.TestCase):
                 self.assertFalse((parent / '.pdf-update.json').exists())
                 self.assertEqual(self.preferences.read_bytes(), b'private preferences unchanged')
 
+    def test_sigkill_before_journal_and_during_copy_reclaims_only_registered_staging(self):
+        for step in ('registered-staging', 'copied-file', 'validated-staging'):
+            with self.subTest(step=step):
+                parent = self.root / ('early-' + step); parent.mkdir()
+                fixture_app(parent / 'PDF.app', 'old')
+                unregistered = parent / ('.pdf-incoming.' + 'f' * 32 + '.app')
+                unregistered.mkdir(); (unregistered / 'user.txt').write_text('never registered')
+                ready = self.root / (step + '.ready')
+                child = """import sys,time
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+import binary_update as update
+def checkpoint(step):
+ if step==sys.argv[4]:
+  Path(sys.argv[5]).write_text(step)
+  while True: time.sleep(1)
+update.install(Path(sys.argv[2]),Path(sys.argv[3]),validate=lambda _:None,checkpoint=checkpoint)
+"""
+                process = subprocess.Popen([sys.executable, '-c', child, str(SCRIPTS), str(self.distribution),
+                                            str(parent), step, str(ready)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                try:
+                    deadline = time.monotonic() + 5
+                    while not ready.exists() and time.monotonic() < deadline and process.poll() is None:
+                        time.sleep(0.02)
+                    self.assertTrue(ready.exists(), 'child did not reach the actual pre-journal copy boundary')
+                    self.assertFalse((parent / '.pdf-update.json').exists())
+                    self.assertEqual(len(list(parent.glob('.pdf-staging.*.json'))), 1)
+                    os.kill(process.pid, signal.SIGKILL); process.wait(timeout=5)
+                    self.assertEqual(process.returncode, -signal.SIGKILL)
+                finally:
+                    if process.poll() is None: process.kill(); process.wait()
+                    process.communicate()
+                result = subprocess.run([sys.executable, str(SCRIPTS / 'binary_update.py'), 'recover',
+                                         '--destination', str(parent)], capture_output=True, text=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual((parent / 'PDF.app/Contents/MacOS/PDF').read_text(), 'old')
+                self.assertEqual(list(parent.glob('.pdf-staging.*.json')), [])
+                self.assertEqual(list(parent.glob('.pdf-incoming.*.app')), [unregistered])
+                self.assertEqual((unregistered / 'user.txt').read_text(), 'never registered')
+                # A normal retry also works and keeps the original history.
+                updater.install(self.distribution, parent, validate=lambda _: None)
+                self.assertEqual((parent / 'PDF.app/Contents/MacOS/PDF').read_text(), 'new')
+
+    def test_sigkill_while_staging_marker_is_empty_or_partial_does_not_block_retry(self):
+        for phase in ('staging-marker-empty', 'staging-marker-partial'):
+            with self.subTest(phase=phase):
+                parent = self.root / phase; parent.mkdir(); fixture_app(parent / 'PDF.app', 'old')
+                ready = self.root / (phase + '.ready')
+                code = """import sys,time
+from pathlib import Path
+sys.path.insert(0,sys.argv[1])
+import binary_update as update
+def checkpoint(phase):
+ if phase==sys.argv[4]:
+  Path(sys.argv[5]).write_text(phase)
+  while True: time.sleep(1)
+update.install(Path(sys.argv[2]),Path(sys.argv[3]),validate=lambda _:None,checkpoint=checkpoint)
+"""
+                process = subprocess.Popen([sys.executable, '-c', code, str(SCRIPTS), str(self.distribution),
+                                            str(parent), phase, str(ready)], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                try:
+                    deadline = time.monotonic() + 5
+                    while not ready.exists() and time.monotonic() < deadline and process.poll() is None:
+                        time.sleep(.02)
+                    self.assertTrue(ready.exists(), 'child did not reach actual incomplete marker write')
+                    pending = next(parent.glob('.pdf-staging.*.pending'))
+                    marker_bytes = pending.read_bytes()
+                    if phase.endswith('empty'): self.assertEqual(marker_bytes, b'')
+                    else:
+                        self.assertGreater(len(marker_bytes), 0)
+                        with self.assertRaises(json.JSONDecodeError): json.loads(marker_bytes)
+                    self.assertFalse(list(parent.glob('.pdf-staging.*.json')))
+                    os.kill(process.pid, signal.SIGKILL); process.wait(timeout=5)
+                    self.assertEqual(process.returncode, -signal.SIGKILL)
+                finally:
+                    if process.poll() is None: process.kill(); process.wait()
+                    process.communicate()
+                orphan = next(parent.glob('.pdf-incoming.*.app'))
+                result = subprocess.run([sys.executable, str(SCRIPTS / 'binary_update.py'), 'recover',
+                                         '--destination', str(parent)], capture_output=True, text=True, timeout=5)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(pending.read_bytes(), marker_bytes)
+                self.assertTrue(orphan.is_dir())  # Not registered: never guess ownership.
+                self.assertEqual((parent / 'PDF.app/Contents/MacOS/PDF').read_text(), 'old')
+                updater.install(self.distribution, parent, validate=lambda _: None)
+                self.assertEqual((parent / 'PDF.app/Contents/MacOS/PDF').read_text(), 'new')
+                self.assertEqual(pending.read_bytes(), marker_bytes)
+                self.assertEqual(list(parent.glob('.pdf-incoming.*.app')), [orphan])
+
+    def test_staging_record_publication_refuses_replacement_and_existing_target(self):
+        temporary = self.parent / 'marker.pending'
+        destination = self.parent / 'marker.json'
+        temporary.write_bytes(b'original'); temporary.chmod(0o600)
+        expected = temporary.stat(); expected = (expected.st_dev, expected.st_ino)
+        original = self.parent / 'marker-original'; temporary.rename(original)
+        temporary.write_bytes(b'replacement'); temporary.chmod(0o600)
+        with self.assertRaisesRegex(ValueError, 'mudou'):
+            updater.publish_staging_record(self.parent, temporary, destination, expected)
+        self.assertEqual(temporary.read_bytes(), b'replacement')
+        temporary.unlink(); original.rename(temporary)
+        destination.write_bytes(b'existing marker')
+        with self.assertRaises(FileExistsError):
+            updater.publish_staging_record(self.parent, temporary, destination, expected)
+        self.assertEqual(destination.read_bytes(), b'existing marker')
+        self.assertEqual(temporary.read_bytes(), b'original')
+
+    def test_corrupt_committed_staging_marker_still_refuses_recovery(self):
+        incoming, marker = self.staging_fixture()
+        marker.write_bytes(b'{"schemaVersion":')
+        with updater.installation_lock(self.parent):
+            with self.assertRaises(json.JSONDecodeError): updater.recover(self.parent)
+        self.assertEqual((incoming / 'partial').read_bytes(), b'unpublished bytes')
+        self.assertEqual(self.version(), 'old')
+
+    def staging_fixture(self):
+        token = 'b' * 32
+        incoming = self.parent / ('.pdf-incoming.' + token + '.app')
+        incoming.mkdir(mode=0o700)
+        marker = updater.register_staging(self.parent, token, incoming)
+        (incoming / 'partial').write_bytes(b'unpublished bytes')
+        return incoming, marker
+
+    def test_staging_cleanup_refuses_live_runtime_lease_then_recovers(self):
+        incoming, marker = self.staging_fixture()
+        with updater.exclusive(incoming):
+            with updater.installation_lock(self.parent):
+                with self.assertRaisesRegex(ValueError, 'execução'):
+                    updater.recover(self.parent)
+            self.assertTrue(marker.exists()); self.assertTrue((incoming / 'partial').exists())
+        with updater.installation_lock(self.parent): updater.recover(self.parent)
+        self.assertFalse(incoming.exists()); self.assertFalse(marker.exists())
+        self.assertEqual(self.version(), 'old')
+
+    def test_staging_cleanup_preserves_directory_and_lease_replacements(self):
+        incoming, marker = self.staging_fixture()
+        moved = self.parent / 'preserve-original'; incoming.rename(moved)
+        incoming.mkdir(); (incoming / 'foreign').write_text('foreign content')
+        with updater.installation_lock(self.parent):
+            with self.assertRaisesRegex(ValueError, 'identidade'): updater.recover(self.parent)
+        self.assertEqual((incoming / 'foreign').read_text(), 'foreign content')
+        self.assertTrue(marker.exists())
+        updater.shutil.rmtree(incoming); moved.rename(incoming)
+        lease = incoming / 'Contents/Resources/installation.lock'
+        lease.rename(incoming / 'old-lease')
+        lease.touch(); lease.chmod(0o444)
+        with updater.installation_lock(self.parent):
+            with self.assertRaisesRegex(ValueError, 'bloqueio'): updater.recover(self.parent)
+        self.assertTrue(marker.exists()); self.assertTrue((incoming / 'partial').exists())
+
+    def test_staging_cleanup_rejects_marker_links_fifo_and_parent_rebinding(self):
+        incoming, marker = self.staging_fixture()
+        original = marker.read_bytes(); marker.unlink()
+        marker.symlink_to(self.preferences)
+        with updater.installation_lock(self.parent):
+            with self.assertRaisesRegex(ValueError, 'inseguro'): updater.recover(self.parent)
+        marker.unlink(); os.mkfifo(marker, 0o600)
+        with updater.installation_lock(self.parent):
+            with self.assertRaisesRegex(ValueError, 'inseguro'): updater.recover(self.parent)
+        marker.unlink(); record = json.loads(original); record['parentIdentity'] = '0:0'
+        marker.write_text(json.dumps(record)); marker.chmod(0o600)
+        with updater.installation_lock(self.parent):
+            with self.assertRaisesRegex(ValueError, 'inválido'): updater.recover(self.parent)
+        self.assertEqual(self.preferences.read_bytes(), b'private preferences unchanged')
+        self.assertTrue((incoming / 'partial').exists())
+
     @unittest.skipUnless(Path('/dev/full').exists(), 'Linux /dev/full supplies a real ENOSPC write')
     def test_real_enospc_after_backup_restores_old_bundle(self):
         real_write = updater.write_journal

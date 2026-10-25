@@ -28,12 +28,12 @@ STATES = ('', 'leitor', 'abas', 'lado-a-lado', 'anotacoes', 'recuperacao',
           'personalizar', 'ferramentas', 'navegacao', 'opcoes-leitura', 'arquivos',
           'escuro', 'lista', 'configuracao-ferramenta', 'fluxo-lote',
           'assinatura-digital', 'verificar-assinaturas', 'validar-pdfa', 'auditar-pdfua',
-          'atalhos', 'perfis', 'paleta', 'editor-conteudo', 'revisao-ocr', 'biblioteca',
+          'atalhos', 'perfis', 'menus', 'paleta', 'editor-conteudo', 'revisao-ocr', 'biblioteca',
           'corrigir-acessibilidade', 'solicitar-assinaturas', 'automacao',
           'producao-print-preflight', 'producao-bates', 'producao-measure', 'producao-pdfx')
 PNG_NAMES = tuple('PDF-preview' + ('.' + state if state else '') + '.png' for state in STATES)
 AX_NAMES = tuple('PDF-preview' + ('.' + state if state else '') + '.accessibility.json'
-                 for state in ('', 'leitor', 'lado-a-lado', 'anotacoes', 'biblioteca', 'corrigir-acessibilidade'))
+                 for state in ('', 'leitor', 'lado-a-lado', 'anotacoes', 'biblioteca', 'corrigir-acessibilidade', 'menus'))
 OCR_PDF = 'PDF-preview.revisao-ocr.source.pdf'
 OCR_JSON = 'PDF-preview.revisao-ocr.analysis.json'
 ORIGINALS = dict.fromkeys(PNG_NAMES, 64 * 1024 ** 2) | dict.fromkeys(AX_NAMES, 16 * 1024 ** 2) | {
@@ -210,7 +210,7 @@ def finish(directory, source, app, archive, manifest, verified):
     records = validate_originals(directory, source)
     logs = {name: hashed_file(directory / name, GUI_CONTENTS[name]) for name in (CAPTURE_LOG, VALIDATION_LOG)}
     result = dict(before, installedBundleManifestMatchedBeforeAndAfter=True, archiveUnchanged=True,
-                  guiCapturePassed=True, pngCount=32, ownWindowAXCount=6, originalOCRFileCount=2,
+                  guiCapturePassed=True, pngCount=len(PNG_NAMES), ownWindowAXCount=len(AX_NAMES), originalOCRFileCount=2,
                   humanVisualReview=False, humanVoiceOverTested=False, originals=records, logs=logs,
                   beforeSHA256=hashed_file(directory / BEFORE, 32768)['sha256'])
     portable.write_json(directory / RECEIPT, result)
@@ -234,7 +234,7 @@ def verify_receipt(directory, verified, manifest=None):
                 'guiOutsideDependencySandbox', 'dependencyIsolationSeparate'):
         require(receipt.get(key) is True, 'Missing mandatory GUI check: ' + key)
     for key, value in (('schemaVersion', 1), ('captureDeadlineSeconds', 300), ('captureAttempts', 1),
-                       ('pngCount', 32), ('ownWindowAXCount', 6), ('originalOCRFileCount', 2)):
+                       ('pngCount', len(PNG_NAMES)), ('ownWindowAXCount', len(AX_NAMES)), ('originalOCRFileCount', 2)):
         require(type(receipt.get(key)) is int and receipt[key] == value, 'Invalid GUI capture contract: ' + key)
     for key in ('rebuiltOnDestination', 'humanVisualReview', 'humanVoiceOverTested'):
         require(receipt.get(key) is False, 'Unsupported GUI claim: ' + key)

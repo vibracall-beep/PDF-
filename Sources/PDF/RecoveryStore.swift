@@ -43,8 +43,23 @@ private struct RecoveryNavigation: Codable {
     let modifiedAt: Date
 }
 
+private struct RecoveryStagingFile: Codable {
+    let identity: String
+    let count: Int
+    let prefixCount: Int
+    let prefixSHA256: String
+    let sha256: String
+}
+private struct RecoveryStaging: Codable {
+    let version: Int
+    let generation: UUID
+    let parentIdentity: String
+    let directoryIdentity: String
+    let files: [String: RecoveryStagingFile]
+}
+
 enum RecoveryError: LocalizedError {
-    case invalidState, invalidDocument, unsafePath, invalidRecord, tooLarge, metadataTooLarge, encryptionMismatch, changed
+    case invalidState, invalidDocument, unsafePath, invalidRecord, tooLarge, metadataTooLarge, encryptionMismatch, changed, busy
     var errorDescription:String? {
         switch self {
         case .invalidState: return "O estado da sessão de leitura é inválido."
@@ -54,6 +69,7 @@ enum RecoveryError: LocalizedError {
         case .tooLarge: return "Esta cópia excede o limite de 1 GB da recuperação automática. Salve uma cópia pelo menu Arquivo."
         case .metadataTooLarge: return "Os metadados da sessão excedem o limite de 128 KiB. Reduza a quantidade de marcadores antes de tentar novamente."
         case .encryptionMismatch: return "A recuperação de um documento protegido exige uma cópia criptografada que não aceite senha vazia. A senha não é gravada."
+        case .busy: return "Outra instância do PDF está gravando a recuperação. Tente novamente em instantes."
         case .changed: return "A cópia de recuperação foi alterada ou danificada. Nenhum documento original foi substituído."
         }
     }
@@ -72,11 +88,24 @@ final class RecoveryStore: @unchecked Sendable {
     private var notices:[String] = []
     var warnings:[String] { lock.lock(); defer { lock.unlock() }; return notices }
     private let maximumPDFBytes = 1_073_741_824
-    init(directory:URL = RecoveryStore.defaultDirectory) { self.directory = directory.standardizedFileURL }
+    // The observer is injected only by the internal fault harness. It cannot
+    // be enabled by preferences, a PDF, CLI options or environment variables.
+    private let checkpoint: ((String) throws -> Void)?
+    init(directory:URL = RecoveryStore.defaultDirectory, checkpoint: ((String) throws -> Void)? = nil) {
+        self.directory = directory.standardizedFileURL; self.checkpoint = checkpoint
+    }
 
     func list() throws -> [RecoveryRecord] {
         lock.lock(); defer { lock.unlock() }
         try prepareDirectory(); notices = []
+        // A live writer is never cleaned. Listing the last atomic generation
+        // remains possible while another process owns the write lease.
+        do {
+            let descriptor = try processLock()
+            defer { close(descriptor) }
+            cleanupStaging()
+        } catch RecoveryError.busy { }
+        catch { notice("A limpeza de temporários foi adiada: " + error.localizedDescription) }
         let all = try records()
         var latest:[UUID:RecoveryRecord] = [:]
         for record in all {
@@ -93,16 +122,10 @@ final class RecoveryStore: @unchecked Sendable {
         guard documentData.count <= maximumPDFBytes else { throw RecoveryError.tooLarge }
         try checkDocument(documentData, encrypted:encrypted)
         try prepareDirectory()
+        let processDescriptor = try processLock(); defer { close(processDescriptor) }
+        cleanupStaging()
         let previous = try records().filter { $0.id == sessionID }
         let generation = UUID()
-        let temporary = directory.appendingPathComponent(".pending-" + generation.uuidString,isDirectory:true)
-        let destination = folder(generation)
-        try FileManager.default.createDirectory(at:temporary,withIntermediateDirectories:false,attributes:[.posixPermissions:0o700])
-        let identity = try directoryIdentity(temporary)
-        var published = false
-        defer {
-            if !published, (try? directoryIdentity(temporary)) == identity { try? FileManager.default.removeItem(at:temporary) }
-        }
         let cleanTitle = String(title.split(whereSeparator:{ $0.isNewline }).joined(separator:" ").prefix(200))
         let latestDate = previous.map(\.modifiedAt).max() ?? .distantPast
         let record = RecoveryRecord(id:sessionID,title:cleanTitle.isEmpty ? "Documento PDF" : cleanTitle,
@@ -110,14 +133,21 @@ final class RecoveryStore: @unchecked Sendable {
                                     modifiedAt:max(Date(),latestDate.addingTimeInterval(0.001)),version:1,generation:generation,
                                     sha256:digest(documentData))
         let encoded = try boundedMetadata(record)
-        try NativeOutput.write(documentData,to:temporary.appendingPathComponent("document.pdf"))
-        try NativeOutput.write(encoded,to:temporary.appendingPathComponent("record.json"))
-        try synchronize(temporary.appendingPathComponent("document.pdf"))
-        try synchronize(temporary.appendingPathComponent("record.json"))
+        let (temporary, ownership) = try makeStaging(generation: generation, files: ["document.pdf": documentData, "record.json": encoded])
+        let destination = folder(generation)
+        var published = false
+        defer {
+            if !published { cleanupOneStaging(temporary) }
+        }
+        try checkpoint?("staging-registered")
+        try writeStaged(documentData, name: "document.pdf", at: temporary, ownership: ownership, phase: "pdf")
+        try writeStaged(encoded, name: "record.json", at: temporary, ownership: ownership, phase: "metadata")
         try synchronizeDirectory(temporary)
+        try checkpoint?("generation-synchronized")
         try Task.checkCancellation()
         try FileManager.default.moveItem(at:temporary,to:destination)
         published = true
+        try checkpoint?("generation-published")
         // Do not remove an older snapshot before both its replacement's files
         // and the parent's rename have reached the filesystem's sync boundary.
         try synchronizeDirectory(directory)
@@ -136,6 +166,8 @@ final class RecoveryStore: @unchecked Sendable {
     func updateState(record expected: RecoveryRecord, state: RecoverySessionState) throws -> RecoveryRecord? {
         lock.lock(); defer { lock.unlock() }
         try Task.checkCancellation(); try state.validate(); try prepareDirectory()
+        let processDescriptor = try processLock(); defer { close(processDescriptor) }
+        cleanupStaging()
         let current = try records().filter { $0.id == expected.id }.max { $0.modifiedAt < $1.modifiedAt }
         guard let current, current.sameContent(as: expected) else { return nil }
         let location = folder(current.generation), identity = try directoryIdentity(location)
@@ -146,15 +178,17 @@ final class RecoveryStore: @unchecked Sendable {
         let navigation = RecoveryNavigation(version: 1, sessionID: current.id, generation: current.generation,
             sha256: current.sha256, state: state, modifiedAt: max(Date(), current.modifiedAt.addingTimeInterval(0.001)))
         let encoded = try boundedMetadata(navigation)
-        let temporary = location.appendingPathComponent(".navigation-\(UUID().uuidString).json")
-        defer { try? FileManager.default.removeItem(at: temporary) }
-        try NativeOutput.write(encoded, to: temporary); try synchronize(temporary)
+        let (staging, ownership) = try makeStaging(generation: UUID(), files: ["navigation.json": encoded])
+        defer { cleanupOneStaging(staging) }
+        let temporary = staging.appendingPathComponent("navigation.json")
+        try writeStaged(encoded, name: "navigation.json", at: staging, ownership: ownership, phase: "navigation")
         try Task.checkCancellation()
         guard try directoryIdentity(location) == identity else { throw RecoveryError.changed }
         let destination = location.appendingPathComponent("navigation.json")
         try Task.checkCancellation()
         guard Darwin.rename(temporary.path, destination.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
         try synchronizeDirectory(location)
+        try checkpoint?("navigation-published")
         return applying(navigation, to: base)
     }
 
@@ -172,8 +206,136 @@ final class RecoveryStore: @unchecked Sendable {
     func delete(_ id:UUID) throws {
         lock.lock(); defer { lock.unlock() }
         try prepareDirectory()
+        let processDescriptor = try processLock(); defer { close(processDescriptor) }
+        cleanupStaging()
         for record in try records() where record.id == id { try removeGeneration(record) }
         try synchronizeDirectory(directory)
+    }
+
+    private func processLock() throws -> Int32 {
+        let path = directory.appendingPathComponent(".store.lock")
+        let fd = Darwin.open(path.path, O_RDWR | O_CREAT | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC, 0o600)
+        guard fd >= 0 else { throw RecoveryError.unsafePath }
+        var info = stat()
+        guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == S_IFREG,
+              info.st_uid == getuid(), info.st_nlink == 1, info.st_mode & 0o077 == 0 else {
+            close(fd); throw RecoveryError.unsafePath
+        }
+        guard flock(fd, LOCK_EX | LOCK_NB) == 0 else {
+            let failure = errno; close(fd)
+            if failure == EWOULDBLOCK { throw RecoveryError.busy }
+            throw POSIXError(POSIXErrorCode(rawValue: failure) ?? .EIO)
+        }
+        return fd
+    }
+    private func fileIdentity(_ info: stat) -> String { "\(info.st_dev):\(info.st_ino)" }
+    private func makeStaging(generation: UUID, files: [String: Data]) throws -> (URL, RecoveryStaging) {
+        let location = directory.appendingPathComponent(".pending-" + generation.uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: location, withIntermediateDirectories: false, attributes: [.posixPermissions: 0o700])
+        let ownedIdentity = try directoryIdentity(location)
+        var entries: [String: RecoveryStagingFile] = [:]
+        do {
+            for (name, data) in files {
+                let fd = Darwin.open(location.appendingPathComponent(name).path, O_WRONLY | O_CREAT | O_EXCL | O_NOFOLLOW | O_CLOEXEC, 0o600)
+                guard fd >= 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+                var info = stat()
+                let valid = fstat(fd, &info) == 0 && fsync(fd) == 0
+                close(fd)
+                guard valid else { throw RecoveryError.unsafePath }
+                let prefixCount = min(65_536, max(1, data.count / 2))
+                entries[name] = RecoveryStagingFile(identity: fileIdentity(info), count: data.count,
+                    prefixCount: prefixCount, prefixSHA256: digest(Data(data.prefix(prefixCount))), sha256: digest(data))
+            }
+            let ownership = RecoveryStaging(version: 1, generation: generation,
+                parentIdentity: try directoryIdentity(directory), directoryIdentity: ownedIdentity, files: entries)
+            try NativeOutput.write(try boundedMetadata(ownership), to: location.appendingPathComponent(".owner.json"))
+            try synchronizeDirectory(location); try synchronizeDirectory(directory)
+            return (location, ownership)
+        } catch {
+            if (try? directoryIdentity(location)) == ownedIdentity { try? FileManager.default.removeItem(at: location) }
+            throw error
+        }
+    }
+    private func writeStaged(_ data: Data, name: String, at location: URL, ownership: RecoveryStaging, phase: String) throws {
+        guard let entry = ownership.files[name], try directoryIdentity(location) == ownership.directoryIdentity else { throw RecoveryError.changed }
+        let fd = Darwin.open(location.appendingPathComponent(name).path, O_WRONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        guard fd >= 0 else { throw RecoveryError.unsafePath }
+        let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+        defer { try? handle.close() }
+        var info = stat()
+        guard fstat(fd, &info) == 0, info.st_mode & S_IFMT == S_IFREG, info.st_nlink == 1,
+              info.st_uid == getuid(), info.st_size == 0, fileIdentity(info) == entry.identity else { throw RecoveryError.changed }
+        // Two real writes expose an incomplete-file boundary to the failure
+        // harness. Both files remain hidden until their generation is durable.
+        try handle.write(contentsOf: data.prefix(entry.prefixCount))
+        try checkpoint?(phase + "-partial")
+        try Task.checkCancellation()
+        try handle.write(contentsOf: data.dropFirst(entry.prefixCount))
+        try handle.synchronize()
+        try checkpoint?(phase + "-written")
+    }
+    private func cleanupStaging() {
+        guard let entries = try? FileManager.default.contentsOfDirectory(at: directory, includingPropertiesForKeys: nil) else { return }
+        for entry in entries where entry.lastPathComponent.hasPrefix(".pending-") { cleanupOneStaging(entry) }
+    }
+    private func cleanupOneStaging(_ location: URL) {
+        do {
+            let marker = location.appendingPathComponent(".owner.json")
+            let expectedDirectory = try directoryIdentity(location)
+            var markerInfo = stat(), directoryInfo = stat()
+            guard lstat(marker.path, &markerInfo) == 0, markerInfo.st_mode & S_IFMT == S_IFREG,
+                  markerInfo.st_uid == getuid(), markerInfo.st_nlink == 1, markerInfo.st_mode & 0o077 == 0,
+                  lstat(location.path, &directoryInfo) == 0, directoryInfo.st_mode & 0o077 == 0 else { throw RecoveryError.unsafePath }
+            let ownership = try JSONDecoder().decode(RecoveryStaging.self, from: readFile(marker, maximum: 131_072))
+            let keys = Set(ownership.files.keys)
+            guard ownership.version == 1, location.lastPathComponent == ".pending-" + ownership.generation.uuidString,
+                  ownership.parentIdentity == (try directoryIdentity(directory)), ownership.directoryIdentity == expectedDirectory,
+                  keys == ["document.pdf", "record.json"] || keys == ["navigation.json"] else { throw RecoveryError.unsafePath }
+            let actual = try FileManager.default.contentsOfDirectory(atPath: location.path)
+            // A published navigation file has moved into its immutable PDF's
+            // generation. Missing managed files are allowed; unknown files,
+            // links and replacements are never recursively discarded.
+            guard Set(actual).isSubset(of: keys.union([".owner.json"])) else { throw RecoveryError.unsafePath }
+            for name in keys where actual.contains(name) {
+                guard let entry = ownership.files[name], entry.count > 0, entry.prefixCount > 0,
+                      entry.prefixCount < entry.count, entry.sha256.range(of: "^[a-f0-9]{64}$", options: .regularExpression) != nil,
+                      entry.prefixSHA256.range(of: "^[a-f0-9]{64}$", options: .regularExpression) != nil else { throw RecoveryError.invalidRecord }
+                let maximum = name == "document.pdf" ? maximumPDFBytes : 131_072
+                guard entry.count <= maximum else { throw RecoveryError.tooLarge }
+                let fd = try openFile(location.appendingPathComponent(name), maximum: maximum)
+                let handle = FileHandle(fileDescriptor: fd, closeOnDealloc: true)
+                defer { try? handle.close() }
+                var info = stat()
+                guard fstat(fd, &info) == 0, fileIdentity(info) == entry.identity else { throw RecoveryError.changed }
+                let count = Int(info.st_size)
+                guard count == 0 || count == entry.prefixCount || count == entry.count else { throw RecoveryError.changed }
+                var hash = SHA256()
+                while let part = try handle.read(upToCount: 1_048_576), !part.isEmpty { hash.update(data: part) }
+                let result = hash.finalize().map { String(format: "%02x", $0) }.joined()
+                if count > 0 {
+                    guard result == (count == entry.count ? entry.sha256 : entry.prefixSHA256) else { throw RecoveryError.changed }
+                }
+            }
+            guard try directoryIdentity(location) == expectedDirectory,
+                  Set(try FileManager.default.contentsOfDirectory(atPath: location.path)) == Set(actual) else { throw RecoveryError.changed }
+            for name in keys where actual.contains(name) {
+                let path = location.appendingPathComponent(name)
+                var info = stat()
+                guard lstat(path.path, &info) == 0, fileIdentity(info) == ownership.files[name]?.identity,
+                      info.st_mode & S_IFMT == S_IFREG, info.st_nlink == 1 else { throw RecoveryError.changed }
+                guard Darwin.unlink(path.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+            }
+            var currentMarker = stat()
+            guard lstat(marker.path, &currentMarker) == 0, fileIdentity(currentMarker) == fileIdentity(markerInfo),
+                  try directoryIdentity(location) == expectedDirectory else { throw RecoveryError.changed }
+            guard Darwin.unlink(marker.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+            // rmdir refuses an unexpected concurrent addition. Never recurse
+            // through an unreviewed file that appeared after our inspection.
+            guard Darwin.rmdir(location.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+            try synchronizeDirectory(directory)
+        } catch {
+            notice("Um temporário de recuperação não pôde ser identificado com segurança e foi preservado: " + error.localizedDescription)
+        }
     }
 
     private func prepareDirectory() throws {
@@ -196,7 +358,7 @@ final class RecoveryStore: @unchecked Sendable {
     private func records() throws -> [RecoveryRecord] {
         var result:[RecoveryRecord] = []
         for entry in try FileManager.default.contentsOfDirectory(at:directory,includingPropertiesForKeys:nil) {
-            if entry.lastPathComponent.hasPrefix(".pending-") { continue }
+            if entry.lastPathComponent.hasPrefix(".pending-") || entry.lastPathComponent == ".store.lock" { continue }
             guard UUID(uuidString:entry.lastPathComponent) != nil else {
                 notice("Um item não reconhecido foi preservado na pasta de recuperação."); continue
             }
@@ -424,6 +586,60 @@ final class RecoveryStore: @unchecked Sendable {
         let permissions = try FileManager.default.attributesOfItem(atPath:store.directory.path)[.posixPermissions] as? NSNumber
         try require(permissions?.intValue == 0o700,"A pasta de recuperação não ficou privada.")
         try require(try Data(contentsOf:source) == original,"A limpeza da recuperação alterou a origem.")
-        print("Recovery audit passed: atomic generations, state, encryption, original preservation, corruption and links")
+        try interruptedWriteChecks(root: root, source: source, original: original)
+        print("Recovery audit passed: atomic generations, state, encryption, original preservation, corruption, links and interrupted writes")
     }
+    private static func interruptedWriteChecks(root: URL, source: URL, original: Data) throws {
+        func require(_ condition: @autoclosure () throws -> Bool, _ message: String) throws {
+            guard try condition() else { throw NSError(domain: "PDF.RecoveryWriteAudit", code: 1, userInfo: [NSLocalizedDescriptionKey: message]) }
+        }
+        let changed = try IntelligenceText.PDF("New generation must never replace the previous checkpoint with incomplete bytes.")
+        let phases = ["staging-registered", "pdf-partial", "pdf-written", "metadata-partial", "metadata-written", "generation-synchronized"]
+        for phase in phases {
+            let location = root.appendingPathComponent("fault-" + phase, isDirectory: true), id = UUID()
+            let store = RecoveryStore(directory: location)
+            let baseline = try store.save(documentData: original, sourceURL: source, sessionID: id, encrypted: false,
+                                          title: "Baseline", state: RecoverySessionState())
+            let failing = RecoveryStore(directory: location, checkpoint: { point in
+                if point == phase { throw POSIXError(.ENOSPC) }
+            })
+            var refused = false
+            do { _ = try failing.save(documentData: changed, sourceURL: source, sessionID: id, encrypted: false, title: "New", state: RecoverySessionState(page: 2)) }
+            catch let error as POSIXError { refused = error.code == .ENOSPC }
+            try require(refused && (try store.load(baseline)) == original, "Erro durante " + phase + " destruiu a última geração completa.")
+            let listed = try store.list()
+            let items = try FileManager.default.contentsOfDirectory(atPath: location.path)
+            try require(listed.count == 1 && listed[0] == baseline && !items.contains(where: { $0.hasPrefix(".pending-") }),
+                        "Erro de escrita deixou uma geração parcial publicável ou staging registrado abandonado.")
+        }
+        let location = root.appendingPathComponent("foreign-staging", isDirectory: true), id = UUID()
+        let store = RecoveryStore(directory: location)
+        let baseline = try store.save(documentData: original, sourceURL: source, sessionID: id, encrypted: false, title: "Baseline", state: RecoverySessionState())
+        let unknown = location.appendingPathComponent(".pending-" + UUID().uuidString, isDirectory: true)
+        try FileManager.default.createDirectory(at: unknown, withIntermediateDirectories: false)
+        try NativeOutput.write(Data("user bytes".utf8), to: unknown.appendingPathComponent("keep.txt"))
+        _ = try store.list()
+        try require(FileManager.default.fileExists(atPath: unknown.appendingPathComponent("keep.txt").path) && !store.warnings.isEmpty,
+                    "A limpeza removeu um diretório identificado apenas pelo nome.")
+        try FileManager.default.removeItem(at: unknown)
+        var replacement: URL?
+        let foreign = RecoveryStore(directory: location, checkpoint: { phase in
+            guard phase == "pdf-partial" else { return }
+            let pending = try FileManager.default.contentsOfDirectory(at: location, includingPropertiesForKeys: nil).first { $0.lastPathComponent.hasPrefix(".pending-") }!
+            let pdf = pending.appendingPathComponent("document.pdf")
+            try FileManager.default.moveItem(at: pdf, to: root.appendingPathComponent("owned-partial-preserved.pdf"))
+            try NativeOutput.write(Data("foreign replacement".utf8), to: pdf)
+            replacement = pdf
+            throw POSIXError(.EIO)
+        })
+        var rejected = false
+        do { _ = try foreign.save(documentData: changed, sourceURL: source, sessionID: id, encrypted: false, title: "Foreign", state: RecoverySessionState()) }
+        catch let error as POSIXError { rejected = error.code == .EIO }
+        _ = try store.list()
+        try require(rejected && replacement != nil && (try Data(contentsOf: replacement!)) == Data("foreign replacement".utf8) &&
+                    (try store.load(baseline)) == original && !store.warnings.isEmpty,
+                    "A recuperação removeu um arquivo substituído por terceiro ou perdeu a geração anterior.")
+        try require((try Data(contentsOf: source)) == original, "A auditoria de escrita alterou a origem.")
+    }
+
 }

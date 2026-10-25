@@ -1,0 +1,12 @@
+[
+  {
+    "path": "diagnostics/delivery_archives.py",
+    "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+  },
+  {
+    "path": "diagnostics/portable_compatibility.py",
+    "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+  }
+]

@@ -1,0 +1,48 @@
+{
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "reviewedAt": "2026-10-25T23:12:45.245652+00:00",
+  "measurements": [
+    {
+      "artifactID": 12617457782,
+      "runner": "PDF-binary-validated-macos-26",
+      "archiveSHA256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+      "archiveBytes": 1449079284,
+      "storageRequirements": {
+        "schemaVersion": 1,
+        "distributionBytes": 3490004349,
+        "bundleBytes": 3489995287,
+        "distributionEntries": 61133,
+        "bundleEntries": 61131
+      },
+      "manifestJSONBytes": 12263013,
+      "storageRequiredBytesAfterInternalTar": 10069177849,
+      "storageEstimateMiB": 9603,
+      "minimumBytesBeforeInternalCopy": 11518257133,
+      "recommend15GBBeyondUserDownload": true,
+      "formula": "distributionBytes + bundleBytes + manifestJSONBytes + 16384*(distributionEntries+bundleEntries) + 1073741824; plus internal archive copy before copying",
+      "physicalAPFSAllocationMeasured": false,
+      "spaceReserved": false
+    },
+    {
+      "artifactID": 12617482313,
+      "runner": "PDF-binary-validated-xcode-27",
+      "archiveSHA256": "b21b530ae9df9c51de3c54bd16f2b499705e83e43754df4ffd4c496ea3fe570d",
+      "archiveBytes": 1447024392,
+      "storageRequirements": {
+        "schemaVersion": 1,
+        "distributionBytes": 3477377874,
+        "bundleBytes": 3477368812,
+        "distributionEntries": 61133,
+        "bundleEntries": 61131
+      },
+      "manifestJSONBytes": 12262979,
+      "storageRequiredBytesAfterInternalTar": 10043924865,
+      "storageEstimateMiB": 9579,
+      "minimumBytesBeforeInternalCopy": 11490949257,
+      "recommend15GBBeyondUserDownload": true,
+      "formula": "distributionBytes + bundleBytes + manifestJSONBytes + 16384*(distributionEntries+bundleEntries) + 1073741824; plus internal archive copy before copying",
+      "physicalAPFSAllocationMeasured": false,
+      "spaceReserved": false
+    }
+  ]
+}

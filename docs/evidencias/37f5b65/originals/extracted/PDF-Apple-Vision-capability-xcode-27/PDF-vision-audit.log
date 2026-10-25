@@ -1,0 +1,103 @@
+[+] Creating CGPDFDocument
+    [+] PDFDocumentCore created.
+[+] CGPDFDocumentImpl created.
+    [+] PDFPageCore for page 1 created.
+  [+] CGPDFPageImpl for page 1 created.
+      Creating PDFResources for page 1.
+      Lazily parsing Group attributes for page 1.
+      Parsing Optional Content Properties.
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+[+] Creating CGPDFDocument
+    [+] PDFDocumentCore created.
+[+] CGPDFDocumentImpl created.
+    [+] PDFPageCore for page 1 created.
+  [+] CGPDFPageImpl for page 1 created.
+[-] Finalizing CGPDFDocument 0x7884d69040
+  [!] CGPDFDocumentImpl destroying...
+  [!] Page 1: Dying document being invalidated
+[-] CGPDFDocumentImpl destroyed.
+      Creating CGPDFPageLayout for page 1.
+      Creating PDFResources for page 1.
+CTLD took 0.000105023 seconds
+      Lazily creating CGPDFTaggedPageProperties for page 1.
+      Lazily parsing Group attributes for page 1.
+      Parsing Optional Content Properties.
+      [i] CACHE MISS: Lazily creating CGImageRef with key {5, 0, 1}, mutextIndex = 15
+
+CGPDFImage(0x7884c1f5c0): Creating image with subsample_factor = 1
+
+[+] Creating CGPDFDocument
+    [+] PDFDocumentCore created.
+[+] CGPDFDocumentImpl created.
+    [+] PDFPageCore for page 1 created.
+  [+] CGPDFPageImpl for page 1 created.
+      Creating CGPDFPageLayout for page 1.
+      Creating PDFResources for page 1.
+CTLD took 1.5974e-05 seconds
+  [-] CGPDFPageImpl for page 1 destroyed.
+    [-] PDFPageCore for page 1 destroyed.
+    [-] PDFDocumentCore destroyed.
+      [i] Releasing cached image: 0x7884d40f00
+
+[-] Finalizing CGPDFDocument 0x7884d692c0
+  [!] CGPDFDocumentImpl destroying...
+  [!] Page 1: Dying document being invalidated
+[-] CGPDFDocumentImpl destroyed.
+  [-] CGPDFPageImpl for page 1 destroyed.
+    [-] PDFPageCore for page 1 destroyed.
+    [-] PDFDocumentCore destroyed.
+[-] Finalizing CGPDFDocument 0x7884d68500
+  [!] CGPDFDocumentImpl destroying...
+  [!] Page 1: Dying document being invalidated
+[-] CGPDFDocumentImpl destroyed.
+  [-] CGPDFPageImpl for page 1 destroyed.
+    [-] PDFPageCore for page 1 destroyed.
+    [-] PDFDocumentCore destroyed.
+Apple Vision capability starting: searchable-pdf
+[+] Creating CGPDFDocument
+    [+] PDFDocumentCore created.
+[+] CGPDFDocumentImpl created.
+    [+] PDFPageCore for page 1 created.
+  [+] CGPDFPageImpl for page 1 created.
+      Creating PDFResources for page 1.
+      Lazily parsing Group attributes for page 1.
+      Parsing Optional Content Properties.
+      [i] CACHE MISS: Lazily creating CGImageRef with key {5, 0, 1}, mutextIndex = 15
+
+CGPDFImage(0x7884c1fa20): Creating image with subsample_factor = 1
+
+Vision diagnostic: begin; same normalized image=2262x3200; bits=8/32; bitmapInfo=16385; colorSpace=kCGColorSpaceSRGB; alpha=1; language=en; accurate=true; totalLimitSeconds=90
+Vision diagnostic: same image encoded losslessly as PNG; bytes=171875
+Vision diagnostic: legacy CGImage: revision=3; accurate=true; languageCorrection=true; usesCPUOnlyRequested=false; languages=en-US; orientation=up; mainThread=false
+Vision diagnostic: legacy accurate CGImage detached failed: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=Foundation._GenericObjCError.nilError
+Vision diagnostic: legacy CGImage: revision=3; accurate=true; languageCorrection=false; usesCPUOnlyRequested=false; languages=en-US; orientation=up; mainThread=false
+Vision diagnostic: legacy accurate CGImage without language correction failed: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=Foundation._GenericObjCError.nilError
+Vision diagnostic: legacy PNG: revision=3; accurate=true; languageCorrection=true; usesCPUOnlyRequested=false; languages=en-US; orientation=up; mainThread=false
+Vision diagnostic: legacy accurate PNG failed: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=Foundation._GenericObjCError.nilError
+Vision diagnostic: legacy PNG: revision=3; accurate=true; languageCorrection=true; usesCPUOnlyRequested=true; languages=en-US; orientation=up; mainThread=false
+Vision diagnostic: legacy accurate PNG usesCPUOnly failed: Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.); Swift=Foundation._GenericObjCError.nilError
+Vision diagnostic: Swift accurate CGImage: revision=revision3; accurate=true; languages=[Foundation.Locale.Language(components: Foundation.Locale.Language.Components(languageCode: Optional(en), script: nil, region: Optional(US)))]; orientation=up; CPUOnlyRequested=false; stagesPinnedToCPU=0
+Vision diagnostic: Swift accurate CGImage failed: TextRecognition.CRImageReaderError (1): The operation couldn’t be completed. (TextRecognition.CRImageReaderError error 1.); Swift=TextRecognition.CRImageReaderError.e5rtError("e5rt_e5_compiler_compile call failed", 11)
+Vision diagnostic: Swift accurate PNG: revision=revision3; accurate=true; languages=[Foundation.Locale.Language(components: Foundation.Locale.Language.Components(languageCode: Optional(en), script: nil, region: Optional(US)))]; orientation=up; CPUOnlyRequested=false; stagesPinnedToCPU=0
+Vision diagnostic: Swift accurate PNG failed: TextRecognition.CRImageReaderError (1): The operation couldn’t be completed. (TextRecognition.CRImageReaderError error 1.); Swift=TextRecognition.CRImageReaderError.e5rtError("e5rt_e5_compiler_compile call failed", 11)
+Vision diagnostic: Swift accurate PNG all stages CPU: revision=revision3; accurate=true; languages=[Foundation.Locale.Language(components: Foundation.Locale.Language.Components(languageCode: Optional(en), script: nil, region: Optional(US)))]; orientation=up; CPUOnlyRequested=true; stagesPinnedToCPU=1
+Vision diagnostic: Swift accurate PNG all stages CPU failed: TextRecognition.CRImageReaderError (1): The operation couldn’t be completed. (TextRecognition.CRImageReaderError error 1.); Swift=TextRecognition.CRImageReaderError.e5rtError("e5rt_e5_compiler_compile call failed", 11)
+Vision diagnostic: end; original audit remains failed
+[-] Finalizing CGPDFDocument 0x7884d69680
+  [!] CGPDFDocumentImpl destroying...
+  [!] Page 1: Dying document being invalidated
+[-] CGPDFDocumentImpl destroyed.
+  [-] CGPDFPageImpl for page 1 destroyed.
+    [-] PDFPageCore for page 1 destroyed.
+    [-] PDFDocumentCore destroyed.
+      [i] Releasing cached image: 0x7884d40f00
+
+Apple Vision capability starting: isolated-process
+Apple Vision capability searchable-pdf: failed
+Apple Vision capability isolated-process: failed
+Vision OCR configuration: revision=3; accurate=true; automaticLanguage=false; languages=en-US; cpuOnly=false; image=2262x3200; bitsPerComponent=8; bitsPerPixel=32; bitmapInfo=16385; colorSpace=kCGColorSpaceSRGB; alpha=1; orientation=up
+Vision OCR: automatic execution failed (Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.)); retrying once with supported CPU devices
+Vision OCR configuration: revision=3; accurate=true; automaticLanguage=false; languages=en-US; cpuOnly=true; image=2262x3200; bitsPerComponent=8; bitsPerPixel=32; bitmapInfo=16385; colorSpace=kCGColorSpaceSRGB; alpha=1; orientation=up
+Vision OCR: CPU execution failed (Foundation._GenericObjCError (0): The operation couldn’t be completed. (Foundation._GenericObjCError error 0.)); trying supported accurate revision 2
+Vision OCR configuration: revision=2; accurate=true; automaticLanguage=false; languages=en-US; cpuOnly=false; image=2262x3200; bitsPerComponent=8; bitsPerPixel=32; bitmapInfo=16385; colorSpace=kCGColorSpaceSRGB; alpha=1; orientation=up
+Vision OCR: in-process runtime failed; trying one isolated native process in accurate mode

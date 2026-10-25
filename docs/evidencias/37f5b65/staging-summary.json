@@ -1,0 +1,342 @@
+{
+  "schemaVersion": 2,
+  "draft": false,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "runID": 40239018570,
+  "runAttempt": 1,
+  "createdAtUTC": "2026-10-25T23:13:30.767013+00:00",
+  "nativeMatrix": {
+    "status": "completed",
+    "conclusion": "success",
+    "jobs": {
+      "macos-26": 121306620661,
+      "xcode-27": 121306620477
+    },
+    "source": "Authenticated original terminal API snapshots and official complete attempt logs"
+  },
+  "pythonPerRunner": {
+    "macos-26": {
+      "methodsIncludingSkips": 720,
+      "passed": 719,
+      "skipped": 1
+    },
+    "xcode-27": {
+      "methodsIncludingSkips": 720,
+      "passed": 719,
+      "skipped": 1
+    }
+  },
+  "nativePerRunner": {
+    "macos-26": {
+      "distinctGroups": 44,
+      "completeExecutions": 9,
+      "starts": 396,
+      "passes": 396
+    },
+    "xcode-27": {
+      "distinctGroups": 44,
+      "completeExecutions": 9,
+      "starts": 396,
+      "passes": 396
+    }
+  },
+  "crossOS": {
+    "status": "in_progress",
+    "approved": false,
+    "runID": 40243611339,
+    "jobID": 121320462461,
+    "controllerCommit": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+    "dispatchReportedUTC": "2026-10-25T23:11:20Z",
+    "statusSource": "Root coordinator message; not independently queried by this offline staging tool"
+  },
+  "privateDelivery": {
+    "status": "pending",
+    "approved": false
+  },
+  "completeApplicationApproved": false,
+  "allRequestedFeaturesComplete": false,
+  "authenticatedSmallAndSourceArtifacts": [
+    {
+      "artifactID": 12616548206,
+      "name": "PDF-Apple-Vision-capability-macos-26",
+      "archiveRetained": true,
+      "retainedMembers": 2
+    },
+    {
+      "artifactID": 12616707998,
+      "name": "PDF-Apple-Vision-capability-xcode-27",
+      "archiveRetained": true,
+      "retainedMembers": 2
+    },
+    {
+      "artifactID": 12617017042,
+      "name": "PDF-local-AI-macos-26",
+      "archiveRetained": true,
+      "retainedMembers": 1
+    },
+    {
+      "artifactID": 12616478411,
+      "name": "PDF-local-AI-xcode-27",
+      "archiveRetained": true,
+      "retainedMembers": 1
+    },
+    {
+      "artifactID": 12616568126,
+      "name": "PDF-macOS-benchmark-macos-26",
+      "archiveRetained": true,
+      "retainedMembers": 1
+    },
+    {
+      "artifactID": 12616992423,
+      "name": "PDF-macOS-benchmark-xcode-27",
+      "archiveRetained": true,
+      "retainedMembers": 1
+    },
+    {
+      "artifactID": 12616792843,
+      "name": "PDF-macOS-preview-macos-26",
+      "archiveRetained": true,
+      "retainedMembers": 42
+    },
+    {
+      "artifactID": 12616732956,
+      "name": "PDF-macOS-preview-xcode-27",
+      "archiveRetained": true,
+      "retainedMembers": 42
+    },
+    {
+      "artifactID": 12616257071,
+      "name": "PDF-native-checks-macos-26",
+      "archiveRetained": true,
+      "retainedMembers": 1
+    },
+    {
+      "artifactID": 12616881481,
+      "name": "PDF-native-checks-xcode-27",
+      "archiveRetained": true,
+      "retainedMembers": 1
+    },
+    {
+      "artifactID": 12617342983,
+      "name": "PDF-source-macos-26",
+      "archiveRetained": false,
+      "retainedMembers": 4
+    },
+    {
+      "artifactID": 12617691830,
+      "name": "PDF-source-ocr-compatibility-xcode-27",
+      "archiveRetained": false,
+      "retainedMembers": 4
+    },
+    {
+      "artifactID": 12616467792,
+      "name": "PDF-window-lifecycle-macos-26",
+      "archiveRetained": true,
+      "retainedMembers": 6
+    },
+    {
+      "artifactID": 12616288159,
+      "name": "PDF-window-lifecycle-xcode-27",
+      "archiveRetained": true,
+      "retainedMembers": 6
+    }
+  ],
+  "binaries": [
+    {
+      "artifactID": 12617457782,
+      "name": "PDF-binary-validated-macos-26",
+      "jobID": 121306620661,
+      "archiveBytes": 1445409831,
+      "archiveSHA256": "26f4833161da2b9755331e17fc06278df42b1c2ee86b7f0eade8012ad8dc11ae",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1449079284,
+        "sha256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "retainedInsideOriginalZIP": true,
+        "tarExtracted": false,
+        "manifestMatchedEveryFile": true,
+        "storageRequirementsVerified": {
+          "schemaVersion": 1,
+          "distributionBytes": 3490004349,
+          "bundleBytes": 3489995287,
+          "distributionEntries": 61133,
+          "bundleEntries": 61131
+        },
+        "membersInspected": 61134,
+        "expandedBytesInspected": 3608227840
+      },
+      "manifestSHA256": "dd6d288653c5af179df82240dd6808e684afd26133b8fb5d5bf41d0df2d6bee8",
+      "sourceInstaller": {
+        "additionalSourceFiles": {
+          "diagnostics/delivery_archives.py": {
+            "bytes": 17378,
+            "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+          },
+          "diagnostics/portable_compatibility.py": {
+            "bytes": 13339,
+            "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+          },
+          "scripts/PDF-Info.plist": {
+            "bytes": 2034,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "scripts/check_window_lifecycle.py": {
+            "bytes": 9894,
+            "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+          }
+        },
+        "sourceArchiveSHA256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c",
+        "sourceArchiveBytes": 21029466,
+        "installerSHA256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5",
+        "installerBytes": 9062,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceFileCount": 771,
+        "sourceUncompressedBytes": 44636160,
+        "sourceManifestVerified": true,
+        "sourceWorkingTreeDirty": false
+      },
+      "validationReportVerified": true,
+      "archiveAndTarRetainedInCompactEvidence": false,
+      "smallMetadataRehashed": true
+    },
+    {
+      "artifactID": 12617482313,
+      "name": "PDF-binary-validated-xcode-27",
+      "jobID": 121306620477,
+      "archiveBytes": 1443397970,
+      "archiveSHA256": "3a427f4a656184ae0932411c4af62908a785e1fcf6a54cc84e54a263ae5447b8",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1447024392,
+        "sha256": "b21b530ae9df9c51de3c54bd16f2b499705e83e43754df4ffd4c496ea3fe570d",
+        "retainedInsideOriginalZIP": true,
+        "tarExtracted": false,
+        "manifestMatchedEveryFile": true,
+        "storageRequirementsVerified": {
+          "schemaVersion": 1,
+          "distributionBytes": 3477377874,
+          "bundleBytes": 3477368812,
+          "distributionEntries": 61133,
+          "bundleEntries": 61131
+        },
+        "membersInspected": 61134,
+        "expandedBytesInspected": 3595601920
+      },
+      "manifestSHA256": "cdee775c95a50b0f4c042cd82736b5fbb5ab83bcd92bb893186b26d99382dd93",
+      "sourceInstaller": {
+        "additionalSourceFiles": {
+          "diagnostics/delivery_archives.py": {
+            "bytes": 17378,
+            "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+          },
+          "diagnostics/portable_compatibility.py": {
+            "bytes": 13339,
+            "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+          },
+          "scripts/PDF-Info.plist": {
+            "bytes": 2034,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "scripts/check_window_lifecycle.py": {
+            "bytes": 9894,
+            "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+          }
+        },
+        "sourceArchiveSHA256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c",
+        "sourceArchiveBytes": 21029466,
+        "installerSHA256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5",
+        "installerBytes": 9062,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceFileCount": 771,
+        "sourceUncompressedBytes": 44636160,
+        "sourceManifestVerified": true,
+        "sourceWorkingTreeDirty": false
+      },
+      "validationReportVerified": true,
+      "archiveAndTarRetainedInCompactEvidence": false,
+      "smallMetadataRehashed": true
+    }
+  ],
+  "excludedLargeFiles": [
+    {
+      "artifactID": 12617342983,
+      "artifactName": "PDF-source-macos-26",
+      "member": "PDF-source.tar.gz",
+      "bytes": 21029466,
+      "sha256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c",
+      "reason": "Source tar deliberately not retained; upstream authenticated record preserved."
+    },
+    {
+      "artifactID": 12617342983,
+      "name": "12617342983.zip",
+      "bytes": 21034067,
+      "sha256": "d1480243c229657ec498662c48075eb1eed817b18093852c14117d358a0c5c4e",
+      "reason": "Source ZIP not retained because it contains the source tar."
+    },
+    {
+      "artifactID": 12617691830,
+      "artifactName": "PDF-source-ocr-compatibility-xcode-27",
+      "member": "PDF-source.tar.gz",
+      "bytes": 21029466,
+      "sha256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c",
+      "reason": "Source tar deliberately not retained; upstream authenticated record preserved."
+    },
+    {
+      "artifactID": 12617691830,
+      "name": "12617691830.zip",
+      "bytes": 21034646,
+      "sha256": "c5654b0979810943fde936df6a54707b134b259dbf99efa5166ecadf3d0278c3",
+      "reason": "Source ZIP not retained because it contains the source tar."
+    },
+    {
+      "artifactID": 12617457782,
+      "name": "12617457782.zip",
+      "bytes": 1445409831,
+      "sha256": "26f4833161da2b9755331e17fc06278df42b1c2ee86b7f0eade8012ad8dc11ae",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1449079284,
+        "sha256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "retainedInsideOriginalZIP": true,
+        "tarExtracted": false,
+        "manifestMatchedEveryFile": true,
+        "storageRequirementsVerified": {
+          "schemaVersion": 1,
+          "distributionBytes": 3490004349,
+          "bundleBytes": 3489995287,
+          "distributionEntries": 61133,
+          "bundleEntries": 61131
+        },
+        "membersInspected": 61134,
+        "expandedBytesInspected": 3608227840
+      },
+      "reason": "Large binary ZIP/TAR deliberately omitted; no additional download or large-TAR extraction by retention."
+    },
+    {
+      "artifactID": 12617482313,
+      "name": "12617482313.zip",
+      "bytes": 1443397970,
+      "sha256": "3a427f4a656184ae0932411c4af62908a785e1fcf6a54cc84e54a263ae5447b8",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1447024392,
+        "sha256": "b21b530ae9df9c51de3c54bd16f2b499705e83e43754df4ffd4c496ea3fe570d",
+        "retainedInsideOriginalZIP": true,
+        "tarExtracted": false,
+        "manifestMatchedEveryFile": true,
+        "storageRequirementsVerified": {
+          "schemaVersion": 1,
+          "distributionBytes": 3477377874,
+          "bundleBytes": 3477368812,
+          "distributionEntries": 61133,
+          "bundleEntries": 61131
+        },
+        "membersInspected": 61134,
+        "expandedBytesInspected": 3595601920
+      },
+      "reason": "Large binary ZIP/TAR deliberately omitted; no additional download or large-TAR extraction by retention."
+    }
+  ],
+  "retentionScope": "12 small original artifact ZIPs plus original full-run log ZIP; four small source metadata files and four small binary metadata files per runner; no source ZIP/TAR or binary ZIP/TAR retained. Exact original and derived records explicitly separated.",
+  "provisionalHistory": "Earlier draft provenance/README/index are preserved under provenance/provisional-stage; complete unchanged provisional staging also retained outside this final directory as .provisional-backup."
+}

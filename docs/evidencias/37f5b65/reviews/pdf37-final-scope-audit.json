@@ -1,0 +1,2879 @@
+{
+  "schemaVersion": 1,
+  "createdAt": "2026-10-25T22:44:37.060352+00:00",
+  "productCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "documentationHead": "e4f6c056058d3482b18cdcc24011ccdc96327004",
+  "mode": "independent_static_read_only_scope_and_preservation_audit",
+  "outcome": "no_new_concrete_static_route_blocker_found; original_request_not_fully_satisfied_or_delivered_by_this_audit",
+  "product_mutated": false,
+  "new_tests_or_fuzzing_executed": false,
+  "current_pipeline_approval_claimed": false,
+  "counts": {
+    "catalog": 71,
+    "unique": 71,
+    "legacy54": 54,
+    "legacyMissing": [],
+    "sameCatalogAndOrderAs817": true,
+    "nativeOrNavigation": 33,
+    "configurationToEngine": 38,
+    "unresolvedNamedEngineOperations": [],
+    "matrixRows": 71,
+    "matrixMissing": [],
+    "matrixExtra": [],
+    "checkedLocalDocumentLinks": 362,
+    "missingLocalDocumentLinks": [],
+    "nonDocumentationChangesFromProductToHead": []
+  },
+  "preservation": {
+    "productPathsChangedSince817": [
+      ".github/workflows/deliver-binary.yml",
+      ".github/workflows/macos.yml",
+      ".github/workflows/portable-compatibility.yml",
+      "Sources/PDF/AdvancedCustomization.swift",
+      "Sources/PDF/CommandPalette.swift",
+      "Sources/PDF/MacPreview.swift",
+      "Sources/PDF/MacSmokeTests.swift",
+      "Sources/PDF/MenuCustomization.swift",
+      "Sources/PDF/PDFApp.swift",
+      "Sources/PDF/ReaderCommands.swift",
+      "Sources/PDF/WindowSceneLifecycleAudit.swift",
+      "Sources/PDF/WorkspaceLifecycle.swift",
+      "Sources/PDF/WorkspaceModel.swift",
+      "Sources/PDF/WorkspaceSceneAuditChecks.swift",
+      "Sources/PDF/WorkspaceSceneCoordinator.swift",
+      "scripts/PDF-Info.plist",
+      "scripts/check_window_lifecycle.py",
+      "scripts/install-mac.sh",
+      "scripts/prepare-window-audit-bundle.py",
+      "scripts/test_window_lifecycle.py"
+    ],
+    "enginePathsChangedSince817": [],
+    "meaning": "Motor de ferramentas permanece byte a byte no Git entre817 e37; alterações posteriores são apresentação/ciclo da cena, comandos, auditorias e instalação/CI. Isso preserva implementação, sem transferir automaticamente todos os resultados ao pacote novo."
+  },
+  "reader": {
+    "route": "ContentView(section=Leitor) -> ReaderWorkspaceView -> PDFKit/DocumentSessions",
+    "scope": [
+      "abas",
+      "lado a lado",
+      "busca",
+      "miniaturas/sumário",
+      "zoom",
+      "marcadores",
+      "formulários",
+      "anotações/undo-redo",
+      "salvar cópia/criptografia/recuperação"
+    ],
+    "evidence": [
+      {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 385
+      },
+      {
+        "file": "Sources/PDF/WorkspaceModel.swift",
+        "line": 75
+      },
+      {
+        "file": "Sources/PDF/DocumentSessions.swift",
+        "line": 6
+      },
+      {
+        "file": "Sources/PDF/WorkspaceSceneCoordinator.swift",
+        "line": 56
+      }
+    ],
+    "limitations": "Presença dos percursos não comprova cada PDF ou interação humana; cena37 foi corrigida e tem evidência nativa separada, ainda sem conclusão portátil nesta tarefa."
+  },
+  "tools": [
+    {
+      "id": "conversion-audit",
+      "name": "Auditar conversão Office",
+      "category": "Converter",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "conversion-audit"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 28
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 13,
+        "line": 36,
+        "path_claim": "[Produção: auditar conversão](../Sources/PDF/ProductionToolsView.swift) → `conversion-audit`",
+        "existing_controls": "[reexportações Office reais](../tests/integration_conversion_audit.py); [dimensão personalizada e diferença registrada](../tests/integration_word_semantics.py)",
+        "documented_limits": "Métricas de texto, objetos, fontes, pixels e geometria são indicadores; não constituem nota universal de fidelidade."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "merge",
+      "name": "Juntar PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "merge"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 29
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 1,
+        "line": 19,
+        "path_claim": "Configuração → `merge`",
+        "existing_controls": "[test_merge_split_order](../tests/test_engine.py); [entrada inválida e publicação sem resultado parcial](../tests/test_audit.py)",
+        "documented_limits": "Ordem e proteção são verificadas em amostras; PDFs danificados ou incompatíveis podem ser recusados."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "split",
+      "name": "Dividir PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "split"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 30
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 2,
+        "line": 20,
+        "path_claim": "Configuração → `split`",
+        "existing_controls": "[test_split_selected_ranges_into_groups](../tests/test_layout.py); [divisão de PDF protegido](../tests/test_advanced.py)",
+        "documented_limits": "Saída em diretório novo; intervalos/grupos explícitos, sem substituir diretórios existentes."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "compress",
+      "name": "Comprimir PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "compress"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 31
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 3,
+        "line": 21,
+        "path_claim": "Configuração → `compress`",
+        "existing_controls": "[test_compression_uses_largest_shared_image_placement](../tests/test_advanced.py); [reabertura após compressão](../tests/test_engine.py); [ICC/modos e imagens especiais](../tests/test_content_color_preservation.py)",
+        "documented_limits": "Redução depende do arquivo/resolução. Imagens com ICC, máscaras, Decode/Intent especiais e CMYK não são recomprimidas como bitmap comum; essa recusa evita dupla transformação de cor. Não há taxa universal."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "word",
+      "name": "PDF para Word",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "word"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 32
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 14,
+        "line": 37,
+        "path_claim": "Configuração → `word`",
+        "existing_controls": "[parágrafos, margens recorrentes e proporções de tabela](../tests/test_word_semantics.py); [ida e volta LibreOffice](../tests/integration_word_semantics.py); [mesclas raster reais](../tests/integration_scan_tables.py)",
+        "documented_limits": "DOCX editável com reconstrução aproximada. Notas semânticas, todos os estilos, fontes e layouts arbitrários permanecem parciais."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "powerpoint",
+      "name": "PDF para PowerPoint",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "powerpoint"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 33
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 15,
+        "line": 38,
+        "path_claim": "Configuração → `powerpoint`",
+        "existing_controls": "[texto editável e modo imagem](../tests/test_advanced.py); [texto de página rotacionada](../tests/test_audit.py)",
+        "documented_limits": "Modo editável não reconstrói todo vetor; modo imagem conserva aparência raster, sem tornar o conteúdo editável."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "excel",
+      "name": "PDF para Excel",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "excel"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 34
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 16,
+        "line": 39,
+        "path_claim": "Configuração → `excel`",
+        "existing_controls": "[mesclas reais](../tests/test_merged_tables.py); [células editáveis de scan](../tests/integration_scan.py); [fórmulas aparentes mantidas como texto](../tests/integration_optional.py)",
+        "documented_limits": "Depende da geometria/alinhamento reconhecido; fallback em linhas não equivale a reconstrução de qualquer tabela."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "word-pdf",
+      "name": "Word para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "office"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 35
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 17,
+        "line": 40,
+        "path_claim": "Configuração → `office` com DOC/DOCX",
+        "existing_controls": "[test_office](../tests/integration_optional.py)",
+        "documented_limits": "Conversão real de DOCX; DOC legado, macros e todos os layouts dependem do LibreOffice e das fontes disponíveis."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "powerpoint-pdf",
+      "name": "PowerPoint para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "office"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 36
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 18,
+        "line": 41,
+        "path_claim": "Configuração → `office` com PPT/PPTX",
+        "existing_controls": "[test_powerpoint_to_pdf](../tests/integration_optional.py)",
+        "documented_limits": "PPTX real exercitado; animações da apresentação não se tornam animações em PDF."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "excel-pdf",
+      "name": "Excel para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "office"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 37
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 19,
+        "line": 42,
+        "path_claim": "Configuração → `office` com XLS/XLSX, orientação e ajuste",
+        "existing_controls": "[test_excel_to_pdf e test_legacy_xls_applies_requested_orientation_and_fits_columns](../tests/integration_optional.py)",
+        "documented_limits": "Amostras reais incluem XLS legado e 30 colunas; não comprovam todas as fórmulas, macros e configurações de impressão."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "edit",
+      "name": "Editar PDF",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "text",
+        "image",
+        "shape",
+        "edit"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 38
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 33,
+        "line": 61,
+        "path_claim": "Configuração → `text`, `image`, `shape` ou `edit`",
+        "existing_controls": "[inserção e substituição com recusa de overflow](../tests/test_advanced.py); [Unicode preservado ou recusa explícita](../tests/test_audit.py)",
+        "documented_limits": "Adições e substituições delimitadas; editor avançado do conteúdo original é outra entrada. Não permite edição universal de vetores/fontes."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "jpg",
+      "name": "PDF para JPG",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "jpg"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 39
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 20,
+        "line": 43,
+        "path_claim": "Configuração → `jpg` (páginas ou imagens incorporadas)",
+        "existing_controls": "[test_images_roundtrip](../tests/test_engine.py); [extração de imagens incorporadas](../tests/test_layout.py)",
+        "documented_limits": "JPEG não conserva transparência; rasterização não produz objetos editáveis."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "images",
+      "name": "JPG para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "images"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 40
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 21,
+        "line": 44,
+        "path_claim": "Configuração → `images` (JPG e outros formatos aceitos)",
+        "existing_controls": "[test_image_pdf_obeys_paper_orientation_and_margin](../tests/test_layout.py)",
+        "documented_limits": "Margens/orientação exigem papel definido. Não corrige automaticamente toda distorção de fotografia."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "signature",
+      "name": "Assinar PDF",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "signature"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 41
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 34,
+        "line": 62,
+        "path_claim": "Configuração → `signature` → inserção de imagem",
+        "existing_controls": "[transparência, seleção, recorte/rotação e permissões](../tests/test_visual_signature_numbering.py)",
+        "documented_limits": "Assinatura visual, sem certificação criptográfica. Testes diretos não são evidência de identidade civil ou assinatura PAdES."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "watermark",
+      "name": "Marca d’água",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "watermark"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 42
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 35,
+        "line": 63,
+        "path_claim": "Configuração → `watermark` (texto ou imagem)",
+        "existing_controls": "[marca textual](../tests/test_engine.py); [Unicode e estilos](../tests/test_advanced.py); [imagem, opacidade padrão e camada](../tests/test_visual_signature_numbering.py)",
+        "documented_limits": "Texto e imagem possuem controles próprios; exemplos não comprovam a aparência de todas as fontes e imagens possíveis."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "rotate",
+      "name": "Rodar PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "rotate"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 43
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 4,
+        "line": 22,
+        "path_claim": "Configuração → `rotate`; vários arquivos usam processamento em lote",
+        "existing_controls": "[test_page_selection_limits_rotation](../tests/test_advanced.py); [páginas repetidas permanecem independentes](../tests/test_audit.py)",
+        "documented_limits": "Rotações em múltiplos de 90°; o ensaio do motor não cobre todos os percursos do seletor de arquivos."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "html",
+      "name": "HTML para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "html"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 44
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 22,
+        "line": 45,
+        "path_claim": "Configuração → `html` → Chromium/Playwright",
+        "existing_controls": "[arquivo local](../tests/integration_optional.py); [URL HTTP local com CSS e imagem relativos](../tests/integration_html_url.py)",
+        "documented_limits": "Caminhos locais e por URL têm execução real associada. Páginas externas, autenticação, rede e scripts arbitrários continuam sujeitos ao site/conversor."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "unlock",
+      "name": "Desbloquear PDF",
+      "category": "Proteger",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "unlock"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 45
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 44,
+        "line": 77,
+        "path_claim": "Configuração → `unlock`",
+        "existing_controls": "[test_encrypt_unlock](../tests/test_engine.py); [senha incorreta sem vazamento](../tests/test_audit.py)",
+        "documented_limits": "Exige senha conhecida; não quebra criptografia nem recupera senha desconhecida."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "protect",
+      "name": "Proteger PDF",
+      "category": "Proteger",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "protect"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 46
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 45,
+        "line": 78,
+        "path_claim": "Configuração → `protect`",
+        "existing_controls": "[cifra e reabertura](../tests/test_engine.py); [preservação de proteção em transformações](../tests/test_advanced.py); [AES-256 e permissões nativas](../Sources/PDF/QPDFStructuralAudit.swift)",
+        "documented_limits": "Senha não substitui gestão de confiança/backup; parâmetros e permissões têm limites explícitos do formato."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "organize",
+      "name": "Organizar PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "organize"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 47
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 5,
+        "line": 23,
+        "path_claim": "Configuração → `organize`",
+        "existing_controls": "[test_organize_combines_inputs_in_global_page_order_with_protection](../tests/test_advanced.py); [ordem e independência de cópias de página](../tests/test_audit.py)",
+        "documented_limits": "Combinação usa ordem global de páginas e senhas das entradas; não é edição livre da estrutura interna de qualquer PDF."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "pdfa",
+      "name": "PDF para PDF/A",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "pdfa"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 48
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 23,
+        "line": 46,
+        "path_claim": "Configuração → `pdfa` → OCRmyPDF/Ghostscript",
+        "existing_controls": "[test_ocr_and_pdfa](../tests/integration_optional.py); [PDF/A-2b real revalidado](../tests/test_standards.py)",
+        "documented_limits": "Conversão deve ser seguida da validação independente para o perfil/arquivo concreto; não se presume conformidade só por gerar PDF."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "repair",
+      "name": "Reparar PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "repair"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 49
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 6,
+        "line": 24,
+        "path_claim": "Configuração → `repair`",
+        "existing_controls": "[test_repair_recovers_missing_cross_reference_table](../tests/test_advanced.py)",
+        "documented_limits": "Recupera o dano exercitado; não reconstrói bytes ou conteúdo que já não existam no arquivo."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "numbers",
+      "name": "Números de página",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "numbers"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 50
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 36,
+        "line": 64,
+        "path_claim": "Configuração → `numbers`",
+        "existing_controls": "[formato, ordem, início, total, tipografia, posição e overflow](../tests/test_visual_signature_numbering.py); [lotes protegidos](../tests/test_batch_workflows.py)",
+        "documented_limits": "A seleção define a sequência e seu total; casos não renderizáveis ou valores inválidos são recusados sem publicar cópia parcial."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "scan",
+      "name": "Digitalizar em PDF",
+      "category": "Capturar",
+      "route_type": "native_or_navigation",
+      "route": "NativeFeaturesView/ImageCaptureCore/ContinuityCapture",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 51
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 51,
+        "line": 89,
+        "path_claim": "[Digitalizar](../Sources/PDF/NativeFeatures.swift) → ImageCaptureCore/Continuidade/importar imagens",
+        "existing_controls": "[CaptureImportAuditChecks](../Sources/PDF/ContinuityCapture.swift); [PDF nativo e OCR de imagem real](../Sources/PDF/MacSmokeTests.swift)",
+        "documented_limits": "Scanner físico, iPhone/Continuidade e permissões de dispositivos ainda dependem de ensaio real; importação não comprova aquisição física."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "ocr",
+      "name": "OCR PDF",
+      "category": "Capturar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "ocr"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 52
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 52,
+        "line": 90,
+        "path_claim": "Configuração → `ocr` → OCRmyPDF/Tesseract; caminho Apple em Digitalizar",
+        "existing_controls": "[test_ocr_and_pdfa](../tests/integration_optional.py); [OCR de compatibilidade](../Sources/PDF/TesseractPageAuditChecks.swift); [Vision estrito separado](../Sources/PDF/VisionCapabilityAudit.swift)",
+        "documented_limits": "No marco 887d824, Vision estrito passou no macOS 26 e falhou no 27; Tesseract operou como compatibilidade. Idiomas, imagem e backend condicionam o resultado; isso não aprova a fonte final."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "compare",
+      "name": "Comparar PDF",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "compare",
+        "compare-visual"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 53
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 7,
+        "line": 25,
+        "path_claim": "Configuração → `compare-visual` ou `compare`",
+        "existing_controls": "[alteração somente gráfica](../tests/test_advanced.py); [página em branco adicionada e dimensões alteradas](../tests/test_audit.py)",
+        "documented_limits": "Relatório visual HTML e diferença textual; não decide equivalência jurídica ou semântica entre versões."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "redact",
+      "name": "Ocultar PDF",
+      "category": "Proteger",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "redact"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 54
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 46,
+        "line": 79,
+        "path_claim": "Configuração → `redact` por texto ou área",
+        "existing_controls": "[anotações/widgets dentro e fora da área](../tests/test_audit.py); [casos anteriores de metadados/anexos](../tests/test_advanced.py); [revisão independente de canais ocultos](../tests/test_redaction_privacy_independent.py); [ICC/metadados](../tests/test_redaction_icc_independent.py); [recusa antes da publicação](../tests/test_redaction_publication.py)",
+        "documented_limits": "**0.6 mantém a falha conhecida.** Repros corrigidos em 6c8be0e, com 35 métodos incluídos no núcleo. Derivado perde tags/OCR invisível/interatividade/navegação; original preservado. Estados/perfis não suportados são recusados. Pacotes passaram nos respectivos sistemas; não há prova de sanitização arbitrária. Teste cruzado/entrega continuam separados."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "crop",
+      "name": "Recortar PDF",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "crop"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 55
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 37,
+        "line": 65,
+        "path_claim": "Configuração → `crop` por margem ou retângulo",
+        "existing_controls": "[test_crop_rectangle_is_relative_to_visible_page_even_after_rotation](../tests/test_audit.py)",
+        "documented_limits": "Altera área visível. Não remove dados ocultos; remoção permanente pertence a Ocultar PDF."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "forms",
+      "name": "Formulários PDF",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "forms",
+        "form-detect",
+        "form-create",
+        "form-fill"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 56
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 38,
+        "line": 66,
+        "path_claim": "Configuração → `form-detect`, `form-create`, `form-fill`, `forms`",
+        "existing_controls": "[criar/preencher/inspecionar](../tests/test_advanced.py); [rádio, lista e readonly](../tests/test_audit.py); [campos de scans reais](../tests/integration_scan.py)",
+        "documented_limits": "Detecção requer revisão. XFA, JavaScript e semântica completa de formulários arbitrários não são garantidos."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "summary",
+      "name": "Resumir com IA",
+      "category": "Inteligência",
+      "route_type": "native_or_navigation",
+      "route": "IntelligenceView/FoundationModels",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 57
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 54,
+        "line": 97,
+        "path_claim": "[Inteligência: resumir](../Sources/PDF/IntelligenceView.swift) → Foundation Models local",
+        "existing_controls": "[contratos de conteúdo/extração](../Sources/PDF/NativeAuditChecks.swift); [fontes e limites de contexto](../Sources/PDF/SemanticAuditChecks.swift)",
+        "documented_limits": "Nenhuma avaliação geral de resumos gerados pelo modelo real disponível foi concluída; checks determinísticos não medem qualidade factual."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "translate",
+      "name": "Traduzir PDF",
+      "category": "Inteligência",
+      "route_type": "native_or_navigation",
+      "route": "IntelligenceView/FoundationModels",
+      "engine_operations": [
+        "layout-extract",
+        "translate-layout"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 58
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 55,
+        "line": 98,
+        "path_claim": "[Inteligência: traduzir](../Sources/PDF/IntelligenceView.swift) → modelo; `layout-extract`/`translate-layout` no modo layout",
+        "existing_controls": "[imagem/vetores e overflow](../tests/test_layout.py); [hash/snapshot da origem](../tests/test_translation_binding.py); [contrato de blocos](../Sources/PDF/NativeAuditChecks.swift)",
+        "documented_limits": "Modelo real e qualidade linguística pendentes. Não preserva universalmente fontes/layout; a identidade da origem e os planos passaram nos controles locais; os contratos nativos passaram, mas o fluxo com geração pelo modelo real não foi executado."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "markdown",
+      "name": "PDF para Markdown",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "markdown"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 59
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 24,
+        "line": 47,
+        "path_claim": "Configuração → `markdown`",
+        "existing_controls": "[colunas, tabelas e estilos](../tests/test_document_layout.py); [texto fora da tabela e raster conservado](../tests/integration_scan_tables.py); [listas, links e texto literal](../tests/test_markdown_semantics.py)",
+        "documented_limits": "Listas exigem evidência; casos incertos permanecem literais. Links aceitam esquemas delimitados e páginas exportadas. Controles locais passaram na fonte indicada; não reconstrói toda semântica nem substitui execução nativa."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "workflow",
+      "name": "Criar fluxo de trabalho",
+      "category": "Automatizar",
+      "route_type": "native_or_navigation",
+      "route": "WorkflowView",
+      "engine_operations": [
+        "workflow"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 60
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 62,
+        "line": 115,
+        "path_claim": "[Fluxos](../Sources/PDF/WorkflowView.swift) → `workflow`/workflow_batch",
+        "existing_controls": "[formatos reais, proteção, cancelamento e concorrência](../tests/test_batch_workflows.py); [operações que exigem revisão não entram implicitamente](../tests/test_workflow_review_boundaries.py)",
+        "documented_limits": "Allowlist preserva etapas compatíveis; edições vinculadas à origem e solicitações remotas não são executadas sem sua revisão específica."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "png",
+      "name": "PDF para PNG",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "png"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 61
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 25,
+        "line": 48,
+        "path_claim": "Configuração → `png` (páginas ou imagens incorporadas)",
+        "existing_controls": "[resolução, fundo opaco e reconstrução de transparência](../tests/test_new_tools.py)",
+        "documented_limits": "Amostras inspecionam pixels/dimensões; não há preservação de vetores no formato raster."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "odt-pdf",
+      "name": "ODT para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "odt"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 62
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 26,
+        "line": 49,
+        "path_claim": "Configuração → `odt` → LibreOffice",
+        "existing_controls": "[test_odt_to_pdf_preserves_text](../tests/integration_optional.py)",
+        "documented_limits": "Depende do conversor e das fontes; não equivale a teste de todos os documentos OpenDocument."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "txt-pdf",
+      "name": "TXT para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "txt"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 63
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 27,
+        "line": 50,
+        "path_claim": "Configuração → `txt`",
+        "existing_controls": "[Unicode, paginação e palavra longa sem perda](../tests/test_new_tools.py)",
+        "documented_limits": "Codificação inválida e glifos não suportados são recusados; TXT não contém estilos originais a preservar."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "rtf-pdf",
+      "name": "RTF para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "rtf"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 64
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 28,
+        "line": 51,
+        "path_claim": "Configuração → `rtf` → LibreOffice",
+        "existing_controls": "[test_rtf_to_pdf_preserves_unicode_text](../tests/integration_optional.py)",
+        "documented_limits": "Teste real cobre texto Unicode; estilos e objetos RTF arbitrários não têm fidelidade universal comprovada."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "epub-pdf",
+      "name": "EPUB para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "epub"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 65
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 29,
+        "line": 52,
+        "path_claim": "Configuração → `epub`",
+        "existing_controls": "[test_epub_conversion_preserves_book_content](../tests/test_new_tools.py)",
+        "documented_limits": "Livro de amostra convertido; não remove DRM nem comprova todos os recursos interativos de EPUB."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "csv-pdf",
+      "name": "CSV para PDF",
+      "category": "Converter",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "csv"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 66
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 30,
+        "line": 53,
+        "path_claim": "Configuração → `csv` → tabela paginada",
+        "existing_controls": "[células com aspas sem avaliação de fórmulas](../tests/integration_optional.py); [recusa de célula não renderizável](../tests/test_new_tools.py)",
+        "documented_limits": "Separador/codificação devem corresponder ao arquivo; CSV não possui estilos ou fórmulas executáveis a preservar."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "pages-pdf",
+      "name": "Pages para PDF",
+      "category": "Converter",
+      "route_type": "native_or_navigation",
+      "route": "PagesConversionView/AppleScript/Pages",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 67
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 31,
+        "line": 54,
+        "path_claim": "[Pages para PDF](../Sources/PDF/PagesConversion.swift) → cópia privada/AppleScript → Pages",
+        "existing_controls": "[PagesPrivateCopyAuditChecks e PagesCleanupAuditChecks](../Sources/PDF/PagesConversion.swift)",
+        "documented_limits": "Ensaios nativos conferem propriedade/limpeza da cópia; exportação real exige Pages instalado e permissão Automação, ainda sem comprovação ponta a ponta disponível."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "flatten",
+      "name": "Achatar PDF",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "flatten"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 68
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 39,
+        "line": 67,
+        "path_claim": "Configuração → `flatten`",
+        "existing_controls": "[test_flatten_bakes_visible_annotations_and_widgets](../tests/test_new_tools.py)",
+        "documented_limits": "Incorpora aparência selecionada; campos incorporados deixam de ser preenchíveis na cópia."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "delete-pages",
+      "name": "Excluir páginas",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "delete-pages"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 69
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 8,
+        "line": 26,
+        "path_claim": "Configuração → `delete-pages`",
+        "existing_controls": "[test_delete_pages_keeps_remaining_order e recusa de excluir tudo](../tests/test_new_tools.py)",
+        "documented_limits": "Exige seleção explícita e ao menos uma página restante; publica cópia nova."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "extract-pages",
+      "name": "Extrair páginas",
+      "category": "Organizar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "extract-pages"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 70
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 9,
+        "line": 27,
+        "path_claim": "Configuração → `extract-pages`",
+        "existing_controls": "[test_extract_pages_keeps_explicit_order](../tests/test_new_tools.py); [links e campos de páginas repetidas](../tests/test_print_legal.py)",
+        "documented_limits": "Mantém a ordem solicitada, inclusive duplicatas; estruturas compartilhadas incompatíveis são recusadas."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "converter",
+      "name": "Conversor de PDF",
+      "category": "Converter",
+      "route_type": "native_or_navigation",
+      "route": "ContentView: category=Converter (navigation only)",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 71
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 32,
+        "line": 55,
+        "path_claim": "Início → filtro Converter",
+        "existing_controls": "[catálogo e comandos](../Sources/PDF/AdvancedCustomizationAuditChecks.swift); conversores individuais desta matriz",
+        "documented_limits": "É um ponto de navegação para formatos disponíveis, sem motor adicional de conversão."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "share",
+      "name": "Compartilhar PDF",
+      "category": "Compartilhar",
+      "route_type": "native_or_navigation",
+      "route": "SharePDFView/ShareLink",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 72
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 59,
+        "line": 107,
+        "path_claim": "[Compartilhar → SharePDFView](../Sources/PDF/WorkspaceViews.swift) → serviços do macOS",
+        "existing_controls": "Rota nativa e seleção de arquivo em [SharePDFView](../Sources/PDF/WorkspaceViews.swift); controles gerais de tarefas/saída",
+        "documented_limits": "Não há envio externo executado pela auditoria. Conclusão depende do serviço escolhido e da ação do usuário."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "annotate",
+      "name": "Anotar PDF",
+      "category": "Editar",
+      "route_type": "native_or_navigation",
+      "route": "ReaderWorkspaceView/PDFKit/AnnotationEditing",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 73
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 40,
+        "line": 68,
+        "path_claim": "[Leitor com anotações](../Sources/PDF/WorkspaceViews.swift) → PDFKit/AnnotationEditing",
+        "existing_controls": "[estilos, transformações, undo/redo e persistência](../Sources/PDF/SessionAnnotationAuditChecks.swift); [integridade das cópias](../Sources/PDF/QPDFStructuralAudit.swift)",
+        "documented_limits": "Exercícios nativos verificam conteúdo salvo; interação humana completa para selecionar/arrastar/redimensionar continua separada."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "fill-forms",
+      "name": "Preencher PDF",
+      "category": "Editar",
+      "route_type": "configuration_to_engine",
+      "route": "ToolConfigurationView",
+      "engine_operations": [
+        "forms",
+        "form-fill"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 74
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/ToolViews.swift",
+        "line": 230
+      },
+      "matrix": {
+        "number": 41,
+        "line": 69,
+        "path_claim": "Configuração → modo preencher → `forms` e `form-fill`",
+        "existing_controls": "[rótulos e valores de exportação](../tests/test_choice_options.py); [readonly, escolha e rádio entre páginas](../tests/test_audit.py)",
+        "documented_limits": "Compartilha o painel Formulários; campos somente leitura permanecem bloqueados. XFA/JavaScript fora da cobertura geral."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "chat",
+      "name": "Conversar com PDF",
+      "category": "Inteligência",
+      "route_type": "native_or_navigation",
+      "route": "IntelligenceView/SemanticRetrieval/FoundationModels",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 75
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 56,
+        "line": 99,
+        "path_claim": "[Inteligência: conversar](../Sources/PDF/IntelligenceView.swift) → busca/trechos/modelo local",
+        "existing_controls": "[ranking e citações](../Sources/PDF/SemanticAuditChecks.swift); [experimento real condicionado ao modelo](../Sources/PDF/LocalAIAudit.swift)",
+        "documented_limits": "Modelo ausente resulta em indisponível, sem resposta substituta. Citação existente não prova toda inferência nem elimina alucinações."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "quiz",
+      "name": "Gerar questionário",
+      "category": "Inteligência",
+      "route_type": "native_or_navigation",
+      "route": "IntelligenceView/FoundationModels",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 76
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 57,
+        "line": 100,
+        "path_claim": "[Inteligência: questionário](../Sources/PDF/IntelligenceView.swift) → Foundation Models local",
+        "existing_controls": "[perguntas válidas e recusas estruturais](../Sources/PDF/MacSmokeTests.swift); código de validação de perguntas em [PDFQuizQuestion](../Sources/PDF/IntelligenceView.swift)",
+        "documented_limits": "Geração real e utilidade pedagógica não comprovadas no ambiente disponível; perguntas/alternativas devem ser revisadas."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "sign-service",
+      "name": "Sign.com",
+      "category": "Compartilhar",
+      "route_type": "native_or_navigation",
+      "route": "ExternalSigningView/Link(Sign.com)",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 77
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 60,
+        "line": 108,
+        "path_claim": "[Sign.com → ExternalSigningView](../Sources/PDF/WorkspaceViews.swift) → navegador",
+        "existing_controls": "Rota/link explícitos em [ExternalSigningView](../Sources/PDF/WorkspaceViews.swift)",
+        "documented_limits": "É acesso ao serviço externo, sem integração API ou confirmação de solicitação concluída. Conta/custos/serviço são externos."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "digital-sign",
+      "name": "Assinatura digital certificada",
+      "category": "Proteger",
+      "route_type": "native_or_navigation",
+      "route": "VerificationView",
+      "engine_operations": [
+        "digital-sign"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 78
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 47,
+        "line": 80,
+        "path_claim": "[Verificação: assinar](../Sources/PDF/VerificationView.swift) → `digital-sign`",
+        "existing_controls": "[assinatura real, raiz explícita e bytes originais](../tests/test_signatures.py); [TSA/OCSP/CRL e LT/LTA controlados](../tests/test_signature_long_term.py)",
+        "documented_limits": "Certificado/CA/TSA de produção não exercitados. Não determina identidade civil, qualificação jurídica ou renovação LTA automática."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "verify-signatures",
+      "name": "Verificar assinaturas",
+      "category": "Proteger",
+      "route_type": "native_or_navigation",
+      "route": "VerificationView",
+      "engine_operations": [
+        "verify-signatures"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 79
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 48,
+        "line": 81,
+        "path_claim": "[Verificação: assinaturas](../Sources/PDF/VerificationView.swift) → `verify-signatures`",
+        "existing_controls": "[integridade, confiança e adulteração](../tests/test_signatures.py); [revogação e preservação temporal](../tests/test_signature_long_term.py)",
+        "documented_limits": "Confiança depende das raízes e evidências escolhidas; rede de revogação exige endpoints autorizados. Produção permanece dependente."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "validate-pdfa",
+      "name": "Validar PDF/A",
+      "category": "Proteger",
+      "route_type": "native_or_navigation",
+      "route": "VerificationView",
+      "engine_operations": [
+        "validate-pdfa"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 80
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 49,
+        "line": 82,
+        "path_claim": "[Verificação: PDF/A](../Sources/PDF/VerificationView.swift) → `validate-pdfa` → veraPDF",
+        "existing_controls": "[test_actual_verapdf_accepts_generated_pdfa2b e recusa de PDF comum](../tests/test_standards.py)",
+        "documented_limits": "Validade refere-se aos bytes/perfil examinados; não aprova todos os perfis apenas porque um exemplo passou."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "validate-pdfua",
+      "name": "Auditar PDF/UA",
+      "category": "Proteger",
+      "route_type": "native_or_navigation",
+      "route": "VerificationView",
+      "engine_operations": [
+        "validate-pdfua"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 81
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 50,
+        "line": 83,
+        "path_claim": "[Verificação: PDF/UA](../Sources/PDF/VerificationView.swift) → `validate-pdfua` → veraPDF",
+        "existing_controls": "[fixture etiquetada e PDFs sem tags](../tests/test_standards.py); [estrutura corrigida ainda insuficiente](../tests/integration_accessibility.py)",
+        "documented_limits": "Conformidade estrutural não certifica descrições adequadas, ordem semântica nem experiência humana com VoiceOver."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "benchmark",
+      "name": "Desempenho do Mac",
+      "category": "Automatizar",
+      "route_type": "native_or_navigation",
+      "route": "BenchmarkView/MacBenchmark",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 82
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 63,
+        "line": 116,
+        "path_claim": "[Desempenho](../Sources/PDF/BenchmarkView.swift) → processo `--benchmark`",
+        "existing_controls": "[BenchmarkAuditChecks](../Sources/PDF/MacBenchmark.swift); [métodos e condições comparáveis](../scripts/test_benchmark_comparison.py)",
+        "documented_limits": "M4 físico, energia e NPU não medidos; seis operações/corpus sintético não representam todo o catálogo nem concorrentes."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "content-editor",
+      "name": "Editar conteúdo original",
+      "category": "Editar",
+      "route_type": "native_or_navigation",
+      "route": "AdvancedContentEditorView",
+      "engine_operations": [
+        "content-inspect",
+        "content-apply"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 83
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 42,
+        "line": 70,
+        "path_claim": "[Editor avançado](../Sources/PDF/AdvancedContentEditorView.swift) → `content-inspect`/`content-apply`",
+        "existing_controls": "[origem, objetos, proteção e clipping](../tests/test_content_editing.py); [espaçamento/colisões](../tests/test_content_tracking.py); [vetores simples](../tests/test_vector_editing.py); [cor e imagem](../tests/test_content_color_preservation.py); [texto ICC Apple e perfis](../tests/test_native_gray_content.py); [estados gráficos](../tests/test_vector_graphics_state.py); [rascunho nativo entre navegações](../Sources/PDF/ToolDraftSessionAudit.swift)",
+        "documented_limits": "Retângulos/linhas em eixo, DeviceGray/RGB e texto ICC Gray/RGB suportado. Fontes podem exigir substituição consentida; curva, CMYK, CalGray, vetor ICC e estados complexos ficam somente leitura. Imagem com vínculos de tags aceita apenas substituição. Rascunho em memória; auditoria nativa do app instalado passou, sem comprovar todos os fluxos humanos."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "ocr-review",
+      "name": "Revisar OCR",
+      "category": "Capturar",
+      "route_type": "native_or_navigation",
+      "route": "OCRReviewView",
+      "engine_operations": [
+        "ocr-review",
+        "ocr-apply"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 84
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 53,
+        "line": 91,
+        "path_claim": "[Revisão OCR](../Sources/PDF/OCRReviewView.swift) → `ocr-review`/`ocr-apply`",
+        "existing_controls": "[palavras reais e camada corrigida](../tests/integration_content_ocr.py); [texto sem grade e fonte protegida](../tests/integration_scan_text_deskew.py); [rascunhos por palavra](../Sources/PDF/OCRReviewSession.swift)",
+        "documented_limits": "Confiança OCR não é probabilidade calibrada. Textos difíceis/manuscritos permanecem limitados. Rascunhos entre seleção/página/filtro/navegação são em memória, sem crash recovery; auditoria nativa do app instalado passou, sem comprovar toda interação humana."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "library",
+      "name": "Biblioteca de documentos",
+      "category": "Organizar",
+      "route_type": "native_or_navigation",
+      "route": "DocumentLibraryView/DocumentLibraryStore",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 85
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 10,
+        "line": 28,
+        "path_claim": "[Biblioteca](../Sources/PDF/DocumentLibraryView.swift) → `DocumentLibraryStore`",
+        "existing_controls": "[importação, hashes, deduplicação, etiquetas e pastas inteligentes](../Sources/PDF/LibraryAuditChecks.swift)",
+        "documented_limits": "Importação explícita; limites de tamanho/quantidade e de consulta documentados. Não indexa automaticamente todo o disco."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "document-history",
+      "name": "Histórico de versões",
+      "category": "Organizar",
+      "route_type": "native_or_navigation",
+      "route": "DocumentLibraryView/DocumentLibraryStore",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 86
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 11,
+        "line": 29,
+        "path_claim": "[Biblioteca](../Sources/PDF/DocumentLibraryView.swift) → versões, comparar e restaurar",
+        "existing_controls": "[revisões imutáveis, restauração e conflitos](../Sources/PDF/LibraryAuditChecks.swift)",
+        "documented_limits": "O cartão abre a biblioteca compartilhada. Histórico corresponde a versões adicionadas/importadas, não a cada tecla de todo arquivo externo."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "collection-research",
+      "name": "Pesquisar na coleção",
+      "category": "Inteligência",
+      "route_type": "native_or_navigation",
+      "route": "DocumentLibraryView/LibraryRetrieval/LibraryAnswering",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 87
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 58,
+        "line": 101,
+        "path_claim": "[Biblioteca: pesquisa em coleção](../Sources/PDF/DocumentLibraryView.swift) → LibraryRetrieval/LibraryAnswering",
+        "existing_controls": "[fontes em português e revisões](../Sources/PDF/LibraryAuditChecks.swift); [perguntas, recusa e divergências](../Sources/PDF/LocalAIAudit.swift)",
+        "documented_limits": "Cartão abre a biblioteca compartilhada; pesquisa possui limites e modelo pode estar indisponível. Divergência citada não escolhe a fonte verdadeira."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "sync-library",
+      "name": "Sincronizar biblioteca",
+      "category": "Organizar",
+      "route_type": "native_or_navigation",
+      "route": "DocumentLibraryView/DocumentLibraryStore",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 88
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 12,
+        "line": 30,
+        "path_claim": "[Biblioteca](../Sources/PDF/DocumentLibraryView.swift) → sincronizar pasta escolhida",
+        "existing_controls": "[duas instâncias, troca e resolução de conflitos](../Sources/PDF/LibraryAuditChecks.swift); [perfis e marcadores](../Sources/PDF/SettingsExchangeAuditChecks.swift)",
+        "documented_limits": "Teste entre dois Macs físicos e provedor de sincronização pendente. Pasta externa e PDFs comuns não recebem criptografia ponta a ponta adicional."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "accessibility-edit",
+      "name": "Corrigir acessibilidade",
+      "category": "Editar",
+      "route_type": "native_or_navigation",
+      "route": "AccessibilityRemediationView",
+      "engine_operations": [
+        "accessibility-inspect",
+        "accessibility-remediate"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 89
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 43,
+        "line": 71,
+        "path_claim": "[Acessibilidade](../Sources/PDF/AccessibilityRemediationView.swift) → `accessibility-inspect`/`accessibility-remediate`",
+        "existing_controls": "[grupos preservam vínculos de conteúdo](../tests/test_accessibility_grouping.py); [spans, IDs reais e associações de cabeçalhos](../tests/test_accessibility_tables.py); [veraPDF independente](../tests/integration_accessibility.py)",
+        "documented_limits": "Edição manual de tags existentes, com grade consistente e cabeçalhos TH da mesma tabela. Não segmenta automaticamente PDF sem tags. Contratos nativos/AX passaram; semântica e VoiceOver humano continuam pendentes; rascunho em memória não sobrevive a crash."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "signature-request",
+      "name": "Solicitar assinaturas",
+      "category": "Compartilhar",
+      "route_type": "native_or_navigation",
+      "route": "SignatureRequestView",
+      "engine_operations": [
+        "signature-request-prepare",
+        "signature-request-send",
+        "signature-request-status",
+        "signature-request-download"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 90
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 61,
+        "line": 109,
+        "path_claim": "[Solicitar assinaturas](../Sources/PDF/SignatureRequestView.swift) → prepare/send/status/download",
+        "existing_controls": "[contrato HTTP e recibos](../tests/test_signature_requests.py); [PDF assinado real e bytes preservados](../tests/test_signature_download.py)",
+        "documented_limits": "Servidor local exercita contrato, não produção. Sem emails externos enviados; envio requer ação explícita. Download não substitui verificação criptográfica."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "print-preflight",
+      "name": "Diagnóstico de impressão",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "print-preflight"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 91
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 65,
+        "line": 123,
+        "path_claim": "[Produção: diagnóstico](../Sources/PDF/ProductionToolsView.swift) → `print-preflight`",
+        "existing_controls": "[ICC, recursos, sobreimpressão e entradas inválidas](../tests/test_print_inspection.py); [cobertura CMYK real](../tests/integration_print.py)",
+        "documented_limits": "Parser independente cobre checks enumerados, sem certificação ISO completa; recursos declarados não provam uso efetivo das tintas."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "print-prepare",
+      "name": "Corte e sangria",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "print-prepare"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 92
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 66,
+        "line": 124,
+        "path_claim": "[Produção: corte e sangria](../Sources/PDF/ProductionToolsView.swift) → `print-prepare`",
+        "existing_controls": "[caixas, marcas, links/campos e recusa de conteúdo recortado](../tests/test_print_legal.py)",
+        "documented_limits": "Define caixas na folha existente; não inventa arte além da borda nem certifica resultado na gráfica."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "pdfx",
+      "name": "Preparar PDF/X-3",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "pdfx"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 93
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 67,
+        "line": 125,
+        "path_claim": "[Produção: PDF/X-3](../Sources/PDF/ProductionToolsView.swift) → `pdfx`",
+        "existing_controls": "[ICC fornecido incorporado e texto preservado](../tests/integration_print.py); [checks estruturais independentes](../tests/test_print_inspection.py)",
+        "documented_limits": "Produz candidato PDF/X-3; `conformant: null`. Validação ISO completa e prova de cor física continuam ausentes."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "bates",
+      "name": "Numeração Bates",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "bates"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 94
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 68,
+        "line": 126,
+        "path_claim": "[Produção: Bates](../Sources/PDF/ProductionToolsView.swift) → `bates`",
+        "existing_controls": "[sequência, páginas duplicadas e proteção](../tests/test_print_legal.py)",
+        "documented_limits": "Identificação única dentro da sequência configurada; não mantém registro global entre execuções nem cadeia de custódia forense."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "dossier",
+      "name": "Conjunto de documentos",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "dossier"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 95
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 69,
+        "line": 127,
+        "path_claim": "[Produção: conjunto](../Sources/PDF/ProductionToolsView.swift) → `dossier`",
+        "existing_controls": "[test_dossier_links_and_outlines_are_correct_and_inputs_unchanged](../tests/test_print_legal.py)",
+        "documented_limits": "Até 500 PDFs; conjunto novo não mantém a validade criptográfica de assinaturas que cobriam os bytes dos arquivos originais."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "stamp",
+      "name": "Carimbo personalizado",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "stamp"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 96
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 70,
+        "line": 128,
+        "path_claim": "[Produção: carimbo](../Sources/PDF/ProductionToolsView.swift) → `stamp`",
+        "existing_controls": "[test_stamp_preserves_original_and_refuses_overflow](../tests/test_print_legal.py)",
+        "documented_limits": "Carimbo é gráfico; não é assinatura digital nem autenticação de conteúdo."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "measure",
+      "name": "Medir com escala",
+      "category": "Produção",
+      "route_type": "native_or_navigation",
+      "route": "ProductionToolsView",
+      "engine_operations": [
+        "measure"
+      ],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 97
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 71,
+        "line": 129,
+        "path_claim": "[Produção: medir](../Sources/PDF/ProductionToolsView.swift) → `measure`",
+        "existing_controls": "[escala, perímetro/área e polígonos inválidos](../tests/test_print_legal.py)",
+        "documented_limits": "Escala fornecida pelo usuário; não realiza calibração física automática nem certifica medida de engenharia."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    },
+    {
+      "id": "automation",
+      "name": "Automação do Mac",
+      "category": "Automatizar",
+      "route_type": "native_or_navigation",
+      "route": "AutomationView/AutomationCoordinator/PDFAppIntents",
+      "engine_operations": [],
+      "all_named_engine_operations_registered": true,
+      "catalog_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 98
+      },
+      "activation_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 508
+      },
+      "dispatch_evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 383
+      },
+      "matrix": {
+        "number": 64,
+        "line": 117,
+        "path_claim": "[Automação](../Sources/PDF/AutomationWorkspace.swift) → regras locais/Serviços; App Intents",
+        "existing_controls": "[regras e fila](../Sources/PDF/AutomationAuditChecks.swift); [entrada/fluxo](../Sources/PDF/AppIntentsAuditChecks.swift); [metadados SDK](../scripts/test_app_intents_metadata.py)",
+        "documented_limits": "Exige app aberto; não instala daemon. Interação pelo Atalhos/Finder em todos os percursos ainda não comprovada; arquivos protegidos podem pedir operação manual."
+      },
+      "conclusion": "wired_statically_with_implementation; runtime_semantics_not_approved_by_catalog_presence"
+    }
+  ],
+  "sevenAreas": [
+    {
+      "id": "A1",
+      "title": "Editor e conversões",
+      "status": "partial",
+      "implementation": "Texto, imagens e vetores delimitados; reconstrução Office; auditoria de reexportação.",
+      "remaining_limits": "Edição de objetos gerais, curvas/CMYK/estados gráficos arbitrários, notas/estilos/layouts universais e tradução integralmente fiel não estão concluídos.",
+      "evidence": [
+        {
+          "file": "engine/pdf_content.py",
+          "line": 320
+        },
+        {
+          "file": "engine/pdf_vector_content.py",
+          "line": 63
+        },
+        {
+          "file": "Sources/PDF/IntelligenceView.swift",
+          "line": 346
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 70
+        }
+      ]
+    },
+    {
+      "id": "A2",
+      "title": "OCR e acessibilidade",
+      "status": "partial",
+      "implementation": "Tesseract/Vision, revisão de palavras, geometrias/tabelas e edição real de tags/associações.",
+      "remaining_limits": "Documentos difíceis/manuscritos e reconstrução semântica automática arbitrária não cobertos; VoiceOver humano pendente.",
+      "evidence": [
+        {
+          "file": "engine/scan_analysis.py",
+          "line": 19
+        },
+        {
+          "file": "engine/pdf_accessibility.py",
+          "line": 234
+        },
+        {
+          "file": "Sources/PDF/OCRReviewView.swift",
+          "line": 25
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 71
+        }
+      ]
+    },
+    {
+      "id": "A3",
+      "title": "Recuperação",
+      "status": "partial",
+      "implementation": "Gerações cifradas, falhas/SIGKILL em fronteiras enumeradas, diário do atualizador e da biblioteca.",
+      "remaining_limits": "Não cobre cada gravação/power-loss; rascunhos de editor/OCR/acessibilidade são memória e se perdem após crash.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/CrashRecoveryAudit.swift",
+          "line": 7
+        },
+        {
+          "file": "Sources/PDF/LibraryCrashAudit.swift",
+          "line": 9
+        },
+        {
+          "file": "Sources/PDF/ToolDraftRegistry.swift",
+          "line": 4
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 146
+        }
+      ]
+    },
+    {
+      "id": "A4",
+      "title": "Personalização",
+      "status": "implemented_with_limits",
+      "implementation": "Ferramentas, modos de visualização, temas, Liquid Glass, animações, leitor, saídas, menus internos, barras, atalhos e perfis.",
+      "remaining_limits": "Menus do sistema/atalhos reservados e semântica/metadados arbitrários dos arquivos não têm personalização irrestrita; PNG não prova animações/interação.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/AppearancePreferences.swift",
+          "line": 187
+        },
+        {
+          "file": "Sources/PDF/MenuCustomization.swift",
+          "line": 5
+        },
+        {
+          "file": "Sources/PDF/ReaderBarCustomization.swift",
+          "line": 3
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 145
+        }
+      ]
+    },
+    {
+      "id": "A5",
+      "title": "IA e M4+",
+      "status": "implementation_present_target_validation_pending",
+      "implementation": "Apple Silicon arm64, Core Image/Metal, NaturalLanguage/FoundationModels, orçamento adaptativo e benchmark reproduzível.",
+      "remaining_limits": "Geração real em português depende de modelo elegível; M4 físico, energia/Neural Engine e vantagem sobre concorrentes não medidos.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/AppleHardware.swift",
+          "line": 6
+        },
+        {
+          "file": "Sources/PDF/AdaptivePerformance.swift",
+          "line": 29
+        },
+        {
+          "file": "Sources/PDF/LocalAIAudit.swift",
+          "line": 25
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 142
+        }
+      ]
+    },
+    {
+      "id": "A6",
+      "title": "Assinaturas e integrações",
+      "status": "implemented_with_external_dependencies",
+      "implementation": "PAdES B-B/T/LT/LTA, OCSP/CRL, envio/status/download por Dropbox Sign, Atalhos/Finder, biblioteca sincronizada e scanner.",
+      "remaining_limits": "Produção CA/TSA/provedor, scanner/iPhone, Pages real, interface Atalhos e dois Macs físicos ainda dependem de ensaio; Sign.com é link.",
+      "evidence": [
+        {
+          "file": "engine/pdf_signatures.py",
+          "line": 200
+        },
+        {
+          "file": "engine/signature_requests.py",
+          "line": 261
+        },
+        {
+          "file": "Sources/PDF/PDFAppIntents.swift",
+          "line": 6
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 108
+        }
+      ]
+    },
+    {
+      "id": "A7",
+      "title": "Impressão profissional",
+      "status": "partial",
+      "implementation": "Checks estruturais independentes, limites ICC, avisos de separações/sobreimpressão e cobertura renderizada; candidato PDF/X-3.",
+      "remaining_limits": "conformant=null, sem certificação ISO PDF/X completa nem prova física de cor/separações/overprint para qualquer documento.",
+      "evidence": [
+        {
+          "file": "engine/print_inspection.py",
+          "line": 687
+        },
+        {
+          "file": "engine/print_legal.py",
+          "line": 32
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 125
+        }
+      ]
+    }
+  ],
+  "tenImprovements": [
+    {
+      "id": "M1",
+      "title": "Abas e dois documentos",
+      "status": "implemented_with_limits",
+      "implementation": "Sessões/posição/zoom e leitor comparativo preservados.",
+      "remaining_limits": "Interação humana integral e documentos arbitrariamente grandes não comprovados.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/ReaderSessionViews.swift",
+          "line": 5
+        }
+      ]
+    },
+    {
+      "id": "M2",
+      "title": "Recuperação automática",
+      "status": "partial",
+      "implementation": "Snapshots/estado/criptografia e ensaios de falhas reais ampliados.",
+      "remaining_limits": "Não cobre todos os writes nem rascunhos de ferramentas após crash.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/RecoveryStore.swift",
+          "line": 80
+        }
+      ]
+    },
+    {
+      "id": "M3",
+      "title": "Assinaturas e verificação",
+      "status": "implemented_with_external_dependencies",
+      "implementation": "PKCS12/PAdES e confiança/revogação/tempo separados.",
+      "remaining_limits": "Certificados e serviços de produção não ensaiados; qualificação jurídica não inferida.",
+      "evidence": [
+        {
+          "file": "engine/pdf_signatures.py",
+          "line": 176
+        }
+      ]
+    },
+    {
+      "id": "M4",
+      "title": "PDF/A independente",
+      "status": "implemented_with_limits",
+      "implementation": "veraPDF oficial valida bytes/perfil e conserva relatório.",
+      "remaining_limits": "Conformidade vale apenas para arquivo/perfil testado.",
+      "evidence": [
+        {
+          "file": "engine/pdf_standards.py",
+          "line": 106
+        }
+      ]
+    },
+    {
+      "id": "M5",
+      "title": "Benchmark M4+",
+      "status": "target_validation_pending",
+      "implementation": "Medição implementada, identificando hardware/backend.",
+      "remaining_limits": "M4 físico/energia/NPU/concorrentes não medidos.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/MacBenchmark.swift",
+          "line": 83
+        }
+      ]
+    },
+    {
+      "id": "M6",
+      "title": "Editar anotações existentes",
+      "status": "implemented_with_limits",
+      "implementation": "Seleção, geometria, estilo, undo/redo e serialização.",
+      "remaining_limits": "Tipos enumerados; drag/alças/VoiceOver não integralmente ensaiados.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/AnnotationEditing.swift",
+          "line": 73
+        }
+      ]
+    },
+    {
+      "id": "M7",
+      "title": "Tabelas e formulários OCR",
+      "status": "partial",
+      "implementation": "Grades/mesclas/alinhamento e revisão de campos.",
+      "remaining_limits": "Tabelas complexas/manuscritos/semântica não universais.",
+      "evidence": [
+        {
+          "file": "engine/scan_analysis.py",
+          "line": 19
+        }
+      ]
+    },
+    {
+      "id": "M8",
+      "title": "Busca semântica e referências",
+      "status": "implemented_with_model_dependency",
+      "implementation": "Ranking lexical/embedding e referências verificadas.",
+      "remaining_limits": "Referência literal não prova inferência; geração real pendente.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/SemanticRetrieval.swift",
+          "line": 29
+        }
+      ]
+    },
+    {
+      "id": "M9",
+      "title": "Lotes com exportação terminal",
+      "status": "implemented_with_limits",
+      "implementation": "Etapas PDF e exportações Word/Excel/PPT/Markdown/imagens.",
+      "remaining_limits": "Allowlist preserva exigências de revisão; nem toda ferramenta pode entrar automaticamente.",
+      "evidence": [
+        {
+          "file": "engine/workflow_batch.py",
+          "line": 98
+        }
+      ]
+    },
+    {
+      "id": "M10",
+      "title": "PDF/UA e VoiceOver",
+      "status": "partial",
+      "implementation": "veraPDF UA e árvore AX; correção estrutural separada.",
+      "remaining_limits": "VoiceOver humano/semântica assistiva não certificados.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/AccessibilityAudit.swift",
+          "line": 7
+        }
+      ]
+    }
+  ],
+  "seventeenExtensions": [
+    {
+      "id": "E1",
+      "title": "Editor visual original",
+      "status": "partial",
+      "route": "content-editor",
+      "remaining_limits": "Objetos/tipografia/estados suportados são delimitados; não há edição universal de parágrafos/vetores.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 83
+      }
+    },
+    {
+      "id": "E2",
+      "title": "Conversões fiéis",
+      "status": "partial",
+      "route": "conversion-audit",
+      "remaining_limits": "DOCX/XLSX/PPTX e reexportação existem; reconstrução geral de notas/layouts complexos permanece parcial.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 28
+      }
+    },
+    {
+      "id": "E3",
+      "title": "Instalador autocontido/atualização",
+      "status": "pipeline_validation_pending",
+      "route": "installation",
+      "remaining_limits": "Implementado, hash/diário/rollback/ad hoc; portabilidade e entrega da fonte37 ainda em curso nesta auditoria.",
+      "evidence": {
+        "file": "scripts/install-binary.sh",
+        "line": 86
+      }
+    },
+    {
+      "id": "E4",
+      "title": "Recuperação em falhas",
+      "status": "partial",
+      "route": "recovery",
+      "remaining_limits": "SIGKILL/ENOSPC/fronteiras enumeradas, sem cobertura de todos os writes ou falha elétrica.",
+      "evidence": {
+        "file": "Sources/PDF/CrashRecoveryAudit.swift",
+        "line": 10
+      }
+    },
+    {
+      "id": "E5",
+      "title": "Histórico de documentos",
+      "status": "implemented_with_limits",
+      "route": "document-history",
+      "remaining_limits": "Versões importadas/adicionadas na biblioteca; não captura cada tecla em todo arquivo externo.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 86
+      }
+    },
+    {
+      "id": "E6",
+      "title": "Personalização profunda",
+      "status": "implemented_with_limits",
+      "route": "customization",
+      "remaining_limits": "Arraste/atalhos/perfis/paleta/menus internos; restrições do sistema preservadas.",
+      "evidence": {
+        "file": "Sources/PDF/MenuCustomization.swift",
+        "line": 5
+      }
+    },
+    {
+      "id": "E7",
+      "title": "Biblioteca",
+      "status": "implemented_with_limits",
+      "route": "library",
+      "remaining_limits": "Coleções/etiquetas/duplicados/pastas inteligentes; importação e limites explícitos.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 85
+      }
+    },
+    {
+      "id": "E8",
+      "title": "IA portuguesa/coleções",
+      "status": "implementation_present_target_validation_pending",
+      "route": "collection-research",
+      "remaining_limits": "Citações e contradições implementadas; modelo real e qualidade geral não validados.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 87
+      }
+    },
+    {
+      "id": "E9",
+      "title": "OCR com revisão visual",
+      "status": "partial",
+      "route": "ocr-review",
+      "remaining_limits": "Palavras/geometria/revisão implementadas; não cobre qualquer qualidade/manuscrito.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 84
+      }
+    },
+    {
+      "id": "E10",
+      "title": "Corrigir acessibilidade",
+      "status": "partial",
+      "route": "accessibility-edit",
+      "remaining_limits": "Tags/grupos/tabelas editáveis; sem reconstrução semântica automática universal.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 89
+      }
+    },
+    {
+      "id": "E11",
+      "title": "Revogação/PAdES LT-LTA",
+      "status": "implemented_with_external_dependencies",
+      "route": "digital-sign",
+      "remaining_limits": "PKI/HTTPS/TSA controlados; produção e renovação periódica automática ausentes.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 78
+      }
+    },
+    {
+      "id": "E12",
+      "title": "Solicitação integrada",
+      "status": "implemented_with_external_dependencies",
+      "route": "signature-request",
+      "remaining_limits": "Preparar/enviar/status/download existem; serviço de produção não exercitado e Sign.com permanece externo.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 90
+      }
+    },
+    {
+      "id": "E13",
+      "title": "Otimização M4+",
+      "status": "target_validation_pending",
+      "route": "benchmark",
+      "remaining_limits": "Concorrência/GPU e medição implementadas; M4 físico/energia/NPU sem prova.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 82
+      }
+    },
+    {
+      "id": "E14",
+      "title": "Atalhos/Finder/pastas",
+      "status": "implemented_with_external_dependencies",
+      "route": "automation",
+      "remaining_limits": "Integração e metadados reais; app aberto necessário e interação humana externa pendente.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 98
+      }
+    },
+    {
+      "id": "E15",
+      "title": "Sincronização entre Macs",
+      "status": "implemented_with_external_dependencies",
+      "route": "sync-library",
+      "remaining_limits": "Pasta escolhida e conflitos; sem backend próprio/E2EE adicional nem ensaio em dois Macs físicos.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 88
+      }
+    },
+    {
+      "id": "E16",
+      "title": "Impressão profissional",
+      "status": "partial",
+      "route": "pdfx",
+      "remaining_limits": "Candidato PDF/X-3 e preflight parcial; não certificação ISO/cores/impresso.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 93
+      }
+    },
+    {
+      "id": "E17",
+      "title": "Jurídico/técnico",
+      "status": "implemented_with_limits",
+      "route": "bates",
+      "remaining_limits": "Bates/dossiê/carimbos/medidas presentes; não cadeia de custódia/escala física certificada.",
+      "evidence": {
+        "file": "Sources/PDF/PDFApp.swift",
+        "line": 94
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "D01",
+      "severity": "documentation_before_delivery",
+      "kind": "current_status_omission_not_false_historical_result",
+      "detail": "MATRIZ-0.7.md ainda abre com o resultado6f0a68b e diz que a correção está em implementação, sem incorporar a fonte37f5b65. O histórico é correto e não deve ser apagado; falta consolidar o resultado final37 quando a matriz/portátil/cross/entrega realmente concluírem.",
+      "evidence": [
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 3
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 7
+        }
+      ],
+      "requires_product_change": false
+    },
+    {
+      "id": "L01",
+      "severity": "unfulfilled_original_requirement",
+      "kind": "known_implementation_limits",
+      "detail": "Requisitos originais de tradução preservando universalmente fontes/layout, edição abrangente de objetos, personalização irrestrita e conformidade PDF/X completa não estão integralmente implementados. As recusas conservadoras documentadas são corretas, mas não satisfazem todos esses casos.",
+      "evidence": [
+        {
+          "file": "docs/REQUISITOS.md",
+          "line": 68
+        },
+        {
+          "file": "engine/print_inspection.py",
+          "line": 687
+        },
+        {
+          "file": "engine/pdf_content.py",
+          "line": 318
+        }
+      ],
+      "requires_product_change_for_universal_claim": true
+    },
+    {
+      "id": "L02",
+      "severity": "unfulfilled_validation_requirement",
+      "kind": "hardware_human_external_pending",
+      "detail": "M4 físico/energia/NPU, modelo Apple real em português, VoiceOver humano, scanner/Pages/Atalhos externos e produção CA/TSA/provedor/doisMacs não são comprovados pela revisão estática nem pela existência de testes.",
+      "evidence": [
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 142
+        },
+        {
+          "file": "Sources/PDF/LocalAIAudit.swift",
+          "line": 25
+        }
+      ],
+      "requires_fabricated_approval": false
+    },
+    {
+      "id": "L03",
+      "severity": "bounded_recovery",
+      "kind": "known_scope_boundary",
+      "detail": "Recuperação cobre fronteiras definidas; drafts das ferramentas continuam em memória. Não há cobertura universal de interrupções em todos os writes.",
+      "evidence": [
+        {
+          "file": "Sources/PDF/ToolDraftRegistry.swift",
+          "line": 4
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 146
+        }
+      ],
+      "requires_product_change_for_universal_claim": true
+    },
+    {
+      "id": "L04",
+      "severity": "pipeline_pending",
+      "kind": "delivery_not_yet_approved_here",
+      "detail": "A coordenação informou37early+installedGUI nos dois sistemas e44gruposstandalone aprovados, com portátil em curso. Esta revisão não consultou nem extrapolou CI e não aprova pacote/cross/entrega antes de seus resultados próprios.",
+      "source": "coordinator briefing; not independently re-counted in this static task"
+    },
+    {
+      "id": "L05",
+      "severity": "forms_scope",
+      "kind": "known_unsupported_appearances",
+      "detail": "Formulários possuem nomes/valores byte-exatos, mas criação/preenchimento de aparências exige glifosLatin-1 disponíveis e não oferece implementação geral XFA/JavaScript. Não confundir conjunto de tipos de campo com compatibilidade universal.",
+      "evidence": [
+        {
+          "file": "engine/pdf_engine.py",
+          "line": 1218
+        },
+        {
+          "file": "docs/MATRIZ-0.7.md",
+          "line": 66
+        }
+      ]
+    }
+  ],
+  "newConcreteProductBlockers": [],
+  "documentationInterpretation": {
+    "REQUISITOS": "Especificação do pedido; não é declaração de entrega.",
+    "MELHORIAS": "Snapshot histórico5a11c07 explícito; limitações antigas não devem ser lidas como ausência das ampliações atuais.",
+    "AMPLIACOES": "Histórico0.6 explícito com apontamento0.7; referências a ausência de download, formas deOCR e crash antigos não anulam implementações posteriores.",
+    "MATRIZ-0.7": "71 rotas e limites atuais; cabeçalho de validação ainda precisa consolidar37 após gates."
+  },
+  "limits": [
+    "Revisão estática de rotas/contratos/limites, não exercício GUI de todos os cartões.",
+    "Arquivos de teste citados existem; sua mera existência não foi contada como execução aprovada.",
+    "Não executou certificados/serviços externos nem acessou Macs do usuário.",
+    "Ausência de novo bloqueador nesta revisão não prova ausência universal de erros, superioridade de mercado ou aplicação definitiva."
+  ],
+  "unresolvedEvidenceAnchors": []
+}

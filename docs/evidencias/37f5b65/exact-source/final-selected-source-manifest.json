@@ -1,0 +1,111 @@
+{
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "completeSourceArchiveRetained": false,
+  "files": [
+    {
+      "gitPath": ".github/workflows/macos.yml",
+      "bytes": 26537,
+      "sha256": "aa3c0c2875be3757f99539b31318f794b0c176e7fadb3cd83384ea1990be1069"
+    },
+    {
+      "gitPath": ".github/workflows/portable-compatibility.yml",
+      "bytes": 8520,
+      "sha256": "38755b5dba17a0e33d85093eaf01718db657d3ba40e3becdd705e78e48487c63"
+    },
+    {
+      "gitPath": "Package.swift",
+      "bytes": 242,
+      "sha256": "dd98fc5ebbca79974b0cc7d131a10f3c46aa4365129d8622f2ffef2f261eb485"
+    },
+    {
+      "gitPath": "Sources/PDF/MacPreview.swift",
+      "bytes": 48294,
+      "sha256": "18bf8e50d6736531d8363cbad4ba9139fb092e8e5d54413d3243fcf4cea50eb0"
+    },
+    {
+      "gitPath": "Sources/PDF/MacSmokeTests.swift",
+      "bytes": 26691,
+      "sha256": "75c88f13df22999c988dcee152f3d4a0363d0d5bf7709407b3aaf9dca6b2754e"
+    },
+    {
+      "gitPath": "Sources/PDF/PDFApp.swift",
+      "bytes": 42831,
+      "sha256": "5a2c1f6b488383df7f64a55ccad17acdc3189caaddccd33f0d88f104207b529e"
+    },
+    {
+      "gitPath": "Sources/PDF/WindowSceneLifecycleAudit.swift",
+      "bytes": 19725,
+      "sha256": "44d6c22015a978bbb461a73c45f41dc72cc555468caa3e5e781609342da3bc2b"
+    },
+    {
+      "gitPath": "Sources/PDF/WorkspaceLifecycle.swift",
+      "bytes": 8220,
+      "sha256": "acd2254e60e19951f8177c5439f1cd759a067dd91f705aa1d32463095ed93d44"
+    },
+    {
+      "gitPath": "diagnostics/delivery_archives.py",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+    },
+    {
+      "gitPath": "scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    {
+      "gitPath": "scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+    },
+    {
+      "gitPath": "scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+    },
+    {
+      "gitPath": "scripts/check_runtime.py",
+      "bytes": 11744,
+      "sha256": "cf21f205bd15f86a6893d4a86eee820bbf863f67044b609887d3550107914f14"
+    },
+    {
+      "gitPath": "scripts/check_window_lifecycle.py",
+      "bytes": 9894,
+      "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+    },
+    {
+      "gitPath": "scripts/compare_benchmarks.py",
+      "bytes": 6194,
+      "sha256": "a8346ceaa27799898f684a0e775d8e1767335831516bffe0a8c237d38aa11a4b"
+    },
+    {
+      "gitPath": "scripts/install-mac.sh",
+      "bytes": 12523,
+      "sha256": "500d6f90f90eebbe029f6eaf444b95faf4a62f3a60cea20d38ae49d4dbd8c936"
+    },
+    {
+      "gitPath": "scripts/package-source.sh",
+      "bytes": 7179,
+      "sha256": "685caa0fb5fb8efaa4b66718b62b87828e2c22f3656e8bae53c18c4baecfa100"
+    },
+    {
+      "gitPath": "scripts/prepare-window-audit-bundle.py",
+      "bytes": 4147,
+      "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683"
+    },
+    {
+      "gitPath": "scripts/run-with-timeout.py",
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    },
+    {
+      "gitPath": "diagnostics/portable_compatibility.py",
+      "bytes": 13339,
+      "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+    },
+    {
+      "gitPath": "scripts/install-binary.sh",
+      "bytes": 9062,
+      "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+    }
+  ]
+}

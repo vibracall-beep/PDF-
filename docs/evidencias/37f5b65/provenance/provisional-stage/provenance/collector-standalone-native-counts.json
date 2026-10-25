@@ -1,0 +1,24 @@
+[
+  {
+    "runner": "macos-26",
+    "uniqueGroups": 44,
+    "executionsInThisStandaloneArtifact": 1,
+    "allStartPassCountsMatch": true,
+    "bufferedStdoutOrderingNotAssumed": true,
+    "sha256": "4a7c6fe35268529f15b60c00bf59fa0d19fab3ca1a532349decfcb0e4cdb0068",
+    "bytes": 84347,
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "runID": 40239018570
+  },
+  {
+    "runner": "xcode-27",
+    "uniqueGroups": 44,
+    "executionsInThisStandaloneArtifact": 1,
+    "allStartPassCountsMatch": true,
+    "bufferedStdoutOrderingNotAssumed": true,
+    "sha256": "8709feb3188b30811cd4899eec72601696b3601d3cce825d43ad42cc4bc182f4",
+    "bytes": 342978,
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "runID": 40239018570
+  }
+]

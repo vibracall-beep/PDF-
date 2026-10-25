@@ -1,0 +1,2929 @@
+{
+  "schemaVersion": 1,
+  "runID": 40239018570,
+  "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "attempt": 1,
+  "sourceConclusion": "success",
+  "reviewScope": "Complete original attempt logs and authenticated terminal metadata; separate binary artifacts, cross-OS test and private delivery are not approved by this report.",
+  "officialEndpoint": "/repos/vibracall-beep/PDF-/actions/runs/40239018570/attempts/1/logs",
+  "archive": {
+    "path": "/workspace/.cache/pdf-native-37f5b65/collector-attempt-1-logs.zip",
+    "bytes": 1007879,
+    "sha256": "b8b11dd2ae6c07293d88ba787662a972e3d866d5ec4e321349725aeca310923c",
+    "upstreamDigestSupplied": false,
+    "allMembersCRCVerified": true,
+    "memberCount": 62,
+    "expandedBytes": 8295273,
+    "limits": {
+      "archive": 67108864,
+      "member": 33554432,
+      "totalExpanded": 134217728,
+      "members": 128
+    }
+  },
+  "metadataSnapshot": "/workspace/.cache/pdf-native-37f5b65/snapshots/full-logs-1792969722133427745",
+  "validator": {
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "gitPath": "diagnostics/delivery_archives.py",
+    "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b",
+    "loadedFromGitVerifiedSourceNotArtifact": true
+  },
+  "zipMembers": [
+    {
+      "name": "0_native-application (macos-26).txt",
+      "bytes": 1332840,
+      "sha256": "7bee54537f9ea8a848480483f184f9fd1e15368c581e4eba9114aeb4b4c54038"
+    },
+    {
+      "name": "native-application (macos-26)/system.txt",
+      "bytes": 579,
+      "sha256": "53a59f76dc76c732c2a10be1a679b5e236eef24a0c87619e0c249b0f659ec11f"
+    },
+    {
+      "name": "native-application (macos-26)/1_Set up job.txt",
+      "bytes": 2146,
+      "sha256": "00b2fb3996bca82a2c100de44e2651a8f0e6cb6817a844a8efb38714fd82573b"
+    },
+    {
+      "name": "native-application (macos-26)/2_Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 6054,
+      "sha256": "a6e7a7b0cdd3b652dbf843c10f882d10837c61671f4d07645f252fc648c83d46"
+    },
+    {
+      "name": "native-application (macos-26)/3_Verify Apple toolchain.txt",
+      "bytes": 5090,
+      "sha256": "793200b7c9959a9d20b0b5b444698ed23467f11ac417d3dbb8fcde5dc6c8f8f9"
+    },
+    {
+      "name": "native-application (macos-26)/4_Verify installer integrity.txt",
+      "bytes": 48755,
+      "sha256": "ab121fd4eeabe837e871926c4bf8792ceb876418acf0befa5b02bc7415e3633c"
+    },
+    {
+      "name": "native-application (macos-26)/5_Compile native application.txt",
+      "bytes": 1899,
+      "sha256": "a5627fa816d23ca2f449cfb24d448ce8a588570c4a1db0f76cd8525a0e860f39"
+    },
+    {
+      "name": "native-application (macos-26)/6_Audit the real window early without installing the engine runtime.txt",
+      "bytes": 21544,
+      "sha256": "7078af6cc5f753f51adb2922177bb1486771235a50d1a7bfeb3c0e80d6080d20"
+    },
+    {
+      "name": "native-application (macos-26)/7_Install native PDF structural checker.txt",
+      "bytes": 1134,
+      "sha256": "391537cd2d6128ef1e26b5142a6b0b7234573a2fd10746b759c550f6af65ce63"
+    },
+    {
+      "name": "native-application (macos-26)/8_Build, install and validate complete application.txt",
+      "bytes": 406013,
+      "sha256": "20826509cccd5c610a96ea93d6e021c6b1c02b63f740d4ba82c2e763db17d9bc"
+    },
+    {
+      "name": "native-application (macos-26)/9_Audit the real window in the complete installed application.txt",
+      "bytes": 20133,
+      "sha256": "775a5b17af2fa659c6e0a4899bf916f6a045a71565c4b5a975f49a217464e57c"
+    },
+    {
+      "name": "native-application (macos-26)/10_Retain separate window lifecycle diagnostics even on failure.txt",
+      "bytes": 2137,
+      "sha256": "05e9b293b57e9596c2b77b5d3baf07f6bcccc9cd68b0e2fb716074263ae72aac"
+    },
+    {
+      "name": "native-application (macos-26)/11_Validate installed application and local OCR.txt",
+      "bytes": 121079,
+      "sha256": "12735d709966dd0e8ce61476f6108f66b0a15e13fca7e663fc6c0f6926492073"
+    },
+    {
+      "name": "native-application (macos-26)/12_Retain native diagnostic log.txt",
+      "bytes": 2068,
+      "sha256": "28cf69fbebe79ff64cfc0e49e65479c952a6dae9a3cf3969df876b7b6111bb81"
+    },
+    {
+      "name": "native-application (macos-26)/13_Capture native window preview.txt",
+      "bytes": 72674,
+      "sha256": "371c556530b50bb31c83bb0d1a0c1aababfebc819d56b3bad8cc9a761235ed0a"
+    },
+    {
+      "name": "native-application (macos-26)/14_Validate all native previews and accessibility reports.txt",
+      "bytes": 20422,
+      "sha256": "dd817a7c7a44eaa0e420cf11d188619e036a731feef6993aa222a133fb122048"
+    },
+    {
+      "name": "native-application (macos-26)/15_Retain native preview artifact.txt",
+      "bytes": 2251,
+      "sha256": "0be55c09f13b71bb6fa211e272b49bcde3c509dbae26d3adc60fad435abcae6a"
+    },
+    {
+      "name": "native-application (macos-26)/16_Record Apple Vision capability independently.txt",
+      "bytes": 5643,
+      "sha256": "e0a0cd27fe7f5ce25b7a2dcef080b2e97d02bffb07ad238823a5b291d220372e"
+    },
+    {
+      "name": "native-application (macos-26)/17_Retain Apple Vision capability report.txt",
+      "bytes": 2388,
+      "sha256": "220dbd2ec18a22972f0da93563f84fd1ae096d785f12724dd064b54612c10f78"
+    },
+    {
+      "name": "native-application (macos-26)/18_Evaluate Portuguese answers with the actual local Apple model.txt",
+      "bytes": 3816,
+      "sha256": "41ea85c42b4da82998ebc258f2a2248f42f819e6fadaa6cd092618d4c213c3e0"
+    },
+    {
+      "name": "native-application (macos-26)/19_Retain local AI experiment and explicit availability.txt",
+      "bytes": 2049,
+      "sha256": "4ee9f395a5ba2cf05038adb84991e64efdd3d574c0f83e186fb78af994646795"
+    },
+    {
+      "name": "native-application (macos-26)/20_Benchmark the installed application with OCR.txt",
+      "bytes": 18243,
+      "sha256": "c2198f729397b64e76faea46a2a70c8d5cfe21f37620b44b91f2215eaf549241"
+    },
+    {
+      "name": "native-application (macos-26)/21_Retain native benchmark artifact.txt",
+      "bytes": 2071,
+      "sha256": "71816548a30305ddd5ad68ecab336f742442f733cebc784566656d31ae52d315"
+    },
+    {
+      "name": "native-application (macos-26)/22_Assemble relocatable binary distribution.txt",
+      "bytes": 350782,
+      "sha256": "5964fe64aefaf3eab5d32e5b9d1c16ca4dc71ccea464b9f135230d085b1e49f6"
+    },
+    {
+      "name": "native-application (macos-26)/23_Validate portable app without host dependencies or network.txt",
+      "bytes": 35146,
+      "sha256": "4b2f0a57fc1b0fba8e738f62b6b245518a1dbb360f5ae13c28a2c8bb9cf3dd1f"
+    },
+    {
+      "name": "native-application (macos-26)/24_Package and verify binary install and update.txt",
+      "bytes": 161662,
+      "sha256": "9a61d88715099478d72ef36ee1e829cec5c938b947b7fb28f9fd022be19a3b37"
+    },
+    {
+      "name": "native-application (macos-26)/25_Retain binary package with explicit validation status.txt",
+      "bytes": 11468,
+      "sha256": "c24cef3a8639d643a5d19dbec981d95460894acd759214fb28777d628a3ea2cd"
+    },
+    {
+      "name": "native-application (macos-26)/26_Create source distribution.txt",
+      "bytes": 1382,
+      "sha256": "7b9ce1a40adf41457c9e6246ffb003b63caf8e9a12b01c204988c93b1d850ab1"
+    },
+    {
+      "name": "native-application (macos-26)/27_Retain source artifact with validation status.txt",
+      "bytes": 2495,
+      "sha256": "95b63f8d420ab0249c665c5d7082006a6097dd6b720dba6f8fd739f744562955"
+    },
+    {
+      "name": "native-application (macos-26)/54_Post Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 1928,
+      "sha256": "5029498e2763bfc951dbbce7bbb548fa03a9a66fa36e297a41b21507d0586b5b"
+    },
+    {
+      "name": "native-application (macos-26)/55_Complete job.txt",
+      "bytes": 452,
+      "sha256": "46d4dbc6faba5e38bf894fa2ee9f956e98303ed923113e32aa86882120d3fabb"
+    },
+    {
+      "name": "1_native-application (xcode-27).txt",
+      "bytes": 2814135,
+      "sha256": "ca9ae98b246e9c5594b50f959368c0e3ab58c837cc7c4e6ec69a0356c1a7cde2"
+    },
+    {
+      "name": "native-application (xcode-27)/system.txt",
+      "bytes": 579,
+      "sha256": "125b975c70dfb33c795385e437ecdbfbce87ef82f0622b1432d31e2860746852"
+    },
+    {
+      "name": "native-application (xcode-27)/1_Set up job.txt",
+      "bytes": 2147,
+      "sha256": "169a3e7a8f321ee1f58c8455850e64982ccb315b1ba5dbb59abae4650a62e983"
+    },
+    {
+      "name": "native-application (xcode-27)/2_Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 6054,
+      "sha256": "eaad3796689f723d493a8ce2354b4260dbdceddf14c6e12d8e18ee4b4bf26b1c"
+    },
+    {
+      "name": "native-application (xcode-27)/3_Verify Apple toolchain.txt",
+      "bytes": 4832,
+      "sha256": "d7bc4909f2edf247d4e4a2964ce0facc656f2558602cb79a71591fe806d06021"
+    },
+    {
+      "name": "native-application (xcode-27)/4_Verify installer integrity.txt",
+      "bytes": 48915,
+      "sha256": "f15ff114974292e200173171307c77847d860fe1394de1420115610a74c6fa87"
+    },
+    {
+      "name": "native-application (xcode-27)/5_Compile native application.txt",
+      "bytes": 4742,
+      "sha256": "ef8f53b8b5756869b970a12facd93a9551c9d4053f25e7bee8a4d2ba8e1466e6"
+    },
+    {
+      "name": "native-application (xcode-27)/6_Audit the real window early without installing the engine runtime.txt",
+      "bytes": 21544,
+      "sha256": "dbfcb6bb69e969445bf13ddb933b09ebe33f1fb60677b518be0b13b10795cb81"
+    },
+    {
+      "name": "native-application (xcode-27)/7_Install native PDF structural checker.txt",
+      "bytes": 1140,
+      "sha256": "1e4e33faaaac18d3897d68d742c57f738e9166a19e52813bb00493300f7390d1"
+    },
+    {
+      "name": "native-application (xcode-27)/8_Build, install and validate complete application.txt",
+      "bytes": 1330038,
+      "sha256": "f5374e9a9f21f7f03c5f450c5d37aa07d9dc5218ad6c40cc3c822afac09eaa9d"
+    },
+    {
+      "name": "native-application (xcode-27)/9_Audit the real window in the complete installed application.txt",
+      "bytes": 20132,
+      "sha256": "fe941f106576a8507f797e7dc19bba56c6bef8ec7a481842a2c51047044cd787"
+    },
+    {
+      "name": "native-application (xcode-27)/10_Retain separate window lifecycle diagnostics even on failure.txt",
+      "bytes": 2139,
+      "sha256": "cc2bf3abc70e11c0536e3ab99f53b88d9567c7a42042dd3d9b7dfd16317f31bf"
+    },
+    {
+      "name": "native-application (xcode-27)/11_Validate installed application and local OCR.txt",
+      "bytes": 583116,
+      "sha256": "66ff53e2012a1069051af9fe0b892d493a4df1e81af4984643140b6d2ac8b2b7"
+    },
+    {
+      "name": "native-application (xcode-27)/12_Retain native diagnostic log.txt",
+      "bytes": 2070,
+      "sha256": "5a6f3a35475808f52891e2f4c1ff773b9d1b8fc5e6c0f908470cd7bff00a910d"
+    },
+    {
+      "name": "native-application (xcode-27)/13_Capture native window preview.txt",
+      "bytes": 74413,
+      "sha256": "7d88877b3532b91577045bdfd81b404b3d6398b4d3cf31a7038ddc774ea909b2"
+    },
+    {
+      "name": "native-application (xcode-27)/14_Validate all native previews and accessibility reports.txt",
+      "bytes": 20992,
+      "sha256": "03f8195c27feb14d1fada5a0e3631db825681731b948c57f3ffb2368e7f29f36"
+    },
+    {
+      "name": "native-application (xcode-27)/15_Retain native preview artifact.txt",
+      "bytes": 2251,
+      "sha256": "466923ce2780aa66234e7782d42caad9f33d0b2f7666a5fe291e959349260e6a"
+    },
+    {
+      "name": "native-application (xcode-27)/16_Record Apple Vision capability independently.txt",
+      "bytes": 15237,
+      "sha256": "2aa736637b11a693f8941ca5239f6226ca4941b9bdae35c5febd1cf9943eb654"
+    },
+    {
+      "name": "native-application (xcode-27)/17_Retain Apple Vision capability report.txt",
+      "bytes": 2390,
+      "sha256": "db87002d1f63a8058d36a6fa7d4a18e59236d667cd6e302a514e32f4010a030e"
+    },
+    {
+      "name": "native-application (xcode-27)/18_Evaluate Portuguese answers with the actual local Apple model.txt",
+      "bytes": 3816,
+      "sha256": "c4457486099354f3105444a226f54f3b72c32a8640d222f58287b7a60f0e6036"
+    },
+    {
+      "name": "native-application (xcode-27)/19_Retain local AI experiment and explicit availability.txt",
+      "bytes": 2049,
+      "sha256": "74fbb8e37ee00a3610cf68fd5e6809f56f059ea9ce62e013903ee0da427fe0ad"
+    },
+    {
+      "name": "native-application (xcode-27)/20_Benchmark the installed application with OCR.txt",
+      "bytes": 78316,
+      "sha256": "860cb65ac0698a43e997cc5699f653e991b899388b4a5031127afbcbfcb0ec96"
+    },
+    {
+      "name": "native-application (xcode-27)/21_Retain native benchmark artifact.txt",
+      "bytes": 2071,
+      "sha256": "20f15da47e5d94d3d6dd72c4b7dcfe4463091954aebabae01fed3b5d1f4a3c89"
+    },
+    {
+      "name": "native-application (xcode-27)/22_Assemble relocatable binary distribution.txt",
+      "bytes": 350782,
+      "sha256": "e96eac77593f8e22122ebfc02499ebd6226bd6ebc8078d8c8712a414d8166a80"
+    },
+    {
+      "name": "native-application (xcode-27)/23_Validate portable app without host dependencies or network.txt",
+      "bytes": 38508,
+      "sha256": "09643b31d6ffd9a4aa0cc620aa76a779dff873df56646a0e6cdb73051c71dcdf"
+    },
+    {
+      "name": "native-application (xcode-27)/24_Package and verify binary install and update.txt",
+      "bytes": 178743,
+      "sha256": "0e69d670da53575cab496b333413a133bba12e423225cf7ccd1f2702a70995a0"
+    },
+    {
+      "name": "native-application (xcode-27)/25_Retain binary package with explicit validation status.txt",
+      "bytes": 11468,
+      "sha256": "dc50e0acea254cb05e4eff1d747728a1310e548e276b93b77a8ea6ba40b822f2"
+    },
+    {
+      "name": "native-application (xcode-27)/26_Create source distribution.txt",
+      "bytes": 1382,
+      "sha256": "247776ad1b55e9e41b8d4ee6e2de8cc51f3eb948405222dca3e2db77a5601ee9"
+    },
+    {
+      "name": "native-application (xcode-27)/27_Retain source artifact with validation status.txt",
+      "bytes": 2549,
+      "sha256": "61c5df730ea5998a8f24cbbaa8b5a1f08c83109459d2358a7b149491659e5c47"
+    },
+    {
+      "name": "native-application (xcode-27)/54_Post Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 1928,
+      "sha256": "ec2626032fbe2d90d1595e79f303e4d559308fe9f197cb19459dc638c0cfa664"
+    },
+    {
+      "name": "native-application (xcode-27)/55_Complete job.txt",
+      "bytes": 452,
+      "sha256": "61f84ed69163f1689ea33154ca2f302b3044bf42438d30b58f2877c0a12c013a"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "jobID": 121306620661,
+      "jobConclusion": "success",
+      "fullLog": {
+        "file": "0_native-application (macos-26).txt",
+        "path": "/workspace/.cache/pdf-native-37f5b65/collector-attempt-1-logs/0_native-application (macos-26).txt",
+        "bytes": 1332840,
+        "sha256": "7bee54537f9ea8a848480483f184f9fd1e15368c581e4eba9114aeb4b4c54038"
+      },
+      "python": [
+        {
+          "cases": 150,
+          "passed": 149,
+          "skipped": 1,
+          "failures": 0,
+          "errors": 0,
+          "expectedFailures": 0,
+          "unexpectedSuccesses": 0,
+          "status": "passed",
+          "seconds": 27.095,
+          "line": 186,
+          "label": "installer/scripts",
+          "step": "Verify installer integrity",
+          "stepLog": "native-application (macos-26)/4_Verify installer integrity.txt"
+        },
+        {
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0,
+          "expectedFailures": 0,
+          "unexpectedSuccesses": 0,
+          "status": "passed",
+          "seconds": 140.128,
+          "line": 1003,
+          "label": "core/tests",
+          "step": "Build, install and validate complete application",
+          "stepLog": "native-application (macos-26)/8_Build, install and validate complete application.txt"
+        },
+        {
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0,
+          "expectedFailures": 0,
+          "unexpectedSuccesses": 0,
+          "status": "passed",
+          "seconds": 113.808,
+          "line": 1069,
+          "label": "integration",
+          "step": "Build, install and validate complete application",
+          "stepLog": "native-application (macos-26)/8_Build, install and validate complete application.txt"
+        }
+      ],
+      "pythonCasesIncludingSkips": 720,
+      "pythonPassed": 719,
+      "pythonSkipped": 1,
+      "skipRecords": [
+        {
+          "line": 199,
+          "text": "test_real_enospc_after_backup_restores_old_bundle (test_binary_update.BinaryUpdateTests.test_real_enospc_after_backup_restores_old_bundle) ... skipped 'Linux /dev/full supplies a real ENOSPC write'"
+        }
+      ],
+      "native": {
+        "distinctNamesInSource": 44,
+        "starts": 396,
+        "passes": 396,
+        "startPassMultisetEqual": true,
+        "perStepCountersMatchAggregate": true,
+        "distinctStarted": 44,
+        "distinctPassed": 44,
+        "repeatCounts": [
+          9
+        ],
+        "expectedNineExecutionsObserved": true,
+        "startCounts": {
+          "Accessibility optional tag edit contract": 9,
+          "Adaptive resource limits": 9,
+          "Advanced editing and OCR review contracts": 9,
+          "App Intents input and private temporary files": 9,
+          "Appearance and reader preferences": 9,
+          "Application task cancellation and cleanup ownership": 9,
+          "Capture import and orientation": 9,
+          "Command palette shortcuts and workspace profiles": 9,
+          "Core Image processing": 9,
+          "Explicit settings and bookmark exchange": 9,
+          "Independent stream-length rejection and repair": 9,
+          "Library interrupted publications and catalog recovery": 9,
+          "Library revisions synchronization and Portuguese sources": 9,
+          "Native AES-256 and Unicode credentials": 9,
+          "Native AES-256 and original permissions": 9,
+          "Native regression audit": 9,
+          "Native serialization editable annotation and form roundtrips": 9,
+          "Native serialization fidelity and encryption guards": 9,
+          "Native serialization private process and cancellation": 9,
+          "Opt-in folder automation": 9,
+          "Owned child processes and termination recovery": 9,
+          "PDFKit, capture encoding, AI text helpers and protected output": 9,
+          "Pages isolated copy": 9,
+          "Performance measurement harness": 9,
+          "Portuguese AI experiment acceptance criteria": 9,
+          "Preview WindowServer geometry consistency": 9,
+          "Private engine input and cleanup": 9,
+          "Product searchable PDF": 9,
+          "Published native copy structural integrity": 9,
+          "Published protected copy structural integrity": 9,
+          "Reader sessions and annotation editing": 9,
+          "Real crash and recovery": 9,
+          "Recovery storage and encryption": 9,
+          "Runtime lease across native process termination": 9,
+          "Semantic retrieval and verifiable citations": 9,
+          "Tesseract installed runtime and transport": 9,
+          "Tool presets": 9,
+          "Tool review drafts across navigation and termination": 9,
+          "Typed-string repair graph and Unicode parser": 9,
+          "Typed-string repair privacy and interruption": 9,
+          "Unicode field identity and byte-exact fidelity": 9,
+          "Unsupported ink curve loss is refused": 9,
+          "Workflow presets and credentials": 9,
+          "Workspace scene presentation and reopening policy": 9
+        },
+        "passCounts": {
+          "Accessibility optional tag edit contract": 9,
+          "Adaptive resource limits": 9,
+          "Advanced editing and OCR review contracts": 9,
+          "App Intents input and private temporary files": 9,
+          "Appearance and reader preferences": 9,
+          "Application task cancellation and cleanup ownership": 9,
+          "Capture import and orientation": 9,
+          "Command palette shortcuts and workspace profiles": 9,
+          "Core Image processing": 9,
+          "Explicit settings and bookmark exchange": 9,
+          "Independent stream-length rejection and repair": 9,
+          "Library interrupted publications and catalog recovery": 9,
+          "Library revisions synchronization and Portuguese sources": 9,
+          "Native AES-256 and Unicode credentials": 9,
+          "Native AES-256 and original permissions": 9,
+          "Native regression audit": 9,
+          "Native serialization editable annotation and form roundtrips": 9,
+          "Native serialization fidelity and encryption guards": 9,
+          "Native serialization private process and cancellation": 9,
+          "Opt-in folder automation": 9,
+          "Owned child processes and termination recovery": 9,
+          "PDFKit, capture encoding, AI text helpers and protected output": 9,
+          "Pages isolated copy": 9,
+          "Performance measurement harness": 9,
+          "Portuguese AI experiment acceptance criteria": 9,
+          "Preview WindowServer geometry consistency": 9,
+          "Private engine input and cleanup": 9,
+          "Product searchable PDF": 9,
+          "Published native copy structural integrity": 9,
+          "Published protected copy structural integrity": 9,
+          "Reader sessions and annotation editing": 9,
+          "Real crash and recovery": 9,
+          "Recovery storage and encryption": 9,
+          "Runtime lease across native process termination": 9,
+          "Semantic retrieval and verifiable citations": 9,
+          "Tesseract installed runtime and transport": 9,
+          "Tool presets": 9,
+          "Tool review drafts across navigation and termination": 9,
+          "Typed-string repair graph and Unicode parser": 9,
+          "Typed-string repair privacy and interruption": 9,
+          "Unicode field identity and byte-exact fidelity": 9,
+          "Unsupported ink curve loss is refused": 9,
+          "Workflow presets and credentials": 9,
+          "Workspace scene presentation and reopening policy": 9
+        },
+        "nativeSmokeTestPassedCount": 9,
+        "byStep": [
+          {
+            "step": "Build, install and validate complete application",
+            "stepLog": "native-application (macos-26)/8_Build, install and validate complete application.txt",
+            "starts": 88,
+            "passes": 88,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              2
+            ],
+            "completeNativeExecutions": 2,
+            "expectedExecutions": 2
+          },
+          {
+            "step": "Validate installed application and local OCR",
+            "stepLog": "native-application (macos-26)/11_Validate installed application and local OCR.txt",
+            "starts": 44,
+            "passes": 44,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              1
+            ],
+            "completeNativeExecutions": 1,
+            "expectedExecutions": 1
+          },
+          {
+            "step": "Validate portable app without host dependencies or network",
+            "stepLog": "native-application (macos-26)/23_Validate portable app without host dependencies or network.txt",
+            "starts": 44,
+            "passes": 44,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              1
+            ],
+            "completeNativeExecutions": 1,
+            "expectedExecutions": 1
+          },
+          {
+            "step": "Package and verify binary install and update",
+            "stepLog": "native-application (macos-26)/24_Package and verify binary install and update.txt",
+            "starts": 220,
+            "passes": 220,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              5
+            ],
+            "completeNativeExecutions": 5,
+            "expectedExecutions": 5
+          }
+        ],
+        "failureMarkers": []
+      },
+      "rawPDFKitBaselineDiagnostics": [
+        {
+          "line": 1659,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 2956,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 4428,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 8245,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 8597,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 8897,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 9202,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 9502,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 9805,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        }
+      ],
+      "productionStructureFailures": [],
+      "coreGraphicsWarnings": [
+        {
+          "line": 8335,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 8687,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 8987,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 9292,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 9592,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 9895,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        }
+      ],
+      "compilerWarnings": [
+        {
+          "line": 355,
+          "text": "##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+        },
+        {
+          "line": 1007,
+          "text": "##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+        }
+      ],
+      "toolchainHelpProbeErrorLines": [
+        130
+      ],
+      "explicitFailureMarkers": [],
+      "stepResults": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Verify Apple toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Verify installer integrity",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Compile native application",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Audit the real window early without installing the engine runtime",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Install native PDF structural checker",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Build, install and validate complete application",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Audit the real window in the complete installed application",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Retain separate window lifecycle diagnostics even on failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Validate installed application and local OCR",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Retain native diagnostic log",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Capture native window preview",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Validate all native previews and accessibility reports",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Retain native preview artifact",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Record Apple Vision capability independently",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Retain Apple Vision capability report",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Evaluate Portuguese answers with the actual local Apple model",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Retain local AI experiment and explicit availability",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Benchmark the installed application with OCR",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Retain native benchmark artifact",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Assemble relocatable binary distribution",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Validate portable app without host dependencies or network",
+          "conclusion": "success"
+        },
+        {
+          "number": 24,
+          "name": "Package and verify binary install and update",
+          "conclusion": "success"
+        },
+        {
+          "number": 25,
+          "name": "Retain binary package with explicit validation status",
+          "conclusion": "success"
+        },
+        {
+          "number": 26,
+          "name": "Create source distribution",
+          "conclusion": "success"
+        },
+        {
+          "number": 27,
+          "name": "Retain source artifact with validation status",
+          "conclusion": "success"
+        },
+        {
+          "number": 54,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 55,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "credentialLikePatternsObserved": false,
+      "signedURLPatternsObserved": false,
+      "reviewIssues": [],
+      "warningClassification": [
+        {
+          "category": "node-punycode-deprecation",
+          "occurrences": 8,
+          "lines": [
+            4363,
+            5684,
+            6500,
+            6583,
+            6639,
+            6934,
+            10085,
+            10303
+          ],
+          "samples": [
+            {
+              "line": 4363,
+              "text": "(node:43257) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead."
+            },
+            {
+              "line": 5684,
+              "text": "(node:48363) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead."
+            }
+          ],
+          "interpretation": "Aviso do runtime Node usado pelas ações de CI."
+        },
+        {
+          "category": "node-url-parse-deprecation",
+          "occurrences": 8,
+          "lines": [
+            4369,
+            5690,
+            6506,
+            6591,
+            6645,
+            6940,
+            10091,
+            10311
+          ],
+          "samples": [
+            {
+              "line": 4369,
+              "text": "(node:43257) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities."
+            },
+            {
+              "line": 5690,
+              "text": "(node:48363) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities."
+            }
+          ],
+          "interpretation": "Aviso do runtime Node usado pelas ações de CI."
+        },
+        {
+          "category": "node20-action-migration",
+          "occurrences": 1,
+          "lines": [
+            10337
+          ],
+          "samples": [
+            {
+              "line": 10337,
+              "text": "##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+            }
+          ],
+          "interpretation": "GitHub informa que ações configuradas para Node20 foram executadas em Node24."
+        },
+        {
+          "category": "openjdk-not-globally-linked",
+          "occurrences": 1,
+          "lines": [
+            805
+          ],
+          "samples": [
+            {
+              "line": 805,
+              "text": "##[warning]openjdk@21 was installed but not linked because openjdk is already installed."
+            }
+          ],
+          "interpretation": "Homebrew instalou openjdk@21 sem link global porque outro openjdk já existia; as integrações que usam o runtime configurado passaram."
+        },
+        {
+          "category": "pymupdf-swig-deprecation",
+          "occurrences": 1,
+          "lines": [
+            1544
+          ],
+          "samples": [
+            {
+              "line": 1544,
+              "text": "sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute"
+            }
+          ],
+          "interpretation": "Depreciação do binding SWIG/PyMuPDF; as suítes registradas passaram."
+        },
+        {
+          "category": "qpdf-already-installed",
+          "occurrences": 1,
+          "lines": [
+            551
+          ],
+          "samples": [
+            {
+              "line": 551,
+              "text": "swift-driver version: 1.148.6 Warning: qpdf 12.4.2_1 is already installed and up-to-date."
+            }
+          ],
+          "interpretation": "Homebrew informa que qpdf já estava instalado e atualizado."
+        },
+        {
+          "category": "relocation-signature-warning",
+          "occurrences": 614,
+          "lines": [
+            6953,
+            6954,
+            6955,
+            6956,
+            6957,
+            6958,
+            6959,
+            6960,
+            6961,
+            6962,
+            6963,
+            6964,
+            6965,
+            6966,
+            6967,
+            6968,
+            6969,
+            6970,
+            6971,
+            6972,
+            6973,
+            6974,
+            6975,
+            6976,
+            6977,
+            6978,
+            6979,
+            6980,
+            6981,
+            6982,
+            6983,
+            6984,
+            6985,
+            6986,
+            6987,
+            6988,
+            6989,
+            6990,
+            6991,
+            6992,
+            6993,
+            6994,
+            6995,
+            6996,
+            6997,
+            6998,
+            6999,
+            7000,
+            7001,
+            7002,
+            7003,
+            7004,
+            7005,
+            7006,
+            7007,
+            7008,
+            7009,
+            7010,
+            7011,
+            7012,
+            7013,
+            7014,
+            7015,
+            7016,
+            7017,
+            7018,
+            7019,
+            7020,
+            7021,
+            7022,
+            7023,
+            7024,
+            7025,
+            7026,
+            7027,
+            7028,
+            7029,
+            7030,
+            7031,
+            7032,
+            7033,
+            7034,
+            7035,
+            7036,
+            7037,
+            7038,
+            7039,
+            7040,
+            7041,
+            7042,
+            7043,
+            7044,
+            7045,
+            7046,
+            7047,
+            7048,
+            7049,
+            7050,
+            7051,
+            7052,
+            7053,
+            7054,
+            7055,
+            7056,
+            7057,
+            7058,
+            7059,
+            7060,
+            7061,
+            7062,
+            7063,
+            7064,
+            7065,
+            7066,
+            7067,
+            7068,
+            7069,
+            7070,
+            7071,
+            7072,
+            7073,
+            7074,
+            7075,
+            7076,
+            7077,
+            7078,
+            7079,
+            7080,
+            7081,
+            7082,
+            7083,
+            7084,
+            7085,
+            7086,
+            7087,
+            7088,
+            7089,
+            7090,
+            7091,
+            7092,
+            7093,
+            7094,
+            7095,
+            7096,
+            7097,
+            7098,
+            7099,
+            7100,
+            7101,
+            7102,
+            7103,
+            7104,
+            7105,
+            7106,
+            7107,
+            7108,
+            7109,
+            7110,
+            7111,
+            7112,
+            7113,
+            7114,
+            7115,
+            7116,
+            7117,
+            7118,
+            7119,
+            7120,
+            7121,
+            7122,
+            7123,
+            7124,
+            7125,
+            7126,
+            7127,
+            7128,
+            7129,
+            7130,
+            7131,
+            7132,
+            7133,
+            7134,
+            7135,
+            7136,
+            7137,
+            7138,
+            7139,
+            7140,
+            7141,
+            7142,
+            7143,
+            7144,
+            7145,
+            7146,
+            7147,
+            7148,
+            7149,
+            7150,
+            7151,
+            7152,
+            7153,
+            7154,
+            7155,
+            7156,
+            7157,
+            7158,
+            7159,
+            7160,
+            7161,
+            7162,
+            7163,
+            7164,
+            7165,
+            7166,
+            7167,
+            7168,
+            7169,
+            7170,
+            7171,
+            7172,
+            7173,
+            7174,
+            7175,
+            7176,
+            7177,
+            7178,
+            7179,
+            7180,
+            7181,
+            7182,
+            7183,
+            7184,
+            7185,
+            7186,
+            7187,
+            7188,
+            7189,
+            7190,
+            7191,
+            7192,
+            7193,
+            7194,
+            7195,
+            7196,
+            7197,
+            7198,
+            7199,
+            7200,
+            7201,
+            7202,
+            7203,
+            7204,
+            7205,
+            7206,
+            7207,
+            7208,
+            7209,
+            7210,
+            7211,
+            7212,
+            7213,
+            7214,
+            7215,
+            7216,
+            7217,
+            7218,
+            7219,
+            7220,
+            7221,
+            7222,
+            7223,
+            7224,
+            7225,
+            7226,
+            7227,
+            7228,
+            7229,
+            7230,
+            7231,
+            7232,
+            7233,
+            7234,
+            7235,
+            7236,
+            7237,
+            7238,
+            7239,
+            7240,
+            7241,
+            7242,
+            7243,
+            7244,
+            7245,
+            7246,
+            7247,
+            7248,
+            7249,
+            7250,
+            7251,
+            7252,
+            7253,
+            7254,
+            7255,
+            7256,
+            7257,
+            7258,
+            7259,
+            7260,
+            7261,
+            7262,
+            7263,
+            7264,
+            7265,
+            7266,
+            7267,
+            7268,
+            7269,
+            7270,
+            7271,
+            7272,
+            7273,
+            7274,
+            7275,
+            7276,
+            7277,
+            7278,
+            7279,
+            7280,
+            7281,
+            7282,
+            7283,
+            7284,
+            7285,
+            7286,
+            7287,
+            7288,
+            7289,
+            7290,
+            7291,
+            7292,
+            7293,
+            7294,
+            7295,
+            7296,
+            7297,
+            7298,
+            7299,
+            7300,
+            7301,
+            7302,
+            7303,
+            7304,
+            7305,
+            7306,
+            7307,
+            7308,
+            7309,
+            7310,
+            7311,
+            7312,
+            7313,
+            7314,
+            7315,
+            7316,
+            7317,
+            7318,
+            7319,
+            7320,
+            7321,
+            7322,
+            7323,
+            7324,
+            7325,
+            7326,
+            7327,
+            7328,
+            7329,
+            7330,
+            7331,
+            7332,
+            7333,
+            7334,
+            7335,
+            7336,
+            7337,
+            7338,
+            7339,
+            7340,
+            7341,
+            7342,
+            7343,
+            7344,
+            7345,
+            7346,
+            7347,
+            7348,
+            7349,
+            7350,
+            7351,
+            7352,
+            7353,
+            7354,
+            7355,
+            7356,
+            7357,
+            7358,
+            7359,
+            7360,
+            7361,
+            7362,
+            7363,
+            7364,
+            7365,
+            7366,
+            7367,
+            7368,
+            7369,
+            7370,
+            7371,
+            7372,
+            7373,
+            7374,
+            7375,
+            7376,
+            7377,
+            7378,
+            7379,
+            7380,
+            7381,
+            7382,
+            7383,
+            7384,
+            7385,
+            7386,
+            7387,
+            7388,
+            7389,
+            7390,
+            7391,
+            7392,
+            7393,
+            7394,
+            7395,
+            7396,
+            7397,
+            7398,
+            7399,
+            7400,
+            7401,
+            7402,
+            7403,
+            7404,
+            7405,
+            7406,
+            7407,
+            7408,
+            7409,
+            7410,
+            7411,
+            7412,
+            7413,
+            7414,
+            7415,
+            7416,
+            7417,
+            7418,
+            7419,
+            7420,
+            7421,
+            7422,
+            7423,
+            7424,
+            7425,
+            7426,
+            7427,
+            7428,
+            7429,
+            7430,
+            7431,
+            7432,
+            7433,
+            7434,
+            7435,
+            7436,
+            7437,
+            7438,
+            7439,
+            7440,
+            7441,
+            7442,
+            7443,
+            7444,
+            7445,
+            7446,
+            7447,
+            7448,
+            7449,
+            7450,
+            7451,
+            7452,
+            7453,
+            7454,
+            7455,
+            7456,
+            7457,
+            7458,
+            7459,
+            7460,
+            7461,
+            7462,
+            7463,
+            7464,
+            7465,
+            7466,
+            7467,
+            7468,
+            7469,
+            7470,
+            7471,
+            7472,
+            7473,
+            7474,
+            7475,
+            7476,
+            7477,
+            7478,
+            7479,
+            7480,
+            7481,
+            7482,
+            7483,
+            7484,
+            7485,
+            7486,
+            7487,
+            7488,
+            7489,
+            7490,
+            7491,
+            7492,
+            7493,
+            7494,
+            7495,
+            7496,
+            7497,
+            7498,
+            7499,
+            7500,
+            7501,
+            7502,
+            7503,
+            7504,
+            7505,
+            7506,
+            7507,
+            7508,
+            7509,
+            7510,
+            7511,
+            7512,
+            7513,
+            7514,
+            7515,
+            7516,
+            7517,
+            7518,
+            7519,
+            7520,
+            7521,
+            7522,
+            7523,
+            7524,
+            7525,
+            7526,
+            7527,
+            7528,
+            7529,
+            7530,
+            7531,
+            7532,
+            7533,
+            7534,
+            7535,
+            7536,
+            7537,
+            7538,
+            7539,
+            7540,
+            7541,
+            7542,
+            7543,
+            7544,
+            7545,
+            7546,
+            7547,
+            7548,
+            7549,
+            7550,
+            7551,
+            7552,
+            7553,
+            7554,
+            7555,
+            7556,
+            7557,
+            7558,
+            7559,
+            7560,
+            7561,
+            7562,
+            7563,
+            7564,
+            7565,
+            7566
+          ],
+          "samples": [
+            {
+              "line": 6953,
+              "text": "/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/runner/work/_temp/PDF-distribution/PDF.app/Contents/Resources/runtime/vendor/jpeg-turbo/lib/libturbojpeg.0.5.0.dylib"
+            },
+            {
+              "line": 6954,
+              "text": "/Applications/Xcode_26.6.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/runner/work/_temp/PDF-distribution/PDF.app/Contents/Resources/runtime/vendor/jpeg-turbo/lib/libjpeg.8.3.2.dylib"
+            }
+          ],
+          "interpretation": "install_name_tool informa invalidação durante relocação; o empacotador reassina código alterado e exige codesign --verify --deep --strict antes de publicar o manifesto. A etapa e o isolamento posteriores passaram; isso não é notarização."
+        },
+        {
+          "category": "vision-deprecated-api",
+          "occurrences": 2,
+          "lines": [
+            355,
+            1007
+          ],
+          "samples": [
+            {
+              "line": 355,
+              "text": "##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+            },
+            {
+              "line": 1007,
+              "text": "##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+            }
+          ],
+          "interpretation": "usesCPUOnly está obsoleto no diagnóstico Vision; duas compilações repetem o mesmo sítio VisionFailureDiagnostics.swift:122."
+        },
+        {
+          "category": "vision-deprecated-source-excerpt",
+          "occurrences": 2,
+          "lines": [
+            359,
+            1011
+          ],
+          "samples": [
+            {
+              "line": 359,
+              "text": "|                              `- warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+            },
+            {
+              "line": 1011,
+              "text": "|                              `- warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+            }
+          ],
+          "interpretation": "Repetição visual do aviso no trecho da linha de fonte, não outro sítio do compilador."
+        }
+      ],
+      "windowLifecycleSuccessMarkers": [
+        519,
+        4348
+      ],
+      "successfulSourceInstallationMarkers": [
+        4204
+      ],
+      "successfulBinaryInstallationMarkers": [
+        9166,
+        9771
+      ],
+      "wrongChecksumRefusalMarkers": [
+        9169
+      ]
+    },
+    {
+      "runner": "xcode-27",
+      "jobID": 121306620477,
+      "jobConclusion": "success",
+      "fullLog": {
+        "file": "1_native-application (xcode-27).txt",
+        "path": "/workspace/.cache/pdf-native-37f5b65/collector-attempt-1-logs/1_native-application (xcode-27).txt",
+        "bytes": 2814135,
+        "sha256": "ca9ae98b246e9c5594b50f959368c0e3ab58c837cc7c4e6ec69a0356c1a7cde2"
+      },
+      "python": [
+        {
+          "cases": 150,
+          "passed": 149,
+          "skipped": 1,
+          "failures": 0,
+          "errors": 0,
+          "expectedFailures": 0,
+          "unexpectedSuccesses": 0,
+          "status": "passed",
+          "seconds": 30.556,
+          "line": 186,
+          "label": "installer/scripts",
+          "step": "Verify installer integrity",
+          "stepLog": "native-application (xcode-27)/4_Verify installer integrity.txt"
+        },
+        {
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0,
+          "expectedFailures": 0,
+          "unexpectedSuccesses": 0,
+          "status": "passed",
+          "seconds": 133.672,
+          "line": 1003,
+          "label": "core/tests",
+          "step": "Build, install and validate complete application",
+          "stepLog": "native-application (xcode-27)/8_Build, install and validate complete application.txt"
+        },
+        {
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "failures": 0,
+          "errors": 0,
+          "expectedFailures": 0,
+          "unexpectedSuccesses": 0,
+          "status": "passed",
+          "seconds": 99.881,
+          "line": 1069,
+          "label": "integration",
+          "step": "Build, install and validate complete application",
+          "stepLog": "native-application (xcode-27)/8_Build, install and validate complete application.txt"
+        }
+      ],
+      "pythonCasesIncludingSkips": 720,
+      "pythonPassed": 719,
+      "pythonSkipped": 1,
+      "skipRecords": [
+        {
+          "line": 197,
+          "text": "test_real_enospc_after_backup_restores_old_bundle (test_binary_update.BinaryUpdateTests.test_real_enospc_after_backup_restores_old_bundle) ... skipped 'Linux /dev/full supplies a real ENOSPC write'"
+        }
+      ],
+      "native": {
+        "distinctNamesInSource": 44,
+        "starts": 396,
+        "passes": 396,
+        "startPassMultisetEqual": true,
+        "perStepCountersMatchAggregate": true,
+        "distinctStarted": 44,
+        "distinctPassed": 44,
+        "repeatCounts": [
+          9
+        ],
+        "expectedNineExecutionsObserved": true,
+        "startCounts": {
+          "Accessibility optional tag edit contract": 9,
+          "Adaptive resource limits": 9,
+          "Advanced editing and OCR review contracts": 9,
+          "App Intents input and private temporary files": 9,
+          "Appearance and reader preferences": 9,
+          "Application task cancellation and cleanup ownership": 9,
+          "Capture import and orientation": 9,
+          "Command palette shortcuts and workspace profiles": 9,
+          "Core Image processing": 9,
+          "Explicit settings and bookmark exchange": 9,
+          "Independent stream-length rejection and repair": 9,
+          "Library interrupted publications and catalog recovery": 9,
+          "Library revisions synchronization and Portuguese sources": 9,
+          "Native AES-256 and Unicode credentials": 9,
+          "Native AES-256 and original permissions": 9,
+          "Native regression audit": 9,
+          "Native serialization editable annotation and form roundtrips": 9,
+          "Native serialization fidelity and encryption guards": 9,
+          "Native serialization private process and cancellation": 9,
+          "Opt-in folder automation": 9,
+          "Owned child processes and termination recovery": 9,
+          "PDFKit, capture encoding, AI text helpers and protected output": 9,
+          "Pages isolated copy": 9,
+          "Performance measurement harness": 9,
+          "Portuguese AI experiment acceptance criteria": 9,
+          "Preview WindowServer geometry consistency": 9,
+          "Private engine input and cleanup": 9,
+          "Product searchable PDF": 9,
+          "Published native copy structural integrity": 9,
+          "Published protected copy structural integrity": 9,
+          "Reader sessions and annotation editing": 9,
+          "Real crash and recovery": 9,
+          "Recovery storage and encryption": 9,
+          "Runtime lease across native process termination": 9,
+          "Semantic retrieval and verifiable citations": 9,
+          "Tesseract installed runtime and transport": 9,
+          "Tool presets": 9,
+          "Tool review drafts across navigation and termination": 9,
+          "Typed-string repair graph and Unicode parser": 9,
+          "Typed-string repair privacy and interruption": 9,
+          "Unicode field identity and byte-exact fidelity": 9,
+          "Unsupported ink curve loss is refused": 9,
+          "Workflow presets and credentials": 9,
+          "Workspace scene presentation and reopening policy": 9
+        },
+        "passCounts": {
+          "Accessibility optional tag edit contract": 9,
+          "Adaptive resource limits": 9,
+          "Advanced editing and OCR review contracts": 9,
+          "App Intents input and private temporary files": 9,
+          "Appearance and reader preferences": 9,
+          "Application task cancellation and cleanup ownership": 9,
+          "Capture import and orientation": 9,
+          "Command palette shortcuts and workspace profiles": 9,
+          "Core Image processing": 9,
+          "Explicit settings and bookmark exchange": 9,
+          "Independent stream-length rejection and repair": 9,
+          "Library interrupted publications and catalog recovery": 9,
+          "Library revisions synchronization and Portuguese sources": 9,
+          "Native AES-256 and Unicode credentials": 9,
+          "Native AES-256 and original permissions": 9,
+          "Native regression audit": 9,
+          "Native serialization editable annotation and form roundtrips": 9,
+          "Native serialization fidelity and encryption guards": 9,
+          "Native serialization private process and cancellation": 9,
+          "Opt-in folder automation": 9,
+          "Owned child processes and termination recovery": 9,
+          "PDFKit, capture encoding, AI text helpers and protected output": 9,
+          "Pages isolated copy": 9,
+          "Performance measurement harness": 9,
+          "Portuguese AI experiment acceptance criteria": 9,
+          "Preview WindowServer geometry consistency": 9,
+          "Private engine input and cleanup": 9,
+          "Product searchable PDF": 9,
+          "Published native copy structural integrity": 9,
+          "Published protected copy structural integrity": 9,
+          "Reader sessions and annotation editing": 9,
+          "Real crash and recovery": 9,
+          "Recovery storage and encryption": 9,
+          "Runtime lease across native process termination": 9,
+          "Semantic retrieval and verifiable citations": 9,
+          "Tesseract installed runtime and transport": 9,
+          "Tool presets": 9,
+          "Tool review drafts across navigation and termination": 9,
+          "Typed-string repair graph and Unicode parser": 9,
+          "Typed-string repair privacy and interruption": 9,
+          "Unicode field identity and byte-exact fidelity": 9,
+          "Unsupported ink curve loss is refused": 9,
+          "Workflow presets and credentials": 9,
+          "Workspace scene presentation and reopening policy": 9
+        },
+        "nativeSmokeTestPassedCount": 9,
+        "byStep": [
+          {
+            "step": "Build, install and validate complete application",
+            "stepLog": "native-application (xcode-27)/8_Build, install and validate complete application.txt",
+            "starts": 88,
+            "passes": 88,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              2
+            ],
+            "completeNativeExecutions": 2,
+            "expectedExecutions": 2
+          },
+          {
+            "step": "Validate installed application and local OCR",
+            "stepLog": "native-application (xcode-27)/11_Validate installed application and local OCR.txt",
+            "starts": 44,
+            "passes": 44,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              1
+            ],
+            "completeNativeExecutions": 1,
+            "expectedExecutions": 1
+          },
+          {
+            "step": "Validate portable app without host dependencies or network",
+            "stepLog": "native-application (xcode-27)/23_Validate portable app without host dependencies or network.txt",
+            "starts": 44,
+            "passes": 44,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              1
+            ],
+            "completeNativeExecutions": 1,
+            "expectedExecutions": 1
+          },
+          {
+            "step": "Package and verify binary install and update",
+            "stepLog": "native-application (xcode-27)/24_Package and verify binary install and update.txt",
+            "starts": 220,
+            "passes": 220,
+            "distinctGroups": 44,
+            "startPassMultisetEqual": true,
+            "repeatCounts": [
+              5
+            ],
+            "completeNativeExecutions": 5,
+            "expectedExecutions": 5
+          }
+        ],
+        "failureMarkers": []
+      },
+      "rawPDFKitBaselineDiagnostics": [
+        {
+          "line": 1919,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 2020,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 4578,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 10229,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 10330,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 12678,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 18714,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 18815,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 21370,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30236,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30241,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30335,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30606,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30611,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30705,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30924,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 30929,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31023,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31247,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31252,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31346,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31566,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31571,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31665,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31888,
+          "text": "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31893,
+          "text": "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        },
+        {
+          "line": 31987,
+          "text": "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output"
+        }
+      ],
+      "productionStructureFailures": [],
+      "coreGraphicsWarnings": [
+        {
+          "line": 30331,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 30701,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 31019,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 31342,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 31661,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        },
+        {
+          "line": 31983,
+          "invalidStreamNegativeControlThenSuccessfulNormalization": true
+        }
+      ],
+      "compilerWarnings": [
+        {
+          "line": 410,
+          "text": "/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#]"
+        },
+        {
+          "line": 1063,
+          "text": "##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+        }
+      ],
+      "toolchainHelpProbeErrorLines": [
+        130
+      ],
+      "explicitFailureMarkers": [],
+      "stepResults": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Verify Apple toolchain",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Verify installer integrity",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Compile native application",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Audit the real window early without installing the engine runtime",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Install native PDF structural checker",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Build, install and validate complete application",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Audit the real window in the complete installed application",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Retain separate window lifecycle diagnostics even on failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Validate installed application and local OCR",
+          "conclusion": "success"
+        },
+        {
+          "number": 12,
+          "name": "Retain native diagnostic log",
+          "conclusion": "success"
+        },
+        {
+          "number": 13,
+          "name": "Capture native window preview",
+          "conclusion": "success"
+        },
+        {
+          "number": 14,
+          "name": "Validate all native previews and accessibility reports",
+          "conclusion": "success"
+        },
+        {
+          "number": 15,
+          "name": "Retain native preview artifact",
+          "conclusion": "success"
+        },
+        {
+          "number": 16,
+          "name": "Record Apple Vision capability independently",
+          "conclusion": "success"
+        },
+        {
+          "number": 17,
+          "name": "Retain Apple Vision capability report",
+          "conclusion": "success"
+        },
+        {
+          "number": 18,
+          "name": "Evaluate Portuguese answers with the actual local Apple model",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Retain local AI experiment and explicit availability",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Benchmark the installed application with OCR",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Retain native benchmark artifact",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Assemble relocatable binary distribution",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Validate portable app without host dependencies or network",
+          "conclusion": "success"
+        },
+        {
+          "number": 24,
+          "name": "Package and verify binary install and update",
+          "conclusion": "success"
+        },
+        {
+          "number": 25,
+          "name": "Retain binary package with explicit validation status",
+          "conclusion": "success"
+        },
+        {
+          "number": 26,
+          "name": "Create source distribution",
+          "conclusion": "success"
+        },
+        {
+          "number": 27,
+          "name": "Retain source artifact with validation status",
+          "conclusion": "success"
+        },
+        {
+          "number": 54,
+          "name": "Post Run actions/checkout@11d5960a326750d5838078e36cf38b85af677262",
+          "conclusion": "success"
+        },
+        {
+          "number": 55,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "credentialLikePatternsObserved": false,
+      "signedURLPatternsObserved": false,
+      "reviewIssues": [],
+      "warningClassification": [
+        {
+          "category": "node-punycode-deprecation",
+          "occurrences": 8,
+          "lines": [
+            18445,
+            26780,
+            27609,
+            27780,
+            27836,
+            28929,
+            32190,
+            32408
+          ],
+          "samples": [
+            {
+              "line": 18445,
+              "text": "(node:67363) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead."
+            },
+            {
+              "line": 26780,
+              "text": "(node:71777) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead."
+            }
+          ],
+          "interpretation": "Aviso do runtime Node usado pelas ações de CI."
+        },
+        {
+          "category": "node-url-parse-deprecation",
+          "occurrences": 8,
+          "lines": [
+            18451,
+            26785,
+            27615,
+            27788,
+            27842,
+            28935,
+            32196,
+            32416
+          ],
+          "samples": [
+            {
+              "line": 18451,
+              "text": "(node:67363) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities."
+            },
+            {
+              "line": 26785,
+              "text": "(node:71777) [DEP0169] DeprecationWarning: `url.parse()` behavior is not standardized and prone to errors that have security implications. Use the WHATWG URL API instead. CVEs are not issued for `url.parse()` vulnerabilities."
+            }
+          ],
+          "interpretation": "Aviso do runtime Node usado pelas ações de CI."
+        },
+        {
+          "category": "node20-action-migration",
+          "occurrences": 1,
+          "lines": [
+            32442
+          ],
+          "samples": [
+            {
+              "line": 32442,
+              "text": "##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@11d5960a326750d5838078e36cf38b85af677262, actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/"
+            }
+          ],
+          "interpretation": "GitHub informa que ações configuradas para Node20 foram executadas em Node24."
+        },
+        {
+          "category": "openjdk-not-globally-linked",
+          "occurrences": 1,
+          "lines": [
+            861
+          ],
+          "samples": [
+            {
+              "line": 861,
+              "text": "##[warning]openjdk@21 was installed but not linked because openjdk is already installed."
+            }
+          ],
+          "interpretation": "Homebrew instalou openjdk@21 sem link global porque outro openjdk já existia; as integrações que usam o runtime configurado passaram."
+        },
+        {
+          "category": "pymupdf-swig-deprecation",
+          "occurrences": 1,
+          "lines": [
+            1600
+          ],
+          "samples": [
+            {
+              "line": 1600,
+              "text": "sys:1: DeprecationWarning: builtin type swigvarlink has no __module__ attribute"
+            }
+          ],
+          "interpretation": "Depreciação do binding SWIG/PyMuPDF; as suítes registradas passaram."
+        },
+        {
+          "category": "qpdf-already-installed",
+          "occurrences": 1,
+          "lines": [
+            607
+          ],
+          "samples": [
+            {
+              "line": 607,
+              "text": "swift-driver version: 1.168.6 Warning: qpdf 12.4.2_1 is already installed and up-to-date."
+            }
+          ],
+          "interpretation": "Homebrew informa que qpdf já estava instalado e atualizado."
+        },
+        {
+          "category": "relocation-signature-warning",
+          "occurrences": 614,
+          "lines": [
+            28948,
+            28949,
+            28950,
+            28951,
+            28952,
+            28953,
+            28954,
+            28955,
+            28956,
+            28957,
+            28958,
+            28959,
+            28960,
+            28961,
+            28962,
+            28963,
+            28964,
+            28965,
+            28966,
+            28967,
+            28968,
+            28969,
+            28970,
+            28971,
+            28972,
+            28973,
+            28974,
+            28975,
+            28976,
+            28977,
+            28978,
+            28979,
+            28980,
+            28981,
+            28982,
+            28983,
+            28984,
+            28985,
+            28986,
+            28987,
+            28988,
+            28989,
+            28990,
+            28991,
+            28992,
+            28993,
+            28994,
+            28995,
+            28996,
+            28997,
+            28998,
+            28999,
+            29000,
+            29001,
+            29002,
+            29003,
+            29004,
+            29005,
+            29006,
+            29007,
+            29008,
+            29009,
+            29010,
+            29011,
+            29012,
+            29013,
+            29014,
+            29015,
+            29016,
+            29017,
+            29018,
+            29019,
+            29020,
+            29021,
+            29022,
+            29023,
+            29024,
+            29025,
+            29026,
+            29027,
+            29028,
+            29029,
+            29030,
+            29031,
+            29032,
+            29033,
+            29034,
+            29035,
+            29036,
+            29037,
+            29038,
+            29039,
+            29040,
+            29041,
+            29042,
+            29043,
+            29044,
+            29045,
+            29046,
+            29047,
+            29048,
+            29049,
+            29050,
+            29051,
+            29052,
+            29053,
+            29054,
+            29055,
+            29056,
+            29057,
+            29058,
+            29059,
+            29060,
+            29061,
+            29062,
+            29063,
+            29064,
+            29065,
+            29066,
+            29067,
+            29068,
+            29069,
+            29070,
+            29071,
+            29072,
+            29073,
+            29074,
+            29075,
+            29076,
+            29077,
+            29078,
+            29079,
+            29080,
+            29081,
+            29082,
+            29083,
+            29084,
+            29085,
+            29086,
+            29087,
+            29088,
+            29089,
+            29090,
+            29091,
+            29092,
+            29093,
+            29094,
+            29095,
+            29096,
+            29097,
+            29098,
+            29099,
+            29100,
+            29101,
+            29102,
+            29103,
+            29104,
+            29105,
+            29106,
+            29107,
+            29108,
+            29109,
+            29110,
+            29111,
+            29112,
+            29113,
+            29114,
+            29115,
+            29116,
+            29117,
+            29118,
+            29119,
+            29120,
+            29121,
+            29122,
+            29123,
+            29124,
+            29125,
+            29126,
+            29127,
+            29128,
+            29129,
+            29130,
+            29131,
+            29132,
+            29133,
+            29134,
+            29135,
+            29136,
+            29137,
+            29138,
+            29139,
+            29140,
+            29141,
+            29142,
+            29143,
+            29144,
+            29145,
+            29146,
+            29147,
+            29148,
+            29149,
+            29150,
+            29151,
+            29152,
+            29153,
+            29154,
+            29155,
+            29156,
+            29157,
+            29158,
+            29159,
+            29160,
+            29161,
+            29162,
+            29163,
+            29164,
+            29165,
+            29166,
+            29167,
+            29168,
+            29169,
+            29170,
+            29171,
+            29172,
+            29173,
+            29174,
+            29175,
+            29176,
+            29177,
+            29178,
+            29179,
+            29180,
+            29181,
+            29182,
+            29183,
+            29184,
+            29185,
+            29186,
+            29187,
+            29188,
+            29189,
+            29190,
+            29191,
+            29192,
+            29193,
+            29194,
+            29195,
+            29196,
+            29197,
+            29198,
+            29199,
+            29200,
+            29201,
+            29202,
+            29203,
+            29204,
+            29205,
+            29206,
+            29207,
+            29208,
+            29209,
+            29210,
+            29211,
+            29212,
+            29213,
+            29214,
+            29215,
+            29216,
+            29217,
+            29218,
+            29219,
+            29220,
+            29221,
+            29222,
+            29223,
+            29224,
+            29225,
+            29226,
+            29227,
+            29228,
+            29229,
+            29230,
+            29231,
+            29232,
+            29233,
+            29234,
+            29235,
+            29236,
+            29237,
+            29238,
+            29239,
+            29240,
+            29241,
+            29242,
+            29243,
+            29244,
+            29245,
+            29246,
+            29247,
+            29248,
+            29249,
+            29250,
+            29251,
+            29252,
+            29253,
+            29254,
+            29255,
+            29256,
+            29257,
+            29258,
+            29259,
+            29260,
+            29261,
+            29262,
+            29263,
+            29264,
+            29265,
+            29266,
+            29267,
+            29268,
+            29269,
+            29270,
+            29271,
+            29272,
+            29273,
+            29274,
+            29275,
+            29276,
+            29277,
+            29278,
+            29279,
+            29280,
+            29281,
+            29282,
+            29283,
+            29284,
+            29285,
+            29286,
+            29287,
+            29288,
+            29289,
+            29290,
+            29291,
+            29292,
+            29293,
+            29294,
+            29295,
+            29296,
+            29297,
+            29298,
+            29299,
+            29300,
+            29301,
+            29302,
+            29303,
+            29304,
+            29305,
+            29306,
+            29307,
+            29308,
+            29309,
+            29310,
+            29311,
+            29312,
+            29313,
+            29314,
+            29315,
+            29316,
+            29317,
+            29318,
+            29319,
+            29320,
+            29321,
+            29322,
+            29323,
+            29324,
+            29325,
+            29326,
+            29327,
+            29328,
+            29329,
+            29330,
+            29331,
+            29332,
+            29333,
+            29334,
+            29335,
+            29336,
+            29337,
+            29338,
+            29339,
+            29340,
+            29341,
+            29342,
+            29343,
+            29344,
+            29345,
+            29346,
+            29347,
+            29348,
+            29349,
+            29350,
+            29351,
+            29352,
+            29353,
+            29354,
+            29355,
+            29356,
+            29357,
+            29358,
+            29359,
+            29360,
+            29361,
+            29362,
+            29363,
+            29364,
+            29365,
+            29366,
+            29367,
+            29368,
+            29369,
+            29370,
+            29371,
+            29372,
+            29373,
+            29374,
+            29375,
+            29376,
+            29377,
+            29378,
+            29379,
+            29380,
+            29381,
+            29382,
+            29383,
+            29384,
+            29385,
+            29386,
+            29387,
+            29388,
+            29389,
+            29390,
+            29391,
+            29392,
+            29393,
+            29394,
+            29395,
+            29396,
+            29397,
+            29398,
+            29399,
+            29400,
+            29401,
+            29402,
+            29403,
+            29404,
+            29405,
+            29406,
+            29407,
+            29408,
+            29409,
+            29410,
+            29411,
+            29412,
+            29413,
+            29414,
+            29415,
+            29416,
+            29417,
+            29418,
+            29419,
+            29420,
+            29421,
+            29422,
+            29423,
+            29424,
+            29425,
+            29426,
+            29427,
+            29428,
+            29429,
+            29430,
+            29431,
+            29432,
+            29433,
+            29434,
+            29435,
+            29436,
+            29437,
+            29438,
+            29439,
+            29440,
+            29441,
+            29442,
+            29443,
+            29444,
+            29445,
+            29446,
+            29447,
+            29448,
+            29449,
+            29450,
+            29451,
+            29452,
+            29453,
+            29454,
+            29455,
+            29456,
+            29457,
+            29458,
+            29459,
+            29460,
+            29461,
+            29462,
+            29463,
+            29464,
+            29465,
+            29466,
+            29467,
+            29468,
+            29469,
+            29470,
+            29471,
+            29472,
+            29473,
+            29474,
+            29475,
+            29476,
+            29477,
+            29478,
+            29479,
+            29480,
+            29481,
+            29482,
+            29483,
+            29484,
+            29485,
+            29486,
+            29487,
+            29488,
+            29489,
+            29490,
+            29491,
+            29492,
+            29493,
+            29494,
+            29495,
+            29496,
+            29497,
+            29498,
+            29499,
+            29500,
+            29501,
+            29502,
+            29503,
+            29504,
+            29505,
+            29506,
+            29507,
+            29508,
+            29509,
+            29510,
+            29511,
+            29512,
+            29513,
+            29514,
+            29515,
+            29516,
+            29517,
+            29518,
+            29519,
+            29520,
+            29521,
+            29522,
+            29523,
+            29524,
+            29525,
+            29526,
+            29527,
+            29528,
+            29529,
+            29530,
+            29531,
+            29532,
+            29533,
+            29534,
+            29535,
+            29536,
+            29537,
+            29538,
+            29539,
+            29540,
+            29541,
+            29542,
+            29543,
+            29544,
+            29545,
+            29546,
+            29547,
+            29548,
+            29549,
+            29550,
+            29551,
+            29552,
+            29553,
+            29554,
+            29555,
+            29556,
+            29557,
+            29558,
+            29559,
+            29560,
+            29561
+          ],
+          "samples": [
+            {
+              "line": 28948,
+              "text": "/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/runner/work/_temp/PDF-distribution/PDF.app/Contents/Resources/runtime/vendor/jpeg-turbo/lib/libturbojpeg.0.5.0.dylib"
+            },
+            {
+              "line": 28949,
+              "text": "/Applications/Xcode_27.1.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/install_name_tool: warning: changes being made to the file will invalidate the code signature in: /Users/runner/work/_temp/PDF-distribution/PDF.app/Contents/Resources/runtime/vendor/jpeg-turbo/lib/libjpeg.8.3.2.dylib"
+            }
+          ],
+          "interpretation": "install_name_tool informa invalidação durante relocação; o empacotador reassina código alterado e exige codesign --verify --deep --strict antes de publicar o manifesto. A etapa e o isolamento posteriores passaram; isso não é notarização."
+        },
+        {
+          "category": "vision-deprecated-api",
+          "occurrences": 2,
+          "lines": [
+            410,
+            1063
+          ],
+          "samples": [
+            {
+              "line": 410,
+              "text": "/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#]"
+            },
+            {
+              "line": 1063,
+              "text": "##[warning]/Users/runner/work/PDF-/PDF-/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+            }
+          ],
+          "interpretation": "usesCPUOnly está obsoleto no diagnóstico Vision; duas compilações repetem o mesmo sítio VisionFailureDiagnostics.swift:122."
+        },
+        {
+          "category": "vision-deprecated-source-excerpt",
+          "occurrences": 2,
+          "lines": [
+            415,
+            1067
+          ],
+          "samples": [
+            {
+              "line": 415,
+              "text": "|                              `- warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#]"
+            },
+            {
+              "line": 1067,
+              "text": "|                              `- warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]"
+            }
+          ],
+          "interpretation": "Repetição visual do aviso no trecho da linha de fonte, não outro sítio do compilador."
+        }
+      ],
+      "windowLifecycleSuccessMarkers": [
+        575,
+        18430
+      ],
+      "successfulSourceInstallationMarkers": [
+        18286
+      ],
+      "successfulBinaryInstallationMarkers": [
+        31215,
+        31858
+      ],
+      "wrongChecksumRefusalMarkers": [
+        31218
+      ]
+    }
+  ],
+  "evidenceIsCompleteTerminalAttempt": true,
+  "crossOSApprovedByThisReview": false,
+  "privateDeliveryApprovedByThisReview": false,
+  "manualReview": {
+    "completed": true,
+    "unclassifiedWarningCategories": [],
+    "relocationSigningControl": {
+      "gitPath": "scripts/package_binary.py",
+      "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "sha256": "c9bfd378c1019fd465f26dc30f1d0f2944574c35e365c6d145f4d0eb26127c61",
+      "scope": "Read exact Git code; mandatory deep strict verification after re-signing and corresponding workflow success. No independent local rehash of application binaries by this log review."
+    },
+    "originalsPreserved": true,
+    "warningCompaction": "Categories retain occurrence counts, original line numbers and samples. Full byte-exact warning paths remain in original logs and official ZIP.",
+    "collectorRootRunJobsArtifactsUntouched": true
+  }
+}

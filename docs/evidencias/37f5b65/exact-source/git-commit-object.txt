@@ -1,0 +1,6 @@
+tree 8c6e8e5894c1787f95fecefdb79b32ab28ca8b37
+parent d83cccbe5c493e42f522530f7972ec9e15d8ecfd
+author Willian Carvalho <vibra_call@msn.com> 1792966284 +0000
+committer Willian Carvalho <vibra_call@msn.com> 1792966284 +0000
+
+Track real AppKit attachment instead of declarative scene evaluation

@@ -1,0 +1,11 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "nativeRunID": 40239018570,
+  "runAttempt": 1,
+  "jobIDs": {
+    "macos-26": 121306620661,
+    "xcode-27": 121306620477
+  },
+  "outputDirectory": "/workspace/.cache/pdf-native-37f5b65"
+}

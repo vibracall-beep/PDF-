@@ -1,0 +1,22 @@
+[
+  {
+    "path": "diagnostics/delivery_archives.py",
+    "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+  },
+  {
+    "path": "scripts/check_preview_artifacts.py",
+    "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+  },
+  {
+    "path": "scripts/check_accessibility_report.py",
+    "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+  },
+  {
+    "path": "scripts/check_window_lifecycle.py",
+    "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+  }
+]

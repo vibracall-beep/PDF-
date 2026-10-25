@@ -1,0 +1,512 @@
+{
+  "automaticPresentationDeliberatelySuppressed" : true,
+  "bundleIdentifier" : "local.pdf.desktop",
+  "checks" : [
+    {
+      "detail" : "Modelo e preferências privados, sem PDF, rascunho sujo, motor ou captura de imagens.",
+      "id" : "isolated-state",
+      "passed" : true
+    },
+    {
+      "detail" : "Nenhuma janela foi criada antes do primeiro pedido explícito; apresentação automática e restauração estão desativadas somente nesta condição diagnóstica artificial.",
+      "id" : "automatic-presentation-suppressed",
+      "passed" : true
+    },
+    {
+      "detail" : "openWindow apresentou uma única WindowGroup com o Workspace e o guard reais do produto.",
+      "id" : "first-real-window",
+      "passed" : true
+    },
+    {
+      "detail" : "Os oito pedidos iniciais concluíram suas ações somente com a janela real anexada.",
+      "id" : "queued-actions-use-attached-window",
+      "passed" : true
+    },
+    {
+      "detail" : "Pedidos repetidos reapresentaram a mesma janela sem criar outra cena anexada.",
+      "id" : "existing-window-no-duplicates",
+      "passed" : true
+    },
+    {
+      "detail" : "O fechamento usa os guards reais em um modelo vazio; nenhum diálogo de descarte é contornado.",
+      "id" : "close-without-modal-data-loss",
+      "passed" : true
+    },
+    {
+      "detail" : "performClose atravessou WorkspaceWindowGuard e produziu willClose; a registry ficou vazia.",
+      "id" : "last-window-closed-through-product-guard",
+      "passed" : true
+    },
+    {
+      "detail" : "A ação compartilhada reapresentou uma WindowGroup real após fechar a última janela.",
+      "id" : "reopened-real-window",
+      "passed" : true
+    },
+    {
+      "detail" : "A cena reaberta recebeu a mesma instância de Workspace, seção e preferências privadas.",
+      "id" : "workspace-and-private-preferences-preserved",
+      "passed" : true
+    },
+    {
+      "detail" : "Vinte e quatro pedidos reais, em três fases, mantiveram no máximo uma janela de trabalho anexada.",
+      "id" : "all-requests-no-duplicate-windows",
+      "passed" : true
+    },
+    {
+      "detail" : "O encerramento compartilhado aguardou as tarefas reais antes de remover seus dados privados.",
+      "id" : "background-work-drained",
+      "passed" : true
+    },
+    {
+      "detail" : "O domínio de preferências e o diretório privados fornecidos ao Workspace foram removidos.",
+      "id" : "private-state-cleanup",
+      "passed" : true
+    }
+  ],
+  "createdAt" : "2026-10-25T22:16:28Z",
+  "events" : [
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 0.9865833333151386,
+      "phase" : "diagnostic-created",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 998.6425833333215,
+      "phase" : "application-did-finish-launching",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.1747083332712,
+      "phase" : "suppressed-launch-observed-without-window",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.4540416665814,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.4885416666648,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.5057500000257,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.5183749999796,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.5360833332825,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.5528333332686,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.576791666641,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 0,
+      "milliseconds" : 1374.593124999933,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 1,
+      "contentViewClass" : "SwiftUI.(unknown context at $1b82abfac).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI.RootModifier>>",
+      "milliseconds" : 2588.317874999916,
+      "phase" : "real-window-attached",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 0,
+      "windowNumber" : 31,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5313.698666666596,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5313.790124999969,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5314.198083333281,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5314.275875000021,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5314.774083333305,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5314.781208333329,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5314.785291666681,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 5314.788291666673,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.273958333342,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.294333333305,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.299999999957,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.30412499999,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.308083333299,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.3118749999985,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.315833333308,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 6739.319541666646,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.002958333264,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.047875000017,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.060333333247,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.064124999947,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.071249999972,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.077958333302,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.083125000013,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 3,
+      "milliseconds" : 7752.0922916665995,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "contentViewClass" : "SwiftUI.(unknown context at $1b82abfac).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI.RootModifier>>",
+      "milliseconds" : 8157.672875000003,
+      "phase" : "perform-close-on-last-workspace",
+      "visibleWorkspaceWindows" : 1,
+      "windowNumber" : 31,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "contentViewClass" : "SwiftUI.(unknown context at $1b82abfac).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI.RootModifier>>",
+      "milliseconds" : 8158.55108333335,
+      "phase" : "product-close-guard-entered",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 1,
+      "windowNumber" : 31,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 2,
+      "contentViewClass" : "SwiftUI.(unknown context at $1b82abfac).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI.RootModifier>>",
+      "milliseconds" : 8159.120166666639,
+      "phase" : "appkit-window-will-close",
+      "visibleWorkspaceWindows" : 0,
+      "windowNumber" : 31,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.341124999927,
+      "phase" : "last-workspace-closed",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.423916666655,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.434874999946,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.440291666628,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.444916666602,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.449249999924,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.453124999985,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.45758333335,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 2,
+      "milliseconds" : 8180.461124999965,
+      "phase" : "shared-presentation-requested",
+      "visibleWorkspaceWindows" : 0,
+      "workspaceWindows" : 0
+    },
+    {
+      "applicationWindows" : 3,
+      "contentViewClass" : "SwiftUI.(unknown context at $1b82abfac).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI.RootModifier>>",
+      "milliseconds" : 8302.986499999974,
+      "phase" : "real-window-attached",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 0,
+      "windowNumber" : 41,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.291791666674,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.305208333335,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.309374999935,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.313291666676,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.317124999943,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.320749999919,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.335083333332,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "milliseconds" : 9629.340791666664,
+      "phase" : "shared-presentation-action-ready",
+      "visibleWorkspaceWindows" : 1,
+      "workspaceWindows" : 1
+    },
+    {
+      "applicationWindows" : 4,
+      "contentViewClass" : "SwiftUI.(unknown context at $1b82abfac).AppKitWindowHostingView<SwiftUI.ModifiedContent<SwiftUI.AnyView, SwiftUI.RootModifier>>",
+      "milliseconds" : 10432.887708333283,
+      "phase" : "lifecycle-checks-completed",
+      "sameWorkspace" : true,
+      "visibleWorkspaceWindows" : 1,
+      "windowNumber" : 41,
+      "workspaceWindows" : 1
+    }
+  ],
+  "guardCloseRequests" : 1,
+  "hardware" : "Apple Paravirtual device · 3 núcleos disponíveis · 7 GB de memória",
+  "limitations" : [
+    "A supressão inicial e a restauração desativada são condições artificiais controladas; passar não reproduz nem demonstra a causa do timeout histórico do SwiftUI. O modo normal conserva sua política de restauração.",
+    "O modelo fica sem documentos e sem rascunhos sujos. O ensaio não valida escolhas humanas de descarte, recuperação de PDFs ou todos os percursos de restauração.",
+    "O relatório mede o ciclo de janela observado nesta execução; não aprova sozinho o pacote, os 33 PNGs\/relatórios AX da prévia ou compatibilidade geral entre sistemas."
+  ],
+  "maximumAttachedWorkspaceWindows" : 1,
+  "methodology" : "Uma WindowGroup real do produto inicia com a apresentação automática e a restauração deliberadamente desativadas somente no modo diagnóstico. A ação compartilhada do coordenador chama openWindow, reapresenta sem duplicar, fecha a última janela com performClose e o guard real e reabre preservando o Workspace. Nenhuma NSWindow\/NSHostingView substituta, mock, captura de imagem, PDF ou motor externo é criado pela auditoria.",
+  "observedWindowCloses" : 1,
+  "operatingSystem" : "Version 26.6.2 (Build 25G83)",
+  "presentationRequests" : 24,
+  "previewCaptureEnabled" : false,
+  "privateState" : true,
+  "privateStateCleaned" : true,
+  "readyActionsExecuted" : 24,
+  "realSwiftUIWindowGroup" : true,
+  "restorationDeliberatelyDisabled" : true,
+  "schemaVersion" : 1,
+  "status" : "passed",
+  "totalMilliseconds" : 10438.295583333344
+}

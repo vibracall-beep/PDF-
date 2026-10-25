@@ -1,0 +1,206 @@
+{
+  "schemaVersion": 1,
+  "configuration": {
+    "schemaVersion": 1,
+    "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "nativeRunID": 40239018570,
+    "runAttempt": 1,
+    "jobIDs": {
+      "macos-26": 121306620661,
+      "xcode-27": 121306620477
+    },
+    "outputDirectory": "/workspace/.cache/pdf-native-37f5b65"
+  },
+  "attempts": {
+    "12617457782": {
+      "id": 12617457782,
+      "name": "PDF-binary-validated-macos-26",
+      "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "runID": 40239018570,
+      "runAttempt": 1,
+      "jobID": 121306620661,
+      "archiveBytes": 1445409831,
+      "githubDigest": "sha256:26f4833161da2b9755331e17fc06278df42b1c2ee86b7f0eade8012ad8dc11ae",
+      "downloadAttempts": 1,
+      "attemptedAt": 1792969706.3835695,
+      "downloaded": true,
+      "archiveSHA256": "26f4833161da2b9755331e17fc06278df42b1c2ee86b7f0eade8012ad8dc11ae",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1449079284,
+        "sha256": "641d66d3c4bd68ad8074d906e6dd9c3c18ef946292da2d9512541948db52c4a4",
+        "retainedInsideOriginalZIP": true,
+        "tarExtracted": false,
+        "manifestMatchedEveryFile": true,
+        "storageRequirementsVerified": {
+          "schemaVersion": 1,
+          "distributionBytes": 3490004349,
+          "bundleBytes": 3489995287,
+          "distributionEntries": 61133,
+          "bundleEntries": 61131
+        },
+        "membersInspected": 61134,
+        "expandedBytesInspected": 3608227840
+      },
+      "files": [
+        {
+          "name": "PDF-arm64.tar.gz.sha256",
+          "bytes": 83,
+          "sha256": "4ea6b533302656ce927b3f89e19a8521c6615cd1689e0d1094fa01eb26e29e93"
+        },
+        {
+          "name": "distribution-manifest.json",
+          "bytes": 12263013,
+          "sha256": "23f87211253d3a06593a5e457d1c95ccb31f875527e308d8cebd6f6608f19a87"
+        },
+        {
+          "name": "distribution-validation.json",
+          "bytes": 667,
+          "sha256": "a3b63a2d4f7e39e911f87cb022c474e926bfc9426175e6d7b58d69bf25ae70f7"
+        },
+        {
+          "name": "install-binary.sh",
+          "bytes": 9062,
+          "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+        }
+      ],
+      "sourceInstaller": {
+        "additionalSourceFiles": {
+          "diagnostics/delivery_archives.py": {
+            "bytes": 17378,
+            "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+          },
+          "diagnostics/portable_compatibility.py": {
+            "bytes": 13339,
+            "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+          },
+          "scripts/PDF-Info.plist": {
+            "bytes": 2034,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "scripts/check_window_lifecycle.py": {
+            "bytes": 9894,
+            "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+          }
+        },
+        "sourceArchiveSHA256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c",
+        "sourceArchiveBytes": 21029466,
+        "installerSHA256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5",
+        "installerBytes": 9062,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceFileCount": 771,
+        "sourceUncompressedBytes": 44636160,
+        "sourceManifestVerified": true,
+        "sourceWorkingTreeDirty": false
+      },
+      "manifestSHA256": "dd6d288653c5af179df82240dd6808e684afd26133b8fb5d5bf41d0df2d6bee8",
+      "manifestEntries": 56826,
+      "validationReportVerified": true,
+      "directory": "/workspace/.cache/pdf-native-37f5b65/extracted/PDF-binary-validated-macos-26",
+      "fullRunApprovalNotInferredFromArtifactName": true,
+      "completeApplicationApproved": false,
+      "sourceArtifact": {
+        "id": 12617342983,
+        "name": "PDF-source-macos-26",
+        "githubDigest": "sha256:d1480243c229657ec498662c48075eb1eed817b18093852c14117d358a0c5c4e",
+        "archiveBytes": 21034067
+      },
+      "validationVerifiedAt": 1792969815.2789776
+    },
+    "12617482313": {
+      "id": 12617482313,
+      "name": "PDF-binary-validated-xcode-27",
+      "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+      "runID": 40239018570,
+      "runAttempt": 1,
+      "jobID": 121306620477,
+      "archiveBytes": 1443397970,
+      "githubDigest": "sha256:3a427f4a656184ae0932411c4af62908a785e1fcf6a54cc84e54a263ae5447b8",
+      "downloadAttempts": 1,
+      "attemptedAt": 1792969815.2807198,
+      "downloaded": true,
+      "archiveSHA256": "3a427f4a656184ae0932411c4af62908a785e1fcf6a54cc84e54a263ae5447b8",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1447024392,
+        "sha256": "b21b530ae9df9c51de3c54bd16f2b499705e83e43754df4ffd4c496ea3fe570d",
+        "retainedInsideOriginalZIP": true,
+        "tarExtracted": false,
+        "manifestMatchedEveryFile": true,
+        "storageRequirementsVerified": {
+          "schemaVersion": 1,
+          "distributionBytes": 3477377874,
+          "bundleBytes": 3477368812,
+          "distributionEntries": 61133,
+          "bundleEntries": 61131
+        },
+        "membersInspected": 61134,
+        "expandedBytesInspected": 3595601920
+      },
+      "files": [
+        {
+          "name": "PDF-arm64.tar.gz.sha256",
+          "bytes": 83,
+          "sha256": "215b3f56be7a26e6aa3e35b0abea675bfbfe7c7d311ab45d44bf70491c72d975"
+        },
+        {
+          "name": "distribution-manifest.json",
+          "bytes": 12262979,
+          "sha256": "bbb24cef74f6162b3ab5b6488053dbccf55b2bc72dd46077a8dcc24a464884eb"
+        },
+        {
+          "name": "distribution-validation.json",
+          "bytes": 667,
+          "sha256": "a2d660695a60bcc6aec07bfbda7c2cf7b1d1586dfa069ce964024d38ecaf4ece"
+        },
+        {
+          "name": "install-binary.sh",
+          "bytes": 9062,
+          "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+        }
+      ],
+      "sourceInstaller": {
+        "additionalSourceFiles": {
+          "diagnostics/delivery_archives.py": {
+            "bytes": 17378,
+            "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+          },
+          "diagnostics/portable_compatibility.py": {
+            "bytes": 13339,
+            "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+          },
+          "scripts/PDF-Info.plist": {
+            "bytes": 2034,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "scripts/check_window_lifecycle.py": {
+            "bytes": 9894,
+            "sha256": "1eabfee8e66734fca4aeaf54a3a6acbd7700a1d8f40f803ef18845400bcb5828"
+          }
+        },
+        "sourceArchiveSHA256": "8589a0ac40a0b838fc994f28817a9598fcbb13ad908c01bcef3992ba7e1ee66c",
+        "sourceArchiveBytes": 21029466,
+        "installerSHA256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5",
+        "installerBytes": 9062,
+        "sourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+        "sourceFileCount": 771,
+        "sourceUncompressedBytes": 44636160,
+        "sourceManifestVerified": true,
+        "sourceWorkingTreeDirty": false
+      },
+      "manifestSHA256": "cdee775c95a50b0f4c042cd82736b5fbb5ab83bcd92bb893186b26d99382dd93",
+      "manifestEntries": 56826,
+      "validationReportVerified": true,
+      "directory": "/workspace/.cache/pdf-native-37f5b65/extracted/PDF-binary-validated-xcode-27",
+      "fullRunApprovalNotInferredFromArtifactName": true,
+      "completeApplicationApproved": false,
+      "sourceArtifact": {
+        "id": 12617691830,
+        "name": "PDF-source-ocr-compatibility-xcode-27",
+        "githubDigest": "sha256:c5654b0979810943fde936df6a54707b134b259dbf99efa5166ecadf3d0278c3",
+        "archiveBytes": 21034646
+      },
+      "validationVerifiedAt": 1792969943.0102587
+    }
+  }
+}

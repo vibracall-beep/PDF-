@@ -1,0 +1,402 @@
+name: macOS application validation
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'Sources/**'
+      - 'engine/**'
+      - 'scripts/**'
+      - 'tests/**'
+      - 'requirements*.txt'
+      - 'Package.swift'
+      - '.github/workflows/macos.yml'
+  pull_request:
+permissions:
+  contents: read
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  native-application:
+    # Official xcode-27 preview image currently runs macOS 27.0.1 arm64.
+    # Keep the established macOS 26 image as a compatibility check.
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        runner: [macos-26, xcode-27]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Verify Apple toolchain
+        run: |
+          uname -m
+          sw_vers -productVersion
+          sysctl -n machdep.cpu.brand_string
+          sysctl -n hw.ncpu
+          xcodebuild -version
+          xcrun --sdk macosx --show-sdk-version
+          # Read-only SDK discovery; actual App Intents extraction will be a
+          # separate required bundle check, not inferred from this help text.
+          if xcrun --find appintentsmetadataprocessor; then
+            xcrun appintentsmetadataprocessor --help || true
+          fi
+      - name: Verify installer integrity
+        id: integrity
+        run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
+      - name: Compile native application
+        id: compile
+        run: |
+          echo "::add-matcher::.github/swift-problem-matcher.json"
+          xcrun swift build -c release --arch arm64 --jobs 3
+      - name: Audit the real window early without installing the engine runtime
+        id: window_early
+        if: ${{ !cancelled() && steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          mkdir -m 700 "$RUNNER_TEMP/PDF-window-lifecycle"
+          # This diagnostic-only bundle has the exact production Info.plist and
+          # installation lease. It is not an approved installation/distribution.
+          python3 scripts/prepare-window-audit-bundle.py \
+            --binary "$(xcrun swift build -c release --arch arm64 --show-bin-path)/PDF" \
+            --destination "$RUNNER_TEMP/PDF-window-lifecycle/early/PDF.app" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-window-lifecycle/early.log"
+          python3 scripts/run-with-timeout.py --seconds 60 --sample-on-timeout -- \
+            "$RUNNER_TEMP/PDF-window-lifecycle/early/PDF.app/Contents/MacOS/PDF" \
+            --window-lifecycle-audit "$RUNNER_TEMP/PDF-window-lifecycle/early.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-window-lifecycle/early.log"
+          python3 scripts/check_window_lifecycle.py "$RUNNER_TEMP/PDF-window-lifecycle/early.json" \
+            --app "$RUNNER_TEMP/PDF-window-lifecycle/early/PDF.app" --source-commit "$GITHUB_SHA" \
+            --scope minimal-diagnostic --receipt "$RUNNER_TEMP/PDF-window-lifecycle/early-receipt.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-window-lifecycle/early.log"
+      - name: Install native PDF structural checker
+        id: qpdf
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && steps.window_early.outcome == 'success' }}
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          brew list --versions qpdf || brew install qpdf
+          test -x /opt/homebrew/bin/qpdf
+          /opt/homebrew/bin/qpdf --version
+      - name: Build, install and validate complete application
+        id: install
+        # Product OCR requires the installed local runtime. Both pre-activation
+        # and post-activation checks remain mandatory inside the installer.
+        if: ${{ !cancelled() && steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.window_early.outcome == 'success' }}
+        env:
+          PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
+          CG_PDF_VERBOSE: '1'
+        run: bash scripts/install-mac.sh
+      - name: Audit the real window in the complete installed application
+        id: window_installed
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/run-with-timeout.py --seconds 60 --sample-on-timeout -- \
+            "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" \
+            --window-lifecycle-audit "$RUNNER_TEMP/PDF-window-lifecycle/installed.json" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-window-lifecycle/installed.log"
+          python3 scripts/check_window_lifecycle.py "$RUNNER_TEMP/PDF-window-lifecycle/installed.json" \
+            --app "$RUNNER_TEMP/pdf-installed/PDF.app" --source-commit "$GITHUB_SHA" \
+            --scope installed-application --receipt "$RUNNER_TEMP/PDF-window-lifecycle/installed-receipt.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-window-lifecycle/installed.log"
+      - name: Retain separate window lifecycle diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-window-lifecycle-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-window-lifecycle/*.json
+            ${{ runner.temp }}/PDF-window-lifecycle/*.log
+          if-no-files-found: ignore
+      - name: Validate installed application and local OCR
+        id: native
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.window_installed.outcome == 'success' }}
+        env:
+          CG_PDF_VERBOSE: '1'
+        run: |
+          set -o pipefail
+          python3 scripts/run-with-timeout.py --seconds 240 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --smoke-test 2>&1 | tee "$RUNNER_TEMP/PDF-native-checks.log"
+      - name: Retain native diagnostic log
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-native-checks-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-native-checks.log
+          if-no-files-found: ignore
+      - name: Capture native window preview
+        id: preview
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        run: |
+          python3 scripts/run-with-timeout.py --seconds 300 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --render-preview "$RUNNER_TEMP/PDF-preview.png"
+      - name: Validate all native previews and accessibility reports
+        id: accessibility
+        if: ${{ !cancelled() && steps.preview.outcome == 'success' }}
+        run: python3 scripts/check_preview_artifacts.py "$RUNNER_TEMP"
+      - name: Retain native preview artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-macOS-preview-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-preview*.png
+            ${{ runner.temp }}/PDF-preview*accessibility.json
+            ${{ runner.temp }}/PDF-preview.revisao-ocr.source.pdf
+            ${{ runner.temp }}/PDF-preview.revisao-ocr.analysis.json
+          if-no-files-found: ignore
+      - name: Record Apple Vision capability independently
+        id: vision
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        env:
+          CG_PDF_VERBOSE: '1'
+        run: |
+          set -o pipefail
+          python3 scripts/run-with-timeout.py --seconds 180 --sample-on-timeout -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --vision-audit "$RUNNER_TEMP/PDF-vision-audit.json" 2>&1 | tee "$RUNNER_TEMP/PDF-vision-audit.log"
+          python3 - <<'PYTHON'
+          import json
+          import os
+          from pathlib import Path
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'PDF-vision-audit.json').read_text())
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit('Invalid Apple Vision capability report: ' + detail)
+          require(isinstance(report, dict), 'object required')
+          require(type(report.get('schemaVersion')) is int and report['schemaVersion'] == 1, 'unsupported schema')
+          require(report.get('fixture') == 'image-only-verification-v1', 'real image-only fixture required')
+          checks = report.get('checks')
+          require(isinstance(checks, list) and len(checks) == 2 and all(isinstance(item, dict) for item in checks), 'exactly two checks required')
+          require({item.get('id') for item in checks} == {'searchable-pdf', 'isolated-process'}, 'missing or duplicate Apple-only checks')
+          for item in checks:
+              require(item.get('status') in ('passed', 'failed'), item['id'] + ': invalid status')
+              require(isinstance(item.get('message'), str) and bool(item['message'].strip()), item['id'] + ': missing assertion or failure detail')
+              if item['status'] == 'failed':
+                  require(isinstance(item.get('errorDomain'), str) and bool(item['errorDomain'].strip()) and type(item.get('errorCode')) is int, item['id'] + ': missing framework failure identity')
+              else:
+                  require(item.get('errorDomain') is None and item.get('errorCode') is None, item['id'] + ': contradictory success')
+              print('Apple Vision', item['id'] + ':', item['status'])
+          summary = report.get('summary')
+          require(isinstance(summary, dict) and type(summary.get('appleVisionPassed')) is bool, 'missing boolean capability result')
+          passed = all(item['status'] == 'passed' for item in checks)
+          require(summary['appleVisionPassed'] == passed, 'capability summary contradicts individual checks')
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('apple_vision_passed=' + str(passed).lower() + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('### Apple Vision capability\n\n')
+              for item in checks:
+                  output.write('- ' + item['id'] + ': **' + item['status'] + '**\n')
+              output.write('\nThe mandatory installed-application smoke test already verified real local OCR. This separate report records Apple Vision availability; a failed capability result is retained explicitly.\n\n')
+          PYTHON
+      - name: Retain Apple Vision capability report
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-Apple-Vision-capability-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-vision-audit.json
+            ${{ runner.temp }}/PDF-vision-audit.log
+          if-no-files-found: ignore
+      - name: Evaluate Portuguese answers with the actual local Apple model
+        id: ai_quality
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        run: |
+          python3 scripts/run-with-timeout.py --seconds 600 -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --ai-audit "$RUNNER_TEMP/PDF-local-ai.json"
+          python3 - <<'PYTHON'
+          import json, math, os
+          from pathlib import Path
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'PDF-local-ai.json').read_text())
+          def require(condition, message):
+              if not condition: raise SystemExit('Local AI report: ' + message)
+          require(report.get('schemaVersion') == 1, 'unsupported schema')
+          require(report.get('status') in ('sample_passed', 'sample_failed', 'unavailable'), 'missing result')
+          require(len(report.get('documents', [])) == 2, 'missing source PDFs')
+          items = report.get('items', [])
+          require(len(items) == 5 and {item.get('id') for item in items} == {'responsavel', 'orcamento', 'participantes', 'sem-apoio', 'divergencia'}, 'missing or repeated case')
+          for item in items:
+              require(type(item.get('modelAttempted')) is bool and item.get('status') in ('passed', 'failed', 'unavailable'), 'invalid case status')
+              require(isinstance(item.get('milliseconds'), (float, int)) and math.isfinite(item['milliseconds']) and item['milliseconds'] >= 0, 'invalid duration')
+              if item['status'] == 'passed':
+                  require(item['modelAttempted'] and item.get('checks') and all(check.get('passed') is True for check in item['checks']), 'unexecuted or contradictory passing case')
+              if item['status'] == 'unavailable': require(not item['modelAttempted'], 'unavailable case claims inference')
+          if report['status'] == 'unavailable':
+              require(report.get('availabilityReason') and all(item['status'] == 'unavailable' for item in items), 'unavailability is not explicit')
+          if report['status'] == 'sample_passed': require(all(item['status'] == 'passed' for item in items), 'sample result contradicts cases')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write('### Portuguese local AI experiment\n\nResult: **' + report['status'] + '**. Five synthetic cases; no replacement response or remote model.\n\n')
+              if report['status'] == 'unavailable': summary.write('Apple model unavailable on this runner. No generation quality or Neural Engine performance is approved.\n\n')
+              for item in items: summary.write('- ' + item['id'] + ': ' + item['status'] + '\n')
+          require(report['status'] != 'sample_failed', 'the actual model did not meet the sample acceptance checks')
+          PYTHON
+      - name: Retain local AI experiment and explicit availability
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-local-AI-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-local-ai.json
+          if-no-files-found: ignore
+      - name: Benchmark the installed application with OCR
+        id: benchmark
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' }}
+        env:
+          CG_PDF_VERBOSE: '1'
+        run: |
+          python3 scripts/run-with-timeout.py --seconds 600 -- "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" --benchmark "$RUNNER_TEMP/PDF-benchmark.json" --benchmark-pages 100
+          python3 - <<'PYTHON'
+          import json
+          import math
+          import os
+          from pathlib import Path
+          import re
+          from statistics import median
+          report = json.loads((Path(os.environ['RUNNER_TEMP']) / 'PDF-benchmark.json').read_text())
+          def require(condition, detail):
+              if not condition:
+                  raise SystemExit('Invalid native benchmark: ' + detail)
+          require(isinstance(report, dict) and type(report.get('schemaVersion')) is int and report['schemaVersion'] == 1, 'unsupported schema')
+          require(report.get('architecture') == 'arm64', 'native Apple Silicon execution required')
+          require(report.get('pageCount') == 100 and report.get('fixture') == 'text-and-vector-v1', '100-page synthetic fixture required')
+          require(report.get('repetitions') == 3, 'three measured repetitions required')
+          require(isinstance(report.get('sourceBytes'), int) and report['sourceBytes'] > 0, 'empty input')
+          require(re.fullmatch('[0-9a-f]{64}', report.get('sourceSHA256', '')) is not None, 'missing input fingerprint')
+          metrics = report.get('metrics', [])
+          required = {'open', 'extract', 'search', 'render', 'contrast', 'ocr'}
+          require(len(metrics) == len(required) and {item.get('id') for item in metrics} == required, 'all six operations, including OCR, must run')
+          for item in metrics:
+              require(item.get('error') is None, item['id'] + ': ' + str(item.get('error')))
+              samples = item.get('samplesMilliseconds', [])
+              require(len(samples) == 3 and all(type(value) in (int, float) and math.isfinite(value) and value >= 0 for value in samples), item['id'] + ': invalid or incomplete timing samples')
+              print(f"{item['id']}: median {median(samples):.3f} ms ({len(samples)} samples)")
+          ocr_metric = next(item for item in metrics if item['id'] == 'ocr')
+          warmup = ocr_metric.get('ocrWarmup')
+          ocr_samples = ocr_metric.get('ocrSamples')
+          require(isinstance(warmup, dict), 'OCR warmup must identify its actual backend')
+          require(isinstance(ocr_samples, list) and len(ocr_samples) == 3 and all(isinstance(item, dict) for item in ocr_samples), 'three actual OCR backend records required')
+          records = [('warmup', warmup)] + [(f'sample {index + 1}', item) for index, item in enumerate(ocr_samples)]
+          for label, item in records:
+              require(item.get('backend') in ('apple-vision', 'tesseract'), label + ': unsupported or missing OCR backend')
+              reason = item.get('fallbackReason')
+              require(reason is None or isinstance(reason, str) and bool(reason.strip()), label + ': invalid fallback reason')
+              if item['backend'] == 'tesseract':
+                  require(isinstance(reason, str) and bool(reason.strip()), label + ': Tesseract requires the Apple Vision failure reason')
+              else:
+                  require(reason is None, label + ': Apple Vision must not claim a Tesseract fallback reason')
+              print('OCR', label + ':', item['backend'])
+          uses_tesseract = any(item['backend'] == 'tesseract' for _, item in records)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('uses_tesseract=' + str(uses_tesseract).lower() + '\n')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
+              output.write('### Installed application benchmark\n\n')
+              output.write('All six operations passed on the 100-page synthetic corpus. OCR and contrast measure the first page; rendering measures first, middle and last pages. Hardware: ' + str(report.get('processor')) + '.\n\n')
+              for label, item in records:
+                  output.write('- OCR ' + label + ': **' + item['backend'] + '**\n')
+              if uses_tesseract:
+                  output.write('\nCompatibility OCR used the installed local Tesseract engine. Apple Vision capability results remain in the separate report; these timings include the actual fallback path.\n')
+              output.write('\n')
+          print('Hardware:', report.get('processor'), '|', report.get('operatingSystem'), '|', report.get('virtualization'))
+          PYTHON
+      - name: Retain native benchmark artifact
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-macOS-benchmark-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-benchmark.json
+          if-no-files-found: ignore
+      - name: Assemble relocatable binary distribution
+        id: binary_build
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.native.outcome == 'success' && steps.benchmark.outcome == 'success' }}
+        run: |
+          python3 scripts/package_binary.py --installed "$RUNNER_TEMP/pdf-installed/PDF.app" --output "$RUNNER_TEMP/PDF-distribution" --commit "$GITHUB_SHA"
+      - name: Validate portable app without host dependencies or network
+        id: binary_isolation
+        if: ${{ !cancelled() && steps.binary_build.outcome == 'success' }}
+        run: |
+          # Rename the assembled tree before execution: compiled-in staging
+          # locations must not be needed even when they happened to exist.
+          mv "$RUNNER_TEMP/PDF-distribution" "$RUNNER_TEMP/PDF-relocated distribution"
+          bash scripts/check-portable.sh "$RUNNER_TEMP/PDF-relocated distribution/PDF.app"
+      - name: Package and verify binary install and update
+        id: binary_install
+        if: ${{ !cancelled() && steps.binary_isolation.outcome == 'success' }}
+        run: |
+          mkdir -p "$RUNNER_TEMP/PDF-binary-artifact"
+          python3 - <<'PYTHON'
+          import os, sys, shutil
+          from pathlib import Path
+          sys.path.insert(0, 'scripts')
+          from package_binary import archive
+          root = Path(os.environ['RUNNER_TEMP'])
+          archive(root / 'PDF-relocated distribution', root / 'PDF-binary-artifact/PDF-arm64.tar.gz')
+          shutil.copy2(root / 'PDF-relocated distribution/manifest.json', root / 'PDF-binary-artifact/distribution-manifest.json')
+          # The authenticated archive is now sufficient; avoid retaining an
+          # unnecessary second full runtime during the two install exercises.
+          shutil.rmtree(root / 'PDF-relocated distribution')
+          PYTHON
+          PDF_ARCHIVE="$RUNNER_TEMP/PDF-binary-artifact/PDF-arm64.tar.gz"
+          PDF_SHA="$(cut -d' ' -f1 "$PDF_ARCHIVE.sha256")"
+          bash scripts/install-binary.sh "$PDF_ARCHIVE" "$PDF_SHA" "$RUNNER_TEMP/pdf-binary-installed"
+          # A forged expected checksum must fail before touching the app.
+          if bash scripts/install-binary.sh "$PDF_ARCHIVE" "$(printf '0%.0s' {1..64})" "$RUNNER_TEMP/pdf-binary-installed"; then
+            echo 'Invalid package checksum was accepted.' >&2; exit 1
+          fi
+          PDF_PREFERENCE_SENTINEL="binary-update-$GITHUB_RUN_ID-${{ matrix.runner }}"
+          /usr/bin/defaults write local.pdf.desktop PDFBinaryUpdateSentinel -string "$PDF_PREFERENCE_SENTINEL"
+          # A second real command exercises the transactional update of an
+          # existing verified bundle. Preferences are outside the destination.
+          bash scripts/install-binary.sh "$PDF_ARCHIVE" "$PDF_SHA" "$RUNNER_TEMP/pdf-binary-installed"
+          test "$(/usr/bin/defaults read local.pdf.desktop PDFBinaryUpdateSentinel)" = "$PDF_PREFERENCE_SENTINEL"
+          /usr/bin/defaults delete local.pdf.desktop PDFBinaryUpdateSentinel
+          bash scripts/check-portable.sh "$RUNNER_TEMP/pdf-binary-installed/PDF.app"
+          cp scripts/install-binary.sh "$RUNNER_TEMP/PDF-binary-artifact/install-binary.sh"
+          python3 - <<'PYTHON'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ['RUNNER_TEMP'])
+          manifest = json.loads((root / 'PDF-binary-artifact/distribution-manifest.json').read_text())
+          ai_path = root / 'PDF-local-ai.json'
+          ai_status = json.loads(ai_path.read_text()).get('status', 'invalid') if ai_path.is_file() else 'not_run'
+          report = {'schemaVersion': 1, 'commit': os.environ['GITHUB_SHA'], 'runner': '${{ matrix.runner }}',
+                    'isolatedRuntimePassed': True, 'freshInstallPassed': True, 'transactionalUpdatePassed': True, 'preferencesPreserved': True, 'wrongChecksumRejected': True,
+                    'manifestEntries': len(manifest['files']), 'developerToolsOnDestinationRequired': False,
+                    'applicationVersion': '0.7.0', 'signing': 'ad-hoc', 'appleNotarized': False,
+                    'appIntentsMetadataVerified': True, 'localAIStatus': ai_status,
+                    'localAIGenerationSamplePassed': ai_status == 'sample_passed',
+                    'physicalM4Measured': False, 'neuralEngineMeasured': False, 'energyMeasured': False,
+                    'humanVoiceOverTested': False}
+          (root / 'PDF-binary-artifact/distribution-validation.json').write_text(json.dumps(report, indent=2) + '\n')
+          PYTHON
+      - name: Retain binary package with explicit validation status
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.window_early.outcome == 'success' && steps.window_installed.outcome == 'success' && steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && 'PDF-binary-validated' || 'PDF-binary-unvalidated' }}-${{ matrix.runner }}
+          path: ${{ runner.temp }}/PDF-binary-artifact/*
+          if-no-files-found: ignore
+          retention-days: 7
+      - name: Create source distribution
+        id: package
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        run: |
+          bash scripts/package-source.sh
+          # Keep the source archive and its evidence at the artifact root.
+          # The reports are separate from the reproducible source tarball.
+          python3 - <<'PYTHON'
+          import os
+          from pathlib import Path
+          for name in ('PDF-vision-audit.json', 'PDF-benchmark.json', 'PDF-local-ai.json'):
+              source = Path(os.environ['RUNNER_TEMP']) / name
+              if source.is_file():
+                  with (Path('dist') / name).open('xb') as destination:
+                      destination.write(source.read_bytes())
+          PYTHON
+      - name: Retain source artifact with validation status
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: ${{ steps.window_early.outcome == 'success' && steps.window_installed.outcome == 'success' && steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          path: |
+            dist/PDF-source.tar.gz
+            dist/PDF-source.tar.gz.sha256
+            dist/PDF-vision-audit.json
+            dist/PDF-benchmark.json
+            dist/PDF-local-ai.json
+          if-no-files-found: ignore

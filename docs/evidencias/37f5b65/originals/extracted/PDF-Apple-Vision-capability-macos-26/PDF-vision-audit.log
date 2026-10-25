@@ -1,0 +1,15 @@
+IOServiceMatchingfailed for: AppleM2ScalerParavirtDriver
+CTLD took 0.00019908 seconds
+CGPDFImage(0x71ecb5180): Creating image with subsample_factor = 1
+
+CTLD took 4.39882e-05 seconds
+Apple Vision capability starting: searchable-pdf
+CGPDFImage(0x71ecb50a0): Creating image with subsample_factor = 1
+
+CTLD took 0.000211954 seconds
+CTLD took 0.000275016 seconds
+CTLD took 0.000186086 seconds
+Apple Vision capability starting: isolated-process
+Apple Vision capability searchable-pdf: passed
+Apple Vision capability isolated-process: passed
+Vision OCR configuration: revision=3; accurate=true; automaticLanguage=false; languages=en-US; cpuOnly=false; image=2262x3200; bitsPerComponent=8; bitsPerPixel=32; bitmapInfo=16385; colorSpace=kCGColorSpaceSRGB; alpha=1; orientation=up

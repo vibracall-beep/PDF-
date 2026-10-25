@@ -1,0 +1,113 @@
+{
+  "runID": 40239018570,
+  "sourceSHA": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "runAttempt": 1,
+  "status": "in_progress",
+  "conclusion": null,
+  "jobs": [
+    {
+      "id": 121306620661,
+      "name": "native-application (macos-26)",
+      "status": "in_progress",
+      "conclusion": null
+    },
+    {
+      "id": 121306620477,
+      "name": "native-application (xcode-27)",
+      "status": "in_progress",
+      "conclusion": null
+    }
+  ],
+  "publishedArtifacts": 12,
+  "processedThisPass": [
+    {
+      "name": "PDF-local-AI-macos-26",
+      "files": 1,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-macOS-benchmark-xcode-27",
+      "files": 1,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-native-checks-xcode-27",
+      "files": 1,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-macOS-preview-macos-26",
+      "files": 42,
+      "inventoryComplete": true,
+      "previewValidationPassed": true,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-macOS-preview-xcode-27",
+      "files": 42,
+      "inventoryComplete": true,
+      "previewValidationPassed": true,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-Apple-Vision-capability-xcode-27",
+      "files": 2,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-macOS-benchmark-macos-26",
+      "files": 1,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-Apple-Vision-capability-macos-26",
+      "files": 2,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-local-AI-xcode-27",
+      "files": 1,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    },
+    {
+      "name": "PDF-window-lifecycle-macos-26",
+      "files": 6,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": true
+    },
+    {
+      "name": "PDF-window-lifecycle-xcode-27",
+      "files": 6,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": true
+    },
+    {
+      "name": "PDF-native-checks-macos-26",
+      "files": 1,
+      "inventoryComplete": true,
+      "previewValidationPassed": null,
+      "lifecycleAllStagesPassed": null
+    }
+  ],
+  "deferred": [],
+  "verifiedArchives": 12,
+  "snapshotDirectory": "/workspace/.cache/pdf-native-37f5b65/snapshots/1792967867550138392-126956",
+  "noBinaryDownloaded": true,
+  "completeApplicationApproved": false
+}

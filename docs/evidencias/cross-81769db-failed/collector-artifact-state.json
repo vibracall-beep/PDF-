@@ -1,0 +1,46 @@
+{
+  "attempts": {
+    "12614797387": {
+      "id": 12614797387,
+      "name": "PDF-cross-platform-unvalidated",
+      "controllerSHA": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "sourceSHA": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+      "runID": 40234132628,
+      "sourceRunID": 40229486932,
+      "archiveBytes": 8404,
+      "githubDigest": "sha256:234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "attemptedAt": 1792964453.8549047,
+      "downloaded": true,
+      "archiveSHA256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "directory": "/tmp/pdf-cross-81769db/extracted/PDF-cross-platform-unvalidated",
+      "extractionVerified": true,
+      "files": [
+        {
+          "name": "PDF-cross-gui-before.json",
+          "bytes": 1491,
+          "sha256": "6fe096a717e07a485310a9bcc56f38c33d4bd565d0da0740bf51b73032eb251b"
+        },
+        {
+          "name": "PDF-cross-gui-capture.log",
+          "bytes": 2101,
+          "sha256": "186a0cf8fc91a66d5e2e6f450a314a476337418c176080524d7e7b0fc22afed6"
+        },
+        {
+          "name": "PDF-cross-isolation.log",
+          "bytes": 29593,
+          "sha256": "80e89e80e763cb3701c711fe218b4ba5026a0bd351c9605ea898677406df29f2"
+        },
+        {
+          "name": "PDF-cross-origin.json",
+          "bytes": 461,
+          "sha256": "7319371f738421b189aa1f8adcca7cbc3163696fad3c02d1978ee34d6796bf78"
+        },
+        {
+          "name": "PDF-cross-verified.json",
+          "bytes": 796,
+          "sha256": "7777639f6d1e2049770f9f4d661003ffd0e957154c40c11e84a139172ce5d2e9"
+        }
+      ]
+    }
+  }
+}

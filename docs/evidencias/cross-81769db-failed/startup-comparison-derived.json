@@ -1,0 +1,404 @@
+{
+  "cross817": {
+    "path": "/tmp/pdf-cross-81769db/originals/job-121291948830.log",
+    "bytes": 146350,
+    "sha256": "18c9823aa3be8c2c35ba4a51b77eb0f42eb1965df31cac922788d5e1c8988746",
+    "startup": [
+      {
+        "line": 1303,
+        "text": "2026-10-25T21:23:44.5562170Z PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1304,
+        "text": "2026-10-25T21:23:44.5604590Z PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1305,
+        "text": "2026-10-25T21:23:44.5605450Z PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1306,
+        "text": "2026-10-25T21:23:44.5656470Z PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1307,
+        "text": "2026-10-25T21:23:44.5669500Z PDF preview startup: preview session init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1308,
+        "text": "2026-10-25T21:23:44.5670240Z PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1309,
+        "text": "2026-10-25T21:23:44.5720130Z PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1310,
+        "text": "2026-10-25T21:23:44.7326150Z PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1311,
+        "text": "2026-10-25T21:23:44.7342310Z PDF preview startup: workspace ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1312,
+        "text": "2026-10-25T21:23:44.7343020Z PDF preview startup: preview session init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1313,
+        "text": "2026-10-25T21:23:44.7344170Z PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1314,
+        "text": "2026-10-25T21:23:44.8333550Z PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1315,
+        "text": "2026-10-25T21:23:44.8410740Z PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1316,
+        "text": "2026-10-25T21:23:45.1412270Z PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown"
+      },
+      {
+        "line": 1317,
+        "text": "2026-10-25T21:23:45.2248970Z PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1318,
+        "text": "2026-10-25T21:23:45.2360270Z PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=false"
+      },
+      {
+        "line": 1319,
+        "text": "2026-10-25T21:23:45.2433470Z PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=false"
+      },
+      {
+        "line": 1320,
+        "text": "2026-10-25T21:23:47.2418940Z PDF preview startup: post-launch two-second observation; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=false"
+      }
+    ],
+    "phaseCount": 0,
+    "captureStartedCount": 0,
+    "captureCompletedCount": 0
+  },
+  "cross437": {
+    "path": "/tmp/pdf-cross-81769db/originals/comparison-cross437-job.txt",
+    "bytes": 229022,
+    "sha256": "d90f0c22aaeff167cb9e9d06655b89f5d4a2d102c4a2a83042c2f1f9627eb45a",
+    "startup": [
+      {
+        "line": 1235,
+        "text": "2026-10-24T23:27:35.2941910Z PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1236,
+        "text": "2026-10-24T23:27:35.2983480Z PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1237,
+        "text": "2026-10-24T23:27:35.2984550Z PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1238,
+        "text": "2026-10-24T23:27:35.3020180Z PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1239,
+        "text": "2026-10-24T23:27:35.3032610Z PDF preview startup: preview session init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1240,
+        "text": "2026-10-24T23:27:35.3033630Z PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1241,
+        "text": "2026-10-24T23:27:35.3061040Z PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1242,
+        "text": "2026-10-24T23:27:35.4226250Z PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1243,
+        "text": "2026-10-24T23:27:35.4240620Z PDF preview startup: workspace ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1244,
+        "text": "2026-10-24T23:27:35.4241330Z PDF preview startup: preview session init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1245,
+        "text": "2026-10-24T23:27:35.4241940Z PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1246,
+        "text": "2026-10-24T23:27:35.4969100Z PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1247,
+        "text": "2026-10-24T23:27:35.5097810Z PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1248,
+        "text": "2026-10-24T23:27:35.7219170Z PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown"
+      },
+      {
+        "line": 1249,
+        "text": "2026-10-24T23:27:35.8649690Z PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1250,
+        "text": "2026-10-24T23:27:36.2238550Z PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1251,
+        "text": "2026-10-24T23:27:36.6586440Z PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1252,
+        "text": "2026-10-24T23:27:36.6587170Z PDF preview startup: window observer creation end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1253,
+        "text": "2026-10-24T23:27:36.7299750Z PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1254,
+        "text": "2026-10-24T23:27:37.2558210Z PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 1255,
+        "text": "2026-10-24T23:27:37.2602980Z PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true"
+      },
+      {
+        "line": 1258,
+        "text": "2026-10-24T23:27:37.7320540Z PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true"
+      }
+    ],
+    "phaseCount": 259,
+    "captureStartedCount": 32,
+    "captureCompletedCount": 32
+  },
+  "native817-macos26": {
+    "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs/0_native-application (macos-26).txt",
+    "bytes": 1289471,
+    "sha256": "56e5dbe2af24599cf0ec270b040455118e4980842c012d2b5b2a85e8058d11ff",
+    "startup": [
+      {
+        "line": 5409,
+        "text": "2026-10-25T20:30:16.6124530Z PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5410,
+        "text": "2026-10-25T20:30:16.6172970Z PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5411,
+        "text": "2026-10-25T20:30:16.6174770Z PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5412,
+        "text": "2026-10-25T20:30:16.6176500Z PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5413,
+        "text": "2026-10-25T20:30:16.6177810Z PDF preview startup: preview session init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5414,
+        "text": "2026-10-25T20:30:16.6179040Z PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5415,
+        "text": "2026-10-25T20:30:16.6191160Z PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5416,
+        "text": "2026-10-25T20:30:16.7093890Z PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5417,
+        "text": "2026-10-25T20:30:16.7119710Z PDF preview startup: workspace ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5418,
+        "text": "2026-10-25T20:30:16.7121150Z PDF preview startup: preview session init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5419,
+        "text": "2026-10-25T20:30:16.7122340Z PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5420,
+        "text": "2026-10-25T20:30:16.7639700Z PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5421,
+        "text": "2026-10-25T20:30:16.7661290Z PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5422,
+        "text": "2026-10-25T20:30:17.0665620Z PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown"
+      },
+      {
+        "line": 5423,
+        "text": "2026-10-25T20:30:17.2240840Z PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5424,
+        "text": "2026-10-25T20:30:17.5040640Z PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5425,
+        "text": "2026-10-25T20:30:17.5041290Z PDF preview startup: window observer creation end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5426,
+        "text": "2026-10-25T20:30:17.5579490Z PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5427,
+        "text": "2026-10-25T20:30:18.8654100Z PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5428,
+        "text": "2026-10-25T20:30:18.8943270Z PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true"
+      },
+      {
+        "line": 5429,
+        "text": "2026-10-25T20:30:20.3882060Z PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 5432,
+        "text": "2026-10-25T20:30:20.4287500Z PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true"
+      }
+    ],
+    "phaseCount": 269,
+    "captureStartedCount": 33,
+    "captureCompletedCount": 33
+  },
+  "native817-xcode27": {
+    "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs/1_native-application (xcode-27).txt",
+    "bytes": 2770786,
+    "sha256": "a08332d21b8fb7e6c589ea908b5b062c9ece32db0c86030aca8e4951c77fb3a5",
+    "startup": [
+      {
+        "line": 26489,
+        "text": "2026-10-25T20:31:01.2652450Z PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26490,
+        "text": "2026-10-25T20:31:01.2673430Z PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26491,
+        "text": "2026-10-25T20:31:01.2674230Z PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26492,
+        "text": "2026-10-25T20:31:01.2681850Z PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26493,
+        "text": "2026-10-25T20:31:01.2683280Z PDF preview startup: preview session init begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26494,
+        "text": "2026-10-25T20:31:01.2683830Z PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26495,
+        "text": "2026-10-25T20:31:01.2692910Z PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26496,
+        "text": "2026-10-25T20:31:01.3019420Z PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26497,
+        "text": "2026-10-25T20:31:01.3023890Z PDF preview startup: workspace ready; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26498,
+        "text": "2026-10-25T20:31:01.3024450Z PDF preview startup: preview session init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26499,
+        "text": "2026-10-25T20:31:01.3024940Z PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26500,
+        "text": "2026-10-25T20:31:01.3241760Z PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26501,
+        "text": "2026-10-25T20:31:01.3261470Z PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26502,
+        "text": "2026-10-25T20:31:01.5551140Z PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown"
+      },
+      {
+        "line": 26503,
+        "text": "2026-10-25T20:31:01.5838870Z PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26504,
+        "text": "2026-10-25T20:31:01.6634880Z PDF preview startup: WindowGroup content builder evaluated; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26505,
+        "text": "2026-10-25T20:31:01.8005080Z PDF preview startup: window observer creation begin; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26506,
+        "text": "2026-10-25T20:31:01.8005640Z PDF preview startup: window observer creation end; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26507,
+        "text": "2026-10-25T20:31:01.8493090Z PDF preview startup: window observer received WindowGroup window; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26508,
+        "text": "2026-10-25T20:31:02.3055460Z PDF preview startup: WindowGroup content appeared; mainThread=true; swiftTask=false"
+      },
+      {
+        "line": 26509,
+        "text": "2026-10-25T20:31:02.3079870Z PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true"
+      },
+      {
+        "line": 26512,
+        "text": "2026-10-25T20:31:02.8085580Z PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=2; visible=1; contentViews=2; key=false; main=false; defaultLaunch=true"
+      }
+    ],
+    "phaseCount": 269,
+    "captureStartedCount": 33,
+    "captureCompletedCount": 33
+  },
+  "workflowComparison": {
+    "equalBytes": true,
+    "sha256": "a71255eec9f8f8c15fc8dda1b1e0d8b18a0a7847a0fcece6dc0259793b568e3e"
+  },
+  "sourceComparison": {
+    "scripts/run-with-timeout.py": {
+      "equalBytes": true,
+      "beforeSHA256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693",
+      "afterSHA256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    },
+    "Sources/PDF/WorkspaceLifecycle.swift": {
+      "equalBytes": false,
+      "beforeSHA256": "5d26f4701156a94b5326e823ccea1b39d37f7253a1d05ed2872caf2442f5888c",
+      "afterSHA256": "fdc3508d88ed70f3dd110025014ab9b4c627734d6a96ecc3d69e69acb0aecfe7"
+    },
+    "Sources/PDF/MacPreview.swift": {
+      "equalBytes": false,
+      "beforeSHA256": "8b361a01ebd39825b3d6e54048cd00f6981f623c7f527c0b1eb8b1f032f7d1b8",
+      "afterSHA256": "cdacd7643628d6da05d482d16ec322aa191cb4310d44bdc0ddfb1f5406d49ce7"
+    },
+    "Sources/PDF/PDFApp.swift": {
+      "equalBytes": false,
+      "beforeSHA256": "34ada0e8657009ac93337afd451f4c399c5a06abb6f6ff0f865eeab8525f4de4",
+      "afterSHA256": "314d89421d0538b393b35975f773a6eb613e9694c78d8275a1981664d1bba5a4"
+    }
+  }
+}

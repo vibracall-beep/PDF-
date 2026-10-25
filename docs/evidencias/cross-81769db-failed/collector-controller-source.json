@@ -1,0 +1,30 @@
+{
+  "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+  "files": [
+    {
+      "path": "diagnostics/delivery_archives.py",
+      "bytes": 17384,
+      "sha256": "deac8885c9d2bd396a1530b19a027a6773162af50e9226b986237de117d14635"
+    },
+    {
+      "path": "diagnostics/portable_compatibility.py",
+      "bytes": 13339,
+      "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d"
+    },
+    {
+      "path": "diagnostics/cross_gui_evidence.py",
+      "bytes": 16647,
+      "sha256": "d2a0d10fa26787e831d055875edeedb79ff9249cc0ca7ea107062120e777bd85"
+    },
+    {
+      "path": "scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18"
+    },
+    {
+      "path": "scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "expectedArchiveSHA256": "71528d864bb9425516fe877318a734855ee0c74c818f021d53b13eca790297f5",
+  "repository": "vibracall-beep/PDF-",
+  "schemaVersion": 1,
+  "sourceArtifactBytes": 1445306534,
+  "sourceArtifactID": 12613568897,
+  "sourceArtifactName": "PDF-binary-validated-macos-26",
+  "sourceCommit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "sourceRunID": 40229486932,
+  "sourceRunner": "macos-26",
+  "sourceWorkflow": ".github/workflows/macos.yml"
+}

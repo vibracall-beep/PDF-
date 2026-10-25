@@ -35,7 +35,7 @@ O instalador retido nos dois artefatos tem **9.062 bytes**, SHA-256 **`3c0943ea5
 
 O manifesto macOS 26 mede **12.263.013 bytes**, SHA-256 `540201d729049e850d0a51e80232e020d1a16dcd5c20483356cd295e14860ebb`, com bundle de **3.489.762.935 bytes lógicos**. A fórmula autenticada do preflight exige **10.068.713.145 bytes**, exibidos como **9.603 MiB livres após a cópia interna do tar**. Considerando também essa cópia e margem, a recomendação operacional é 15 GB livres além do download. Os [totais e cálculo por sistema](binary-metadata.json) distinguem ocupação lógica, estimativa e tamanho comprimido; o preflight não reserva blocos nem depende de clones APFS.
 
-O tar macOS 26 segue para [40234132628](https://github.com/vibracall-beep/PDF-/actions/runs/40234132628), sem recompilação, com controlador `0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e` e produto `81769db`. **A aprovação cruzada e a retenção privada da entrega ainda não estão registradas aqui.** Não se transfere a aprovação de dois pacotes construídos separadamente para o mesmo arquivo entre sistemas.
+O tar macOS 26 foi usado em [40234132628](https://github.com/vibracall-beep/PDF-/actions/runs/40234132628), sem recompilação, com controlador `0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e` e produto `81769db`. Esse teste posterior **falhou na captura após 300 segundos, sem janela nem PNG**, apesar da instalação e operações nativas anteriores aprovadas. A [retenção própria da falha cruzada](../cross-81769db-failed/README.md) preserva os originais. **A aprovação nativa específica deste conjunto não aprova o teste cruzado ou a entrega privada 0.7, que permanece bloqueada.**
 
 ## Interface e revisão visual
 

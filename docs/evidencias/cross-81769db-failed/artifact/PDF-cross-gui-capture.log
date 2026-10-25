@@ -1,0 +1,19 @@
+PDF preview startup: entrypoint begin; acquire bundle lease; mainThread=true; swiftTask=false
+PDF preview startup: bundle lease ready; dispatch CLI workers; mainThread=true; swiftTask=false
+PDF preview startup: CLI dispatch complete; enter SwiftUI App.main synchronously; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init begin; mainThread=true; swiftTask=false
+PDF preview startup: preview session init begin; mainThread=true; swiftTask=false
+PDF preview startup: isolated defaults ready; mainThread=true; swiftTask=false
+PDF preview startup: isolated scratch directory ready; mainThread=true; swiftTask=false
+PDF preview startup: appearance preferences ready; mainThread=true; swiftTask=false
+PDF preview startup: workspace ready; mainThread=true; swiftTask=false
+PDF preview startup: preview session init end; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp init end; mainThread=true; swiftTask=false
+PDF preview startup: application delegate initialized; mainThread=true; swiftTask=false
+PDF preview startup: PDFApp body evaluated; mainThread=true; swiftTask=false
+PDF preview startup: application will finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=unknown
+PDF preview startup: main queue startup marker delivered; mainThread=true; swiftTask=false
+PDF preview startup: application did finish launching; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=false
+PDF preview startup: post-launch main queue turn; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=false
+PDF preview startup: post-launch two-second observation; mainThread=true; swiftTask=false; policy=0; running=true; active=false; windows=0; visible=0; contentViews=0; key=false; main=false; defaultLaunch=false
+Validation failed: command exceeded 300 seconds; terminating its process group.

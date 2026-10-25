@@ -1,0 +1,203 @@
+{
+  "schemaVersion": 1,
+  "productCommit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+  "runID": 40234132628,
+  "sourceRunID": 40229486932,
+  "runConclusion": "failure",
+  "failedStep": "Capture the installed binary GUI once outside the dependency sandbox",
+  "noBinaryOrPNGIncluded": true,
+  "files": [
+    {
+      "path": "collector-run.json",
+      "bytes": 12374,
+      "sha256": "14edebab26798f4dd988976f524a402eb4d8cb951b3d4cdeb28dc4525e5cc3f2",
+      "origin": "Authenticated collector response or verification record, unchanged",
+      "originalName": "collector-run.json"
+    },
+    {
+      "path": "collector-jobs.json",
+      "bytes": 4062,
+      "sha256": "c0d80717abbbb7c39b1210f63faf3e08377a7c51fbeab3e4a6fdbe8eda74c116",
+      "origin": "Authenticated collector response or verification record, unchanged",
+      "originalName": "collector-jobs.json"
+    },
+    {
+      "path": "collector-artifacts.json",
+      "bytes": 726,
+      "sha256": "50eb782a7ed7b62fc76d18011ec867425375302d8e4aaa0ebf528e5e8dd405bb",
+      "origin": "Authenticated collector response or verification record, unchanged",
+      "originalName": "collector-artifacts.json"
+    },
+    {
+      "path": "collector-artifact-state.json",
+      "bytes": 1634,
+      "sha256": "cda99fd3394d6c995c2dbbc47cbe8933f9c3938f9e143f8b40ef21a88af5165b",
+      "origin": "Authenticated collector response or verification record, unchanged",
+      "originalName": "collector-artifact-state.json"
+    },
+    {
+      "path": "collector-controller-source.json",
+      "bytes": 935,
+      "sha256": "d0022569f6c94086365cc8c5b2960d3eb75ff9910be2b9952802496547de85c1",
+      "origin": "Authenticated collector response or verification record, unchanged",
+      "originalName": "collector-controller-source.json"
+    },
+    {
+      "path": "originals/comparison-cross437-job.log",
+      "bytes": 229022,
+      "sha256": "d90f0c22aaeff167cb9e9d06655b89f5d4a2d102c4a2a83042c2f1f9627eb45a",
+      "origin": "Original authenticated API/log collection or original historical ZIP member, unchanged",
+      "originalName": "comparison-cross437-job.txt"
+    },
+    {
+      "path": "originals/job-121291948830.log",
+      "bytes": 146350,
+      "sha256": "18c9823aa3be8c2c35ba4a51b77eb0f42eb1965df31cac922788d5e1c8988746",
+      "origin": "Original authenticated API/log collection or original historical ZIP member, unchanged",
+      "originalName": "job-121291948830.log"
+    },
+    {
+      "path": "originals/annotations-121291948830.json",
+      "bytes": 7674,
+      "sha256": "a6472b35d570adfd058933c044d5067adaecab88db03a7d741c331916fa939dd",
+      "origin": "Original authenticated API/log collection or original historical ZIP member, unchanged",
+      "originalName": "annotations-121291948830.json"
+    },
+    {
+      "path": "originals/jobs-40234132628.json",
+      "bytes": 4062,
+      "sha256": "c0d80717abbbb7c39b1210f63faf3e08377a7c51fbeab3e4a6fdbe8eda74c116",
+      "origin": "Original authenticated API/log collection or original historical ZIP member, unchanged",
+      "originalName": "jobs-40234132628.json"
+    },
+    {
+      "path": "originals/run-40234132628.json",
+      "bytes": 12374,
+      "sha256": "14edebab26798f4dd988976f524a402eb4d8cb951b3d4cdeb28dc4525e5cc3f2",
+      "origin": "Original authenticated API/log collection or original historical ZIP member, unchanged",
+      "originalName": "run-40234132628.json"
+    },
+    {
+      "path": "cross-unvalidated-original.zip",
+      "bytes": 8404,
+      "sha256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "origin": "Original GitHub artifact ZIP, authenticated digest matched",
+      "artifactID": 12614797387,
+      "artifactName": "PDF-cross-platform-unvalidated",
+      "githubDigest": "sha256:234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9"
+    },
+    {
+      "path": "artifact/PDF-cross-gui-before.json",
+      "bytes": 1491,
+      "sha256": "6fe096a717e07a485310a9bcc56f38c33d4bd565d0da0740bf51b73032eb251b",
+      "origin": "Exact original artifact member",
+      "artifactID": 12614797387,
+      "archiveSHA256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "member": "PDF-cross-gui-before.json"
+    },
+    {
+      "path": "artifact/PDF-cross-gui-capture.log",
+      "bytes": 2101,
+      "sha256": "186a0cf8fc91a66d5e2e6f450a314a476337418c176080524d7e7b0fc22afed6",
+      "origin": "Exact original artifact member",
+      "artifactID": 12614797387,
+      "archiveSHA256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "member": "PDF-cross-gui-capture.log"
+    },
+    {
+      "path": "artifact/PDF-cross-isolation.log",
+      "bytes": 29593,
+      "sha256": "80e89e80e763cb3701c711fe218b4ba5026a0bd351c9605ea898677406df29f2",
+      "origin": "Exact original artifact member",
+      "artifactID": 12614797387,
+      "archiveSHA256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "member": "PDF-cross-isolation.log"
+    },
+    {
+      "path": "artifact/PDF-cross-origin.json",
+      "bytes": 461,
+      "sha256": "7319371f738421b189aa1f8adcca7cbc3163696fad3c02d1978ee34d6796bf78",
+      "origin": "Exact original artifact member",
+      "artifactID": 12614797387,
+      "archiveSHA256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "member": "PDF-cross-origin.json"
+    },
+    {
+      "path": "artifact/PDF-cross-verified.json",
+      "bytes": 796,
+      "sha256": "7777639f6d1e2049770f9f4d661003ffd0e957154c40c11e84a139172ce5d2e9",
+      "origin": "Exact original artifact member",
+      "artifactID": 12614797387,
+      "archiveSHA256": "234d512fcc99d9bf2689b21c2122a45c65059314831fbe7d3105a882eb7757d9",
+      "member": "PDF-cross-verified.json"
+    },
+    {
+      "path": "controller/diagnostics/delivery_archives.py",
+      "bytes": 17384,
+      "sha256": "deac8885c9d2bd396a1530b19a027a6773162af50e9226b986237de117d14635",
+      "origin": "Exact control Git blob",
+      "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "gitPath": "diagnostics/delivery_archives.py"
+    },
+    {
+      "path": "controller/diagnostics/portable_compatibility.py",
+      "bytes": 13339,
+      "sha256": "6bab220a362499202ce530b1fd34bfebfc63a04e4ae27fefe159b2d99e0cab1d",
+      "origin": "Exact control Git blob",
+      "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "gitPath": "diagnostics/portable_compatibility.py"
+    },
+    {
+      "path": "controller/diagnostics/cross_gui_evidence.py",
+      "bytes": 16647,
+      "sha256": "d2a0d10fa26787e831d055875edeedb79ff9249cc0ca7ea107062120e777bd85",
+      "origin": "Exact control Git blob",
+      "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "gitPath": "diagnostics/cross_gui_evidence.py"
+    },
+    {
+      "path": "controller/scripts/check_preview_artifacts.py",
+      "bytes": 10439,
+      "sha256": "3ef912979b435d856ea7cdbb7a318c950586608a9de1f4e46982f483d2f19b18",
+      "origin": "Exact control Git blob",
+      "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "gitPath": "scripts/check_preview_artifacts.py"
+    },
+    {
+      "path": "controller/scripts/check_accessibility_report.py",
+      "bytes": 4010,
+      "sha256": "68e79e4df010e97f55a1b256e0e96c30ee6d827b9db9293f17d2bac6fd8105b2",
+      "origin": "Exact control Git blob",
+      "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "gitPath": "scripts/check_accessibility_report.py"
+    },
+    {
+      "path": "controller/portable-compatibility.yml",
+      "bytes": 6951,
+      "sha256": "a71255eec9f8f8c15fc8dda1b1e0d8b18a0a7847a0fcece6dc0259793b568e3e",
+      "origin": "Exact control workflow; byte-identical to historical cross437 control",
+      "controlCommit": "0c3aad82d319a8985ebc8b7c6fb868d5f91c5f0e",
+      "gitPath": ".github/workflows/portable-compatibility.yml",
+      "historicalControlCommit": "6daf46294b10f35ec8252fd473f1d0865cd4bf8f"
+    },
+    {
+      "path": "startup-comparison-derived.json",
+      "bytes": 18494,
+      "sha256": "118583978a2d6965dee4266b2ea32ee23181dcf036a1ee4a5e4619c3daa810c6",
+      "origin": "Derived factual comparison, unchanged; referenced original hashes verified separately"
+    },
+    {
+      "path": "startup-comparison-readonly.md",
+      "bytes": 4374,
+      "sha256": "eec8695cdb290fd3d8dcf5e0796d13733ff3e128b4417f9bcf6f5e0b34c0035e",
+      "origin": "Derived factual comparison, unchanged; referenced original hashes verified separately"
+    },
+    {
+      "path": "recheck.json",
+      "bytes": 689,
+      "sha256": "428fb6d7d08d4021ddac2116f9a2aba45e7726b49dd039cea9a48d6b2de7fb8c",
+      "origin": "Independent derived recount of exact failed-job and capture originals"
+    }
+  ]
+}

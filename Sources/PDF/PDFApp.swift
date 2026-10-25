@@ -174,6 +174,7 @@ let tools: [Tool] = [
 struct PDFApp: App {
     @StateObject private var model:Workspace
     @StateObject private var appearancePreferences:AppearancePreferences
+    @StateObject private var applicationAppearance:ApplicationAppearanceController
     @StateObject private var preview:MacPreviewSession
     @StateObject private var sceneCoordinator:WorkspaceSceneCoordinator
     private let lifecycleAudit:WindowSceneLifecycleAudit?
@@ -183,18 +184,23 @@ struct PDFApp: App {
         do {
             let args = CommandLine.arguments
             var destination:URL?
-            if let index = args.firstIndex(of:"--render-preview") {
+            let appearanceOnly = args.contains(ToolbarRenderingAudit.argument)
+            guard !(appearanceOnly && args.contains("--render-preview")) else {
+                throw NSError(domain:"PDF.Preview",code:1,userInfo:[NSLocalizedDescriptionKey:"Escolha somente um modo de prévia."])
+            }
+            if let index = args.firstIndex(of:appearanceOnly ? ToolbarRenderingAudit.argument : "--render-preview") {
                 guard args.indices.contains(index+1),!args[index+1].hasPrefix("--") else { throw NSError(domain:"PDF.Preview",code:1,userInfo:[NSLocalizedDescriptionKey:"Informe o caminho PNG da prévia."]) }
                 destination = URL(fileURLWithPath:args[index+1])
             }
             let session = try MacPreviewSession(destination:destination,
-                isolateState:args.contains(WindowSceneLifecycleAudit.argument))
+                isolateState:args.contains(WindowSceneLifecycleAudit.argument),appearanceOnly:appearanceOnly)
             let coordinator = WorkspaceSceneCoordinator()
             _sceneCoordinator = StateObject(wrappedValue:coordinator)
             lifecycleAudit = try WindowSceneLifecycleAudit(arguments:args,session:session,coordinator:coordinator)
             _preview = StateObject(wrappedValue:session)
             _model = StateObject(wrappedValue:session.model)
             _appearancePreferences = StateObject(wrappedValue:session.preferences)
+            _applicationAppearance = StateObject(wrappedValue:ApplicationAppearanceController(preferences:session.preferences))
         } catch {
             CIDiagnostics.record(String(describing:error),level:"error",title:"PDF preview")
             FileHandle.standardError.write(Data("PDF initialization failed: \(error)\n".utf8)); exit(1)
@@ -241,8 +247,10 @@ struct PDFApp: App {
                 else { ContentView() }
             }
                 .environmentObject(model).environmentObject(appearancePreferences).environmentObject(sceneCoordinator)
+                .environmentObject(applicationAppearance)
                 .defaultAppStorage(preview.defaults)
                 .tint(appearancePreferences.accent).preferredColorScheme(appearancePreferences.preferredScheme)
+                .applicationAppearance(applicationAppearance)
                 .frame(minWidth:1050,minHeight:720)
                 .onOpenURL { model.open(url:$0) }
                 .background(WorkspaceWindowGuard(model:model,sceneCoordinator:sceneCoordinator,lifecycleAudit:lifecycleAudit).frame(width:0,height:0))
@@ -270,7 +278,12 @@ struct PDFApp: App {
                 "action:new-tab": { sceneCoordinator.requestPresentation(reason:.openDocument,action:{ model.open() }) }
             ])
         }
-        Settings { PreferencesView().environmentObject(model).environmentObject(appearancePreferences) }
+        Settings {
+            PreferencesView().environmentObject(model).environmentObject(appearancePreferences)
+                .environmentObject(applicationAppearance)
+                .tint(appearancePreferences.accent).preferredColorScheme(appearancePreferences.preferredScheme)
+                .applicationAppearance(applicationAppearance)
+        }
     }
 
 }
@@ -279,6 +292,7 @@ struct ContentView: View {
     @EnvironmentObject var model:Workspace
     @EnvironmentObject var preferences:AppearancePreferences
     @EnvironmentObject private var sceneCoordinator:WorkspaceSceneCoordinator
+    @EnvironmentObject private var applicationAppearance:ApplicationAppearanceController
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var query = ""
@@ -320,13 +334,13 @@ struct ContentView: View {
                 .animation(preferences.animation(reduceMotion:reduceMotion),value:model.section)
         }
         .tint(tint).preferredColorScheme(preferences.preferredScheme)
-        .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model).environmentObject(preferences) }
-        .sheet(isPresented:$showCustomization) { CustomizationView().environmentObject(model).environmentObject(preferences) }
-        .sheet(isPresented:$showRecovery) { RecoveryDocumentsView().environmentObject(model).environmentObject(preferences) }
+        .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model).environmentObject(preferences).applicationAppearance(applicationAppearance) }
+        .sheet(isPresented:$showCustomization) { CustomizationView().environmentObject(model).environmentObject(preferences).applicationAppearance(applicationAppearance) }
+        .sheet(isPresented:$showRecovery) { RecoveryDocumentsView().environmentObject(model).environmentObject(preferences).applicationAppearance(applicationAppearance) }
         .sheet(isPresented:$showPalette, onDismiss: {
             if let command = pendingCommand { pendingCommand = nil; executeCommand(command, reader: paletteReaderActions) }
             paletteReaderActions = nil
-        }) { CommandPaletteView(onSelect: { pendingCommand = $0 }).environmentObject(preferences) }
+        }) { CommandPaletteView(onSelect: { pendingCommand = $0 }).environmentObject(preferences).applicationAppearance(applicationAppearance) }
         .focusedSceneValue(\.advancedCommandActions, AdvancedCommandActions(showPalette: {
             paletteReaderActions = readerActions; showPalette = true
         }, execute: { executeCommand($0, reader: readerActions) }))

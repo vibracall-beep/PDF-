@@ -10,6 +10,7 @@ import Darwin
 enum PreviewStartupTrace {
     static func record(_ phase: StaticString, details: String = "") {
         guard CommandLine.arguments.contains("--render-preview")
+                || CommandLine.arguments.contains(ToolbarRenderingAudit.argument)
                 || CommandLine.arguments.contains(WindowSceneLifecycleAudit.argument) else { return }
         let hasSwiftTask = withUnsafeCurrentTask { $0 != nil }
         let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0); swiftTask=\(hasSwiftTask)\(details)\n"
@@ -32,6 +33,7 @@ enum PreviewStartupTrace {
 extension PreviewStartupTrace {
     @MainActor static func applicationState(_ phase: StaticString, defaultLaunch: Bool? = nil) {
         guard CommandLine.arguments.contains("--render-preview")
+                || CommandLine.arguments.contains(ToolbarRenderingAudit.argument)
                 || CommandLine.arguments.contains(WindowSceneLifecycleAudit.argument) else { return }
         guard let app = NSApp else { record(phase, details: "; application=absent"); return }
         let windows = app.windows
@@ -346,6 +348,7 @@ enum MacPreview {
     let model:Workspace
     let preferences:AppearancePreferences
     private let destination:URL?
+    private let appearanceOnly:Bool
     private let suiteName:String?
     private let scratchDirectory:URL?
     private weak var window:NSWindow?
@@ -359,13 +362,18 @@ enum MacPreview {
     private var finished = false
     private var captureTask:Task<Void,Never>?
     private var watchdog:Task<Void,Never>?
+    private var appearanceCleanupTask:Task<Void,Never>?
+    private var appearanceFrames:[ToolbarRenderingAudit.Frame] = []
+    private var appearanceStartedAt:Double = 0
     var isEnabled:Bool { destination != nil }
     var isIsolated:Bool { suiteName != nil }
     var routeIdentity:String { route.identity }
 
-    init(destination:URL? = nil, isolateState:Bool = false) throws {
+    init(destination:URL? = nil, isolateState:Bool = false, appearanceOnly:Bool = false) throws {
         PreviewStartupTrace.record("preview session init begin")
         self.destination = destination
+        self.appearanceOnly = appearanceOnly
+        guard !appearanceOnly || destination != nil else { throw MacPreview.failure(32,"O diagnóstico de aparência exige um caminho PNG explícito.") }
         if destination != nil || isolateState {
             let suite = "PDF-preview-" + UUID().uuidString
             guard let defaults = UserDefaults(suiteName:suite) else { throw MacPreview.failure(16,"Não foi possível isolar as preferências da prévia.") }
@@ -441,15 +449,25 @@ enum MacPreview {
         MacPreview.trace("preview regular activation policy accepted=\(regular)")
         NSApplication.shared.activate(ignoringOtherApps:true)
         window.makeKeyAndOrderFront(nil)
+        appearanceStartedAt = ProcessInfo.processInfo.systemUptime
         watchdog = Task { @MainActor [weak self] in
-            do { try await Task.sleep(for:.seconds(280)); try Task.checkCancellation() }
+            guard let self else { return }
+            let deadline = appearanceOnly ? 70 : 280
+            do { try await Task.sleep(for:.seconds(deadline)); try Task.checkCancellation() }
             catch { return }
-            self?.finish(.failure(MacPreview.failure(5,"A captura da WindowGroup excedeu 280 segundos. Nenhum fallback de bitmap foi usado.")))
+            let error = MacPreview.failure(5,"A captura da WindowGroup excedeu \(deadline) segundos. Nenhum fallback de bitmap foi usado.")
+            if appearanceOnly { finishAppearance(error:error) }
+            else { finish(.failure(error)) }
         }
         captureTask = Task { @MainActor [weak self] in
             guard let self else { return }
-            do { try await captureSequence(); finish(.success(Void())) }
-            catch { finish(.failure(error)) }
+            do {
+                if appearanceOnly { try await captureAppearanceSequence(); finishAppearance(error:nil) }
+                else { try await captureSequence(); finish(.success(Void())) }
+            } catch {
+                if appearanceOnly { finishAppearance(error:error) }
+                else { finish(.failure(error)) }
+            }
         }
     }
 
@@ -476,9 +494,30 @@ enum MacPreview {
         MacPreview.trace("\(stage): active=\(NSApplication.shared.isActive); key=\(window.isKeyWindow); main=\(window.isMainWindow); activationPolicy=\(NSApplication.shared.activationPolicy().rawValue)")
         MacPreview.trace("\(stage): window frame \(window.frame); content layout \(window.contentLayoutRect); host \(String(describing:window.contentView?.bounds))")
         let path = name.map { destination.deletingPathExtension().appendingPathExtension($0 + ".png") } ?? destination
+        let toolbarBefore:ToolbarRenderingAudit.Snapshot?
+        if case .workspace = route {
+            toolbarBefore = ToolbarRenderingAudit.observe(window:window,selection:preferences.state.colorScheme)
+        } else { toolbarBefore = nil }
         MacPreview.trace("\(stage): ScreenCaptureKit begin")
         try await MacPreview.capture(window,to:path)
         MacPreview.trace("\(stage): PNG written")
+        var toolbarReport:ToolbarRenderingAudit.Report?
+        if let toolbarBefore {
+            let report = try ToolbarRenderingAudit.inspect(window:window,png:path,before:toolbarBefore,selection:preferences.state.colorScheme)
+            toolbarReport = report
+            try ToolbarRenderingAudit.log(report,phase:stage)
+            // Preserve the original failed PNG. Normal previews fail at the
+            // first illegible frame; they never repeat or repair a capture.
+            // The separate diagnostic retains subsequent transition states as
+            // additional evidence, but cannot erase the first failure.
+            if !appearanceOnly && !report.passed {
+                throw ToolbarRenderingAudit.failure("A legibilidade dos controles reais da barra superior falhou em \(stage). O PNG original e as medições foram preservados.")
+            }
+        }
+        if appearanceOnly {
+            appearanceFrames.append(try ToolbarRenderingAudit.frame(window:window,path:path,phase:name ?? "light-initial",
+                selection:preferences.state.colorScheme,report:toolbarReport))
+        }
         if let auditRequired {
             let reportURL = path.deletingPathExtension().appendingPathExtension("accessibility.json")
             MacPreview.trace("\(stage): accessibility traversal begin")
@@ -489,6 +528,120 @@ enum MacPreview {
             print("PDF own-window accessibility audit: \(reportURL.lastPathComponent); nodes=\(report.nodes.count); missingRequired=\(report.missingRequiredIdentifiers.count); findings=\(report.findings.count)")
         }
         CIDiagnostics.record("Capture completed: " + stage,title:"PDF preview")
+    }
+
+    /// No fixture documents, PDF operation, engine discovery or Python runtime.
+    /// The actual production ContentView, preferences and WindowGroup retain
+    /// their materials and animations throughout these observed transitions.
+    private func captureAppearanceSequence() async throws {
+        preferences.state.colorScheme = "light"
+        model.section = "Início"
+        try await capture()
+        preferences.state.colorScheme = "dark"
+        try await capture("dark-attached-1")
+        // A second independent WindowServer request, not a retry after failure.
+        // Its controls must still be the original attached toolbar providers.
+        try await capture("dark-attached-2")
+        // Reproduce the observed compound transition: customization is light,
+        // then the same preference change and route return recreate a dark toolbar.
+        preferences.state.colorScheme = "light"
+        present(.customization("Aparência"))
+        try await capture("customization")
+        preferences.state.colorScheme = "dark"
+        present(.workspace(false))
+        try await capture("dark-recreated")
+        preferences.state.colorScheme = "light"
+        try await capture("light-return")
+        preferences.state.colorScheme = "system"
+        try await capture("system")
+    }
+
+    private func finishAppearance(error:Error?) {
+        guard !finished else { return }
+        finished = true
+        watchdog?.cancel(); captureTask?.cancel()
+        // ContentView.onAppear can launch real recovery work even with no
+        // document. Use a separate uncancelled cleanup task and the production
+        // termination barrier before deleting the diagnostic's private state.
+        appearanceCleanupTask = Task { @MainActor [self] in
+            let remaining = max(0,min(3,appearanceStartedAt+73-ProcessInfo.processInfo.systemUptime))
+            let ready = await model.prepareForTermination(externalDeadline:remaining)
+            let drained = ready && ApplicationWork.activeCount == 0
+            var cleaned = false
+            var failure = error?.localizedDescription
+            if drained {
+                do { try cleanupIsolatedState(); cleaned = true }
+                catch { failure = failure ?? error.localizedDescription }
+            } else { failure = failure ?? "As tarefas reais ainda não terminaram; os dados privados foram preservados." }
+            publishAppearanceReport(error:failure,drained:drained,cleaned:cleaned)
+        }
+    }
+
+    private func publishAppearanceReport(error:String?,drained:Bool,cleaned:Bool) {
+        let expected = ["light-initial","dark-attached-1","dark-attached-2","customization","dark-recreated","light-return","system"]
+        let expectedSelections = ["light","dark","dark","light","dark","light","system"]
+        let measured = appearanceFrames.compactMap(\.toolbarReport)
+        func identities(_ phase:String) -> [String:String] {
+            guard let report = appearanceFrames.first(where:{$0.phase == phase})?.toolbarReport else { return [:] }
+            return Dictionary(report.before.controls.map { ($0.auditKey,$0.identity) },uniquingKeysWith:{ first,_ in first })
+        }
+        let attached = identities("light-initial"), firstDark = identities("dark-attached-1")
+        let secondDark = identities("dark-attached-2"), recreated = identities("dark-recreated")
+        let stableAttached = attached.count == 3 && attached == firstDark && firstDark == secondDark
+        let recreatedControls = recreated.count == 3 && ToolbarRenderingAudit.identifiers.allSatisfy { recreated[$0] != attached[$0] }
+        let customization = appearanceFrames.first(where:{$0.phase == "customization"})?.windowSnapshot
+        // AppKit may recycle a toolbar item viewer. Observe absence of the
+        // actual workspace toolbar on the other route and its real return;
+        // provider-instance reconstruction is reported separately, not inferred.
+        let controlsReturned = customization?.workspaceToolbarProviderCount == 0
+            && customization?.controls.isEmpty == true && customization?.errors.isEmpty == true && recreated.count == 3
+        let darkFrames = appearanceFrames.filter { $0.phase == "dark-attached-1" || $0.phase == "dark-attached-2" }.compactMap(\.toolbarReport)
+        let separateFrames = darkFrames.count == 2 && darkFrames[0].after.uptime < darkFrames[1].before.uptime
+        let system = appearanceFrames.first(where:{$0.phase == "system"})?.toolbarReport
+        let systemReleased = system != nil && system?.before.applicationOverride == nil && system?.after.applicationOverride == nil
+            && system?.before.windowOverride == nil && system?.after.windowOverride == nil
+        let numbers = Set(appearanceFrames.map { $0.windowSnapshot.windowNumber }
+            + measured.map { $0.before.windowNumber } + measured.map { $0.after.windowNumber })
+        let requestedStylesObserved = appearanceFrames.allSatisfy { frame in
+            let snapshot = frame.windowSnapshot
+            let expected = frame.selection == "system" ? snapshot.applicationEffectiveStyle : frame.selection
+            return ["light","dark"].contains(expected) && snapshot.applicationEffectiveStyle == expected
+                && snapshot.windowEffectiveStyle == expected && snapshot.contentEffectiveStyle == expected
+        }
+        let allFramesGeometryValid = appearanceFrames.allSatisfy { frame in
+            let snapshot = frame.windowSnapshot
+            return snapshot.backingScale.isFinite && snapshot.backingScale > 0 && snapshot.errors.isEmpty
+                && abs(snapshot.windowFrame.width*snapshot.backingScale-Double(frame.width)) < 0.01
+                && abs(snapshot.windowFrame.height*snapshot.backingScale-Double(frame.height)) < 0.01
+        }
+        let checks = [
+            ToolbarRenderingAudit.Check(id:"seven-original-frames-in-order",passed:appearanceFrames.map(\.phase) == expected),
+            .init(id:"light-dark-customization-light-system-selections",passed:appearanceFrames.map(\.selection) == expectedSelections && requestedStylesObserved),
+            .init(id:"same-real-window",passed:numbers.count == 1 && numbers.first.map { $0 > 0 } == true && allFramesGeometryValid),
+            .init(id:"six-workspace-toolbar-reports",passed:measured.count == 6),
+            .init(id:"three-controls-central-contrast-every-workspace-frame",passed:measured.count == 6 && measured.allSatisfy(\.passed)),
+            .init(id:"attached-toolbar-identities-preserved",passed:stableAttached),
+            .init(id:"two-separate-dark-attached-captures",passed:separateFrames),
+            .init(id:"toolbar-controls-return-after-customization",passed:controlsReturned),
+            .init(id:"system-releases-appkit-overrides",passed:systemReleased),
+            .init(id:"no-document-session",passed:model.sessions.isEmpty && model.document == nil && fixtureInputs.isEmpty),
+            .init(id:"background-work-drained",passed:drained),
+            .init(id:"private-state-cleanup",passed:cleaned),
+        ]
+        let passed = error == nil && checks.allSatisfy(\.passed)
+        let failure = error ?? (passed ? nil : "Required appearance checks failed: " + checks.filter { !$0.passed }.map(\.id).joined(separator:", "))
+        let report = ToolbarRenderingAudit.SequenceReport(createdAt:Date(),status:passed ? "passed" : "failed",
+            frames:appearanceFrames,checks:checks,providersRecreatedAfterCustomization:recreatedControls,failure:failure,
+            operatingSystem:ProcessInfo.processInfo.operatingSystemVersionString)
+        do {
+            guard let destination else { throw MacPreview.failure(32,"O destino do diagnóstico está ausente.") }
+            let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted,.sortedKeys]; encoder.dateEncodingStrategy = .iso8601
+            try NativeOutput.write(encoder.encode(report),to:destination.deletingPathExtension().appendingPathExtension("appearance.json"))
+            MacPreview.trace("appearance-only report written; status=\(report.status); originalFrames=\(appearanceFrames.count)")
+        } catch {
+            FileHandle.standardError.write(Data("PDF appearance report failed: \(error)\n".utf8)); exit(1)
+        }
+        exit(passed ? 0 : 1)
     }
 
     private func fixtures(in directory:URL) throws -> (guide:URL,reference:URL) {

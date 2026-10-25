@@ -13,6 +13,7 @@ import subprocess
 
 import cross_gui_evidence as gui
 import delivery_archives
+import delivery_lifecycle as lifecycle
 import delivery_parts
 import portable_compatibility as portable
 import retain_evidence as evidence
@@ -32,7 +33,7 @@ SOURCE_STEPS = evidence.REQUIRED_STEPS + (
     'Package and verify binary install and update',
     'Retain binary package with explicit validation status',
     'Create source distribution', 'Retain source artifact with validation status',
-)
+) + lifecycle.SOURCE_STEPS
 CROSS_STEPS = (
     'Check out this validation control',
     'Authenticate the completed source run and approved macOS 26 artifact',
@@ -46,7 +47,7 @@ CROSS_STEPS = (
     'Validate and bind all original GUI artifacts',
     'Publish the exact cross-OS measurement and target hardware identity',
     'Retain evidence without relabeling a failed installation',
-)
+) + lifecycle.CROSS_STEPS
 BINARY_CONTENTS = {portable.ARCHIVE: MAX_ARCHIVE, portable.ARCHIVE + '.sha256': 256,
                    'install-binary.sh': 1024 ** 2, 'distribution-manifest.json': portable.MAX_MANIFEST,
                    'distribution-validation.json': 1024 ** 2}
@@ -150,17 +151,26 @@ def collect_origins(api, source_id, commit, expected_sha, cross_id, cross_commit
         runner = next(value for value in evidence.RUNNERS if name.endswith('-' + value))
         native.append(select_artifact(artifacts, (name,), source,
                       jobs['native-application (' + runner + ')'], evidence.MAX_ARTIFACT))
-    require(len({item['id'] for item in [binary, other, source_artifact] + native}) == 13,
+    source_lifecycle = []
+    for runner, name in zip(evidence.RUNNERS, lifecycle.SOURCE_NAMES):
+        source_lifecycle.append(select_artifact(artifacts, (name,), source,
+            jobs['native-application (' + runner + ')'], evidence.MAX_ARTIFACT))
+    require(len({item['id'] for item in [binary, other, source_artifact] + native + source_lifecycle}) == 15,
             'Repeated source artifact identity.')
     cross, cross_jobs, cross_artifacts = collect_run(api, cross_id, cross_commit, CROSS_WORKFLOW,
                                                     ('compatible-binary',), CROSS_STEPS)
     cross_artifact = select_artifact(cross_artifacts, ('PDF-cross-platform-validated',), cross,
                                     cross_jobs['compatible-binary'], evidence.MAX_ARTIFACT)
+    cross_lifecycle = select_artifact(cross_artifacts, (lifecycle.CROSS_NAME,), cross,
+                                     cross_jobs['compatible-binary'], evidence.MAX_ARTIFACT)
+    require(cross_lifecycle['id'] != cross_artifact['id'], 'Lifecycle must retain its own original artifact.')
     origin = portable.validate_origin(source, list(jobs.values()), artifacts, source_id, commit, api.repository)
     origin['expectedArchiveSHA256'] = expected_sha
-    return {'source': source, 'sourceJobs': jobs, 'binary': binary, 'otherBinary': other,
+    return {'deliveryPolicy': lifecycle.POLICY,
+            'source': source, 'sourceJobs': jobs, 'binary': binary, 'otherBinary': other,
             'sourceArtifact': source_artifact, 'native': native, 'cross': cross,
-            'crossJobs': cross_jobs, 'crossArtifact': cross_artifact, 'origin': origin}
+            'crossJobs': cross_jobs, 'crossArtifact': cross_artifact, 'origin': origin,
+            'sourceLifecycleArtifacts': source_lifecycle, 'crossLifecycleArtifact': cross_lifecycle}
 
 
 def verify_cross_reports(directory, origin, verified, manifest, source_verified):
@@ -218,6 +228,9 @@ def description(source_id, commit, cross_id, cross_commit, sha):
             'arquivo macOS 26 no macOS 27. Rascunho, sem publicação pública.\n\n'
             'Origem: ' + source_id + ' · commit `' + commit + '`\n'
             'Cross-OS: ' + cross_id + ' · controle `' + cross_commit + '`\n'
+            'Política obrigatória de evidência: `' + lifecycle.POLICY + '`. '
+            'Três ZIPs originais de ciclo de janela são preservados separadamente; '
+            'o ensaio do cross vincula o executável e o Info.plist ao tar entregue.\n'
             'SHA-256 do tar original: `' + sha + '`\n\n' + LIMITATIONS + '\n\n'
             'Fontes, evidências e avisos/licenças originais são preservados. '
             'Esta entrega não acrescenta licença ao aplicativo. Não publicar nem substituir assets.\n')
@@ -236,6 +249,7 @@ def write_json(path, value):
 
 
 def prepare(api, origins, directory):
+    require(origins.get('deliveryPolicy') == lifecycle.POLICY, 'Explicit current delivery policy required.')
     directory.mkdir(mode=0o700)
     incoming = directory / 'incoming'; incoming.mkdir(mode=0o700)
     payload = directory / 'payload'; payload.mkdir(mode=0o700)
@@ -266,8 +280,22 @@ def prepare(api, origins, directory):
     validation = portable.regular_json(binary_dir / 'distribution-validation.json', 1024 ** 2)
     source_verified = delivery_archives.verify_source_and_installer(payload / 'sourceArtifact', binary_dir,
                                                                   origins['source']['head_sha'], manifest,
-                                                                  required_source_files=tuple('scripts/' + name for name in gui.SCRIPT_NAMES))
+                                                                  required_source_files=tuple('scripts/' + name for name in gui.SCRIPT_NAMES)
+                                                                  + lifecycle.REQUIRED_SOURCE_FILES)
     cross_report = verify_cross_reports(payload / 'crossArtifact', origins['origin'], verified, manifest, source_verified)
+    lifecycle_records = []
+    for index, item in enumerate(origins['sourceLifecycleArtifacts'] + [origins['crossLifecycleArtifact']]):
+        is_cross = item['name'] == lifecycle.CROSS_NAME
+        job = origins['crossJobs']['compatible-binary'] if is_cross else origins['sourceJobs'][SOURCE_JOBS[index]]
+        target = incoming / (item['name'] + '.zip')
+        measured = download_artifact(api, item, target, evidence.MAX_ARTIFACT)
+        expected = lifecycle.contents(is_cross)
+        destination = payload / ('lifecycle-' + str(index))
+        delivery_archives.extract_zip(target, destination, expected, total_limit=sum(expected.values()))
+        lifecycle_validation = lifecycle.verify(destination, source_commit=origins['source']['head_sha'], job=job,
+                                                source_verification=source_verified, manifest=manifest if is_cross else None)
+        lifecycle_records.append(dict(artifact=artifact_record(item), validation=lifecycle_validation))
+        add(target, 'original-window-lifecycle-artifact-zip', measured)
     original = binary_dir / portable.ARCHIVE
     plan = delivery_parts.plan_parts(original)
     require(plan['sha256'] == origins['origin']['expectedArchiveSHA256'] == verified['archiveSHA256']
@@ -317,7 +345,8 @@ def prepare(api, origins, directory):
              + '\nO destino não exige Xcode, Homebrew, Git ou Python do sistema.\n' + LIMITATIONS + '\n')
     with instructions.open('x') as output: output.write(text)
     add(instructions, 'installation-instructions')
-    provenance = {'schemaVersion': 1, 'purpose': 'owner-binary-delivery-after-specified-checks',
+    provenance = {'schemaVersion': 2, 'deliveryPolicy': lifecycle.POLICY,
+                  'purpose': 'owner-binary-delivery-after-specified-checks',
                   'repository': api.repository, 'source': run_record(origins['source'], origins['sourceJobs']),
                   'cross': run_record(origins['cross'], origins['crossJobs']),
                   'binaryArtifact': artifact_record(origins['binary']),
@@ -325,11 +354,13 @@ def prepare(api, origins, directory):
                   'sourceArtifact': artifact_record(origins['sourceArtifact']),
                   'crossArtifact': artifact_record(origins['crossArtifact']),
                   'nativeArtifacts': [artifact_record(item) for item in origins['native']],
+                  'windowLifecycleEvidence': lifecycle_records,
                   'binaryVerification': verified, 'sourceAndInstallerVerification': source_verified,
                   'originalSourceValidation': validation, 'originalCrossReport': cross_report,
                   'archiveStorage': plan, 'logs': logs, 'originalNoticeEntriesPreservedInTar': notices,
                   'binaryChecksPassed': {'sourceMatrix': True, 'sameMacOS26ArchiveInstalledOnMacOS27': True,
-                                         'installedBinaryGUIOnMacOS27': True, 'guiOutsideDependencySandbox': True},
+                                         'installedBinaryGUIOnMacOS27': True, 'guiOutsideDependencySandbox': True,
+                                         'requiredWindowLifecycleDiagnostics': True},
                   'limitations': LIMITATIONS, 'publicRelease': False, 'applicationLicenseAdded': False,
                   'files': [records[name] for name in sorted(records)]}
     path = payload / PROVENANCE; write_json(path, provenance); add(path, 'delivery-provenance')
@@ -389,10 +420,14 @@ def publish_draft(api, prepared, directory, source_id, commit, cross_id, cross_c
     evidence.validate_release(api.json(route), tag, commit, body)
     return {'releaseID': release['id'], 'tag': tag, 'draft': True, 'verifiedAssets': len(records),
             'archiveSHA256': sha, 'sourceRunID': int(source_id), 'crossRunID': int(cross_id),
-            'binaryChecksPassed': True, 'limitations': LIMITATIONS}
+            'binaryChecksPassed': True, 'deliveryPolicy': lifecycle.POLICY,
+            'windowLifecycleChecksPassed': True, 'limitations': LIMITATIONS}
 
 
-def deliver(api, source_id, commit, expected_sha, cross_id, cross_commit, directory):
+def deliver(api, source_id, commit, expected_sha, cross_id, cross_commit, directory, *, policy):
+    # No fallback based on version strings or missing artifacts: old evidence
+    # remains historical and cannot silently satisfy this new delivery policy.
+    require(policy == lifecycle.POLICY, 'The explicit window-lifecycle-v1 delivery policy is required.')
     origins = collect_origins(api, source_id, commit, expected_sha, cross_id, cross_commit)
     print('Authenticated source and cross-platform runs:', source_id, cross_id, flush=True)
     prepared = prepare(api, origins, directory)
@@ -402,11 +437,13 @@ def deliver(api, source_id, commit, expected_sha, cross_id, cross_commit, direct
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--directory', required=True, type=Path)
+    parser.add_argument('--policy', required=True, choices=(lifecycle.POLICY,))
     args = parser.parse_args()
     try:
         result = deliver(evidence.GitHub(os.environ['GITHUB_REPOSITORY']), os.environ['PDF_SOURCE_RUN_ID'],
                          os.environ['PDF_SOURCE_COMMIT'], os.environ['PDF_EXPECTED_SHA'],
-                         os.environ['PDF_CROSS_RUN_ID'], os.environ['PDF_CROSS_CONTROL_COMMIT'], args.directory)
+                         os.environ['PDF_CROSS_RUN_ID'], os.environ['PDF_CROSS_CONTROL_COMMIT'], args.directory,
+                         policy=args.policy)
         if os.environ.get('GITHUB_OUTPUT'):
             with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
                 output.write('release_id=' + str(result['releaseID']) + '\nrelease_tag=' + result['tag']

@@ -70,7 +70,9 @@ jobs:
         id: delivery
         env:
           GITHUB_TOKEN: ${{ github.token }}
-        run: python3 diagnostics/deliver_binary.py --directory "$RUNNER_TEMP/PDF-owner-delivery"
+        # This controller never treats missing lifecycle artifacts as a legacy
+        # approval. Historical deliveries retain their original controllers.
+        run: python3 diagnostics/deliver_binary.py --policy window-lifecycle-v1 --directory "$RUNNER_TEMP/PDF-owner-delivery"
       - name: Record the draft and narrowly scoped binary checks
         env:
           PDF_RELEASE_ID: ${{ steps.delivery.outputs.release_id }}
@@ -81,6 +83,7 @@ jobs:
           import os
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as output:
               output.write('Binary and original evidence retained in a **draft**, without public publication.\n\n')
+              output.write('Required policy: `window-lifecycle-v1`; three original lifecycle ZIPs retained separately. Only the cross-installed executable/plist are required to match the delivered tar exactly.\n\n')
               output.write('Draft ID: ' + os.environ['PDF_RELEASE_ID'] + '\n\n')
               output.write('Tag: `' + os.environ['PDF_RELEASE_TAG'] + '`\n\n')
               output.write('Original tar SHA-256: `' + os.environ['PDF_ARCHIVE_SHA'] + '`\n\n')

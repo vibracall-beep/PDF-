@@ -14,6 +14,7 @@ import deliver_binary as gate
 import delivery_archives
 import retain_evidence as evidence
 from test_cross_gui_evidence import source_scripts, synthetic_gui_files, record
+from test_delivery_lifecycle import source_files as lifecycle_source_files, synthetic_files as lifecycle_files
 
 
 def encoded(value):
@@ -37,7 +38,7 @@ def zip_bytes(files):
 
 
 def source_files(installer, commit, dirty=False):
-    files = {**source_scripts(), 'scripts/install-binary.sh': installer,
+    files = {**source_scripts(), **lifecycle_source_files(), 'scripts/install-binary.sh': installer,
              'BUILD-INFO.json': encoded({'source_archive_format': 1, 'commit': commit, 'working_tree_dirty': dirty})}
     sums = ''.join(hashlib.sha256(data).hexdigest() + '  ' + name + '\n' for name, data in files.items())
     archive = tar_bytes(dict({'PDF/' + name: data for name, data in files.items()},
@@ -70,7 +71,7 @@ class MemoryGitHub:
         self.installer = b'#!/bin/bash\n# original reviewed installer\nexit 0\n'
         original_files = {'install-binary.sh': self.installer,
                          'PDF.app/Contents/MacOS/PDF': b'Synthetic executable fixture',
-                         'PDF.app/Contents/Info.plist': b'Synthetic identity fixture',
+                         'PDF.app/Contents/Info.plist': lifecycle_source_files()[gate.lifecycle.PRODUCTION_PLIST],
                          'PDF.app/Contents/Resources/runtime/THIRD-PARTY.json': b'{}',
                          'PDF.app/Contents/Resources/runtime/THIRD-PARTY.txt': b'Original notices retained.\n'}
         self.manifest = {'schemaVersion': 1, 'architecture': 'arm64', 'commit': self.commit,
@@ -113,6 +114,12 @@ class MemoryGitHub:
                       guiReceiptSHA256=record(self.cross_files[gate.gui.RECEIPT])['sha256'])
         self.cross_files['PDF-cross-platform.json'] = encoded(report)
         self.add_artifact(456, 'PDF-cross-platform-validated', zip_bytes(self.cross_files))
+        self.lifecycle_files = {}
+        for name in gate.lifecycle.SOURCE_NAMES:
+            self.lifecycle_files[name] = lifecycle_files(self.commit)
+            self.add_artifact(123, name, zip_bytes(self.lifecycle_files[name]))
+        self.lifecycle_files[gate.lifecycle.CROSS_NAME] = lifecycle_files(self.commit, self.manifest)
+        self.add_artifact(456, gate.lifecycle.CROSS_NAME, zip_bytes(self.lifecycle_files[gate.lifecycle.CROSS_NAME]))
         self.release = None; self.assets = []; self.upload_count = 0; self.create_count = 0
 
     def add_artifact(self, run_id, name, data):
@@ -172,16 +179,24 @@ class DeliveryTests(unittest.TestCase):
 
     def deliver(self, api=None, name='delivery'):
         api = api or self.api
-        return gate.deliver(api, '123', api.commit, api.sha, '456', api.control, self.root / name)
+        return gate.deliver(api, '123', api.commit, api.sha, '456', api.control, self.root / name,
+                            policy=gate.lifecycle.POLICY)
 
     def test_exact_binary_original_sources_and_limits_are_retained_in_a_draft(self):
         result = self.deliver()
-        self.assertTrue(result['draft']); self.assertEqual(result['verifiedAssets'], 73)
+        self.assertTrue(result['draft']); self.assertEqual(result['verifiedAssets'], 76)
         self.assertEqual(result['archiveSHA256'], self.api.sha)
         self.assertNotIn('applicationApproved', result)
         provenance = json.loads((self.root / 'delivery/payload' / gate.PROVENANCE).read_text())
         self.assertEqual(provenance['cross']['commit'], self.api.control)
         self.assertEqual(provenance['source']['commit'], self.api.commit)
+        self.assertEqual(provenance['schemaVersion'], 2)
+        self.assertEqual(provenance['deliveryPolicy'], gate.lifecycle.POLICY)
+        self.assertTrue(result['windowLifecycleChecksPassed'])
+        self.assertEqual(len(provenance['windowLifecycleEvidence']), 3)
+        self.assertEqual(len(gate.CROSS_CONTENTS), 50)
+        self.assertEqual(len(gate.gui.ORIGINALS), 42)
+        self.assertEqual(len(evidence.ARTIFACT_NAMES), 10)
         self.assertFalse(provenance['applicationLicenseAdded']); self.assertFalse(provenance['publicRelease'])
         self.assertEqual(provenance['originalSourceValidation']['localAIStatus'], 'unavailable')
         self.assertIn('VoiceOver', provenance['limitations'])
@@ -256,22 +271,136 @@ class DeliveryTests(unittest.TestCase):
         with self.assertRaises(delivery_archives.ArchiveFailure): self.deliver(api, 'dirty')
         self.assertEqual(api.create_count, 0)
 
+    def test_lifecycle_policy_is_explicit_and_legacy_absence_never_enables_fallback(self):
+        for policy in (None, '', 'legacy', 'window-lifecycle-v0'):
+            with self.subTest(policy=policy), patch.object(self.api, 'json', side_effect=AssertionError('must refuse before API')):
+                with self.assertRaises(evidence.EvidenceFailure):
+                    gate.deliver(self.api, '123', self.api.commit, self.api.sha, '456', self.api.control,
+                                 self.root / 'invalid-policy', policy=policy)
+        # The old ten-artifact inventory and original 0.6 validation report
+        # remain representable, but do not satisfy the new mandatory policy.
+        self.assertEqual(json.loads(self.api.binary_files['distribution-validation.json'])['applicationVersion'], '0.6.0')
+        for run_id in (123, 456):
+            self.api.artifacts[run_id] = [item for item in self.api.artifacts[run_id]
+                if item['name'] not in (*gate.lifecycle.SOURCE_NAMES, gate.lifecycle.CROSS_NAME)]
+        with self.assertRaises(evidence.EvidenceFailure): self.deliver(name='legacy-missing')
+        self.assertEqual(self.api.create_count, 0); self.assertEqual(self.api.upload_count, 0)
+        self.assertEqual(len(evidence.ARTIFACT_NAMES), 10)
+
+    def test_three_lifecycle_zips_are_original_assets_and_internal_files_do_not_pollute_existing_inventories(self):
+        self.deliver()
+        names = (*gate.lifecycle.SOURCE_NAMES, gate.lifecycle.CROSS_NAME)
+        assets = {item['name']: item for item in self.api.assets}
+        provenance = json.loads((self.root / 'delivery/payload' / gate.PROVENANCE).read_text())
+        retained = provenance['windowLifecycleEvidence']
+        self.assertEqual([item['artifact']['name'] for item in retained], list(names))
+        self.assertEqual([len(item['validation']['files']) for item in retained], [6, 6, 3])
+        self.assertTrue(provenance['binaryChecksPassed']['requiredWindowLifecycleDiagnostics'])
+        for name in names:
+            run_id = 456 if name == gate.lifecycle.CROSS_NAME else 123
+            artifact = next(item for item in self.api.artifacts[run_id] if item['name'] == name)
+            original = self.api.payloads['/actions/artifacts/' + str(artifact['id']) + '/zip']
+            asset = assets[name + '.zip']
+            self.assertEqual(self.api.payloads['/releases/assets/' + str(asset['id'])], original)
+        self.assertTrue(all(name not in assets for name in ('early.json', 'installed.json', 'cross.json')))
+        self.assertEqual(len(gate.CROSS_CONTENTS), 50); self.assertEqual(len(gate.gui.ORIGINALS), 42)
+
+    def test_lifecycle_missing_ambiguous_foreign_expired_and_wrong_attempt_artifacts_fail_before_draft(self):
+        variants = []
+        for name in (*gate.lifecycle.SOURCE_NAMES, gate.lifecycle.CROSS_NAME):
+            run_id = 456 if name == gate.lifecycle.CROSS_NAME else 123
+            api = copy.deepcopy(self.api)
+            api.artifacts[run_id] = [item for item in api.artifacts[run_id] if item['name'] != name]
+            variants.append(api)
+            api = copy.deepcopy(self.api)
+            artifact = next(item for item in api.artifacts[run_id] if item['name'] == name)
+            api.artifacts[run_id].append(copy.deepcopy(artifact)); variants.append(api)
+        for field, value in [('expired', True), ('digest', 'sha256:' + '0' * 64),
+                             ('created_at', '2026-10-23T10:30:00Z')]:
+            api = copy.deepcopy(self.api)
+            next(item for item in api.artifacts[456] if item['name'] == gate.lifecycle.CROSS_NAME)[field] = value
+            variants.append(api)
+        api = copy.deepcopy(self.api)
+        next(item for item in api.artifacts[123] if item['name'] == gate.lifecycle.SOURCE_NAMES[1])['workflow_run']['head_sha'] = 'c' * 40
+        variants.append(api)
+        for index, api in enumerate(variants):
+            with self.subTest(index=index), self.assertRaises(evidence.EvidenceFailure):
+                self.deliver(api, 'lifecycle-origin-' + str(index))
+            self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
+
+    def test_each_new_lifecycle_step_and_complete_zip_inventory_is_mandatory(self):
+        variants = []
+        for run_id, steps in ((123, gate.lifecycle.SOURCE_STEPS), (456, gate.lifecycle.CROSS_STEPS)):
+            for job_index in range(len(self.api.jobs[run_id])):
+                for step in steps:
+                    api = copy.deepcopy(self.api)
+                    next(item for item in api.jobs[run_id][job_index]['steps'] if item['name'] == step)['conclusion'] = 'skipped'
+                    variants.append(api)
+        for name in (*gate.lifecycle.SOURCE_NAMES, gate.lifecycle.CROSS_NAME):
+            run_id = 456 if name == gate.lifecycle.CROSS_NAME else 123
+            api = copy.deepcopy(self.api); files = dict(api.lifecycle_files[name])
+            del files['cross.json' if run_id == 456 else 'installed.json']
+            api.replace_artifact(run_id, name, zip_bytes(files)); variants.append(api)
+        for extra in ('extra.json', '../escaped.log'):
+            api = copy.deepcopy(self.api); files = dict(api.lifecycle_files[gate.lifecycle.CROSS_NAME])
+            files[extra] = b'No output outside extraction allowed.'
+            api.replace_artifact(456, gate.lifecycle.CROSS_NAME, zip_bytes(files)); variants.append(api)
+        for index, api in enumerate(variants):
+            with self.subTest(index=index), self.assertRaises((evidence.EvidenceFailure, delivery_archives.ArchiveFailure)):
+                self.deliver(api, 'lifecycle-inventory-' + str(index))
+            self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
+
+    def test_cross_lifecycle_report_bytes_and_exact_delivered_bundle_are_checked_before_any_release_write(self):
+        variants = []
+        name = gate.lifecycle.CROSS_NAME
+        for field in ('Contents/MacOS/PDF', 'Contents/Info.plist'):
+            api = copy.deepcopy(self.api); files = dict(api.lifecycle_files[name])
+            receipt = json.loads(files['cross-receipt.json'])
+            receipt['installedBundleFiles'][field]['sha256'] = '0' * 64
+            files['cross-receipt.json'] = encoded(receipt)
+            api.replace_artifact(456, name, zip_bytes(files)); variants.append(api)
+        for key, value in [('scope', 'installed-application'), ('sourceCommit', 'c' * 40),
+                           ('sourceCommitAuthenticatedByThisValidator', True), ('completeApplicationApproved', True)]:
+            api = copy.deepcopy(self.api); files = dict(api.lifecycle_files[name])
+            receipt = json.loads(files['cross-receipt.json']); receipt[key] = value
+            files['cross-receipt.json'] = encoded(receipt)
+            api.replace_artifact(456, name, zip_bytes(files)); variants.append(api)
+        api = copy.deepcopy(self.api); files = dict(api.lifecycle_files[name]); files['cross.json'] += b' '
+        api.replace_artifact(456, name, zip_bytes(files)); variants.append(api)
+        for index, api in enumerate(variants):
+            with self.subTest(index=index), self.assertRaises(evidence.EvidenceFailure):
+                self.deliver(api, 'lifecycle-bundle-' + str(index))
+            self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
+
+    def test_lifecycle_validator_missing_or_different_in_authenticated_source_refuses_delivery(self):
+        original = lifecycle_source_files()
+        for mode in ('missing', 'substituted'):
+            api = copy.deepcopy(self.api); changed = dict(original)
+            if mode == 'missing': del changed[gate.lifecycle.VALIDATOR]
+            else: changed[gate.lifecycle.VALIDATOR] = b'raise RuntimeError("Downloaded validator must never execute")\n'
+            with patch(__name__ + '.lifecycle_source_files', return_value=changed):
+                source = source_files(api.installer, api.commit)
+            api.replace_artifact(123, gate.SOURCE_NAMES[0], zip_bytes(source))
+            with self.subTest(mode=mode), self.assertRaises((evidence.EvidenceFailure, delivery_archives.ArchiveFailure)):
+                self.deliver(api, 'lifecycle-source-' + mode)
+            self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
+
     def test_idempotent_rerun_compares_bytes_and_published_or_changed_assets_are_refused(self):
         first = self.deliver(); second = self.deliver(name='second')
-        self.assertEqual(first, second); self.assertEqual(self.api.upload_count, 73)
+        self.assertEqual(first, second); self.assertEqual(self.api.upload_count, 76)
         api = copy.deepcopy(self.api); api.release['draft'] = False
         with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, 'published')
-        self.assertEqual(api.upload_count, 73)
+        self.assertEqual(api.upload_count, 76)
         api = copy.deepcopy(self.api); asset = api.assets[0]; asset.pop('digest')
         api.payloads['/releases/assets/' + str(asset['id'])] = b'x' * asset['size']
         with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, 'tampered')
-        self.assertEqual(api.upload_count, 73)
+        self.assertEqual(api.upload_count, 76)
 
     def test_interrupted_draft_is_completed_without_replacing_existing_assets(self):
         self.deliver(); missing = self.api.assets.pop()
         self.api.payloads.pop('/releases/assets/' + str(missing['id']))
         self.deliver(name='resumed')
-        self.assertEqual(self.api.upload_count, 74); self.assertEqual(len(self.api.assets), 73)
+        self.assertEqual(self.api.upload_count, 77); self.assertEqual(len(self.api.assets), 76)
 
     def test_state_changed_during_final_download_is_not_reported_as_a_draft(self):
         original = self.api.download

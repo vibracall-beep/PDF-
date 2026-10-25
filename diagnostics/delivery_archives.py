@@ -299,7 +299,7 @@ def _verify_source_and_installer(source_directory, binary_directory, commit, dis
     installer_hash = hashlib.sha256(installer).hexdigest()
     require(installer == captured['scripts/install-binary.sh'] and len(installer) == entry['size']
             and installer_hash == entry['sha256'], 'External installer differs from authenticated source or binary manifest.')
-    require(set(sizes) == set(required_source_files), 'Source archive lacks required GUI validation scripts.')
+    require(set(sizes) == set(required_source_files), 'Source archive lacks required validation files.')
     return {'additionalSourceFiles': {name: {'bytes': sizes[name], 'sha256': hashes[name]} for name in sizes},
             'sourceArchiveSHA256': archive_hash, 'sourceArchiveBytes': before.st_size,
             'installerSHA256': installer_hash, 'installerBytes': len(installer),

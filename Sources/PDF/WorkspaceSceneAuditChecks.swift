@@ -9,7 +9,7 @@ import Foundation
                 userInfo: [NSLocalizedDescriptionKey: message]) }
         }
         @MainActor final class Harness {
-            var queue: [() -> Void] = []
+            var queue: [WorkspaceScenePresentation.Operation] = []
             var hasWindow = false
             var requests = 0
             var presentations = 0

@@ -50,7 +50,7 @@ private struct WindowLifecycleReport: Codable {
 /// coordinator/openWindow action and the actual WorkspaceWindowGuard. It never
 /// constructs an NSWindow, NSHostingView or a substitute scene itself.
 @MainActor final class WindowSceneLifecycleAudit {
-    static let argument = "--window-lifecycle-audit"
+    nonisolated static let argument = "--window-lifecycle-audit"
     private let output: URL
     private let session: MacPreviewSession
     private let coordinator: WorkspaceSceneCoordinator

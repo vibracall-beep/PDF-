@@ -7,7 +7,8 @@ import Combine
     enum Reason: String {
         case preview, initialLaunch, activation, reopen, openDocument, showWorkspace
     }
-    typealias Schedule = (@escaping () -> Void) -> Void
+    typealias Operation = @MainActor @Sendable () -> Void
+    typealias Schedule = (@escaping Operation) -> Void
     private let schedule: Schedule
     private let presentExisting: () -> Bool
     private let trace: (String) -> Void
@@ -107,7 +108,7 @@ import Combine
     static let workspaceID = "pdf-workspace"
     private let windows = NSHashTable<NSWindow>.weakObjects()
     private lazy var presentation = WorkspaceScenePresentation(
-        schedule: { operation in DispatchQueue.main.async(execute: operation) },
+        schedule: { operation in DispatchQueue.main.async { operation() } },
         presentExisting: { [weak self] in self?.presentExistingWindow() ?? false },
         trace: { PreviewStartupTrace.record("workspace scene", details: "; " + $0) })
 

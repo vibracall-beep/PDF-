@@ -100,7 +100,7 @@ struct MenuCustomizationControls: View {
                         moveButtons(index: index, ids: store.menu.quickCommands, title: title(command)) { values in update { $0.quickCommands = values } }
                         Button { update { $0.quickCommands.removeAll { $0 == id } } } label: { Image(systemName: "minus.circle") }
                             .accessibilityLabel("Remover " + title(command) + " do acesso rápido")
-                    }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
+                    }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ -> Bool in
                         drop(items, namespace: "quick", target: id, values: store.menu.quickCommands) { values in update { $0.quickCommands = values } }
                     }
                 }
@@ -130,7 +130,7 @@ struct MenuCustomizationControls: View {
                         update { if value == category { $0.categoryTitles.removeValue(forKey: category) } else { $0.categoryTitles[category] = value } }
                     }),maximum:40,fallback:category)
                     moveButtons(index: index, ids: categories, title: category) { values in update { $0.categoryOrder = values } }
-                }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
+                }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ -> Bool in
                     drop(items, namespace: "category", target: category, values: categories) { values in update { $0.categoryOrder = values } }
                 }
             }
@@ -151,7 +151,7 @@ struct MenuCustomizationControls: View {
                             update { if value == command.title { $0.actionTitles.removeValue(forKey: id) } else { $0.actionTitles[id] = value } }
                         }),maximum:80,fallback:command.title)
                         moveButtons(index: index, ids: documentIDs, title: title(command)) { values in update { $0.documentOrder = values } }
-                    }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ in
+                    }.padding(.vertical, 4).dropDestination(for: String.self) { items, _ -> Bool in
                         drop(items, namespace: "document", target: id, values: documentIDs) { values in update { $0.documentOrder = values } }
                     }
                 }

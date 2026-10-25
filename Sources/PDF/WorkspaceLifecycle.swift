@@ -74,7 +74,7 @@ import AppKit
 }
 
 /// Keep SwiftUI's existing window delegate while adding a guard for unsaved edits.
-struct WorkspaceWindowGuard:NSViewRepresentable {
+@MainActor struct WorkspaceWindowGuard:NSViewRepresentable {
     let model:Workspace
     let sceneCoordinator:WorkspaceSceneCoordinator
     let lifecycleAudit:WindowSceneLifecycleAudit?
@@ -87,27 +87,30 @@ struct WorkspaceWindowGuard:NSViewRepresentable {
         if let window = coordinator.installedWindow, window.delegate === coordinator { window.delegate = coordinator.previous }
         coordinator.installedWindow = nil
     }
-    final class GuardView:NSView {
+    @MainActor final class GuardView:NSView {
         weak var coordinator:Coordinator?
         override func viewDidMoveToWindow() { super.viewDidMoveToWindow(); coordinator?.install(on:window) }
     }
     final class Coordinator:NSObject,NSWindowDelegate {
-        weak var model:Workspace?
-        weak var sceneCoordinator:WorkspaceSceneCoordinator?
-        weak var lifecycleAudit:WindowSceneLifecycleAudit?
+        @MainActor weak var model:Workspace?
+        @MainActor weak var sceneCoordinator:WorkspaceSceneCoordinator?
+        @MainActor weak var lifecycleAudit:WindowSceneLifecycleAudit?
+        // NSObject's introspection/forwarding overrides are nonisolated. Keep
+        // that existing delegate reference outside the UI-isolated state; only
+        // install(on:) changes it, as part of AppKit's main-actor lifecycle.
         weak var previous:(any NSWindowDelegate)?
-        weak var installedWindow:NSWindow?
-        init(model:Workspace,sceneCoordinator:WorkspaceSceneCoordinator,lifecycleAudit:WindowSceneLifecycleAudit?) {
+        @MainActor weak var installedWindow:NSWindow?
+        @MainActor init(model:Workspace,sceneCoordinator:WorkspaceSceneCoordinator,lifecycleAudit:WindowSceneLifecycleAudit?) {
             self.model = model; self.sceneCoordinator = sceneCoordinator; self.lifecycleAudit = lifecycleAudit
         }
-        func install(on window:NSWindow?) {
+        @MainActor func install(on window:NSWindow?) {
             guard let window, installedWindow !== window else { return }
             if let installedWindow, installedWindow.delegate === self { installedWindow.delegate = previous }
             previous = window.delegate; installedWindow = window; window.delegate = self
             sceneCoordinator?.windowAttached(window)
             if let model { lifecycleAudit?.windowAttached(window,model:model) }
         }
-        func windowShouldClose(_ sender:NSWindow) -> Bool {
+        @MainActor func windowShouldClose(_ sender:NSWindow) -> Bool {
             if let model { lifecycleAudit?.windowCloseRequested(sender,model:model) }
             guard model?.confirmDiscardEdits() != false else { return false }
             guard model?.toolDrafts.confirmDiscardForExit() != false else { return false }

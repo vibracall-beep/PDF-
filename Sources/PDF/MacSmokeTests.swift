@@ -353,6 +353,7 @@ enum MacSmokeTests {
         audit("Tool presets") { try ToolPresetAuditChecks.run() }
         audit("Native regression audit") { try NativeAuditChecks.run() }
         audit("Appearance and reader preferences") { try AppearanceAuditChecks.run() }
+        audit("Workspace scene presentation and reopening policy") { try WorkspaceSceneAuditChecks.run() }
         audit("Recovery storage and encryption") { try RecoveryAuditChecks.run() }
         await auditAsync("Reader sessions and annotation editing") { try await SessionAnnotationAuditChecks.run() }
         audit("Semantic retrieval and verifiable citations") { try SemanticAuditChecks.run() }

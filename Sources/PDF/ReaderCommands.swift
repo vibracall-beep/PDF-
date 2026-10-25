@@ -30,17 +30,31 @@ extension FocusedValues {
 struct PDFMenuCommands:Commands {
     @ObservedObject var model:Workspace
     @ObservedObject private var shortcutStore:AdvancedCustomizationStore
-    init(model:Workspace, preferences:AppearancePreferences) { self.model = model; shortcutStore = preferences.advanced }
+    let sceneCoordinator: WorkspaceSceneCoordinator
+    @Environment(\.openWindow) private var openWindow
+    init(model:Workspace, preferences:AppearancePreferences, sceneCoordinator:WorkspaceSceneCoordinator) {
+        self.model = model; shortcutStore = preferences.advanced; self.sceneCoordinator = sceneCoordinator
+    }
     @FocusedValue(\.readerCommandActions) private var readerActions
     @FocusedValue(\.catalogSearchAction) private var catalogSearch
     @FocusedValue(\.recoveryAction) private var recoveryAction
     var body:some Commands {
+            let _ = registerSceneOpening()
             CommandGroup(replacing:.newItem) {
-                Button(actionTitle("action:open",fallback:"Abrir PDF…")) { model.open() }.configuredShortcut("action:open",store:shortcutStore)
-                Button(actionTitle("action:new-tab",fallback:"Abrir PDF em nova aba…")) { model.open() }.configuredShortcut("action:new-tab",store:shortcutStore)
+                Button(actionTitle("action:show-workspace",fallback:"Mostrar espaço de trabalho")) {
+                    sceneCoordinator.requestPresentation(reason:.showWorkspace)
+                }.configuredShortcut("action:show-workspace",store:shortcutStore).accessibilityIdentifier("pdf.workspace.show")
+                Button(actionTitle("action:open",fallback:"Abrir PDF…")) {
+                    sceneCoordinator.requestPresentation(reason:.openDocument,action:{ model.open() })
+                }.configuredShortcut("action:open",store:shortcutStore)
+                Button(actionTitle("action:new-tab",fallback:"Abrir PDF em nova aba…")) {
+                    sceneCoordinator.requestPresentation(reason:.openDocument,action:{ model.open() })
+                }.configuredShortcut("action:new-tab",store:shortcutStore)
                 Button(actionTitle("action:close-tab",fallback:"Fechar aba atual")) { if let id = model.activeSessionID { model.closeSession(id) } }.configuredShortcut("action:close-tab",store:shortcutStore).disabled(model.activeSessionID == nil)
                 Menu("Abrir recente") {
-                    ForEach(model.recentURLs, id:\.path) { url in Button(url.lastPathComponent) { model.open(url:url) } }
+                    ForEach(model.recentURLs, id:\.path) { url in Button(url.lastPathComponent) {
+                        sceneCoordinator.requestPresentation(reason:.openDocument,action:{ model.open(url:url) })
+                    } }
                     Divider()
                     Button("Limpar recentes") { model.clearRecent() }
                 }
@@ -60,11 +74,18 @@ struct PDFMenuCommands:Commands {
                 }
             }
     }
+    private func registerSceneOpening() {
+        // Read the action while Commands has its SwiftUI environment. Register
+        // only a closure; the coordinator invokes it on a later main-loop turn.
+        let action = openWindow
+        sceneCoordinator.registerOpenWindow { action(id: WorkspaceSceneCoordinator.workspaceID) }
+    }
     private func actionTitle(_ id:String,fallback:String) -> String { shortcutStore.menu.actionTitles[id] ?? fallback }
     private func documentButton(_ command:PDFCommandDefinition) -> some View {
         Button(shortcutStore.menu.actionTitles[command.id] ?? command.title) {
             PDFCommandExecution.perform(command.id,model:model,reader:readerActions,
-                search:{ catalogSearch?() },recovery:{ recoveryAction?() })
+                search:{ catalogSearch?() },recovery:{ recoveryAction?() },
+                showWorkspace:{ sceneCoordinator.requestPresentation(reason:.showWorkspace) })
         }.configuredShortcut(command.id,store:shortcutStore).disabled(!commandEnabled(command.id))
     }
     private func commandEnabled(_ id:String) -> Bool {
@@ -88,8 +109,10 @@ struct PDFMenuCommands:Commands {
 
 @MainActor enum PDFCommandExecution {
     /// Used by the palette in the same focused scene as the ordinary menus.
-    @discardableResult static func perform(_ id:String,model:Workspace,reader:ReaderCommandActions?,search:()->Void,recovery:()->Void) -> Bool {
+    @discardableResult static func perform(_ id:String,model:Workspace,reader:ReaderCommandActions?,search:()->Void,recovery:()->Void,
+                                          showWorkspace:(() -> Void)? = nil) -> Bool {
         switch id {
+        case "action:show-workspace": guard let showWorkspace else { return false }; showWorkspace()
         case "action:open", "action:new-tab": model.open()
         case "action:close-tab": if let active = model.activeSessionID { model.closeSession(active) }
         case "action:save": model.save()

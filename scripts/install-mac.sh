@@ -150,40 +150,7 @@ done
 } > "$PDF_BUNDLE/Contents/Resources/runtime/bin/python3"
 chmod 755 "$PDF_BUNDLE/Contents/Resources/runtime/bin/python3"
 printf '%s\n' "$PDF_RUNTIME" > "$PDF_BUNDLE/Contents/Resources/runtime-location.txt"
-cat > "$PDF_BUNDLE/Contents/Info.plist" <<'PLIST'
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict>
-<key>CFBundleName</key><string>PDF</string>
-<key>CFBundleDisplayName</key><string>PDF</string>
-<key>CFBundleIdentifier</key><string>local.pdf.desktop</string>
-<key>CFBundleExecutable</key><string>PDF</string>
-<key>CFBundleIconFile</key><string>PDF</string>
-<key>CFBundlePackageType</key><string>APPL</string>
-<key>CFBundleShortVersionString</key><string>0.7.0</string>
-<key>CFBundleVersion</key><string>6</string>
-<key>LSMinimumSystemVersion</key><string>26.0</string>
-<key>NSHighResolutionCapable</key><true/>
-<key>NSServices</key><array><dict>
-<key>NSMenuItem</key><dict><key>default</key><string>Abrir no PDF</string></dict>
-<key>NSMessage</key><string>openPDF</string>
-<key>NSPortName</key><string>PDF</string>
-<key>NSSendFileTypes</key><array><string>com.adobe.pdf</string></array>
-<key>NSRequiredContext</key><dict><key>NSApplicationIdentifier</key><string>com.apple.finder</string></dict>
-<key>NSServiceDescription</key><string>Abrir os arquivos PDF selecionados para leitura e revisão.</string>
-</dict></array>
-<key>NSAppleEventsUsageDescription</key><string>O PDF usa o Pages para converter uma cópia dos seus documentos em PDF.</string>
-<key>NSCameraUsageDescription</key><string>Digitalizar documentos para os arquivos PDF que você escolher.</string>
-<key>NSLocalNetworkUsageDescription</key><string>Encontrar e usar scanners compartilhados na sua rede local.</string>
-<key>NSBonjourServices</key><array><string>_scanner._tcp</string><string>_uscan._tcp</string><string>_uscans._tcp</string><string>_ica-networking._tcp</string></array>
-<key>CFBundleDocumentTypes</key><array><dict>
-<key>CFBundleTypeName</key><string>Documento PDF</string>
-<key>CFBundleTypeRole</key><string>Editor</string>
-<key>LSHandlerRank</key><string>Alternate</string>
-<key>LSItemContentTypes</key><array><string>com.adobe.pdf</string></array>
-</dict></array>
-</dict></plist>
-PLIST
+cp "$PDF_SOURCE_ROOT/scripts/PDF-Info.plist" "$PDF_BUNDLE/Contents/Info.plist"
 "$PDF_PYTHON" scripts/app_intents_metadata.py extract --source-root "$PDF_SOURCE_ROOT" --resources "$PDF_BUNDLE/Contents/Resources"
 : > "$PDF_BUNDLE/Contents/Resources/installation.lock"
 chmod 444 "$PDF_BUNDLE/Contents/Resources/installation.lock"

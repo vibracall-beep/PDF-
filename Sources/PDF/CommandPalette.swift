@@ -16,7 +16,10 @@ struct AdvancedCommandMenu: Commands {
     @ObservedObject private var store: AdvancedCustomizationStore
     @ObservedObject private var preferences:AppearancePreferences
     @FocusedValue(\.advancedCommandActions) private var actions
-    init(preferences:AppearancePreferences) { store = preferences.advanced; self.preferences = preferences }
+    private let globalCommands:[String:() -> Void]
+    init(preferences:AppearancePreferences,globalCommands:[String:() -> Void] = [:]) {
+        store = preferences.advanced; self.preferences = preferences; self.globalCommands = globalCommands
+    }
     var body: some Commands {
         CommandMenu("Ferramentas") {
             Button("Buscar comandos e ferramentas…") { actions?.showPalette() }
@@ -39,7 +42,9 @@ struct AdvancedCommandMenu: Commands {
         CommandMenu(store.menu.quickTitle) {
             ForEach(store.menu.quickCommands,id:\.self) { id in
                 if let command = PDFCommandCatalog.all.first(where:{$0.id == id}) {
-                    Button(commandTitle(command)) { actions?.execute(id) }.disabled(actions == nil)
+                    Button(commandTitle(command)) {
+                        if let global = globalCommands[id] { global() } else { actions?.execute(id) }
+                    }.disabled(actions == nil && globalCommands[id] == nil)
                 }
             }
             if store.menu.quickCommands.isEmpty { Text("Adicione comandos em Personalizar › Menus") }

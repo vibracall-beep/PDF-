@@ -72,6 +72,31 @@ jobs:
           bash source/scripts/install-binary.sh \
             "$RUNNER_TEMP/PDF-source-binary/PDF-arm64.tar.gz" "$PDF_EXPECTED_SHA" \
             "$RUNNER_TEMP/pdf-cross-installed"
+      - name: Audit the unchanged binary real window before GUI capture
+        id: window_lifecycle
+        run: |
+          set -euo pipefail
+          # Keep this diagnostic outside the exact historical cross-GUI file
+          # inventory and receipt schema. The installed executable is unchanged.
+          mkdir -m 700 "$RUNNER_TEMP/PDF-cross-lifecycle"
+          python3 source/scripts/run-with-timeout.py --seconds 60 --sample-on-timeout -- \
+            "$RUNNER_TEMP/pdf-cross-installed/PDF.app/Contents/MacOS/PDF" \
+            --window-lifecycle-audit "$RUNNER_TEMP/PDF-cross-lifecycle/cross.json" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-cross-lifecycle/cross.log"
+          python3 compatibility-control/scripts/check_window_lifecycle.py "$RUNNER_TEMP/PDF-cross-lifecycle/cross.json" \
+            --app "$RUNNER_TEMP/pdf-cross-installed/PDF.app" --source-commit "$PDF_SOURCE_COMMIT" \
+            --scope cross-installed-binary --receipt "$RUNNER_TEMP/PDF-cross-lifecycle/cross-receipt.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-cross-lifecycle/cross.log"
+      - name: Retain separate cross-OS window lifecycle diagnostics
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-cross-lifecycle
+          path: |
+            ${{ runner.temp }}/PDF-cross-lifecycle/*.json
+            ${{ runner.temp }}/PDF-cross-lifecycle/*.log
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Deny host dependencies and validate runtime, metadata and native operations
         id: isolated
         run: |
@@ -96,7 +121,7 @@ jobs:
           # GUI/window-server capture is intentionally outside the dependency
           # sandbox. Runtime isolation passed separately above. No rebuild,
           # retry, host dependency installation or replacement executable.
-          python3 source/scripts/run-with-timeout.py --seconds 300 -- \
+          python3 source/scripts/run-with-timeout.py --seconds 300 --sample-on-timeout -- \
             "$RUNNER_TEMP/pdf-cross-installed/PDF.app/Contents/MacOS/PDF" \
             --render-preview "$RUNNER_TEMP/PDF-cross-evidence/PDF-preview.png" \
             2>&1 | tee "$RUNNER_TEMP/PDF-cross-evidence/PDF-cross-gui-capture.log"
@@ -123,7 +148,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.install.outcome == 'success' && steps.isolated.outcome == 'success' && steps.gui_origin.outcome == 'success' && steps.gui_capture.outcome == 'success' && steps.gui_validate.outcome == 'success' && steps.report.outcome == 'success' && 'PDF-cross-platform-validated' || 'PDF-cross-platform-unvalidated' }}
+          name: ${{ steps.window_lifecycle.outcome == 'success' && steps.install.outcome == 'success' && steps.isolated.outcome == 'success' && steps.gui_origin.outcome == 'success' && steps.gui_capture.outcome == 'success' && steps.gui_validate.outcome == 'success' && steps.report.outcome == 'success' && 'PDF-cross-platform-validated' || 'PDF-cross-platform-unvalidated' }}
           path: ${{ runner.temp }}/PDF-cross-evidence
           if-no-files-found: ignore
           retention-days: 7

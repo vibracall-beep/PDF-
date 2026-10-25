@@ -175,6 +175,8 @@ struct PDFApp: App {
     @StateObject private var model:Workspace
     @StateObject private var appearancePreferences:AppearancePreferences
     @StateObject private var preview:MacPreviewSession
+    @StateObject private var sceneCoordinator:WorkspaceSceneCoordinator
+    private let lifecycleAudit:WindowSceneLifecycleAudit?
     @NSApplicationDelegateAdaptor(PDFApplicationDelegate.self) private var applicationDelegate
     init() {
         PreviewStartupTrace.record("PDFApp init begin")
@@ -185,7 +187,11 @@ struct PDFApp: App {
                 guard args.indices.contains(index+1),!args[index+1].hasPrefix("--") else { throw NSError(domain:"PDF.Preview",code:1,userInfo:[NSLocalizedDescriptionKey:"Informe o caminho PNG da prévia."]) }
                 destination = URL(fileURLWithPath:args[index+1])
             }
-            let session = try MacPreviewSession(destination:destination)
+            let session = try MacPreviewSession(destination:destination,
+                isolateState:args.contains(WindowSceneLifecycleAudit.argument))
+            let coordinator = WorkspaceSceneCoordinator()
+            _sceneCoordinator = StateObject(wrappedValue:coordinator)
+            lifecycleAudit = try WindowSceneLifecycleAudit(arguments:args,session:session,coordinator:coordinator)
             _preview = StateObject(wrappedValue:session)
             _model = StateObject(wrappedValue:session.model)
             _appearancePreferences = StateObject(wrappedValue:session.preferences)
@@ -226,30 +232,45 @@ struct PDFApp: App {
     }
     var body: some Scene {
         let _ = PreviewStartupTrace.record("PDFApp body evaluated")
-        WindowGroup {
+        let _ = applicationDelegate.configure(sceneCoordinator:sceneCoordinator,
+            explicitPreview:preview.isEnabled,lifecycleAudit:lifecycleAudit)
+        WindowGroup(id:WorkspaceSceneCoordinator.workspaceID) {
             let _ = PreviewStartupTrace.record("WindowGroup content builder evaluated")
+            let _ = sceneCoordinator.sceneConstructionBegan()
             Group {
                 if preview.isEnabled { preview.content.id(preview.routeIdentity) }
                 else { ContentView() }
             }
-                .environmentObject(model).environmentObject(appearancePreferences)
+                .environmentObject(model).environmentObject(appearancePreferences).environmentObject(sceneCoordinator)
                 .defaultAppStorage(preview.defaults)
                 .tint(appearancePreferences.accent).preferredColorScheme(appearancePreferences.preferredScheme)
                 .frame(minWidth:1050,minHeight:720)
                 .onOpenURL { model.open(url:$0) }
-                .background(WorkspaceWindowGuard(model:model).frame(width:0,height:0))
+                .background(WorkspaceWindowGuard(model:model,sceneCoordinator:sceneCoordinator,lifecycleAudit:lifecycleAudit).frame(width:0,height:0))
                 .background(MacPreviewWindowObserver(session:preview).frame(width:0,height:0))
                 .onAppear {
                     PreviewStartupTrace.record("WindowGroup content appeared")
                     applicationDelegate.model = model
-                    if !preview.isEnabled {
+                    if !preview.isIsolated {
                         AutomationCoordinator.shared.attach(model: model)
                         PDFServiceProvider.install(model: model)
                         PDFShortcutsRuntime.shared.attach(model: model)
                     }
                 }
         }
-        .commands { PDFMenuCommands(model:model, preferences:appearancePreferences); AdvancedCommandMenu(preferences:appearancePreferences) }
+        // Only the independent lifecycle audit suppresses automatic creation to
+        // exercise the no-window bootstrap. Normal launch and preview retain
+        // SwiftUI's original restoration and automatic presentation behavior.
+        .defaultLaunchBehavior(lifecycleAudit == nil ? .automatic : .suppressed)
+        .restorationBehavior(lifecycleAudit == nil ? .automatic : .disabled)
+        .commands {
+            PDFMenuCommands(model:model, preferences:appearancePreferences,sceneCoordinator:sceneCoordinator)
+            AdvancedCommandMenu(preferences:appearancePreferences,globalCommands:[
+                "action:show-workspace": { sceneCoordinator.requestPresentation(reason:.showWorkspace) },
+                "action:open": { sceneCoordinator.requestPresentation(reason:.openDocument,action:{ model.open() }) },
+                "action:new-tab": { sceneCoordinator.requestPresentation(reason:.openDocument,action:{ model.open() }) }
+            ])
+        }
         Settings { PreferencesView().environmentObject(model).environmentObject(appearancePreferences) }
     }
 
@@ -258,6 +279,7 @@ struct PDFApp: App {
 struct ContentView: View {
     @EnvironmentObject var model:Workspace
     @EnvironmentObject var preferences:AppearancePreferences
+    @EnvironmentObject private var sceneCoordinator:WorkspaceSceneCoordinator
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
     @Environment(\.accessibilityReduceTransparency) private var reduceTransparency
     @State private var query = ""
@@ -514,7 +536,8 @@ struct ContentView: View {
         if id.hasPrefix("tool:"), let tool = tools.first(where: { "tool:" + $0.id == id }) { activate(tool); return }
         PDFCommandExecution.perform(id, model:model, reader:reader,
                                     search: { model.section = "Início"; toolSearchFocused = true },
-                                    recovery: { showRecovery = true })
+                                    recovery: { showRecovery = true },
+                                    showWorkspace: { sceneCoordinator.requestPresentation(reason:.showWorkspace) })
     }
     func isFavorite(_ id:String) -> Bool { preferences.state.favorites.contains(id) }
     func toggleFavorite(_ id:String) { if isFavorite(id) { preferences.state.favorites.removeAll { $0 == id } } else { preferences.state.favorites.append(id) } }

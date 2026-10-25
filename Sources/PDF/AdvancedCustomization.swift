@@ -61,7 +61,8 @@ enum PDFCommandCatalog {
             ("share","Compartilhar documento","square.and.arrow.up","s",["command","control"])
         ]
         return definitions.map { PDFCommandDefinition(id:"action:"+$0.0,title:$0.1,category:"Comandos",icon:$0.2,defaultBinding:.init(key:$0.3,modifiers:$0.4)) } +
-            [PDFCommandDefinition(id:"action:rotate",title:"Girar página atual",category:"Comandos",icon:"rotate.right",defaultBinding:nil)] +
+            [PDFCommandDefinition(id:"action:rotate",title:"Girar página atual",category:"Comandos",icon:"rotate.right",defaultBinding:nil),
+             PDFCommandDefinition(id:"action:show-workspace",title:"Mostrar espaço de trabalho",category:"Comandos",icon:"macwindow",defaultBinding:nil)] +
             tools.map { PDFCommandDefinition(id:"tool:"+$0.id,title:$0.name,category:$0.category,icon:$0.icon,defaultBinding:nil) }
     }
     static var reserved: Set<PDFKeyboardBinding> {

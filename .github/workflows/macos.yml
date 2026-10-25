@@ -50,9 +50,29 @@ jobs:
         run: |
           echo "::add-matcher::.github/swift-problem-matcher.json"
           xcrun swift build -c release --arch arm64 --jobs 3
+      - name: Audit the real window early without installing the engine runtime
+        id: window_early
+        if: ${{ !cancelled() && steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          mkdir -m 700 "$RUNNER_TEMP/PDF-window-lifecycle"
+          # This diagnostic-only bundle has the exact production Info.plist and
+          # installation lease. It is not an approved installation/distribution.
+          python3 scripts/prepare-window-audit-bundle.py \
+            --binary "$(xcrun swift build -c release --arch arm64 --show-bin-path)/PDF" \
+            --destination "$RUNNER_TEMP/PDF-window-lifecycle/early/PDF.app" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-window-lifecycle/early.log"
+          python3 scripts/run-with-timeout.py --seconds 60 --sample-on-timeout -- \
+            "$RUNNER_TEMP/PDF-window-lifecycle/early/PDF.app/Contents/MacOS/PDF" \
+            --window-lifecycle-audit "$RUNNER_TEMP/PDF-window-lifecycle/early.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-window-lifecycle/early.log"
+          python3 scripts/check_window_lifecycle.py "$RUNNER_TEMP/PDF-window-lifecycle/early.json" \
+            --app "$RUNNER_TEMP/PDF-window-lifecycle/early/PDF.app" --source-commit "$GITHUB_SHA" \
+            --scope minimal-diagnostic --receipt "$RUNNER_TEMP/PDF-window-lifecycle/early-receipt.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-window-lifecycle/early.log"
       - name: Install native PDF structural checker
         id: qpdf
-        if: ${{ !cancelled() && steps.compile.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.compile.outcome == 'success' && steps.window_early.outcome == 'success' }}
         env:
           HOMEBREW_NO_AUTO_UPDATE: '1'
         run: |
@@ -63,14 +83,36 @@ jobs:
         id: install
         # Product OCR requires the installed local runtime. Both pre-activation
         # and post-activation checks remain mandatory inside the installer.
-        if: ${{ !cancelled() && steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.integrity.outcome == 'success' && steps.compile.outcome == 'success' && steps.window_early.outcome == 'success' }}
         env:
           PDF_INSTALL_DIR: ${{ runner.temp }}/pdf-installed
           CG_PDF_VERBOSE: '1'
         run: bash scripts/install-mac.sh
+      - name: Audit the real window in the complete installed application
+        id: window_installed
+        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        run: |
+          set -euo pipefail
+          python3 scripts/run-with-timeout.py --seconds 60 --sample-on-timeout -- \
+            "$RUNNER_TEMP/pdf-installed/PDF.app/Contents/MacOS/PDF" \
+            --window-lifecycle-audit "$RUNNER_TEMP/PDF-window-lifecycle/installed.json" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-window-lifecycle/installed.log"
+          python3 scripts/check_window_lifecycle.py "$RUNNER_TEMP/PDF-window-lifecycle/installed.json" \
+            --app "$RUNNER_TEMP/pdf-installed/PDF.app" --source-commit "$GITHUB_SHA" \
+            --scope installed-application --receipt "$RUNNER_TEMP/PDF-window-lifecycle/installed-receipt.json" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-window-lifecycle/installed.log"
+      - name: Retain separate window lifecycle diagnostics even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-window-lifecycle-${{ matrix.runner }}
+          path: |
+            ${{ runner.temp }}/PDF-window-lifecycle/*.json
+            ${{ runner.temp }}/PDF-window-lifecycle/*.log
+          if-no-files-found: ignore
       - name: Validate installed application and local OCR
         id: native
-        if: ${{ !cancelled() && steps.install.outcome == 'success' }}
+        if: ${{ !cancelled() && steps.install.outcome == 'success' && steps.window_installed.outcome == 'success' }}
         env:
           CG_PDF_VERBOSE: '1'
         run: |
@@ -326,7 +368,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && 'PDF-binary-validated' || 'PDF-binary-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.window_early.outcome == 'success' && steps.window_installed.outcome == 'success' && steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && 'PDF-binary-validated' || 'PDF-binary-unvalidated' }}-${{ matrix.runner }}
           path: ${{ runner.temp }}/PDF-binary-artifact/*
           if-no-files-found: ignore
           retention-days: 7
@@ -350,7 +392,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
+          name: ${{ steps.window_early.outcome == 'success' && steps.window_installed.outcome == 'success' && steps.integrity.outcome == 'success' && steps.ai_quality.outcome == 'success' && steps.compile.outcome == 'success' && steps.qpdf.outcome == 'success' && steps.native.outcome == 'success' && steps.install.outcome == 'success' && steps.preview.outcome == 'success' && steps.accessibility.outcome == 'success' && steps.vision.outcome == 'success' && steps.benchmark.outcome == 'success' && steps.package.outcome == 'success' && steps.binary_install.outcome == 'success' && steps.binary_isolation.outcome == 'success' && ((steps.vision.outputs.apple_vision_passed != 'true' || steps.benchmark.outputs.uses_tesseract == 'true') && 'PDF-source-ocr-compatibility' || 'PDF-source') || 'PDF-source-unvalidated' }}-${{ matrix.runner }}
           path: |
             dist/PDF-source.tar.gz
             dist/PDF-source.tar.gz.sha256

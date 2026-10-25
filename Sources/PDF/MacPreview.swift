@@ -9,7 +9,8 @@ import Darwin
 /// only for the explicit preview command and contain no paths or document data.
 enum PreviewStartupTrace {
     static func record(_ phase: StaticString, details: String = "") {
-        guard CommandLine.arguments.contains("--render-preview") else { return }
+        guard CommandLine.arguments.contains("--render-preview")
+                || CommandLine.arguments.contains(WindowSceneLifecycleAudit.argument) else { return }
         let hasSwiftTask = withUnsafeCurrentTask { $0 != nil }
         let line = "PDF preview startup: \(phase); mainThread=\(pthread_main_np() != 0); swiftTask=\(hasSwiftTask)\(details)\n"
         // No stdout/stdio buffer: a timeout before WindowGroup attachment must
@@ -30,7 +31,8 @@ enum PreviewStartupTrace {
 
 extension PreviewStartupTrace {
     @MainActor static func applicationState(_ phase: StaticString, defaultLaunch: Bool? = nil) {
-        guard CommandLine.arguments.contains("--render-preview") else { return }
+        guard CommandLine.arguments.contains("--render-preview")
+                || CommandLine.arguments.contains(WindowSceneLifecycleAudit.argument) else { return }
         guard let app = NSApp else { record(phase, details: "; application=absent"); return }
         let windows = app.windows
         // Only lifecycle flags and counts; no window titles, URLs or user data.
@@ -358,12 +360,13 @@ enum MacPreview {
     private var captureTask:Task<Void,Never>?
     private var watchdog:Task<Void,Never>?
     var isEnabled:Bool { destination != nil }
+    var isIsolated:Bool { suiteName != nil }
     var routeIdentity:String { route.identity }
 
-    init(destination:URL? = nil) throws {
+    init(destination:URL? = nil, isolateState:Bool = false) throws {
         PreviewStartupTrace.record("preview session init begin")
         self.destination = destination
-        if destination != nil {
+        if destination != nil || isolateState {
             let suite = "PDF-preview-" + UUID().uuidString
             guard let defaults = UserDefaults(suiteName:suite) else { throw MacPreview.failure(16,"Não foi possível isolar as preferências da prévia.") }
             PreviewStartupTrace.record("isolated defaults ready")
@@ -382,6 +385,25 @@ enum MacPreview {
             model = Workspace(); preferences = AppearancePreferences.shared
         }
         PreviewStartupTrace.record("preview session init end")
+    }
+
+    /// The window lifecycle diagnostic shares these private production models
+    /// without enabling preview capture or touching the user's defaults/data.
+    /// Its report requires successful cleanup; ordinary preview behavior stays
+    /// on its existing finish path below.
+    func cleanupIsolatedState() throws {
+        guard let suiteName, let scratchDirectory else {
+            throw MacPreview.failure(31, "A auditoria de janela exige um espaço de trabalho privado.")
+        }
+        model.cancelSearch()
+        defaults.removePersistentDomain(forName: suiteName)
+        if FileManager.default.fileExists(atPath: scratchDirectory.path) {
+            try FileManager.default.removeItem(at: scratchDirectory)
+        }
+        guard (defaults.persistentDomain(forName: suiteName) ?? [:]).isEmpty,
+              !FileManager.default.fileExists(atPath: scratchDirectory.path) else {
+            throw MacPreview.failure(31, "A limpeza dos dados privados da auditoria não foi confirmada.")
+        }
     }
 
     @ViewBuilder var content:some View {

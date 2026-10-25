@@ -1,0 +1,111 @@
+{
+  "sourceCommit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "runID": 40229486932,
+  "scope": "Derived small metadata; per-system native packages approved, cross-run and private delivery not approved here",
+  "packages": [
+    {
+      "runner": "macos-26",
+      "artifactID": 12613568897,
+      "artifactSHA256": "3fafe96baf30339dcdd6dd50694228c117fd0cf9cf1166e23cfa4dab598e9b4e",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1448948424,
+        "sha256": "71528d864bb9425516fe877318a734855ee0c74c818f021d53b13eca790297f5",
+        "retainedInsideOriginalZIP": true
+      },
+      "manifest": {
+        "bytes": 12263013,
+        "sha256": "540201d729049e850d0a51e80232e020d1a16dcd5c20483356cd295e14860ebb",
+        "storageRequirements": {
+          "bundleBytes": 3489762935,
+          "bundleEntries": 61131,
+          "distributionBytes": 3489771997,
+          "distributionEntries": 61133,
+          "schemaVersion": 1
+        },
+        "retainedInThisGitSubset": false
+      },
+      "installer": {
+        "name": "install-binary.sh",
+        "bytes": 9062,
+        "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+      },
+      "conservativeSpaceBytesAfterArchiveCopy": 10068713145,
+      "conservativeSpaceMiBAfterArchiveCopy": 9603,
+      "nativePackageValidation": {
+        "schemaVersion": 1,
+        "commit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+        "runner": "macos-26",
+        "isolatedRuntimePassed": true,
+        "freshInstallPassed": true,
+        "transactionalUpdatePassed": true,
+        "preferencesPreserved": true,
+        "wrongChecksumRejected": true,
+        "manifestEntries": 56826,
+        "developerToolsOnDestinationRequired": false,
+        "applicationVersion": "0.7.0",
+        "signing": "ad-hoc",
+        "appleNotarized": false,
+        "appIntentsMetadataVerified": true,
+        "localAIStatus": "unavailable",
+        "localAIGenerationSamplePassed": false,
+        "physicalM4Measured": false,
+        "neuralEngineMeasured": false,
+        "energyMeasured": false,
+        "humanVoiceOverTested": false
+      }
+    },
+    {
+      "runner": "xcode-27",
+      "artifactID": 12613123845,
+      "artifactSHA256": "1d0e49761a09b9636b12893fb6e0a1551b6384dacb9df4a56b7cccaa49fa0bce",
+      "tar": {
+        "member": "PDF-arm64.tar.gz",
+        "bytes": 1446966449,
+        "sha256": "bcb86b4019180bd54934070a40e91b29bc2397b48e13343ef13df18c3db7d3b5",
+        "retainedInsideOriginalZIP": true
+      },
+      "manifest": {
+        "bytes": 12262979,
+        "sha256": "df08ec03131e1c2cadd374b3931231d57062fc42e217dcdacd547a662b362802",
+        "storageRequirements": {
+          "bundleBytes": 3477129068,
+          "bundleEntries": 61131,
+          "distributionBytes": 3477138130,
+          "distributionEntries": 61133,
+          "schemaVersion": 1
+        },
+        "retainedInThisGitSubset": false
+      },
+      "installer": {
+        "name": "install-binary.sh",
+        "bytes": 9062,
+        "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+      },
+      "conservativeSpaceBytesAfterArchiveCopy": 10043445377,
+      "conservativeSpaceMiBAfterArchiveCopy": 9579,
+      "nativePackageValidation": {
+        "schemaVersion": 1,
+        "commit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+        "runner": "xcode-27",
+        "isolatedRuntimePassed": true,
+        "freshInstallPassed": true,
+        "transactionalUpdatePassed": true,
+        "preferencesPreserved": true,
+        "wrongChecksumRejected": true,
+        "manifestEntries": 56826,
+        "developerToolsOnDestinationRequired": false,
+        "applicationVersion": "0.7.0",
+        "signing": "ad-hoc",
+        "appleNotarized": false,
+        "appIntentsMetadataVerified": true,
+        "localAIStatus": "unavailable",
+        "localAIGenerationSamplePassed": false,
+        "physicalM4Measured": false,
+        "neuralEngineMeasured": false,
+        "energyMeasured": false,
+        "humanVoiceOverTested": false
+      }
+    }
+  ]
+}

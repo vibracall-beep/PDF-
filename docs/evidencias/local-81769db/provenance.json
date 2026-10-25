@@ -8,7 +8,7 @@
   ],
   "scope": "Focal Linux validation after installer metadata representation fix; not full repeat or native approval",
   "nativeRunID": 40229486932,
-  "nativeApproved": false,
+  "nativeApproved": true,
   "suites": [
     {
       "suite": "scripts",
@@ -48,5 +48,7 @@
     "verifyInstallerIntegrity": "success in both jobs",
     "compileNativeApplication": "in_progress",
     "completeLogsAndCountsRetained": false
-  }
+  },
+  "nativeFinalEvidence": "../81769db/README.md",
+  "nativeFinalScope": "Per-system native matrix and packages; same-package cross-run and private delivery remain separate"
 }

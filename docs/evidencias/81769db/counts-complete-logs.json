@@ -1,0 +1,476 @@
+{
+  "runID": 40229486932,
+  "sourceSHA": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "attempt": 1,
+  "sourceConclusion": "success",
+  "officialEndpoint": "/repos/vibracall-beep/PDF-/actions/runs/40229486932/attempts/1/logs",
+  "archive": {
+    "file": "collector-attempt-1-logs.zip",
+    "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs.zip",
+    "bytes": 984613,
+    "sha256": "209e64bc59e68172c36c99dca617df68eeab75da306c3b7b2f838531beb9387a",
+    "upstreamDigestSupplied": false,
+    "integrityScope": "Official authenticated API download; locally calculated SHA-256, full ZIP member CRC and bounds verified."
+  },
+  "snapshotDirectory": "/tmp/pdf-native-81769db/snapshots/logs-1792962587764768550",
+  "zipMembers": [
+    {
+      "name": "0_native-application (macos-26).txt",
+      "bytes": 1289471,
+      "sha256": "56e5dbe2af24599cf0ec270b040455118e4980842c012d2b5b2a85e8058d11ff"
+    },
+    {
+      "name": "native-application (macos-26)/system.txt",
+      "bytes": 579,
+      "sha256": "c8328fbf023a90e43baa242826c8739ff969460ecd1d53174fabdfd34b7834c6"
+    },
+    {
+      "name": "native-application (macos-26)/1_Set up job.txt",
+      "bytes": 2146,
+      "sha256": "6b42f63be94e1b78fb1b85dd82c7b77d3158250e2f1fad8c55bfb15dfb1f61d2"
+    },
+    {
+      "name": "native-application (macos-26)/2_Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 6054,
+      "sha256": "46b00dfc8a42835daeea823b856d6cdcdb78b0eb27e938178c404277d57c87cf"
+    },
+    {
+      "name": "native-application (macos-26)/3_Verify Apple toolchain.txt",
+      "bytes": 5090,
+      "sha256": "a905ba1bf2743991610f7db0a055570cd25c83b17cc5d9e83b1abd8e2f297148"
+    },
+    {
+      "name": "native-application (macos-26)/4_Verify installer integrity.txt",
+      "bytes": 47024,
+      "sha256": "35bd6b63d8155fa1c5eb93bea729b2548b5b5e642860f9898f2a935f0287a719"
+    },
+    {
+      "name": "native-application (macos-26)/5_Compile native application.txt",
+      "bytes": 4772,
+      "sha256": "7798c1a3890fa1e70c683d9499fc5fbd34d0aa815116f506fc82ddcb2ebb418e"
+    },
+    {
+      "name": "native-application (macos-26)/6_Install native PDF structural checker.txt",
+      "bytes": 1134,
+      "sha256": "0ecb7ce02915a2a39fc859a3f181dee39ff19beef87c333d2d095a72c1348bd6"
+    },
+    {
+      "name": "native-application (macos-26)/7_Build, install and validate complete application.txt",
+      "bytes": 408277,
+      "sha256": "bac87eff5e1613497f6b4a3a38aef48b0557d44a06f816bed73ad0745a581765"
+    },
+    {
+      "name": "native-application (macos-26)/8_Validate installed application and local OCR.txt",
+      "bytes": 120772,
+      "sha256": "b314cf55a6d05b8a4e50285ece6534d2f4d053ee3c2fad955235096d6f1d8882"
+    },
+    {
+      "name": "native-application (macos-26)/9_Retain native diagnostic log.txt",
+      "bytes": 2068,
+      "sha256": "93401cf5f90ecdffc052b7fb17283b96ab4dae49b9fba5eee9d3a88cdfaa12c6"
+    },
+    {
+      "name": "native-application (macos-26)/10_Capture native window preview.txt",
+      "bytes": 71772,
+      "sha256": "fcde8566c163042ec8d35af93e620d3b39e69c4675ee7c2cc113f433e8b67c36"
+    },
+    {
+      "name": "native-application (macos-26)/11_Validate all native previews and accessibility reports.txt",
+      "bytes": 20422,
+      "sha256": "957318d3d8d6e7ee525be8fe005d267f6c232cc1bb7fb7225ff7b9b76b0c896d"
+    },
+    {
+      "name": "native-application (macos-26)/12_Retain native preview artifact.txt",
+      "bytes": 2251,
+      "sha256": "cbaaff5821cb2ad6a797ee316fd06b9fdc02d232865c66d9fba2df3352369b79"
+    },
+    {
+      "name": "native-application (macos-26)/13_Record Apple Vision capability independently.txt",
+      "bytes": 5642,
+      "sha256": "dd683c2441e082328b5f82cbf312130cb3d2efe4cacc3debf03d8cb476d1454d"
+    },
+    {
+      "name": "native-application (macos-26)/14_Retain Apple Vision capability report.txt",
+      "bytes": 2388,
+      "sha256": "0861bf663f43dcd21039ad51d2be99f943f2fd47a9bae1ae77256f17f495bc62"
+    },
+    {
+      "name": "native-application (macos-26)/15_Evaluate Portuguese answers with the actual local Apple model.txt",
+      "bytes": 3816,
+      "sha256": "e6fd62d1301b83766b9b29aa11e879b1c5bead6add0cc36356f6202cd0a59bec"
+    },
+    {
+      "name": "native-application (macos-26)/16_Retain local AI experiment and explicit availability.txt",
+      "bytes": 2049,
+      "sha256": "fe5e505b336665e137a686e665a96c93b222373e19d67e934cd03df32850f51f"
+    },
+    {
+      "name": "native-application (macos-26)/17_Benchmark the installed application with OCR.txt",
+      "bytes": 18289,
+      "sha256": "56188c68d19845b717ce9437432832e47148d39f8ee42cd49a9902d90b659325"
+    },
+    {
+      "name": "native-application (macos-26)/18_Retain native benchmark artifact.txt",
+      "bytes": 2071,
+      "sha256": "a5e86ef89bf581a2697ddd1e9615afd2787fe159eabaf917c9dec9442bfc596b"
+    },
+    {
+      "name": "native-application (macos-26)/19_Assemble relocatable binary distribution.txt",
+      "bytes": 350782,
+      "sha256": "87187968c6f3a7a3851adb5eb2a519b3c1769353e8001749f5ef831ce32ceb77"
+    },
+    {
+      "name": "native-application (macos-26)/20_Validate portable app without host dependencies or network.txt",
+      "bytes": 34845,
+      "sha256": "c787eb7db91537511d676e205cbb9debb40092f011acd8a1f94ef7ac6af78aad"
+    },
+    {
+      "name": "native-application (macos-26)/21_Package and verify binary install and update.txt",
+      "bytes": 160157,
+      "sha256": "c51d1ac13ad9319f3935ee19cc299cd83054d22e6e02762acdf7ecc3b82e4ce7"
+    },
+    {
+      "name": "native-application (macos-26)/22_Retain binary package with explicit validation status.txt",
+      "bytes": 11468,
+      "sha256": "03858d28233e49fee244e668fd9b2057925b34ecca95fbf461807b4dcb5fcb44"
+    },
+    {
+      "name": "native-application (macos-26)/23_Create source distribution.txt",
+      "bytes": 1382,
+      "sha256": "38822efc502ae051fe260a4bf9c7a3bfcc986a70d80ba4423833154b68b4ffe2"
+    },
+    {
+      "name": "native-application (macos-26)/24_Retain source artifact with validation status.txt",
+      "bytes": 2495,
+      "sha256": "b7d5f7c8c9ee2fcb4997820da33a2ab6803ba4b9fd6cf94252dedee288ba0d56"
+    },
+    {
+      "name": "native-application (macos-26)/48_Post Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 1928,
+      "sha256": "80eb92b545cb2c955e36ee2f7ce5fbd36d6216a9d32346ea5ace159b27073f90"
+    },
+    {
+      "name": "native-application (macos-26)/49_Complete job.txt",
+      "bytes": 452,
+      "sha256": "8c0ca5375856e66bf7ef55d58abdb65cd0d7ea88d68f6f7a4791003b12d02cda"
+    },
+    {
+      "name": "1_native-application (xcode-27).txt",
+      "bytes": 2770786,
+      "sha256": "a08332d21b8fb7e6c589ea908b5b062c9ece32db0c86030aca8e4951c77fb3a5"
+    },
+    {
+      "name": "native-application (xcode-27)/system.txt",
+      "bytes": 579,
+      "sha256": "4dcef8711f3db0c0583f61bf2477654aee1da9e3b8c1c1feffe02b0e28922859"
+    },
+    {
+      "name": "native-application (xcode-27)/1_Set up job.txt",
+      "bytes": 2147,
+      "sha256": "4de860706e3b43709932621d64e02933c337e00c7564b6805ef7b6288bab2aa9"
+    },
+    {
+      "name": "native-application (xcode-27)/2_Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 6054,
+      "sha256": "e83fbb38977556e667aac5c2630670913fde9c673acc8badc12e0a7f1c7e4ef1"
+    },
+    {
+      "name": "native-application (xcode-27)/3_Verify Apple toolchain.txt",
+      "bytes": 4832,
+      "sha256": "031c8d8b5385752525b78aee89f7c9deae7e8431fbc36bf51b5a53ef0480fb2d"
+    },
+    {
+      "name": "native-application (xcode-27)/4_Verify installer integrity.txt",
+      "bytes": 47184,
+      "sha256": "8c02d3b2a4dbdca9afcc60058ae4a6962cbc4244e92bc85c3bc85f18bd98430a"
+    },
+    {
+      "name": "native-application (xcode-27)/5_Compile native application.txt",
+      "bytes": 7946,
+      "sha256": "3a1f94bb57d87f44acf0b48ebd3764c8322eeedc9fb53cf62eb118dd58ec31e0"
+    },
+    {
+      "name": "native-application (xcode-27)/6_Install native PDF structural checker.txt",
+      "bytes": 1140,
+      "sha256": "121c8de405c0c0b7c08aa7c3451df2ff9e6b6cac2d6659d755058334fdfabc0b"
+    },
+    {
+      "name": "native-application (xcode-27)/7_Build, install and validate complete application.txt",
+      "bytes": 1332260,
+      "sha256": "edeefe8efdb47eb0f3f2e10f9eca60a8534b48a9e2d05e2a893cfd5297ddfe49"
+    },
+    {
+      "name": "native-application (xcode-27)/8_Validate installed application and local OCR.txt",
+      "bytes": 582542,
+      "sha256": "13cc4a5cc4227889adcb599f560a8468aa0f13d8c5e98e3d047ee5f70235d9af"
+    },
+    {
+      "name": "native-application (xcode-27)/9_Retain native diagnostic log.txt",
+      "bytes": 2070,
+      "sha256": "fb4d52210b84cffe4e4f8fa032ec58588bf938d4cbf22483761d232267f5944a"
+    },
+    {
+      "name": "native-application (xcode-27)/10_Capture native window preview.txt",
+      "bytes": 73872,
+      "sha256": "700b17bd1c949d55eaded4b1f4b745e4a583c87abfa485525271bedeaf3787ba"
+    },
+    {
+      "name": "native-application (xcode-27)/11_Validate all native previews and accessibility reports.txt",
+      "bytes": 20992,
+      "sha256": "9aee8c1c325c6a0264edd2414c29e1f5afcb90203ba9f457f47cfbc02d287466"
+    },
+    {
+      "name": "native-application (xcode-27)/12_Retain native preview artifact.txt",
+      "bytes": 2251,
+      "sha256": "25ccd63787bfa6c4ab04d8fd2b9843b95449efe107836f143aa1218e3d0720f0"
+    },
+    {
+      "name": "native-application (xcode-27)/13_Record Apple Vision capability independently.txt",
+      "bytes": 15237,
+      "sha256": "caeaf84d816b684c611757ce60ca973bf66af42032bf3d3bb2f9740534daa60f"
+    },
+    {
+      "name": "native-application (xcode-27)/14_Retain Apple Vision capability report.txt",
+      "bytes": 2390,
+      "sha256": "187a5f63dd9f83ad34fa21326c5354aa20176a427a5da2759de10476602af47a"
+    },
+    {
+      "name": "native-application (xcode-27)/15_Evaluate Portuguese answers with the actual local Apple model.txt",
+      "bytes": 3816,
+      "sha256": "19a158fd291066eb103569f559657475475acb93fa22641ff25cc36a29c94191"
+    },
+    {
+      "name": "native-application (xcode-27)/16_Retain local AI experiment and explicit availability.txt",
+      "bytes": 2049,
+      "sha256": "f5e3b2993cd71ffd13a2b9db26c8de473763f9b6109019bf51a8645709ad7d82"
+    },
+    {
+      "name": "native-application (xcode-27)/17_Benchmark the installed application with OCR.txt",
+      "bytes": 78264,
+      "sha256": "87bb1b12857edfb2ee9d887209173a3da114505cdca3a21aa9652281ae3deb41"
+    },
+    {
+      "name": "native-application (xcode-27)/18_Retain native benchmark artifact.txt",
+      "bytes": 2071,
+      "sha256": "808eb6ad531f8e64860c9d8690a516bd25c5c620f4e9f294d5420d96910a94c0"
+    },
+    {
+      "name": "native-application (xcode-27)/19_Assemble relocatable binary distribution.txt",
+      "bytes": 350782,
+      "sha256": "61ec68b4016b2abc690540ac2d115fedad89ee7634e3ae0b39ee8f3c17fd84d4"
+    },
+    {
+      "name": "native-application (xcode-27)/20_Validate portable app without host dependencies or network.txt",
+      "bytes": 38208,
+      "sha256": "fe0983c51ef28860099b08c36e3bfa6b0ed5bc61bbc5efc46bb10ffc6e7bc87b"
+    },
+    {
+      "name": "native-application (xcode-27)/21_Package and verify binary install and update.txt",
+      "bytes": 176972,
+      "sha256": "1557a2361dfdaa504139a4333b029ce93e47b567ed131e70a4dcae8013cb47c1"
+    },
+    {
+      "name": "native-application (xcode-27)/22_Retain binary package with explicit validation status.txt",
+      "bytes": 11468,
+      "sha256": "eb319b407440a961b6494aba2dae7c63f7559439af1097759063e5bf93e8ce64"
+    },
+    {
+      "name": "native-application (xcode-27)/23_Create source distribution.txt",
+      "bytes": 1382,
+      "sha256": "d5ef8d576cfa3945079985341cca64e2955a712ab097ddc4246a0446708f740f"
+    },
+    {
+      "name": "native-application (xcode-27)/24_Retain source artifact with validation status.txt",
+      "bytes": 2549,
+      "sha256": "0affd5a5c041d4bbaf9b5838d779dd22fffc688d3d53e9547070ef642c9f4f82"
+    },
+    {
+      "name": "native-application (xcode-27)/48_Post Run actions_checkout@11d5960a326750d5838078e36cf38b85af677262.txt",
+      "bytes": 1928,
+      "sha256": "f5284f988f20cbad60864339444e4263ae1c9148627a2c59ecd470966ddbd3ab"
+    },
+    {
+      "name": "native-application (xcode-27)/49_Complete job.txt",
+      "bytes": 452,
+      "sha256": "9c1cd3094987969b7b4d5cd6163f923f374ca9e71e4ed7495bbed2c459de2de4"
+    }
+  ],
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "jobID": 121277936021,
+      "fullLog": {
+        "file": "0_native-application (macos-26).txt",
+        "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs/0_native-application (macos-26).txt",
+        "bytes": 1289471,
+        "sha256": "56e5dbe2af24599cf0ec270b040455118e4980842c012d2b5b2a85e8058d11ff"
+      },
+      "python": [
+        {
+          "cases": 143,
+          "passed": 142,
+          "skipped": 1,
+          "seconds": 25.722,
+          "line": 336
+        },
+        {
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "seconds": 134.929,
+          "line": 1426
+        },
+        {
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "seconds": 107.709,
+          "line": 1492
+        }
+      ],
+      "distinctNativeGroups": 43,
+      "nativeGroupSuccesses": 387,
+      "nativeExecutionRepeatCounts": [
+        9
+      ],
+      "nativeGroups": {
+        "Accessibility optional tag edit contract": 9,
+        "Adaptive resource limits": 9,
+        "Advanced editing and OCR review contracts": 9,
+        "App Intents input and private temporary files": 9,
+        "Appearance and reader preferences": 9,
+        "Application task cancellation and cleanup ownership": 9,
+        "Capture import and orientation": 9,
+        "Command palette shortcuts and workspace profiles": 9,
+        "Core Image processing": 9,
+        "Explicit settings and bookmark exchange": 9,
+        "Independent stream-length rejection and repair": 9,
+        "Library interrupted publications and catalog recovery": 9,
+        "Library revisions synchronization and Portuguese sources": 9,
+        "Native AES-256 and Unicode credentials": 9,
+        "Native AES-256 and original permissions": 9,
+        "Native regression audit": 9,
+        "Native serialization editable annotation and form roundtrips": 9,
+        "Native serialization fidelity and encryption guards": 9,
+        "Native serialization private process and cancellation": 9,
+        "Opt-in folder automation": 9,
+        "Owned child processes and termination recovery": 9,
+        "PDFKit, capture encoding, AI text helpers and protected output": 9,
+        "Pages isolated copy": 9,
+        "Performance measurement harness": 9,
+        "Portuguese AI experiment acceptance criteria": 9,
+        "Preview WindowServer geometry consistency": 9,
+        "Private engine input and cleanup": 9,
+        "Product searchable PDF": 9,
+        "Published native copy structural integrity": 9,
+        "Published protected copy structural integrity": 9,
+        "Reader sessions and annotation editing": 9,
+        "Real crash and recovery": 9,
+        "Recovery storage and encryption": 9,
+        "Runtime lease across native process termination": 9,
+        "Semantic retrieval and verifiable citations": 9,
+        "Tesseract installed runtime and transport": 9,
+        "Tool presets": 9,
+        "Tool review drafts across navigation and termination": 9,
+        "Typed-string repair graph and Unicode parser": 9,
+        "Typed-string repair privacy and interruption": 9,
+        "Unicode field identity and byte-exact fidelity": 9,
+        "Unsupported ink curve loss is refused": 9,
+        "Workflow presets and credentials": 9
+      },
+      "nativeSmokeTestPassedCount": 9,
+      "nativeFailures": [],
+      "explicitProductFailureMarkers": [],
+      "potentialCredentialPatterns": false,
+      "signedURLPatterns": false
+    },
+    {
+      "runner": "xcode-27",
+      "jobID": 121277935810,
+      "fullLog": {
+        "file": "1_native-application (xcode-27).txt",
+        "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs/1_native-application (xcode-27).txt",
+        "bytes": 2770786,
+        "sha256": "a08332d21b8fb7e6c589ea908b5b062c9ece32db0c86030aca8e4951c77fb3a5"
+      },
+      "python": [
+        {
+          "cases": 143,
+          "passed": 142,
+          "skipped": 1,
+          "seconds": 28.856,
+          "line": 334
+        },
+        {
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "seconds": 141.137,
+          "line": 1471
+        },
+        {
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "seconds": 129.129,
+          "line": 1537
+        }
+      ],
+      "distinctNativeGroups": 43,
+      "nativeGroupSuccesses": 387,
+      "nativeExecutionRepeatCounts": [
+        9
+      ],
+      "nativeGroups": {
+        "Accessibility optional tag edit contract": 9,
+        "Adaptive resource limits": 9,
+        "Advanced editing and OCR review contracts": 9,
+        "App Intents input and private temporary files": 9,
+        "Appearance and reader preferences": 9,
+        "Application task cancellation and cleanup ownership": 9,
+        "Capture import and orientation": 9,
+        "Command palette shortcuts and workspace profiles": 9,
+        "Core Image processing": 9,
+        "Explicit settings and bookmark exchange": 9,
+        "Independent stream-length rejection and repair": 9,
+        "Library interrupted publications and catalog recovery": 9,
+        "Library revisions synchronization and Portuguese sources": 9,
+        "Native AES-256 and Unicode credentials": 9,
+        "Native AES-256 and original permissions": 9,
+        "Native regression audit": 9,
+        "Native serialization editable annotation and form roundtrips": 9,
+        "Native serialization fidelity and encryption guards": 9,
+        "Native serialization private process and cancellation": 9,
+        "Opt-in folder automation": 9,
+        "Owned child processes and termination recovery": 9,
+        "PDFKit, capture encoding, AI text helpers and protected output": 9,
+        "Pages isolated copy": 9,
+        "Performance measurement harness": 9,
+        "Portuguese AI experiment acceptance criteria": 9,
+        "Preview WindowServer geometry consistency": 9,
+        "Private engine input and cleanup": 9,
+        "Product searchable PDF": 9,
+        "Published native copy structural integrity": 9,
+        "Published protected copy structural integrity": 9,
+        "Reader sessions and annotation editing": 9,
+        "Real crash and recovery": 9,
+        "Recovery storage and encryption": 9,
+        "Runtime lease across native process termination": 9,
+        "Semantic retrieval and verifiable citations": 9,
+        "Tesseract installed runtime and transport": 9,
+        "Tool presets": 9,
+        "Tool review drafts across navigation and termination": 9,
+        "Typed-string repair graph and Unicode parser": 9,
+        "Typed-string repair privacy and interruption": 9,
+        "Unicode field identity and byte-exact fidelity": 9,
+        "Unsupported ink curve loss is refused": 9,
+        "Workflow presets and credentials": 9
+      },
+      "nativeSmokeTestPassedCount": 9,
+      "nativeFailures": [],
+      "explicitProductFailureMarkers": [],
+      "potentialCredentialPatterns": false,
+      "signedURLPatterns": false
+    }
+  ]
+}

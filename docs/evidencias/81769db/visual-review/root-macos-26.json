@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "sourceRunID": 40229486932,
+  "runner": "macos-26",
+  "reviewer": "root",
+  "method": "view_image on original authenticated PNG files",
+  "files": [
+    {
+      "file": "PDF-preview.png",
+      "bytes": 348715,
+      "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3",
+      "inspection": "Main workspace: 71 tools indicated, visible grid/search/category controls and sidebar; no overlapping controls in this viewport. Lower tool rows require scrolling."
+    },
+    {
+      "file": "PDF-preview.menus.png",
+      "bytes": 80369,
+      "sha256": "9ad3fd64e2209200d52c192fb49356f16a05353c7aa7e1ebf5955596a086b4a5",
+      "inspection": "Menus customization tab: quick-menu title, reorder/remove controls and add-command picker/button visible; lower categories require scrolling. No human interaction or animation inferred."
+    },
+    {
+      "file": "PDF-preview.corrigir-acessibilidade.png",
+      "bytes": 99631,
+      "sha256": "cd230eba4c7ec45d7dfacad414445e9d330d761d75caf27205e2a02575596873",
+      "inspection": "Populated table/tag editor: role, title, alt/ActualText, language, TH scope and row/column spans visible; save-copy action visible. Header associations/control content below viewport requires scrolling; no human VoiceOver approval."
+    }
+  ],
+  "noConfirmedBlockerInReviewedViewports": true,
+  "scope": "Three screenshots only; no full flow, animation or human VoiceOver approval; source run still in progress."
+}

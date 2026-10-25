@@ -1,0 +1,412 @@
+{
+  "reviewer": "print_audit",
+  "source_commit": "81769db",
+  "runner": "macos-26",
+  "workflow_run": "40229486932",
+  "source_authentication": "Parent/integrations reported authenticated download and successful PNG/AX/OCR artifact checks; this reviewer did not call the remote API.",
+  "method": "All33 original PNG files were independently opened with view_image after extraction. Static visual review of displayed viewports only.",
+  "confirmed_blockers": [],
+  "approval_scope": "No confirmed blocking overlap, illegible essential visible label or unusable visible layout. This is not approval of complete workflows, unpictured controls, accessibility behavior or the entire application.",
+  "observations": [
+    {
+      "id": "VIS26-01",
+      "classification": "static_evidence_limit",
+      "files": [
+        "PDF-preview.editor-conteudo.png",
+        "PDF-preview.corrigir-acessibilidade.png",
+        "PDF-preview.revisao-ocr.png",
+        "PDF-preview.solicitar-assinaturas.png",
+        "PDF-preview.fluxo-lote.png"
+      ],
+      "description": "Lower editing, apply or execution controls are outside initial viewports. Scrollbars are visible, so inaccessibility is not established. These captures do not demonstrate completion of those flows."
+    },
+    {
+      "id": "VIS26-02",
+      "classification": "interaction_not_verified",
+      "files": [
+        "PDF-preview.anotacoes.png",
+        "PDF-preview.leitor.png",
+        "PDF-preview.abas.png",
+        "PDF-preview.lado-a-lado.png"
+      ],
+      "description": "The reader toolbar overflows horizontally. At the annotation-inspector width, right-edge controls are partly clipped. The first toolbar row has a visible scrollbar. Reachability by horizontal navigation/keyboard must be established by interaction, not inferred from the image."
+    },
+    {
+      "id": "VIS26-03",
+      "classification": "missing_visual_coverage",
+      "files": [],
+      "description": "No dedicated form-create/form-fill, scanner, synchronization dialog, real AI response or production result capture is in the 33-image set. Signature, printing and automation views are configuration states."
+    },
+    {
+      "id": "VIS26-04",
+      "classification": "not_testable_from_still_images",
+      "files": [],
+      "description": "Animations, live Liquid Glass behavior, drag reordering, persistence, VoiceOver usability, physical M4 performance and completed service workflows are not established by static images."
+    }
+  ],
+  "images": [
+    {
+      "filename": "PDF-preview.editor-conteudo.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.editor-conteudo.png",
+      "sha256": "a5dd137cfdc16c5a47b5c269d807835c3a9bdd1a3546668d74a406462f283eb6",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Selected text and source object list are readable. Original text editor, source PDF, page/zoom and export control visible. Remaining style/apply controls are below the internal viewport, with scrollbar present."
+    },
+    {
+      "filename": "PDF-preview.corrigir-acessibilidade.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.corrigir-acessibilidade.png",
+      "sha256": "cd230eba4c7ec45d7dfacad414445e9d330d761d75caf27205e2a02575596873",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Document/Table/TR/TH/TD hierarchy, header role, title/Alt/ActualText/language/scope and row/column spans visible. Lower tag-apply controls require scrolling. Final save remains visible. Caption states tags alone do not certify PDF/UA."
+    },
+    {
+      "filename": "PDF-preview.configuracao-ferramenta.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.configuracao-ferramenta.png",
+      "sha256": "f0f07f1ea94c10ba3f1d1ed6541260c5248de1e5724b1a4da8fe894d175b338a",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Watermark settings and unsaved-document warning are readable. Output action remains visible outside scrolling content."
+    },
+    {
+      "filename": "PDF-preview.revisao-ocr.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.revisao-ocr.png",
+      "sha256": "119675073fc4f066dc21427429648e19f2e986f1c375aa089e66a0f9f13e34b4",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Source word boxes, recognized list, confidence and selected correction are visible. Lower correction controls require scrolling. Source is Portuguese while selected recognition language is English; this demonstrates the active configuration, not evaluated Portuguese OCR accuracy."
+    },
+    {
+      "filename": "PDF-preview.producao-print-preflight.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-print-preflight.png",
+      "sha256": "c2630c2ec96c9249bfca7698b5be6b35f30cdabc19c0944cfa39dedd50448fb1",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Input, minimum DPI, optional rendered CMYK coverage and report action visible. Explicit text separates enumerated checks from ISO certification/physical proof."
+    },
+    {
+      "filename": "PDF-preview.producao-pdfx.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-pdfx.png",
+      "sha256": "14ffab59b726bcfbe7dd5fc298b9c47c10b8e4d7d03e21845e1e1e1ea7abefc9",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "CMYK ICC picker and print condition visible; explanatory text describes a PDF/X candidate and limitations. No source/result proof shown."
+    },
+    {
+      "filename": "PDF-preview.producao-bates.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-bates.png",
+      "sha256": "390e8ff9de2e46cc957200e4a94d724b1f092d976c8c6b6363261754563731a7",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Prefix, initial number, digit count, pages and output action visible without overlap."
+    },
+    {
+      "filename": "PDF-preview.producao-measure.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.producao-measure.png",
+      "sha256": "f23a69b7cc88c88c1fa61ee98d593a62249682e0fb7d51e29a0bb23f37744aa2",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Page, scale, unit, polygon flag and coordinate rows visible without overlap; no measurement result shown."
+    },
+    {
+      "filename": "PDF-preview.solicitar-assinaturas.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.solicitar-assinaturas.png",
+      "sha256": "ed3153117498882bd7727936d2fecdfb724acd35c5af3aff4a8b4d92d057dafe",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Service/key requirement, real-email test-mode warning, recipient/field inputs readable. Final prepare/send action below initial viewport with scrollbar visible."
+    },
+    {
+      "filename": "PDF-preview.assinatura-digital.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.assinatura-digital.png",
+      "sha256": "96bf99a028edac865a2b378330a7459db6638b74598652f9520578bd497eab8b",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Certificate/PIN/field/profile controls and disabled save action visible; no certificate or completed signature shown."
+    },
+    {
+      "filename": "PDF-preview.verificar-assinaturas.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.verificar-assinaturas.png",
+      "sha256": "9b97ce5fcbe08823e7d29ddc7917089eb14099ebd11e0429bc8d6c1f8c0309f7",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Explicit trust/revocation options and validate action visible; no validation result shown."
+    },
+    {
+      "filename": "PDF-preview.automacao.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.automacao.png",
+      "sha256": "e86301c350608686c653a532d6264cf43a9662bf937fc6a585eb2773e23dab9e",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Rule/workflow/input/output controls and empty-state instructions visible. No configured live automation shown."
+    },
+    {
+      "filename": "PDF-preview.personalizar.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.personalizar.png",
+      "sha256": "9191514015309549dd74c2effaf15915a26a86a3304ec950679de795e4e832e5",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Appearance tabs, theme/accent/card/spacing/font controls and preview visible; additional options below scroll area."
+    },
+    {
+      "filename": "PDF-preview.menus.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.menus.png",
+      "sha256": "9ad3fd64e2209200d52c192fb49356f16a05353c7aa7e1ebf5955596a086b4a5",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Menu name and command reorder/add/remove controls visible with scrolling and system-menu limitation text."
+    },
+    {
+      "filename": "PDF-preview.atalhos.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.atalhos.png",
+      "sha256": "2d251e30325d1edd021bbf6bde1e52a89193509b1493cd68aed9828f81241df3",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Action search, shortcut values and edit buttons visible; shortcut editor interaction not shown."
+    },
+    {
+      "filename": "PDF-preview.perfis.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.perfis.png",
+      "sha256": "12e1789ee3a569602e4701bcf61f1b5f419b526f96ecfb27832f20ca5d3b5df0",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Profile name and save-current-settings control visible in empty state."
+    },
+    {
+      "filename": "PDF-preview.ferramentas.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.ferramentas.png",
+      "sha256": "5cf2d8f68b5e42cf83bf7c8235a6dd8628b3201f016dbf3cc46fffbb61bdf5c6",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Category visibility and per-tool name/icon/order controls readable; remaining tools below scroll area."
+    },
+    {
+      "filename": "PDF-preview.navegacao.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.navegacao.png",
+      "sha256": "a9396e2490149fb5cfdcc553d12b652aa8adfabc04952e228b942f76bcfa119f",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Section labels/icons/visibility/order controls visible; home protection explained."
+    },
+    {
+      "filename": "PDF-preview.opcoes-leitura.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.opcoes-leitura.png",
+      "sha256": "ecee24a41fd1aad72b3e6cd4d4142d287954316491c36d451806f341e9aaab3f",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "View direction/area/zoom/tabs/side-by-side/sidebar/annotation choices readable; lower options require scrolling."
+    },
+    {
+      "filename": "PDF-preview.arquivos.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.arquivos.png",
+      "sha256": "a8fe7b7e3418ce2289d3554b0f1ac3721557ddf082c9a5be59db770509a38b49",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Output filename template, fallback name, folder, local recovery and recent-file controls visible."
+    },
+    {
+      "filename": "PDF-preview.anotacoes.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.anotacoes.png",
+      "sha256": "a414e0083c73cf27547638b45ebc19bcd888bba45464f45babdc02fbeaf210d4",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Note text/color/geometry/apply visible. Reader toolbar right edge clips controls while inspector is open; horizontal interaction is not exercised by this still image."
+    },
+    {
+      "filename": "PDF-preview.leitor.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.leitor.png",
+      "sha256": "8ff027aefee3ba7d343475457b5f7a82c4bbe589912b5ee714bf6e765623c491",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Search, read/annotate and page navigation controls visible; toolbar overflow has horizontal scrollbar."
+    },
+    {
+      "filename": "PDF-preview.abas.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.abas.png",
+      "sha256": "8b59fef2f330cec8b671a1018eecf455e74ed9e5654add5a5032904f40c0df58",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Two distinct document tabs and selected PDF visible; toolbar overflow has horizontal scrollbar."
+    },
+    {
+      "filename": "PDF-preview.lado-a-lado.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.lado-a-lado.png",
+      "sha256": "f9bf140109371164adaa988a0ce52f1bb324f7cffc97336b67b41c45119dc5dd",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Two independently labeled document panes, secondary page navigation and main-document action visible; viewport scrolling is required for cropped page ends."
+    },
+    {
+      "filename": "PDF-preview.biblioteca.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.biblioteca.png",
+      "sha256": "09ff575038c2f3fce69c4e9212eedd3fb66d95e94b9387d91037b808b57283ca",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Imported documents, filters, tags, sync entry and local-query controls readable. No sync dialog/query result shown."
+    },
+    {
+      "filename": "PDF-preview.fluxo-lote.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.fluxo-lote.png",
+      "sha256": "7b58ff7ea4801595227f5212141d2c07d2c959f1a5cd56bd31dc8645d505ad0d",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Two selected inputs, output destination entry, workflow title and first stages visible. Remaining stage/execution controls below viewport with scrollbar."
+    },
+    {
+      "filename": "PDF-preview.recuperacao.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.recuperacao.png",
+      "sha256": "7d1048624f010e454911bc9b45cbba7bb044b0dcb543d32ebceb210155600707",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Two local recovery items, recover/delete and refresh/finish controls visible; no recovery execution shown."
+    },
+    {
+      "filename": "PDF-preview.validar-pdfa.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.validar-pdfa.png",
+      "sha256": "9cf0bdcf82f346cbb0d9be66deb96101bd1e16cbae361352643b3bd1db8edd30",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Validator version/profile/document/action legible; no compliance result shown."
+    },
+    {
+      "filename": "PDF-preview.auditar-pdfua.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.auditar-pdfua.png",
+      "sha256": "8dde7c59314eaac2a771225ae9cfaacc33ef574073493719b1aa125a57f0b4bf",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Profile, automatic-check description and human-review limitation legible; no compliance result shown."
+    },
+    {
+      "filename": "PDF-preview.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.png",
+      "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Home grid, tool search/category, visible tool cards and count71 readable."
+    },
+    {
+      "filename": "PDF-preview.escuro.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.escuro.png",
+      "sha256": "94ef50b5eae0243083ad00f59f3b7a59e045099097a86af8ca60f542c7aa579e",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Dark home, recovery/recent items and tool cards readable; no dynamic contrast/material behavior proved."
+    },
+    {
+      "filename": "PDF-preview.lista.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.lista.png",
+      "sha256": "5a4cd2d84e251fd7c41fcc22a8f7743c99721e0c7d5d300c79936a56bc6d29b0",
+      "pixels": [
+        1050,
+        772
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Compact navigation and customized tool name/order/list state visible without overlap."
+    },
+    {
+      "filename": "PDF-preview.paleta.png",
+      "path": "/tmp/pdf-native-81769db/extracted/PDF-macOS-preview-macos-26/PDF-preview.paleta.png",
+      "sha256": "2a6e44f58b18e159d88c8489272f4e8cef21bff511353de116b89e424d8cfc61",
+      "pixels": [
+        1050,
+        752
+      ],
+      "opened_original_with": "view_image",
+      "finding": "Command search, results and shortcut labels readable; end of results list requires scrolling."
+    }
+  ]
+}

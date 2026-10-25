@@ -1,0 +1,86 @@
+[
+  {
+    "id": 12613568897,
+    "name": "PDF-binary-validated-macos-26",
+    "attemptedAt": 1792962416.2075758,
+    "downloaded": true,
+    "sourceSHA": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+    "runID": 40229486932,
+    "archiveBytes": 1445306534,
+    "githubDigest": "sha256:3fafe96baf30339dcdd6dd50694228c117fd0cf9cf1166e23cfa4dab598e9b4e",
+    "archiveSHA256": "3fafe96baf30339dcdd6dd50694228c117fd0cf9cf1166e23cfa4dab598e9b4e",
+    "tar": {
+      "member": "PDF-arm64.tar.gz",
+      "bytes": 1448948424,
+      "sha256": "71528d864bb9425516fe877318a734855ee0c74c818f021d53b13eca790297f5",
+      "retainedInsideOriginalZIP": true
+    },
+    "files": [
+      {
+        "name": "PDF-arm64.tar.gz.sha256",
+        "bytes": 83,
+        "sha256": "80d4d23b31b1a94ad97f696a2dce199eea55ea688ae31f3b93c34b6a31b3cb45"
+      },
+      {
+        "name": "distribution-manifest.json",
+        "bytes": 12263013,
+        "sha256": "540201d729049e850d0a51e80232e020d1a16dcd5c20483356cd295e14860ebb"
+      },
+      {
+        "name": "distribution-validation.json",
+        "bytes": 667,
+        "sha256": "2da7bea392d38c7758853148ddc4c9c7152743751bd8155db2cb95e5590bd72d"
+      },
+      {
+        "name": "install-binary.sh",
+        "bytes": 9062,
+        "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+      }
+    ],
+    "validationReportVerified": true,
+    "directory": "/tmp/pdf-native-81769db/extracted/PDF-binary-validated-macos-26",
+    "fullRunApprovalNotInferredFromArtifactName": true
+  },
+  {
+    "id": 12613123845,
+    "name": "PDF-binary-validated-xcode-27",
+    "attemptedAt": 1792962444.0813127,
+    "downloaded": true,
+    "sourceSHA": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+    "runID": 40229486932,
+    "archiveBytes": 1443347976,
+    "githubDigest": "sha256:1d0e49761a09b9636b12893fb6e0a1551b6384dacb9df4a56b7cccaa49fa0bce",
+    "archiveSHA256": "1d0e49761a09b9636b12893fb6e0a1551b6384dacb9df4a56b7cccaa49fa0bce",
+    "tar": {
+      "member": "PDF-arm64.tar.gz",
+      "bytes": 1446966449,
+      "sha256": "bcb86b4019180bd54934070a40e91b29bc2397b48e13343ef13df18c3db7d3b5",
+      "retainedInsideOriginalZIP": true
+    },
+    "files": [
+      {
+        "name": "distribution-manifest.json",
+        "bytes": 12262979,
+        "sha256": "df08ec03131e1c2cadd374b3931231d57062fc42e217dcdacd547a662b362802"
+      },
+      {
+        "name": "PDF-arm64.tar.gz.sha256",
+        "bytes": 83,
+        "sha256": "c5f766d90514cc388dcf16f97770f3ea69b67b1f9d7f50a962084bf51812f608"
+      },
+      {
+        "name": "distribution-validation.json",
+        "bytes": 667,
+        "sha256": "42d6f337e0f911337dc6dceae64b54639213c863263a04f07a3fcc3637d0b466"
+      },
+      {
+        "name": "install-binary.sh",
+        "bytes": 9062,
+        "sha256": "3c0943ea52e1de018a140d51208d6829dd91317381dedf90ccce8da66ccad2a5"
+      }
+    ],
+    "validationReportVerified": true,
+    "directory": "/tmp/pdf-native-81769db/extracted/PDF-binary-validated-xcode-27",
+    "fullRunApprovalNotInferredFromArtifactName": true
+  }
+]

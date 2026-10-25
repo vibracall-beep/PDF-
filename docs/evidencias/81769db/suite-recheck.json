@@ -1,0 +1,81 @@
+{
+  "sourceCommit": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "runID": 40229486932,
+  "scope": "Independent check of retained official complete logs; repeat counts are not distinct groups",
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "jobID": 121277936021,
+      "logMember": "0_native-application (macos-26).txt",
+      "logSHA256": "56e5dbe2af24599cf0ec270b040455118e4980842c012d2b5b2a85e8058d11ff",
+      "suites": [
+        {
+          "cases": 143,
+          "passed": 142,
+          "skipped": 1,
+          "seconds": 25.722,
+          "line": 336
+        },
+        {
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "seconds": 134.929,
+          "line": 1426
+        },
+        {
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "seconds": 107.709,
+          "line": 1492
+        }
+      ],
+      "totalMethods": 713,
+      "passedMethods": 712,
+      "skippedMethods": 1,
+      "nativeStarts": 387,
+      "nativePasses": 387,
+      "uniqueNativeGroups": 43,
+      "executionsPerNativeGroup": 9,
+      "multisetEqual": true
+    },
+    {
+      "runner": "xcode-27",
+      "jobID": 121277935810,
+      "logMember": "1_native-application (xcode-27).txt",
+      "logSHA256": "a08332d21b8fb7e6c589ea908b5b062c9ece32db0c86030aca8e4951c77fb3a5",
+      "suites": [
+        {
+          "cases": 143,
+          "passed": 142,
+          "skipped": 1,
+          "seconds": 28.856,
+          "line": 334
+        },
+        {
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "seconds": 141.137,
+          "line": 1471
+        },
+        {
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "seconds": 129.129,
+          "line": 1537
+        }
+      ],
+      "totalMethods": 713,
+      "passedMethods": 712,
+      "skippedMethods": 1,
+      "nativeStarts": 387,
+      "nativePasses": 387,
+      "uniqueNativeGroups": 43,
+      "executionsPerNativeGroup": 9,
+      "multisetEqual": true
+    }
+  ]
+}

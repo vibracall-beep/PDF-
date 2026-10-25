@@ -1,0 +1,303 @@
+{
+  "runID": 40229486932,
+  "sourceSHA": "81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5",
+  "attempt": 1,
+  "archive": {
+    "file": "collector-attempt-1-logs.zip",
+    "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs.zip",
+    "bytes": 984613,
+    "sha256": "209e64bc59e68172c36c99dca617df68eeab75da306c3b7b2f838531beb9387a",
+    "upstreamDigestSupplied": false,
+    "integrityScope": "Official authenticated API download; locally calculated SHA-256, full ZIP member CRC and bounds verified."
+  },
+  "jobs": [
+    {
+      "runner": "macos-26",
+      "jobID": 121277936021,
+      "fullLog": {
+        "file": "0_native-application (macos-26).txt",
+        "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs/0_native-application (macos-26).txt",
+        "bytes": 1289471,
+        "sha256": "56e5dbe2af24599cf0ec270b040455118e4980842c012d2b5b2a85e8058d11ff"
+      },
+      "distinctNativeGroups": 43,
+      "nativeGroupSuccesses": 387,
+      "nativeExecutionRepeatCounts": [
+        9
+      ],
+      "nativeSmokeTestPassedCount": 9,
+      "nativeFailures": [],
+      "explicitProductFailureMarkers": [],
+      "potentialCredentialPatterns": false,
+      "signedURLPatterns": false,
+      "python": [
+        {
+          "label": "installer/scripts",
+          "cases": 143,
+          "passed": 142,
+          "skipped": 1,
+          "seconds": 25.722,
+          "line": 336
+        },
+        {
+          "label": "core/tests",
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "seconds": 134.929,
+          "line": 1426
+        },
+        {
+          "label": "integration",
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "seconds": 107.709,
+          "line": 1492
+        }
+      ],
+      "pythonCasesIncludingSkip": 713,
+      "pythonPassed": 712,
+      "pythonSkipped": 1,
+      "skipReason": "Linux /dev/full supplies a real ENOSPC write",
+      "nativeByStep": [
+        {
+          "stepLog": "native-application (macos-26)/7_Build, install and validate complete application.txt",
+          "groupSuccesses": 86,
+          "completeNativeExecutions": 2
+        },
+        {
+          "stepLog": "native-application (macos-26)/8_Validate installed application and local OCR.txt",
+          "groupSuccesses": 43,
+          "completeNativeExecutions": 1
+        },
+        {
+          "stepLog": "native-application (macos-26)/20_Validate portable app without host dependencies or network.txt",
+          "groupSuccesses": 43,
+          "completeNativeExecutions": 1
+        },
+        {
+          "stepLog": "native-application (macos-26)/21_Package and verify binary install and update.txt",
+          "groupSuccesses": 215,
+          "completeNativeExecutions": 5
+        }
+      ],
+      "rawPDFKitBaselineDiagnosticFailures": {
+        "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output": 9
+      },
+      "productionStructureFailures": [],
+      "coreGraphicsNegativeControlWarnings": [
+        {
+          "line": 8035,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 8384,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 8681,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 8983,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 9280,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 9580,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        }
+      ],
+      "installerStepConclusion": "success",
+      "installerSuccessfulPublications": 2,
+      "wrongChecksumRefusalObserved": true,
+      "validationFlags": {
+        "isolatedRuntimePassed": true,
+        "freshInstallPassed": true,
+        "transactionalUpdatePassed": true,
+        "preferencesPreserved": true,
+        "wrongChecksumRejected": true,
+        "appIntentsMetadataVerified": true
+      },
+      "validationSource": {
+        "path": "/tmp/pdf-native-81769db/extracted/PDF-binary-validated-macos-26/distribution-validation.json",
+        "sha256": "2da7bea392d38c7758853148ddc4c9c7152743751bd8155db2cb95e5590bd72d",
+        "archiveID": 12613568897,
+        "verifiedBy": "root binary collector"
+      },
+      "limitations": {
+        "localAIStatus": "unavailable",
+        "localAIGenerationSamplePassed": false,
+        "physicalM4Measured": false,
+        "neuralEngineMeasured": false,
+        "energyMeasured": false,
+        "humanVoiceOverTested": false,
+        "appleNotarized": false,
+        "signing": "ad-hoc"
+      },
+      "compilerWarnings": {
+        "unusedDropResultSites": [
+          "MenuCustomization.swift:104",
+          "MenuCustomization.swift:134",
+          "MenuCustomization.swift:155"
+        ],
+        "usesCPUOnlyDeprecated": "VisionFailureDiagnostics.swift:122"
+      },
+      "toolchainHelpProbe": {
+        "unableToParseOptionsCount": 1,
+        "meaning": "appintentsmetadataprocessor --help discovery probe; final bundle metadata verification is separate and passed"
+      },
+      "nonBaselineQPDFPasses": 387,
+      "qpdfCountIncludesStructurallyValidNegativeControls": true
+    },
+    {
+      "runner": "xcode-27",
+      "jobID": 121277935810,
+      "fullLog": {
+        "file": "1_native-application (xcode-27).txt",
+        "path": "/tmp/pdf-native-81769db/collector-attempt-1-logs/1_native-application (xcode-27).txt",
+        "bytes": 2770786,
+        "sha256": "a08332d21b8fb7e6c589ea908b5b062c9ece32db0c86030aca8e4951c77fb3a5"
+      },
+      "distinctNativeGroups": 43,
+      "nativeGroupSuccesses": 387,
+      "nativeExecutionRepeatCounts": [
+        9
+      ],
+      "nativeSmokeTestPassedCount": 9,
+      "nativeFailures": [],
+      "explicitProductFailureMarkers": [],
+      "potentialCredentialPatterns": false,
+      "signedURLPatterns": false,
+      "python": [
+        {
+          "label": "installer/scripts",
+          "cases": 143,
+          "passed": 142,
+          "skipped": 1,
+          "seconds": 28.856,
+          "line": 334
+        },
+        {
+          "label": "core/tests",
+          "cases": 510,
+          "passed": 510,
+          "skipped": 0,
+          "seconds": 141.137,
+          "line": 1471
+        },
+        {
+          "label": "integration",
+          "cases": 60,
+          "passed": 60,
+          "skipped": 0,
+          "seconds": 129.129,
+          "line": 1537
+        }
+      ],
+      "pythonCasesIncludingSkip": 713,
+      "pythonPassed": 712,
+      "pythonSkipped": 1,
+      "skipReason": "Linux /dev/full supplies a real ENOSPC write",
+      "nativeByStep": [
+        {
+          "stepLog": "native-application (xcode-27)/7_Build, install and validate complete application.txt",
+          "groupSuccesses": 86,
+          "completeNativeExecutions": 2
+        },
+        {
+          "stepLog": "native-application (xcode-27)/8_Validate installed application and local OCR.txt",
+          "groupSuccesses": 43,
+          "completeNativeExecutions": 1
+        },
+        {
+          "stepLog": "native-application (xcode-27)/20_Validate portable app without host dependencies or network.txt",
+          "groupSuccesses": 43,
+          "completeNativeExecutions": 1
+        },
+        {
+          "stepLog": "native-application (xcode-27)/21_Package and verify binary install and update.txt",
+          "groupSuccesses": 215,
+          "completeNativeExecutions": 5
+        }
+      ],
+      "rawPDFKitBaselineDiagnosticFailures": {
+        "PDF structure audit: raw PDFKit editable defaults unencrypted: FAILED; qpdf --check exit 3; diagnostic only, not the product output": 9,
+        "PDF structure audit: raw PDFKit editable defaults protected: FAILED; qpdf --check exit 3; diagnostic only, not the product output": 9,
+        "PDF structure audit: raw PDFKit unencrypted framework serialization: FAILED; qpdf --check exit 3; diagnostic only, not the product output": 9
+      },
+      "productionStructureFailures": [],
+      "coreGraphicsNegativeControlWarnings": [
+        {
+          "line": 30018,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 30385,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 30700,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 31020,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 31335,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        },
+        {
+          "line": 31653,
+          "invalidStreamNegativeControlAndSuccessfulNormalization": true
+        }
+      ],
+      "installerStepConclusion": "success",
+      "installerSuccessfulPublications": 2,
+      "wrongChecksumRefusalObserved": true,
+      "validationFlags": {
+        "isolatedRuntimePassed": true,
+        "freshInstallPassed": true,
+        "transactionalUpdatePassed": true,
+        "preferencesPreserved": true,
+        "wrongChecksumRejected": true,
+        "appIntentsMetadataVerified": true
+      },
+      "validationSource": {
+        "path": "/tmp/pdf-native-81769db/extracted/PDF-binary-validated-xcode-27/distribution-validation.json",
+        "sha256": "42d6f337e0f911337dc6dceae64b54639213c863263a04f07a3fcc3637d0b466",
+        "archiveID": 12613123845,
+        "verifiedBy": "root binary collector"
+      },
+      "limitations": {
+        "localAIStatus": "unavailable",
+        "localAIGenerationSamplePassed": false,
+        "physicalM4Measured": false,
+        "neuralEngineMeasured": false,
+        "energyMeasured": false,
+        "humanVoiceOverTested": false,
+        "appleNotarized": false,
+        "signing": "ad-hoc"
+      },
+      "compilerWarnings": {
+        "unusedDropResultSites": [
+          "MenuCustomization.swift:104",
+          "MenuCustomization.swift:134",
+          "MenuCustomization.swift:155"
+        ],
+        "usesCPUOnlyDeprecated": "VisionFailureDiagnostics.swift:122"
+      },
+      "toolchainHelpProbe": {
+        "unableToParseOptionsCount": 1,
+        "meaning": "appintentsmetadataprocessor --help discovery probe; final bundle metadata verification is separate and passed"
+      },
+      "nonBaselineQPDFPasses": 387,
+      "qpdfCountIncludesStructurallyValidNegativeControls": true
+    }
+  ]
+}

@@ -1,0 +1,56 @@
+# Revisão visual independente — macOS 27 / 81769db
+
+**33 PNGs originais abertos individualmente em resolução original. Nenhum bloqueador visual confirmado nos estados capturados.**
+
+Fonte: `81769dbfcd1ce87d06cfd5424d8d5fbcd4d19ca5`; execução `40229486932`, tentativa `1`, job `121277935810`.
+Artefato: `12613190885` / `PDF-macOS-preview-xcode-27`, 3399813 bytes.
+SHA-256 do ZIP: `5ef23cf3d93cbfb726ea78600ceb919ee2eca5c1276912a0c75c91b96812125e`.
+
+Os hashes e dimensões abaixo foram conferidos depois da visualização contra o registro autenticado do coletor. Esta análise é derivada e não altera os originais nem arquivos do produto.
+
+## Limites
+
+- Revisão visual estática dos 33 estados apresentados; não executa cliques, arrastes, rolagens, teclado ou ações destrutivas.
+- Overflow é visível em barras/painéis e oferece indicação de rolagem; isso não comprova alcance humano de todos os comandos.
+- Não há capturas específicas suficientes para avaliar fluxos completos de criar/preencher formulários, scanner, sincronização entre Macs, geração de IA ou resultados de todas as ferramentas.
+- Relatórios AX automatizados são evidência separada; este parecer não é teste humano com VoiceOver, medição de contraste ou avaliação de animações.
+- O OCR da demonstração usa Inglês/página automática e conserva erros reais em texto português; não prova qualidade geral de OCR.
+- Ausência de bloqueador visual confirmado nesses pixels não equivale a ausência de bugs, aprovação de todo o aplicativo ou do pacote instalável.
+
+## Imagens examinadas
+
+| Imagem | Dimensões | SHA-256 | Observação |
+|---|---:|---|---|
+| `PDF-preview.png` | 1050×772 | `a5b4ea22f66d719e08410a5461997a345be099ee16b07e93454314cac6d2290b` | Menu em grade com navegação, busca, categoria, personalização e contador de 71 ferramentas. A grade continua abaixo da viewport, com barra de rolagem visível. |
+| `PDF-preview.leitor.png` | 1050×772 | `e4370cf74e1903096bcf6617ca3f5bcb4127f0656fa5db7921c72a7ece16a4c8` | Documento, miniaturas, busca, anotações e Salvar cópia visíveis. A barra principal tem overflow horizontal com scrollbar; a imagem não demonstra acesso por rolagem a todos os comandos. |
+| `PDF-preview.abas.png` | 1050×772 | `742d86b366e43d12513c7baf2d53764758f6fccac6cac0cce972fc0d2ac6c26d` | Dois documentos aparecem em abas com a referência ativa e conteúdo correspondente. Fechamento e troca efetivos não são exercitados por esta imagem. |
+| `PDF-preview.lado-a-lado.png` | 1050×772 | `ed057d791cb057fc1ef0babe74077534e7d04cd0aa879fd1b5ec2d66eb05f3e1` | Dois documentos distintos visíveis, com controle Tornar principal, fechar e paginação da referência. Não há sobreposição confirmada; a barra principal continua rolável horizontalmente. |
+| `PDF-preview.anotacoes.png` | 1050×772 | `dd4e7bbd3065daf2d9b38f2609191a0a5008592ea24c0f13038cb296de084bfb` | Nota selecionada na página, texto, cor, coordenadas, dimensões e Aplicar alterações visíveis. Inspetor e barras têm overflow; controles inferiores exigem interação para confirmar alcance. |
+| `PDF-preview.recuperacao.png` | 1050×772 | `ccf6b635a101cc5085de99ecc2680bf15d72b09b1e2d513c8cad9235989f9bec` | Duas cópias locais, comandos Recuperar/excluir, opção automática e Atualizar lista visíveis. Caminhos longos usam truncamento de uma linha; recuperação real depende dos testes próprios. |
+| `PDF-preview.personalizar.png` | 1050×752 | `9243600812fb7d0cb93863ed091667a5ea0fdd8f78f0fb4dadb724f70e28a7c3` | Oito abas, tema, cor, grade/lista, espaçamento, tamanhos e prévia ao vivo visíveis. Footer Restaurar/Importar/Exportar permanece separado do painel rolável; animações não são avaliadas por imagem estática. |
+| `PDF-preview.ferramentas.png` | 1050×752 | `380ee81e25e8eabeb86018501c18ed6758b9fe7d947a9fafa3402d451ef6952f` | Categorias, busca e linhas com nome, visibilidade, ícone e ordenação visíveis. Lista continua abaixo da viewport; arraste e edição não são demonstrados pela captura. |
+| `PDF-preview.navegacao.png` | 1050×752 | `e7f314deee4f5513754776080e01c7a0156a679f97b19755e2f0848e48ed8125` | Configuração de ícones/nomes, largura e seis seções visíveis, incluindo Início preservado. Reordenação aparece por alça/setas; eficácia depende dos testes funcionais. |
+| `PDF-preview.opcoes-leitura.png` | 1050×752 | `488267bd9fd20767f073a661df4ee82378238c0fa584544c4b8f405a2e7891cf` | Modo/direção/área, fundo, separação, ajuste, zoom, abas e leitura simultânea visíveis. Controles adicionais e personalização das barras ficam abaixo da viewport, com scrollbar. |
+| `PDF-preview.arquivos.png` | 1050×752 | `1fe95b2fbb936bbf24c1f7dda1cad8f098abd239f8834d408260c855185aaa53` | Modelo e alternativa do nome, pasta, cópias automáticas e limpeza de recentes visíveis. Identificação mostra Apple Paravirtual device, três núcleos e 7 GB; não é evidência de M4 físico. |
+| `PDF-preview.escuro.png` | 1050×772 | `5bfb87ad9b8be20109d3c7bce65d9ce9c8cccfe0414ba86cec14e52f125422d3` | Tema escuro e destaque roxo aplicados ao menu, cartões e navegação. Não há texto sobreposto confirmado; contraste quantitativo e animações não foram medidos. |
+| `PDF-preview.lista.png` | 1050×772 | `c791cd5473f473a1b15a9c9bebe12e5992bd726e524420c15b552634a37dda86` | Lista, navegação somente por ícones, destaque verde e nomes/ordem personalizados visíveis. O catálogo exibe 71 ferramentas, com continuação por rolagem. |
+| `PDF-preview.configuracao-ferramenta.png` | 1050×772 | `6d40c4d28c6aaebb536185a128f753d2b0283f9f10d2f69bb305363faab2eba7` | Marca d’água mostra presets, aviso de alterações não salvas, entrada e parâmetros. Cancelar e escolher destino/executar permanecem no footer; não foi executada conversão pela captura. |
+| `PDF-preview.fluxo-lote.png` | 1050×752 | `650340456b3cfa3db6d944bbff4ca8920e2ba73a413f5c723f80c31140265735` | Dois documentos e três etapas indicados; rotação e numeração aparecem, com a continuação abaixo da viewport. Ação final e resultado exigem interação; a barra vertical está visível. |
+| `PDF-preview.assinatura-digital.png` | 1050×752 | `41d776a0e1eea2049473ce9e1a59c27c3c83f10572d5385f008ffb2ee907f1ee` | Documento, certificado PKCS#12, PIN, motivo/local/campo e perfil B-B visíveis; salvar fica desabilitado sem certificado. A captura não demonstra assinatura ou confiança de produção. |
+| `PDF-preview.verificar-assinaturas.png` | 1050×752 | `6acc1acea3bec3afabc600416eb263e28054e709053f4edc26a3b51b4afcdd17` | Documento, raízes explícitas, opções OCSP/CRL e LTA, e comando de relatório visíveis. Estado/resultados da validação não estão mostrados. |
+| `PDF-preview.validar-pdfa.png` | 1050×752 | `83419a5ec567aa0a93c564c6636bb89c6c657979ed0a0d9596ecb8d22827bb53` | Perfil PDF/A-2b, veraPDF 1.30.3 e comando de relatório visíveis, sem cortes confirmados. Não há resultado de validação nessa imagem. |
+| `PDF-preview.auditar-pdfua.png` | 1050×752 | `558d2d4faabc7d63c747c39dba3d08bf7d9ec1d1d570d69ae3797451bfa88418` | Perfil PDF/UA-1 e explicação da validação automática/humana visíveis, com ação de relatório. A tela não promete criação automática de tags. |
+| `PDF-preview.atalhos.png` | 1050×752 | `ecdcbba75e5e8b2cc12bef7d4102986ebc163243bd7570f7dfa2c7ab01245954` | Busca, ações, combinações atuais e Editar visíveis; lista rolável com footer fixo. A captura não verifica conflitos ou execução de cada atalho. |
+| `PDF-preview.perfis.png` | 1050×752 | `257a0f5ca24461dc50ec328b6e05708375d7bb5b3ff8963a41cb49cd1b8f8951` | Nome de perfil vazio, Guardar ajustes atuais desabilitado e explicação de preservação das sessões visíveis. Nenhum perfil foi criado nesta captura. |
+| `PDF-preview.menus.png` | 1050×752 | `f723dacc0dea19b2163c2264ea7a32407b88134bb7ae2a51e74b1fd2002674cb` | Aba Menus legível: título editável Acesso rápido, cinco entradas, alças, setas, remoção e adicionar comando. Categorias/menus posteriores ficam abaixo da viewport; menus do sistema são explicitamente preservados. |
+| `PDF-preview.paleta.png` | 1050×752 | `c8087732640dbb6685f14c7d3c6fd0fb9e6b96e99b9a3b245f8eccf95349feb0` | Busca, lista de comandos, atalhos, categoria e contador de 92 comandos visíveis. Há scrollbar e instrução de navegação por teclado, mas teclas não são exercitadas pela imagem. |
+| `PDF-preview.editor-conteudo.png` | 1050×752 | `c634aa93ad5057bfcc3fdd25321bc2d41875341df805387283ed0f190b85d553` | Prévia com caixas de texto, lista de objetos, operação, editor e tamanho de fonte visíveis; 12 objetos identificados, zero alterações preparadas. Painéis roláveis preservam a área do editor; ações inferiores e exportação real não são provadas. |
+| `PDF-preview.revisao-ocr.png` | 1050×752 | `7100cb98cb37df40c7b3e5f1858d06e6c2715241920b8ce487102b2cd8d89207` | Imagem original e palavras reconhecidas lado a lado; idioma Inglês, página automática e Tesseract explicitados. Erros reais no português permanecem, por exemplo informag6es, em vez de texto corrigido artificialmente. Inspetor inferior exige rolagem. |
+| `PDF-preview.biblioteca.png` | 1050×752 | `915b488aea5399fd201ab9108f86a3ccb14e41adbed4de98b01c265c13d44f6c` | Dois documentos/duas versões, filtros, pastas inteligentes e consulta visíveis. Nenhum item selecionado; busca desabilitada sem seleção/consulta. Sincronização e resultado de busca não são demonstrados. |
+| `PDF-preview.corrigir-acessibilidade.png` | 1050×752 | `2b6f50e8b74b852ccc3ffe2dd8dab54658cba47a8719a6ca6bf49b7f17c05d43` | Tabela real com Document/Table/TR/TH/TD, cabeçalho selecionado, título/Alt/ActualText/idioma, escopo e spans 1x2 visíveis. Footer de salvar visível; semântica humana e VoiceOver não são provados. |
+| `PDF-preview.solicitar-assinaturas.png` | 1050×752 | `39b49577ce7afee91ca010df1da0509f737b9327251da78705d677cbcba514e5` | Conexão Dropbox Sign, documento, assunto, modo de teste e campos do destinatário visíveis. Aviso de possíveis emails reais aparece. Botão final/resultado ficam abaixo da viewport; nenhum envio é comprovado. |
+| `PDF-preview.automacao.png` | 1050×752 | `d982da2f8bef486366b179cdf72e8a837077a42f762a498d234980120b38810d` | Regra desativada, seleção de fluxo/pastas e instrução do Finder visíveis; ausência de regras/arquivos é explicitada. Interação com Finder/Atalhos e observação de pastas não são demonstradas. |
+| `PDF-preview.producao-print-preflight.png` | 1050×752 | `700e0df373f5a1527fdcf11078083bb45805acdfc96fbccc36d1b172f5584e3a` | Entrada, senha, resolução mínima, cobertura CMYK e gerar relatório visíveis. Texto distingue inspeção de certificação ISO/prova de cor. Nenhum relatório de produção aparece. |
+| `PDF-preview.producao-bates.png` | 1050×752 | `99033a2ebc8baabff9be273bf0cb1a20587a992fa5d7f42f5cacd096da42aa0f` | Entrada/páginas, prefixo DOC-, número inicial e seis dígitos visíveis. Criar cópia desabilitado sem origem; numeração produzida não aparece. |
+| `PDF-preview.producao-measure.png` | 1050×752 | `0b47ae5daee684ac4ba89266a9c1d2793b40ac4ccb9916404831d8803ea578ae` | Página, escala 1:100, unidade, polígono e dois pares de coordenadas visíveis, sem sobreposição confirmada. Não há medição resultante nem marcação visual em planta. |
+| `PDF-preview.producao-pdfx.png` | 1050×752 | `ba4ec748dd463dc10fcebc8fdfe43c829a2b78719d6ef0cefe2b6edd3bdd306c` | Entrada, perfil ICC CMYK, condição ASCII e criar cópia visíveis; descrição limita o resultado a candidato PDF/X-3 com verificações enumeradas. Sem saída ou certificação independente universal. |

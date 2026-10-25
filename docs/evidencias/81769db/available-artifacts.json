@@ -1,0 +1,100 @@
+[
+  {
+    "id": 12613942917,
+    "name": "PDF-source-macos-26",
+    "bytes": 19321161,
+    "digest": "sha256:5287583a2661bf1970e1e56f075cd8da47f14b7f535a68abb08057d524e20437",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12613870059,
+    "name": "PDF-local-AI-xcode-27",
+    "bytes": 2180,
+    "digest": "sha256:b7ec9ead978785633a2dfec3eeb314dac40707509dc418758f308f1d90ddd91b",
+    "jobID": 121277935810
+  },
+  {
+    "id": 12613755187,
+    "name": "PDF-Apple-Vision-capability-macos-26",
+    "bytes": 888,
+    "digest": "sha256:36373faec332bedd5f28fb3f18933833becc5e19f5c829e5f437619bf029b7e6",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12613593271,
+    "name": "PDF-source-ocr-compatibility-xcode-27",
+    "bytes": 19321733,
+    "digest": "sha256:25fd1402ef03429ff60e410f464577e2e1f363ab416000788160ae43570da7de",
+    "jobID": 121277935810
+  },
+  {
+    "id": 12613568897,
+    "name": "PDF-binary-validated-macos-26",
+    "bytes": 1445306534,
+    "digest": "sha256:3fafe96baf30339dcdd6dd50694228c117fd0cf9cf1166e23cfa4dab598e9b4e",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12613460633,
+    "name": "PDF-Apple-Vision-capability-xcode-27",
+    "bytes": 2083,
+    "digest": "sha256:0648641c7b373d01700cf75bdbf3e83474881d55134dcd1cb8692ee20836aed8",
+    "jobID": 121277935810
+  },
+  {
+    "id": 12613360563,
+    "name": "PDF-macOS-preview-macos-26",
+    "bytes": 3382619,
+    "digest": "sha256:8c850d51766d446fdfd20b84d0e06a043d69c1994896b6012fe56e7890d81dc8",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12613220833,
+    "name": "PDF-local-AI-macos-26",
+    "bytes": 2182,
+    "digest": "sha256:cbb38d5311d296c158a735b3f34890bd400068070ddc88283d02aa363e8de6ea",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12613205933,
+    "name": "PDF-macOS-benchmark-xcode-27",
+    "bytes": 2221,
+    "digest": "sha256:c0490a0e175a96a813b2b9a45b0767f2ad67707ba2f9915e5ac37fc155fe239b",
+    "jobID": 121277935810
+  },
+  {
+    "id": 12613190885,
+    "name": "PDF-macOS-preview-xcode-27",
+    "bytes": 3399813,
+    "digest": "sha256:5ef23cf3d93cbfb726ea78600ceb919ee2eca5c1276912a0c75c91b96812125e",
+    "jobID": 121277935810
+  },
+  {
+    "id": 12613123845,
+    "name": "PDF-binary-validated-xcode-27",
+    "bytes": 1443347976,
+    "digest": "sha256:1d0e49761a09b9636b12893fb6e0a1551b6384dacb9df4a56b7cccaa49fa0bce",
+    "jobID": 121277935810
+  },
+  {
+    "id": 12612946040,
+    "name": "PDF-macOS-benchmark-macos-26",
+    "bytes": 1923,
+    "digest": "sha256:1503be0cd0e78876e52e8b384d0f03143d5921b499c8e5063ec040cb5f1ffaab",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12612916020,
+    "name": "PDF-native-checks-macos-26",
+    "bytes": 8566,
+    "digest": "sha256:7b9db0dfcf3ac09c58ed3840fb3b085e0f08693ea28bdad4e068fb5f3808f561",
+    "jobID": 121277936021
+  },
+  {
+    "id": 12612759258,
+    "name": "PDF-native-checks-xcode-27",
+    "bytes": 15391,
+    "digest": "sha256:b701bd35300f4b5e9714e3fc11550b334ed44f51917090cf3f5b91f8d7fb9a50",
+    "jobID": 121277935810
+  }
+]

@@ -1,0 +1,25 @@
+{
+  "schemaVersion": 1,
+  "scope": "Offline collector tests only; not appearance product validation",
+  "tests": 18,
+  "passed": 18,
+  "networkCalls": 0,
+  "collectorMainExecuted": false,
+  "artifactCodeExecuted": false,
+  "testedBoundaries": [
+    "import side effects",
+    "configuration/source/run/event/job/attempt identity",
+    "artifact digest/job interval/repository",
+    "ZIP path/duplicate/symlink/trailer/CRC/expansion refusals",
+    "partial terminal failure and skipped target identity",
+    "origin duplicate assertions",
+    "15/14 expected evidence inventories",
+    "Exact uppercase evidence names preserved; casefold collisions refused"
+  ],
+  "collector": {
+    "path": "/tmp/pdf_collect_appearance.py",
+    "sha256": "95c779d4183fd7bd79318d58d3d55847f0f55580d620606753b47f19e669947b"
+  },
+  "testsPath": "/tmp/test_pdf_collect_appearance_offline.py",
+  "zipValidatorFixtureSourceCommit": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21"
+}

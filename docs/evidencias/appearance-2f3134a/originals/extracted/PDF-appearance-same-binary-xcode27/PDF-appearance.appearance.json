@@ -1,0 +1,1069 @@
+{
+  "checks" : [
+    {
+      "id" : "seven-original-frames-in-order",
+      "passed" : true
+    },
+    {
+      "id" : "light-dark-customization-light-system-selections",
+      "passed" : true
+    },
+    {
+      "id" : "same-real-window",
+      "passed" : false
+    },
+    {
+      "id" : "six-workspace-toolbar-reports",
+      "passed" : true
+    },
+    {
+      "id" : "three-controls-central-contrast-every-workspace-frame",
+      "passed" : false
+    },
+    {
+      "id" : "attached-toolbar-identities-preserved",
+      "passed" : false
+    },
+    {
+      "id" : "two-separate-dark-attached-captures",
+      "passed" : true
+    },
+    {
+      "id" : "toolbar-controls-return-after-customization",
+      "passed" : false
+    },
+    {
+      "id" : "system-releases-appkit-overrides",
+      "passed" : true
+    },
+    {
+      "id" : "no-document-session",
+      "passed" : true
+    },
+    {
+      "id" : "background-work-drained",
+      "passed" : true
+    },
+    {
+      "id" : "private-state-cleanup",
+      "passed" : true
+    }
+  ],
+  "cleanupMaximumSeconds" : 3,
+  "createdAt" : "2026-10-25T23:57:06Z",
+  "documentsOpened" : false,
+  "engineUsed" : false,
+  "failure" : "Required appearance checks failed: same-real-window, three-controls-central-contrast-every-workspace-frame, attached-toolbar-identities-preserved, toolbar-controls-return-after-customization",
+  "frames" : [
+    {
+      "bytes" : 348641,
+      "height" : 772,
+      "phase" : "light-initial",
+      "png" : "PDF-appearance.png",
+      "selection" : "light",
+      "sha256" : "2dcaa4064e232b2e375222e7a496c92ef7068978b884317330f3bdb7938cf9a9",
+      "toolbarReport" : {
+        "after" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+          "applicationEffectiveStyle" : "light",
+          "applicationOverride" : "NSAppearanceNameAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+          "contentEffectiveStyle" : "light",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "light",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantLight"
+          ],
+          "toolbarEffectiveStyles" : [
+            "light"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+            "93924354-030C-42D5-8621-E9C79A399F04"
+          ],
+          "uptime" : 3980.5652295833333,
+          "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+          "windowEffectiveStyle" : "light",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "before" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+          "applicationEffectiveStyle" : "light",
+          "applicationOverride" : "NSAppearanceNameAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+          "contentEffectiveStyle" : "light",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "light",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantLight"
+          ],
+          "toolbarEffectiveStyles" : [
+            "light"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+            "93924354-030C-42D5-8621-E9C79A399F04"
+          ],
+          "uptime" : 3979.880712958334,
+          "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+          "windowEffectiveStyle" : "light",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar",
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "humanVisualReview" : false,
+        "measurements" : [
+
+        ],
+        "methodology" : "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95\/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry.",
+        "passed" : false,
+        "schemaVersion" : 1,
+        "scope" : "three-own-window-toolbar-symbols-central-pixels",
+        "universalWCAGCertification" : false
+      },
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+        "applicationEffectiveStyle" : "light",
+        "applicationOverride" : "NSAppearanceNameAqua",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+        "contentEffectiveStyle" : "light",
+        "controls" : [
+
+        ],
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "selection" : "light",
+        "toolbarEffectiveAppearances" : [
+          "NSAppearanceNameVibrantLight"
+        ],
+        "toolbarEffectiveStyles" : [
+          "light"
+        ],
+        "toolbarItemIdentifiers" : [
+          "NSToolbarFlexibleSpaceItem",
+          "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+          "com.apple.SwiftUI.splitViewSeparator-0",
+          "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+          "93924354-030C-42D5-8621-E9C79A399F04"
+        ],
+        "uptime" : 3980.5652295833333,
+        "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+        "windowEffectiveStyle" : "light",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowOverride" : "NSAppearanceNameAqua",
+        "windowToolbarPresent" : true,
+        "windowToolbarVisible" : true,
+        "workspaceToolbarProviderCount" : 0
+      }
+    },
+    {
+      "bytes" : 338903,
+      "height" : 772,
+      "phase" : "dark-attached-1",
+      "png" : "PDF-appearance.dark-attached-1.png",
+      "selection" : "dark",
+      "sha256" : "693bda15eb61c3dc2c7629fe240e434e28da89d5929b590a820fdbb67bb1f0c5",
+      "toolbarReport" : {
+        "after" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "applicationEffectiveStyle" : "dark",
+          "applicationOverride" : "NSAppearanceNameDarkAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "contentEffectiveStyle" : "dark",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "dark",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantDark"
+          ],
+          "toolbarEffectiveStyles" : [
+            "dark"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+            "93924354-030C-42D5-8621-E9C79A399F04"
+          ],
+          "uptime" : 3982.324600041667,
+          "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "windowEffectiveStyle" : "dark",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameDarkAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "before" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "applicationEffectiveStyle" : "dark",
+          "applicationOverride" : "NSAppearanceNameDarkAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "contentEffectiveStyle" : "dark",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "dark",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantDark"
+          ],
+          "toolbarEffectiveStyles" : [
+            "dark"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+            "93924354-030C-42D5-8621-E9C79A399F04"
+          ],
+          "uptime" : 3982.12552,
+          "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "windowEffectiveStyle" : "dark",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameDarkAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar",
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "humanVisualReview" : false,
+        "measurements" : [
+
+        ],
+        "methodology" : "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95\/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry.",
+        "passed" : false,
+        "schemaVersion" : 1,
+        "scope" : "three-own-window-toolbar-symbols-central-pixels",
+        "universalWCAGCertification" : false
+      },
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "applicationEffectiveStyle" : "dark",
+        "applicationOverride" : "NSAppearanceNameDarkAqua",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "contentEffectiveStyle" : "dark",
+        "controls" : [
+
+        ],
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "selection" : "dark",
+        "toolbarEffectiveAppearances" : [
+          "NSAppearanceNameVibrantDark"
+        ],
+        "toolbarEffectiveStyles" : [
+          "dark"
+        ],
+        "toolbarItemIdentifiers" : [
+          "NSToolbarFlexibleSpaceItem",
+          "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+          "com.apple.SwiftUI.splitViewSeparator-0",
+          "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+          "93924354-030C-42D5-8621-E9C79A399F04"
+        ],
+        "uptime" : 3982.324600041667,
+        "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "windowEffectiveStyle" : "dark",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowOverride" : "NSAppearanceNameDarkAqua",
+        "windowToolbarPresent" : true,
+        "windowToolbarVisible" : true,
+        "workspaceToolbarProviderCount" : 0
+      }
+    },
+    {
+      "bytes" : 338938,
+      "height" : 772,
+      "phase" : "dark-attached-2",
+      "png" : "PDF-appearance.dark-attached-2.png",
+      "selection" : "dark",
+      "sha256" : "3cc6a1c05f0515192e6b44856ddd04a4a3637bf68e5d4f3a0c7b76bd6f281599",
+      "toolbarReport" : {
+        "after" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "applicationEffectiveStyle" : "dark",
+          "applicationOverride" : "NSAppearanceNameDarkAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "contentEffectiveStyle" : "dark",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "dark",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantDark"
+          ],
+          "toolbarEffectiveStyles" : [
+            "dark"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+            "93924354-030C-42D5-8621-E9C79A399F04"
+          ],
+          "uptime" : 3983.9261885,
+          "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "windowEffectiveStyle" : "dark",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameDarkAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "before" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "applicationEffectiveStyle" : "dark",
+          "applicationOverride" : "NSAppearanceNameDarkAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "contentEffectiveStyle" : "dark",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "dark",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantDark"
+          ],
+          "toolbarEffectiveStyles" : [
+            "dark"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+            "93924354-030C-42D5-8621-E9C79A399F04"
+          ],
+          "uptime" : 3983.8430274583334,
+          "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "windowEffectiveStyle" : "dark",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameDarkAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar",
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "humanVisualReview" : false,
+        "measurements" : [
+
+        ],
+        "methodology" : "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95\/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry.",
+        "passed" : false,
+        "schemaVersion" : 1,
+        "scope" : "three-own-window-toolbar-symbols-central-pixels",
+        "universalWCAGCertification" : false
+      },
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "applicationEffectiveStyle" : "dark",
+        "applicationOverride" : "NSAppearanceNameDarkAqua",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "contentEffectiveStyle" : "dark",
+        "controls" : [
+
+        ],
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "selection" : "dark",
+        "toolbarEffectiveAppearances" : [
+          "NSAppearanceNameVibrantDark"
+        ],
+        "toolbarEffectiveStyles" : [
+          "dark"
+        ],
+        "toolbarItemIdentifiers" : [
+          "NSToolbarFlexibleSpaceItem",
+          "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+          "com.apple.SwiftUI.splitViewSeparator-0",
+          "E0148DB7-7DD4-467B-A0D7-059AD314FBD9",
+          "93924354-030C-42D5-8621-E9C79A399F04"
+        ],
+        "uptime" : 3983.9261885,
+        "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "windowEffectiveStyle" : "dark",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowOverride" : "NSAppearanceNameDarkAqua",
+        "windowToolbarPresent" : true,
+        "windowToolbarVisible" : true,
+        "workspaceToolbarProviderCount" : 0
+      }
+    },
+    {
+      "bytes" : 101973,
+      "height" : 772,
+      "phase" : "customization",
+      "png" : "PDF-appearance.customization.png",
+      "selection" : "light",
+      "sha256" : "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b",
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+        "applicationEffectiveStyle" : "light",
+        "applicationOverride" : "NSAppearanceNameAqua",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+        "contentEffectiveStyle" : "light",
+        "controls" : [
+
+        ],
+        "errors" : [
+
+        ],
+        "selection" : "light",
+        "toolbarEffectiveAppearances" : [
+
+        ],
+        "toolbarEffectiveStyles" : [
+
+        ],
+        "toolbarItemIdentifiers" : [
+
+        ],
+        "uptime" : 3985.5586868333335,
+        "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+        "windowEffectiveStyle" : "light",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowOverride" : "NSAppearanceNameAqua",
+        "windowToolbarPresent" : false,
+        "windowToolbarVisible" : false,
+        "workspaceToolbarProviderCount" : 0
+      }
+    },
+    {
+      "bytes" : 339078,
+      "height" : 772,
+      "phase" : "dark-recreated",
+      "png" : "PDF-appearance.dark-recreated.png",
+      "selection" : "dark",
+      "sha256" : "fc221909844e5907319f5bd0e3b2577b5d65845d38e2512e4259e13fb20996b1",
+      "toolbarReport" : {
+        "after" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "applicationEffectiveStyle" : "dark",
+          "applicationOverride" : "NSAppearanceNameDarkAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "contentEffectiveStyle" : "dark",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "dark",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantDark"
+          ],
+          "toolbarEffectiveStyles" : [
+            "dark"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+            "355F8766-A949-4905-8B7E-05904BB66AE5"
+          ],
+          "uptime" : 3987.2930095,
+          "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "windowEffectiveStyle" : "dark",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameDarkAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "before" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "applicationEffectiveStyle" : "dark",
+          "applicationOverride" : "NSAppearanceNameDarkAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "contentEffectiveStyle" : "dark",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "dark",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantDark"
+          ],
+          "toolbarEffectiveStyles" : [
+            "dark"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+            "355F8766-A949-4905-8B7E-05904BB66AE5"
+          ],
+          "uptime" : 3987.1206825000004,
+          "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+          "windowEffectiveStyle" : "dark",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameDarkAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar",
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "humanVisualReview" : false,
+        "measurements" : [
+
+        ],
+        "methodology" : "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95\/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry.",
+        "passed" : false,
+        "schemaVersion" : 1,
+        "scope" : "three-own-window-toolbar-symbols-central-pixels",
+        "universalWCAGCertification" : false
+      },
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "applicationEffectiveStyle" : "dark",
+        "applicationOverride" : "NSAppearanceNameDarkAqua",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "contentEffectiveStyle" : "dark",
+        "controls" : [
+
+        ],
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "selection" : "dark",
+        "toolbarEffectiveAppearances" : [
+          "NSAppearanceNameVibrantDark"
+        ],
+        "toolbarEffectiveStyles" : [
+          "dark"
+        ],
+        "toolbarItemIdentifiers" : [
+          "NSToolbarFlexibleSpaceItem",
+          "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+          "com.apple.SwiftUI.splitViewSeparator-0",
+          "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+          "355F8766-A949-4905-8B7E-05904BB66AE5"
+        ],
+        "uptime" : 3987.2930095,
+        "windowEffectiveAppearance" : "NSAppearanceNameDarkAqua",
+        "windowEffectiveStyle" : "dark",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowOverride" : "NSAppearanceNameDarkAqua",
+        "windowToolbarPresent" : true,
+        "windowToolbarVisible" : true,
+        "workspaceToolbarProviderCount" : 0
+      }
+    },
+    {
+      "bytes" : 348867,
+      "height" : 772,
+      "phase" : "light-return",
+      "png" : "PDF-appearance.light-return.png",
+      "selection" : "light",
+      "sha256" : "a4fa600a63138c692ec8739ac8d312285179c319c9309d003e4dc674c6a484b9",
+      "toolbarReport" : {
+        "after" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+          "applicationEffectiveStyle" : "light",
+          "applicationOverride" : "NSAppearanceNameAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+          "contentEffectiveStyle" : "light",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "light",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantLight"
+          ],
+          "toolbarEffectiveStyles" : [
+            "light"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+            "355F8766-A949-4905-8B7E-05904BB66AE5"
+          ],
+          "uptime" : 3988.882027666667,
+          "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+          "windowEffectiveStyle" : "light",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "before" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+          "applicationEffectiveStyle" : "light",
+          "applicationOverride" : "NSAppearanceNameAqua",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+          "contentEffectiveStyle" : "light",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "light",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantLight"
+          ],
+          "toolbarEffectiveStyles" : [
+            "light"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+            "355F8766-A949-4905-8B7E-05904BB66AE5"
+          ],
+          "uptime" : 3988.8270382083338,
+          "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+          "windowEffectiveStyle" : "light",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowOverride" : "NSAppearanceNameAqua",
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar",
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "humanVisualReview" : false,
+        "measurements" : [
+
+        ],
+        "methodology" : "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95\/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry.",
+        "passed" : false,
+        "schemaVersion" : 1,
+        "scope" : "three-own-window-toolbar-symbols-central-pixels",
+        "universalWCAGCertification" : false
+      },
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+        "applicationEffectiveStyle" : "light",
+        "applicationOverride" : "NSAppearanceNameAqua",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+        "contentEffectiveStyle" : "light",
+        "controls" : [
+
+        ],
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "selection" : "light",
+        "toolbarEffectiveAppearances" : [
+          "NSAppearanceNameVibrantLight"
+        ],
+        "toolbarEffectiveStyles" : [
+          "light"
+        ],
+        "toolbarItemIdentifiers" : [
+          "NSToolbarFlexibleSpaceItem",
+          "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+          "com.apple.SwiftUI.splitViewSeparator-0",
+          "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+          "355F8766-A949-4905-8B7E-05904BB66AE5"
+        ],
+        "uptime" : 3988.882027666667,
+        "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+        "windowEffectiveStyle" : "light",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowOverride" : "NSAppearanceNameAqua",
+        "windowToolbarPresent" : true,
+        "windowToolbarVisible" : true,
+        "workspaceToolbarProviderCount" : 0
+      }
+    },
+    {
+      "bytes" : 348867,
+      "height" : 772,
+      "phase" : "system",
+      "png" : "PDF-appearance.system.png",
+      "selection" : "system",
+      "sha256" : "a4fa600a63138c692ec8739ac8d312285179c319c9309d003e4dc674c6a484b9",
+      "toolbarReport" : {
+        "after" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+          "applicationEffectiveStyle" : "light",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+          "contentEffectiveStyle" : "light",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "system",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantLight"
+          ],
+          "toolbarEffectiveStyles" : [
+            "light"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+            "355F8766-A949-4905-8B7E-05904BB66AE5"
+          ],
+          "uptime" : 3990.4521392083334,
+          "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+          "windowEffectiveStyle" : "light",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "before" : {
+          "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+          "applicationEffectiveStyle" : "light",
+          "backingScale" : 1,
+          "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+          "contentEffectiveStyle" : "light",
+          "controls" : [
+
+          ],
+          "errors" : [
+            "Expected exactly one direct toolbar control: autoSidebar",
+            "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+            "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+          ],
+          "selection" : "system",
+          "toolbarEffectiveAppearances" : [
+            "NSAppearanceNameVibrantLight"
+          ],
+          "toolbarEffectiveStyles" : [
+            "light"
+          ],
+          "toolbarItemIdentifiers" : [
+            "NSToolbarFlexibleSpaceItem",
+            "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+            "com.apple.SwiftUI.splitViewSeparator-0",
+            "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+            "355F8766-A949-4905-8B7E-05904BB66AE5"
+          ],
+          "uptime" : 3990.3999332083336,
+          "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+          "windowEffectiveStyle" : "light",
+          "windowFrame" : {
+            "height" : 772,
+            "width" : 1050,
+            "x" : 20,
+            "y" : -35
+          },
+          "windowNumber" : 29,
+          "windowToolbarPresent" : true,
+          "windowToolbarVisible" : true,
+          "workspaceToolbarProviderCount" : 0
+        },
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar",
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "humanVisualReview" : false,
+        "measurements" : [
+
+        ],
+        "methodology" : "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95\/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry.",
+        "passed" : false,
+        "schemaVersion" : 1,
+        "scope" : "three-own-window-toolbar-symbols-central-pixels",
+        "universalWCAGCertification" : false
+      },
+      "width" : 1050,
+      "windowSnapshot" : {
+        "applicationEffectiveAppearance" : "NSAppearanceNameAqua",
+        "applicationEffectiveStyle" : "light",
+        "backingScale" : 1,
+        "contentEffectiveAppearance" : "NSAppearanceNameAqua",
+        "contentEffectiveStyle" : "light",
+        "controls" : [
+
+        ],
+        "errors" : [
+          "Expected exactly one direct toolbar control: autoSidebar",
+          "Expected exactly one direct toolbar control: pdf.commands.toolbar",
+          "Expected exactly one direct toolbar control: pdf.customize.toolbar"
+        ],
+        "selection" : "system",
+        "toolbarEffectiveAppearances" : [
+          "NSAppearanceNameVibrantLight"
+        ],
+        "toolbarEffectiveStyles" : [
+          "light"
+        ],
+        "toolbarItemIdentifiers" : [
+          "NSToolbarFlexibleSpaceItem",
+          "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+          "com.apple.SwiftUI.splitViewSeparator-0",
+          "CE736B47-D150-4DA1-A5F9-49B78F967C33",
+          "355F8766-A949-4905-8B7E-05904BB66AE5"
+        ],
+        "uptime" : 3990.4521392083334,
+        "windowEffectiveAppearance" : "NSAppearanceNameAqua",
+        "windowEffectiveStyle" : "light",
+        "windowFrame" : {
+          "height" : 772,
+          "width" : 1050,
+          "x" : 20,
+          "y" : -35
+        },
+        "windowNumber" : 29,
+        "windowToolbarPresent" : true,
+        "windowToolbarVisible" : true,
+        "workspaceToolbarProviderCount" : 0
+      }
+    }
+  ],
+  "humanVisualReview" : false,
+  "nativeDeadlineSeconds" : 70,
+  "operatingSystem" : "Version 27.0.1 (Build 26A434)",
+  "providersRecreatedAfterCustomization" : false,
+  "schemaVersion" : 1,
+  "scope" : "appearance-only-real-window",
+  "source" : "WindowServer-ScreenCaptureKit",
+  "status" : "failed",
+  "universalWCAGCertification" : false
+}

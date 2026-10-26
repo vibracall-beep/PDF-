@@ -1,0 +1,49 @@
+{
+  "sourceCommit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+  "preflightSourceParent": "9543fb5741d476ab83bc48babbaefde2514541bd",
+  "preflightCandidateFilesMatchCommit": true,
+  "files": [
+    {
+      "path": "Sources/PDF/PDFApp.swift",
+      "bytes": 44070,
+      "sha256": "f8b985ebef6a253748cbe660a3f0516e22ebbda33def5fe103aec93e00c3bdf7"
+    },
+    {
+      "path": "Sources/PDF/MacPreview.swift",
+      "bytes": 59082,
+      "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860"
+    },
+    {
+      "path": "Sources/PDF/MacSmokeTests.swift",
+      "bytes": 26799,
+      "sha256": "271797d6756f3230d900960c3e83714a54be09121f965cc8f7c69dc6a6967e09"
+    },
+    {
+      "path": "Sources/PDF/ApplicationAppearance.swift",
+      "bytes": 10396,
+      "sha256": "068b171e38bd61d9fca214a97d197fd8cd8ea5611a45ba7976228500fb3e33bc"
+    },
+    {
+      "path": "Sources/PDF/ToolbarRenderingAudit.swift",
+      "bytes": 20319,
+      "sha256": "6e76e997b0b1f5002399a31c070983cc4012665f4c7dedf8bea9e2bf7baf6948"
+    },
+    {
+      "path": ".github/workflows/appearance-compatibility.yml",
+      "bytes": 12626,
+      "sha256": "50d8ad4c7c081642396ed4322826ccface42d8b8ec46ad0dcafbaa454634935c"
+    },
+    {
+      "path": "scripts/check_appearance_preview.py",
+      "bytes": 28666,
+      "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6"
+    },
+    {
+      "path": "scripts/test_appearance_preview.py",
+      "bytes": 15322,
+      "sha256": "d8fdcba3cbc812d60494268a399447129c9d7739eb3fa94135430684de5b5deb"
+    }
+  ],
+  "sdkTypecheck": false,
+  "sourceOfTestCounts": "Original local preflight/log; this retention did not rerun product tests."
+}

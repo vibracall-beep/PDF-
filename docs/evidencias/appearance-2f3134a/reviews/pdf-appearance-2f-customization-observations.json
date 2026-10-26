@@ -1,0 +1,68 @@
+[
+  {
+    "source": "sdk26",
+    "original": "/workspace/.cache/pdf-appearance-2f3134a-40246632222/extracted/PDF-appearance-sdk26/PDF-appearance.customization.png",
+    "sha256": "a8cc670cd1a3dc7ad6d783a8634d30caf4348e1b680600d9d4392445a4683fe2",
+    "regions": {
+      "density": {
+        "box": [
+          214,
+          422,
+          330,
+          447
+        ],
+        "pixels": 2900,
+        "min": 255,
+        "max": 255,
+        "pureWhite": 2900,
+        "notNearWhite": 0
+      },
+      "restore": {
+        "box": [
+          124,
+          699,
+          231,
+          724
+        ],
+        "pixels": 2675,
+        "min": 255,
+        "max": 255,
+        "pureWhite": 2675,
+        "notNearWhite": 0
+      }
+    }
+  },
+  {
+    "source": "same26on27",
+    "original": "/workspace/.cache/pdf-appearance-2f3134a-40246632222/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.customization.png",
+    "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b",
+    "regions": {
+      "density": {
+        "box": [
+          214,
+          422,
+          330,
+          447
+        ],
+        "pixels": 2900,
+        "min": 0,
+        "max": 255,
+        "pureWhite": 128,
+        "notNearWhite": 453
+      },
+      "restore": {
+        "box": [
+          124,
+          699,
+          231,
+          724
+        ],
+        "pixels": 2675,
+        "min": 0,
+        "max": 255,
+        "pureWhite": 119,
+        "notNearWhite": 351
+      }
+    }
+  }
+]

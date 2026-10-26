@@ -1,0 +1,128 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+  "runID": 40246632222,
+  "attempt": 1,
+  "originalPNGCount": 14,
+  "files": [
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.customization.png",
+      "bytes": 97935,
+      "sha256": "a8cc670cd1a3dc7ad6d783a8634d30caf4348e1b680600d9d4392445a4683fe2",
+      "originalVisuallyInspected": true,
+      "observation": "density picker and Restore menu not visible"
+    },
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.dark-attached-1.png",
+      "bytes": 336428,
+      "sha256": "1c4231382ce6b2dd302e14571334b054b4d0145572d818074f399d81a57e315e",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.dark-attached-2.png",
+      "bytes": 336403,
+      "sha256": "b9a511ffb4f8fd6d700b9c09b9f8e89eca6142ddf743059b5b6a1c86174d4150",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.dark-recreated.png",
+      "bytes": 336597,
+      "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.light-return.png",
+      "bytes": 348968,
+      "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.png",
+      "bytes": 348695,
+      "sha256": "94ad1dcda1b4b74ad31762a87f014974b79426c42f9a2e18a569e61f572d4813",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "file": "PDF-appearance.system.png",
+      "bytes": 348942,
+      "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.customization.png",
+      "bytes": 101973,
+      "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.dark-attached-1.png",
+      "bytes": 338903,
+      "sha256": "693bda15eb61c3dc2c7629fe240e434e28da89d5929b590a820fdbb67bb1f0c5",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.dark-attached-2.png",
+      "bytes": 338938,
+      "sha256": "3cc6a1c05f0515192e6b44856ddd04a4a3637bf68e5d4f3a0c7b76bd6f281599",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.dark-recreated.png",
+      "bytes": 339078,
+      "sha256": "fc221909844e5907319f5bd0e3b2577b5d65845d38e2512e4259e13fb20996b1",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.light-return.png",
+      "bytes": 348867,
+      "sha256": "a4fa600a63138c692ec8739ac8d312285179c319c9309d003e4dc674c6a484b9",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.png",
+      "bytes": 348641,
+      "sha256": "2dcaa4064e232b2e375222e7a496c92ef7068978b884317330f3bdb7938cf9a9",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "file": "PDF-appearance.system.png",
+      "bytes": 348867,
+      "sha256": "a4fa600a63138c692ec8739ac8d312285179c319c9309d003e4dc674c6a484b9",
+      "originalVisuallyInspected": true,
+      "observation": "no toolbar white-on-white defect observed in displayed region"
+    }
+  ],
+  "automatedNativeResult": "failed",
+  "contrastMeasurementsExecuted": 0,
+  "observedWindowNumberPerProcess": 29,
+  "providerObservationFailed": true,
+  "productApproved": false,
+  "humanVoiceOverTested": false,
+  "separateVisualFinding": "SDK26 customization: density picker and Restore menu not visible; duration and cause unproved"
+}

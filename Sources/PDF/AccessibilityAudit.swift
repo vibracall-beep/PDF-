@@ -121,9 +121,11 @@ import Foundation
         }
         return ""
     }
-    /// Only Objective-C object-returning getters are called through perform; no primitive
-    /// or struct-returning selector is dynamically invoked.
-    private static func attribute(_ object:NSObject,_ name:String) -> Any? {
+    /// Shared with the original-PNG toolbar observer. Only Objective-C object-returning
+    /// getters are called through perform; no primitive or struct-returning selector
+    /// is dynamically invoked. This does not start an accessibility client or mutate
+    /// the provider; the legacy fallback reads only publicly advertised attributes.
+    static func attribute(_ object:NSObject,_ name:String) -> Any? {
         let selector = NSSelectorFromString(name)
         if object.responds(to:selector),let value = object.perform(selector)?.takeUnretainedValue() { return value }
         // AppKit can return cell/reparenting proxies that expose the public legacy
@@ -141,7 +143,9 @@ import Foundation
         return object.perform(valueSelector,with:key)?.takeUnretainedValue()
     }
     private static func string(_ object:NSObject,_ name:String) -> String? { attribute(object,name) as? String }
-    private static func children(of object:NSObject) -> [NSObject] {
+    /// A public provider may expose navigation children through a different getter.
+    /// Preserve both lists without counting the same live object twice.
+    static func children(of object:NSObject) -> [NSObject] {
         var seen = Set<ObjectIdentifier>()
         return ["accessibilityChildren","accessibilityChildrenInNavigationOrder"].flatMap {
             (attribute(object,$0) as? [Any] ?? []).compactMap { $0 as? NSObject }

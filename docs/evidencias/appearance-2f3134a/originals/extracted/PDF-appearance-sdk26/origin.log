@@ -1,0 +1,37 @@
+source_commit=2f3134a41229054f41a176d6a48cc6c23e388b77
+control_commit=2f3134a41229054f41a176d6a48cc6c23e388b77
+run_id=40246632222
+run_attempt=1
+sdk=26.5
+arm64
+ProductName:		macOS
+ProductVersion:		26.6.2
+BuildVersion:		25G83
+Xcode 26.6
+Build version 17F113
+test_bundle_runtime_extra_link_and_changed_plist_refused (test_appearance_preview.AppearanceEvidenceTests.test_bundle_runtime_extra_link_and_changed_plist_refused) ... ok
+test_capture_identity_change_and_system_override_refused (test_appearance_preview.AppearanceEvidenceTests.test_capture_identity_change_and_system_override_refused) ... ok
+test_contrast_false_pass_and_inconsistent_sample_count_refused (test_appearance_preview.AppearanceEvidenceTests.test_contrast_false_pass_and_inconsistent_sample_count_refused) ... ok
+test_customization_geometry_and_observation_error_refused (test_appearance_preview.AppearanceEvidenceTests.test_customization_geometry_and_observation_error_refused) ... ok
+test_decompression_bound_refuses_bomb (test_appearance_preview.AppearanceEvidenceTests.test_decompression_bound_refuses_bomb) ... ok
+test_duplicate_json_keys_and_nonfinite_refused (test_appearance_preview.AppearanceEvidenceTests.test_duplicate_json_keys_and_nonfinite_refused) ... ok
+test_missing_duplicate_and_extra_png_refused (test_appearance_preview.AppearanceEvidenceTests.test_missing_duplicate_and_extra_png_refused) ... ok
+test_png_hash_dimensions_crc_and_trailing_data_refused (test_appearance_preview.AppearanceEvidenceTests.test_png_hash_dimensions_crc_and_trailing_data_refused) ... ok
+test_provider_reuse_is_allowed_but_observation_must_match (test_appearance_preview.AppearanceEvidenceTests.test_provider_reuse_is_allowed_but_observation_must_match) ... ok
+test_region_elsewhere_in_png_is_not_a_toolbar_measurement (test_appearance_preview.AppearanceEvidenceTests.test_region_elsewhere_in_png_is_not_a_toolbar_measurement) ... ok
+test_report_failed_cannot_be_promoted_by_passed_checks (test_appearance_preview.AppearanceEvidenceTests.test_report_failed_cannot_be_promoted_by_passed_checks) ... ok
+test_requested_theme_and_customization_snapshot_are_real (test_appearance_preview.AppearanceEvidenceTests.test_requested_theme_and_customization_snapshot_are_real) ... ok
+test_same_bundle_roundtrip_and_all_original_frames (test_appearance_preview.AppearanceEvidenceTests.test_same_bundle_roundtrip_and_all_original_frames) ... ok
+test_scope_overclaims_and_missing_check_refused (test_appearance_preview.AppearanceEvidenceTests.test_scope_overclaims_and_missing_check_refused) ... ok
+test_tar_duplicate_and_missing_member_refused (test_appearance_preview.AppearanceEvidenceTests.test_tar_duplicate_and_missing_member_refused) ... ok
+test_tar_hidden_trailer_and_concatenated_gzip_refused (test_appearance_preview.AppearanceEvidenceTests.test_tar_hidden_trailer_and_concatenated_gzip_refused) ... ok
+test_tar_symlink_and_hardlink_refused (test_appearance_preview.AppearanceEvidenceTests.test_tar_symlink_and_hardlink_refused) ... ok
+test_tar_traversal_and_absolute_path_refused (test_appearance_preview.AppearanceEvidenceTests.test_tar_traversal_and_absolute_path_refused) ... ok
+test_unrecognized_report_field_and_boolean_schema_refused (test_appearance_preview.AppearanceEvidenceTests.test_unrecognized_report_field_and_boolean_schema_refused) ... ok
+test_wrong_archive_hash_refuses_before_destination_creation (test_appearance_preview.AppearanceEvidenceTests.test_wrong_archive_hash_refuses_before_destination_creation) ... ok
+test_wrong_manifest_hash_and_source_refused (test_appearance_preview.AppearanceEvidenceTests.test_wrong_manifest_hash_and_source_refused) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 0.177s
+
+OK

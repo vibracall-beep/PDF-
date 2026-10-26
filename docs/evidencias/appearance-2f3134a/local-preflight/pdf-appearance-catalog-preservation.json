@@ -1,0 +1,14 @@
+{
+  "oldSource": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+  "newSource": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+  "catalogBytesUnchanged": true,
+  "catalogSHA256": "9d4e121917ee764ad74d5362d24d955927ea4a2b0e3a01bf6987f01d9cb8829c",
+  "engineToolConfigReaderFilesUnchanged": [
+    "engine/pdf_engine.py",
+    "Sources/PDF/ToolViews.swift",
+    "Sources/PDF/WorkspaceViews.swift"
+  ],
+  "registeredNativeGroups": 45,
+  "newRegisteredGroup": "Application and window appearance ownership",
+  "registeredDoesNotMeanExecuted": true
+}

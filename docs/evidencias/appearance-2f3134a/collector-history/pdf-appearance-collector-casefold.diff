@@ -1,0 +1,17 @@
+--- reviewed-collector
++++ casefold-collision-fix
+@@ -129,11 +129,12 @@
+     count=struct.unpack('<4s4H2IH',tail[offset:offset+22])[4]
+     require(0<count<=len(allowed),'ZIP member count differs.')
+     archives._zip_directory(stream,len(raw),count)
+-    result={};expanded=0
++    result={};normalized_names=set();expanded=0
+     with zipfile.ZipFile(stream) as z:
+         for info in z.infolist():
+             name=info.orig_filename;normal=archives._name(name,flat=flat)
+-            require(name==info.filename and normal==name and name in allowed and name not in result,'Unexpected, duplicate or ambiguous ZIP member.')
++            require(name==info.filename and name in allowed and name not in result and normal not in normalized_names,'Unexpected, duplicate or ambiguous ZIP member.')
++            normalized_names.add(normal)
+             require(not info.is_dir() and stat.S_IFMT(info.external_attr>>16) in (0,stat.S_IFREG) and not info.external_attr&0x10 and not info.flag_bits&(1|0x40|0x2000) and info.compress_type in (zipfile.ZIP_STORED,zipfile.ZIP_DEFLATED) and 0<=info.file_size<=allowed[name],'Unsafe member type, encoding or size.')
+             expanded+=info.file_size;require(expanded<=limit,'ZIP expansion exceeds bound.')
+             chunks=[];total=0

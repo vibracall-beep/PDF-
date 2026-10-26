@@ -1,0 +1,18 @@
+Traceback (most recent call last):
+  File "/tmp/pdf_collect_appearance.py", line 314, in <module>
+    if __name__=='__main__':main()
+                            ^^^^^^
+  File "/tmp/pdf_collect_appearance.py", line 312, in main
+    Collector(configuration(args.config)).run()
+  File "/tmp/pdf_collect_appearance.py", line 290, in run
+    validate_artifact(self.config,run,jobs[job],item,name);results[job]=self.inspect(job,item,modules,transfer)
+                                                                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pdf_collect_appearance.py", line 216, in inspect
+    files=unpack_small_zip(raw,allowed,modules['archives']);dest=self.root/'extracted'/item['name'];folder(dest)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/tmp/pdf_collect_appearance.py", line 136, in unpack_small_zip
+    require(name==info.filename and normal==name and name in allowed and name not in result,'Unexpected, duplicate or ambiguous ZIP member.')
+  File "/tmp/pdf_collect_appearance.py", line 35, in require
+    if not ok:raise ValueError(message)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: Unexpected, duplicate or ambiguous ZIP member.

@@ -40,6 +40,36 @@ import Foundation
         let effectiveStyle: String
         let identification: String
     }
+    /// Diagnostic topology only: no private class name or inferred identifier is
+    /// used to select a control. These records explain a failed selection without
+    /// enabling an AX client or changing the common application's render state.
+    struct ProviderNode: Codable {
+        let nativeClass: String
+        let role: String
+        let identifier: String?
+        let label: String
+        let isNSView: Bool
+        let belongsToWindow: Bool
+        let hiddenOrHasHiddenAncestor: Bool?
+    }
+    struct ToolbarProvider: Codable {
+        let node: ProviderNode
+        let directChildCount: Int
+        let directChildrenTruncated: Bool
+        let directChildren: [ProviderNode]
+    }
+    struct NativePopupControl: Codable {
+        let nativeClass: String
+        let identity: String
+        let title: String
+        let itemCount: Int
+        let windowFrame: Rect
+        let screenFrame: Rect
+        let hiddenOrHasHiddenAncestor: Bool
+        let alpha: Double
+        let effectiveAppearance: String
+        let effectiveStyle: String
+    }
     struct Snapshot: Codable {
         let uptime: Double
         let windowNumber: Int
@@ -60,6 +90,10 @@ import Foundation
         let windowToolbarPresent: Bool
         let windowToolbarVisible: Bool
         let workspaceToolbarProviderCount: Int
+        let toolbarProviders: [ToolbarProvider]
+        let nativePopupObservationRequested: Bool
+        let nativePopupProviderCount: Int
+        let nativePopupControls: [NativePopupControl]
         let controls: [Control]
         let errors: [String]
     }
@@ -123,17 +157,15 @@ import Foundation
     }
 
     private static func attribute(_ object: NSObject, _ name: String) -> Any? {
-        // Only object-returning public AX getters. In particular, never perform
-        // accessibilityFrame: NSRect is read through the typed NSView API below.
-        let selector = NSSelectorFromString(name)
-        guard object.responds(to:selector) else { return nil }
-        return object.perform(selector)?.takeUnretainedValue()
+        // Reuse the same modern getters and advertised public legacy attributes
+        // as the full AX audit. NSRect still uses the typed NSView API below.
+        AccessibilityAudit.attribute(object,name)
     }
     private static func string(_ object: NSObject, _ name: String) -> String? {
         attribute(object,name) as? String
     }
     private static func children(_ object: NSObject) -> [NSObject] {
-        (attribute(object,"accessibilityChildren") as? [Any] ?? []).compactMap { $0 as? NSObject }
+        AccessibilityAudit.children(of:object)
     }
     private static func name(_ object: NSObject) -> String {
         for key in ["accessibilityLabel","accessibilityTitle","accessibilityHelp"] {
@@ -150,14 +182,24 @@ import Foundation
         [value.minX,value.minY,value.width,value.height].allSatisfy(\.isFinite)
             && value.width > 0 && value.height > 0
     }
+    private static func providerNode(_ object:NSObject, window:NSWindow) -> ProviderNode {
+        let view = object as? NSView
+        return ProviderNode(nativeClass:NSStringFromClass(type(of:object)),
+            role:string(object,"accessibilityRole") ?? "unknown",
+            identifier:string(object,"accessibilityIdentifier"),label:String(name(object).prefix(256)),
+            isNSView:view != nil,belongsToWindow:view?.window === window,
+            hiddenOrHasHiddenAncestor:view.map { $0.isHiddenOrHasHiddenAncestor })
+    }
 
     /// Uses the public provider tree already witnessed in the original AX
     /// reports: AXToolbar has the two identified app buttons and one named
     /// system sidebar button as direct children. Unknown/ambiguous providers
     /// fail closed; internal SwiftUI duplicates are never selected by ID alone.
-    static func observe(window: NSWindow, selection: String, requiresWorkspaceToolbar:Bool = true) -> Snapshot {
+    static func observe(window: NSWindow, selection: String, requiresWorkspaceToolbar:Bool = true,
+                        observeNativePopups:Bool = false) -> Snapshot {
         viewIdentities = viewIdentities.filter { $0.value.view != nil }
         var toolbars: [NSView] = []
+        var nativePopups: [NSPopUpButton] = []
         var seen = Set<ObjectIdentifier>()
         var errors: [String] = []
         var visited = 0
@@ -175,6 +217,9 @@ import Foundation
                let view = object as? NSView, view.window === window {
                 toolbars.append(view)
             }
+            if observeNativePopups, let popup = object as? NSPopUpButton, popup.window === window {
+                nativePopups.append(popup)
+            }
             for child in children(object) { visit(child,depth:depth+1) }
             if let view = object as? NSView {
                 for child in view.subviews { visit(child,depth:depth+1) }
@@ -183,11 +228,18 @@ import Foundation
         visit(window,depth:0)
         if let content = window.contentView { visit(content.superview ?? content,depth:1) }
         var controls: [Control] = []
+        var providers: [ToolbarProvider] = []
         var workspaceToolbars = 0
         let sidebarNames: Set<String> = ["Hide Sidebar","Show Sidebar","Ocultar Barra Lateral",
             "Mostrar Barra Lateral","Ocultar barra lateral","Mostrar barra lateral"]
         for toolbar in toolbars {
-            let buttons = children(toolbar).filter { string($0,"accessibilityRole") == "AXButton" }
+            let directChildren = children(toolbar)
+            let truncated = directChildren.count > 128
+            providers.append(ToolbarProvider(node:providerNode(toolbar,window:window),
+                directChildCount:directChildren.count,directChildrenTruncated:truncated,
+                directChildren:directChildren.prefix(128).map { providerNode($0,window:window) }))
+            if truncated { errors.append("Public toolbar child topology exceeded its diagnostic bound.") }
+            let buttons = directChildren.filter { string($0,"accessibilityRole") == "AXButton" }
             let ids = Set(buttons.compactMap { string($0,"accessibilityIdentifier") })
             guard ids.contains("pdf.commands.toolbar"), ids.contains("pdf.customize.toolbar") else { continue }
             workspaceToolbars += 1
@@ -223,6 +275,19 @@ import Foundation
             }
             if window.toolbar == nil || window.toolbar?.isVisible != true { errors.append("The actual window toolbar is absent or hidden.") }
         }
+        if nativePopups.count > 64 { errors.append("Native popup observation exceeded its diagnostic bound.") }
+        // This optional observation is requested only after the customization PNG
+        // has been written. Native view bounds require no AX client or frame getter.
+        // No popup is opened or materialized; an empty list says nothing about
+        // whether SwiftUI draws virtual controls without an NSPopUpButton provider.
+        let popupControls = nativePopups.prefix(64).map { popup in
+            let local = popup.convert(popup.bounds,to:nil)
+            return NativePopupControl(nativeClass:NSStringFromClass(type(of:popup)),identity:token(for:popup),
+                title:String(popup.title.prefix(256)),itemCount:popup.numberOfItems,
+                windowFrame:Rect(local),screenFrame:Rect(window.convertToScreen(local)),
+                hiddenOrHasHiddenAncestor:popup.isHiddenOrHasHiddenAncestor,alpha:Double(popup.alphaValue),
+                effectiveAppearance:appearance(popup.effectiveAppearance),effectiveStyle:style(popup.effectiveAppearance))
+        }
         return Snapshot(uptime:ProcessInfo.processInfo.systemUptime,windowNumber:window.windowNumber,
             windowFrame:Rect(window.frame),backingScale:window.backingScaleFactor,selection:selection,
             applicationOverride:NSApp?.appearance?.name.rawValue,
@@ -236,7 +301,9 @@ import Foundation
             toolbarEffectiveStyles:toolbars.map { style($0.effectiveAppearance) },
             toolbarItemIdentifiers:window.toolbar?.items.map { $0.itemIdentifier.rawValue } ?? [],
             windowToolbarPresent:window.toolbar != nil,windowToolbarVisible:window.toolbar?.isVisible == true,
-            workspaceToolbarProviderCount:workspaceToolbars,
+            workspaceToolbarProviderCount:workspaceToolbars,toolbarProviders:providers,
+            nativePopupObservationRequested:observeNativePopups,nativePopupProviderCount:nativePopups.count,
+            nativePopupControls:popupControls,
             controls:controls.sorted { $0.auditKey < $1.auditKey },errors:errors)
     }
 
@@ -346,7 +413,8 @@ import Foundation
         return Frame(phase:phase,selection:selection,png:path.lastPathComponent,bytes:raw.count,
             sha256:SHA256.hash(data:raw).map { String(format:"%02x",$0) }.joined(),
             width:bitmap.pixelsWide,height:bitmap.pixelsHigh,
-            windowSnapshot:report?.after ?? observe(window:window,selection:selection,requiresWorkspaceToolbar:false),toolbarReport:report)
+            windowSnapshot:report?.after ?? observe(window:window,selection:selection,requiresWorkspaceToolbar:false,
+                observeNativePopups:phase == "customization"),toolbarReport:report)
     }
     static func log(_ report: Report, phase: String) throws {
         let encoder = JSONEncoder(); encoder.outputFormatting = [.sortedKeys]

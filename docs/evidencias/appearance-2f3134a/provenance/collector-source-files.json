@@ -1,0 +1,72 @@
+[
+  {
+    "role": "controller",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "diagnostics/delivery_archives.py",
+    "bytes": 17378,
+    "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+  },
+  {
+    "role": "controller",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "scripts/check_appearance_preview.py",
+    "bytes": 28666,
+    "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6"
+  },
+  {
+    "role": "controller",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": ".github/workflows/appearance-compatibility.yml",
+    "bytes": 12626,
+    "sha256": "50d8ad4c7c081642396ed4322826ccface42d8b8ec46ad0dcafbaa454634935c"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "scripts/check_appearance_preview.py",
+    "bytes": 28666,
+    "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "scripts/PDF-Info.plist",
+    "bytes": 2034,
+    "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "scripts/prepare-window-audit-bundle.py",
+    "bytes": 4147,
+    "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "scripts/run-with-timeout.py",
+    "bytes": 4709,
+    "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "Sources/PDF/ToolbarRenderingAudit.swift",
+    "bytes": 20319,
+    "sha256": "6e76e997b0b1f5002399a31c070983cc4012665f4c7dedf8bea9e2bf7baf6948"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "Sources/PDF/ApplicationAppearance.swift",
+    "bytes": 10396,
+    "sha256": "068b171e38bd61d9fca214a97d197fd8cd8ea5611a45ba7976228500fb3e33bc"
+  },
+  {
+    "role": "application",
+    "commit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+    "path": "Sources/PDF/MacPreview.swift",
+    "bytes": 59082,
+    "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860"
+  }
+]

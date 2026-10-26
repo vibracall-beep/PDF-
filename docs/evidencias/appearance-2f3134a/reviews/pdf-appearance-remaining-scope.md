@@ -1,0 +1,19 @@
+# Pendências reais e próximas melhorias
+
+As **71 ferramentas e o leitor** permanecem. Abas, biblioteca, versões, personalização, assinaturas e automação já existem. Esta avaliação usa a [matriz](/workspace/PDF-/docs/MATRIZ-0.7.md) e a [auditoria](/workspace/PDF-/docs/AUDITORIA-0.7.md) de `37f5b65`; presença não demonstra cobertura integral.
+
+**Parcial:** implementação limitada. **Externo:** depende de equipamento, modelo, serviço ou avaliação humana. **Sem prova:** resultado ainda não demonstrado.
+
+| Área | Já implementado | Pendência efetiva |
+| --- | --- | --- |
+| **Editor e conversões** | Texto, imagens, vetores simples, estilos, tabelas, cabeçalhos/rodapés e auditoria de conversão. | **Parcial:** curvas/estados complexos, reflow, notas semânticas e layouts arbitrários. Fontes podem exigir substituição consentida. **Sem prova:** fidelidade em um conjunto amplo de documentos reais. |
+| **OCR e acessibilidade** | OCR, correção de inclinação, revisão visual, edição de tags existentes, tabelas/cabeçalhos e validação independente. | **Parcial:** manuscritos, scans difíceis e criação automática de estrutura semântica em PDFs sem tags. **Externo/sem prova:** revisão humana da ordem de leitura e VoiceOver. O erro OCR observado em português com idioma inglês permanece registrado. |
+| **Recuperação** | Checkpoints do leitor, versões da biblioteca, ensaios de encerramento forçado, proteção da atualização e limpeza de temporários identificados. | **Parcial:** rascunhos do editor, OCR e acessibilidade persistem apenas em memória. **Sem prova:** interrupção em todas as gravações, todos os resíduos anteriores ao registro e queda física de energia.  |
+| **Personalização** | Ferramentas, nomes, ícones, ordem, visibilidade, barras, menus próprios, atalhos, perfis, aparência, leitura e arquivos de saída. | **Limite:** menus do sistema e teclas reservadas não são irrestritamente editáveis. **Sem prova:** todas as interações, animações e condições assistivas. **Bloqueador conhecido em 37:** três controles quase ilegíveis no tema escuro do teste cruzado. |
+| **IA e M4+** | Busca semântica, fontes verificáveis, integração com modelo local, política de recursos e instrumentos de benchmark. | **Externo/sem prova:** geração real e qualidade em português com modelo disponível; desempenho, energia e Neural Engine em M4 físico. O runner virtual não comprova esses ganhos. |
+| **Assinaturas e integrações** | Assinatura/verificação criptográfica, OCSP/CRL e LT/LTA em ambiente controlado, solicitações por API, sincronização e integrações macOS. | **Externo/sem prova:** certificados/CA/TSA e serviços de produção, envio/acompanhamento real, dois Macs físicos, scanner/Continuidade, exportação pelo Pages e percursos completos no Atalhos/Finder.  |
+| **Impressão profissional** | Diagnóstico de fontes/ICC, transparência, tintas/sobreimpressão, corte/sangria e geração de candidato PDF/X-3. | **Parcial:** checks enumerados, sem validador completo ISO 15930. **Externo/sem prova:** separações efetivas, chapas especiais, carga máxima de tinta e prova física de cor. Sem certificação independente. |
+
+**Prioridades:** comprovar a correção de aparência entre sistemas e repetir os gates completos; persistir rascunhos com proteção equivalente à recuperação existente; ampliar documentos reais e critérios de fidelidade/OCR/acessibilidade; medir M4 físico e exercitar as integrações externas. São ampliações e comprovações, sem apresentar recursos existentes como ausentes.
+
+A fonte `2f3134a41229054f41a176d6a48cc6c23e388b77` altera sincronização de aparência AppKit/SwiftUI e controles, preservando ferramentas. **Nesta preparação**, o focal `40246632222` estava em compilação, sem resultado disponível. A fonte 37 continua com CI aprovado, revisão visual reprovada e entrega bloqueada. O novo candidato e a entrega aguardam evidências próprias; a validação de desenvolvimento continua sob responsabilidade do projeto.

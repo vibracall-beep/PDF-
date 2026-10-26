@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+  "controllerCommit": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+  "runID": 40246632222,
+  "attempt": 1,
+  "createdAtUTC": "2026-10-26T00:07:24.812156+00:00",
+  "runConclusion": "failure",
+  "jobs": {
+    "compile-sdk26": 121329466580,
+    "same-binary-xcode27": 121330497217
+  },
+  "sourceCompilePackSucceeded": true,
+  "targetRestoreSucceeded": true,
+  "appearanceObserverPassed": false,
+  "visualReviewPassed": false,
+  "nativeContrastMeasurementsCompleted": 0,
+  "nativeChecksPerSystem": {
+    "passed": 8,
+    "failed": 4
+  },
+  "originalPNGCount": 14,
+  "artifactInventories": {
+    "PDF-appearance-sdk26": 15,
+    "PDF-appearance-same-binary-xcode27": 14
+  },
+  "fullNativeWorkflowDispatched": false,
+  "fullNativeWorkflowStatusSource": "Coordinator instruction; focal workflow is the only run retained here.",
+  "installationApproved": false,
+  "completeApplicationApproved": false,
+  "deliveryAllowed": false,
+  "sameManifestBytesAcrossSystems": true,
+  "transferArtifactNotDownloaded": true,
+  "tarOrAppRetained": false,
+  "visualReview": {
+    "productApproved": false,
+    "source": "reviews/pdf-appearance-2f-independent-review.json",
+    "separateFinding": "SDK26 customization: density picker and Restore menu not visible; duration and cause unproved",
+    "scope": "14 original images reviewed by agent, 12 workspace toolbar states legible in the displayed regions; not a native measurement or full interaction approval."
+  },
+  "collectorIncident": {
+    "firstCollectionStoppedOnLegitimateUppercaseNames": true,
+    "approvedCasefoldCollisionFixApplied": true,
+    "offlineMethodsPassed": 18,
+    "eachArtifactDownloadedOnce": true,
+    "productFailureCauseNotInferredFromCollectorBug": true
+  },
+  "localPreflight": {
+    "swiftSyntaxFiles": 90,
+    "SDKTypecheck": false,
+    "scriptsMethods": 171,
+    "scriptsPassed": 164,
+    "scriptsMacSkips": 7
+  },
+  "historical37VisualRejectionUnchanged": true,
+  "approvalTransferredFromPriorSource": false
+}

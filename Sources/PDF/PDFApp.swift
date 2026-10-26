@@ -249,7 +249,7 @@ struct PDFApp: App {
                 .environmentObject(model).environmentObject(appearancePreferences).environmentObject(sceneCoordinator)
                 .environmentObject(applicationAppearance)
                 .defaultAppStorage(preview.defaults)
-                .tint(appearancePreferences.accent).preferredColorScheme(appearancePreferences.preferredScheme)
+                .tint(appearancePreferences.accent).applicationColorScheme(appearancePreferences.preferredScheme)
                 .applicationAppearance(applicationAppearance)
                 .frame(minWidth:1050,minHeight:720)
                 .onOpenURL { model.open(url:$0) }
@@ -281,7 +281,7 @@ struct PDFApp: App {
         Settings {
             PreferencesView().environmentObject(model).environmentObject(appearancePreferences)
                 .environmentObject(applicationAppearance)
-                .tint(appearancePreferences.accent).preferredColorScheme(appearancePreferences.preferredScheme)
+                .tint(appearancePreferences.accent).applicationColorScheme(appearancePreferences.preferredScheme)
                 .applicationAppearance(applicationAppearance)
         }
     }
@@ -333,7 +333,7 @@ struct ContentView: View {
             }.navigationTitle(model.section == "Leitor" ? model.activeSession?.title ?? model.url?.lastPathComponent ?? "Leitor" : preferences.state.sidebar.first(where:{$0.id == model.section})?.label ?? model.section)
                 .animation(preferences.animation(reduceMotion:reduceMotion),value:model.section)
         }
-        .tint(tint).preferredColorScheme(preferences.preferredScheme)
+        .tint(tint).applicationColorScheme(preferences.preferredScheme)
         .sheet(item:$selected) { ToolConfigurationView(tool:$0).environmentObject(model).environmentObject(preferences).applicationAppearance(applicationAppearance) }
         .sheet(isPresented:$showCustomization) { CustomizationView().environmentObject(model).environmentObject(preferences).applicationAppearance(applicationAppearance) }
         .sheet(isPresented:$showRecovery) { RecoveryDocumentsView().environmentObject(model).environmentObject(preferences).applicationAppearance(applicationAppearance) }

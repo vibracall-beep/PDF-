@@ -61,7 +61,7 @@ struct CustomizationView:View {
                 Text(message).font(.caption).foregroundStyle(.secondary).lineLimit(2)
             }
         }.padding(24).frame(width:850,height:690)
-            .tint(preferences.accent).preferredColorScheme(preferences.preferredScheme)
+            .tint(preferences.accent).applicationColorScheme(preferences.preferredScheme)
     }
     var appearanceSettings:some View {
         VStack(alignment:.leading,spacing:18) {

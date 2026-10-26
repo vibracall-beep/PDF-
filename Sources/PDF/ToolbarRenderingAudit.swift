@@ -57,6 +57,52 @@ import Foundation
         let directChildCount: Int
         let directChildrenTruncated: Bool
         let directChildren: [ProviderNode]
+        let nativeViews: [NativeViewNode]
+        let nativeHierarchyTruncated: Bool
+        var maximumNativeViews = 128
+        var maximumNativeDepth = 12
+    }
+    struct NativeViewObservation: Codable {
+        let provider: ProviderNode
+        let identity: String
+        let bounds: Rect
+        let windowFrame: Rect?
+        let screenFrame: Rect?
+        let alpha: Double
+        let appearanceOverride: String?
+        let effectiveAppearance: String
+        let effectiveStyle: String
+    }
+    struct NativeViewNode: Codable {
+        let index: Int
+        let parent: Int?
+        let view: NativeViewObservation
+    }
+    struct ToolbarItemObservation: Codable {
+        let index: Int
+        let parent: Int?
+        let nativeClass: String
+        let itemIdentifier: String
+        let label: String
+        let paletteLabel: String
+        let toolTip: String?
+        let action: String?
+        let view: NativeViewObservation?
+        let subitemCount: Int
+    }
+    struct ToolbarItemsObservation: Codable {
+        let items: [ToolbarItemObservation]
+        let traversalLimited: Bool
+        var maximumItems = 64
+        var maximumDepth = 4
+    }
+    struct AppearanceAncestor: Codable {
+        let nativeClass: String
+        let identity: String
+        let appearanceOverride: String?
+        let effectiveAppearance: String
+        let effectiveStyle: String
+        let isWindowContentView: Bool
     }
     struct NativePopupControl: Codable {
         let nativeClass: String
@@ -67,8 +113,12 @@ import Foundation
         let screenFrame: Rect
         let hiddenOrHasHiddenAncestor: Bool
         let alpha: Double
+        let appearanceOverride: String?
         let effectiveAppearance: String
         let effectiveStyle: String
+        let ancestors: [AppearanceAncestor]
+        let ancestorsTruncated: Bool
+        var maximumAncestors = 16
     }
     struct Snapshot: Codable {
         let uptime: Double
@@ -91,6 +141,7 @@ import Foundation
         let windowToolbarVisible: Bool
         let workspaceToolbarProviderCount: Int
         let toolbarProviders: [ToolbarProvider]
+        let nativeToolbarItems: ToolbarItemsObservation
         let nativePopupObservationRequested: Bool
         let nativePopupProviderCount: Int
         let nativePopupControls: [NativePopupControl]
@@ -190,6 +241,64 @@ import Foundation
             isNSView:view != nil,belongsToWindow:view?.window === window,
             hiddenOrHasHiddenAncestor:view.map { $0.isHiddenOrHasHiddenAncestor })
     }
+    private static func nativeViewObservation(_ view:NSView, window:NSWindow) -> NativeViewObservation {
+        let local = view.window === window ? view.convert(view.bounds,to:nil) : nil
+        return NativeViewObservation(provider:providerNode(view,window:window),identity:token(for:view),
+            bounds:Rect(view.bounds),windowFrame:local.map { Rect($0) },
+            screenFrame:local.map { Rect(window.convertToScreen($0)) },alpha:Double(view.alphaValue),
+            appearanceOverride:view.appearance?.name.rawValue,
+            effectiveAppearance:appearance(view.effectiveAppearance),effectiveStyle:style(view.effectiveAppearance))
+    }
+    /// Native hierarchy is recorded even when the public AX toolbar has no
+    /// children. It never supplies a replacement selection by position or class.
+    private static func nativeHierarchy(_ root:NSView, window:NSWindow) -> ([NativeViewNode],Bool) {
+        var nodes:[NativeViewNode] = []
+        var seen = Set<ObjectIdentifier>()
+        var limited = false
+        func visit(_ view:NSView, parent:Int?, depth:Int) {
+            guard depth <= 12, nodes.count < 128 else { limited = true; return }
+            guard seen.insert(ObjectIdentifier(view)).inserted else { limited = true; return }
+            let index = nodes.count
+            nodes.append(NativeViewNode(index:index,parent:parent,view:nativeViewObservation(view,window:window)))
+            for child in view.subviews { visit(child,parent:index,depth:depth+1) }
+        }
+        visit(root,parent:nil,depth:0)
+        return (nodes,limited)
+    }
+    private static func toolbarItems(window:NSWindow) -> ToolbarItemsObservation {
+        var observations:[ToolbarItemObservation] = []
+        var seen = Set<ObjectIdentifier>()
+        var limited = false
+        func visit(_ item:NSToolbarItem, parent:Int?, depth:Int) {
+            guard depth <= 4, observations.count < 64 else { limited = true; return }
+            guard seen.insert(ObjectIdentifier(item)).inserted else { limited = true; return }
+            let subitems = (item as? NSToolbarItemGroup)?.subitems ?? []
+            let index = observations.count
+            observations.append(ToolbarItemObservation(index:index,parent:parent,
+                nativeClass:NSStringFromClass(type(of:item)),itemIdentifier:item.itemIdentifier.rawValue,
+                label:String(item.label.prefix(256)),paletteLabel:String(item.paletteLabel.prefix(256)),
+                toolTip:item.toolTip.map { String($0.prefix(256)) },
+                action:item.action.map { NSStringFromSelector($0) },
+                view:item.view.map { nativeViewObservation($0,window:window) },subitemCount:subitems.count))
+            for subitem in subitems { visit(subitem,parent:index,depth:depth+1) }
+        }
+        for item in window.toolbar?.items ?? [] { visit(item,parent:nil,depth:0) }
+        return ToolbarItemsObservation(items:observations,traversalLimited:limited)
+    }
+    private static func popupAncestors(_ popup:NSPopUpButton, window:NSWindow) -> ([AppearanceAncestor],Bool) {
+        var ancestors:[AppearanceAncestor] = []
+        var seen = Set<ObjectIdentifier>()
+        var next = popup.superview
+        while let view = next {
+            guard ancestors.count < 16, seen.insert(ObjectIdentifier(view)).inserted else { return (ancestors,true) }
+            ancestors.append(AppearanceAncestor(nativeClass:NSStringFromClass(type(of:view)),identity:token(for:view),
+                appearanceOverride:view.appearance?.name.rawValue,
+                effectiveAppearance:appearance(view.effectiveAppearance),effectiveStyle:style(view.effectiveAppearance),
+                isWindowContentView:view === window.contentView))
+            next = view.superview
+        }
+        return (ancestors,false)
+    }
 
     /// Uses the public provider tree already witnessed in the original AX
     /// reports: AXToolbar has the two identified app buttons and one named
@@ -235,9 +344,11 @@ import Foundation
         for toolbar in toolbars {
             let directChildren = children(toolbar)
             let truncated = directChildren.count > 128
+            let (nativeViews,nativeTruncated) = nativeHierarchy(toolbar,window:window)
             providers.append(ToolbarProvider(node:providerNode(toolbar,window:window),
                 directChildCount:directChildren.count,directChildrenTruncated:truncated,
-                directChildren:directChildren.prefix(128).map { providerNode($0,window:window) }))
+                directChildren:directChildren.prefix(128).map { providerNode($0,window:window) },
+                nativeViews:nativeViews,nativeHierarchyTruncated:nativeTruncated))
             if truncated { errors.append("Public toolbar child topology exceeded its diagnostic bound.") }
             let buttons = directChildren.filter { string($0,"accessibilityRole") == "AXButton" }
             let ids = Set(buttons.compactMap { string($0,"accessibilityIdentifier") })
@@ -282,11 +393,14 @@ import Foundation
         // whether SwiftUI draws virtual controls without an NSPopUpButton provider.
         let popupControls = nativePopups.prefix(64).map { popup in
             let local = popup.convert(popup.bounds,to:nil)
+            let (ancestors,truncated) = popupAncestors(popup,window:window)
             return NativePopupControl(nativeClass:NSStringFromClass(type(of:popup)),identity:token(for:popup),
                 title:String(popup.title.prefix(256)),itemCount:popup.numberOfItems,
                 windowFrame:Rect(local),screenFrame:Rect(window.convertToScreen(local)),
                 hiddenOrHasHiddenAncestor:popup.isHiddenOrHasHiddenAncestor,alpha:Double(popup.alphaValue),
-                effectiveAppearance:appearance(popup.effectiveAppearance),effectiveStyle:style(popup.effectiveAppearance))
+                appearanceOverride:popup.appearance?.name.rawValue,
+                effectiveAppearance:appearance(popup.effectiveAppearance),effectiveStyle:style(popup.effectiveAppearance),
+                ancestors:ancestors,ancestorsTruncated:truncated)
         }
         return Snapshot(uptime:ProcessInfo.processInfo.systemUptime,windowNumber:window.windowNumber,
             windowFrame:Rect(window.frame),backingScale:window.backingScaleFactor,selection:selection,
@@ -302,6 +416,7 @@ import Foundation
             toolbarItemIdentifiers:window.toolbar?.items.map { $0.itemIdentifier.rawValue } ?? [],
             windowToolbarPresent:window.toolbar != nil,windowToolbarVisible:window.toolbar?.isVisible == true,
             workspaceToolbarProviderCount:workspaceToolbars,toolbarProviders:providers,
+            nativeToolbarItems:toolbarItems(window:window),
             nativePopupObservationRequested:observeNativePopups,nativePopupProviderCount:nativePopups.count,
             nativePopupControls:popupControls,
             controls:controls.sorted { $0.auditKey < $1.auditKey },errors:errors)

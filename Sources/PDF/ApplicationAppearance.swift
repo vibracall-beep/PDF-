@@ -165,6 +165,17 @@ import SwiftUI
 }
 
 extension View {
+    /// Keep the SwiftUI environment in step with the application's one AppKit
+    /// owner. Unlike preferredColorScheme, this does not publish another window
+    /// appearance request from each descendant/presentation. A nil preference
+    /// leaves the inherited environment untouched, including macOS changes in
+    /// System mode. The modifier's structure stays identical across all modes.
+    func applicationColorScheme(_ preferredScheme: ColorScheme?) -> some View {
+        transformEnvironment(\.colorScheme) { scheme in
+            if let preferredScheme { scheme = preferredScheme }
+        }
+    }
+
     @MainActor func applicationAppearance(_ controller: ApplicationAppearanceController) -> some View {
         background(ApplicationAppearanceWindowBinding(controller: controller).frame(width: 0, height: 0))
     }

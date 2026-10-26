@@ -40,6 +40,12 @@ CHECKS = ('seven-original-frames-in-order', 'light-dark-customization-light-syst
           'two-separate-dark-attached-captures', 'toolbar-controls-return-after-customization',
           'system-releases-appkit-overrides', 'no-document-session', 'background-work-drained', 'private-state-cleanup')
 CONTROLS = ('autoSidebar', 'pdf.commands.toolbar', 'pdf.customize.toolbar')
+CONTROL_LABELS = {
+    'autoSidebar': {'Hide Sidebar', 'Show Sidebar', 'Ocultar Barra Lateral',
+                    'Mostrar Barra Lateral', 'Ocultar barra lateral', 'Mostrar barra lateral'},
+    'pdf.commands.toolbar': {'Comandos'}, 'pdf.customize.toolbar': {'Personalizar'},
+}
+CONTROL_IDENTIFICATION = 'public-NSToolbarItem-label-paletteLabel-and-actual-view'
 
 
 def require(condition, detail):
@@ -258,6 +264,95 @@ def rect(value):
     return value
 
 
+def native_toolbar_items(value):
+    observed = value.get('nativeToolbarItems')
+    require(isinstance(observed, dict) and observed.get('traversalLimited') is False
+            and type(observed.get('maximumItems')) is int and observed['maximumItems'] == 64
+            and type(observed.get('maximumDepth')) is int and observed['maximumDepth'] == 4,
+            'complete bounded public toolbar item observation required')
+    items = observed.get('items')
+    require(isinstance(items, list) and len(items) <= 64, 'public toolbar item inventory exceeds its bound')
+    depths = []; children = [0] * len(items)
+    for index, item in enumerate(items):
+        require(isinstance(item, dict) and type(item.get('index')) is int and item['index'] == index
+                and all(isinstance(item.get(key), str) for key in ('itemIdentifier','label','paletteLabel'))
+                and type(item.get('subitemCount')) is int and 0 <= item['subitemCount'] <= 64,
+                'invalid indexed public toolbar item')
+        parent = item.get('parent')
+        require(parent is None or type(parent) is int and 0 <= parent < index, 'toolbar item parent is invalid or cyclic')
+        depths.append(0 if parent is None else depths[parent] + 1)
+        require(depths[-1] <= 4, 'toolbar item group depth exceeds its bound')
+        if parent is not None: children[parent] += 1
+    require(all(item['subitemCount'] == children[index] for index, item in enumerate(items)), 'toolbar subitem census differs')
+    return items
+
+
+def toolbar_view_bindings(value, items, expected):
+    providers = value.get('toolbarProviders')
+    require(isinstance(providers, list) and len(providers) == 1 and isinstance(providers[0], dict),
+            'one observed real toolbar hierarchy is required')
+    toolbar = providers[0]; provider = toolbar.get('node')
+    require(isinstance(provider, dict) and provider.get('role') == 'AXToolbar'
+            and provider.get('isNSView') is True and provider.get('belongsToWindow') is True
+            and provider.get('hiddenOrHasHiddenAncestor') is False
+            and toolbar.get('directChildrenTruncated') is False and toolbar.get('nativeHierarchyTruncated') is False
+            and type(toolbar.get('maximumNativeViews')) is int and toolbar['maximumNativeViews'] == 128
+            and type(toolbar.get('maximumNativeDepth')) is int and toolbar['maximumNativeDepth'] == 12,
+            'toolbar is hidden, outside the window, ambiguous or truncated')
+    require(type(toolbar.get('directChildCount')) is int and 0 <= toolbar['directChildCount'] <= 128
+            and isinstance(toolbar.get('directChildren'), list) and len(toolbar['directChildren']) == toolbar['directChildCount'],
+            'direct toolbar provider count differs')
+    nodes = toolbar.get('nativeViews')
+    require(isinstance(nodes, list) and 1 <= len(nodes) <= 128, 'bounded native toolbar view tree required')
+    views = {}; depths = []
+    for index, node in enumerate(nodes):
+        require(isinstance(node, dict) and type(node.get('index')) is int and node['index'] == index
+                and isinstance(node.get('view'), dict), 'native toolbar tree index/view missing')
+        parent = node.get('parent')
+        require((index == 0 and parent is None) or (index > 0 and type(parent) is int and 0 <= parent < index),
+                'native toolbar view is not rooted in the single actual toolbar')
+        depths.append(0 if parent is None else depths[parent] + 1)
+        require(depths[-1] <= 12, 'native toolbar hierarchy exceeds its depth bound')
+        view = node['view']; identity = view.get('identity')
+        require(isinstance(identity, str) and bool(identity.strip()) and identity not in views,
+                'native toolbar view identity is missing or duplicated')
+        views[identity] = (index, view)
+    root_view = nodes[0]['view']
+    require(root_view.get('provider') == provider and finite(root_view.get('alpha')) and root_view['alpha'] > 0,
+            'native tree root differs from the visible toolbar provider')
+    used_items = set()
+    for control in value['controls']:
+        key = control['auditKey']
+        require(control.get('label') in CONTROL_LABELS[key] and control.get('paletteLabel') == control['label']
+                and isinstance(control.get('identifier'), str) and bool(control['identifier'].strip())
+                and isinstance(control.get('effectiveAppearance'), str) and bool(control['effectiveAppearance'].strip())
+                and finite(control.get('alpha')) and control['alpha'] > 0
+                and control.get('identification') == CONTROL_IDENTIFICATION,
+                'control lacks exact public labels, actual itemIdentifier or visible alpha')
+        matches = [item for item in items if item['label'] in CONTROL_LABELS[key] and item['paletteLabel'] == item['label']]
+        require(len(matches) == 1 and matches[0]['index'] not in used_items, 'public toolbar label selection is missing or ambiguous')
+        item = matches[0]; used_items.add(item['index']); view = item.get('view')
+        require(item['itemIdentifier'] == control['identifier'] and item['label'] == control['label']
+                and item['paletteLabel'] == control['paletteLabel'] and isinstance(view, dict)
+                and view.get('identity') == control['identity'] and control['identity'] in views,
+                'selected control does not identify the observed public item.view')
+        node_index, tree_view = views[control['identity']]
+        require(node_index > 0, 'the toolbar root cannot be substituted for an item.view')
+        for observed in (view, tree_view):
+            node = observed.get('provider')
+            require(isinstance(node, dict) and node.get('isNSView') is True and node.get('belongsToWindow') is True
+                    and node.get('hiddenOrHasHiddenAncestor') is False and finite(observed.get('alpha')) and observed['alpha'] > 0,
+                    'actual item.view is hidden or belongs to another window')
+            rect(observed.get('bounds')); rect(observed.get('windowFrame')); rect(observed.get('screenFrame'))
+            require(all(observed.get(field) == control.get(field) for field in
+                        ('identity','windowFrame','screenFrame','alpha','effectiveAppearance','effectiveStyle'))
+                    and observed['effectiveStyle'] == expected,
+                    'control identity, geometry, alpha or style differs from its actual item.view/tree')
+        require(view.get('bounds') == tree_view.get('bounds')
+                and view.get('appearanceOverride') == tree_view.get('appearanceOverride'),
+                'public item.view and toolbar descendant disagree')
+
+
 def snapshot(value, selection, workspace):
     require(isinstance(value, dict) and value.get('selection') == selection
             and type(value.get('windowNumber')) is int and value['windowNumber'] > 0
@@ -273,9 +368,11 @@ def snapshot(value, selection, workspace):
             and type(value.get('workspaceToolbarProviderCount')) is int and value['workspaceToolbarProviderCount'] >= 0,
             'real toolbar presence was not observed')
     controls = value.get('controls')
+    items = native_toolbar_items(value)
     if not workspace:
         require(controls == [] and value['workspaceToolbarProviderCount'] == 0
-                and value.get('errors') == [],
+                and value.get('errors') == []
+                and not any(item['label'] in labels for item in items for labels in CONTROL_LABELS.values()),
                 'workspace toolbar absence during customization is not established')
         return value
     require(value.get('errors') == [] and value['windowToolbarPresent'] is True and value['windowToolbarVisible'] is True
@@ -287,6 +384,7 @@ def snapshot(value, selection, workspace):
     styles = value.get('toolbarEffectiveStyles')
     require(isinstance(styles, list) and 0 < len(styles) <= 100 and all(style == expected for style in styles)
             and all(c.get('effectiveStyle') == expected for c in controls), 'toolbar/control style differs from selection')
+    toolbar_view_bindings(value, items, expected)
     return value
 
 

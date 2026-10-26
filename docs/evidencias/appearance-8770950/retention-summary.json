@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+  "controllerCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+  "runID": 40248300537,
+  "attempt": 1,
+  "createdAtUTC": "2026-10-26T00:32:32.578533+00:00",
+  "runConclusion": "failure",
+  "jobs": {
+    "compile-sdk26": 121334482597,
+    "same-binary-xcode27": 121336057194
+  },
+  "sourceCompilePackPassed": true,
+  "targetRestorePassed": true,
+  "appearanceCapturePassed": false,
+  "appearanceObserverPassed": false,
+  "appearanceValidationPassed": false,
+  "visualReviewPassed": false,
+  "nativeContrastMeasurementsCompleted": 0,
+  "beforeAfterWorkspaceObservationsWithoutAXChildren": 24,
+  "checksPerSystem": {
+    "passed": 8,
+    "failed": 4
+  },
+  "originalPNGCount": 14,
+  "artifactInventories": {
+    "PDF-appearance-sdk26": 15,
+    "PDF-appearance-same-binary-xcode27": 14
+  },
+  "visualFinding": "SDK26 customization: Equilibrado/Restaurar are absent; five native popup providers report DarkAqua in Aqua, with two visible-control PNG rectangles white. Cause/duration unproven.",
+  "fullNativeWorkflowExecuted": false,
+  "fullNativeWorkflowStatusSource": "Coordinator instruction; this retention is exclusively the focal workflow.",
+  "installationApproved": false,
+  "completeApplicationApproved": false,
+  "deliveryAllowed": false,
+  "sameManifestBytesAcrossSystems": true,
+  "overallApprovedSameBundleGateStillFalse": true,
+  "transferArtifactDownloaded": false,
+  "tarOrAppRetained": false,
+  "collectorIncidentInThisRun": false,
+  "eachArtifactDownloadedOnce": true,
+  "collectorOfflineTestsPassed": 18,
+  "currentSourceFilesBoundToPreflight": 4,
+  "localPreflightHistoricalReferenceRelabeledAsCurrent": false,
+  "approvalTransferredFromPriorSource": false
+}

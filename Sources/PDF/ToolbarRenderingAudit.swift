@@ -33,6 +33,8 @@ import Foundation
         let auditKey: String
         let identifier: String?
         let label: String
+        let paletteLabel: String
+        let alpha: Double
         let identity: String
         let screenFrame: Rect
         let windowFrame: Rect
@@ -171,7 +173,7 @@ import Foundation
         let passed: Bool
         var universalWCAGCertification = false
         var humanVisualReview = false
-        var methodology = "Public AXToolbar direct AXButton children; typed NSView.accessibilityFrame in AppKit screen coordinates; window.convertFromScreen, top-left PNG conversion and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry."
+        var methodology = "Public NSToolbarItem label and paletteLabel identify three unique actual item.views under the single same-window AXToolbar NSView. identifier records the real itemIdentifier, separately from the logical auditKey. Live NSView.convert(bounds,to:nil) and window.convertToScreen supply geometry; no AX client activation or private class selection. The original PNG uses top-left coordinates and observed scale. Central square is 60% of the smaller control dimension, excluding the platter border. sRGB relative luminance p95/p05 contrast must reach 3:1. No image editing, fixed screen coordinates, fallback rendering or visual retry."
     }
     struct Frame: Codable {
         let phase: String
@@ -265,8 +267,12 @@ import Foundation
         visit(root,parent:nil,depth:0)
         return (nodes,limited)
     }
-    private static func toolbarItems(window:NSWindow) -> ToolbarItemsObservation {
-        var observations:[ToolbarItemObservation] = []
+    private struct LiveToolbarItem {
+        let item: NSToolbarItem
+        let parent: Int?
+    }
+    private static func liveToolbarItems(window:NSWindow) -> (items:[LiveToolbarItem],limited:Bool) {
+        var observations:[LiveToolbarItem] = []
         var seen = Set<ObjectIdentifier>()
         var limited = false
         func visit(_ item:NSToolbarItem, parent:Int?, depth:Int) {
@@ -274,16 +280,24 @@ import Foundation
             guard seen.insert(ObjectIdentifier(item)).inserted else { limited = true; return }
             let subitems = (item as? NSToolbarItemGroup)?.subitems ?? []
             let index = observations.count
-            observations.append(ToolbarItemObservation(index:index,parent:parent,
+            observations.append(LiveToolbarItem(item:item,parent:parent))
+            for subitem in subitems { visit(subitem,parent:index,depth:depth+1) }
+        }
+        for item in window.toolbar?.items ?? [] { visit(item,parent:nil,depth:0) }
+        return (observations,limited)
+    }
+    private static func toolbarItems(_ live:(items:[LiveToolbarItem],limited:Bool), window:NSWindow) -> ToolbarItemsObservation {
+        let observations = live.items.enumerated().map { index,record in
+            let item = record.item
+            return ToolbarItemObservation(index:index,parent:record.parent,
                 nativeClass:NSStringFromClass(type(of:item)),itemIdentifier:item.itemIdentifier.rawValue,
                 label:String(item.label.prefix(256)),paletteLabel:String(item.paletteLabel.prefix(256)),
                 toolTip:item.toolTip.map { String($0.prefix(256)) },
                 action:item.action.map { NSStringFromSelector($0) },
-                view:item.view.map { nativeViewObservation($0,window:window) },subitemCount:subitems.count))
-            for subitem in subitems { visit(subitem,parent:index,depth:depth+1) }
+                view:item.view.map { nativeViewObservation($0,window:window) },
+                subitemCount:(item as? NSToolbarItemGroup)?.subitems.count ?? 0)
         }
-        for item in window.toolbar?.items ?? [] { visit(item,parent:nil,depth:0) }
-        return ToolbarItemsObservation(items:observations,traversalLimited:limited)
+        return ToolbarItemsObservation(items:observations,traversalLimited:live.limited)
     }
     private static func popupAncestors(_ popup:NSPopUpButton, window:NSWindow) -> ([AppearanceAncestor],Bool) {
         var ancestors:[AppearanceAncestor] = []
@@ -300,10 +314,10 @@ import Foundation
         return (ancestors,false)
     }
 
-    /// Uses the public provider tree already witnessed in the original AX
-    /// reports: AXToolbar has the two identified app buttons and one named
-    /// system sidebar button as direct children. Unknown/ambiguous providers
-    /// fail closed; internal SwiftUI duplicates are never selected by ID alone.
+    /// Public item metadata and actual views are available before any AX client
+    /// attaches. Match the two labels controlled by this app and observed sidebar
+    /// labels, with an exact matching paletteLabel. Generated/private identifiers,
+    /// class names, item order, and screen positions never select a control.
     static func observe(window: NSWindow, selection: String, requiresWorkspaceToolbar:Bool = true,
                         observeNativePopups:Bool = false) -> Snapshot {
         viewIdentities = viewIdentities.filter { $0.value.view != nil }
@@ -339,6 +353,8 @@ import Foundation
         var controls: [Control] = []
         var providers: [ToolbarProvider] = []
         var workspaceToolbars = 0
+        let liveItems = liveToolbarItems(window:window)
+        if liveItems.limited { errors.append("Public toolbar item traversal was incomplete or ambiguous.") }
         let sidebarNames: Set<String> = ["Hide Sidebar","Show Sidebar","Ocultar Barra Lateral",
             "Mostrar Barra Lateral","Ocultar barra lateral","Mostrar barra lateral"]
         for toolbar in toolbars {
@@ -350,39 +366,53 @@ import Foundation
                 directChildren:directChildren.prefix(128).map { providerNode($0,window:window) },
                 nativeViews:nativeViews,nativeHierarchyTruncated:nativeTruncated))
             if truncated { errors.append("Public toolbar child topology exceeded its diagnostic bound.") }
-            let buttons = directChildren.filter { string($0,"accessibilityRole") == "AXButton" }
-            let ids = Set(buttons.compactMap { string($0,"accessibilityIdentifier") })
-            guard ids.contains("pdf.commands.toolbar"), ids.contains("pdf.customize.toolbar") else { continue }
-            workspaceToolbars += 1
-            for object in buttons {
-                let identifier = string(object,"accessibilityIdentifier")
-                let label = name(object)
-                let key: String
-                if identifier == "pdf.commands.toolbar" || identifier == "pdf.customize.toolbar" {
-                    key = identifier!
-                } else if (identifier ?? "").isEmpty, sidebarNames.contains(label) {
-                    key = "autoSidebar"
-                } else { continue }
-                guard let view = object as? NSView, view.window === window,
-                      !view.isHiddenOrHasHiddenAncestor else {
-                    errors.append("Required toolbar button is not a visible NSView provider: " + key); continue
+        }
+        let labelsByKey:[String:Set<String>] = ["autoSidebar":sidebarNames,
+            "pdf.commands.toolbar":["Comandos"],"pdf.customize.toolbar":["Personalizar"]]
+        let hasWorkspaceItems = liveItems.items.contains { record in
+            labelsByKey.values.contains { $0.contains(record.item.label) }
+        }
+        if requiresWorkspaceToolbar || hasWorkspaceItems {
+            if toolbars.count != 1 || toolbars.first?.isHiddenOrHasHiddenAncestor != false
+                || toolbars.first.map({ !$0.alphaValue.isFinite || $0.alphaValue <= 0 }) != false {
+                errors.append("Exactly one visible same-window AXToolbar NSView is required.")
+            } else if let toolbar = toolbars.first, !liveItems.limited {
+                var usedItems = Set<ObjectIdentifier>()
+                var usedViews = Set<ObjectIdentifier>()
+                for key in identifiers {
+                    let matches = liveItems.items.filter { record in
+                        labelsByKey[key]?.contains(record.item.label) == true
+                            && record.item.paletteLabel == record.item.label
+                    }
+                    guard matches.count == 1, let item = matches.first?.item,
+                          usedItems.insert(ObjectIdentifier(item)).inserted else {
+                        errors.append("Expected exactly one public toolbar item with matching label and paletteLabel: " + key); continue
+                    }
+                    guard let view = item.view, view.window === window, view !== toolbar,
+                          view.isDescendant(of:toolbar), !view.isHiddenOrHasHiddenAncestor,
+                          view.alphaValue.isFinite, view.alphaValue > 0,
+                          usedViews.insert(ObjectIdentifier(view)).inserted else {
+                        errors.append("Required item.view is absent, ambiguous, hidden or outside its real toolbar: " + key); continue
+                    }
+                    let local = view.convert(view.bounds,to:nil)
+                    let screenFrame = window.convertToScreen(local)
+                    let fullWindow = CGRect(origin:.zero,size:window.frame.size)
+                    guard frameIsValid(screenFrame), frameIsValid(local), fullWindow.contains(local),
+                          !item.itemIdentifier.rawValue.isEmpty else {
+                        errors.append("Required toolbar item.view has invalid/outside bounds or no actual itemIdentifier: \(key); screen=\(screenFrame); window=\(local); full=\(fullWindow)"); continue
+                    }
+                    controls.append(Control(auditKey:key,identifier:item.itemIdentifier.rawValue,label:item.label,
+                        paletteLabel:item.paletteLabel,alpha:Double(view.alphaValue),
+                        identity:token(for:view),screenFrame:Rect(screenFrame),windowFrame:Rect(local),
+                        effectiveAppearance:appearance(view.effectiveAppearance),effectiveStyle:style(view.effectiveAppearance),
+                        identification:"public-NSToolbarItem-label-paletteLabel-and-actual-view"))
                 }
-                let screenFrame = view.accessibilityFrame()
-                let local = window.convertFromScreen(screenFrame)
-                let fullWindow = CGRect(origin:.zero,size:window.frame.size)
-                guard frameIsValid(screenFrame), frameIsValid(local), fullWindow.contains(local) else {
-                    errors.append("Required toolbar provider has invalid/outside screen bounds: \(key); screen=\(screenFrame); window=\(local); full=\(fullWindow)"); continue
-                }
-                controls.append(Control(auditKey:key,identifier:identifier,label:label,
-                    identity:token(for:view),screenFrame:Rect(screenFrame),windowFrame:Rect(local),
-                    effectiveAppearance:appearance(view.effectiveAppearance),
-                    effectiveStyle:style(view.effectiveAppearance),
-                    identification:key == "autoSidebar" ? "direct-public-AXToolbar-button-observed-sidebar-label" : "direct-public-AXToolbar-button-identifier"))
+                if controls.count == identifiers.count { workspaceToolbars = 1 }
             }
         }
         if requiresWorkspaceToolbar {
             for key in identifiers where controls.filter({ $0.auditKey == key }).count != 1 {
-                errors.append("Expected exactly one direct toolbar control: " + key)
+                errors.append("Expected exactly one actual toolbar item.view control: " + key)
             }
             if window.toolbar == nil || window.toolbar?.isVisible != true { errors.append("The actual window toolbar is absent or hidden.") }
         }
@@ -416,7 +446,7 @@ import Foundation
             toolbarItemIdentifiers:window.toolbar?.items.map { $0.itemIdentifier.rawValue } ?? [],
             windowToolbarPresent:window.toolbar != nil,windowToolbarVisible:window.toolbar?.isVisible == true,
             workspaceToolbarProviderCount:workspaceToolbars,toolbarProviders:providers,
-            nativeToolbarItems:toolbarItems(window:window),
+            nativeToolbarItems:toolbarItems(liveItems,window:window),
             nativePopupObservationRequested:observeNativePopups,nativePopupProviderCount:nativePopups.count,
             nativePopupControls:popupControls,
             controls:controls.sorted { $0.auditKey < $1.auditKey },errors:errors)

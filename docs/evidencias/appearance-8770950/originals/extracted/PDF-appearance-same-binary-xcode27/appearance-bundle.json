@@ -1,0 +1,34 @@
+{
+  "builtSDK": "26.5",
+  "completeApplicationApproved": false,
+  "files": {
+    "Contents/Info.plist": {
+      "bytes": 2034,
+      "mode": 420,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    "Contents/MacOS/PDF": {
+      "bytes": 19498336,
+      "mode": 493,
+      "sha256": "012397cde731f650605e6369d0fccd0cb833fea4bc835ab72c5ac2f0711502d5"
+    },
+    "Contents/Resources/installation.lock": {
+      "bytes": 0,
+      "mode": 292,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "Contents/_CodeSignature/CodeResources": {
+      "bytes": 2456,
+      "mode": 420,
+      "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+    }
+  },
+  "schemaVersion": 1,
+  "scope": "minimal-appearance-diagnostic-only",
+  "sourceCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+  "sourceCommitAuthenticatedByThisHelper": false,
+  "tar": {
+    "bytes": 5119116,
+    "sha256": "1c6f6207274033133c69e997599e81b51209280ccaa4d09f6e6b73473e618a41"
+  }
+}

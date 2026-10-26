@@ -1,0 +1,193 @@
+{
+  "schemaVersion": 1,
+  "configuration": {
+    "schemaVersion": 1,
+    "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+    "controlCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+    "runID": 40249767201,
+    "runAttempt": 1,
+    "jobIDs": {
+      "compile-sdk26": 121338897259,
+      "same-binary-xcode27": 121340681527
+    },
+    "outputDirectory": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201"
+  },
+  "attempts": {
+    "12619533926": {
+      "artifactID": 12619533926,
+      "name": "PDF-appearance-sdk26",
+      "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "controllerCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "runID": 40249767201,
+      "runAttempt": 1,
+      "archiveBytes": 2199208,
+      "githubDigest": "sha256:354c9793753e7310d3888eb394203b33d40499e61675f1f8d22388db5214bfe0",
+      "downloadAttempts": 1,
+      "attemptedAtUTC": "2026-10-26T00:44:25.207054+00:00",
+      "downloaded": true,
+      "archiveSHA256": "354c9793753e7310d3888eb394203b33d40499e61675f1f8d22388db5214bfe0",
+      "directory": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26",
+      "files": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 928708,
+          "sha256": "b6b53aa04bc3e895aa3c6b4dccdff9614b668bee9939fcfe75d9a304f8c2bc22"
+        },
+        "PDF-appearance.customization.png": {
+          "bytes": 100862,
+          "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+        },
+        "PDF-appearance.dark-attached-1.png": {
+          "bytes": 336403,
+          "sha256": "b9a511ffb4f8fd6d700b9c09b9f8e89eca6142ddf743059b5b6a1c86174d4150"
+        },
+        "PDF-appearance.dark-attached-2.png": {
+          "bytes": 336423,
+          "sha256": "a2a766902179a68f7580d2c7002d08c7f03221ace9ab030d7251f64364083bb7"
+        },
+        "PDF-appearance.dark-recreated.png": {
+          "bytes": 336597,
+          "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+        },
+        "PDF-appearance.light-return.png": {
+          "bytes": 348968,
+          "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+        },
+        "PDF-appearance.png": {
+          "bytes": 348715,
+          "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+        },
+        "PDF-appearance.system.png": {
+          "bytes": 348942,
+          "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "727334f713191e0913e8a353cd714646b2679806604f7522304342bec0858514"
+        },
+        "appearance-validation.json": {
+          "bytes": 479,
+          "sha256": "36ac4739cca34b3fd1a2dfb9533504958a2f7a7fdb45fb65db85f88eb9ec5917"
+        },
+        "build.log": {
+          "bytes": 1046,
+          "sha256": "19c06374940ca2324d123103366d2fc9949ae7bc66f7c1f7f68e60bd5e742126"
+        },
+        "bundle.log": {
+          "bytes": 1423,
+          "sha256": "a2dd85ff7d6ae3a6edb68a9f53f3cc4cdbe58b4917b64e8343df5777d175391c"
+        },
+        "capture.log": {
+          "bytes": 259615,
+          "sha256": "b0c8a0a7eeb69cc49db519f512ecc4f71342a4cb2e0509186253928441cd3254"
+        },
+        "origin.log": {
+          "bytes": 3736,
+          "sha256": "19c2c41fa3501ee2c1ba04328aa7230887ec746d6adf90d9726bd246a4c1e7f8"
+        },
+        "validation.log": {
+          "bytes": 1583,
+          "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f"
+        }
+      },
+      "inventoryComplete": true,
+      "missingFiles": [],
+      "originalZIPAndMemberCRCVerified": true,
+      "validation": {
+        "passed": false,
+        "humanVisualApproval": false,
+        "completeApplicationApproved": false,
+        "bundleBytesIndependentlyRehashedHere": false,
+        "error": {
+          "type": "ValueError",
+          "message": "Appearance diagnostic: native report identity, status or capture source differs"
+        }
+      }
+    },
+    "12619879872": {
+      "artifactID": 12619879872,
+      "name": "PDF-appearance-same-binary-xcode27",
+      "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "controllerCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "runID": 40249767201,
+      "runAttempt": 1,
+      "archiveBytes": 2206051,
+      "githubDigest": "sha256:d2cc00f348783ee3ca4b4769b162c0e439fe29c7b23804c2a7bfe600bbf831ea",
+      "downloadAttempts": 1,
+      "attemptedAtUTC": "2026-10-26T00:44:26.164112+00:00",
+      "downloaded": true,
+      "archiveSHA256": "d2cc00f348783ee3ca4b4769b162c0e439fe29c7b23804c2a7bfe600bbf831ea",
+      "directory": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27",
+      "files": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 957236,
+          "sha256": "0eaa4f9b1506073ad853a919d160c520c7d7e7c5c1624743b3c82735ab8eaf0b"
+        },
+        "PDF-appearance.customization.png": {
+          "bytes": 101973,
+          "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+        },
+        "PDF-appearance.dark-attached-1.png": {
+          "bytes": 338880,
+          "sha256": "d55eccb88c7c6082a199711aeb32d43b972923fb7d168bfd698234cae6c01133"
+        },
+        "PDF-appearance.dark-attached-2.png": {
+          "bytes": 338910,
+          "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+        },
+        "PDF-appearance.dark-recreated.png": {
+          "bytes": 339103,
+          "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+        },
+        "PDF-appearance.light-return.png": {
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+        },
+        "PDF-appearance.png": {
+          "bytes": 348652,
+          "sha256": "39815d2d60568009aab70300d655b17ce0a139aeb012e503cfa7947aeae5db93"
+        },
+        "PDF-appearance.system.png": {
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "727334f713191e0913e8a353cd714646b2679806604f7522304342bec0858514"
+        },
+        "appearance-validation.json": {
+          "bytes": 479,
+          "sha256": "36ac4739cca34b3fd1a2dfb9533504958a2f7a7fdb45fb65db85f88eb9ec5917"
+        },
+        "capture.log": {
+          "bytes": 271731,
+          "sha256": "680de36401c0957456eab37367bd423af7cfd9841b5b3314285324198abaac4f"
+        },
+        "origin.log": {
+          "bytes": 434,
+          "sha256": "cd18b1a0ad4103d646fc9d66e508177a5f63cc2ae8960d3080f31536c83c4c0d"
+        },
+        "restore.log": {
+          "bytes": 108,
+          "sha256": "d8a2218b11a7edc034a38fa232d78505d388384de2f170093926bb7a3bddc60e"
+        },
+        "validation.log": {
+          "bytes": 1583,
+          "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f"
+        }
+      },
+      "inventoryComplete": true,
+      "missingFiles": [],
+      "originalZIPAndMemberCRCVerified": true,
+      "validation": {
+        "passed": false,
+        "humanVisualApproval": false,
+        "completeApplicationApproved": false,
+        "bundleBytesIndependentlyRehashedHere": false,
+        "error": {
+          "type": "ValueError",
+          "message": "Appearance diagnostic: native report identity, status or capture source differs"
+        }
+      }
+    }
+  }
+}

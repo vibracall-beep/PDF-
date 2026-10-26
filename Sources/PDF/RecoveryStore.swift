@@ -155,7 +155,7 @@ final class RecoveryStore: @unchecked Sendable {
         // leaves an older copy, rather than invalidating the successful snapshot.
         for old in previous {
             do { try removeGeneration(old) }
-            catch { notice("Uma geração anterior foi preservada: " + error.localizedDescription) }
+            catch { notice("A limpeza de uma geração anterior foi interrompida; os arquivos remanescentes foram mantidos: " + error.localizedDescription) }
         }
         return record
     }
@@ -384,9 +384,108 @@ final class RecoveryStore: @unchecked Sendable {
         return record
     }
     private func removeGeneration(_ record:RecoveryRecord) throws {
+        do { try removeVerifiedGeneration(record) }
+        catch {
+            notice("A limpeza da recuperação foi interrompida; arquivos alterados, não reconhecidos ou não removidos foram mantidos: " + error.localizedDescription)
+            throw error
+        }
+    }
+    private struct RemovalFile {
+        let metadata: stat
+        let sha256: String
+        let data: Data // Only bounded metadata; PDF bytes are hashed incrementally.
+        func matches(_ current: stat) -> Bool {
+            metadata.st_dev == current.st_dev && metadata.st_ino == current.st_ino &&
+            metadata.st_mode == current.st_mode && metadata.st_uid == current.st_uid &&
+            metadata.st_nlink == current.st_nlink && metadata.st_size == current.st_size &&
+            metadata.st_mtimespec.tv_sec == current.st_mtimespec.tv_sec &&
+            metadata.st_mtimespec.tv_nsec == current.st_mtimespec.tv_nsec &&
+            metadata.st_ctimespec.tv_sec == current.st_ctimespec.tv_sec &&
+            metadata.st_ctimespec.tv_nsec == current.st_ctimespec.tv_nsec
+        }
+    }
+    private func removalFile(_ name: String, directoryFD: Int32) throws -> RemovalFile {
+        let descriptor = openat(directoryFD, name, O_RDONLY | O_NOFOLLOW | O_NONBLOCK | O_CLOEXEC)
+        guard descriptor >= 0 else { throw RecoveryError.unsafePath }
+        let handle = FileHandle(fileDescriptor: descriptor, closeOnDealloc: true)
+        defer { try? handle.close() }
+        var initial = stat()
+        let maximum = name == "document.pdf" ? maximumPDFBytes : 131_072
+        guard fstat(descriptor, &initial) == 0, initial.st_mode & S_IFMT == S_IFREG,
+              initial.st_uid == getuid(), initial.st_nlink == 1, initial.st_size > 0,
+              initial.st_size <= maximum else { throw RecoveryError.unsafePath }
+        var hash = SHA256(), data = Data(), count = 0
+        while let part = try handle.read(upToCount: 1_048_576), !part.isEmpty {
+            guard part.count <= maximum - count else { throw RecoveryError.tooLarge }
+            count += part.count; hash.update(data: part)
+            if name != "document.pdf" { data.append(part) }
+        }
+        let result = RemovalFile(metadata: initial,
+            sha256: hash.finalize().map { String(format: "%02x", $0) }.joined(), data: data)
+        var after = stat()
+        guard count == initial.st_size, fstat(descriptor, &after) == 0, result.matches(after) else { throw RecoveryError.changed }
+        return result
+    }
+    private func removeVerifiedGeneration(_ record: RecoveryRecord) throws {
         let location = folder(record.generation)
-        guard try readRecord(at:location).sameContent(as: record) else { throw RecoveryError.changed }
-        try FileManager.default.removeItem(at:location)
+        let directoryID = try directoryIdentity(location)
+        let directoryFD = Darwin.open(location.path, O_RDONLY | O_DIRECTORY | O_NOFOLLOW | O_CLOEXEC)
+        guard directoryFD >= 0 else { throw RecoveryError.unsafePath }
+        defer { close(directoryFD) }
+        var directoryInfo = stat()
+        guard fstat(directoryFD, &directoryInfo) == 0, fileIdentity(directoryInfo) == directoryID else { throw RecoveryError.changed }
+        let inventory = Set(try FileManager.default.contentsOfDirectory(atPath: location.path))
+        let required: Set<String> = ["document.pdf", "record.json"]
+        guard required.isSubset(of: inventory), inventory.isSubset(of: required.union(["navigation.json", ".owner.json"])) else {
+            throw RecoveryError.unsafePath
+        }
+        let base = try readRecord(at: location, includeNavigation: false)
+        guard base.sameContent(as: record) else { throw RecoveryError.changed }
+        var files: [String: RemovalFile] = [:]
+        for name in inventory { files[name] = try removalFile(name, directoryFD: directoryFD) }
+        guard let pdf = files["document.pdf"], let metadata = files["record.json"],
+              pdf.sha256 == base.sha256,
+              try JSONDecoder().decode(RecoveryRecord.self, from: metadata.data) == base else { throw RecoveryError.changed }
+        if let navigation = files["navigation.json"] { _ = try decodeNavigation(navigation.data, for: base) }
+        if let marker = files[".owner.json"] {
+            let ownership = try JSONDecoder().decode(RecoveryStaging.self, from: marker.data)
+            guard ownership.version == 1, ownership.generation == record.generation,
+                  ownership.parentIdentity == (try directoryIdentity(directory)), ownership.directoryIdentity == directoryID,
+                  Set(ownership.files.keys) == required else { throw RecoveryError.changed }
+            for name in required {
+                guard let owned = ownership.files[name], let actual = files[name],
+                      owned.identity == fileIdentity(actual.metadata), owned.count == actual.metadata.st_size,
+                      owned.sha256 == actual.sha256 else { throw RecoveryError.changed }
+            }
+        }
+        // Older versions did not record inode ownership. They may still be
+        // removed when their closed inventory, record and PDF checksum agree;
+        // never fabricate an ownership marker or accept a mismatching PDF.
+        try checkpoint?("generation-removal-validated")
+        func verify(_ names: Set<String>) throws {
+            guard try directoryIdentity(location) == directoryID,
+                  Set(try FileManager.default.contentsOfDirectory(atPath: location.path)) == names else { throw RecoveryError.changed }
+            for name in names {
+                var current = stat()
+                guard let expected = files[name], fstatat(directoryFD, name, &current, AT_SYMLINK_NOFOLLOW) == 0,
+                      expected.matches(current) else { throw RecoveryError.changed }
+            }
+        }
+        try verify(inventory)
+        var remaining = inventory
+        // Every member is checked before the first unlink and again immediately
+        // before each removal. dirfd anchors the operation to this generation;
+        // unlink never follows a link and rmdir refuses unexpected additions.
+        // The store lease excludes application writers, not a hostile same-UID
+        // process racing the final POSIX identity-check/unlink interval.
+        for name in inventory.sorted() {
+            try verify(remaining)
+            guard unlinkat(directoryFD, name, 0) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
+            remaining.remove(name)
+            try checkpoint?("generation-removal-file-removed")
+        }
+        try verify([])
+        guard Darwin.rmdir(location.path) == 0 else { throw POSIXError(POSIXErrorCode(rawValue: errno) ?? .EIO) }
     }
     private func openFile(_ url:URL, maximum:Int) throws -> Int32 {
         // Opening a FIFO must not block before fstat can reject its file type.
@@ -440,7 +539,10 @@ final class RecoveryStore: @unchecked Sendable {
             if errno == ENOENT { return nil }
             throw RecoveryError.unsafePath
         }
-        let value = try JSONDecoder().decode(RecoveryNavigation.self, from: readFile(url, maximum: 131_072))
+        return try decodeNavigation(readFile(url, maximum: 131_072), for: record)
+    }
+    private func decodeNavigation(_ data: Data, for record: RecoveryRecord) throws -> RecoveryNavigation {
+        let value = try JSONDecoder().decode(RecoveryNavigation.self, from: data)
         guard value.version == 1, value.sessionID == record.id, value.generation == record.generation,
               value.sha256 == record.sha256, value.modifiedAt.timeIntervalSince1970.isFinite,
               value.modifiedAt >= record.modifiedAt else { throw RecoveryError.invalidRecord }
@@ -512,6 +614,8 @@ final class RecoveryStore: @unchecked Sendable {
         try store.save(documentData:changed,sourceURL:source,sessionID:id,encrypted:false,title:"Alterado",state:state)
         let second = try store.list()
         try require(second.count == 1 && second[0].generation != first[0].generation,"A nova geração não substituiu atomicamente a anterior.")
+        try require(!FileManager.default.fileExists(atPath: originalLocation.deletingLastPathComponent().path),
+                    "A limpeza conservadora não removeu uma geração íntegra com navegação válida.")
         try require(try store.updateState(record: navigated, state: navigation) == nil, "Uma navegação antiga foi aplicada a uma nova geração de conteúdo.")
         try require(second[0].state == state, "A nova geração herdou o sidecar do conteúdo anterior.")
         try require(try Data(contentsOf:source) == original,"A recuperação alterou o arquivo original.")
@@ -572,6 +676,15 @@ final class RecoveryStore: @unchecked Sendable {
         try require(Date().timeIntervalSince(fifoStart) < 5 && withFIFO.contains(where: { $0.id == protectedID }) && !store.warnings.isEmpty,
                     "Um FIFO de navegação bloqueou a recuperação ou ocultou o PDF intacto.")
         try require(try store.load(protectedRecord) == protected, "Recusar um FIFO de navegação impediu carregar o PDF válido.")
+        var unsafeDeletionRefused = false
+        do { try store.delete(protectedID) } catch { unsafeDeletionRefused = true }
+        var fifoInfo = stat()
+        try require(unsafeDeletionRefused && lstat(protectedNavigation.path, &fifoInfo) == 0 &&
+                    fifoInfo.st_mode & S_IFMT == S_IFIFO && (try store.load(protectedRecord)) == protected,
+                    "Descartar a recuperação removeu um sidecar FIFO não reconhecido ou seus bytes protegidos.")
+        // Remove only the FIFO deliberately installed by this fixture, then
+        // retain the existing positive control for normal explicit deletion.
+        try FileManager.default.removeItem(at: protectedNavigation)
         let plainLocation = store.directory.appendingPathComponent(second[0].generation.uuidString).appendingPathComponent("document.pdf")
         try Data("corrupted".utf8).write(to:plainLocation)
         refused = false
@@ -587,7 +700,87 @@ final class RecoveryStore: @unchecked Sendable {
         try require(permissions?.intValue == 0o700,"A pasta de recuperação não ficou privada.")
         try require(try Data(contentsOf:source) == original,"A limpeza da recuperação alterou a origem.")
         try interruptedWriteChecks(root: root, source: source, original: original)
-        print("Recovery audit passed: atomic generations, state, encryption, original preservation, corruption, links and interrupted writes")
+        try publishedCleanupChecks(root: root, source: source, original: original)
+        print("Recovery audit passed: atomic generations, state, encryption, original preservation, conservative published cleanup, corruption, links and interrupted writes")
+    }
+    private static func publishedCleanupChecks(root: URL, source: URL, original: Data) throws {
+        func require(_ condition: @autoclosure () throws -> Bool, _ message: String) throws {
+            guard try condition() else { throw NSError(domain: "PDF.RecoveryCleanupAudit", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: message]) }
+        }
+        let changed = try IntelligenceText.PDF("Another complete generation must preserve unrecognized older files.")
+        let foreignBytes = Data("Unrecognized user bytes must survive automatic and explicit cleanup.".utf8)
+        for kind in ["extra", "replacement", "same-bytes-new-inode", "navigation", "marker"] {
+            let directory = root.appendingPathComponent("published-" + kind), id = UUID()
+            let store = RecoveryStore(directory: directory)
+            let baseline = try store.save(documentData: original, sourceURL: source, sessionID: id,
+                encrypted: false, title: "Baseline", state: RecoverySessionState())
+            let generation = directory.appendingPathComponent(baseline.generation.uuidString)
+            let preserved: URL, expected: Data
+            switch kind {
+            case "extra":
+                let extraDirectory = generation.appendingPathComponent("unknown", isDirectory: true)
+                try FileManager.default.createDirectory(at: extraDirectory, withIntermediateDirectories: false)
+                preserved = extraDirectory.appendingPathComponent("keep.txt"); expected = foreignBytes
+            case "replacement", "same-bytes-new-inode":
+                preserved = generation.appendingPathComponent("document.pdf")
+                // Keep the original inode alive so even byte-identical external
+                // replacements cannot accidentally reuse its identity.
+                try FileManager.default.moveItem(at: preserved, to: root.appendingPathComponent("retained-" + kind + ".pdf"))
+                expected = kind == "replacement" ? changed : original
+            case "navigation":
+                preserved = generation.appendingPathComponent("navigation.json"); expected = foreignBytes
+            default:
+                preserved = generation.appendingPathComponent(".owner.json"); expected = foreignBytes
+                try FileManager.default.removeItem(at: preserved)
+            }
+            try NativeOutput.write(expected, to: preserved)
+            let next = try store.save(documentData: changed, sourceURL: source, sessionID: id,
+                encrypted: false, title: "Next", state: RecoverySessionState())
+            try require((try Data(contentsOf: preserved)) == expected && (try store.load(next)) == changed &&
+                        !store.warnings.isEmpty, "Autosave apagou conteúdo não reconhecido ou recusou o novo checkpoint: " + kind)
+            var refused = false
+            do { try store.delete(id) } catch { refused = true }
+            try require(refused && (try Data(contentsOf: preserved)) == expected,
+                        "Excluir/descartar removeu conteúdo divergente de uma geração publicada: " + kind)
+        }
+        // No new marker is fabricated for intact generations from older app
+        // versions. Their validated record, PDF hash and closed inventory suffice.
+        let legacyDirectory = root.appendingPathComponent("published-legacy"), legacyID = UUID()
+        let legacy = RecoveryStore(directory: legacyDirectory)
+        let old = try legacy.save(documentData: original, sourceURL: source, sessionID: legacyID,
+            encrypted: false, title: "Legacy", state: RecoverySessionState())
+        let oldFolder = legacyDirectory.appendingPathComponent(old.generation.uuidString)
+        try FileManager.default.removeItem(at: oldFolder.appendingPathComponent(".owner.json"))
+        _ = try legacy.updateState(record: old, state: RecoverySessionState(zoom: 1.5, autoScale: false))
+        try legacy.delete(legacyID)
+        try require(!FileManager.default.fileExists(atPath: oldFolder.path), "Uma geração legada íntegra não pôde ser excluída.")
+
+        // Exercise a change after complete validation and before the first
+        // unlink. Both a new name and a replaced known inode must veto removal.
+        for replace in [false, true] {
+            let directory = root.appendingPathComponent("published-race-" + String(replace)), id = UUID()
+            let initial = RecoveryStore(directory: directory)
+            let baseline = try initial.save(documentData: original, sourceURL: source, sessionID: id,
+                encrypted: false, title: "Before validation", state: RecoverySessionState())
+            let generation = directory.appendingPathComponent(baseline.generation.uuidString)
+            let target = generation.appendingPathComponent(replace ? "document.pdf" : "late.txt")
+            var inserted = false
+            let interrupted = RecoveryStore(directory: directory, checkpoint: { phase in
+                guard phase == "generation-removal-validated", !inserted else { return }
+                inserted = true
+                if replace {
+                    try FileManager.default.moveItem(at: target, to: root.appendingPathComponent("retained-race.pdf"))
+                }
+                try NativeOutput.write(replace ? original : foreignBytes, to: target)
+            })
+            let next = try interrupted.save(documentData: changed, sourceURL: source, sessionID: id,
+                encrypted: false, title: "After validation", state: RecoverySessionState())
+            try require(inserted && (try Data(contentsOf: target)) == (replace ? original : foreignBytes) &&
+                        (try initial.load(baseline)) == original && (try initial.load(next)) == changed &&
+                        !interrupted.warnings.isEmpty, "Uma mudança após a validação não preservou os arquivos e as duas gerações.")
+        }
+        try require((try Data(contentsOf: source)) == original, "A auditoria de limpeza modificou o documento de origem.")
     }
     private static func interruptedWriteChecks(root: URL, source: URL, original: Data) throws {
         func require(_ condition: @autoclosure () throws -> Bool, _ message: String) throws {

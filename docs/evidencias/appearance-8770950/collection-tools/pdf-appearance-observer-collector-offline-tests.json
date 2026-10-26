@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "scope": "Offline collector verification, not product validation",
+  "tests": 18,
+  "passed": 18,
+  "collectorPath": "/tmp/pdf_collect_appearance_observer.py",
+  "collectorSHA256": "d995f7c4ed2baffbba670b90fca2a43461c606b1afbeda3350dd92e7a8d79906",
+  "baseCollectorSHA256": "95c779d4183fd7bd79318d58d3d55847f0f55580d620606753b47f19e669947b",
+  "baseCollectorUnchanged": true,
+  "onlyBehaviorChange": "Retain exact-source Sources/PDF/AccessibilityAudit.swift from the application commit.",
+  "exactAddedSource": {
+    "commit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+    "gitPath": "Sources/PDF/AccessibilityAudit.swift",
+    "bytes": 18121,
+    "sha256": "608eb3c419f3d2332e34fc72cb925f7b6c7e1e2bcd5e2ceccaf014481951d303"
+  },
+  "missingDestinationJobRefused": true,
+  "networkCalls": 0,
+  "collectorMainExecuted": false,
+  "artifactCodeExecuted": false
+}

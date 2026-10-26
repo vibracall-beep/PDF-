@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "scope": "Offline current collector revalidation during retention; not native product tests or a second collection",
+  "collectorPath": "/tmp/pdf_collect_appearance_environment.py",
+  "collectorSHA256": "d2337d77396bce0ac99aecd472ca046a1d2b9b9335ff08b88f7d5402830368f9",
+  "suitePath": "/tmp/test_pdf_collect_appearance_environment_offline.py",
+  "suiteSHA256": "b4a7a194cdac08f8a3adf5302fefc666558215fc2a41fa2633d79967535763a3",
+  "tests": 18,
+  "passed": 18,
+  "failed": 0,
+  "networkCalls": 0,
+  "collectorMainExecuted": false,
+  "artifactCodeExecuted": false,
+  "logSHA256": "f027dd0436e7e1b30a135affce6ff16cf516c4ef95a710379d1eb48bef0d083e",
+  "diffSHA256": "4991de99aa056a786fc88596bf46ff06306f1033ab964859a09e3378a3390777"
+}

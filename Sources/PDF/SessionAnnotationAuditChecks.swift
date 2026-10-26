@@ -384,7 +384,77 @@ import SwiftUI
         try require(finalPage.annotations.contains { PDFAnnotationKind.matches($0, .freeText) && $0.contents == "Editado" && $0.bounds.width == 140 }, "Salvar/reabrir perdeu as alterações refeitas.")
         workspace.closeSession(secondSession.id, discardChanges: true)
         try require(workspace.sessions.count == 1 && workspace.comparisonSessionID == nil && !(try store.list()).contains(where: { $0.id == secondSession.id }), "Fechar uma aba deixou recuperação ou referência abandonada.")
-        print("Session audit: independent tabs/page/zoom/forms, safe recovery, encrypted snapshots, named annotation groups/edit/undo/redo/persistence passed")
+        try await recoveryDeletionChecks(directory: directory, source: firstURL, defaults: defaults)
+        print("Session audit: independent tabs/page/zoom/forms, safe recovery and refused discard, encrypted snapshots, named annotation groups/edit/undo/redo/persistence passed")
+    }
+    private static func recoveryDeletionChecks(directory: URL, source: URL, defaults: UserDefaults) async throws {
+        func require(_ condition: @autoclosure () throws -> Bool, _ message: String) throws {
+            guard try condition() else { throw NSError(domain: "PDF.SessionRecoveryDeletionAudit", code: 1,
+                userInfo: [NSLocalizedDescriptionKey: message]) }
+        }
+        let original = try Data(contentsOf: source)
+        let unknown = Data("User file inside a recovery generation.".utf8)
+        for mode in ["delete", "discard", "close", "partial"] {
+            var removedFiles = 0, failureInjected = false
+            let store = RecoveryStore(directory: directory.appendingPathComponent("Deletion-" + mode), checkpoint: { phase in
+                guard mode == "partial", phase == "generation-removal-file-removed", !failureInjected else { return }
+                removedFiles += 1
+                if removedFiles == 2 { failureInjected = true; throw POSIXError(.EIO) }
+            })
+            let workspace = Workspace(defaults: defaults, recoveryStore: store, enableRecoveryPolling: false)
+            workspace.open(url: source); await workspace.waitForPendingOpen()
+            guard let session = workspace.activeSession, let document = workspace.document,
+                  let page = document.page(at: 0) else { throw RecoveryError.invalidDocument }
+            let note = PDFAnnotation(bounds: CGRect(x: 40, y: 40, width: 24, height: 24), forType: .text, withProperties: nil)
+            note.contents = "Unsaved edit preserved after failed " + mode; page.addAnnotation(note)
+            workspace.hasEdits = true
+            try workspace.checkpointRecoveryNow()
+            guard let record = session.recoveryRecord,
+                  let generation = try FileManager.default.contentsOfDirectory(at: store.directory, includingPropertiesForKeys: nil)
+                    .first(where: { UUID(uuidString: $0.lastPathComponent) != nil }) else { throw RecoveryError.invalidRecord }
+            try require(!session.recoveryFingerprint.isEmpty, "A fixture não começou com cache de recuperação válido.")
+            let foreign = generation.appendingPathComponent("keep.txt")
+            if mode != "partial" { try NativeOutput.write(unknown, to: foreign) }
+            switch mode {
+            case "discard": try require(!workspace.discardReaderRecoveryForExit(), "O descarte confirmou saída apesar da recusa do armazenamento.")
+            case "close": workspace.closeSession(session.id, discardChanges: true)
+            default: workspace.deleteRecovery(id: session.id)
+            }
+            try require(workspace.sessions.count == 1 && workspace.activeSession === session &&
+                        workspace.document === document && workspace.hasUnsavedChanges && session.recoveryRecord == record &&
+                        session.recoveryFingerprint.isEmpty && session.recoveryContentFingerprint.isEmpty &&
+                        workspace.message.contains("Não foi possível") && page.annotations.contains(where: { $0 === note }),
+                        "Uma recusa apagou a sessão/edição/record, ocultou o erro ou bloqueou novo checkpoint: " + mode)
+            if mode == "partial" {
+                try require(failureInjected && !FileManager.default.fileExists(atPath: generation.appendingPathComponent("document.pdf").path),
+                            "A fixture não interrompeu uma exclusão depois de remover os bytes antigos.")
+                try workspace.checkpointRecoveryNow()
+                guard let replacement = session.recoveryRecord else { throw RecoveryError.invalidRecord }
+                let recovered = PDFDocument(data: try store.load(replacement))
+                try require(replacement != record && recovered?.page(at: 0)?.annotations.contains(where: { $0.contents == note.contents }) == true,
+                            "A recusa parcial manteve cache obsoleto ou perdeu a edição no próximo checkpoint.")
+                workspace.deleteRecovery(id: session.id)
+            } else {
+                try require((try Data(contentsOf: foreign)) == unknown && (try store.load(record)).count > 0,
+                            "A recusa não preservou o arquivo desconhecido e a cópia anterior.")
+                // Only remove the foreign file deliberately created by this
+                // fixture, then exercise the same clean user action positively.
+                try FileManager.default.removeItem(at: foreign)
+                switch mode {
+                case "discard": try require(workspace.discardReaderRecoveryForExit(), "O descarte limpo não pôde prosseguir.")
+                case "close": workspace.closeSession(session.id, discardChanges: true)
+                default: workspace.deleteRecovery(id: session.id)
+                }
+            }
+            try require(try store.list().isEmpty, "A ação limpa deixou uma recuperação restaurável: " + mode)
+            if mode == "close" {
+                try require(workspace.sessions.isEmpty && workspace.document == nil, "A aba íntegra não foi fechada após a exclusão.")
+            } else {
+                try require(workspace.document === document && session.recoveryRecord == nil,
+                            "A exclusão bem-sucedida perdeu o documento aberto ou reteve um record já excluído.")
+            }
+            try require((try Data(contentsOf: source)) == original, "Excluir recuperação modificou o documento de origem.")
+        }
     }
 
     /// Check the PDF dictionaries actually written, not just PDFKit's cached

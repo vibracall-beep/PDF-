@@ -1,0 +1,148 @@
+{
+  "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40249767201/attempts/1/logs",
+  "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/downloads/run-40249767201-attempt-1-logs.zip",
+  "bytes": 111780,
+  "sha256": "4ea49638859116d28bfebc963fa917a92c02f4825fdff415631f567d2b849adf",
+  "authenticatedAPIEndpoint": true,
+  "upstreamDigestProvided": false,
+  "allMemberCRCVerified": true,
+  "files": {
+    "0_same-binary-xcode27.txt": {
+      "bytes": 313497,
+      "sha256": "27101d280dcfb17e51dddc8cc481ccf022abd09d072c25afeb44294cac298e0e"
+    },
+    "1_compile-sdk26.txt": {
+      "bytes": 306958,
+      "sha256": "8a7f0c6b41276a62ee1c2948e2b244ca5a6e68ffcef2792184f880bf4066be1a"
+    },
+    "compile-sdk26/10_Validate originals and unchanged bundle even after a capture failure.txt": {
+      "bytes": 3431,
+      "sha256": "6fa8cd8809ee206bdd572b146f02b5cbb5395d68ed82c0affd9d6ce7b5b43a37"
+    },
+    "compile-sdk26/11_Retain all original macOS 26 diagnostic evidence even on failure.txt": {
+      "bytes": 2236,
+      "sha256": "cf6da99635f3b88fba7f85fffb2bd248776c406eccd4cec8e124b8b5c89a75b0"
+    },
+    "compile-sdk26/1_Set up job.txt": {
+      "bytes": 2173,
+      "sha256": "a9b7faa78a59b2357b6f27fb1f5a0c503811b8602723df633897a9435a75ea4d"
+    },
+    "compile-sdk26/21_Post Check out the exact application source.txt": {
+      "bytes": 1745,
+      "sha256": "36b7485334f8f7e30cf043fdf7b12642603c378261c68f2f95c91823f47e765d"
+    },
+    "compile-sdk26/22_Post Check out this diagnostic control.txt": {
+      "bytes": 1757,
+      "sha256": "9a3cd43d3ed3a4ca13e5e8cde4566e30f46acf4cfed819f3ee085b9e5117f2e7"
+    },
+    "compile-sdk26/23_Complete job.txt": {
+      "bytes": 686,
+      "sha256": "e8a37a38be8a05c11a7d02c404ec426301bcaeacc64b71e1f609cc75291488de"
+    },
+    "compile-sdk26/2_Require an explicit source commit.txt": {
+      "bytes": 518,
+      "sha256": "7be9e654fae53233215e0abb21f5a4aff40db15fc095252e20372fa133a7e816"
+    },
+    "compile-sdk26/3_Check out this diagnostic control.txt": {
+      "bytes": 7542,
+      "sha256": "36d1179e5cc7156d618eb083aeb8b99a830a07d1c55dd772e78a78c0275b0366"
+    },
+    "compile-sdk26/4_Check out the exact application source.txt": {
+      "bytes": 7544,
+      "sha256": "debe9eae618207d8f1ad226357d90cacbc7b950141aff9c6a7dca506d10eff96"
+    },
+    "compile-sdk26/5_Verify source and SDK 26 without installing dependencies.txt": {
+      "bytes": 6802,
+      "sha256": "5ca1686a9122c238b5554b3b501c1e8006b090d9f3992bf964d495032eaed237"
+    },
+    "compile-sdk26/6_Compile the native arm64 executable once.txt": {
+      "bytes": 2144,
+      "sha256": "bf9960a650a275fa5d74d0cdbc7b33574b93ffbd81c7898d390a9bd86c7aac18"
+    },
+    "compile-sdk26/7_Build and fingerprint the diagnostic-only bundle.txt": {
+      "bytes": 4188,
+      "sha256": "28f5490dafa9abf2d0ceac94a7ca1bd97f31661eecfa35caec9c727943635731"
+    },
+    "compile-sdk26/8_Retain the same authenticated bundle before either appearance capture.txt": {
+      "bytes": 2279,
+      "sha256": "2e465fe64ccbfe27c839e80b7a93e58fd49496b459e3d782d3b83a21ab1c2039"
+    },
+    "compile-sdk26/9_Capture seven original appearance frames on macOS 26.txt": {
+      "bytes": 263952,
+      "sha256": "d5bc2d888c49e9760165103d7abe1b1bcc3594ce743d80c70cd3b8429027117d"
+    },
+    "compile-sdk26/system.txt": {
+      "bytes": 593,
+      "sha256": "7169d5bdd002e35b468318f302a6d8bf2bc94d5693b80091ab9e5af5ec4d12ab"
+    },
+    "same-binary-xcode27/10_Retain target original evidence even on failure.txt": {
+      "bytes": 2572,
+      "sha256": "04b34c7610fcdada481fdf14d3307584703d75494bb3e82a172a26155c0a21b4"
+    },
+    "same-binary-xcode27/19_Post Check out exact sources only for metadata and timeout checks.txt": {
+      "bytes": 1745,
+      "sha256": "1e4f6096ee425edff0629405d11f980875eaf3b17338439f06de05d45c8b833e"
+    },
+    "same-binary-xcode27/1_Set up job.txt": {
+      "bytes": 2352,
+      "sha256": "a6bc03dfd906bd7b0f128230ed16b722869a434006a5e322df4c81a746f612f1"
+    },
+    "same-binary-xcode27/20_Post Check out this diagnostic control.txt": {
+      "bytes": 1757,
+      "sha256": "42fc92aaf94308e29aee0e79ab42c3932719a942a302596c202606d1a510285d"
+    },
+    "same-binary-xcode27/21_Complete job.txt": {
+      "bytes": 520,
+      "sha256": "eb60404e48cb3dea0ffc07e439f1d11b3d95639c47663de928eb5441eb143384"
+    },
+    "same-binary-xcode27/2_Require exact source and authenticated transfer identities.txt": {
+      "bytes": 1025,
+      "sha256": "639ce0d90c68acde559a9112d75bfc5306ea148435ac0e37c09397cb110a272e"
+    },
+    "same-binary-xcode27/3_Check out this diagnostic control.txt": {
+      "bytes": 7836,
+      "sha256": "d447f76032c756842381442aba33636e30b898b7a520b80b6d1a3ad77daaec0e"
+    },
+    "same-binary-xcode27/4_Check out exact sources only for metadata and timeout checks.txt": {
+      "bytes": 7838,
+      "sha256": "1cdf23d1370d350815d441b55d36285cd773ab02ec034e35514f1dcc1a3d3169"
+    },
+    "same-binary-xcode27/5_Verify the target identity without compiling or installing anything.txt": {
+      "bytes": 2909,
+      "sha256": "e5726ba271d2d0cb1cb16286b704d12e64d30fa8713ce38ec7c7fc29694d079e"
+    },
+    "same-binary-xcode27/6_Download only this run's exact minimal bundle artifact.txt": {
+      "bytes": 3029,
+      "sha256": "5565a2ad8af207a3a9b0b185ba29d43ed7257be5c75caa5220428a8ef27a0bf2"
+    },
+    "same-binary-xcode27/7_Verify every byte and safely restore without rebuilding or resigning.txt": {
+      "bytes": 1913,
+      "sha256": "9cca4f3e40466426fe094bf75c37bee8d878668f8100d0dfcaff9bd873d05ae7"
+    },
+    "same-binary-xcode27/8_Capture the unchanged SDK 26 executable on macOS 27.txt": {
+      "bytes": 276423,
+      "sha256": "0931b73e72fe7356e1012474a85a4d92b4d5adbbfba3417df6e8367aafd65b13"
+    },
+    "same-binary-xcode27/9_Validate target originals and unchanged bytes even after failure.txt": {
+      "bytes": 3614,
+      "sha256": "b50bb0a473bb0f20961881d46c8bbcb54d831481440da18fcff596d355c66f83"
+    },
+    "same-binary-xcode27/system.txt": {
+      "bytes": 1000,
+      "sha256": "62dc949693427f5c89fc7a173460f7c5104e6b903419d38edc0a25acfdeeb4cf"
+    }
+  },
+  "aggregates": [
+    {
+      "name": "0_same-binary-xcode27.txt",
+      "bytes": 313497,
+      "sha256": "27101d280dcfb17e51dddc8cc481ccf022abd09d072c25afeb44294cac298e0e"
+    },
+    {
+      "name": "1_compile-sdk26.txt",
+      "bytes": 306958,
+      "sha256": "8a7f0c6b41276a62ee1c2948e2b244ca5a6e68ffcef2792184f880bf4066be1a"
+    }
+  ],
+  "artifactCodeExecuted": false
+}

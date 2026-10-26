@@ -1,0 +1,1005 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "runID": 40249767201,
+  "status": "failed-appearance-diagnostic-retention",
+  "deliveryAllowed": false,
+  "scope": "Every retained file except inventory.json and SHA256SUMS; SHA256SUMS additionally covers inventory.json.",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 4504,
+      "sha256": "4d695fa9f5db004547b8d93477a8970a148ef661a32ec7478d976b4ea91917ce",
+      "kind": "derived-failed-focal-readme",
+      "origin": {
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-e0b8d0c-collector-preparation.json",
+      "bytes": 1763,
+      "sha256": "0311a7dd05baacca3427e1caa271b6e19a5f76522ad9ac6b560e403b52da513c",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-collector-preparation.json",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-e0b8d0c-collector.log",
+      "bytes": 271,
+      "sha256": "4d320e20dced5228d60034213c03a7eba1915560e7d553c951b9feedd0a93f7c",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-collector.log",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-e0b8d0c-config.draft.json",
+      "bytes": 356,
+      "sha256": "586721dacdf700fa21f5725179e8124a9c7c71862cc51cd8aa983a9f18ffb44a",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-config.draft.json",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-e0b8d0c-config.json",
+      "bytes": 364,
+      "sha256": "adcc38affd6365479bea3b977ccf26a0f2bf48f30e0b728c1dccc8d4e5cac8c5",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-config.json",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-environment-collector-offline-tests.json",
+      "bytes": 758,
+      "sha256": "0214327ac9e48179ea73b5144d4f265e294073b64b40236f6632dbffe15e3918",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-environment-collector-offline-tests.json",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-environment-collector-offline-tests.log",
+      "bytes": 2419,
+      "sha256": "f027dd0436e7e1b30a135affce6ff16cf516c4ef95a710379d1eb48bef0d083e",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-environment-collector-offline-tests.log",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf-appearance-environment-collector.diff",
+      "bytes": 1446,
+      "sha256": "4991de99aa056a786fc88596bf46ff06306f1033ab964859a09e3378a3390777",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-environment-collector.diff",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_collect_appearance_environment.py",
+      "bytes": 28072,
+      "sha256": "d2337d77396bce0ac99aecd472ca046a1d2b9b9335ff08b88f7d5402830368f9",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf_collect_appearance_environment.py",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_review_appearancee0_facts.py",
+      "bytes": 19592,
+      "sha256": "2048496d9d17191ff2aa53cc9bc8b9556387af437904d312bdd78ae5b49cc26b",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf_review_appearancee0_facts.py",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_review_e0_public_items.py",
+      "bytes": 7954,
+      "sha256": "44f1d74f06a2ace4253f3dd6f026a72011dcfae4402cfef55c4424f1a9826166",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf_review_e0_public_items.py",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/pdf_stage_appearancee0_evidence.py",
+      "bytes": 27671,
+      "sha256": "db6e71de07a24b081d5acf3c0c5fa2ed6b2aed83244f9f762892cee57da7357e",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/pdf_stage_appearancee0_evidence.py",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "collection-tools/test_pdf_collect_appearance_environment_offline.py",
+      "bytes": 7667,
+      "sha256": "b4a7a194cdac08f8a3adf5302fefc666558215fc2a41fa2633d79967535763a3",
+      "kind": "derived-collector-or-retention-tool-record",
+      "origin": {
+        "originalPath": "/tmp/test_pdf_collect_appearance_environment_offline.py",
+        "notProductOrArtifactCode": true
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/AccessibilityAudit.swift",
+      "bytes": 18121,
+      "sha256": "608eb3c419f3d2332e34fc72cb925f7b6c7e1e2bcd5e2ceccaf014481951d303",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/Sources/PDF/AccessibilityAudit.swift",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/ApplicationAppearance.swift",
+      "bytes": 14203,
+      "sha256": "696411eccc941936861529e67a016abe3df5160efbedd33f38dccd75bb80cbc4",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/Sources/PDF/ApplicationAppearance.swift",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/CustomizationView.swift",
+      "bytes": 24737,
+      "sha256": "c0615b364b44339f008d57355f93b96bc4c92d81000a458875e3f4af44c333d7",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/Sources/PDF/CustomizationView.swift",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/MacPreview.swift",
+      "bytes": 59082,
+      "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/Sources/PDF/MacPreview.swift",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/PDFApp.swift",
+      "bytes": 44076,
+      "sha256": "3c666f575d7287b26b41c5a94b7aac59b0cb2512ff3cedb40be4c196b1fa55b1",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/Sources/PDF/PDFApp.swift",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/Sources/PDF/ToolbarRenderingAudit.swift",
+      "bytes": 29961,
+      "sha256": "a1bfa3af4dda5f209a2d98d3a375af1994b90fba33285e425cc938e7e9fceb46",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/Sources/PDF/ToolbarRenderingAudit.swift",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/scripts/PDF-Info.plist",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/check_appearance_preview.py",
+      "bytes": 28666,
+      "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/scripts/check_appearance_preview.py",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/prepare-window-audit-bundle.py",
+      "bytes": 4147,
+      "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/scripts/prepare-window-audit-bundle.py",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/application/scripts/run-with-timeout.py",
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/application/scripts/run-with-timeout.py",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/controller/.github/workflows/appearance-compatibility.yml",
+      "bytes": 12626,
+      "sha256": "50d8ad4c7c081642396ed4322826ccface42d8b8ec46ad0dcafbaa454634935c",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/controller/.github/workflows/appearance-compatibility.yml",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/controller/diagnostics/delivery_archives.py",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/controller/diagnostics/delivery_archives.py",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "exact-source/controller/scripts/check_appearance_preview.py",
+      "bytes": 28666,
+      "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6",
+      "kind": "exact-git-source",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/exact-source/controller/scripts/check_appearance_preview.py",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "local-preflight/pdf-appearance-environment-local-preflight.json",
+      "bytes": 753,
+      "sha256": "dacec2d16f89634d12c5aa22dc8b7fc8613bb696fc71647f36e6da92bb3525cb",
+      "kind": "derived-preparation-record",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-environment-local-preflight.json",
+        "note": "Original preparation wording retained; source hashes match e0. Does not approve runtime or the complete application."
+      }
+    },
+    {
+      "path": "originals/downloads/12619533926.zip",
+      "bytes": 2199208,
+      "sha256": "354c9793753e7310d3888eb394203b33d40499e61675f1f8d22388db5214bfe0",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/downloads/12619533926.zip",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/downloads/12619879872.zip",
+      "bytes": 2206051,
+      "sha256": "d2cc00f348783ee3ca4b4769b162c0e439fe29c7b23804c2a7bfe600bbf831ea",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/downloads/12619879872.zip",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/downloads/run-40249767201-attempt-1-logs.zip",
+      "bytes": 111780,
+      "sha256": "4ea49638859116d28bfebc963fa917a92c02f4825fdff415631f567d2b849adf",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/downloads/run-40249767201-attempt-1-logs.zip",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.appearance.json",
+      "bytes": 957236,
+      "sha256": "0eaa4f9b1506073ad853a919d160c520c7d7e7c5c1624743b3c82735ab8eaf0b",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.appearance.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.customization.png",
+      "bytes": 101973,
+      "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.customization.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-1.png",
+      "bytes": 338880,
+      "sha256": "d55eccb88c7c6082a199711aeb32d43b972923fb7d168bfd698234cae6c01133",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-1.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-2.png",
+      "bytes": 338910,
+      "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-2.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-recreated.png",
+      "bytes": 339103,
+      "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-recreated.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.light-return.png",
+      "bytes": 348877,
+      "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.light-return.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.png",
+      "bytes": 348652,
+      "sha256": "39815d2d60568009aab70300d655b17ce0a139aeb012e503cfa7947aeae5db93",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.system.png",
+      "bytes": 348877,
+      "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.system.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/appearance-bundle.json",
+      "bytes": 1055,
+      "sha256": "727334f713191e0913e8a353cd714646b2679806604f7522304342bec0858514",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/appearance-bundle.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/appearance-validation.json",
+      "bytes": 479,
+      "sha256": "36ac4739cca34b3fd1a2dfb9533504958a2f7a7fdb45fb65db85f88eb9ec5917",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/appearance-validation.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/capture.log",
+      "bytes": 271731,
+      "sha256": "680de36401c0957456eab37367bd423af7cfd9841b5b3314285324198abaac4f",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/capture.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/origin.log",
+      "bytes": 434,
+      "sha256": "cd18b1a0ad4103d646fc9d66e508177a5f63cc2ae8960d3080f31536c83c4c0d",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/origin.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/restore.log",
+      "bytes": 108,
+      "sha256": "d8a2218b11a7edc034a38fa232d78505d388384de2f170093926bb7a3bddc60e",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/restore.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-same-binary-xcode27/validation.log",
+      "bytes": 1583,
+      "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/validation.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.appearance.json",
+      "bytes": 928708,
+      "sha256": "b6b53aa04bc3e895aa3c6b4dccdff9614b668bee9939fcfe75d9a304f8c2bc22",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.appearance.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.customization.png",
+      "bytes": 100862,
+      "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.customization.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-1.png",
+      "bytes": 336403,
+      "sha256": "b9a511ffb4f8fd6d700b9c09b9f8e89eca6142ddf743059b5b6a1c86174d4150",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-1.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-2.png",
+      "bytes": 336423,
+      "sha256": "a2a766902179a68f7580d2c7002d08c7f03221ace9ab030d7251f64364083bb7",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-2.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.dark-recreated.png",
+      "bytes": 336597,
+      "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.dark-recreated.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.light-return.png",
+      "bytes": 348968,
+      "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.light-return.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.png",
+      "bytes": 348715,
+      "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/PDF-appearance.system.png",
+      "bytes": 348942,
+      "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.system.png",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/appearance-bundle.json",
+      "bytes": 1055,
+      "sha256": "727334f713191e0913e8a353cd714646b2679806604f7522304342bec0858514",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/appearance-bundle.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/appearance-validation.json",
+      "bytes": 479,
+      "sha256": "36ac4739cca34b3fd1a2dfb9533504958a2f7a7fdb45fb65db85f88eb9ec5917",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/appearance-validation.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/build.log",
+      "bytes": 1046,
+      "sha256": "19c06374940ca2324d123103366d2fc9949ae7bc66f7c1f7f68e60bd5e742126",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/build.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/bundle.log",
+      "bytes": 1423,
+      "sha256": "a2dd85ff7d6ae3a6edb68a9f53f3cc4cdbe58b4917b64e8343df5777d175391c",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/bundle.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/capture.log",
+      "bytes": 259615,
+      "sha256": "b0c8a0a7eeb69cc49db519f512ecc4f71342a4cb2e0509186253928441cd3254",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/capture.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/origin.log",
+      "bytes": 3736,
+      "sha256": "19c2c41fa3501ee2c1ba04328aa7230887ec746d6adf90d9726bd246a4c1e7f8",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/origin.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/extracted/PDF-appearance-sdk26/validation.log",
+      "bytes": 1583,
+      "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/validation.log",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/official-attempt-logs/0_same-binary-xcode27.txt",
+      "bytes": 313497,
+      "sha256": "27101d280dcfb17e51dddc8cc481ccf022abd09d072c25afeb44294cac298e0e",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/official-attempt-logs/0_same-binary-xcode27.txt",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "originals/official-attempt-logs/1_compile-sdk26.txt",
+      "bytes": 306958,
+      "sha256": "8a7f0c6b41276a62ee1c2948e2b244ca5a6e68ffcef2792184f880bf4066be1a",
+      "kind": "original-authenticated-evidence",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/official-attempt-logs/1_compile-sdk26.txt",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-artifact-state.json",
+      "bytes": 7584,
+      "sha256": "0ab273749b7890300b48d0ab67dfa5958ea13d5cc34f214ce513d0e66a215468",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-artifact-state.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-artifacts-after.json",
+      "bytes": 2124,
+      "sha256": "2a0a67ec94fcfb890abd41f25e734d07026803bc2ef60c928da6ed779c8fd81b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-artifacts-after.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-artifacts-before.json",
+      "bytes": 2124,
+      "sha256": "2a0a67ec94fcfb890abd41f25e734d07026803bc2ef60c928da6ed779c8fd81b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-artifacts-before.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-configuration.json",
+      "bytes": 364,
+      "sha256": "adcc38affd6365479bea3b977ccf26a0f2bf48f30e0b728c1dccc8d4e5cac8c5",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-configuration.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-jobs-after.json",
+      "bytes": 6939,
+      "sha256": "76db2560c54e3eb8c3d8f44faa35a6232f69a269a208c67f0269f19ed49fd935",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-jobs-after.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-jobs-before.json",
+      "bytes": 6939,
+      "sha256": "76db2560c54e3eb8c3d8f44faa35a6232f69a269a208c67f0269f19ed49fd935",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-jobs-before.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-official-logs.json",
+      "bytes": 6502,
+      "sha256": "90c8efaeff8e08632d3fd24470ca103247e7dd245fa58ca76ba4305eb8bd0f94",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-official-logs.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-run-after.json",
+      "bytes": 12417,
+      "sha256": "c63ed6d9159e79c9a9f24d79729cae401d276fc36fe0ddd9740f1f941dbd809b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-run-after.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-run-before.json",
+      "bytes": 12417,
+      "sha256": "c63ed6d9159e79c9a9f24d79729cae401d276fc36fe0ddd9740f1f941dbd809b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-run-before.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-source-files.json",
+      "bytes": 3176,
+      "sha256": "a60f375f75bda722e118c879f08a2050ae1c0d9f7b8606ce99d58a0f08b7c98f",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-source-files.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/collector-summary.json",
+      "bytes": 15518,
+      "sha256": "9e5ddb64a659799c9b0c94b8ceec4ac356744d5860a05af341180fb3465818a5",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/collector-summary.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/local-preflight-binding.json",
+      "bytes": 997,
+      "sha256": "e00df8da8acad8a17696dc062cf5b2aff18afc7686e75a8062228066333b0c8a",
+      "kind": "derived-local-preflight-binding",
+      "origin": {
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2"
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/artifacts-after-record.json",
+      "bytes": 228,
+      "sha256": "1c254d70e308ad933432f036656cae28ad1758a4731227a917e25779939abca4",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/artifacts-after-record.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/artifacts-after.json",
+      "bytes": 2124,
+      "sha256": "2a0a67ec94fcfb890abd41f25e734d07026803bc2ef60c928da6ed779c8fd81b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/artifacts-after.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/artifacts-before-record.json",
+      "bytes": 228,
+      "sha256": "1c254d70e308ad933432f036656cae28ad1758a4731227a917e25779939abca4",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/artifacts-before-record.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/artifacts-before.json",
+      "bytes": 2124,
+      "sha256": "2a0a67ec94fcfb890abd41f25e734d07026803bc2ef60c928da6ed779c8fd81b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/artifacts-before.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/jobs-after-record.json",
+      "bytes": 234,
+      "sha256": "0d5f3e974ac7f6d7c5e2ddc97b0735c64e722b3e6868c2c28f728630ebe4d3b6",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/jobs-after-record.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/jobs-after.json",
+      "bytes": 6939,
+      "sha256": "76db2560c54e3eb8c3d8f44faa35a6232f69a269a208c67f0269f19ed49fd935",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/jobs-after.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/jobs-before-record.json",
+      "bytes": 234,
+      "sha256": "0d5f3e974ac7f6d7c5e2ddc97b0735c64e722b3e6868c2c28f728630ebe4d3b6",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/jobs-before-record.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/jobs-before.json",
+      "bytes": 6939,
+      "sha256": "76db2560c54e3eb8c3d8f44faa35a6232f69a269a208c67f0269f19ed49fd935",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/jobs-before.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/run-after-record.json",
+      "bytes": 206,
+      "sha256": "471729d5c7811649bc9adfcbbeea67d2e1a8117e0249aa18b1bb936695728f8c",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/run-after-record.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/run-after.json",
+      "bytes": 12417,
+      "sha256": "c63ed6d9159e79c9a9f24d79729cae401d276fc36fe0ddd9740f1f941dbd809b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/run-after.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/run-before-record.json",
+      "bytes": 206,
+      "sha256": "471729d5c7811649bc9adfcbbeea67d2e1a8117e0249aa18b1bb936695728f8c",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/run-before-record.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "provenance/snapshots/1792975463995378911-139215/run-before.json",
+      "bytes": 12417,
+      "sha256": "c63ed6d9159e79c9a9f24d79729cae401d276fc36fe0ddd9740f1f941dbd809b",
+      "kind": "original-collector-record-or-api-snapshot",
+      "origin": {
+        "originalPath": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/snapshots/1792975463995378911-139215/run-before.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "retention-summary.json",
+      "bytes": 1694,
+      "sha256": "1cb6bad49e3416d09fa1e20d90eac516a17c99dd7f331ae6e43d3f28546dfb99",
+      "kind": "derived-failed-focal-retention-summary",
+      "origin": {
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "reviews/pdf-appearance-e0-independent-review.json",
+      "bytes": 643262,
+      "sha256": "0dcfde36a8c34ebb6eaa330f18f6b221ab6ebf72aa821f906f20cf74365e33aa",
+      "kind": "derived-factual-or-independent-review",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0-independent-review.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "reviews/pdf-appearance-e0-independent-review.md",
+      "bytes": 3999,
+      "sha256": "a9dbe0585dbbdf6527aed06c735ca1bbe4b4c6b6adb19c1d6bb3233a7048ce9f",
+      "kind": "derived-factual-or-independent-review",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0-independent-review.md",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "reviews/pdf-appearance-e0b8d0c-factual-log-review.json",
+      "bytes": 53228,
+      "sha256": "c07379b727a8c2b9dec296c9daa340ced24aabb955b51dfdaad8f94ca8a269be",
+      "kind": "derived-factual-or-independent-review",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-factual-log-review.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "reviews/pdf-appearance-e0b8d0c-factual-log-review.md",
+      "bytes": 3058,
+      "sha256": "44b366bb22998adb24c5fda1b03cbb2232d6ccf52ef26c94d061f3a32d6ee506",
+      "kind": "derived-factual-or-independent-review",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-factual-log-review.md",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "reviews/pdf-appearance-e0b8d0c-public-items-diagnosis.json",
+      "bytes": 103966,
+      "sha256": "a719917d041cb83f0a6d1f10f555372309ee25ecc102d20751f8c39cc011a1cb",
+      "kind": "derived-factual-or-independent-review",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-public-items-diagnosis.json",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    },
+    {
+      "path": "reviews/pdf-appearance-e0b8d0c-public-items-diagnosis.md",
+      "bytes": 1673,
+      "sha256": "341755ae5d2cc3d49856113a5bfed820e424436786f410c9b0cd54c215346ca7",
+      "kind": "derived-factual-or-independent-review",
+      "origin": {
+        "originalPath": "/tmp/pdf-appearance-e0b8d0c-public-items-diagnosis.md",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "runID": 40249767201
+      }
+    }
+  ]
+}

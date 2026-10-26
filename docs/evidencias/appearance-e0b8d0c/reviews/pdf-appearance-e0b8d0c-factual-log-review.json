@@ -1,0 +1,1553 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUTC": "2026-10-26T00:46:34.992911+00:00",
+  "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "controllerCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "runID": 40249767201,
+  "attempt": 1,
+  "status": "failed-appearance-only-diagnostic",
+  "networkCallsDuringReview": 0,
+  "artifactCodeExecuted": false,
+  "productModified": false,
+  "gatesModified": false,
+  "applicationFailureCauseEstablished": false,
+  "visualApprovalInferred": false,
+  "completeApplicationApproved": false,
+  "deliveryAllowed": false,
+  "jobs": [
+    {
+      "job": "compile-sdk26",
+      "jobID": 121338897259,
+      "conclusion": "failure",
+      "operatingSystem": "Version 26.6.2 (Build 25G83)",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Require an explicit source commit",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Check out the exact application source",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Verify source and SDK 26 without installing dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Compile the native arm64 executable once",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build and fingerprint the diagnostic-only bundle",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Retain the same authenticated bundle before either appearance capture",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Capture seven original appearance frames on macOS 26",
+          "conclusion": "failure"
+        },
+        {
+          "number": 10,
+          "name": "Validate originals and unchanged bundle even after a capture failure",
+          "conclusion": "failure"
+        },
+        {
+          "number": 11,
+          "name": "Retain all original macOS 26 diagnostic evidence even on failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Post Check out the exact application source",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Post Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "nativeReport": {
+        "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.appearance.json",
+        "bytes": 928708,
+        "sha256": "b6b53aa04bc3e895aa3c6b4dccdff9614b668bee9939fcfe75d9a304f8c2bc22"
+      },
+      "nativeStatus": "failed",
+      "passedChecks": 8,
+      "failedChecks": [
+        "attached-toolbar-identities-preserved",
+        "same-real-window",
+        "three-controls-central-contrast-every-workspace-frame",
+        "toolbar-controls-return-after-customization"
+      ],
+      "measurementRowsTotal": 0,
+      "frames": [
+        {
+          "phase": "light-initial",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.png",
+            "bytes": 348715,
+            "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-1.png",
+            "bytes": 336403,
+            "sha256": "b9a511ffb4f8fd6d700b9c09b9f8e89eca6142ddf743059b5b6a1c86174d4150"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-2.png",
+            "bytes": 336423,
+            "sha256": "a2a766902179a68f7580d2c7002d08c7f03221ace9ab030d7251f64364083bb7"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "customization",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.customization.png",
+            "bytes": 100862,
+            "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 5
+        },
+        {
+          "phase": "dark-recreated",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.dark-recreated.png",
+            "bytes": 336597,
+            "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "light-return",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.light-return.png",
+            "bytes": 348968,
+            "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "system",
+          "selection": "system",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/PDF-appearance.system.png",
+            "bytes": 348942,
+            "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        }
+      ],
+      "toolbarObservations": [
+        {
+          "phase": "light-initial",
+          "timing": "before",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "light-initial",
+          "timing": "after",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "before",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "after",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "before",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "after",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "before",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "after",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "light-return",
+          "timing": "before",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "light-return",
+          "timing": "after",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "system",
+          "timing": "before",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "system",
+          "timing": "after",
+          "windowNumber": 29,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        }
+      ],
+      "toolbarErrorCounts": {
+        "Expected exactly one direct toolbar control: autoSidebar": 12,
+        "Expected exactly one direct toolbar control: pdf.commands.toolbar": 12,
+        "Expected exactly one direct toolbar control: pdf.customize.toolbar": 12
+      },
+      "originalCaptureLines": [
+        {
+          "png": "PDF-appearance.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-1.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-2.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.customization.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-recreated.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.light-return.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.system.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        }
+      ],
+      "officialCaptureCounterMatchesArtifactLog": true,
+      "validationLastError": "ValueError: Appearance diagnostic: native report identity, status or capture source differs",
+      "originPythonSuites": [
+        {
+          "tests": 21,
+          "seconds": 0.278,
+          "status": "OK"
+        }
+      ],
+      "manifest": {
+        "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/appearance-bundle.json",
+        "bytes": 1055,
+        "sha256": "727334f713191e0913e8a353cd714646b2679806604f7522304342bec0858514"
+      },
+      "builtSDK": "26.5",
+      "declaredArchive": {
+        "bytes": 5145129,
+        "sha256": "a4f0a7b114ce5180144cfc471283e5631cf693877a21e1cac74398078be50e39"
+      },
+      "failedReceipt": {
+        "completeApplicationApproved": false,
+        "engineRuntimeInstalled": false,
+        "error": "Appearance diagnostic: native report identity, status or capture source differs",
+        "externalDeadlineSeconds": 90,
+        "humanVisualReview": false,
+        "schemaVersion": 1,
+        "scope": "minimal-appearance-diagnostic-only",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "sourceCommitAuthenticatedByThisHelper": false,
+        "status": "failed",
+        "universalWCAGCertification": false
+      },
+      "originalLogs": [
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/build.log",
+          "bytes": 1046,
+          "sha256": "19c06374940ca2324d123103366d2fc9949ae7bc66f7c1f7f68e60bd5e742126"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/bundle.log",
+          "bytes": 1423,
+          "sha256": "a2dd85ff7d6ae3a6edb68a9f53f3cc4cdbe58b4917b64e8343df5777d175391c"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/capture.log",
+          "bytes": 259615,
+          "sha256": "b0c8a0a7eeb69cc49db519f512ecc4f71342a4cb2e0509186253928441cd3254"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/origin.log",
+          "bytes": 3736,
+          "sha256": "19c2c41fa3501ee2c1ba04328aa7230887ec746d6adf90d9726bd246a4c1e7f8"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-sdk26/validation.log",
+          "bytes": 1583,
+          "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f"
+        }
+      ],
+      "officialAggregate": {
+        "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/official-attempt-logs/1_compile-sdk26.txt",
+        "bytes": 306958,
+        "sha256": "8a7f0c6b41276a62ee1c2948e2b244ca5a6e68ffcef2792184f880bf4066be1a"
+      },
+      "newHierarchyObservations": [
+        {
+          "phase": "light-initial",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "light-initial",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "light-return",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "light-return",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "system",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "system",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 32,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        }
+      ],
+      "customizationObservedAppearance": {
+        "application": "NSAppearanceNameAqua",
+        "window": "NSAppearanceNameAqua",
+        "content": "NSAppearanceNameAqua",
+        "nativePopups": [
+          {
+            "title": "Equilibrado",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Degradê suave",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Liquid Glass",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Suave",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Restaurar",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          }
+        ]
+      },
+      "captureTimeoutMarkerFound": false
+    },
+    {
+      "job": "same-binary-xcode27",
+      "jobID": 121340681527,
+      "conclusion": "failure",
+      "operatingSystem": "Version 27.0.1 (Build 26A434)",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Require exact source and authenticated transfer identities",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Check out exact sources only for metadata and timeout checks",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Verify the target identity without compiling or installing anything",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Download only this run's exact minimal bundle artifact",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Verify every byte and safely restore without rebuilding or resigning",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Capture the unchanged SDK 26 executable on macOS 27",
+          "conclusion": "failure"
+        },
+        {
+          "number": 9,
+          "name": "Validate target originals and unchanged bytes even after failure",
+          "conclusion": "failure"
+        },
+        {
+          "number": 10,
+          "name": "Retain target original evidence even on failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Post Check out exact sources only for metadata and timeout checks",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Post Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "nativeReport": {
+        "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.appearance.json",
+        "bytes": 957236,
+        "sha256": "0eaa4f9b1506073ad853a919d160c520c7d7e7c5c1624743b3c82735ab8eaf0b"
+      },
+      "nativeStatus": "failed",
+      "passedChecks": 8,
+      "failedChecks": [
+        "attached-toolbar-identities-preserved",
+        "same-real-window",
+        "three-controls-central-contrast-every-workspace-frame",
+        "toolbar-controls-return-after-customization"
+      ],
+      "measurementRowsTotal": 0,
+      "frames": [
+        {
+          "phase": "light-initial",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.png",
+            "bytes": 348652,
+            "sha256": "39815d2d60568009aab70300d655b17ce0a139aeb012e503cfa7947aeae5db93"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-1.png",
+            "bytes": 338880,
+            "sha256": "d55eccb88c7c6082a199711aeb32d43b972923fb7d168bfd698234cae6c01133"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-2.png",
+            "bytes": 338910,
+            "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "customization",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.customization.png",
+            "bytes": 101973,
+            "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-recreated",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-recreated.png",
+            "bytes": 339103,
+            "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "light-return",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.light-return.png",
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "system",
+          "selection": "system",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.system.png",
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 30,
+          "workspaceToolbarProviderCount": 0,
+          "controlsDetected": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        }
+      ],
+      "toolbarObservations": [
+        {
+          "phase": "light-initial",
+          "timing": "before",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "light-initial",
+          "timing": "after",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "before",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "after",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "before",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "after",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "before",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "after",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "light-return",
+          "timing": "before",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "light-return",
+          "timing": "after",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "system",
+          "timing": "before",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        },
+        {
+          "phase": "system",
+          "timing": "after",
+          "windowNumber": 30,
+          "providerClass": "NSToolbarView",
+          "role": "AXToolbar",
+          "directChildCount": 0,
+          "controlsDetected": 0
+        }
+      ],
+      "toolbarErrorCounts": {
+        "Expected exactly one direct toolbar control: autoSidebar": 12,
+        "Expected exactly one direct toolbar control: pdf.commands.toolbar": 12,
+        "Expected exactly one direct toolbar control: pdf.customize.toolbar": 12
+      },
+      "originalCaptureLines": [
+        {
+          "png": "PDF-appearance.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-1.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-2.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.customization.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-recreated.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.light-return.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.system.png",
+          "windowNumber": 30,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        }
+      ],
+      "officialCaptureCounterMatchesArtifactLog": true,
+      "validationLastError": "ValueError: Appearance diagnostic: native report identity, status or capture source differs",
+      "originPythonSuites": [],
+      "manifest": {
+        "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/appearance-bundle.json",
+        "bytes": 1055,
+        "sha256": "727334f713191e0913e8a353cd714646b2679806604f7522304342bec0858514"
+      },
+      "builtSDK": "26.5",
+      "declaredArchive": {
+        "bytes": 5145129,
+        "sha256": "a4f0a7b114ce5180144cfc471283e5631cf693877a21e1cac74398078be50e39"
+      },
+      "failedReceipt": {
+        "completeApplicationApproved": false,
+        "engineRuntimeInstalled": false,
+        "error": "Appearance diagnostic: native report identity, status or capture source differs",
+        "externalDeadlineSeconds": 90,
+        "humanVisualReview": false,
+        "schemaVersion": 1,
+        "scope": "minimal-appearance-diagnostic-only",
+        "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+        "sourceCommitAuthenticatedByThisHelper": false,
+        "status": "failed",
+        "universalWCAGCertification": false
+      },
+      "originalLogs": [
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/capture.log",
+          "bytes": 271731,
+          "sha256": "680de36401c0957456eab37367bd423af7cfd9841b5b3314285324198abaac4f"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/origin.log",
+          "bytes": 434,
+          "sha256": "cd18b1a0ad4103d646fc9d66e508177a5f63cc2ae8960d3080f31536c83c4c0d"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/restore.log",
+          "bytes": 108,
+          "sha256": "d8a2218b11a7edc034a38fa232d78505d388384de2f170093926bb7a3bddc60e"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/extracted/PDF-appearance-same-binary-xcode27/validation.log",
+          "bytes": 1583,
+          "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f"
+        }
+      ],
+      "officialAggregate": {
+        "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/official-attempt-logs/0_same-binary-xcode27.txt",
+        "bytes": 313497,
+        "sha256": "27101d280dcfb17e51dddc8cc481ccf022abd09d072c25afeb44294cac298e0e"
+      },
+      "newHierarchyObservations": [
+        {
+          "phase": "light-initial",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "light-initial",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "light-return",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "light-return",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "system",
+          "timing": "before",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        },
+        {
+          "phase": "system",
+          "timing": "after",
+          "providers": [
+            {
+              "nativeClass": "NSToolbarView",
+              "directChildCount": 0,
+              "nativeViews": 34,
+              "nativeHierarchyTruncated": false
+            }
+          ],
+          "nativeToolbarItemCount": 5,
+          "nativeToolbarTraversalLimited": false
+        }
+      ],
+      "customizationObservedAppearance": {
+        "application": "NSAppearanceNameAqua",
+        "window": "NSAppearanceNameAqua",
+        "content": "NSAppearanceNameAqua",
+        "nativePopups": []
+      },
+      "captureTimeoutMarkerFound": false
+    }
+  ],
+  "totalPNGsVerified": 14,
+  "nativeContrastMeasurements": 0,
+  "beforeAfterWorkspaceObservations": 24,
+  "manifestBytesIdenticalAcrossSystems": true,
+  "transportTarLocallyDownloadedOrExecuted": false,
+  "sameBundleGateRemainsFailed": true,
+  "officialLogZIP": {
+    "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40249767201/attempts/1/logs",
+    "path": "/workspace/.cache/pdf-appearance-e0b8d0c-40249767201/downloads/run-40249767201-attempt-1-logs.zip",
+    "bytes": 111780,
+    "sha256": "4ea49638859116d28bfebc963fa917a92c02f4825fdff415631f567d2b849adf",
+    "authenticatedAPIEndpoint": true,
+    "upstreamDigestProvided": false,
+    "allMemberCRCVerified": true,
+    "files": {
+      "0_same-binary-xcode27.txt": {
+        "bytes": 313497,
+        "sha256": "27101d280dcfb17e51dddc8cc481ccf022abd09d072c25afeb44294cac298e0e"
+      },
+      "1_compile-sdk26.txt": {
+        "bytes": 306958,
+        "sha256": "8a7f0c6b41276a62ee1c2948e2b244ca5a6e68ffcef2792184f880bf4066be1a"
+      },
+      "compile-sdk26/10_Validate originals and unchanged bundle even after a capture failure.txt": {
+        "bytes": 3431,
+        "sha256": "6fa8cd8809ee206bdd572b146f02b5cbb5395d68ed82c0affd9d6ce7b5b43a37"
+      },
+      "compile-sdk26/11_Retain all original macOS 26 diagnostic evidence even on failure.txt": {
+        "bytes": 2236,
+        "sha256": "cf6da99635f3b88fba7f85fffb2bd248776c406eccd4cec8e124b8b5c89a75b0"
+      },
+      "compile-sdk26/1_Set up job.txt": {
+        "bytes": 2173,
+        "sha256": "a9b7faa78a59b2357b6f27fb1f5a0c503811b8602723df633897a9435a75ea4d"
+      },
+      "compile-sdk26/21_Post Check out the exact application source.txt": {
+        "bytes": 1745,
+        "sha256": "36b7485334f8f7e30cf043fdf7b12642603c378261c68f2f95c91823f47e765d"
+      },
+      "compile-sdk26/22_Post Check out this diagnostic control.txt": {
+        "bytes": 1757,
+        "sha256": "9a3cd43d3ed3a4ca13e5e8cde4566e30f46acf4cfed819f3ee085b9e5117f2e7"
+      },
+      "compile-sdk26/23_Complete job.txt": {
+        "bytes": 686,
+        "sha256": "e8a37a38be8a05c11a7d02c404ec426301bcaeacc64b71e1f609cc75291488de"
+      },
+      "compile-sdk26/2_Require an explicit source commit.txt": {
+        "bytes": 518,
+        "sha256": "7be9e654fae53233215e0abb21f5a4aff40db15fc095252e20372fa133a7e816"
+      },
+      "compile-sdk26/3_Check out this diagnostic control.txt": {
+        "bytes": 7542,
+        "sha256": "36d1179e5cc7156d618eb083aeb8b99a830a07d1c55dd772e78a78c0275b0366"
+      },
+      "compile-sdk26/4_Check out the exact application source.txt": {
+        "bytes": 7544,
+        "sha256": "debe9eae618207d8f1ad226357d90cacbc7b950141aff9c6a7dca506d10eff96"
+      },
+      "compile-sdk26/5_Verify source and SDK 26 without installing dependencies.txt": {
+        "bytes": 6802,
+        "sha256": "5ca1686a9122c238b5554b3b501c1e8006b090d9f3992bf964d495032eaed237"
+      },
+      "compile-sdk26/6_Compile the native arm64 executable once.txt": {
+        "bytes": 2144,
+        "sha256": "bf9960a650a275fa5d74d0cdbc7b33574b93ffbd81c7898d390a9bd86c7aac18"
+      },
+      "compile-sdk26/7_Build and fingerprint the diagnostic-only bundle.txt": {
+        "bytes": 4188,
+        "sha256": "28f5490dafa9abf2d0ceac94a7ca1bd97f31661eecfa35caec9c727943635731"
+      },
+      "compile-sdk26/8_Retain the same authenticated bundle before either appearance capture.txt": {
+        "bytes": 2279,
+        "sha256": "2e465fe64ccbfe27c839e80b7a93e58fd49496b459e3d782d3b83a21ab1c2039"
+      },
+      "compile-sdk26/9_Capture seven original appearance frames on macOS 26.txt": {
+        "bytes": 263952,
+        "sha256": "d5bc2d888c49e9760165103d7abe1b1bcc3594ce743d80c70cd3b8429027117d"
+      },
+      "compile-sdk26/system.txt": {
+        "bytes": 593,
+        "sha256": "7169d5bdd002e35b468318f302a6d8bf2bc94d5693b80091ab9e5af5ec4d12ab"
+      },
+      "same-binary-xcode27/10_Retain target original evidence even on failure.txt": {
+        "bytes": 2572,
+        "sha256": "04b34c7610fcdada481fdf14d3307584703d75494bb3e82a172a26155c0a21b4"
+      },
+      "same-binary-xcode27/19_Post Check out exact sources only for metadata and timeout checks.txt": {
+        "bytes": 1745,
+        "sha256": "1e4f6096ee425edff0629405d11f980875eaf3b17338439f06de05d45c8b833e"
+      },
+      "same-binary-xcode27/1_Set up job.txt": {
+        "bytes": 2352,
+        "sha256": "a6bc03dfd906bd7b0f128230ed16b722869a434006a5e322df4c81a746f612f1"
+      },
+      "same-binary-xcode27/20_Post Check out this diagnostic control.txt": {
+        "bytes": 1757,
+        "sha256": "42fc92aaf94308e29aee0e79ab42c3932719a942a302596c202606d1a510285d"
+      },
+      "same-binary-xcode27/21_Complete job.txt": {
+        "bytes": 520,
+        "sha256": "eb60404e48cb3dea0ffc07e439f1d11b3d95639c47663de928eb5441eb143384"
+      },
+      "same-binary-xcode27/2_Require exact source and authenticated transfer identities.txt": {
+        "bytes": 1025,
+        "sha256": "639ce0d90c68acde559a9112d75bfc5306ea148435ac0e37c09397cb110a272e"
+      },
+      "same-binary-xcode27/3_Check out this diagnostic control.txt": {
+        "bytes": 7836,
+        "sha256": "d447f76032c756842381442aba33636e30b898b7a520b80b6d1a3ad77daaec0e"
+      },
+      "same-binary-xcode27/4_Check out exact sources only for metadata and timeout checks.txt": {
+        "bytes": 7838,
+        "sha256": "1cdf23d1370d350815d441b55d36285cd773ab02ec034e35514f1dcc1a3d3169"
+      },
+      "same-binary-xcode27/5_Verify the target identity without compiling or installing anything.txt": {
+        "bytes": 2909,
+        "sha256": "e5726ba271d2d0cb1cb16286b704d12e64d30fa8713ce38ec7c7fc29694d079e"
+      },
+      "same-binary-xcode27/6_Download only this run's exact minimal bundle artifact.txt": {
+        "bytes": 3029,
+        "sha256": "5565a2ad8af207a3a9b0b185ba29d43ed7257be5c75caa5220428a8ef27a0bf2"
+      },
+      "same-binary-xcode27/7_Verify every byte and safely restore without rebuilding or resigning.txt": {
+        "bytes": 1913,
+        "sha256": "9cca4f3e40466426fe094bf75c37bee8d878668f8100d0dfcaff9bd873d05ae7"
+      },
+      "same-binary-xcode27/8_Capture the unchanged SDK 26 executable on macOS 27.txt": {
+        "bytes": 276423,
+        "sha256": "0931b73e72fe7356e1012474a85a4d92b4d5adbbfba3417df6e8367aafd65b13"
+      },
+      "same-binary-xcode27/9_Validate target originals and unchanged bytes even after failure.txt": {
+        "bytes": 3614,
+        "sha256": "b50bb0a473bb0f20961881d46c8bbcb54d831481440da18fcff596d355c66f83"
+      },
+      "same-binary-xcode27/system.txt": {
+        "bytes": 1000,
+        "sha256": "62dc949693427f5c89fc7a173460f7c5104e6b903419d38edc0a25acfdeeb4cf"
+      }
+    },
+    "aggregates": [
+      {
+        "name": "0_same-binary-xcode27.txt",
+        "bytes": 313497,
+        "sha256": "27101d280dcfb17e51dddc8cc481ccf022abd09d072c25afeb44294cac298e0e"
+      },
+      {
+        "name": "1_compile-sdk26.txt",
+        "bytes": 306958,
+        "sha256": "8a7f0c6b41276a62ee1c2948e2b244ca5a6e68ffcef2792184f880bf4066be1a"
+      }
+    ],
+    "artifactCodeExecuted": false
+  },
+  "exactSourceRecords": [
+    {
+      "role": "controller",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "diagnostics/delivery_archives.py",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+    },
+    {
+      "role": "controller",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "scripts/check_appearance_preview.py",
+      "bytes": 28666,
+      "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6"
+    },
+    {
+      "role": "controller",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": ".github/workflows/appearance-compatibility.yml",
+      "bytes": 12626,
+      "sha256": "50d8ad4c7c081642396ed4322826ccface42d8b8ec46ad0dcafbaa454634935c"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "scripts/check_appearance_preview.py",
+      "bytes": 28666,
+      "sha256": "10474228f596cb469c2eb96140e18bd296faeb1caab9e26498979878cdc277d6"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "scripts/prepare-window-audit-bundle.py",
+      "bytes": 4147,
+      "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "scripts/run-with-timeout.py",
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/ToolbarRenderingAudit.swift",
+      "bytes": 29961,
+      "sha256": "a1bfa3af4dda5f209a2d98d3a375af1994b90fba33285e425cc938e7e9fceb46"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/ApplicationAppearance.swift",
+      "bytes": 14203,
+      "sha256": "696411eccc941936861529e67a016abe3df5160efbedd33f38dccd75bb80cbc4"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/MacPreview.swift",
+      "bytes": 59082,
+      "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/AccessibilityAudit.swift",
+      "bytes": 18121,
+      "sha256": "608eb3c419f3d2332e34fc72cb925f7b6c7e1e2bcd5e2ceccaf014481951d303"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/PDFApp.swift",
+      "bytes": 44076,
+      "sha256": "3c666f575d7287b26b41c5a94b7aac59b0cb2512ff3cedb40be4c196b1fa55b1"
+    },
+    {
+      "role": "application",
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/CustomizationView.swift",
+      "bytes": 24737,
+      "sha256": "c0615b364b44339f008d57355f93b96bc4c92d81000a458875e3f4af44c333d7"
+    }
+  ],
+  "currentCollectionIncidentObserved": false,
+  "eachEvidenceArtifactDownloadedOnce": true,
+  "limits": [
+    "Integrity/CRC/raster is not visual or accessibility approval.",
+    "There are no native contrast measurements; snapshots and numeric window IDs cannot override failed checks.",
+    "Aqua popup-provider observations are factual JSON records; an independent review of the current original PNGs is still required.",
+    "This focal is not the full native workflow, installer validation or a physical M4 benchmark.",
+    "Transport binding is based on original API/pack/restore/manifests without local download, extraction or execution of the tar/app."
+  ]
+}

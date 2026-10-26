@@ -1,0 +1,30 @@
+{
+  "sourceCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+  "preflightParent": "2f3134a41229054f41a176d6a48cc6c23e388b77",
+  "sourceFilesMatch877": true,
+  "files": [
+    {
+      "gitPath": "Sources/PDF/ApplicationAppearance.swift",
+      "sha256": "2f7de81b42d2dcf079968f61ca8814ee609cf0648eed1329078b58393ad003dc",
+      "bytes": 13588
+    },
+    {
+      "gitPath": "Sources/PDF/ToolbarRenderingAudit.swift",
+      "sha256": "e18446d734d746ee1d6dcb0aea4d357599ffdf5209618a0d8d97e6c33941ba0a",
+      "bytes": 24073
+    },
+    {
+      "gitPath": "Sources/PDF/AccessibilityAudit.swift",
+      "sha256": "608eb3c419f3d2332e34fc72cb925f7b6c7e1e2bcd5e2ceccaf014481951d303",
+      "bytes": 18121
+    },
+    {
+      "gitPath": "Sources/PDF/MacPreview.swift",
+      "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860",
+      "bytes": 59082
+    }
+  ],
+  "SDKTypecheck": false,
+  "historicalReferenceNotCurrentEvidence": "/tmp/pdf-appearance-2f-retained-whitespace.log",
+  "preflightAssertionsNotNewRuntimeApproval": true
+}

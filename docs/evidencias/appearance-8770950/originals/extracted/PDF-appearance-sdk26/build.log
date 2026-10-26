@@ -1,0 +1,16 @@
+Building for production...
+[0/4] Write sources
+[1/4] Write swift-version-7974D3F7F03D5E95.txt
+[3/5] Compiling PDF AccessibilityAudit.swift
+/Users/runner/work/PDF-/PDF-/source/Sources/PDF/VisionFailureDiagnostics.swift:122:30: warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+120 |         // Deliberately exercise this deprecated public switch separately from
+121 |         // setComputeDevice; it is a CLI diagnostic, never a production policy.
+122 |         if cpuOnly { request.usesCPUOnly = true }
+    |                              `- warning: 'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+123 |         let supported = try request.supportedRecognitionLanguages()
+124 |         request.recognitionLanguages = (language == "pt" ? ["pt-BR", "pt-PT", "en-US"] : ["en-US"]).filter { supported.contains($0) }
+
+[#DeprecatedDeclaration]: <https://docs.swift.org/compiler/documentation/diagnostics/deprecated-declaration>
+[3/5] Write Objects.LinkFileList
+[4/5] Linking PDF
+Build complete! (306.54s)

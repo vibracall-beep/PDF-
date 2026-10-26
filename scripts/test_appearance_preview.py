@@ -31,13 +31,36 @@ def box(x, y, width, height):
     return dict(x=x,y=y,width=width,height=height)
 
 
+def bind_native_metadata(value):
+    def provider(role, identifier=None):
+        return dict(nativeClass='NSViewFixture',role=role,identifier=identifier,label='Observed provider',
+                    isNSView=True,belongsToWindow=True,hiddenOrHasHiddenAncestor=False)
+    toolbar_node=provider('AXToolbar')
+    root_view=dict(provider=toolbar_node,identity='toolbar-root',bounds=box(0,0,256,66),windowFrame=box(0,190,256,66),
+                   screenFrame=box(0,190,256,66),alpha=1,effectiveAppearance=value['windowEffectiveAppearance'],
+                   effectiveStyle=value['windowEffectiveStyle'])
+    nodes=[dict(index=0,view=root_view)];items=[]
+    for index,control in enumerate(value['controls']):
+        view=dict(provider=provider('AXButton',control['auditKey']),identity=control['identity'],bounds=box(0,0,40,40),
+                  windowFrame=copy.deepcopy(control['windowFrame']),screenFrame=copy.deepcopy(control['screenFrame']),
+                  alpha=control['alpha'],effectiveAppearance=control['effectiveAppearance'],effectiveStyle=control['effectiveStyle'])
+        nodes.append(dict(index=index+1,parent=0,view=copy.deepcopy(view)))
+        items.append(dict(index=index,nativeClass='NSToolbarItem',itemIdentifier=control['identifier'],label=control['label'],
+                          paletteLabel=control['paletteLabel'],view=view,subitemCount=0))
+    value['nativeToolbarItems']=dict(items=items,traversalLimited=False,maximumItems=64,maximumDepth=4)
+    value['toolbarProviders']=[dict(node=toolbar_node,directChildCount=0,directChildren=[],directChildrenTruncated=False,
+                                    nativeViews=nodes,nativeHierarchyTruncated=False,maximumNativeViews=128,maximumNativeDepth=12)] if items else []
+
+
 def snapshot(selection, tick, recreated=False, customization=False):
     controls = []
     for index,key in enumerate(check.CONTROLS):
-        controls.append(dict(auditKey=key,identifier=key,label=key,identity=('new-' if recreated else 'first-')+key,
+        label=('Hide Sidebar','Comandos','Personalizar')[index]
+        controls.append(dict(auditKey=key,identifier='actual-item-'+key,label=label,paletteLabel=label,alpha=1,
+                             identity=('new-' if recreated else 'first-')+key,
                              windowFrame=box(20+index*60,200,40,40),screenFrame=box(20+index*60,200,40,40),
                              effectiveAppearance='NSAppearanceNameDarkAqua' if selection=='dark' else 'NSAppearanceNameAqua',
-                             identification='public-provider',effectiveStyle='dark' if selection=='dark' else 'light'))
+                             identification=check.CONTROL_IDENTIFICATION,effectiveStyle='dark' if selection=='dark' else 'light'))
     value=dict(uptime=tick,windowNumber=55,windowFrame=box(0,0,256,256),backingScale=1,selection=selection,
                applicationEffectiveAppearance='NSAppearanceNameDarkAqua' if selection=='dark' else 'NSAppearanceNameAqua',
                windowEffectiveAppearance='NSAppearanceNameDarkAqua' if selection=='dark' else 'NSAppearanceNameAqua',
@@ -49,6 +72,7 @@ def snapshot(selection, tick, recreated=False, customization=False):
     value.update(windowToolbarPresent=not customization,windowToolbarVisible=not customization,workspaceToolbarProviderCount=0 if customization else 1)
     if selection!='system':
         value.update(applicationOverride=value['applicationEffectiveAppearance'],windowOverride=value['windowEffectiveAppearance'])
+    bind_native_metadata(value)
     return value
 
 
@@ -99,6 +123,10 @@ class AppearanceEvidenceTests(unittest.TestCase):
 
     def validate(self):
         self.save_report();return check.validate_report(self.output)
+
+    def frame_snapshots(self,index=0):
+        frame=self.report['frames'][index]
+        return (frame['windowSnapshot'],frame['toolbarReport']['before'],frame['toolbarReport']['after'])
 
     def altered_tar(self, mutate):
         raw=gzip.decompress(self.archive.read_bytes());members=[]
@@ -234,6 +262,7 @@ class AppearanceEvidenceTests(unittest.TestCase):
         f=self.report['frames'][4]
         for value in (f['windowSnapshot'],f['toolbarReport']['before'],f['toolbarReport']['after']):
             for c in value['controls']:c['identity']='first-'+c['auditKey']
+            bind_native_metadata(value)
         self.report['providersRecreatedAfterCustomization']=False
         self.validate()
         self.report['providersRecreatedAfterCustomization']=True
@@ -251,6 +280,73 @@ class AppearanceEvidenceTests(unittest.TestCase):
         self.report['completeApplicationApproved']=True
         with self.assertRaises(ValueError):self.validate()
         self.report.pop('completeApplicationApproved');self.report['schemaVersion']=True
+        with self.assertRaises(ValueError):self.validate()
+
+    def test_exact_public_labels_palette_identifier_and_method_required(self):
+        for field,value in (('label','Unrelated'),('paletteLabel','Different'),('identifier','unobserved-item'),
+                            ('identification','private-class-or-position'),('alpha',0),('effectiveAppearance','')):
+            self.report=report_fixture(self.output)
+            for observed in self.frame_snapshots():observed['controls'][0][field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):self.validate()
+        self.report=report_fixture(self.output)
+        for observed in self.frame_snapshots():
+            observed['controls'][0].update(label='Show Sidebar',paletteLabel='Show Sidebar')
+        with self.assertRaises(ValueError):self.validate()
+
+    def test_control_must_match_public_item_view_geometry_style_and_alpha(self):
+        for field,value in (('identity','unobserved-view'),('windowFrame',box(21,200,40,40)),
+                            ('screenFrame',box(20,201,40,40)),('effectiveStyle','dark'),('alpha',0.5)):
+            self.report=report_fixture(self.output)
+            for observed in self.frame_snapshots():observed['nativeToolbarItems']['items'][0]['view'][field]=value
+            with self.subTest(field=field),self.assertRaises(ValueError):self.validate()
+
+    def test_selected_item_view_must_be_descendant_of_its_visible_same_window_toolbar(self):
+        for change in ('missing-view','other-window','hidden','duplicate-identity','root-substitution'):
+            self.report=report_fixture(self.output)
+            for observed in self.frame_snapshots():
+                tree=observed['toolbarProviders'][0]['nativeViews']
+                if change=='missing-view':tree.pop()
+                elif change=='other-window':tree[1]['view']['provider']['belongsToWindow']=False
+                elif change=='hidden':tree[1]['view']['provider']['hiddenOrHasHiddenAncestor']=True
+                elif change=='duplicate-identity':tree[2]['view']['identity']=tree[1]['view']['identity']
+                else:tree[0]['view']['identity']=tree[1]['view']['identity'];tree[1]['view']['identity']='unselected'
+            with self.subTest(change=change),self.assertRaises(ValueError):self.validate()
+
+    def test_public_label_match_cannot_be_missing_or_ambiguous(self):
+        for change in ('duplicate-label','missing-view','missing-metadata'):
+            self.report=report_fixture(self.output)
+            for observed in self.frame_snapshots():
+                if change=='missing-metadata':observed.pop('nativeToolbarItems');continue
+                items=observed['nativeToolbarItems']['items']
+                if change=='missing-view':items[0].pop('view')
+                else:
+                    extra=copy.deepcopy(items[0]);extra['index']=len(items);items.append(extra)
+            with self.subTest(change=change),self.assertRaises(ValueError):self.validate()
+
+    def test_incomplete_or_cyclic_item_and_native_tree_observations_refused(self):
+        for change in ('item-truncation','tree-truncation','item-cycle','tree-cycle','no-toolbar','missing-tree'):
+            self.report=report_fixture(self.output)
+            for observed in self.frame_snapshots():
+                items=observed['nativeToolbarItems'];toolbar=observed['toolbarProviders'][0]
+                if change=='item-truncation':items['traversalLimited']=True
+                elif change=='tree-truncation':toolbar['nativeHierarchyTruncated']=True
+                elif change=='item-cycle':items['items'][1]['parent']=1
+                elif change=='tree-cycle':toolbar['nativeViews'][1]['parent']=1
+                elif change=='no-toolbar':observed['toolbarProviders']=[]
+                else:toolbar.pop('nativeViews')
+            with self.subTest(change=change),self.assertRaises(ValueError):self.validate()
+
+    def test_customization_cannot_hide_recorded_workspace_toolbar_items(self):
+        observed=self.report['frames'][3]['windowSnapshot']
+        observed['nativeToolbarItems']=copy.deepcopy(self.report['frames'][0]['windowSnapshot']['nativeToolbarItems'])
+        with self.assertRaises(ValueError):self.validate()
+
+    def test_unique_logical_keys_and_absolute_three_to_one_minimum_remain_mandatory(self):
+        for observed in self.frame_snapshots():observed['controls'][1]['auditKey']=observed['controls'][0]['auditKey']
+        with self.assertRaises(ValueError):self.validate()
+        self.report=report_fixture(self.output)
+        measurement=self.report['frames'][0]['toolbarReport']['measurements'][0]
+        measurement.update(luminanceP05=0,luminanceP95=0.0995,centralContrast=2.99,passed=True)
         with self.assertRaises(ValueError):self.validate()
 
 

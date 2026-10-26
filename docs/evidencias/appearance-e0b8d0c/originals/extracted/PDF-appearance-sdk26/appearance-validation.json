@@ -1,0 +1,13 @@
+{
+  "completeApplicationApproved": false,
+  "engineRuntimeInstalled": false,
+  "error": "Appearance diagnostic: native report identity, status or capture source differs",
+  "externalDeadlineSeconds": 90,
+  "humanVisualReview": false,
+  "schemaVersion": 1,
+  "scope": "minimal-appearance-diagnostic-only",
+  "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "sourceCommitAuthenticatedByThisHelper": false,
+  "status": "failed",
+  "universalWCAGCertification": false
+}

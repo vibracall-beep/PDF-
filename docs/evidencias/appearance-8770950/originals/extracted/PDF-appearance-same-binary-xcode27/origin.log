@@ -1,0 +1,13 @@
+source_commit=8770950674f5e026dda5f3f9a0ae479e337f06d8
+control_commit=8770950674f5e026dda5f3f9a0ae479e337f06d8
+run_id=40248300537
+run_attempt=1
+artifact_id=12619243003
+archive_sha256=1c6f6207274033133c69e997599e81b51209280ccaa4d09f6e6b73473e618a41
+manifest_sha256=06e2b831c2fb37d8b2b32c2887d0b729f59eb9e8862b692062bbd4971e3f1816
+arm64
+ProductName:		macOS
+ProductVersion:		27.0.1
+BuildVersion:		26A434
+Xcode 27.1
+Build version 27A9275

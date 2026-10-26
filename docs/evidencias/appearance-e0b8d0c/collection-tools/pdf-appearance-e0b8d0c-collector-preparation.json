@@ -1,0 +1,42 @@
+{
+  "baseCollector": "/tmp/pdf_collect_appearance_observer.py",
+  "baseSHA256": "d995f7c4ed2baffbba670b90fca2a43461c606b1afbeda3350dd92e7a8d79906",
+  "newCollector": "/tmp/pdf_collect_appearance_environment.py",
+  "newSHA256": "d2337d77396bce0ac99aecd472ca046a1d2b9b9335ff08b88f7d5402830368f9",
+  "newBytes": 28072,
+  "onlyCollectorDelta": "add Sources/PDF/PDFApp.swift and Sources/PDF/CustomizationView.swift to exact application Git source retention",
+  "baseUnchanged": true,
+  "offlineTestBaseSHA256": "a71cb630544ad0374abc48e43d3574cfb202670c679f2758dea3b8939b80282d",
+  "offlineTestOnlyDelta": "collector import path changed to new environment collector",
+  "draftConfiguration": "/tmp/pdf-appearance-e0b8d0c-config.draft.json",
+  "configurationIncompleteByDesign": true,
+  "unallocatedTargetJobID": null,
+  "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "runID": 40249767201,
+  "retainedAdditionalGitSources": [
+    {
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/PDFApp.swift",
+      "bytes": 44076,
+      "sha256": "3c666f575d7287b26b41c5a94b7aac59b0cb2512ff3cedb40be4c196b1fa55b1"
+    },
+    {
+      "commit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "path": "Sources/PDF/CustomizationView.swift",
+      "bytes": 24737,
+      "sha256": "c0615b364b44339f008d57355f93b96bc4c92d81000a458875e3f4af44c333d7"
+    }
+  ],
+  "collectorMainExecuted": false,
+  "networkRequested": false,
+  "dispatched": false,
+  "repositoryEdited": false,
+  "offlineTests": {
+    "passed": 18,
+    "failed": 0,
+    "skipped": 0,
+    "suite": "/tmp/test_pdf_collect_appearance_environment_offline.py"
+  },
+  "draftRefusesBeforeAPIUntilTargetJobIDExists": true,
+  "collectorImportedOnlyInGuardedOfflineTests": true
+}

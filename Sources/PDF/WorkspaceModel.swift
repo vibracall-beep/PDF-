@@ -442,11 +442,42 @@ enum ReaderAnnotationStyle {
         alert.addButton(withTitle: "Voltar"); alert.addButton(withTitle: "Sair mantendo recuperação"); alert.addButton(withTitle: "Descartar alterações")
         switch alert.runModal() {
         case .alertSecondButtonReturn: return checkpointSynchronously(force: true)
-        case .alertThirdButtonReturn:
-            for session in sessions { session.cancelRecoveryTask(); try? recoveryStore.delete(session.id) }
-            return true
+        case .alertThirdButtonReturn: return discardReaderRecoveryForExit()
         default: return false
         }
+    }
+    /// The explicit discard decision may still fail on an altered recovery
+    /// generation. Keep every live document/session and veto exit on failure.
+    /// This entry point also lets the native audit exercise the real decision
+    /// without synthesizing a modal alert response.
+    func discardReaderRecoveryForExit() -> Bool {
+        captureActiveSession()
+        for session in sessions { session.cancelRecoveryTask() }
+        do {
+            for session in sessions {
+                try recoveryStore.delete(session.id)
+                clearDeletedRecovery(session)
+            }
+            return true
+        } catch {
+            for session in sessions { invalidateRecoveryDeletionCache(session) }
+            message = "Não foi possível descartar a recuperação. Os documentos continuam abertos: \(error.localizedDescription)"
+            return false
+        }
+    }
+    private func clearDeletedRecovery(_ session: PDFDocumentSession) {
+        session.recoveryRecord = nil
+        session.recoveryContentFingerprint = ""
+        // Explicit deletion should not recreate the same checkpoint on the
+        // next poll. Subsequent edits/navigation can produce a fresh copy.
+        session.recoveryFingerprint = fingerprint(session)
+    }
+    private func invalidateRecoveryDeletionCache(_ session: PDFDocumentSession) {
+        // A filesystem error can follow some successful unlinks. Do not claim
+        // that the cached copy still exists, or block the next automatic save.
+        // The record and the in-memory document remain available for review.
+        session.recoveryFingerprint = ""
+        session.recoveryContentFingerprint = ""
     }
     var activeSession: PDFDocumentSession? { sessions.first { $0.id == activeSessionID } }
     private func configure(_ session: PDFDocumentSession) {
@@ -518,7 +549,12 @@ enum ReaderAnnotationStyle {
             }
         }
         session.cancelRecoveryTask()
-        do { try recoveryStore.delete(id) } catch { message = "Não foi possível remover a recuperação da aba: \(error.localizedDescription)"; return }
+        do { try recoveryStore.delete(id) }
+        catch {
+            invalidateRecoveryDeletionCache(session)
+            message = "Não foi possível remover a recuperação da aba; o documento continua aberto: \(error.localizedDescription)"
+            return
+        }
         sessions.removeAll { $0.id == id }
         if comparisonSessionID == id { comparisonSessionID = nil }
         if activeSessionID == id {
@@ -654,6 +690,14 @@ enum ReaderAnnotationStyle {
         message = "Sessão recuperada. Salve uma cópia para conservar esta versão; o original não foi substituído."
     }
     func deleteRecovery(id: UUID) {
+        let session = sessions.first(where: { $0.id == id })
+        session?.cancelRecoveryTask()
+        do { try recoveryStore.delete(id) }
+        catch {
+            if let session { invalidateRecoveryDeletionCache(session) }
+            message = "Não foi possível excluir a recuperação: \(error.localizedDescription)"
+            return
+        }
         func matches(_ source: ReaderOpenSource) -> Bool {
             if case .recovery(let record) = source { return record.id == id }
             return false
@@ -662,11 +706,8 @@ enum ReaderAnnotationStyle {
         if activeOpening.map({ matches($0.source) }) == true || pendingReaderPassword.map({ matches($0.source) }) == true {
             cancelPendingUnlock()
         }
-        if let session = sessions.first(where: { $0.id == id }) {
-            session.cancelRecoveryTask(); session.recoveryRecord = nil; session.recoveryFingerprint = fingerprint(session)
-        }
-        do { try recoveryStore.delete(id); refreshRecovery() }
-        catch { message = "Não foi possível excluir a recuperação: \(error.localizedDescription)" }
+        if let session { clearDeletedRecovery(session) }
+        refreshRecovery()
     }
     var annotationsOnCurrentPage: [PDFAnnotation] { (pdfView?.currentPage?.annotations ?? []).filter(EditableAnnotations.accepts) }
     var annotationUndoManager: UndoManager? { activeSession?.history.undoManager }

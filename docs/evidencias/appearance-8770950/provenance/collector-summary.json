@@ -1,0 +1,369 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+  "controllerCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+  "runID": 40248300537,
+  "runAttempt": 1,
+  "jobIDs": {
+    "compile-sdk26": 121334482597,
+    "same-binary-xcode27": 121336057194
+  },
+  "runConclusion": "failure",
+  "jobs": {
+    "compile-sdk26": {
+      "id": 121334482597,
+      "conclusion": "failure"
+    },
+    "same-binary-xcode27": {
+      "id": 121336057194,
+      "conclusion": "failure"
+    }
+  },
+  "appearanceDiagnosticAutomatedPassed": false,
+  "sameDiagnosticBundleBoundAcrossBothSystems": false,
+  "sameBundleLocallyRehashed": false,
+  "transferArtifactDownloaded": false,
+  "transferArtifact": {
+    "id": 12619243003,
+    "name": "PDF-appearance-minimal-bundle-sdk26",
+    "bytes": 5086875,
+    "githubDigest": "sha256:b0ed48b820168fa33690236977b15983860e50149ad64bf4bbd6bc52d3c4dc5e"
+  },
+  "evidence": {
+    "compile-sdk26": {
+      "artifactID": 12620161367,
+      "name": "PDF-appearance-sdk26",
+      "sourceCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+      "controllerCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+      "runID": 40248300537,
+      "runAttempt": 1,
+      "archiveBytes": 2132011,
+      "githubDigest": "sha256:791772d41e9a2132c425f8f32f8413f2b655c352459761a4ce15f7f3365d8506",
+      "downloadAttempts": 1,
+      "attemptedAtUTC": "2026-10-26T00:21:36.106411+00:00",
+      "downloaded": true,
+      "archiveSHA256": "791772d41e9a2132c425f8f32f8413f2b655c352459761a4ce15f7f3365d8506",
+      "directory": "/workspace/.cache/pdf-appearance-8770950-40248300537/extracted/PDF-appearance-sdk26",
+      "files": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 57104,
+          "sha256": "76feb45a394d74391890a8cc224cbb6a1aacd26b32d60d514d6444d8e9bead36"
+        },
+        "PDF-appearance.customization.png": {
+          "bytes": 97935,
+          "sha256": "a8cc670cd1a3dc7ad6d783a8634d30caf4348e1b680600d9d4392445a4683fe2"
+        },
+        "PDF-appearance.dark-attached-1.png": {
+          "bytes": 336429,
+          "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+        },
+        "PDF-appearance.dark-attached-2.png": {
+          "bytes": 336403,
+          "sha256": "b9a511ffb4f8fd6d700b9c09b9f8e89eca6142ddf743059b5b6a1c86174d4150"
+        },
+        "PDF-appearance.dark-recreated.png": {
+          "bytes": 336597,
+          "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+        },
+        "PDF-appearance.light-return.png": {
+          "bytes": 348942,
+          "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+        },
+        "PDF-appearance.png": {
+          "bytes": 348715,
+          "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+        },
+        "PDF-appearance.system.png": {
+          "bytes": 348942,
+          "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "06e2b831c2fb37d8b2b32c2887d0b729f59eb9e8862b692062bbd4971e3f1816"
+        },
+        "appearance-validation.json": {
+          "bytes": 479,
+          "sha256": "0b05357df57a2d4bc27c6f2db00b739b44f1bba900d2bfedcf06fd84940c547e"
+        },
+        "build.log": {
+          "bytes": 1046,
+          "sha256": "34bc966f450716cd8a97337b4eeff46226cc8cca7a5b7267f0a8c2e15a280433"
+        },
+        "bundle.log": {
+          "bytes": 1423,
+          "sha256": "8ec495b2d66b8bddb35906a42c45ae4565a20b636e5e2a713794b6cbf8b5b0d9"
+        },
+        "capture.log": {
+          "bytes": 34917,
+          "sha256": "ce63ec6d279342050228e63ab18334f7511ce47453b8e157bf3897269e33128a"
+        },
+        "origin.log": {
+          "bytes": 3736,
+          "sha256": "32d617c61c062802b3ff709b185822d3a5634a9eba54ca79fa8cc7256472953c"
+        },
+        "validation.log": {
+          "bytes": 1583,
+          "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f"
+        }
+      },
+      "inventoryComplete": true,
+      "missingFiles": [],
+      "originalZIPAndMemberCRCVerified": true,
+      "validation": {
+        "passed": false,
+        "humanVisualApproval": false,
+        "completeApplicationApproved": false,
+        "bundleBytesIndependentlyRehashedHere": false,
+        "error": {
+          "type": "ValueError",
+          "message": "Appearance diagnostic: native report identity, status or capture source differs"
+        }
+      }
+    },
+    "same-binary-xcode27": {
+      "artifactID": 12619707756,
+      "name": "PDF-appearance-same-binary-xcode27",
+      "sourceCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+      "controllerCommit": "8770950674f5e026dda5f3f9a0ae479e337f06d8",
+      "runID": 40248300537,
+      "runAttempt": 1,
+      "archiveBytes": 2141540,
+      "githubDigest": "sha256:1c37dd9fe421ae20b2eaca1115bf4bfeafa2985a46d0994e91bf6750608fa7d1",
+      "downloadAttempts": 1,
+      "attemptedAtUTC": "2026-10-26T00:21:37.209670+00:00",
+      "downloaded": true,
+      "archiveSHA256": "1c37dd9fe421ae20b2eaca1115bf4bfeafa2985a46d0994e91bf6750608fa7d1",
+      "directory": "/workspace/.cache/pdf-appearance-8770950-40248300537/extracted/PDF-appearance-same-binary-xcode27",
+      "files": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 53009,
+          "sha256": "9a633c1e261b347320b107608adee83c20c922e8d82246f709c8a11fffd49181"
+        },
+        "PDF-appearance.customization.png": {
+          "bytes": 101973,
+          "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+        },
+        "PDF-appearance.dark-attached-1.png": {
+          "bytes": 338883,
+          "sha256": "435f24cf8d6b55d57176ff60a32edd808fdd0b6b5003e762e7d25d02bc3a4968"
+        },
+        "PDF-appearance.dark-attached-2.png": {
+          "bytes": 338910,
+          "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+        },
+        "PDF-appearance.dark-recreated.png": {
+          "bytes": 339103,
+          "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+        },
+        "PDF-appearance.light-return.png": {
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+        },
+        "PDF-appearance.png": {
+          "bytes": 348652,
+          "sha256": "39815d2d60568009aab70300d655b17ce0a139aeb012e503cfa7947aeae5db93"
+        },
+        "PDF-appearance.system.png": {
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "06e2b831c2fb37d8b2b32c2887d0b729f59eb9e8862b692062bbd4971e3f1816"
+        },
+        "appearance-validation.json": {
+          "bytes": 479,
+          "sha256": "0b05357df57a2d4bc27c6f2db00b739b44f1bba900d2bfedcf06fd84940c547e"
+        },
+        "capture.log": {
+          "bytes": 35038,
+          "sha256": "5cb20b7c1ac442c58b34abd88a485e9ef7c6fc38b3e8931377a4b242a51877a5"
+        },
+        "origin.log": {
+          "bytes": 434,
+          "sha256": "4dd1dd95abfffad212701bdc9f96b5385cf5b0ea7b663d26e83f650b701325db"
+        },
+        "restore.log": {
+          "bytes": 108,
+          "sha256": "d8a2218b11a7edc034a38fa232d78505d388384de2f170093926bb7a3bddc60e"
+        },
+        "validation.log": {
+          "bytes": 1583,
+          "sha256": "9c875981dac73c96d8461706cef3170ada0f863d6e3ba3226364ab177fd6f10f"
+        }
+      },
+      "inventoryComplete": true,
+      "missingFiles": [],
+      "originalZIPAndMemberCRCVerified": true,
+      "validation": {
+        "passed": false,
+        "humanVisualApproval": false,
+        "completeApplicationApproved": false,
+        "bundleBytesIndependentlyRehashedHere": false,
+        "error": {
+          "type": "ValueError",
+          "message": "Appearance diagnostic: native report identity, status or capture source differs"
+        }
+      }
+    }
+  },
+  "officialLogs": {
+    "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40248300537/attempts/1/logs",
+    "path": "/workspace/.cache/pdf-appearance-8770950-40248300537/downloads/run-40248300537-attempt-1-logs.zip",
+    "bytes": 69468,
+    "sha256": "57bdbc0c9442fe13329ff07f5730ddec3472030983184cdbff053fde25cc4670",
+    "authenticatedAPIEndpoint": true,
+    "upstreamDigestProvided": false,
+    "allMemberCRCVerified": true,
+    "files": {
+      "0_same-binary-xcode27.txt": {
+        "bytes": 76773,
+        "sha256": "9a4ef98a7074f8d486fe60e22ae3eb01c05e339744cbb003318c4932792ec88a"
+      },
+      "1_compile-sdk26.txt": {
+        "bytes": 82258,
+        "sha256": "cf8d07e1893bd33cb75e969f0002982e722bcdff9005daf80a10409c285f75f9"
+      },
+      "compile-sdk26/10_Validate originals and unchanged bundle even after a capture failure.txt": {
+        "bytes": 3431,
+        "sha256": "342b793f6f7cb3caf2baca0ec62b90ff66983271f72919ee2231a2f32f6e134b"
+      },
+      "compile-sdk26/11_Retain all original macOS 26 diagnostic evidence even on failure.txt": {
+        "bytes": 2236,
+        "sha256": "b212f4bec56a7a5f51feac7010d290956fdbf7140a81039b5c6ad0da93798587"
+      },
+      "compile-sdk26/1_Set up job.txt": {
+        "bytes": 2173,
+        "sha256": "347e796ac82436ffca54d0b7c698eb0353bd7d51f2b568f55bba01dd2c29840e"
+      },
+      "compile-sdk26/21_Post Check out the exact application source.txt": {
+        "bytes": 1745,
+        "sha256": "272907f0fb328abf5b1b1a9d9ef120039bb11719954724ac534f116c52ea9326"
+      },
+      "compile-sdk26/22_Post Check out this diagnostic control.txt": {
+        "bytes": 1757,
+        "sha256": "15b4217a489d4ea0cbba29b8dab8b7ce8b74b82f45b08dbe3ab4826f5a03ad56"
+      },
+      "compile-sdk26/23_Complete job.txt": {
+        "bytes": 686,
+        "sha256": "c607f968755fbd7059adf990f12066c7bc9c2c98c4cbf9fafb78abfbcf290edf"
+      },
+      "compile-sdk26/2_Require an explicit source commit.txt": {
+        "bytes": 518,
+        "sha256": "56f6450873de2c3982eb9a1f18a28f0760e2bcdfa059b2b82a9bb6446a145e4a"
+      },
+      "compile-sdk26/3_Check out this diagnostic control.txt": {
+        "bytes": 7542,
+        "sha256": "05a356346a7fb549efefede19842e1b1dd46990a57f644c06f5b10ee07644f6c"
+      },
+      "compile-sdk26/4_Check out the exact application source.txt": {
+        "bytes": 7542,
+        "sha256": "c5d27259ccd6038ff7e5f12c9d6951e7b5a8abdd4da0829e6b4902260a61f2b1"
+      },
+      "compile-sdk26/5_Verify source and SDK 26 without installing dependencies.txt": {
+        "bytes": 6802,
+        "sha256": "ba8f960209ba49a5c9052bf75a8948f16a6382731aefc9b419b2e285ac28fff4"
+      },
+      "compile-sdk26/6_Compile the native arm64 executable once.txt": {
+        "bytes": 2144,
+        "sha256": "c0efbeb271c1a03b87b4a3894cf7f3ad931476da0f70585c5727777b767ac4a3"
+      },
+      "compile-sdk26/7_Build and fingerprint the diagnostic-only bundle.txt": {
+        "bytes": 4188,
+        "sha256": "3e6a1f3c095d7d5f165f55ed9f5762a7c3565e44bf69546e29ac25261be9c23f"
+      },
+      "compile-sdk26/8_Retain the same authenticated bundle before either appearance capture.txt": {
+        "bytes": 2279,
+        "sha256": "86d5c8b74c089f23e35d0a8d29434e588e8381a9e55dbf1be4592d0e76656ba7"
+      },
+      "compile-sdk26/9_Capture seven original appearance frames on macOS 26.txt": {
+        "bytes": 39254,
+        "sha256": "3a72f0dde9cc16bbedf648fdf30696903e743b6acb70917f9055beb149ee27a0"
+      },
+      "compile-sdk26/system.txt": {
+        "bytes": 593,
+        "sha256": "21fffb4d691c22edaca6b63609656ffa4ab3d6289d60ca445712f42541e13f16"
+      },
+      "same-binary-xcode27/10_Retain target original evidence even on failure.txt": {
+        "bytes": 2572,
+        "sha256": "3b086c14d78d7f5cc9e5c9601f9e7e9c58f52a5a31b3eead8880043fb96b1560"
+      },
+      "same-binary-xcode27/19_Post Check out exact sources only for metadata and timeout checks.txt": {
+        "bytes": 1745,
+        "sha256": "56e35b39ac3a944d7d21a6147b58557988eec47f070d98b600f0f9faf06efa9d"
+      },
+      "same-binary-xcode27/1_Set up job.txt": {
+        "bytes": 2352,
+        "sha256": "99baffc1ce5defbc7a7bc52151aa06eb7aa2dd84d95afdd943f2475c70bba4f2"
+      },
+      "same-binary-xcode27/20_Post Check out this diagnostic control.txt": {
+        "bytes": 1757,
+        "sha256": "70a27e63452d2860e9dfd873cb31299e2634e0181aaeb91673f7a7f97d9646dc"
+      },
+      "same-binary-xcode27/21_Complete job.txt": {
+        "bytes": 520,
+        "sha256": "00058299ab66ffa2fce18afa4781b05413032e5a246267a6a25520c249e4b380"
+      },
+      "same-binary-xcode27/2_Require exact source and authenticated transfer identities.txt": {
+        "bytes": 1025,
+        "sha256": "694cb144226bc34c666b7613f5845a517e7f540810dea843e023877425b0a86b"
+      },
+      "same-binary-xcode27/3_Check out this diagnostic control.txt": {
+        "bytes": 7836,
+        "sha256": "691041528f13c4d09a0219bb4e186415131cfa637a88d43c850e646879ea68f0"
+      },
+      "same-binary-xcode27/4_Check out exact sources only for metadata and timeout checks.txt": {
+        "bytes": 7836,
+        "sha256": "4b310a2e8d7b7cc526577bd1d9967e286fbd6baf26f3625b189e5fb55f70b43d"
+      },
+      "same-binary-xcode27/5_Verify the target identity without compiling or installing anything.txt": {
+        "bytes": 2909,
+        "sha256": "d9745e18691489a88332448b43306926377b5283dba589c649f1e0c4f94eac46"
+      },
+      "same-binary-xcode27/6_Download only this run's exact minimal bundle artifact.txt": {
+        "bytes": 3029,
+        "sha256": "ec3569a245e9a6724484346564348e7411e4a8ae97edc4dbc54e130cfe54626a"
+      },
+      "same-binary-xcode27/7_Verify every byte and safely restore without rebuilding or resigning.txt": {
+        "bytes": 1913,
+        "sha256": "9d59e0e9e4b52e5aeadf9bffd3d17d11192b283c513f5054a1d084d306556235"
+      },
+      "same-binary-xcode27/8_Capture the unchanged SDK 26 executable on macOS 27.txt": {
+        "bytes": 39701,
+        "sha256": "b0f0058a8a36c118e9a27e032074c54755dcd740cb4fb0f9ea3f133091f3da4a"
+      },
+      "same-binary-xcode27/9_Validate target originals and unchanged bytes even after failure.txt": {
+        "bytes": 3614,
+        "sha256": "e1881acb841cc7740b0595cd5c426ffe011e1ae1821e38c672fffe10e77dc79c"
+      },
+      "same-binary-xcode27/system.txt": {
+        "bytes": 1000,
+        "sha256": "b8181d5a93e8293afb1fe78c1274a9c3d6b3ef0581ea244b7a63dde89342fbf7"
+      }
+    },
+    "aggregates": [
+      {
+        "name": "0_same-binary-xcode27.txt",
+        "bytes": 76773,
+        "sha256": "9a4ef98a7074f8d486fe60e22ae3eb01c05e339744cbb003318c4932792ec88a"
+      },
+      {
+        "name": "1_compile-sdk26.txt",
+        "bytes": 82258,
+        "sha256": "cf8d07e1893bd33cb75e969f0002982e722bcdff9005daf80a10409c285f75f9"
+      }
+    ],
+    "artifactCodeExecuted": false
+  },
+  "visualReview": {
+    "status": "pending",
+    "approved": false
+  },
+  "fullNativeMatrixApproved": false,
+  "installationApproved": false,
+  "completeApplicationApproved": false,
+  "deliveryAllowed": false,
+  "prior37VisualRejectionUnchanged": true,
+  "snapshotDirectory": "/workspace/.cache/pdf-appearance-8770950-40248300537/snapshots/1792974094853357213-137577",
+  "scope": "Seven-frame appearance-only minimal bundle built once with SDK26 and run on both systems. Authenticated workflow assertions/report binding; no app code or transport tar executed locally, no full product validation, no visual approval inferred."
+}

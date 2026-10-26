@@ -1,0 +1,225 @@
+name: Minimal appearance compatibility from SDK 26 to macOS 27
+on:
+  workflow_dispatch:
+    inputs:
+      source_commit:
+        description: Exact 40-character source commit; diagnostic only, not product approval
+        required: true
+        type: string
+permissions:
+  contents: read
+  actions: read
+jobs:
+  compile-sdk26:
+    runs-on: macos-26
+    timeout-minutes: 15
+    outputs:
+      archive_sha256: ${{ steps.bundle.outputs.archive_sha256 }}
+      manifest_sha256: ${{ steps.bundle.outputs.manifest_sha256 }}
+      bundle_artifact_id: ${{ steps.transfer.outputs.artifact-id }}
+    env:
+      PDF_SOURCE_COMMIT: ${{ inputs.source_commit }}
+    steps:
+      - name: Require an explicit source commit
+        run: |
+          set -euo pipefail
+          [[ "$PDF_SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          mkdir -m 700 "$RUNNER_TEMP/PDF-appearance-evidence"
+      - name: Check out this diagnostic control
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: appearance-control
+          persist-credentials: false
+      - name: Check out the exact application source
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_commit }}
+          path: source
+          persist-credentials: false
+      - name: Verify source and SDK 26 without installing dependencies
+        run: |
+          set -euo pipefail
+          {
+            test "$(git -C source rev-parse HEAD)" = "$PDF_SOURCE_COMMIT"
+            test -z "$(git -C source status --porcelain --untracked-files=all)"
+            test "$(git -C appearance-control rev-parse HEAD)" = "$GITHUB_SHA"
+            test -z "$(git -C appearance-control status --porcelain --untracked-files=all)"
+            cmp source/scripts/check_appearance_preview.py appearance-control/scripts/check_appearance_preview.py
+            test "$(uname -m)" = arm64
+            test "$(sw_vers -productVersion | cut -d. -f1)" = 26
+            PDF_SDK_VERSION="$(xcrun --sdk macosx --show-sdk-version)"
+            [[ "$PDF_SDK_VERSION" =~ ^26([.][0-9]+){0,2}$ ]]
+            printf 'source_commit=%s\ncontrol_commit=%s\nrun_id=%s\nrun_attempt=%s\nsdk=%s\n' \
+              "$PDF_SOURCE_COMMIT" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" "$PDF_SDK_VERSION"
+            uname -m
+            sw_vers
+            xcodebuild -version
+            python3 -m unittest discover -s appearance-control/scripts -p 'test_appearance_preview.py' -v
+          } 2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/origin.log"
+      - name: Compile the native arm64 executable once
+        working-directory: source
+        run: |
+          set -euo pipefail
+          xcrun swift build -c release --arch arm64 --jobs 3 \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/build.log"
+          test -z "$(git status --porcelain --untracked-files=all)"
+      - name: Build and fingerprint the diagnostic-only bundle
+        id: bundle
+        run: |
+          set -euo pipefail
+          PDF_BIN_DIR="$(cd source && xcrun swift build -c release --arch arm64 --show-bin-path)"
+          test "$(/usr/bin/lipo -archs "$PDF_BIN_DIR/PDF")" = arm64
+          python3 source/scripts/prepare-window-audit-bundle.py \
+            --binary "$PDF_BIN_DIR/PDF" --destination "$RUNNER_TEMP/PDF-appearance-build/PDF.app" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/bundle.log"
+          cmp source/scripts/PDF-Info.plist "$RUNNER_TEMP/PDF-appearance-build/PDF.app/Contents/Info.plist"
+          python3 appearance-control/scripts/check_appearance_preview.py pack \
+            --app "$RUNNER_TEMP/PDF-appearance-build/PDF.app" --production-plist source/scripts/PDF-Info.plist \
+            --source-commit "$PDF_SOURCE_COMMIT" --sdk "$(xcrun --sdk macosx --show-sdk-version)" \
+            --output "$RUNNER_TEMP/PDF-appearance-transfer" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-appearance-evidence/bundle.log"
+          cp "$RUNNER_TEMP/PDF-appearance-transfer/appearance-bundle.json" "$RUNNER_TEMP/PDF-appearance-evidence/"
+          python3 - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          directory = Path(os.environ['RUNNER_TEMP']) / 'PDF-appearance-transfer'
+          raw = (directory / 'appearance-bundle.json').read_bytes()
+          manifest = json.loads(raw)
+          with open(os.environ['GITHUB_OUTPUT'], 'a') as output:
+              output.write('archive_sha256=' + manifest['tar']['sha256'] + '\n')
+              output.write('manifest_sha256=' + hashlib.sha256(raw).hexdigest() + '\n')
+          PY
+      - name: Retain the same authenticated bundle before either appearance capture
+        id: transfer
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-appearance-minimal-bundle-sdk26
+          path: ${{ runner.temp }}/PDF-appearance-transfer/*
+          if-no-files-found: error
+          retention-days: 7
+      - name: Capture seven original appearance frames on macOS 26
+        id: capture
+        run: |
+          set -euo pipefail
+          python3 source/scripts/run-with-timeout.py --seconds 90 --sample-on-timeout -- \
+            "$RUNNER_TEMP/PDF-appearance-build/PDF.app/Contents/MacOS/PDF" \
+            --render-appearance-preview "$RUNNER_TEMP/PDF-appearance-evidence/PDF-appearance.png" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/capture.log"
+      - name: Validate originals and unchanged bundle even after a capture failure
+        if: ${{ !cancelled() && steps.bundle.outcome == 'success' && steps.capture.outcome != 'skipped' }}
+        env:
+          PDF_MANIFEST_SHA: ${{ steps.bundle.outputs.manifest_sha256 }}
+        run: |
+          set -euo pipefail
+          python3 appearance-control/scripts/check_appearance_preview.py check \
+            --app "$RUNNER_TEMP/PDF-appearance-build/PDF.app" --production-plist source/scripts/PDF-Info.plist \
+            --source-commit "$PDF_SOURCE_COMMIT" --manifest "$RUNNER_TEMP/PDF-appearance-transfer/appearance-bundle.json" \
+            --manifest-sha256 "$PDF_MANIFEST_SHA" --directory "$RUNNER_TEMP/PDF-appearance-evidence" \
+            --receipt "$RUNNER_TEMP/PDF-appearance-evidence/appearance-validation.json" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/validation.log"
+      - name: Retain all original macOS 26 diagnostic evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-appearance-sdk26
+          path: ${{ runner.temp }}/PDF-appearance-evidence/*
+          if-no-files-found: ignore
+          retention-days: 7
+
+  same-binary-xcode27:
+    needs: compile-sdk26
+    # A failed source appearance frame must not hide the target comparison if
+    # the exact bundle was already produced and retained successfully.
+    if: ${{ !cancelled() && needs.compile-sdk26.outputs.archive_sha256 != '' && needs.compile-sdk26.outputs.manifest_sha256 != '' && needs.compile-sdk26.outputs.bundle_artifact_id != '' }}
+    runs-on: xcode-27
+    timeout-minutes: 15
+    env:
+      PDF_SOURCE_COMMIT: ${{ inputs.source_commit }}
+      PDF_ARCHIVE_SHA: ${{ needs.compile-sdk26.outputs.archive_sha256 }}
+      PDF_MANIFEST_SHA: ${{ needs.compile-sdk26.outputs.manifest_sha256 }}
+      PDF_BUNDLE_ARTIFACT_ID: ${{ needs.compile-sdk26.outputs.bundle_artifact_id }}
+    steps:
+      - name: Require exact source and authenticated transfer identities
+        run: |
+          set -euo pipefail
+          [[ "$PDF_SOURCE_COMMIT" =~ ^[0-9a-f]{40}$ ]]
+          [[ "$PDF_ARCHIVE_SHA" =~ ^[0-9a-f]{64}$ && "$PDF_MANIFEST_SHA" =~ ^[0-9a-f]{64}$ ]]
+          [[ "$PDF_BUNDLE_ARTIFACT_ID" =~ ^[1-9][0-9]*$ ]]
+          mkdir -m 700 "$RUNNER_TEMP/PDF-appearance-evidence"
+      - name: Check out this diagnostic control
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          path: appearance-control
+          persist-credentials: false
+      - name: Check out exact sources only for metadata and timeout checks
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ inputs.source_commit }}
+          path: source
+          persist-credentials: false
+      - name: Verify the target identity without compiling or installing anything
+        run: |
+          set -euo pipefail
+          {
+            test "$(git -C source rev-parse HEAD)" = "$PDF_SOURCE_COMMIT"
+            test -z "$(git -C source status --porcelain --untracked-files=all)"
+            test "$(git -C appearance-control rev-parse HEAD)" = "$GITHUB_SHA"
+            test -z "$(git -C appearance-control status --porcelain --untracked-files=all)"
+            cmp source/scripts/check_appearance_preview.py appearance-control/scripts/check_appearance_preview.py
+            test "$(uname -m)" = arm64
+            test "$(sw_vers -productVersion | cut -d. -f1)" = 27
+            printf 'source_commit=%s\ncontrol_commit=%s\nrun_id=%s\nrun_attempt=%s\nartifact_id=%s\narchive_sha256=%s\nmanifest_sha256=%s\n' \
+              "$PDF_SOURCE_COMMIT" "$GITHUB_SHA" "$GITHUB_RUN_ID" "$GITHUB_RUN_ATTEMPT" \
+              "$PDF_BUNDLE_ARTIFACT_ID" "$PDF_ARCHIVE_SHA" "$PDF_MANIFEST_SHA"
+            uname -m
+            sw_vers
+            xcodebuild -version
+          } 2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/origin.log"
+      - name: Download only this run's exact minimal bundle artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          artifact-ids: ${{ needs.compile-sdk26.outputs.bundle_artifact_id }}
+          merge-multiple: true
+          path: ${{ runner.temp }}/PDF-appearance-transfer
+          github-token: ${{ github.token }}
+          repository: ${{ github.repository }}
+          run-id: ${{ github.run_id }}
+      - name: Verify every byte and safely restore without rebuilding or resigning
+        id: restore
+        run: |
+          set -euo pipefail
+          python3 appearance-control/scripts/check_appearance_preview.py restore \
+            --archive "$RUNNER_TEMP/PDF-appearance-transfer/PDF-appearance-bundle.tar.gz" \
+            --archive-sha256 "$PDF_ARCHIVE_SHA" --manifest "$RUNNER_TEMP/PDF-appearance-transfer/appearance-bundle.json" \
+            --manifest-sha256 "$PDF_MANIFEST_SHA" --source-commit "$PDF_SOURCE_COMMIT" \
+            --production-plist source/scripts/PDF-Info.plist --destination "$RUNNER_TEMP/PDF-appearance-restored" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/restore.log"
+          cp "$RUNNER_TEMP/PDF-appearance-transfer/appearance-bundle.json" "$RUNNER_TEMP/PDF-appearance-evidence/"
+          /usr/bin/codesign --verify --deep --strict "$RUNNER_TEMP/PDF-appearance-restored/PDF.app" \
+            2>&1 | tee -a "$RUNNER_TEMP/PDF-appearance-evidence/restore.log"
+      - name: Capture the unchanged SDK 26 executable on macOS 27
+        id: capture
+        run: |
+          set -euo pipefail
+          python3 source/scripts/run-with-timeout.py --seconds 90 --sample-on-timeout -- \
+            "$RUNNER_TEMP/PDF-appearance-restored/PDF.app/Contents/MacOS/PDF" \
+            --render-appearance-preview "$RUNNER_TEMP/PDF-appearance-evidence/PDF-appearance.png" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/capture.log"
+      - name: Validate target originals and unchanged bytes even after failure
+        if: ${{ !cancelled() && steps.restore.outcome == 'success' && steps.capture.outcome != 'skipped' }}
+        run: |
+          set -euo pipefail
+          python3 appearance-control/scripts/check_appearance_preview.py check \
+            --app "$RUNNER_TEMP/PDF-appearance-restored/PDF.app" --production-plist source/scripts/PDF-Info.plist \
+            --source-commit "$PDF_SOURCE_COMMIT" --manifest "$RUNNER_TEMP/PDF-appearance-transfer/appearance-bundle.json" \
+            --manifest-sha256 "$PDF_MANIFEST_SHA" --directory "$RUNNER_TEMP/PDF-appearance-evidence" \
+            --receipt "$RUNNER_TEMP/PDF-appearance-evidence/appearance-validation.json" \
+            2>&1 | tee "$RUNNER_TEMP/PDF-appearance-evidence/validation.log"
+      - name: Retain target original evidence even on failure
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: PDF-appearance-same-binary-xcode27
+          path: ${{ runner.temp }}/PDF-appearance-evidence/*
+          if-no-files-found: ignore
+          retention-days: 7

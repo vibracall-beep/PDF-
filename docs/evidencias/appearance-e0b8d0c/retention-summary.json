@@ -1,0 +1,45 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "controllerCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "runID": 40249767201,
+  "attempt": 1,
+  "createdAtUTC": "2026-10-26T00:51:48.302101+00:00",
+  "runConclusion": "failure",
+  "jobs": {
+    "compile-sdk26": 121338897259,
+    "same-binary-xcode27": 121340681527
+  },
+  "sourceCompilePackPassed": true,
+  "targetRestorePassed": true,
+  "appearanceCapturePassed": false,
+  "appearanceObserverPassed": false,
+  "appearanceValidationPassed": false,
+  "nativeContrastMeasurementsCompleted": 0,
+  "beforeAfterWorkspaceObservationsWithoutAXChildren": 24,
+  "checksPerSystem": {
+    "passed": 8,
+    "failed": 4
+  },
+  "originalPNGCount": 14,
+  "artifactInventories": {
+    "PDF-appearance-sdk26": 15,
+    "PDF-appearance-same-binary-xcode27": 14
+  },
+  "independentVisualInspectionCompleted": true,
+  "visualFinding": "Equilibrado and Restaurar are visible in current SDK 26 customization frame, with light popup/ancestor appearance. This observed route corrects the prior captured defect, but no full interaction or universal approval follows.",
+  "fullNativeWorkflowApproved": false,
+  "fullNativeWorkflowEvidenceRetained": false,
+  "installationApproved": false,
+  "completeApplicationApproved": false,
+  "deliveryAllowed": false,
+  "sameManifestBytesAcrossSystems": true,
+  "overallApprovedSameBundleGateStillFalse": true,
+  "transferArtifactDownloaded": false,
+  "tarOrAppRetained": false,
+  "collectorIncidentInThisRun": false,
+  "eachArtifactDownloadedOnce": true,
+  "collectorOfflineTestsPassed": 18,
+  "currentSourceFilesBoundToPreflight": 4,
+  "approvalTransferredFromPriorSource": false
+}

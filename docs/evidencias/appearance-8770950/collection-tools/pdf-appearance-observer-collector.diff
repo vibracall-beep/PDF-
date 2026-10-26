@@ -1,0 +1,11 @@
+--- reviewed95c779d-collector
++++ observer-accessibility-source-retention
+@@ -177,7 +177,7 @@
+     def exact_source(self):
+         modules={};records=[]
+         paths=['diagnostics/delivery_archives.py','scripts/check_appearance_preview.py',WORKFLOW]
+-        for label,commit,selection in [('controller',self.config['controlCommit'],paths),('application',self.config['sourceCommit'],['scripts/check_appearance_preview.py','scripts/PDF-Info.plist','scripts/prepare-window-audit-bundle.py','scripts/run-with-timeout.py','Sources/PDF/ToolbarRenderingAudit.swift','Sources/PDF/ApplicationAppearance.swift','Sources/PDF/MacPreview.swift'])]:
++        for label,commit,selection in [('controller',self.config['controlCommit'],paths),('application',self.config['sourceCommit'],['scripts/check_appearance_preview.py','scripts/PDF-Info.plist','scripts/prepare-window-audit-bundle.py','scripts/run-with-timeout.py','Sources/PDF/ToolbarRenderingAudit.swift','Sources/PDF/ApplicationAppearance.swift','Sources/PDF/MacPreview.swift','Sources/PDF/AccessibilityAudit.swift'])]:
+             for path in selection:
+                 p=subprocess.run(['git','show',commit+':'+path],cwd=REPO,check=True,capture_output=True,timeout=30,env=dict(os.environ,GIT_NO_LAZY_FETCH='1'))
+                 require(0<len(p.stdout)<=2*MIB,'Source selection outside bound.')

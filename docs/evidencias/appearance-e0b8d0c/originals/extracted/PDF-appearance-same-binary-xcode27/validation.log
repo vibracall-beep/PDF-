@@ -1,0 +1,19 @@
+Traceback (most recent call last):
+  File "/Users/runner/work/PDF-/PDF-/appearance-control/scripts/check_appearance_preview.py", line 438, in <module>
+    main()
+    ~~~~^^
+  File "/Users/runner/work/PDF-/PDF-/appearance-control/scripts/check_appearance_preview.py", line 428, in main
+    report, originals = validate_report(args.directory)
+                        ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/PDF-/PDF-/appearance-control/scripts/check_appearance_preview.py", line 347, in validate_report
+    require(isinstance(report, dict) and type(report.get('schemaVersion')) is int and report['schemaVersion'] == 1
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and report.get('status') == 'passed' and report.get('failure') is None
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            and report.get('scope') == 'appearance-only-real-window' and report.get('source') == 'WindowServer-ScreenCaptureKit',
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            'native report identity, status or capture source differs')
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/runner/work/PDF-/PDF-/appearance-control/scripts/check_appearance_preview.py", line 47, in require
+    raise ValueError('Appearance diagnostic: ' + detail)
+ValueError: Appearance diagnostic: native report identity, status or capture source differs

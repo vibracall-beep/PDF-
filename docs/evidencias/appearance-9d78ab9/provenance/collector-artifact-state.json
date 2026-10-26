@@ -1,0 +1,323 @@
+{
+  "schemaVersion": 1,
+  "configuration": {
+    "schemaVersion": 1,
+    "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+    "controlCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+    "runID": 40252786964,
+    "runAttempt": 1,
+    "jobIDs": {
+      "compile-sdk26": 121348103194,
+      "same-binary-xcode27": 121349491713
+    },
+    "outputDirectory": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964"
+  },
+  "attempts": {
+    "12621670299": {
+      "artifactID": 12621670299,
+      "name": "PDF-appearance-sdk26",
+      "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "controllerCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "runID": 40252786964,
+      "runAttempt": 1,
+      "archiveBytes": 2209437,
+      "githubDigest": "sha256:a7cd264bfe5630a2b8dfae108f0666311fb7b19770afad40ca0652103b0cfc8c",
+      "downloadAttempts": 1,
+      "attemptedAtUTC": "2026-10-26T01:16:32.733870+00:00",
+      "downloaded": true,
+      "archiveSHA256": "a7cd264bfe5630a2b8dfae108f0666311fb7b19770afad40ca0652103b0cfc8c",
+      "directory": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26",
+      "files": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 983281,
+          "sha256": "9ee19932e7214db2720ee954639f04b872776e02cd8d99b4efd88906146198bc"
+        },
+        "PDF-appearance.customization.png": {
+          "bytes": 100862,
+          "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+        },
+        "PDF-appearance.dark-attached-1.png": {
+          "bytes": 336429,
+          "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+        },
+        "PDF-appearance.dark-attached-2.png": {
+          "bytes": 336429,
+          "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+        },
+        "PDF-appearance.dark-recreated.png": {
+          "bytes": 336597,
+          "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+        },
+        "PDF-appearance.light-return.png": {
+          "bytes": 348968,
+          "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+        },
+        "PDF-appearance.png": {
+          "bytes": 348715,
+          "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+        },
+        "PDF-appearance.system.png": {
+          "bytes": 348942,
+          "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+        },
+        "appearance-validation.json": {
+          "bytes": 2534,
+          "sha256": "0c43a0427c865a431d694b9d9ad2196dac9e256fecb22c97ea476f3fcaec9201"
+        },
+        "build.log": {
+          "bytes": 1046,
+          "sha256": "919467dc51738bbf03daf2144627d80b44ca87d03c83e97ee27f324aee78b24a"
+        },
+        "bundle.log": {
+          "bytes": 1423,
+          "sha256": "f69e03efbf64f953bdc9d0fdd71e2170a6420afd9922317ff3df08874e4cc86c"
+        },
+        "capture.log": {
+          "bytes": 279412,
+          "sha256": "2c978441126bb0db2b9ad3c15c7cbed6aa194cc57cb08863fc8165d78cb05de2"
+        },
+        "origin.log": {
+          "bytes": 5077,
+          "sha256": "a2ead390d041a977e36f0ffcfabfe6523c6dd90f4df3b910d66125fd0e94d64c"
+        },
+        "validation.log": {
+          "bytes": 2194,
+          "sha256": "002c9ad552415421ef2a71580a88b32ebb129c65b310cfb247e8610ebe5f83f2"
+        }
+      },
+      "inventoryComplete": true,
+      "missingFiles": [],
+      "originalZIPAndMemberCRCVerified": true,
+      "validation": {
+        "passed": true,
+        "humanVisualApproval": false,
+        "completeApplicationApproved": false,
+        "bundleBytesIndependentlyRehashedHere": false,
+        "manifest": {
+          "bytes": 1055,
+          "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+        },
+        "archive": {
+          "bytes": 5173480,
+          "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+        },
+        "unchangedBundleFiles": {
+          "Contents/Info.plist": {
+            "bytes": 2034,
+            "mode": 420,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "Contents/MacOS/PDF": {
+            "bytes": 19687120,
+            "mode": 493,
+            "sha256": "b2aff5d9db9e97147f9edd20f2c71dd85f3c60380aaa338163a8dd79ff5dc9ff"
+          },
+          "Contents/Resources/installation.lock": {
+            "bytes": 0,
+            "mode": 292,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "Contents/_CodeSignature/CodeResources": {
+            "bytes": 2456,
+            "mode": 420,
+            "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+          }
+        },
+        "builtSDK": "26.5",
+        "operatingSystem": "Version 26.6.2 (Build 25G83)",
+        "nativeChecksPassed": 12,
+        "originals": {
+          "PDF-appearance.appearance.json": {
+            "bytes": 983281,
+            "sha256": "9ee19932e7214db2720ee954639f04b872776e02cd8d99b4efd88906146198bc"
+          },
+          "PDF-appearance.png": {
+            "bytes": 348715,
+            "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+          },
+          "PDF-appearance.dark-attached-1.png": {
+            "bytes": 336429,
+            "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+          },
+          "PDF-appearance.dark-attached-2.png": {
+            "bytes": 336429,
+            "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+          },
+          "PDF-appearance.customization.png": {
+            "bytes": 100862,
+            "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+          },
+          "PDF-appearance.dark-recreated.png": {
+            "bytes": 336597,
+            "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+          },
+          "PDF-appearance.light-return.png": {
+            "bytes": 348968,
+            "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+          },
+          "PDF-appearance.system.png": {
+            "bytes": 348942,
+            "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+          }
+        },
+        "exactSourceCheckerReplayed": true,
+        "scope": "Authenticated diagnostic reports and same bundle declarations; no local binary execution, no full application/installation approval."
+      }
+    },
+    "12621521510": {
+      "artifactID": 12621521510,
+      "name": "PDF-appearance-same-binary-xcode27",
+      "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "controllerCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "runID": 40252786964,
+      "runAttempt": 1,
+      "archiveBytes": 2215442,
+      "githubDigest": "sha256:790c34da0f3844edf77618d7f810e46e50b55c64a709332c24adc764fdb1ec6c",
+      "downloadAttempts": 1,
+      "attemptedAtUTC": "2026-10-26T01:16:33.595992+00:00",
+      "downloaded": true,
+      "archiveSHA256": "790c34da0f3844edf77618d7f810e46e50b55c64a709332c24adc764fdb1ec6c",
+      "directory": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27",
+      "files": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 1011715,
+          "sha256": "39cc0d31883123560a54634e2aea23ed8a28ea55544ea419e2baf7d9483e543a"
+        },
+        "PDF-appearance.customization.png": {
+          "bytes": 101973,
+          "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+        },
+        "PDF-appearance.dark-attached-1.png": {
+          "bytes": 338945,
+          "sha256": "358dd97850c8caa27a8df3410342b867e218f6ac2893b78899606b2efbd17e1a"
+        },
+        "PDF-appearance.dark-attached-2.png": {
+          "bytes": 338910,
+          "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+        },
+        "PDF-appearance.dark-recreated.png": {
+          "bytes": 339103,
+          "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+        },
+        "PDF-appearance.light-return.png": {
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+        },
+        "PDF-appearance.png": {
+          "bytes": 348631,
+          "sha256": "c9a1e05fbaebe91ffa304f6491cebbbecfaa016729c49513709fe94ee9ff426b"
+        },
+        "PDF-appearance.system.png": {
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+        },
+        "appearance-validation.json": {
+          "bytes": 2536,
+          "sha256": "12aee332bce29a010d0c9c3df391e797d606c403d0e8996c86b31ec441c44b67"
+        },
+        "capture.log": {
+          "bytes": 291400,
+          "sha256": "0b98e75d3f3c82dabe7b620e2ff0d2bcc25c2c84ab1dba7a9dde46b589006f7e"
+        },
+        "origin.log": {
+          "bytes": 434,
+          "sha256": "df31173ba7e594f79171bc6c5b7d3e20c2922aa3cf25028a1e0fca431f11ba3d"
+        },
+        "restore.log": {
+          "bytes": 108,
+          "sha256": "d8a2218b11a7edc034a38fa232d78505d388384de2f170093926bb7a3bddc60e"
+        },
+        "validation.log": {
+          "bytes": 2196,
+          "sha256": "a6ab444ac9575c6f0e6496c441adb1ffa96f38a884b010f782692cf10b3188ab"
+        }
+      },
+      "inventoryComplete": true,
+      "missingFiles": [],
+      "originalZIPAndMemberCRCVerified": true,
+      "validation": {
+        "passed": true,
+        "humanVisualApproval": false,
+        "completeApplicationApproved": false,
+        "bundleBytesIndependentlyRehashedHere": false,
+        "manifest": {
+          "bytes": 1055,
+          "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+        },
+        "archive": {
+          "bytes": 5173480,
+          "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+        },
+        "unchangedBundleFiles": {
+          "Contents/Info.plist": {
+            "bytes": 2034,
+            "mode": 420,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "Contents/MacOS/PDF": {
+            "bytes": 19687120,
+            "mode": 493,
+            "sha256": "b2aff5d9db9e97147f9edd20f2c71dd85f3c60380aaa338163a8dd79ff5dc9ff"
+          },
+          "Contents/Resources/installation.lock": {
+            "bytes": 0,
+            "mode": 292,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "Contents/_CodeSignature/CodeResources": {
+            "bytes": 2456,
+            "mode": 420,
+            "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+          }
+        },
+        "builtSDK": "26.5",
+        "operatingSystem": "Version 27.0.1 (Build 26A434)",
+        "nativeChecksPassed": 12,
+        "originals": {
+          "PDF-appearance.appearance.json": {
+            "bytes": 1011715,
+            "sha256": "39cc0d31883123560a54634e2aea23ed8a28ea55544ea419e2baf7d9483e543a"
+          },
+          "PDF-appearance.png": {
+            "bytes": 348631,
+            "sha256": "c9a1e05fbaebe91ffa304f6491cebbbecfaa016729c49513709fe94ee9ff426b"
+          },
+          "PDF-appearance.dark-attached-1.png": {
+            "bytes": 338945,
+            "sha256": "358dd97850c8caa27a8df3410342b867e218f6ac2893b78899606b2efbd17e1a"
+          },
+          "PDF-appearance.dark-attached-2.png": {
+            "bytes": 338910,
+            "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+          },
+          "PDF-appearance.customization.png": {
+            "bytes": 101973,
+            "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+          },
+          "PDF-appearance.dark-recreated.png": {
+            "bytes": 339103,
+            "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+          },
+          "PDF-appearance.light-return.png": {
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          },
+          "PDF-appearance.system.png": {
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          }
+        },
+        "exactSourceCheckerReplayed": true,
+        "scope": "Authenticated diagnostic reports and same bundle declarations; no local binary execution, no full application/installation approval."
+      }
+    }
+  }
+}

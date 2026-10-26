@@ -1,0 +1,27 @@
+{
+  "parentCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+  "sourceFiles": {
+    "Sources/PDF/ToolbarRenderingAudit.swift": "c339164e9eeb00bb9a9e2ac57b6f2a1e6451b7e1d1573fe26761ba3dc0ae0b72",
+    "Sources/PDF/RecoveryStore.swift": "10a4530bfd0d2000f1f5913116d29e0eba34a69987ed3ff7b9e6ea7fad82509f",
+    "Sources/PDF/WorkspaceModel.swift": "abcc9ba8a37c536da0f6686b6996a4f8324b46d7ab5d5369dd4dcf6706a0ae1c",
+    "Sources/PDF/SessionAnnotationAuditChecks.swift": "90de7d50b292fb74ee22426e18fb6dedce4a8f9ddd267c56e2d308d3459cf3f5",
+    "scripts/check_appearance_preview.py": "4c7cad41cc4022db551f600517f6de98d453d33de3001fff269b337ac1a13aa3",
+    "scripts/test_appearance_preview.py": "8a13cc007da7d150018bb3a79ec0c41d17c188a705b1a4f9608fe16927b9c3e6"
+  },
+  "swiftFilesParsed": 90,
+  "syntaxFailures": [],
+  "sdkTypecheck": false,
+  "nativeChecksPending": true,
+  "pythonScripts": {
+    "methods": 178,
+    "passed": 171,
+    "skippedMacOS": 7,
+    "log": "/tmp/pdf-public-toolbar-recovery-script-tests.log",
+    "logSHA256": "9d27ed042208147f0b99c83080f1e854778c12c3b5a0f6eeddb611abf92ad734"
+  },
+  "finalFocalCheckerIndependentlyRetested": {
+    "methods": 28,
+    "passed": 28
+  },
+  "allScriptTestsRerunAfterFinalCheckerPatch": true
+}

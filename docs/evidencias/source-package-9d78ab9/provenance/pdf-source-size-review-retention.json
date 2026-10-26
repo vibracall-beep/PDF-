@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "scope": "Small original logs and derived local packaging review only; failed original and dirty-tree preflight are distinct",
+  "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "newNativeRunApproved": false,
+  "releaseApproved": false,
+  "files": [
+    {
+      "path": "/tmp/pdf-source-9d78ab9-preflight.log",
+      "bytes": 56,
+      "sha256": "0e91b3bba5c02a6b6a80932c42662d3e925c33e3ae1ebbc45c745e532dba3d87"
+    },
+    {
+      "path": "/tmp/pdf-source-size-review-9d78ab9.log",
+      "bytes": 195,
+      "sha256": "1bdb317f1a87912284e2fe6310b6f555c3d91bc335d17e73ef88667a6062d143"
+    },
+    {
+      "path": "/tmp/pdf-source-size-review-9d78ab9.json",
+      "bytes": 3238,
+      "sha256": "509b1c2f01f466b7c4a720306b50ff794087ae2924cd5c609e15fca183f08d71"
+    },
+    {
+      "path": "/tmp/pdf-source-size-review-dirty-gate.json",
+      "bytes": 327,
+      "sha256": "4dab1b552a05cb089a35389c71a460fe29190a0cd09e95c586ecd89c54f1459d"
+    },
+    {
+      "path": "/tmp/pdf-source-limits-installation-tests.log",
+      "bytes": 117,
+      "sha256": "00b3fea03049e0a67b190f51b0e2f91b7c9d55ffe69084d51624974cb8b8992c"
+    },
+    {
+      "path": "/tmp/pdf-source-limits-archives-tests.log",
+      "bytes": 117,
+      "sha256": "7c556eb6397782ace4120008c45e307cf7a5cdf9a3b312aeddc7dc5badd1e735"
+    },
+    {
+      "path": "/tmp/pdf-source-limits-delivery-tests.log",
+      "bytes": 2599,
+      "sha256": "9533e20c7d1153969ad168d2fcea47bf2ca223f49fbf5c029f4f245ea38c728c"
+    }
+  ],
+  "excludedFromRetention": [
+    "/tmp/PDF-source-size-review-9d78ab9.tar.gz",
+    "extracted complete sources",
+    "ZIP containing the checkout"
+  ]
+}

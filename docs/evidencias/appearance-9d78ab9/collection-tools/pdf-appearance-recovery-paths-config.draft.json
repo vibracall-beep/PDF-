@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "PENDING_SOURCE_COMMIT",
+  "controlCommit": "PENDING_CONTROL_COMMIT",
+  "runID": 0,
+  "runAttempt": 0,
+  "jobIDs": {
+    "compile-sdk26": null,
+    "same-binary-xcode27": null
+  },
+  "outputDirectory": "/workspace/.cache/PENDING_APPEARANCE_SOURCE_AND_RUN"
+}

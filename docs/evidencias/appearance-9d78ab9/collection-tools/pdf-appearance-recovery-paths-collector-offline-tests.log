@@ -1,0 +1,25 @@
+test_artifact_wrong_repository_or_source_refused (__main__.OfflineTests.test_artifact_wrong_repository_or_source_refused) ... ok
+test_authenticated_artifact_interval_and_digest (__main__.OfflineTests.test_authenticated_artifact_interval_and_digest) ... ok
+test_casefold_collisions_still_refused (__main__.OfflineTests.test_casefold_collisions_still_refused) ... ok
+test_config_rejects_duplicate_keys (__main__.OfflineTests.test_config_rejects_duplicate_keys) ... ok
+test_exact_terminal_run_jobs_accepted (__main__.OfflineTests.test_exact_terminal_run_jobs_accepted) ... ok
+test_failure_is_evidence_not_a_success_gate (__main__.OfflineTests.test_failure_is_evidence_not_a_success_gate) ... ok
+test_inventories_are_fifteen_and_fourteen (__main__.OfflineTests.test_inventories_are_fifteen_and_fourteen) ... ok
+test_job_identity_or_label_refused (__main__.OfflineTests.test_job_identity_or_label_refused) ... ok
+test_literal_uppercase_evidence_names_are_preserved (__main__.OfflineTests.test_literal_uppercase_evidence_names_are_preserved) ... ok
+test_origin_exact_assertions_and_duplicates (__main__.OfflineTests.test_origin_exact_assertions_and_duplicates) ... ok
+test_skipped_target_without_allocated_runner_is_retained (__main__.OfflineTests.test_skipped_target_without_allocated_runner_is_retained) ... ok
+test_small_zip_crc_exact_bytes_and_empty_logs (__main__.OfflineTests.test_small_zip_crc_exact_bytes_and_empty_logs) ... ok
+test_symlink_and_expansion_limit_refused (__main__.OfflineTests.test_symlink_and_expansion_limit_refused) ... ok
+test_valid_config_and_explicit_source_run (__main__.OfflineTests.test_valid_config_and_explicit_source_run) ... ok
+test_wrong_workflow_or_event_or_attempt_refused (__main__.OfflineTests.test_wrong_workflow_or_event_or_attempt_refused) ... ok
+test_zip_corrupted_payload_crc_rejected (__main__.OfflineTests.test_zip_corrupted_payload_crc_rejected) ... ok
+test_zip_extra_traversal_or_duplicate_refused (__main__.OfflineTests.test_zip_extra_traversal_or_duplicate_refused) ... /opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/python3.12/zipfile/__init__.py:1625: UserWarning: Duplicate name: 'origin.log'
+  return self._open_to_write(zinfo, force_zip64=force_zip64)
+ok
+test_zip_trailing_data_rejected (__main__.OfflineTests.test_zip_trailing_data_rejected) ... ok
+
+----------------------------------------------------------------------
+Ran 18 tests in 0.011s
+
+OK

@@ -1,4 +1,5 @@
 """Portable installer integrity checks; no macOS behavior is simulated as passed."""
+import gzip
 import hashlib
 import io
 import json
@@ -209,6 +210,98 @@ class ArchiveTests(unittest.TestCase):
         self.assertNotEqual(result.returncode, 0)
         self.assertEqual((output / 'user-file').read_text(), 'preserve')
         self.assertFalse((output / 'Package.swift').exists())
+
+    def test_source_payload_above_old_limit_round_trips_without_removing_evidence(self):
+        # Exercise both real producer and consumer above the former 120/128 MiB
+        # bounds while respecting the unchanged per-file limit.
+        block = b'original audit evidence\n' * 1024
+        expected = {}
+        for index in range(5):
+            path = self.root / 'docs' / f'audit-{index}.bin'
+            with path.open('wb') as stream:
+                for _ in range(1280):
+                    stream.write(block)
+            expected[path.name] = (path.stat().st_size, hashlib.sha256(path.read_bytes()).hexdigest())
+        self.assertGreater(sum(size for size, _ in expected.values()), 128 * 1024 ** 2)
+        output = self.root / 'large-source.tar.gz'
+        result = self.package(output)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        destination = self.root / 'large-verified'
+        result = self.extract(output, destination)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        for name, (size, digest) in expected.items():
+            path = destination / 'docs' / name
+            self.assertEqual(path.stat().st_size, size)
+            self.assertEqual(hashlib.sha256(path.read_bytes()).hexdigest(), digest)
+
+    def test_producer_payload_and_tar_caps_remove_only_failed_new_output(self):
+        script = self.root / 'scripts/package-source.sh'
+        original = script.read_text()
+        (self.root / 'docs/audit.bin').write_bytes(b'a' * 65536)
+        for index, replacement in enumerate((
+            original.replace('MAX_SOURCE_PAYLOAD = 240 * 1024 ** 2', 'MAX_SOURCE_PAYLOAD = 32768'),
+            original.replace('MAX_SOURCE = 256 * 1024 ** 2', 'MAX_SOURCE = 16384'),
+        )):
+            script.write_text(replacement)
+            output = self.root / f'over-limit-{index}.tar.gz'
+            result = self.package(output)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertFalse(output.exists())
+            self.assertFalse(output.with_name(output.name + '.sha256').exists())
+            self.assertEqual((self.root / 'docs/audit.bin').read_bytes(), b'a' * 65536)
+
+    def test_installer_enforces_compressed_payload_and_full_tar_limits_before_output(self):
+        path = self.archive('bounded-source.tar.gz', {'PDF/docs/audit.bin': b'a' * 8192})
+        original = self.extractor
+        cases = (
+            original.replace('MAX_SOURCE = 256 * 1024 ** 2', 'MAX_SOURCE = 64'),
+            original.replace('MAX_SOURCE_PAYLOAD = 240 * 1024 ** 2', 'MAX_SOURCE_PAYLOAD = 4096'),
+            original.replace('MAX_SOURCE = 256 * 1024 ** 2', 'MAX_SOURCE = 12288'),
+        )
+        for index, extractor in enumerate(cases):
+            self.extractor = extractor
+            destination = self.root / f'bounded-rejected-{index}'
+            self.assertNotEqual(self.extract(path, destination).returncode, 0)
+            self.assertFalse(destination.exists())
+
+    def test_producer_counts_generated_manifest_and_build_metadata_in_payload(self):
+        script = self.root / 'scripts/package-source.sh'
+        original = script.read_text()
+        raw_payload = sum(path.stat().st_size for path in self.root.rglob('*') if path.is_file())
+        expression = '240 * 1024 ** 2'
+        replacement = str(raw_payload).rjust(len(expression))
+        script.write_text(original.replace('MAX_SOURCE_PAYLOAD = ' + expression,
+                                           'MAX_SOURCE_PAYLOAD = ' + replacement))
+        # Fixed-width replacement preserves the packaged script's byte count.
+        self.assertEqual(script.stat().st_size, len(original.encode()))
+        output = self.root / 'generated-metadata-limit.tar.gz'
+        result = self.package(output)
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn('fontes e seus manifestos', result.stderr)
+        self.assertFalse(output.exists())
+        self.assertFalse(output.with_name(output.name + '.sha256').exists())
+
+    def test_installer_rejects_hidden_trailer_and_oversized_zero_padding(self):
+        path = self.archive('tail.tar.gz')
+        original = path.read_bytes()
+        raw = gzip.decompress(original)
+        with tarfile.open(fileobj=io.BytesIO(raw)) as source:
+            last = source.getmembers()[-1]
+            member_end = last.offset_data + ((last.size + 511) // 512) * 512
+        cases = (original + gzip.compress(b'undeclared payload'),
+                 gzip.compress(raw[:member_end + 512]),
+                 gzip.compress(raw[:member_end + 1024] + b'private trailer'),
+                 original[:-8])
+        for index, data in enumerate(cases):
+            path.write_bytes(data)
+            destination = self.root / f'tail-rejected-{index}'
+            self.assertNotEqual(self.extract(path, destination).returncode, 0)
+            self.assertFalse(destination.exists())
+        path.write_bytes(original + gzip.compress(b'\0' * 32768))
+        self.extractor = self.extractor.replace('MAX_SOURCE = 256 * 1024 ** 2', 'MAX_SOURCE = 16384')
+        destination = self.root / 'padding-rejected'
+        self.assertNotEqual(self.extract(path, destination).returncode, 0)
+        self.assertFalse(destination.exists())
 
 
 class DeadlineTests(unittest.TestCase):

@@ -51,7 +51,7 @@ CROSS_STEPS = (
 BINARY_CONTENTS = {portable.ARCHIVE: MAX_ARCHIVE, portable.ARCHIVE + '.sha256': 256,
                    'install-binary.sh': 1024 ** 2, 'distribution-manifest.json': portable.MAX_MANIFEST,
                    'distribution-validation.json': 1024 ** 2}
-SOURCE_CONTENTS = {'PDF-source.tar.gz': 128 * 1024 ** 2, 'PDF-source.tar.gz.sha256': 256,
+SOURCE_CONTENTS = {'PDF-source.tar.gz': delivery_archives.MAX_SOURCE, 'PDF-source.tar.gz.sha256': 256,
                    'PDF-vision-audit.json': 1024 ** 2, 'PDF-benchmark.json': 1024 ** 2,
                    'PDF-local-ai.json': 1024 ** 2}
 CROSS_CONTENTS = {'PDF-cross-origin.json': 32768, 'PDF-cross-verified.json': 32768,
@@ -145,7 +145,7 @@ def collect_origins(api, source_id, commit, expected_sha, cross_id, cross_commit
     source, jobs, artifacts = collect_run(api, source_id, commit, SOURCE_WORKFLOW, SOURCE_JOBS, SOURCE_STEPS)
     binary = select_artifact(artifacts, (portable.ARTIFACT,), source, jobs[SOURCE_JOBS[0]], MAX_ARCHIVE)
     other = select_artifact(artifacts, ('PDF-binary-validated-xcode-27',), source, jobs[SOURCE_JOBS[1]], MAX_ARCHIVE)
-    source_artifact = select_artifact(artifacts, SOURCE_NAMES, source, jobs[SOURCE_JOBS[0]], evidence.MAX_ARTIFACT)
+    source_artifact = select_artifact(artifacts, SOURCE_NAMES, source, jobs[SOURCE_JOBS[0]], delivery_archives.MAX_SOURCE_TRANSPORT)
     native = []
     for name in evidence.ARTIFACT_NAMES:
         runner = next(value for value in evidence.RUNNERS if name.endswith('-' + value))
@@ -263,7 +263,7 @@ def prepare(api, origins, directory):
 
     extracted = {}
     for key, expected, limit in (('binary', BINARY_CONTENTS, MAX_ARCHIVE),
-                                 ('sourceArtifact', SOURCE_CONTENTS, evidence.MAX_ARTIFACT),
+                                 ('sourceArtifact', SOURCE_CONTENTS, delivery_archives.MAX_SOURCE_TRANSPORT),
                                  ('crossArtifact', CROSS_CONTENTS, evidence.MAX_ARTIFACT)):
         item = origins[key]
         archive = incoming / (item['name'] + '.zip')

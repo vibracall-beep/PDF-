@@ -16,7 +16,11 @@ import zipfile
 import zlib
 
 MAX_DELIVERY = 12 * 1024 ** 3
-MAX_SOURCE = 128 * 1024 ** 2
+MAX_SOURCE = 256 * 1024 ** 2
+MAX_SOURCE_PAYLOAD = 240 * 1024 ** 2
+# Source transport also contains three bounded JSON reports and a checksum.
+# Keep its ZIP framing allowance separate from unrelated artifact limits.
+MAX_SOURCE_TRANSPORT = 272 * 1024 ** 2
 MAX_FILE = 32 * 1024 ** 2
 MAX_MEMBERS = 10_000
 CHUNK = 1024 * 1024
@@ -217,7 +221,7 @@ def _verify_source_and_installer(source_directory, binary_directory, commit, dis
     require(match is not None, 'Source archive checksum sidecar is invalid.')
     archive_hash = match.group(1).decode('ascii')
     stream, before = _open_regular(source_directory / 'PDF-source.tar.gz', MAX_SOURCE)
-    hashes = {}; sizes = {}; normalized = set(); captured = {}; count = 0; member_end = 0
+    hashes = {}; sizes = {}; normalized = set(); captured = {}; count = 0; member_end = 0; payload_bytes = 0
     with stream:
         digest = hashlib.sha256()
         for block in iter(lambda: stream.read(CHUNK), b''):
@@ -232,6 +236,8 @@ def _verify_source_and_installer(source_directory, binary_directory, commit, dis
                     require(count <= MAX_MEMBERS and item.isfile() and item.sparse is None
                             and not any(key.startswith('GNU.sparse') for key in item.pax_headers)
                             and 0 <= item.size <= MAX_FILE, 'Source TAR member type, size or count is invalid.')
+                    payload_bytes += item.size
+                    require(payload_bytes <= MAX_SOURCE_PAYLOAD, 'Source TAR payload exceeds its byte limit.')
                     key = _name(item.name)
                     require(item.name.startswith('PDF/') and key not in normalized,
                             'Source TAR has a foreign or duplicate member.')

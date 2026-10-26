@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUTC": "2026-10-26T01:26:50.832844+00:00",
+  "scope": "Small offline retention of original size refusal and later dirty-tree preflight, not clean-package approval",
+  "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "originalRootFailureLogPreserved": true,
+  "originalFailureExitCodeNotRecordedInThisLog": true,
+  "dirtyTreePreflightDistinctFromBaseCommitArtifact": true,
+  "workingTreeDirty": true,
+  "futureSourceCommitSelected": false,
+  "reportedPayloadBytes": 147879150,
+  "reportedUncompressedTarBytes": 149350400,
+  "referencedArchive": {
+    "path": "/tmp/PDF-source-size-review-9d78ab9.tar.gz",
+    "bytes": 77212676,
+    "sha256": "92cf860022fa5269678ccc794f9d3887c0a3feb3d0e33d342ee7233180bf2308"
+  },
+  "referencedArchiveRehashedByStreaming": true,
+  "archiveNotCopiedOrParsedOrExecuted": true,
+  "payloadFileCountInProducerLog": 1508,
+  "memberCountReportedIncludingBuildInfoAndManifest": 1510,
+  "testCountsRecountedFromOriginalLogs": [
+    {
+      "name": "installation",
+      "passed": 18,
+      "log": "pdf-source-limits-installation-tests.log"
+    },
+    {
+      "name": "archives",
+      "passed": 18,
+      "log": "pdf-source-limits-archives-tests.log"
+    },
+    {
+      "name": "delivery",
+      "passed": 16,
+      "log": "pdf-source-limits-delivery-tests.log"
+    }
+  ],
+  "totalLocalTestsPassed": 52,
+  "dirtyTreeDeliveryGuardRefused": true,
+  "changedSourceFingerprintsRechecked": [
+    {
+      "path": "scripts/package-source.sh",
+      "bytes": 8465,
+      "sha256": "a52b80c11b5330432c8aecd9868b84a10b78a645568654c40daa6f32e26ae488",
+      "matchedMeasuredWorkingTree": true
+    },
+    {
+      "path": "scripts/install-from-github.sh",
+      "bytes": 11027,
+      "sha256": "9f0cf6d4c2271781fdd787fdf8ad5b4f528ba194d45ed44e803b599ee5d0a3a9",
+      "matchedMeasuredWorkingTree": true
+    },
+    {
+      "path": "diagnostics/delivery_archives.py",
+      "bytes": 17781,
+      "sha256": "edf16e15f798d1fefe3745c096623d655709c6b92415a966200d94f3fdca1a4c",
+      "matchedMeasuredWorkingTree": true
+    },
+    {
+      "path": "diagnostics/deliver_binary.py",
+      "bytes": 29811,
+      "sha256": "d4fd8db97db634a765a357c496931af12be59601b7a00852d771f3528fc33e89",
+      "matchedMeasuredWorkingTree": true
+    },
+    {
+      "path": "scripts/test_installation.py",
+      "bytes": 17175,
+      "sha256": "f7e6eceb121e427683b37e72a3b8f24cf23b520be53afbbe702364b222611969",
+      "matchedMeasuredWorkingTree": true
+    },
+    {
+      "path": "diagnostics/test_delivery_archives.py",
+      "bytes": 18241,
+      "sha256": "569a7e2376d8f99cc0f38d46fcf970aaab266256368e3202c0f1e539f3488cfb",
+      "matchedMeasuredWorkingTree": true
+    },
+    {
+      "path": "diagnostics/test_deliver_binary.py",
+      "bytes": 30744,
+      "sha256": "ab2529d0d3cc2d1439438dc23756c11a9082f125a2bb24753a7e82acc5e7db24",
+      "matchedMeasuredWorkingTree": true
+    }
+  ],
+  "originalExtractionClaimRetainedFromAuthor": true,
+  "extractionNotRerunByRetention": true,
+  "nativeApprovalTransferred": false,
+  "focalApprovalTransferred": false,
+  "recoveryApprovalTransferred": false,
+  "cleanCommitPackageApproved": false,
+  "releaseApproved": false,
+  "repositoryEdited": false,
+  "networkExecuted": false,
+  "limits": [
+    "The original failure log contains an error message, not a source archive or full process transcript.",
+    "The modified producer/consumer preflight used a dirty tree based on9d; it is not a distributable source identity.",
+    "The referenced77MB archive was only stream-hashed; no archive, extraction, checkout ZIP or full source tree is retained.",
+    "A future package from a clean commit requires its own separate provenance, validation and evidence."
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "bindings": [
+    {
+      "preflight": "pdf-appearance-itemview-local-preflight.json",
+      "parentCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "candidateHashesMatchExactCommit": true,
+      "files": [
+        {
+          "gitPath": "Sources/PDF/ToolbarRenderingAudit.swift",
+          "bytes": 32109,
+          "sha256": "c339164e9eeb00bb9a9e2ac57b6f2a1e6451b7e1d1573fe26761ba3dc0ae0b72"
+        },
+        {
+          "gitPath": "Sources/PDF/MacPreview.swift",
+          "bytes": 59082,
+          "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860"
+        },
+        {
+          "gitPath": "Sources/PDF/ApplicationAppearance.swift",
+          "bytes": 14203,
+          "sha256": "696411eccc941936861529e67a016abe3df5160efbedd33f38dccd75bb80cbc4"
+        },
+        {
+          "gitPath": "Sources/PDF/PDFApp.swift",
+          "bytes": 44076,
+          "sha256": "3c666f575d7287b26b41c5a94b7aac59b0cb2512ff3cedb40be4c196b1fa55b1"
+        },
+        {
+          "gitPath": "Sources/PDF/CustomizationView.swift",
+          "bytes": 24737,
+          "sha256": "c0615b364b44339f008d57355f93b96bc4c92d81000a458875e3f4af44c333d7"
+        }
+      ],
+      "nativePendingWordingPreservedAsPreparation": true
+    },
+    {
+      "preflight": "pdf-public-toolbar-recovery-preflight.json",
+      "parentCommit": "e0b8d0cef2e66fe1a6d41db4fe9e04c5c50510b2",
+      "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "candidateHashesMatchExactCommit": true,
+      "files": [
+        {
+          "gitPath": "Sources/PDF/ToolbarRenderingAudit.swift",
+          "bytes": 32109,
+          "sha256": "c339164e9eeb00bb9a9e2ac57b6f2a1e6451b7e1d1573fe26761ba3dc0ae0b72"
+        },
+        {
+          "gitPath": "Sources/PDF/RecoveryStore.swift",
+          "bytes": 58427,
+          "sha256": "10a4530bfd0d2000f1f5913116d29e0eba34a69987ed3ff7b9e6ea7fad82509f"
+        },
+        {
+          "gitPath": "Sources/PDF/WorkspaceModel.swift",
+          "bytes": 88789,
+          "sha256": "abcc9ba8a37c536da0f6686b6996a4f8324b46d7ab5d5369dd4dcf6706a0ae1c"
+        },
+        {
+          "gitPath": "Sources/PDF/SessionAnnotationAuditChecks.swift",
+          "bytes": 48129,
+          "sha256": "90de7d50b292fb74ee22426e18fb6dedce4a8f9ddd267c56e2d308d3459cf3f5"
+        },
+        {
+          "gitPath": "scripts/check_appearance_preview.py",
+          "bytes": 35934,
+          "sha256": "4c7cad41cc4022db551f600517f6de98d453d33de3001fff269b337ac1a13aa3"
+        },
+        {
+          "gitPath": "scripts/test_appearance_preview.py",
+          "bytes": 22216,
+          "sha256": "8a13cc007da7d150018bb3a79ec0c41d17c188a705b1a4f9608fe16927b9c3e6"
+        }
+      ],
+      "nativePendingWordingPreservedAsPreparation": true
+    }
+  ],
+  "SDKTypecheck": false,
+  "recoveryPathsExercisedByAppearanceFocal": false
+}

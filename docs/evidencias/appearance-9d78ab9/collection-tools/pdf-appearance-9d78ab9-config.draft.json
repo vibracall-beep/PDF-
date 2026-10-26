@@ -1,0 +1,12 @@
+{
+  "schemaVersion": 1,
+  "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "controlCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "runID": 40252786964,
+  "runAttempt": 1,
+  "jobIDs": {
+    "compile-sdk26": null,
+    "same-binary-xcode27": null
+  },
+  "outputDirectory": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964"
+}

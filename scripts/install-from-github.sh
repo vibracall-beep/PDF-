@@ -78,7 +78,7 @@ if [[ -n "$PDF_COMMIT" ]]; then
   [[ -z "$(find "$PDF_DOWNLOAD_STAGE/source" -type l -print -quit)" ]] || fail 'Os fontes contêm links simbólicos e não serão executados.'
 else
   command -v python3 >/dev/null 2>&1 || fail 'Python 3 é necessário para verificar o pacote. Instale Xcode ou Python pelo Homebrew.'
-  curl --proto '=https' --proto-redir '=https' --tlsv1.2 --fail --location --retry 2 --connect-timeout 20 --max-time 300 --max-filesize 134217728 \
+  curl --proto '=https' --proto-redir '=https' --tlsv1.2 --fail --location --retry 2 --connect-timeout 20 --max-time 300 --max-filesize 268435456 \
     --output "$PDF_DOWNLOAD_STAGE/source.tar.gz" "$PDF_ARCHIVE_URL"
   PDF_ACTUAL_SHA="$(shasum -a 256 "$PDF_DOWNLOAD_STAGE/source.tar.gz" | awk '{print $1}')"
   [[ "$PDF_ACTUAL_SHA" == "$PDF_EXPECTED_SHA" ]] || fail 'Checksum divergente. O pacote não foi extraído nem executado.'
@@ -91,10 +91,16 @@ import sys
 import tarfile
 import unicodedata
 archive_path, destination = Path(sys.argv[1]), Path(sys.argv[2])
+# Same bounded source contract as package-source.sh and delivery_archives.py.
+MAX_SOURCE = 256 * 1024 ** 2
+MAX_SOURCE_PAYLOAD = 240 * 1024 ** 2
+if not 0 < archive_path.stat().st_size <= MAX_SOURCE:
+    raise SystemExit('O arquivo de fontes excede o limite permitido.')
+
 class BoundedReader:
     def __init__(self, stream):
         self.stream = stream
-        self.remaining = 160 * 1024 ** 2
+        self.remaining = MAX_SOURCE
     def read(self, size=-1):
         amount = self.remaining + 1 if size < 0 else min(size, self.remaining + 1)
         data = self.stream.read(amount)
@@ -110,11 +116,13 @@ with gzip.open(archive_path, 'rb') as compressed, tarfile.open(fileobj=BoundedRe
     directory_names = set()
     total_size = 0
     member_count = 0
+    member_end = 0
     for member in archive:
         member_count += 1
         total_size += member.size
-        if member_count > 10000 or member.size < 0 or member.size > 32 * 1024 ** 2 or total_size > 128 * 1024 ** 2:
+        if member_count > 10000 or member.size < 0 or member.size > 32 * 1024 ** 2 or total_size > MAX_SOURCE_PAYLOAD:
             raise SystemExit('Pacote excede os limites de tamanho esperados.')
+        member_end = member.offset_data + ((member.size + 511) // 512) * 512
         path = PurePosixPath(member.name)
         if (path.is_absolute() or '..' in path.parts or len(path.parts) < 2 or path.parts[0] != 'PDF'
                 or str(path) != member.name.rstrip('/') or any(ord(char) < 32 for char in member.name)):
@@ -147,6 +155,23 @@ with gzip.open(archive_path, 'rb') as compressed, tarfile.open(fileobj=BoundedRe
         if len(content) != member.size:
             raise SystemExit('Arquivo truncado no pacote.')
         files[str(path)] = content
+    # TAR parsing may stop before the gzip trailer or prefetch hidden bytes.
+    # Check the complete bounded stream, including end padding, before writing.
+    with gzip.open(archive_path, 'rb') as compressed_tail:
+        bounded = BoundedReader(compressed_tail)
+        remaining = member_end
+        while remaining:
+            data = bounded.read(min(1024 ** 2, remaining))
+            if not data:
+                raise SystemExit('Conteúdo TAR truncado.')
+            remaining -= len(data)
+        padding = 0
+        while data := bounded.read(1024 ** 2):
+            if data.count(0) != len(data):
+                raise SystemExit('O TAR contém dados fora do inventário verificado.')
+            padding += len(data)
+        if padding < 1024:
+            raise SystemExit('Terminador TAR incompleto.')
     manifest = files.get('PDF/SHA256SUMS')
     if manifest is None:
         raise SystemExit('Manifesto SHA256SUMS ausente.')

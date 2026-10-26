@@ -228,6 +228,29 @@ class DeliveryArchiveTests(unittest.TestCase):
         archive.unlink(); archive.symlink_to(self.binary / 'install-binary.sh')
         with self.assertRaises(OSError): self.verify()
 
+    def test_source_payload_total_is_bounded_independently_of_tar_and_file_limits(self):
+        files = self.source_tar(changes={'audit-one.bin': b'x' * 4096, 'audit-two.bin': b'y' * 4096})
+        payload = sum(map(len, files.values()))
+        with patch.object(gate, 'MAX_SOURCE_PAYLOAD', payload):
+            self.assertTrue(self.verify()['sourceManifestVerified'])
+        with patch.object(gate, 'MAX_SOURCE_PAYLOAD', payload - 1):
+            with self.assertRaisesRegex(ValueError, 'payload exceeds'):
+                self.verify()
+        self.assertFalse((self.source / 'PDF').exists())
+
+    def test_source_compressed_and_complete_tar_caps_are_independent(self):
+        self.source_tar()
+        archive = self.source / 'PDF-source.tar.gz'
+        compressed_size = archive.stat().st_size
+        with patch.object(gate, 'MAX_SOURCE', compressed_size - 1):
+            with self.assertRaisesRegex(ValueError, 'bounded regular'):
+                self.verify()
+        original = archive.read_bytes()
+        archive.write_bytes(original + gzip.compress(b'\0' * 65536)); self.checksum()
+        with patch.object(gate, 'MAX_SOURCE', 32768):
+            with self.assertRaisesRegex(ValueError, 'Uncompressed source TAR'):
+                self.verify()
+
     def test_source_inventory_rejects_prefetched_tail_and_concatenated_archives(self):
         self.source_tar(); archive = self.source / 'PDF-source.tar.gz'
         original = archive.read_bytes(); first_tar = gzip.decompress(original)

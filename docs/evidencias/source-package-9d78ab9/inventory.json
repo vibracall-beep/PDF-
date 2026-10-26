@@ -1,0 +1,125 @@
+{
+  "schemaVersion": 1,
+  "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "scope": "failed-original-and-dirty-preflight-small-retention",
+  "releaseApproved": false,
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 2917,
+      "sha256": "4e25988da3bfdf926a8e14dffe75fd804e0c164dfae61603e3420627d905c54b",
+      "kind": "derived-dirty-preflight-scope-readme",
+      "origin": {
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb"
+      }
+    },
+    {
+      "path": "collection-tools/pdf_stage_source_package9d_evidence.py",
+      "bytes": 12275,
+      "sha256": "fb7833c60eebf8351ba15a0c7ebc62700f8a331fe587c00fc0be4f2bf7343cbe",
+      "kind": "retention-script",
+      "origin": {
+        "originalPath": "/tmp/pdf_stage_source_package9d_evidence.py"
+      }
+    },
+    {
+      "path": "originals/pdf-source-9d78ab9-preflight.log",
+      "bytes": 56,
+      "sha256": "0e91b3bba5c02a6b6a80932c42662d3e925c33e3ae1ebbc45c745e532dba3d87",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-9d78ab9-preflight.log",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "originals/pdf-source-limits-archives-tests.log",
+      "bytes": 117,
+      "sha256": "7c556eb6397782ace4120008c45e307cf7a5cdf9a3b312aeddc7dc5badd1e735",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-limits-archives-tests.log",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "originals/pdf-source-limits-delivery-tests.log",
+      "bytes": 2599,
+      "sha256": "9533e20c7d1153969ad168d2fcea47bf2ca223f49fbf5c029f4f245ea38c728c",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-limits-delivery-tests.log",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "originals/pdf-source-limits-installation-tests.log",
+      "bytes": 117,
+      "sha256": "00b3fea03049e0a67b190f51b0e2f91b7c9d55ffe69084d51624974cb8b8992c",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-limits-installation-tests.log",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "originals/pdf-source-size-review-9d78ab9.json",
+      "bytes": 3238,
+      "sha256": "509b1c2f01f466b7c4a720306b50ff794087ae2924cd5c609e15fca183f08d71",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-size-review-9d78ab9.json",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "originals/pdf-source-size-review-9d78ab9.log",
+      "bytes": 195,
+      "sha256": "1bdb317f1a87912284e2fe6310b6f555c3d91bc335d17e73ef88667a6062d143",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-size-review-9d78ab9.log",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "originals/pdf-source-size-review-dirty-gate.json",
+      "bytes": 327,
+      "sha256": "4dab1b552a05cb089a35389c71a460fe29190a0cd09e95c586ecd89c54f1459d",
+      "kind": "original-log-or-frozen-derived-local-report",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-size-review-dirty-gate.json",
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "scope": "Original size failure or dirty-tree preflight as stated inside each file."
+      }
+    },
+    {
+      "path": "provenance/pdf-source-size-review-retention.json",
+      "bytes": 1669,
+      "sha256": "42057e7031851dabc82db0df587c351a5000159829e5a909634e1a805bcf8b6d",
+      "kind": "frozen-author-retention-catalog",
+      "origin": {
+        "originalPath": "/tmp/pdf-source-size-review-retention.json"
+      }
+    },
+    {
+      "path": "review.json",
+      "bytes": 3737,
+      "sha256": "46d4677c62eb33cccca23020977566dbf8eee194c8af0737400d18e22a0c1bfd",
+      "kind": "derived-retention-integrity-review",
+      "origin": {
+        "baseCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb"
+      }
+    }
+  ],
+  "inventoryExcludes": [
+    "inventory.json",
+    "SHA256SUMS"
+  ]
+}

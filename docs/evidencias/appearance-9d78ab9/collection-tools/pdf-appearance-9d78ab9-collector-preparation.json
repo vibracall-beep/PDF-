@@ -1,0 +1,18 @@
+{
+  "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "controllerCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "runID": 40252786964,
+  "attempt": 1,
+  "runCreatedAtUTC": "2026-10-26T01:09:09Z",
+  "draft": "/tmp/pdf-appearance-9d78ab9-config.draft.json",
+  "draftSHA256": "11e2b349402f573af5295ca500edeb878813d9d533e7bdd5860744474ab88078",
+  "collector": "/tmp/pdf_collect_appearance_recovery_paths.py",
+  "collectorSHA256": "83430bd79e67203b15378ec9489090d479e0671791b6306d9d9014c74aad3480",
+  "jobIDsPending": true,
+  "draftRefusedBeforeAPI": "Two explicit distinct job IDs required.",
+  "finalConfigurationCreated": false,
+  "terminalRunConfirmed": false,
+  "networkCalls": 0,
+  "collectorMainExecuted": false,
+  "repositoryEdited": false
+}

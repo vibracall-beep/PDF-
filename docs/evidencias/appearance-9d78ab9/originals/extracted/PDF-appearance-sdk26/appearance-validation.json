@@ -1,0 +1,74 @@
+{
+  "archive": {
+    "bytes": 5173480,
+    "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+  },
+  "completeApplicationApproved": false,
+  "engineRuntimeInstalled": false,
+  "externalDeadlineSeconds": 90,
+  "humanVisualReview": false,
+  "nativeChecksPassed": 12,
+  "operatingSystem": "Version 26.6.2 (Build 25G83)",
+  "originals": {
+    "PDF-appearance.appearance.json": {
+      "bytes": 983281,
+      "sha256": "9ee19932e7214db2720ee954639f04b872776e02cd8d99b4efd88906146198bc"
+    },
+    "PDF-appearance.customization.png": {
+      "bytes": 100862,
+      "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+    },
+    "PDF-appearance.dark-attached-1.png": {
+      "bytes": 336429,
+      "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+    },
+    "PDF-appearance.dark-attached-2.png": {
+      "bytes": 336429,
+      "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+    },
+    "PDF-appearance.dark-recreated.png": {
+      "bytes": 336597,
+      "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+    },
+    "PDF-appearance.light-return.png": {
+      "bytes": 348968,
+      "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+    },
+    "PDF-appearance.png": {
+      "bytes": 348715,
+      "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+    },
+    "PDF-appearance.system.png": {
+      "bytes": 348942,
+      "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+    }
+  },
+  "schemaVersion": 1,
+  "scope": "minimal-appearance-diagnostic-only",
+  "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "sourceCommitAuthenticatedByThisHelper": false,
+  "status": "passed",
+  "unchangedBundleFiles": {
+    "Contents/Info.plist": {
+      "bytes": 2034,
+      "mode": 420,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    "Contents/MacOS/PDF": {
+      "bytes": 19687120,
+      "mode": 493,
+      "sha256": "b2aff5d9db9e97147f9edd20f2c71dd85f3c60380aaa338163a8dd79ff5dc9ff"
+    },
+    "Contents/Resources/installation.lock": {
+      "bytes": 0,
+      "mode": 292,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "Contents/_CodeSignature/CodeResources": {
+      "bytes": 2456,
+      "mode": 420,
+      "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+    }
+  },
+  "universalWCAGCertification": false
+}

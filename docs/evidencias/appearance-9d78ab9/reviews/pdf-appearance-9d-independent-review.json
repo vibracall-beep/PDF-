@@ -1,0 +1,2589 @@
+{
+  "schemaVersion": 1,
+  "scope": "fourteen-original-focal-appearance-images-and-toolbar-evidence",
+  "reviewer": "/root/visual_candidate",
+  "configuration": {
+    "schemaVersion": 1,
+    "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+    "controlCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+    "runID": 40252786964,
+    "runAttempt": 1,
+    "jobIDs": {
+      "compile-sdk26": 121348103194,
+      "same-binary-xcode27": 121349491713
+    },
+    "outputDirectory": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964"
+  },
+  "visualInspectionMethod": "Every one of the 14 original PNG files was opened individually through view_image with detail original. Some unchanged frames were reopened for a full contextual comparison. No image was painted, altered, cropped or substituted.",
+  "assistantVisualReviewCompleted": true,
+  "humanInteractiveReview": false,
+  "focalVisualApproval": true,
+  "approvalMeaning": "No confirmed visual blocker in these 14 captured viewports and the three measured toolbar controls. Approval is restricted to this minimal appearance diagnostic and exact source/run.",
+  "confirmedVisualBlockers": [],
+  "originalPNGsReviewed": 14,
+  "nativeWorkspaceSnapshotsVerified": 24,
+  "nativeToolbarMeasurements": 36,
+  "minimumNativeCentralContrast": 4.136177866044884,
+  "bundleManifest": {
+    "builtSDK": "26.5",
+    "completeApplicationApproved": false,
+    "files": {
+      "Contents/Info.plist": {
+        "bytes": 2034,
+        "mode": 420,
+        "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+      },
+      "Contents/MacOS/PDF": {
+        "bytes": 19687120,
+        "mode": 493,
+        "sha256": "b2aff5d9db9e97147f9edd20f2c71dd85f3c60380aaa338163a8dd79ff5dc9ff"
+      },
+      "Contents/Resources/installation.lock": {
+        "bytes": 0,
+        "mode": 292,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "Contents/_CodeSignature/CodeResources": {
+        "bytes": 2456,
+        "mode": 420,
+        "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+      }
+    },
+    "schemaVersion": 1,
+    "scope": "minimal-appearance-diagnostic-only",
+    "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+    "sourceCommitAuthenticatedByThisHelper": false,
+    "tar": {
+      "bytes": 5173480,
+      "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+    }
+  },
+  "artifacts": [
+    {
+      "artifact": "PDF-appearance-sdk26",
+      "operatingSystem": "Version 26.6.2 (Build 25G83)",
+      "nativeStatus": "passed",
+      "checks": [
+        {
+          "id": "seven-original-frames-in-order",
+          "passed": true
+        },
+        {
+          "id": "light-dark-customization-light-system-selections",
+          "passed": true
+        },
+        {
+          "id": "same-real-window",
+          "passed": true
+        },
+        {
+          "id": "six-workspace-toolbar-reports",
+          "passed": true
+        },
+        {
+          "id": "three-controls-central-contrast-every-workspace-frame",
+          "passed": true
+        },
+        {
+          "id": "attached-toolbar-identities-preserved",
+          "passed": true
+        },
+        {
+          "id": "two-separate-dark-attached-captures",
+          "passed": true
+        },
+        {
+          "id": "toolbar-controls-return-after-customization",
+          "passed": true
+        },
+        {
+          "id": "system-releases-appkit-overrides",
+          "passed": true
+        },
+        {
+          "id": "no-document-session",
+          "passed": true
+        },
+        {
+          "id": "background-work-drained",
+          "passed": true
+        },
+        {
+          "id": "private-state-cleanup",
+          "passed": true
+        }
+      ],
+      "sourceFiles": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 983281,
+          "sha256": "9ee19932e7214db2720ee954639f04b872776e02cd8d99b4efd88906146198bc"
+        },
+        "appearance-validation.json": {
+          "bytes": 2534,
+          "sha256": "0c43a0427c865a431d694b9d9ad2196dac9e256fecb22c97ea476f3fcaec9201"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+        },
+        "capture.log": {
+          "bytes": 279412,
+          "sha256": "2c978441126bb0db2b9ad3c15c7cbed6aa194cc57cb08863fc8165d78cb05de2"
+        }
+      },
+      "minimumNativeCentralContrast": 4.136177866044884,
+      "publicItemViewBindingsVerifiedInAll12Snapshots": true,
+      "attachedViewIdentitiesStable": true,
+      "viewsRecreatedAfterCustomization": true,
+      "separateDarkCaptureUptimes": true,
+      "systemOverridesReleased": true,
+      "frames": [
+        {
+          "file": "PDF-appearance.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.png",
+          "bytes": 348715,
+          "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3",
+          "width": 1050,
+          "height": 772,
+          "phase": "light-initial",
+          "selection": "light",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Página inicial clara: os três símbolos da toolbar estão legíveis; navegação, busca, categorias e cartões do viewport estão separados, sem sobreposição confirmada.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 6.330868537227855,
+              "centralPixelBounds": {
+                "height": 16,
+                "width": 15,
+                "x": 187,
+                "y": 18
+              },
+              "luminanceP05": 0.11585400515729245,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                96,
+                96,
+                96
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 12
+              },
+              "sampleCount": 240
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 5.788904638497971,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 977,
+                "y": 16
+              },
+              "luminanceP05": 0.11585400515729245,
+              "luminanceP95": 0.9101130197685168,
+              "maximumRGB": [
+                245,
+                245,
+                245
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                91,
+                91,
+                91
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 4.136177866044884,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 21,
+                "x": 1011,
+                "y": 16
+              },
+              "luminanceP05": 0.1821256606613489,
+              "luminanceP95": 0.9101130197685168,
+              "maximumRGB": [
+                245,
+                245,
+                245
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                97,
+                97,
+                97
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 8
+              },
+              "sampleCount": 420
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 617.5684488333334,
+            "after": 618.1799507916667
+          }
+        },
+        {
+          "file": "PDF-appearance.dark-attached-1.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-1.png",
+          "bytes": 336429,
+          "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0",
+          "width": 1050,
+          "height": 772,
+          "phase": "dark-attached-1",
+          "selection": "dark",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Página inicial escura: sidebar, Comandos e Personalizar permanecem legíveis sobre as superfícies escuras. Não há reaparecimento das cápsulas brancas com símbolos brancos.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 12.54361655761983,
+              "centralPixelBounds": {
+                "height": 16,
+                "width": 15,
+                "x": 187,
+                "y": 18
+              },
+              "luminanceP05": 0.021234692648113417,
+              "luminanceP95": 0.8435406701778349,
+              "maximumRGB": [
+                237,
+                237,
+                237
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                40,
+                40,
+                40
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 12
+              },
+              "sampleCount": 240
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 14.189116729703843,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 977,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.8046794184513052,
+              "maximumRGB": [
+                236,
+                236,
+                236
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 10.69832857924469,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 21,
+                "x": 1011,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.5944122930758832,
+              "maximumRGB": [
+                230,
+                230,
+                230
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 8
+              },
+              "sampleCount": 420
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 619.7563993333333,
+            "after": 619.9480002083334
+          }
+        },
+        {
+          "file": "PDF-appearance.dark-attached-2.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-2.png",
+          "bytes": 336429,
+          "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0",
+          "width": 1050,
+          "height": 772,
+          "phase": "dark-attached-2",
+          "selection": "dark",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Segundo quadro escuro aberto individualmente: os três símbolos continuam legíveis e não há novo bloqueador visual no viewport. Captura estática não prova animação.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 12.54361655761983,
+              "centralPixelBounds": {
+                "height": 16,
+                "width": 15,
+                "x": 187,
+                "y": 18
+              },
+              "luminanceP05": 0.021234692648113417,
+              "luminanceP95": 0.8435406701778349,
+              "maximumRGB": [
+                237,
+                237,
+                237
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                40,
+                40,
+                40
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 12
+              },
+              "sampleCount": 240
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 14.189116729703843,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 977,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.8046794184513052,
+              "maximumRGB": [
+                236,
+                236,
+                236
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 10.69832857924469,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 21,
+                "x": 1011,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.5944122930758832,
+              "maximumRGB": [
+                230,
+                230,
+                230
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 8
+              },
+              "sampleCount": 420
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 621.4821137083334,
+            "after": 621.5569955416667
+          }
+        },
+        {
+          "file": "PDF-appearance.customization.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.customization.png",
+          "bytes": 100862,
+          "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5",
+          "width": 1050,
+          "height": 772,
+          "phase": "customization",
+          "selection": "light",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Personalização clara: Espaçamento/Equilibrado e Restaurar estão presentes e legíveis. Abas, controles visíveis, prévia e rodapé não apresentam sobreposição confirmada; conteúdo abaixo da rolagem não foi revisado.",
+          "confirmedVisualBlockers": [],
+          "visibleSpacingAndRestoreControls": true,
+          "nativePopupObservation": [
+            {
+              "title": "Equilibrado",
+              "effectiveStyle": "light",
+              "appearanceOverride": "NSAppearanceNameAqua",
+              "windowFrame": {
+                "height": 24,
+                "width": 116,
+                "x": 214,
+                "y": 326
+              },
+              "ancestorEffectiveStyles": [
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light"
+              ]
+            },
+            {
+              "title": "Degradê suave",
+              "effectiveStyle": "light",
+              "appearanceOverride": "NSAppearanceNameAqua",
+              "windowFrame": {
+                "height": 24,
+                "width": 140,
+                "x": 170,
+                "y": -53
+              },
+              "ancestorEffectiveStyles": [
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light"
+              ]
+            },
+            {
+              "title": "Liquid Glass",
+              "effectiveStyle": "light",
+              "appearanceOverride": "NSAppearanceNameAqua",
+              "windowFrame": {
+                "height": 24,
+                "width": 122,
+                "x": 201,
+                "y": -114
+              },
+              "ancestorEffectiveStyles": [
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light"
+              ]
+            },
+            {
+              "title": "Suave",
+              "effectiveStyle": "light",
+              "appearanceOverride": "NSAppearanceNameAqua",
+              "windowFrame": {
+                "height": 24,
+                "width": 96,
+                "x": 199,
+                "y": -353
+              },
+              "ancestorEffectiveStyles": [
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light",
+                "light"
+              ]
+            },
+            {
+              "title": "Restaurar",
+              "effectiveStyle": "light",
+              "appearanceOverride": "NSAppearanceNameAqua",
+              "windowFrame": {
+                "height": 24,
+                "width": 107,
+                "x": 124,
+                "y": 49
+              },
+              "ancestorEffectiveStyles": [
+                "light",
+                "light",
+                "light"
+              ]
+            }
+          ]
+        },
+        {
+          "file": "PDF-appearance.dark-recreated.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.dark-recreated.png",
+          "bytes": 336597,
+          "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e",
+          "width": 1050,
+          "height": 772,
+          "phase": "dark-recreated",
+          "selection": "dark",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Retorno ao workspace escuro após Personalização: os três símbolos estão legíveis; o antigo defeito de contraste não reaparece neste quadro. A busca aparece sem o anel de foco anterior.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 12.54361655761983,
+              "centralPixelBounds": {
+                "height": 16,
+                "width": 15,
+                "x": 187,
+                "y": 18
+              },
+              "luminanceP05": 0.021234692648113417,
+              "luminanceP95": 0.8435406701778349,
+              "maximumRGB": [
+                237,
+                237,
+                237
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                40,
+                40,
+                40
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 12
+              },
+              "sampleCount": 240
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 14.189116729703843,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 977,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.8046794184513052,
+              "maximumRGB": [
+                236,
+                236,
+                236
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 10.69832857924469,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 21,
+                "x": 1011,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.5944122930758832,
+              "maximumRGB": [
+                230,
+                230,
+                230
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 8
+              },
+              "sampleCount": 420
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 625.6925862083334,
+            "after": 626.3610133333334
+          }
+        },
+        {
+          "file": "PDF-appearance.light-return.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.light-return.png",
+          "bytes": 348968,
+          "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c",
+          "width": 1050,
+          "height": 772,
+          "phase": "light-return",
+          "selection": "light",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Retorno ao tema claro: toolbar, navegação e controles visíveis continuam legíveis, sem novo corte ou sobreposição confirmado.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 6.330868537227855,
+              "centralPixelBounds": {
+                "height": 16,
+                "width": 15,
+                "x": 187,
+                "y": 18
+              },
+              "luminanceP05": 0.11585400515729245,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                96,
+                96,
+                96
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 12
+              },
+              "sampleCount": 240
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 5.788904638497971,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 977,
+                "y": 16
+              },
+              "luminanceP05": 0.11585400515729245,
+              "luminanceP95": 0.9101130197685168,
+              "maximumRGB": [
+                245,
+                245,
+                245
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                91,
+                91,
+                91
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 4.136177866044884,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 21,
+                "x": 1011,
+                "y": 16
+              },
+              "luminanceP05": 0.1821256606613489,
+              "luminanceP95": 0.9101130197685168,
+              "maximumRGB": [
+                245,
+                245,
+                245
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                97,
+                97,
+                97
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 8
+              },
+              "sampleCount": 420
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 627.943154,
+            "after": 628.0540602083333
+          }
+        },
+        {
+          "file": "PDF-appearance.system.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.system.png",
+          "bytes": 348942,
+          "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd",
+          "width": 1050,
+          "height": 772,
+          "phase": "system",
+          "selection": "system",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Modo Sistema exibido claro neste runner: os três controles continuam legíveis. A ausência de overrides é corroborada pelo JSON; a imagem sozinha não prova herança do sistema.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 6.330868537227855,
+              "centralPixelBounds": {
+                "height": 16,
+                "width": 15,
+                "x": 187,
+                "y": 18
+              },
+              "luminanceP05": 0.11585400515729245,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                96,
+                96,
+                96
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 12
+              },
+              "sampleCount": 240
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 5.788904638497971,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 977,
+                "y": 16
+              },
+              "luminanceP05": 0.11585400515729245,
+              "luminanceP95": 0.9101130197685168,
+              "maximumRGB": [
+                245,
+                245,
+                245
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                91,
+                91,
+                91
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 4.136177866044884,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 21,
+                "x": 1011,
+                "y": 16
+              },
+              "luminanceP05": 0.1821256606613489,
+              "luminanceP95": 0.9101130197685168,
+              "maximumRGB": [
+                245,
+                245,
+                245
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                97,
+                97,
+                97
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 8
+              },
+              "sampleCount": 420
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 629.6214281666668,
+            "after": 629.7080386666667
+          }
+        }
+      ]
+    },
+    {
+      "artifact": "PDF-appearance-same-binary-xcode27",
+      "operatingSystem": "Version 27.0.1 (Build 26A434)",
+      "nativeStatus": "passed",
+      "checks": [
+        {
+          "id": "seven-original-frames-in-order",
+          "passed": true
+        },
+        {
+          "id": "light-dark-customization-light-system-selections",
+          "passed": true
+        },
+        {
+          "id": "same-real-window",
+          "passed": true
+        },
+        {
+          "id": "six-workspace-toolbar-reports",
+          "passed": true
+        },
+        {
+          "id": "three-controls-central-contrast-every-workspace-frame",
+          "passed": true
+        },
+        {
+          "id": "attached-toolbar-identities-preserved",
+          "passed": true
+        },
+        {
+          "id": "two-separate-dark-attached-captures",
+          "passed": true
+        },
+        {
+          "id": "toolbar-controls-return-after-customization",
+          "passed": true
+        },
+        {
+          "id": "system-releases-appkit-overrides",
+          "passed": true
+        },
+        {
+          "id": "no-document-session",
+          "passed": true
+        },
+        {
+          "id": "background-work-drained",
+          "passed": true
+        },
+        {
+          "id": "private-state-cleanup",
+          "passed": true
+        }
+      ],
+      "sourceFiles": {
+        "PDF-appearance.appearance.json": {
+          "bytes": 1011715,
+          "sha256": "39cc0d31883123560a54634e2aea23ed8a28ea55544ea419e2baf7d9483e543a"
+        },
+        "appearance-validation.json": {
+          "bytes": 2536,
+          "sha256": "12aee332bce29a010d0c9c3df391e797d606c403d0e8996c86b31ec441c44b67"
+        },
+        "appearance-bundle.json": {
+          "bytes": 1055,
+          "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+        },
+        "capture.log": {
+          "bytes": 291400,
+          "sha256": "0b98e75d3f3c82dabe7b620e2ff0d2bcc25c2c84ab1dba7a9dde46b589006f7e"
+        }
+      },
+      "minimumNativeCentralContrast": 6.877762168646463,
+      "publicItemViewBindingsVerifiedInAll12Snapshots": true,
+      "attachedViewIdentitiesStable": true,
+      "viewsRecreatedAfterCustomization": true,
+      "separateDarkCaptureUptimes": true,
+      "systemOverridesReleased": true,
+      "frames": [
+        {
+          "file": "PDF-appearance.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.png",
+          "bytes": 348631,
+          "sha256": "c9a1e05fbaebe91ffa304f6491cebbbecfaa016729c49513709fe94ee9ff426b",
+          "width": 1050,
+          "height": 772,
+          "phase": "light-initial",
+          "selection": "light",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Página inicial clara: os três símbolos da toolbar estão legíveis; navegação, busca, categorias e cartões do viewport estão separados, sem sobreposição confirmada.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 20.99999806047058,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 174,
+                "y": 16
+              },
+              "luminanceP05": 0,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                0,
+                0,
+                0
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 10.753399199346745,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 976,
+                "y": 16
+              },
+              "luminanceP05": 0.04764353424983193,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                52,
+                52,
+                52
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 6.877762168646463,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 1013,
+                "y": 16
+              },
+              "luminanceP05": 0.10266592203640684,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                56,
+                56,
+                56
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 8
+              },
+              "sampleCount": 400
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 381.5503222916667,
+            "after": 382.0557277916667
+          }
+        },
+        {
+          "file": "PDF-appearance.dark-attached-1.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-1.png",
+          "bytes": 338945,
+          "sha256": "358dd97850c8caa27a8df3410342b867e218f6ac2893b78899606b2efbd17e1a",
+          "width": 1050,
+          "height": 772,
+          "phase": "dark-attached-1",
+          "selection": "dark",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Página inicial escura: sidebar, Comandos e Personalizar permanecem legíveis sobre as superfícies escuras. Não há reaparecimento das cápsulas brancas com símbolos brancos.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 17.43176548836879,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 176,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 12.635688507962987,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 976,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.7111088915147048,
+              "maximumRGB": [
+                226,
+                226,
+                226
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 10.421085574253057,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 1013,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.5777126002909266,
+              "maximumRGB": [
+                224,
+                224,
+                224
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 8
+              },
+              "sampleCount": 400
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 188,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 383.64792670833333,
+            "after": 383.85782950000004
+          }
+        },
+        {
+          "file": "PDF-appearance.dark-attached-2.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-2.png",
+          "bytes": 338910,
+          "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5",
+          "width": 1050,
+          "height": 772,
+          "phase": "dark-attached-2",
+          "selection": "dark",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Segundo quadro escuro aberto individualmente: os três símbolos continuam legíveis e não há novo bloqueador visual no viewport. Captura estática não prova animação.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 17.43176548836879,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 176,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 12.635688507962987,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 976,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.7111088915147048,
+              "maximumRGB": [
+                226,
+                226,
+                226
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 10.421085574253057,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 1013,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.5777126002909266,
+              "maximumRGB": [
+                224,
+                224,
+                224
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 8
+              },
+              "sampleCount": 400
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 188,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 385.4062905416667,
+            "after": 385.5029772916667
+          }
+        },
+        {
+          "file": "PDF-appearance.customization.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.customization.png",
+          "bytes": 101973,
+          "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b",
+          "width": 1050,
+          "height": 772,
+          "phase": "customization",
+          "selection": "light",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Personalização clara: Espaçamento/Equilibrado e Restaurar estão presentes e legíveis. Abas, controles visíveis, prévia e rodapé não apresentam sobreposição confirmada; conteúdo abaixo da rolagem não foi revisado.",
+          "confirmedVisualBlockers": [],
+          "visibleSpacingAndRestoreControls": true,
+          "nativePopupObservation": []
+        },
+        {
+          "file": "PDF-appearance.dark-recreated.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-recreated.png",
+          "bytes": 339103,
+          "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c",
+          "width": 1050,
+          "height": 772,
+          "phase": "dark-recreated",
+          "selection": "dark",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Retorno ao workspace escuro após Personalização: os três símbolos estão legíveis; o antigo defeito de contraste não reaparece neste quadro. A busca aparece sem o anel de foco anterior.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 17.43176548836879,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 174,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 12.635688507962987,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 976,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.7111088915147048,
+              "maximumRGB": [
+                226,
+                226,
+                226
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 10.421085574253057,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 1013,
+                "y": 16
+              },
+              "luminanceP05": 0.010234857090300652,
+              "luminanceP95": 0.5777126002909266,
+              "maximumRGB": [
+                224,
+                224,
+                224
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                26,
+                26,
+                26
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 8
+              },
+              "sampleCount": 400
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 388.723357,
+            "after": 388.80057325
+          }
+        },
+        {
+          "file": "PDF-appearance.light-return.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.light-return.png",
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6",
+          "width": 1050,
+          "height": 772,
+          "phase": "light-return",
+          "selection": "light",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Retorno ao tema claro: toolbar, navegação e controles visíveis continuam legíveis, sem novo corte ou sobreposição confirmado.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 20.99999806047058,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 174,
+                "y": 16
+              },
+              "luminanceP05": 0,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                0,
+                0,
+                0
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 10.753399199346745,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 976,
+                "y": 16
+              },
+              "luminanceP05": 0.04764353424983193,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                52,
+                52,
+                52
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 6.877762168646463,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 1013,
+                "y": 16
+              },
+              "luminanceP05": 0.10266592203640684,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                56,
+                56,
+                56
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 8
+              },
+              "sampleCount": 400
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 390.38550095833335,
+            "after": 390.44139750000005
+          }
+        },
+        {
+          "file": "PDF-appearance.system.png",
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.system.png",
+          "bytes": 348877,
+          "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6",
+          "width": 1050,
+          "height": 772,
+          "phase": "system",
+          "selection": "system",
+          "openedIndividuallyWithViewImageOriginal": true,
+          "visualObservation": "Modo Sistema exibido claro neste runner: os três controles continuam legíveis. A ausência de overrides é corroborada pelo JSON; a imagem sozinha não prova herança do sistema.",
+          "confirmedVisualBlockers": [],
+          "nativeMeasurements": [
+            {
+              "auditKey": "autoSidebar",
+              "centralContrast": 20.99999806047058,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 174,
+                "y": 16
+              },
+              "luminanceP05": 0,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                0,
+                0,
+                0
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.commands.toolbar",
+              "centralContrast": 10.753399199346745,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 976,
+                "y": 16
+              },
+              "luminanceP05": 0.04764353424983193,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                52,
+                52,
+                52
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 8
+              },
+              "sampleCount": 400
+            },
+            {
+              "auditKey": "pdf.customize.toolbar",
+              "centralContrast": 6.877762168646463,
+              "centralPixelBounds": {
+                "height": 20,
+                "width": 20,
+                "x": 1013,
+                "y": 16
+              },
+              "luminanceP05": 0.10266592203640684,
+              "luminanceP95": 0.9999999030235293,
+              "maximumRGB": [
+                255,
+                255,
+                255
+              ],
+              "minimumContrast": 3,
+              "minimumRGB": [
+                56,
+                56,
+                56
+              ],
+              "passed": true,
+              "pixelBounds": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 8
+              },
+              "sampleCount": 400
+            }
+          ],
+          "itemViewBindingsVerifiedBeforeAndAfter": true,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "snapshotUptimes": {
+            "before": 391.9803262916667,
+            "after": 392.03993933333334
+          }
+        }
+      ]
+    }
+  ],
+  "resolvedWithinCapturedPath": [
+    {
+      "id": "PREVIOUS-DARK-TOOLBAR-CONTRAST",
+      "observation": "All 12 workspace images retain three legible toolbar symbols. All 36 native central-pixel measurements exceed 3:1; the minimum is 4.136177866044884:1."
+    },
+    {
+      "id": "PREVIOUS-CUSTOMIZATION26-EMPTY-POPUPS",
+      "observation": "Equilibrado and Restaurar are visibly present in the SDK26 customization frame. The five observed native popup controls and their recorded ancestors use the light style. Offscreen popup rendering was not visually assessed."
+    }
+  ],
+  "installedApplicationApproved": false,
+  "packageDeliveryApproved": false,
+  "documentRecoveryValidated": false,
+  "completeToolCatalogValidated": false,
+  "physicalM4PerformanceValidated": false,
+  "universalWCAGCertification": false,
+  "animationsValidated": false,
+  "limitations": [
+    "The inspected views are static 1050x772 viewports. Scrollable content below the viewport, other customization tabs and menus not opened in these images are outside the visual review.",
+    "Static screenshots do not demonstrate clicks, keyboard navigation, VoiceOver output, animation quality, absence of transient flicker, recovery after crashes, or PDF processing.",
+    "The native contrast check covers the central symbols of three toolbar controls with its declared 60-percent sample and p95/p05 luminance ratio. It is not a universal WCAG or all-colors accessibility certification.",
+    "The two jobs ran the same minimal SDK26 bundle. This does not validate the fully installed application, its engine/runtime, package-source size, delivery archive or installation on the user equipment.",
+    "The separate package-source size blocker and recovery/package work remain outside this review. No approval of those tasks is implied by focal success.",
+    "Earlier failed runs and blocked reviews remain unchanged. This report applies only to source9d78ab9 and run40252786964."
+  ]
+}

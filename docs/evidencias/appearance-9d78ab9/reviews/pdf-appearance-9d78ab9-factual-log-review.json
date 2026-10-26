@@ -1,0 +1,4129 @@
+{
+  "schemaVersion": 1,
+  "reviewedAtUTC": "2026-10-26T01:19:00.316051+00:00",
+  "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "controllerCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+  "runID": 40252786964,
+  "attempt": 1,
+  "status": "passed-appearance-only-automated-diagnostic",
+  "networkCallsDuringReview": 0,
+  "artifactCodeExecuted": false,
+  "productModified": false,
+  "gatesModified": false,
+  "visualApprovalInferred": false,
+  "completeApplicationApproved": false,
+  "installationApproved": false,
+  "deliveryAllowed": false,
+  "jobs": [
+    {
+      "job": "compile-sdk26",
+      "jobID": 121348103194,
+      "conclusion": "success",
+      "operatingSystem": "Version 26.6.2 (Build 25G83)",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Require an explicit source commit",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Check out the exact application source",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Verify source and SDK 26 without installing dependencies",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Compile the native arm64 executable once",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Build and fingerprint the diagnostic-only bundle",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Retain the same authenticated bundle before either appearance capture",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Capture seven original appearance frames on macOS 26",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Validate originals and unchanged bundle even after a capture failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 11,
+          "name": "Retain all original macOS 26 diagnostic evidence even on failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Post Check out the exact application source",
+          "conclusion": "success"
+        },
+        {
+          "number": 22,
+          "name": "Post Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 23,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "nativeReport": {
+        "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.appearance.json",
+        "bytes": 983281,
+        "sha256": "9ee19932e7214db2720ee954639f04b872776e02cd8d99b4efd88906146198bc"
+      },
+      "nativeStatus": "passed",
+      "passedChecks": 12,
+      "failedChecks": [],
+      "exactSourceCheckerReplayedOffline": true,
+      "measurementRowsTotal": 18,
+      "measurementMinimum": 4.136177866044884,
+      "measurementMaximum": 14.189116729703843,
+      "measurements": [
+        {
+          "phase": "light-initial",
+          "auditKey": "autoSidebar",
+          "centralContrast": 6.330868537227855,
+          "centralPixelBounds": {
+            "height": 16,
+            "width": 15,
+            "x": 187,
+            "y": 18
+          },
+          "luminanceP05": 0.11585400515729245,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            96,
+            96,
+            96
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 28,
+            "width": 39,
+            "x": 175,
+            "y": 12
+          },
+          "sampleCount": 240
+        },
+        {
+          "phase": "light-initial",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 5.788904638497971,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 977,
+            "y": 16
+          },
+          "luminanceP05": 0.11585400515729245,
+          "luminanceP95": 0.9101130197685168,
+          "maximumRGB": [
+            245,
+            245,
+            245
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            91,
+            91,
+            91
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 969,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-initial",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 4.136177866044884,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 21,
+            "x": 1011,
+            "y": 16
+          },
+          "luminanceP05": 0.1821256606613489,
+          "luminanceP95": 0.9101130197685168,
+          "maximumRGB": [
+            245,
+            245,
+            245
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            97,
+            97,
+            97
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 37,
+            "x": 1003,
+            "y": 8
+          },
+          "sampleCount": 420
+        },
+        {
+          "phase": "dark-attached-1",
+          "auditKey": "autoSidebar",
+          "centralContrast": 12.54361655761983,
+          "centralPixelBounds": {
+            "height": 16,
+            "width": 15,
+            "x": 187,
+            "y": 18
+          },
+          "luminanceP05": 0.021234692648113417,
+          "luminanceP95": 0.8435406701778349,
+          "maximumRGB": [
+            237,
+            237,
+            237
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            40,
+            40,
+            40
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 28,
+            "width": 39,
+            "x": 175,
+            "y": 12
+          },
+          "sampleCount": 240
+        },
+        {
+          "phase": "dark-attached-1",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 14.189116729703843,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 977,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.8046794184513052,
+          "maximumRGB": [
+            236,
+            236,
+            236
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 969,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-1",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 10.69832857924469,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 21,
+            "x": 1011,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.5944122930758832,
+          "maximumRGB": [
+            230,
+            230,
+            230
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 37,
+            "x": 1003,
+            "y": 8
+          },
+          "sampleCount": 420
+        },
+        {
+          "phase": "dark-attached-2",
+          "auditKey": "autoSidebar",
+          "centralContrast": 12.54361655761983,
+          "centralPixelBounds": {
+            "height": 16,
+            "width": 15,
+            "x": 187,
+            "y": 18
+          },
+          "luminanceP05": 0.021234692648113417,
+          "luminanceP95": 0.8435406701778349,
+          "maximumRGB": [
+            237,
+            237,
+            237
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            40,
+            40,
+            40
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 28,
+            "width": 39,
+            "x": 175,
+            "y": 12
+          },
+          "sampleCount": 240
+        },
+        {
+          "phase": "dark-attached-2",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 14.189116729703843,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 977,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.8046794184513052,
+          "maximumRGB": [
+            236,
+            236,
+            236
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 969,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-2",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 10.69832857924469,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 21,
+            "x": 1011,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.5944122930758832,
+          "maximumRGB": [
+            230,
+            230,
+            230
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 37,
+            "x": 1003,
+            "y": 8
+          },
+          "sampleCount": 420
+        },
+        {
+          "phase": "dark-recreated",
+          "auditKey": "autoSidebar",
+          "centralContrast": 12.54361655761983,
+          "centralPixelBounds": {
+            "height": 16,
+            "width": 15,
+            "x": 187,
+            "y": 18
+          },
+          "luminanceP05": 0.021234692648113417,
+          "luminanceP95": 0.8435406701778349,
+          "maximumRGB": [
+            237,
+            237,
+            237
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            40,
+            40,
+            40
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 28,
+            "width": 39,
+            "x": 175,
+            "y": 12
+          },
+          "sampleCount": 240
+        },
+        {
+          "phase": "dark-recreated",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 14.189116729703843,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 977,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.8046794184513052,
+          "maximumRGB": [
+            236,
+            236,
+            236
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 969,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-recreated",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 10.69832857924469,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 21,
+            "x": 1011,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.5944122930758832,
+          "maximumRGB": [
+            230,
+            230,
+            230
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 37,
+            "x": 1003,
+            "y": 8
+          },
+          "sampleCount": 420
+        },
+        {
+          "phase": "light-return",
+          "auditKey": "autoSidebar",
+          "centralContrast": 6.330868537227855,
+          "centralPixelBounds": {
+            "height": 16,
+            "width": 15,
+            "x": 187,
+            "y": 18
+          },
+          "luminanceP05": 0.11585400515729245,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            96,
+            96,
+            96
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 28,
+            "width": 39,
+            "x": 175,
+            "y": 12
+          },
+          "sampleCount": 240
+        },
+        {
+          "phase": "light-return",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 5.788904638497971,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 977,
+            "y": 16
+          },
+          "luminanceP05": 0.11585400515729245,
+          "luminanceP95": 0.9101130197685168,
+          "maximumRGB": [
+            245,
+            245,
+            245
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            91,
+            91,
+            91
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 969,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-return",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 4.136177866044884,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 21,
+            "x": 1011,
+            "y": 16
+          },
+          "luminanceP05": 0.1821256606613489,
+          "luminanceP95": 0.9101130197685168,
+          "maximumRGB": [
+            245,
+            245,
+            245
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            97,
+            97,
+            97
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 37,
+            "x": 1003,
+            "y": 8
+          },
+          "sampleCount": 420
+        },
+        {
+          "phase": "system",
+          "auditKey": "autoSidebar",
+          "centralContrast": 6.330868537227855,
+          "centralPixelBounds": {
+            "height": 16,
+            "width": 15,
+            "x": 187,
+            "y": 18
+          },
+          "luminanceP05": 0.11585400515729245,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            96,
+            96,
+            96
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 28,
+            "width": 39,
+            "x": 175,
+            "y": 12
+          },
+          "sampleCount": 240
+        },
+        {
+          "phase": "system",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 5.788904638497971,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 977,
+            "y": 16
+          },
+          "luminanceP05": 0.11585400515729245,
+          "luminanceP95": 0.9101130197685168,
+          "maximumRGB": [
+            245,
+            245,
+            245
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            91,
+            91,
+            91
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 969,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "system",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 4.136177866044884,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 21,
+            "x": 1011,
+            "y": 16
+          },
+          "luminanceP05": 0.1821256606613489,
+          "luminanceP95": 0.9101130197685168,
+          "maximumRGB": [
+            245,
+            245,
+            245
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            97,
+            97,
+            97
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 37,
+            "x": 1003,
+            "y": 8
+          },
+          "sampleCount": 420
+        }
+      ],
+      "workspaceObservations": [
+        {
+          "phase": "light-initial",
+          "timing": "before",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "light-initial",
+          "timing": "after",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "before",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "after",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "before",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "after",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "B68762D9-2475-4ADE-8EDC-D54403754E12",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "2E48D421-1E06-4F45-83D5-60233EF8DD14",
+              "identity": "57505130-467B-4D68-8C74-90E5E4F75DB0",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "BEF448DE-DB5D-4FD1-96AB-D78F0AC5F00F",
+              "identity": "069BF0CF-FD06-4460-BF74-0DD08C7AE75E",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "before",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "after",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "light-return",
+          "timing": "before",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "light-return",
+          "timing": "after",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "system",
+          "timing": "before",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "system",
+          "timing": "after",
+          "windowNumber": 29,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "E3E788B3-9526-4A6E-BF35-D001E6E69705",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 195,
+                "y": 697
+              },
+              "windowFrame": {
+                "height": 28,
+                "width": 39,
+                "x": 175,
+                "y": 732
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "5AB9D56B-24CA-4C85-BD4F-7D2436FEA04F",
+              "identity": "EB604A28-3023-4AC7-A823-8115D8832AD5",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 989,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 969,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "962FABED-920D-4319-B180-CC59C4539AD2",
+              "identity": "C2545051-F2BA-4D72-9334-2A31B742DE8C",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1023,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 37,
+                "x": 1003,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        }
+      ],
+      "frames": [
+        {
+          "phase": "light-initial",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.png",
+            "bytes": 348715,
+            "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-1.png",
+            "bytes": 336429,
+            "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.dark-attached-2.png",
+            "bytes": 336429,
+            "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "customization",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.customization.png",
+            "bytes": 100862,
+            "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 5
+        },
+        {
+          "phase": "dark-recreated",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.dark-recreated.png",
+            "bytes": 336597,
+            "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "light-return",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.light-return.png",
+            "bytes": 348968,
+            "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "system",
+          "selection": "system",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/PDF-appearance.system.png",
+            "bytes": 348942,
+            "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 29,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        }
+      ],
+      "originalCaptureLines": [
+        {
+          "png": "PDF-appearance.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-1.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-2.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.customization.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-recreated.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.light-return.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.system.png",
+          "windowNumber": 29,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        }
+      ],
+      "officialCaptureCounterMatchesArtifactLog": true,
+      "originPythonSuites": [
+        {
+          "tests": 28,
+          "seconds": 0.527,
+          "status": "OK"
+        }
+      ],
+      "manifest": {
+        "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/appearance-bundle.json",
+        "bytes": 1055,
+        "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+      },
+      "builtSDK": "26.5",
+      "declaredArchive": {
+        "bytes": 5173480,
+        "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+      },
+      "passedReceipt": {
+        "archive": {
+          "bytes": 5173480,
+          "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+        },
+        "completeApplicationApproved": false,
+        "engineRuntimeInstalled": false,
+        "externalDeadlineSeconds": 90,
+        "humanVisualReview": false,
+        "nativeChecksPassed": 12,
+        "operatingSystem": "Version 26.6.2 (Build 25G83)",
+        "originals": {
+          "PDF-appearance.appearance.json": {
+            "bytes": 983281,
+            "sha256": "9ee19932e7214db2720ee954639f04b872776e02cd8d99b4efd88906146198bc"
+          },
+          "PDF-appearance.customization.png": {
+            "bytes": 100862,
+            "sha256": "829ea541dc6e47839f37d0cfc98b10646dcba082dd38e7fec334b0e407e631f5"
+          },
+          "PDF-appearance.dark-attached-1.png": {
+            "bytes": 336429,
+            "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+          },
+          "PDF-appearance.dark-attached-2.png": {
+            "bytes": 336429,
+            "sha256": "c3d2cf647cacfd47635c4c8a1c96655255d8c5baf72b33ab771faeb0620648e0"
+          },
+          "PDF-appearance.dark-recreated.png": {
+            "bytes": 336597,
+            "sha256": "52cd7ca64c82b9a840b478a31588e84d7ce31d695dfdb32afb2426699ba7b59e"
+          },
+          "PDF-appearance.light-return.png": {
+            "bytes": 348968,
+            "sha256": "cdabb485276c653e0272cf5c165f932cd7bcbb56d8df52f2d142181c2112453c"
+          },
+          "PDF-appearance.png": {
+            "bytes": 348715,
+            "sha256": "c104766d414a3cd14721fa5edc15cf87bb8cb460d2240291e51469e3936186f3"
+          },
+          "PDF-appearance.system.png": {
+            "bytes": 348942,
+            "sha256": "cd9793b0548e19f46131de24fe80e89974dbfe20d894db438d704d703ce6cfcd"
+          }
+        },
+        "schemaVersion": 1,
+        "scope": "minimal-appearance-diagnostic-only",
+        "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "sourceCommitAuthenticatedByThisHelper": false,
+        "status": "passed",
+        "unchangedBundleFiles": {
+          "Contents/Info.plist": {
+            "bytes": 2034,
+            "mode": 420,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "Contents/MacOS/PDF": {
+            "bytes": 19687120,
+            "mode": 493,
+            "sha256": "b2aff5d9db9e97147f9edd20f2c71dd85f3c60380aaa338163a8dd79ff5dc9ff"
+          },
+          "Contents/Resources/installation.lock": {
+            "bytes": 0,
+            "mode": 292,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "Contents/_CodeSignature/CodeResources": {
+            "bytes": 2456,
+            "mode": 420,
+            "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+          }
+        },
+        "universalWCAGCertification": false
+      },
+      "receiptScope": "minimal-appearance-diagnostic-only",
+      "originalLogs": [
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/build.log",
+          "bytes": 1046,
+          "sha256": "919467dc51738bbf03daf2144627d80b44ca87d03c83e97ee27f324aee78b24a"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/bundle.log",
+          "bytes": 1423,
+          "sha256": "f69e03efbf64f953bdc9d0fdd71e2170a6420afd9922317ff3df08874e4cc86c"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/capture.log",
+          "bytes": 279412,
+          "sha256": "2c978441126bb0db2b9ad3c15c7cbed6aa194cc57cb08863fc8165d78cb05de2"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/origin.log",
+          "bytes": 5077,
+          "sha256": "a2ead390d041a977e36f0ffcfabfe6523c6dd90f4df3b910d66125fd0e94d64c"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-sdk26/validation.log",
+          "bytes": 2194,
+          "sha256": "002c9ad552415421ef2a71580a88b32ebb129c65b310cfb247e8610ebe5f83f2"
+        }
+      ],
+      "officialAggregate": {
+        "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/official-attempt-logs/1_compile-sdk26.txt",
+        "bytes": 328231,
+        "sha256": "220e6deecb5fa4850d852e302c0e27b71b2630590dccfd163fcc13d5364f1247"
+      },
+      "captureTimeoutMarkerFound": false,
+      "customizationAppearance": {
+        "application": "NSAppearanceNameAqua",
+        "window": "NSAppearanceNameAqua",
+        "content": "NSAppearanceNameAqua",
+        "nativePopups": [
+          {
+            "title": "Equilibrado",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Degradê suave",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Liquid Glass",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Suave",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          },
+          {
+            "title": "Restaurar",
+            "effectiveStyle": "light",
+            "effectiveAppearance": "NSAppearanceNameAqua"
+          }
+        ]
+      }
+    },
+    {
+      "job": "same-binary-xcode27",
+      "jobID": 121349491713,
+      "conclusion": "success",
+      "operatingSystem": "Version 27.0.1 (Build 26A434)",
+      "steps": [
+        {
+          "number": 1,
+          "name": "Set up job",
+          "conclusion": "success"
+        },
+        {
+          "number": 2,
+          "name": "Require exact source and authenticated transfer identities",
+          "conclusion": "success"
+        },
+        {
+          "number": 3,
+          "name": "Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 4,
+          "name": "Check out exact sources only for metadata and timeout checks",
+          "conclusion": "success"
+        },
+        {
+          "number": 5,
+          "name": "Verify the target identity without compiling or installing anything",
+          "conclusion": "success"
+        },
+        {
+          "number": 6,
+          "name": "Download only this run's exact minimal bundle artifact",
+          "conclusion": "success"
+        },
+        {
+          "number": 7,
+          "name": "Verify every byte and safely restore without rebuilding or resigning",
+          "conclusion": "success"
+        },
+        {
+          "number": 8,
+          "name": "Capture the unchanged SDK 26 executable on macOS 27",
+          "conclusion": "success"
+        },
+        {
+          "number": 9,
+          "name": "Validate target originals and unchanged bytes even after failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 10,
+          "name": "Retain target original evidence even on failure",
+          "conclusion": "success"
+        },
+        {
+          "number": 19,
+          "name": "Post Check out exact sources only for metadata and timeout checks",
+          "conclusion": "success"
+        },
+        {
+          "number": 20,
+          "name": "Post Check out this diagnostic control",
+          "conclusion": "success"
+        },
+        {
+          "number": 21,
+          "name": "Complete job",
+          "conclusion": "success"
+        }
+      ],
+      "nativeReport": {
+        "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.appearance.json",
+        "bytes": 1011715,
+        "sha256": "39cc0d31883123560a54634e2aea23ed8a28ea55544ea419e2baf7d9483e543a"
+      },
+      "nativeStatus": "passed",
+      "passedChecks": 12,
+      "failedChecks": [],
+      "exactSourceCheckerReplayedOffline": true,
+      "measurementRowsTotal": 18,
+      "measurementMinimum": 6.877762168646463,
+      "measurementMaximum": 20.99999806047058,
+      "measurements": [
+        {
+          "phase": "light-initial",
+          "auditKey": "autoSidebar",
+          "centralContrast": 20.99999806047058,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 174,
+            "y": 16
+          },
+          "luminanceP05": 0,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            0,
+            0,
+            0
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 166,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-initial",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 10.753399199346745,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 976,
+            "y": 16
+          },
+          "luminanceP05": 0.04764353424983193,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            52,
+            52,
+            52
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 968,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-initial",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 6.877762168646463,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 1013,
+            "y": 16
+          },
+          "luminanceP05": 0.10266592203640684,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            56,
+            56,
+            56
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 38,
+            "x": 1004,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-1",
+          "auditKey": "autoSidebar",
+          "centralContrast": 17.43176548836879,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 176,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 168,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-1",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 12.635688507962987,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 976,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.7111088915147048,
+          "maximumRGB": [
+            226,
+            226,
+            226
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 968,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-1",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 10.421085574253057,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 1013,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.5777126002909266,
+          "maximumRGB": [
+            224,
+            224,
+            224
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 38,
+            "x": 1004,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-2",
+          "auditKey": "autoSidebar",
+          "centralContrast": 17.43176548836879,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 176,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 168,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-2",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 12.635688507962987,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 976,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.7111088915147048,
+          "maximumRGB": [
+            226,
+            226,
+            226
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 968,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-attached-2",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 10.421085574253057,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 1013,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.5777126002909266,
+          "maximumRGB": [
+            224,
+            224,
+            224
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 38,
+            "x": 1004,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-recreated",
+          "auditKey": "autoSidebar",
+          "centralContrast": 17.43176548836879,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 174,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 166,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-recreated",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 12.635688507962987,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 976,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.7111088915147048,
+          "maximumRGB": [
+            226,
+            226,
+            226
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 968,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "dark-recreated",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 10.421085574253057,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 1013,
+            "y": 16
+          },
+          "luminanceP05": 0.010234857090300652,
+          "luminanceP95": 0.5777126002909266,
+          "maximumRGB": [
+            224,
+            224,
+            224
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            26,
+            26,
+            26
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 38,
+            "x": 1004,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-return",
+          "auditKey": "autoSidebar",
+          "centralContrast": 20.99999806047058,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 174,
+            "y": 16
+          },
+          "luminanceP05": 0,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            0,
+            0,
+            0
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 166,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-return",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 10.753399199346745,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 976,
+            "y": 16
+          },
+          "luminanceP05": 0.04764353424983193,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            52,
+            52,
+            52
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 968,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "light-return",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 6.877762168646463,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 1013,
+            "y": 16
+          },
+          "luminanceP05": 0.10266592203640684,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            56,
+            56,
+            56
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 38,
+            "x": 1004,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "system",
+          "auditKey": "autoSidebar",
+          "centralContrast": 20.99999806047058,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 174,
+            "y": 16
+          },
+          "luminanceP05": 0,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            0,
+            0,
+            0
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 166,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "system",
+          "auditKey": "pdf.commands.toolbar",
+          "centralContrast": 10.753399199346745,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 976,
+            "y": 16
+          },
+          "luminanceP05": 0.04764353424983193,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            52,
+            52,
+            52
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 36,
+            "x": 968,
+            "y": 8
+          },
+          "sampleCount": 400
+        },
+        {
+          "phase": "system",
+          "auditKey": "pdf.customize.toolbar",
+          "centralContrast": 6.877762168646463,
+          "centralPixelBounds": {
+            "height": 20,
+            "width": 20,
+            "x": 1013,
+            "y": 16
+          },
+          "luminanceP05": 0.10266592203640684,
+          "luminanceP95": 0.9999999030235293,
+          "maximumRGB": [
+            255,
+            255,
+            255
+          ],
+          "minimumContrast": 3,
+          "minimumRGB": [
+            56,
+            56,
+            56
+          ],
+          "passed": true,
+          "pixelBounds": {
+            "height": 36,
+            "width": 38,
+            "x": 1004,
+            "y": 8
+          },
+          "sampleCount": 400
+        }
+      ],
+      "workspaceObservations": [
+        {
+          "phase": "light-initial",
+          "timing": "before",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "light-initial",
+          "timing": "after",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "before",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 188,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-1",
+          "timing": "after",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 188,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "before",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 188,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-attached-2",
+          "timing": "after",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "4DEA89CA-E6DB-4EE3-A1B8-2ECB712C3C1B",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 188,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 168,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "66852B10-21A1-42B4-A4D8-B6796B1E2D40",
+              "identity": "9D9B5956-EA90-4AD6-A6E2-64CA747DE5B7",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "9D2106A7-C1DA-4596-8A3A-2F12988DCC1D",
+              "identity": "60953440-7303-4A21-88F2-A691684E5C1B",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "before",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "dark-recreated",
+          "timing": "after",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantDark",
+              "effectiveStyle": "dark",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "light-return",
+          "timing": "before",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "light-return",
+          "timing": "after",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "system",
+          "timing": "before",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        },
+        {
+          "phase": "system",
+          "timing": "after",
+          "windowNumber": 31,
+          "controls": [
+            {
+              "alpha": 1,
+              "auditKey": "autoSidebar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "com.apple.SwiftUI.navigationSplitView.toggleSidebar",
+              "identity": "C3989C3B-B60E-4B0C-BE2E-99DDD6C9AAC8",
+              "label": "Hide Sidebar",
+              "paletteLabel": "Hide Sidebar",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 186,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 166,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.commands.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "D1943082-675C-4208-8729-FBE81CAFC600",
+              "identity": "95616986-EC19-4DD9-B806-2E5C37F8A92E",
+              "label": "Comandos",
+              "paletteLabel": "Comandos",
+              "screenFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 988,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 36,
+                "x": 968,
+                "y": 728
+              }
+            },
+            {
+              "alpha": 1,
+              "auditKey": "pdf.customize.toolbar",
+              "effectiveAppearance": "NSAppearanceNameVibrantLight",
+              "effectiveStyle": "light",
+              "identification": "public-NSToolbarItem-label-paletteLabel-and-actual-view",
+              "identifier": "F8AAD9CA-C2E4-47FF-8895-C46AB6F4EBE0",
+              "identity": "D26F7CD6-C958-42DF-BD87-7119CA224CC8",
+              "label": "Personalizar",
+              "paletteLabel": "Personalizar",
+              "screenFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1024,
+                "y": 693
+              },
+              "windowFrame": {
+                "height": 36,
+                "width": 38,
+                "x": 1004,
+                "y": 728
+              }
+            }
+          ],
+          "workspaceToolbarProviderCount": 1
+        }
+      ],
+      "frames": [
+        {
+          "phase": "light-initial",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.png",
+            "bytes": 348631,
+            "sha256": "c9a1e05fbaebe91ffa304f6491cebbbecfaa016729c49513709fe94ee9ff426b"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-1",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-1.png",
+            "bytes": 338945,
+            "sha256": "358dd97850c8caa27a8df3410342b867e218f6ac2893b78899606b2efbd17e1a"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-attached-2",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-attached-2.png",
+            "bytes": 338910,
+            "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "customization",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.customization.png",
+            "bytes": 101973,
+            "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 0,
+          "measurementCount": 0,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "dark-recreated",
+          "selection": "dark",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.dark-recreated.png",
+            "bytes": 339103,
+            "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "light-return",
+          "selection": "light",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.light-return.png",
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        },
+        {
+          "phase": "system",
+          "selection": "system",
+          "original": {
+            "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/PDF-appearance.system.png",
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          },
+          "dimensions": [
+            1050,
+            772
+          ],
+          "PNGCRCAndRasterParsed": true,
+          "nativeFrameFingerprintMatched": true,
+          "windowNumber": 31,
+          "selectedControls": 3,
+          "measurementCount": 3,
+          "nativePopupProviderCount": 0
+        }
+      ],
+      "originalCaptureLines": [
+        {
+          "png": "PDF-appearance.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-1.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-attached-2.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.customization.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.dark-recreated.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.light-return.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        },
+        {
+          "png": "PDF-appearance.system.png",
+          "windowNumber": 31,
+          "points": "1050x772",
+          "pixels": "1050x772"
+        }
+      ],
+      "officialCaptureCounterMatchesArtifactLog": true,
+      "originPythonSuites": [],
+      "manifest": {
+        "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/appearance-bundle.json",
+        "bytes": 1055,
+        "sha256": "2181b246f600178bc486a1de950fa9b06e33e6420a15f32e3f8f29f783350b09"
+      },
+      "builtSDK": "26.5",
+      "declaredArchive": {
+        "bytes": 5173480,
+        "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+      },
+      "passedReceipt": {
+        "archive": {
+          "bytes": 5173480,
+          "sha256": "fa3cd391299df0b9a3f282e35ea21a67abe1ca46d3cdd99ccb0aad05ddae4dd7"
+        },
+        "completeApplicationApproved": false,
+        "engineRuntimeInstalled": false,
+        "externalDeadlineSeconds": 90,
+        "humanVisualReview": false,
+        "nativeChecksPassed": 12,
+        "operatingSystem": "Version 27.0.1 (Build 26A434)",
+        "originals": {
+          "PDF-appearance.appearance.json": {
+            "bytes": 1011715,
+            "sha256": "39cc0d31883123560a54634e2aea23ed8a28ea55544ea419e2baf7d9483e543a"
+          },
+          "PDF-appearance.customization.png": {
+            "bytes": 101973,
+            "sha256": "14d4dea097ab54f98171573ca1e289d83935d81b50c3340f1c92f6b00b00cf1b"
+          },
+          "PDF-appearance.dark-attached-1.png": {
+            "bytes": 338945,
+            "sha256": "358dd97850c8caa27a8df3410342b867e218f6ac2893b78899606b2efbd17e1a"
+          },
+          "PDF-appearance.dark-attached-2.png": {
+            "bytes": 338910,
+            "sha256": "baa67d691fcf2426f6cba9971343e8f460d48ffdeaf948d6155446814d28f8a5"
+          },
+          "PDF-appearance.dark-recreated.png": {
+            "bytes": 339103,
+            "sha256": "a49948efd1e7f362b0425d5128cb2fb270c4cdab5f407493d6a304d4b51ae50c"
+          },
+          "PDF-appearance.light-return.png": {
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          },
+          "PDF-appearance.png": {
+            "bytes": 348631,
+            "sha256": "c9a1e05fbaebe91ffa304f6491cebbbecfaa016729c49513709fe94ee9ff426b"
+          },
+          "PDF-appearance.system.png": {
+            "bytes": 348877,
+            "sha256": "460e978133e6f53a45390e3422ec5a5df745d28493c477eafcc9bc8d2425e3b6"
+          }
+        },
+        "schemaVersion": 1,
+        "scope": "minimal-appearance-diagnostic-only",
+        "sourceCommit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+        "sourceCommitAuthenticatedByThisHelper": false,
+        "status": "passed",
+        "unchangedBundleFiles": {
+          "Contents/Info.plist": {
+            "bytes": 2034,
+            "mode": 420,
+            "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+          },
+          "Contents/MacOS/PDF": {
+            "bytes": 19687120,
+            "mode": 493,
+            "sha256": "b2aff5d9db9e97147f9edd20f2c71dd85f3c60380aaa338163a8dd79ff5dc9ff"
+          },
+          "Contents/Resources/installation.lock": {
+            "bytes": 0,
+            "mode": 292,
+            "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+          },
+          "Contents/_CodeSignature/CodeResources": {
+            "bytes": 2456,
+            "mode": 420,
+            "sha256": "ab72ed87048d7820bde9ec059b769ee53543953a09098b6e63895a48dd99c059"
+          }
+        },
+        "universalWCAGCertification": false
+      },
+      "receiptScope": "minimal-appearance-diagnostic-only",
+      "originalLogs": [
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/capture.log",
+          "bytes": 291400,
+          "sha256": "0b98e75d3f3c82dabe7b620e2ff0d2bcc25c2c84ab1dba7a9dde46b589006f7e"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/origin.log",
+          "bytes": 434,
+          "sha256": "df31173ba7e594f79171bc6c5b7d3e20c2922aa3cf25028a1e0fca431f11ba3d"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/restore.log",
+          "bytes": 108,
+          "sha256": "d8a2218b11a7edc034a38fa232d78505d388384de2f170093926bb7a3bddc60e"
+        },
+        {
+          "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/extracted/PDF-appearance-same-binary-xcode27/validation.log",
+          "bytes": 2196,
+          "sha256": "a6ab444ac9575c6f0e6496c441adb1ffa96f38a884b010f782692cf10b3188ab"
+        }
+      ],
+      "officialAggregate": {
+        "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/official-attempt-logs/0_same-binary-xcode27.txt",
+        "bytes": 333094,
+        "sha256": "71632051430f7d2de3658057252a6034313e0d2ce644891ba7f7d353ed92f7c2"
+      },
+      "captureTimeoutMarkerFound": false,
+      "customizationAppearance": {
+        "application": "NSAppearanceNameAqua",
+        "window": "NSAppearanceNameAqua",
+        "content": "NSAppearanceNameAqua",
+        "nativePopups": []
+      }
+    }
+  ],
+  "totalPNGsVerified": 14,
+  "nativeCentralContrastMeasurements": 36,
+  "beforeAfterWorkspaceObservations": 24,
+  "manifestBytesIdenticalAcrossSystems": true,
+  "sameDiagnosticBundleDeclarationBoundAcrossSystems": true,
+  "transportTarLocallyDownloadedOrExecuted": false,
+  "officialLogZIP": {
+    "endpoint": "/repos/vibracall-beep/PDF-/actions/runs/40252786964/attempts/1/logs",
+    "path": "/workspace/.cache/pdf-appearance-9d78ab9-40252786964/downloads/run-40252786964-attempt-1-logs.zip",
+    "bytes": 125489,
+    "sha256": "01b2a29c419fa2ca60f597495232ee11437f978736cb54977cdc07e416861991",
+    "authenticatedAPIEndpoint": true,
+    "upstreamDigestProvided": false,
+    "allMemberCRCVerified": true,
+    "files": {
+      "0_same-binary-xcode27.txt": {
+        "bytes": 333094,
+        "sha256": "71632051430f7d2de3658057252a6034313e0d2ce644891ba7f7d353ed92f7c2"
+      },
+      "1_compile-sdk26.txt": {
+        "bytes": 328231,
+        "sha256": "220e6deecb5fa4850d852e302c0e27b71b2630590dccfd163fcc13d5364f1247"
+      },
+      "compile-sdk26/10_Validate originals and unchanged bundle even after a capture failure.txt": {
+        "bytes": 3446,
+        "sha256": "154a4263c38ee2534ab296a7fb9c1986f2e1de6d007f2e5e519af4d8213e8e06"
+      },
+      "compile-sdk26/11_Retain all original macOS 26 diagnostic evidence even on failure.txt": {
+        "bytes": 2236,
+        "sha256": "67bc8be075ac9ed7a528f64316105c459c6da04a51c41d579ded7bc064dca8d3"
+      },
+      "compile-sdk26/1_Set up job.txt": {
+        "bytes": 2173,
+        "sha256": "353c6f0083e15ba1acdf5744631013e813dd391e3170be6f601a05d7e6fd0d95"
+      },
+      "compile-sdk26/21_Post Check out the exact application source.txt": {
+        "bytes": 1745,
+        "sha256": "2743afc53849c949f6d1be7c5cee89a7a1661e388e0ec83875f68e5a1add1a78"
+      },
+      "compile-sdk26/22_Post Check out this diagnostic control.txt": {
+        "bytes": 1757,
+        "sha256": "e50d7026d6644be2d909667c0806753741778914b47acd8825785d204ffc88ef"
+      },
+      "compile-sdk26/23_Complete job.txt": {
+        "bytes": 686,
+        "sha256": "eabb5f679d999e29c9aa7daedbab9d26fc6d48492f06444274aab9de838d7858"
+      },
+      "compile-sdk26/2_Require an explicit source commit.txt": {
+        "bytes": 518,
+        "sha256": "3d6637c37420c74b791b55c29c305d8cf0c2a53d79c37ca88c594fc721289462"
+      },
+      "compile-sdk26/3_Check out this diagnostic control.txt": {
+        "bytes": 7542,
+        "sha256": "0ef1d6b03def8fa0dab45e59399b59d25a51f720895f4bd2e08f827128337203"
+      },
+      "compile-sdk26/4_Check out the exact application source.txt": {
+        "bytes": 7535,
+        "sha256": "c43ef101efca2b841acf4945e8c27a0ae99a92533a0cb22896e0b995a2fe4dd6"
+      },
+      "compile-sdk26/5_Verify source and SDK 26 without installing dependencies.txt": {
+        "bytes": 8346,
+        "sha256": "64aa1e1d2ae1847f40355eb2927f3be7e6269429d8a1da502a5850024d155d96"
+      },
+      "compile-sdk26/6_Compile the native arm64 executable once.txt": {
+        "bytes": 2144,
+        "sha256": "bb41b0f4aa81df0b18ae596a819255786e37c371b36639143721d0d1d022ac32"
+      },
+      "compile-sdk26/7_Build and fingerprint the diagnostic-only bundle.txt": {
+        "bytes": 4188,
+        "sha256": "c2cab5118a62437ae9ddfa69547a356d645c2056afc409582edea86430ea469a"
+      },
+      "compile-sdk26/8_Retain the same authenticated bundle before either appearance capture.txt": {
+        "bytes": 2279,
+        "sha256": "96144639afdbf39a320758b79ae1bf4ee835511f92865aa06259f7a8e9c20dde"
+      },
+      "compile-sdk26/9_Capture seven original appearance frames on macOS 26.txt": {
+        "bytes": 283675,
+        "sha256": "3dd7323f194fba7e524a7ecca039d1d3e83537ea4e4771282afbe4ba003926d1"
+      },
+      "compile-sdk26/system.txt": {
+        "bytes": 593,
+        "sha256": "dd8f00e18b06f00484c0a72e77c72c1d790ecb42e2fb01c1021eb4f086c12775"
+      },
+      "same-binary-xcode27/10_Retain target original evidence even on failure.txt": {
+        "bytes": 2570,
+        "sha256": "7e99e1fd847b6889b95a8d714624eaa27f93fec7c1c3716056c2997951ae3822"
+      },
+      "same-binary-xcode27/19_Post Check out exact sources only for metadata and timeout checks.txt": {
+        "bytes": 1745,
+        "sha256": "1275522ec9b51b6de68c24e33c6c739a2de1296e25a2453eb5621a5cfbd15d3c"
+      },
+      "same-binary-xcode27/1_Set up job.txt": {
+        "bytes": 2352,
+        "sha256": "9cbc5b683eb48ec9627259468fea324dd86b95490f1f28e065ffa6102fa9e759"
+      },
+      "same-binary-xcode27/20_Post Check out this diagnostic control.txt": {
+        "bytes": 1757,
+        "sha256": "fe6f49bba10c68a317ea00a7b963125bc9613f90feb52f84ebd02f2ec26392e8"
+      },
+      "same-binary-xcode27/21_Complete job.txt": {
+        "bytes": 520,
+        "sha256": "df2e05f77857a05fb3ca499814e5d0f1486587b974a9e7479e433f652400dc61"
+      },
+      "same-binary-xcode27/2_Require exact source and authenticated transfer identities.txt": {
+        "bytes": 1025,
+        "sha256": "76aa2141faa469e115ce2f91cf1679bce69016811b682a664b382959e9620f17"
+      },
+      "same-binary-xcode27/3_Check out this diagnostic control.txt": {
+        "bytes": 7836,
+        "sha256": "0602678e7bf8f5159be59e3fdc34aecedf8428c1c55de2b94b7de919bc7d3a22"
+      },
+      "same-binary-xcode27/4_Check out exact sources only for metadata and timeout checks.txt": {
+        "bytes": 7829,
+        "sha256": "1ef2cf3ecd08a234a2ce957ec9aa31331b38c20e3e4f06586f6c52ce72d1adc7"
+      },
+      "same-binary-xcode27/5_Verify the target identity without compiling or installing anything.txt": {
+        "bytes": 2909,
+        "sha256": "7eaf19727d797cfa6e1938d4cd6d8b5177544dc3c6014b8a9647193319a9e6d1"
+      },
+      "same-binary-xcode27/6_Download only this run's exact minimal bundle artifact.txt": {
+        "bytes": 3025,
+        "sha256": "1f3845e005728338c11449e6c2daf6410b6db8997d9145f4621ab4d3c6c6c7bc"
+      },
+      "same-binary-xcode27/7_Verify every byte and safely restore without rebuilding or resigning.txt": {
+        "bytes": 1913,
+        "sha256": "804313e2a25010bcfd0e212e5a434d25b2ad4771d5b81abb200977fab6c1ece9"
+      },
+      "same-binary-xcode27/8_Capture the unchanged SDK 26 executable on macOS 27.txt": {
+        "bytes": 296018,
+        "sha256": "e0a77a4e9b2f28ebb36fd1a04eac7e4a1d31980c69711f59a37b37de7544b5a9"
+      },
+      "same-binary-xcode27/9_Validate target originals and unchanged bytes even after failure.txt": {
+        "bytes": 3631,
+        "sha256": "496dcd56470543df633f4d0cf03af0344afa024c1faf75fcd99a1b95e946c022"
+      },
+      "same-binary-xcode27/system.txt": {
+        "bytes": 1000,
+        "sha256": "aaa53ae45a18398e8532ebcc0bbeded8737f37d8f5c009ab51cab361400b636a"
+      }
+    },
+    "aggregates": [
+      {
+        "name": "0_same-binary-xcode27.txt",
+        "bytes": 333094,
+        "sha256": "71632051430f7d2de3658057252a6034313e0d2ce644891ba7f7d353ed92f7c2"
+      },
+      {
+        "name": "1_compile-sdk26.txt",
+        "bytes": 328231,
+        "sha256": "220e6deecb5fa4850d852e302c0e27b71b2630590dccfd163fcc13d5364f1247"
+      }
+    ],
+    "artifactCodeExecuted": false
+  },
+  "exactSourceRecords": [
+    {
+      "role": "controller",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "diagnostics/delivery_archives.py",
+      "bytes": 17378,
+      "sha256": "4c3fd4c91bb7550e36ba414187a853c544755f5ac944828e1556013e84f9566b"
+    },
+    {
+      "role": "controller",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "scripts/check_appearance_preview.py",
+      "bytes": 35934,
+      "sha256": "4c7cad41cc4022db551f600517f6de98d453d33de3001fff269b337ac1a13aa3"
+    },
+    {
+      "role": "controller",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": ".github/workflows/appearance-compatibility.yml",
+      "bytes": 12626,
+      "sha256": "50d8ad4c7c081642396ed4322826ccface42d8b8ec46ad0dcafbaa454634935c"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "scripts/check_appearance_preview.py",
+      "bytes": 35934,
+      "sha256": "4c7cad41cc4022db551f600517f6de98d453d33de3001fff269b337ac1a13aa3"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "scripts/PDF-Info.plist",
+      "bytes": 2034,
+      "sha256": "92bdba26e076ab8ad87baea0de2844ab524b1e56773d169151a8602763e71c8a"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "scripts/prepare-window-audit-bundle.py",
+      "bytes": 4147,
+      "sha256": "9381290b86625d58f21c546b01b853104386a6b3702b40192eeaf7b498d5b683"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "scripts/run-with-timeout.py",
+      "bytes": 4709,
+      "sha256": "8f2e08be84203f0bf2cbc388b12c38fb6627f6268bc2ba6f189c9bd34785f693"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/ToolbarRenderingAudit.swift",
+      "bytes": 32109,
+      "sha256": "c339164e9eeb00bb9a9e2ac57b6f2a1e6451b7e1d1573fe26761ba3dc0ae0b72"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/ApplicationAppearance.swift",
+      "bytes": 14203,
+      "sha256": "696411eccc941936861529e67a016abe3df5160efbedd33f38dccd75bb80cbc4"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/MacPreview.swift",
+      "bytes": 59082,
+      "sha256": "949d02248e49abee7cf6dc96708c9bbd6a4d4a41119e9df3d2a0fbfee27a5860"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/AccessibilityAudit.swift",
+      "bytes": 18121,
+      "sha256": "608eb3c419f3d2332e34fc72cb925f7b6c7e1e2bcd5e2ceccaf014481951d303"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/PDFApp.swift",
+      "bytes": 44076,
+      "sha256": "3c666f575d7287b26b41c5a94b7aac59b0cb2512ff3cedb40be4c196b1fa55b1"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/CustomizationView.swift",
+      "bytes": 24737,
+      "sha256": "c0615b364b44339f008d57355f93b96bc4c92d81000a458875e3f4af44c333d7"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/RecoveryStore.swift",
+      "bytes": 58427,
+      "sha256": "10a4530bfd0d2000f1f5913116d29e0eba34a69987ed3ff7b9e6ea7fad82509f"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/WorkspaceModel.swift",
+      "bytes": 88789,
+      "sha256": "abcc9ba8a37c536da0f6686b6996a4f8324b46d7ab5d5369dd4dcf6706a0ae1c"
+    },
+    {
+      "role": "application",
+      "commit": "9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb",
+      "path": "Sources/PDF/SessionAnnotationAuditChecks.swift",
+      "bytes": 48129,
+      "sha256": "90de7d50b292fb74ee22426e18fb6dedce4a8f9ddd267c56e2d308d3459cf3f5"
+    }
+  ],
+  "currentCollectionIncidentObserved": false,
+  "eachEvidenceArtifactDownloadedOnce": true,
+  "separateRecoverySourceRetention": [
+    "Sources/PDF/RecoveryStore.swift",
+    "Sources/PDF/WorkspaceModel.swift",
+    "Sources/PDF/SessionAnnotationAuditChecks.swift"
+  ],
+  "recoveryPathsExercisedByThisFocal": false,
+  "fullNativeWorkflowApproved": false,
+  "sourcePackageApproved": false,
+  "packageFailureReportedSeparatelyByCoordinator": {
+    "reported": true,
+    "detail": "Root reproduced package-source expanded size147MB above120MiB and assigned producer/consumer correction. This focal does not exercise or approve that package.",
+    "independentlyReproducedByThisReview": false
+  },
+  "limits": [
+    "Three actual toolbar controls measured centrally in six workspace states per system; not universal WCAG certification.",
+    "Static PNGs and native focal checks do not approve all clicks, animation, scrolling, VoiceOver or other workspaces.",
+    "Source recovery changes are retained for provenance but not exercised by this appearance-only focal.",
+    "Full native matrix, source/runtime installer packaging, recovery paths, physical M4 and production services are outside this approval.",
+    "Transport tar/app is not downloaded, extracted or executed locally; original workflow pack/restore and metadata provide the same-bundle declaration binding."
+  ]
+}

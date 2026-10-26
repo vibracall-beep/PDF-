@@ -1,0 +1,8 @@
+{
+  "scope": "Large real dirty-tree source archive passes compressed/TAR/payload bounds and remains ineligible for delivery",
+  "expectedDirtyTreeGateRefused": true,
+  "message": "Source build identity or clean-tree evidence differs.",
+  "sourceArchiveBytes": 77212676,
+  "releaseApproved": false,
+  "networkExecuted": false
+}

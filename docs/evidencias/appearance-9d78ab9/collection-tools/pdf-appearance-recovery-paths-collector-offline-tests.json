@@ -1,0 +1,58 @@
+{
+  "schemaVersion": 1,
+  "scope": "Offline preparation only; pending source/run; no native approval",
+  "baseCollector": "/tmp/pdf_collect_appearance_public_items.py",
+  "baseSHA256": "030d370363510ee3972739d7285c9e19ad6801a22ef97117f4f6accd604ea4c7",
+  "historicalBaseUnchanged": true,
+  "collector": "/tmp/pdf_collect_appearance_recovery_paths.py",
+  "collectorSHA256": "83430bd79e67203b15378ec9489090d479e0671791b6306d9d9014c74aad3480",
+  "collectorBytes": 28190,
+  "onlyCollectorDelta": "Retain exact-Git Sources/PDF/WorkspaceModel.swift and Sources/PDF/SessionAnnotationAuditChecks.swift in addition to existing RecoveryStore.swift. No validation/download/gate behavior changed.",
+  "additionalSourcePaths": [
+    "Sources/PDF/WorkspaceModel.swift",
+    "Sources/PDF/SessionAnnotationAuditChecks.swift"
+  ],
+  "suite": "/tmp/test_pdf_collect_appearance_recovery_paths_offline.py",
+  "suiteSHA256": "b1c17f5e993377086ca6505ce882ee1d62a5dae4617beaa46d84440312a71450",
+  "suiteOnlyDelta": "New collector import path",
+  "tests": 18,
+  "passed": 18,
+  "failed": 0,
+  "logSHA256": "f027dd0436e7e1b30a135affce6ff16cf516c4ef95a710379d1eb48bef0d083e",
+  "diffSHA256": "908665cf0e7fe256d379f2e7af2c384ee930df2a2cd5d28df6409db916a1a665",
+  "pendingConfiguration": "/tmp/pdf-appearance-recovery-paths-config.draft.json",
+  "pendingConfigurationSHA256": "53bf19ad6a32d57981d21de263c582d458949a7a27979af4d8a9f58092f0d4f0",
+  "pendingIdentityGuards": [
+    {
+      "case": "actual-unallocated-draft",
+      "refused": true,
+      "reason": "Exact source and control commits required."
+    },
+    {
+      "case": "missing-run-identity",
+      "refused": true,
+      "reason": "Positive exact run and attempt required."
+    },
+    {
+      "case": "missing-job-identities",
+      "refused": true,
+      "reason": "Two explicit distinct job IDs required."
+    },
+    {
+      "case": "duplicate-job-identities",
+      "refused": true,
+      "reason": "Two explicit distinct job IDs required."
+    }
+  ],
+  "sourceCommittedForThisPreparation": false,
+  "actualRunConfigured": false,
+  "recoveryPathsExercisedByAppearanceFocal": false,
+  "retainingSourceImpliesNativeValidation": false,
+  "checkerTestsReportedByCoordinator": 28,
+  "checkerTestsExecutedByThisPreparation": false,
+  "networkCalls": 0,
+  "collectorMainExecuted": false,
+  "artifactsDownloaded": false,
+  "artifactCodeExecuted": false,
+  "repositoryEdited": false
+}

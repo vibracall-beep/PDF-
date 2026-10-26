@@ -219,6 +219,24 @@ class DeliveryTests(unittest.TestCase):
                 with self.assertRaises(evidence.EvidenceFailure): self.deliver(api, str(index))
                 self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
 
+    def test_source_transport_allowance_does_not_expand_other_artifact_limits(self):
+        api = copy.deepcopy(self.api)
+        source = next(item for item in api.artifacts[123] if item['name'] == gate.SOURCE_NAMES[0])
+        # This exercises only authenticated metadata selection with synthetic
+        # data. The download must still measure the actual ZIP against it.
+        source['size_in_bytes'] = evidence.MAX_ARTIFACT + 1
+        origins = gate.collect_origins(api, '123', api.commit, api.sha, '456', api.control)
+        self.assertEqual(origins['sourceArtifact']['id'], source['id'])
+        source['size_in_bytes'] = delivery_archives.MAX_SOURCE_TRANSPORT + 1
+        with self.assertRaises(evidence.EvidenceFailure):
+            gate.collect_origins(api, '123', api.commit, api.sha, '456', api.control)
+        source['size_in_bytes'] = evidence.MAX_ARTIFACT + 1
+        other = next(item for item in api.artifacts[123] if item['name'] == evidence.ARTIFACT_NAMES[0])
+        other['size_in_bytes'] = evidence.MAX_ARTIFACT + 1
+        with self.assertRaises(evidence.EvidenceFailure):
+            gate.collect_origins(api, '123', api.commit, api.sha, '456', api.control)
+        self.assertEqual(api.create_count, 0); self.assertEqual(api.upload_count, 0)
+
     def test_cross_report_cannot_relabel_another_binary_or_rebuild(self):
         for field, value in [('archiveSHA256', '0' * 64), ('archiveBytes', 1), ('sourceArtifactID', 999),
                              ('rebuiltOnDestination', True), ('targetOperatingSystem', '26.0'), ('nativeSmokePassed', False),

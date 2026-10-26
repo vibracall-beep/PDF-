@@ -16,6 +16,34 @@ import subprocess
 import stat
 import sys
 
+# Keep these bounds aligned with install-from-github.sh and delivery_archives.py.
+# The 16 MiB envelope covers TAR headers/padding and gzip framing; it is also
+# measured while writing, never assumed from the sum of file sizes.
+MAX_SOURCE = 256 * 1024 ** 2
+MAX_SOURCE_PAYLOAD = 240 * 1024 ** 2
+
+
+class BoundedWriter:
+    def __init__(self, stream):
+        self.stream = stream
+        self.count = 0
+
+    def write(self, data):
+        if self.count + len(data) > MAX_SOURCE:
+            raise SystemExit('O arquivo ou TAR dos fontes excede o limite permitido.')
+        written = self.stream.write(data)
+        if written != len(data):
+            raise OSError('Gravação incompleta do pacote de fontes.')
+        self.count += written
+        return written
+
+    def tell(self):
+        return self.count
+
+    def flush(self):
+        self.stream.flush()
+
+
 root = Path(sys.argv[1]).resolve()
 output = Path(sys.argv[2]).expanduser().absolute()
 checksum = output.with_name(output.name + '.sha256')
@@ -88,7 +116,7 @@ total_bytes = 0
 for path in files:
     content = read_regular_file(path)
     total_bytes += len(content)
-    if total_bytes > 120 * 1024 ** 2:
+    if total_bytes > MAX_SOURCE_PAYLOAD:
         raise SystemExit('Os fontes excedem os limites do pacote de instalação.')
     contents[path] = content
 try:
@@ -103,6 +131,9 @@ except (subprocess.CalledProcessError, FileNotFoundError):
     commit, dirty = None, None
 build_info = (json.dumps({'source_archive_format': 1, 'commit': commit, 'working_tree_dirty': dirty}, sort_keys=True, indent=2) + '\n').encode()
 manifest = (''.join(f'{hashlib.sha256(contents[path]).hexdigest()}  {path.relative_to(root).as_posix()}\n' for path in files) + f'{hashlib.sha256(build_info).hexdigest()}  BUILD-INFO.json\n').encode()
+total_bytes += len(build_info) + len(manifest)
+if total_bytes > MAX_SOURCE_PAYLOAD or len(manifest) > 32 * 1024 ** 2:
+    raise SystemExit('Os fontes e seus manifestos excedem os limites do pacote de instalação.')
 output.parent.mkdir(parents=True, exist_ok=True)
 created_identity = None
 try:
@@ -110,8 +141,10 @@ try:
     created_stat = os.fstat(raw.fileno())
     created_identity = (created_stat.st_dev, created_stat.st_ino)
     with raw:
-        with gzip.GzipFile(filename='', mode='wb', fileobj=raw, mtime=0) as compressed:
-            with tarfile.open(fileobj=compressed, mode='w', format=tarfile.PAX_FORMAT) as archive:
+        bounded_archive = BoundedWriter(raw)
+        with gzip.GzipFile(filename='', mode='wb', fileobj=bounded_archive, mtime=0) as compressed:
+            bounded_tar = BoundedWriter(compressed)
+            with tarfile.open(fileobj=bounded_tar, mode='w', format=tarfile.PAX_FORMAT) as archive:
                 for path in files:
                     info = tarfile.TarInfo('PDF/' + path.relative_to(root).as_posix())
                     content = contents[path]
@@ -143,4 +176,5 @@ except BaseException:
 print(f'Pacote: {output}')
 print(f'SHA-256: {digest}')
 print(f'Arquivos: {len(files)}')
+print(f'Carga: {total_bytes}; TAR: {bounded_tar.count}; gzip: {bounded_archive.count} bytes')
 PY

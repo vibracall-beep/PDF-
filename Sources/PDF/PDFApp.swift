@@ -355,6 +355,8 @@ struct ContentView: View {
                     // The accent continues to style the workspace; toolbar
                     // glyphs follow the semantic primary color supplied by
                     // macOS so their contrast does not depend on that choice.
+                    // Keep this explicit in the production WindowGroup so the
+                    // SDK 26 and SDK 27 toolbar renderers share one contract.
                     Label("Comandos", systemImage: "command").foregroundStyle(.primary)
                 }
                     .help("Buscar ferramentas e comandos").accessibilityIdentifier("pdf.commands.toolbar")

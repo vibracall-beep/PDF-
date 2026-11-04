@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "suite": "scripts",
+  "sourceCommit": "2d708974d91c96dde422adf1d8a480a7c6b9d808",
+  "workingTreeBefore": "",
+  "workingTreeAfter": "",
+  "command": [
+    "/workspace/PDF-/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "scripts",
+    "-p",
+    "test_*.py",
+    "-v"
+  ],
+  "startedAtUTC": "2026-11-03T01:04:30.455837+00:00",
+  "completedAtUTC": "2026-11-03T01:04:36.967095+00:00",
+  "durationSeconds": 6.498140662995866,
+  "exitCode": 0,
+  "unittestSummaries": [
+    [
+      "183",
+      "6.283"
+    ]
+  ],
+  "unittestResults": [
+    "OK (skipped=7)"
+  ],
+  "logBytes": 32091,
+  "logSHA256": "24e92d0b81fd5a757f36a41e01c3d9353154f6bde95d8b579969c2f1ed62b426"
+}

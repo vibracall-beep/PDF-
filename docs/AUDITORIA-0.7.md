@@ -1,5 +1,14 @@
 # Auditoria da ampliação 0.7
 
+
+## Retomada na fonte `bc3021a` — matriz final ainda bloqueada
+
+A revisão de retomada está retida em [evidencias/retomada-2d70897/README.md](evidencias/retomada-2d70897/README.md). A evidência focal e a matriz completa retida pertencem à fonte anterior `2d708974d91c96dde422adf1d8a480a7c6b9d808`; o candidato atual `bc3021a` acrescenta contraste sem depender da cor de destaque escolhida. O focal de aparência [40254721260](https://github.com/vibracall-beep/PDF-/actions/runs/40254721260) passou com 12 checks por sistema, 36 medidas e revisão independente dos 14 PNGs. Isso é um diagnóstico restrito, não aprovação do aplicativo completo.
+
+A matriz [40254721424](https://github.com/vibracall-beep/PDF-/actions/runs/40254721424) falhou no job `xcode-27` em `Capture native window preview`; a página pública registra a mensagem genérica de falha de legibilidade no escuro e preservação do PNG/medições. Sem o JSON/PNG autenticado desse job, não se atribui a causa a contraste, seleção, geometria ou estilo. A etapa de validação seguinte foi pulada e a entrega permanece bloqueada. A revisão local da fonte passou 510 testes do núcleo, 183 scripts (176 aprovados e 7 skips macOS) e 55 controles de entrega; isso não substitui a matriz nativa.
+
+O catálogo continua com 71 ferramentas e o leitor. As limitações de conversão, OCR, acessibilidade, rascunhos após crash, IA real, M4 físico, serviços externos, sincronização, scanner/Atalhos e PDF/X permanecem explicitadas abaixo. Não há aprovação de instalador ou entrega nesta fonte.
+
 **Checkpoint atual `9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb`: o diagnóstico focal de aparência e a revisão de seus 14 PNGs passaram; o aplicativo completo e a entrega ainda não têm aprovação desta fonte.** A execução [40252786964](https://github.com/vibracall-beep/PDF-/actions/runs/40252786964) terminou com sucesso nos dois sistemas em **26/10/2026 às 01:15:10 UTC**. Os [originais e revisão factual](evidencias/appearance-9d78ab9/README.md) vinculam o mesmo bundle mínimo SDK 26 ao macOS 27.0.1. A [revisão visual independente por agente](evidencias/appearance-9d78ab9/reviews/pdf-appearance-9d-independent-review.md) não encontrou bloqueador confirmado nos viewports: os três controles da barra e Equilibrado/Restaurar estão legíveis.
 
 | Frente atual | Evidência e limite |

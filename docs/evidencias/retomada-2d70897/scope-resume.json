@@ -1,0 +1,835 @@
+{
+  "sourceCommit": "2d708974d91c96dde422adf1d8a480a7c6b9d808",
+  "reviewedAtUTC": "2026-10-28T03:48:32.254016+00:00",
+  "method": "Static source and retained evidence inventory; no functional or native execution and no live network claim.",
+  "checks": {
+    "uniqueCatalog": true,
+    "uniqueMatrix": true,
+    "matrixMatchesCatalog": true,
+    "nativeRoutesAllInCatalog": true,
+    "noUnknownPanelOperations": true,
+    "readerDestination": true,
+    "nativeGroups45Unique": true
+  },
+  "catalog": [
+    {
+      "id": "conversion-audit",
+      "name": "Auditar conversão Office",
+      "icon": "doc.text.magnifyingglass",
+      "detail": "Compare o PDF original com o resultado editável e sua reexportação.",
+      "category": "Converter"
+    },
+    {
+      "id": "merge",
+      "name": "Juntar PDF",
+      "icon": "rectangle.stack",
+      "detail": "Combine documentos na ordem que escolher.",
+      "category": "Organizar"
+    },
+    {
+      "id": "split",
+      "name": "Dividir PDF",
+      "icon": "square.split.2x2",
+      "detail": "Separe páginas e intervalos em novos arquivos.",
+      "category": "Organizar"
+    },
+    {
+      "id": "compress",
+      "name": "Comprimir PDF",
+      "icon": "arrow.down.right.and.arrow.up.left",
+      "detail": "Otimize o arquivo com controle de qualidade.",
+      "category": "Organizar"
+    },
+    {
+      "id": "word",
+      "name": "PDF para Word",
+      "icon": "doc.text",
+      "detail": "Extraia conteúdo para um documento editável.",
+      "category": "Converter"
+    },
+    {
+      "id": "powerpoint",
+      "name": "PDF para PowerPoint",
+      "icon": "rectangle.on.rectangle",
+      "detail": "Exporte slides editáveis ou páginas como imagens.",
+      "category": "Converter"
+    },
+    {
+      "id": "excel",
+      "name": "PDF para Excel",
+      "icon": "tablecells",
+      "detail": "Extraia tabelas e organize os dados por página.",
+      "category": "Converter"
+    },
+    {
+      "id": "word-pdf",
+      "name": "Word para PDF",
+      "icon": "doc.badge.arrow.up",
+      "detail": "Converta documentos Word com LibreOffice.",
+      "category": "Converter"
+    },
+    {
+      "id": "powerpoint-pdf",
+      "name": "PowerPoint para PDF",
+      "icon": "rectangle.stack.badge.plus",
+      "detail": "Transforme apresentações em documentos PDF.",
+      "category": "Converter"
+    },
+    {
+      "id": "excel-pdf",
+      "name": "Excel para PDF",
+      "icon": "tablecells.badge.ellipsis",
+      "detail": "Converta planilhas com LibreOffice.",
+      "category": "Converter"
+    },
+    {
+      "id": "edit",
+      "name": "Editar PDF",
+      "icon": "pencil.and.outline",
+      "detail": "Adicione texto, imagens e formas ou substitua texto.",
+      "category": "Editar"
+    },
+    {
+      "id": "jpg",
+      "name": "PDF para JPG",
+      "icon": "photo",
+      "detail": "Exporte páginas como imagens na resolução desejada.",
+      "category": "Converter"
+    },
+    {
+      "id": "images",
+      "name": "JPG para PDF",
+      "icon": "photo.on.rectangle",
+      "detail": "Combine imagens em um documento.",
+      "category": "Converter"
+    },
+    {
+      "id": "signature",
+      "name": "Assinar PDF",
+      "icon": "signature",
+      "detail": "Posicione sua assinatura visual no documento.",
+      "category": "Editar"
+    },
+    {
+      "id": "watermark",
+      "name": "Marca d’água",
+      "icon": "drop",
+      "detail": "Insira texto ou imagem com transparência.",
+      "category": "Editar"
+    },
+    {
+      "id": "rotate",
+      "name": "Rodar PDF",
+      "icon": "rotate.right",
+      "detail": "Ajuste a orientação das páginas selecionadas.",
+      "category": "Organizar"
+    },
+    {
+      "id": "html",
+      "name": "HTML para PDF",
+      "icon": "globe",
+      "detail": "Converta páginas da web ou arquivos HTML.",
+      "category": "Converter"
+    },
+    {
+      "id": "unlock",
+      "name": "Desbloquear PDF",
+      "icon": "lock.open",
+      "detail": "Remova a proteção usando a senha conhecida.",
+      "category": "Proteger"
+    },
+    {
+      "id": "protect",
+      "name": "Proteger PDF",
+      "icon": "lock.shield",
+      "detail": "Proteja seu documento com criptografia AES-256.",
+      "category": "Proteger"
+    },
+    {
+      "id": "organize",
+      "name": "Organizar PDF",
+      "icon": "square.grid.2x2",
+      "detail": "Reordene, duplique ou remova páginas.",
+      "category": "Organizar"
+    },
+    {
+      "id": "pdfa",
+      "name": "PDF para PDF/A",
+      "icon": "archivebox",
+      "detail": "Prepare uma cópia para arquivamento.",
+      "category": "Converter"
+    },
+    {
+      "id": "repair",
+      "name": "Reparar PDF",
+      "icon": "wrench",
+      "detail": "Tente recuperar documentos parcialmente danificados.",
+      "category": "Organizar"
+    },
+    {
+      "id": "numbers",
+      "name": "Números de página",
+      "icon": "number",
+      "detail": "Escolha posição, tamanho e numeração inicial.",
+      "category": "Editar"
+    },
+    {
+      "id": "scan",
+      "name": "Digitalizar em PDF",
+      "icon": "scanner",
+      "detail": "Use um scanner conectado ou importe imagens.",
+      "category": "Capturar"
+    },
+    {
+      "id": "ocr",
+      "name": "OCR PDF",
+      "icon": "text.viewfinder",
+      "detail": "Reconheça texto e crie páginas pesquisáveis.",
+      "category": "Capturar"
+    },
+    {
+      "id": "compare",
+      "name": "Comparar PDF",
+      "icon": "rectangle.split.2x1",
+      "detail": "Compare diferenças textuais ou visuais.",
+      "category": "Organizar"
+    },
+    {
+      "id": "redact",
+      "name": "Ocultar PDF",
+      "icon": "eraser",
+      "detail": "Remova permanentemente ocorrências de texto.",
+      "category": "Proteger"
+    },
+    {
+      "id": "crop",
+      "name": "Recortar PDF",
+      "icon": "crop",
+      "detail": "Ajuste a área visível das páginas.",
+      "category": "Editar"
+    },
+    {
+      "id": "forms",
+      "name": "Formulários PDF",
+      "icon": "list.bullet.rectangle",
+      "detail": "Crie campos, preencha ou inspecione formulários.",
+      "category": "Editar"
+    },
+    {
+      "id": "summary",
+      "name": "Resumir com IA",
+      "icon": "sparkles",
+      "detail": "Explore o conteúdo com inteligência local.",
+      "category": "Inteligência"
+    },
+    {
+      "id": "translate",
+      "name": "Traduzir PDF",
+      "icon": "character.bubble",
+      "detail": "Traduza o texto com o modelo disponível no Mac.",
+      "category": "Inteligência"
+    },
+    {
+      "id": "markdown",
+      "name": "PDF para Markdown",
+      "icon": "text.alignleft",
+      "detail": "Exporte conteúdo para notas e documentos Markdown.",
+      "category": "Converter"
+    },
+    {
+      "id": "workflow",
+      "name": "Criar fluxo de trabalho",
+      "icon": "arrow.triangle.branch",
+      "detail": "Combine etapas, salve e reutilize suas rotinas.",
+      "category": "Automatizar"
+    },
+    {
+      "id": "png",
+      "name": "PDF para PNG",
+      "icon": "photo.stack",
+      "detail": "Exporte páginas ou imagens incorporadas no formato PNG.",
+      "category": "Converter"
+    },
+    {
+      "id": "odt-pdf",
+      "name": "ODT para PDF",
+      "icon": "doc.text",
+      "detail": "Converta documentos OpenDocument com LibreOffice.",
+      "category": "Converter"
+    },
+    {
+      "id": "txt-pdf",
+      "name": "TXT para PDF",
+      "icon": "text.page",
+      "detail": "Transforme texto em páginas com fonte e margens ajustáveis.",
+      "category": "Converter"
+    },
+    {
+      "id": "rtf-pdf",
+      "name": "RTF para PDF",
+      "icon": "doc.richtext",
+      "detail": "Converta texto formatado em um documento PDF.",
+      "category": "Converter"
+    },
+    {
+      "id": "epub-pdf",
+      "name": "EPUB para PDF",
+      "icon": "books.vertical",
+      "detail": "Organize o conteúdo do livro em páginas PDF.",
+      "category": "Converter"
+    },
+    {
+      "id": "csv-pdf",
+      "name": "CSV para PDF",
+      "icon": "tablecells",
+      "detail": "Escolha separador, codificação e orientação da tabela.",
+      "category": "Converter"
+    },
+    {
+      "id": "pages-pdf",
+      "name": "Pages para PDF",
+      "icon": "doc.badge.gearshape",
+      "detail": "Exporte usando o aplicativo Pages instalado no Mac.",
+      "category": "Converter"
+    },
+    {
+      "id": "flatten",
+      "name": "Achatar PDF",
+      "icon": "square.3.layers.3d.down.right",
+      "detail": "Incorpore anotações e campos preenchidos ao conteúdo das páginas.",
+      "category": "Editar"
+    },
+    {
+      "id": "delete-pages",
+      "name": "Excluir páginas",
+      "icon": "doc.badge.minus",
+      "detail": "Remova páginas selecionadas e salve uma nova cópia.",
+      "category": "Organizar"
+    },
+    {
+      "id": "extract-pages",
+      "name": "Extrair páginas",
+      "icon": "doc.on.doc",
+      "detail": "Crie um PDF com as páginas e intervalos que escolher.",
+      "category": "Organizar"
+    },
+    {
+      "id": "converter",
+      "name": "Conversor de PDF",
+      "icon": "arrow.left.arrow.right",
+      "detail": "Encontre os formatos de entrada e saída disponíveis.",
+      "category": "Converter"
+    },
+    {
+      "id": "share",
+      "name": "Compartilhar PDF",
+      "icon": "square.and.arrow.up",
+      "detail": "Escolha um arquivo e compartilhe pelos serviços do macOS.",
+      "category": "Compartilhar"
+    },
+    {
+      "id": "annotate",
+      "name": "Anotar PDF",
+      "icon": "pencil.tip.crop.circle",
+      "detail": "Abra o leitor para realçar, desenhar e adicionar notas.",
+      "category": "Editar"
+    },
+    {
+      "id": "fill-forms",
+      "name": "Preencher PDF",
+      "icon": "checklist",
+      "detail": "Preencha campos existentes e gere uma nova cópia.",
+      "category": "Editar"
+    },
+    {
+      "id": "chat",
+      "name": "Conversar com PDF",
+      "icon": "bubble.left.and.bubble.right",
+      "detail": "Faça perguntas sobre o documento com IA local.",
+      "category": "Inteligência"
+    },
+    {
+      "id": "quiz",
+      "name": "Gerar questionário",
+      "icon": "questionmark.bubble",
+      "detail": "Crie perguntas de estudo com base no documento.",
+      "category": "Inteligência"
+    },
+    {
+      "id": "sign-service",
+      "name": "Sign.com",
+      "icon": "signature",
+      "detail": "Abra o serviço externo de assinaturas no navegador.",
+      "category": "Compartilhar"
+    },
+    {
+      "id": "digital-sign",
+      "name": "Assinatura digital certificada",
+      "icon": "checkmark.seal",
+      "detail": "Assine com seu certificado digital e verifique a integridade.",
+      "category": "Proteger"
+    },
+    {
+      "id": "verify-signatures",
+      "name": "Verificar assinaturas",
+      "icon": "checkmark.shield",
+      "detail": "Examine certificados, integridade e evidências de validação.",
+      "category": "Proteger"
+    },
+    {
+      "id": "validate-pdfa",
+      "name": "Validar PDF/A",
+      "icon": "archivebox.fill",
+      "detail": "Verifique conformidade de arquivamento com validador independente.",
+      "category": "Proteger"
+    },
+    {
+      "id": "validate-pdfua",
+      "name": "Auditar PDF/UA",
+      "icon": "accessibility",
+      "detail": "Analise requisitos de acessibilidade e gere um relatório.",
+      "category": "Proteger"
+    },
+    {
+      "id": "benchmark",
+      "name": "Desempenho do Mac",
+      "icon": "gauge.with.dots.needle.67percent",
+      "detail": "Meça leitura, busca e processamento no hardware deste Mac.",
+      "category": "Automatizar"
+    },
+    {
+      "id": "content-editor",
+      "name": "Editar conteúdo original",
+      "icon": "text.cursor",
+      "detail": "Selecione texto e imagens existentes e prepare uma cópia editada.",
+      "category": "Editar"
+    },
+    {
+      "id": "ocr-review",
+      "name": "Revisar OCR",
+      "icon": "text.viewfinder",
+      "detail": "Confira o texto reconhecido junto da imagem original.",
+      "category": "Capturar"
+    },
+    {
+      "id": "library",
+      "name": "Biblioteca de documentos",
+      "icon": "books.vertical",
+      "detail": "Coleções, etiquetas, pesquisa e identificação de duplicados.",
+      "category": "Organizar"
+    },
+    {
+      "id": "document-history",
+      "name": "Histórico de versões",
+      "icon": "clock.arrow.circlepath",
+      "detail": "Compare e restaure cópias anteriores da sua biblioteca.",
+      "category": "Organizar"
+    },
+    {
+      "id": "collection-research",
+      "name": "Pesquisar na coleção",
+      "icon": "doc.text.magnifyingglass",
+      "detail": "Encontre trechos com documento, página e referência verificável.",
+      "category": "Inteligência"
+    },
+    {
+      "id": "sync-library",
+      "name": "Sincronizar biblioteca",
+      "icon": "arrow.triangle.2.circlepath",
+      "detail": "Una versões entre seus Macs usando uma pasta escolhida.",
+      "category": "Organizar"
+    },
+    {
+      "id": "accessibility-edit",
+      "name": "Corrigir acessibilidade",
+      "icon": "accessibility",
+      "detail": "Revise tags, ordem de leitura e alternativas textuais.",
+      "category": "Editar"
+    },
+    {
+      "id": "signature-request",
+      "name": "Solicitar assinaturas",
+      "icon": "signature",
+      "detail": "Prepare participantes e campos para um serviço de assinaturas.",
+      "category": "Compartilhar"
+    },
+    {
+      "id": "print-preflight",
+      "name": "Diagnóstico de impressão",
+      "icon": "printer",
+      "detail": "Confira fontes, resolução de imagens e caixas da página.",
+      "category": "Produção"
+    },
+    {
+      "id": "print-prepare",
+      "name": "Corte e sangria",
+      "icon": "crop.rotate",
+      "detail": "Defina áreas de impressão e marcas de corte.",
+      "category": "Produção"
+    },
+    {
+      "id": "pdfx",
+      "name": "Preparar PDF/X-3",
+      "icon": "doc.badge.gearshape",
+      "detail": "Converta com o perfil ICC CMYK fornecido pela gráfica.",
+      "category": "Produção"
+    },
+    {
+      "id": "bates",
+      "name": "Numeração Bates",
+      "icon": "number.square",
+      "detail": "Identifique páginas com prefixo e sequência única.",
+      "category": "Produção"
+    },
+    {
+      "id": "dossier",
+      "name": "Conjunto de documentos",
+      "icon": "list.bullet.rectangle",
+      "detail": "Reúna PDFs com índice navegável e marcadores.",
+      "category": "Produção"
+    },
+    {
+      "id": "stamp",
+      "name": "Carimbo personalizado",
+      "icon": "checkmark.seal",
+      "detail": "Insira carimbos de revisão e identificação.",
+      "category": "Produção"
+    },
+    {
+      "id": "measure",
+      "name": "Medir com escala",
+      "icon": "ruler",
+      "detail": "Calcule distâncias, perímetros e áreas com escala definida.",
+      "category": "Produção"
+    },
+    {
+      "id": "automation",
+      "name": "Automação do Mac",
+      "icon": "gearshape.2",
+      "detail": "Execute fluxos em pastas monitoradas e use os Serviços do Finder.",
+      "category": "Automatizar"
+    }
+  ],
+  "nativeNavigationIDs": [
+    "content-editor",
+    "ocr-review",
+    "library",
+    "document-history",
+    "collection-research",
+    "sync-library",
+    "accessibility-edit",
+    "signature-request",
+    "print-preflight",
+    "print-prepare",
+    "pdfx",
+    "bates",
+    "dossier",
+    "stamp",
+    "measure",
+    "conversion-audit",
+    "automation",
+    "summary",
+    "translate",
+    "chat",
+    "quiz",
+    "workflow",
+    "scan",
+    "pages-pdf",
+    "share",
+    "sign-service",
+    "benchmark",
+    "digital-sign",
+    "verify-signatures",
+    "validate-pdfa",
+    "validate-pdfua",
+    "converter",
+    "annotate"
+  ],
+  "panelOperations": {
+    "merge": [
+      "merge"
+    ],
+    "split": [
+      "split"
+    ],
+    "compress": [
+      "compress"
+    ],
+    "word": [
+      "word"
+    ],
+    "powerpoint": [
+      "powerpoint"
+    ],
+    "excel": [
+      "excel"
+    ],
+    "word-pdf": [
+      "office"
+    ],
+    "powerpoint-pdf": [
+      "office"
+    ],
+    "excel-pdf": [
+      "office"
+    ],
+    "edit": [
+      "text",
+      "edit",
+      "image",
+      "shape"
+    ],
+    "jpg": [
+      "jpg"
+    ],
+    "images": [
+      "images"
+    ],
+    "signature": [
+      "signature"
+    ],
+    "watermark": [
+      "watermark"
+    ],
+    "rotate": [
+      "rotate"
+    ],
+    "html": [
+      "html"
+    ],
+    "unlock": [
+      "unlock"
+    ],
+    "protect": [
+      "protect"
+    ],
+    "organize": [
+      "organize"
+    ],
+    "pdfa": [
+      "pdfa"
+    ],
+    "repair": [
+      "repair"
+    ],
+    "numbers": [
+      "numbers"
+    ],
+    "ocr": [
+      "ocr"
+    ],
+    "compare": [
+      "compare",
+      "compare-visual"
+    ],
+    "redact": [
+      "redact"
+    ],
+    "crop": [
+      "crop"
+    ],
+    "forms": [
+      "forms",
+      "form-fill",
+      "form-create"
+    ],
+    "markdown": [
+      "markdown"
+    ],
+    "png": [
+      "png"
+    ],
+    "odt-pdf": [
+      "odt"
+    ],
+    "txt-pdf": [
+      "txt"
+    ],
+    "rtf-pdf": [
+      "rtf"
+    ],
+    "epub-pdf": [
+      "epub"
+    ],
+    "csv-pdf": [
+      "csv"
+    ],
+    "flatten": [
+      "flatten"
+    ],
+    "delete-pages": [
+      "delete-pages"
+    ],
+    "extract-pages": [
+      "extract-pages"
+    ],
+    "fill-forms": [
+      "forms",
+      "form-fill",
+      "form-create"
+    ]
+  },
+  "unknownOperations": {},
+  "matrixIDs": [
+    "merge",
+    "split",
+    "compress",
+    "rotate",
+    "organize",
+    "repair",
+    "compare",
+    "delete-pages",
+    "extract-pages",
+    "library",
+    "document-history",
+    "sync-library",
+    "conversion-audit",
+    "word",
+    "powerpoint",
+    "excel",
+    "word-pdf",
+    "powerpoint-pdf",
+    "excel-pdf",
+    "jpg",
+    "images",
+    "html",
+    "pdfa",
+    "markdown",
+    "png",
+    "odt-pdf",
+    "txt-pdf",
+    "rtf-pdf",
+    "epub-pdf",
+    "csv-pdf",
+    "pages-pdf",
+    "converter",
+    "edit",
+    "signature",
+    "watermark",
+    "numbers",
+    "crop",
+    "forms",
+    "flatten",
+    "annotate",
+    "fill-forms",
+    "content-editor",
+    "accessibility-edit",
+    "unlock",
+    "protect",
+    "redact",
+    "digital-sign",
+    "verify-signatures",
+    "validate-pdfa",
+    "validate-pdfua",
+    "scan",
+    "ocr",
+    "ocr-review",
+    "summary",
+    "translate",
+    "chat",
+    "quiz",
+    "collection-research",
+    "share",
+    "sign-service",
+    "signature-request",
+    "workflow",
+    "benchmark",
+    "automation",
+    "print-preflight",
+    "print-prepare",
+    "pdfx",
+    "bates",
+    "dossier",
+    "stamp",
+    "measure"
+  ],
+  "nativeGroupsRegistered": [
+    "Workflow presets and credentials",
+    "Pages isolated copy",
+    "Capture import and orientation",
+    "Preview WindowServer geometry consistency",
+    "Owned child processes and termination recovery",
+    "Application task cancellation and cleanup ownership",
+    "Typed-string repair graph and Unicode parser",
+    "Native serialization editable annotation and form roundtrips",
+    "Unicode field identity and byte-exact fidelity",
+    "Unsupported ink curve loss is refused",
+    "Native AES-256 and Unicode credentials",
+    "Native AES-256 and original permissions",
+    "Typed-string repair privacy and interruption",
+    "PDFKit, capture encoding, AI text helpers and protected output",
+    "Independent stream-length rejection and repair",
+    "Published native copy structural integrity",
+    "Core Image processing",
+    "Product searchable PDF",
+    "Tesseract installed runtime and transport",
+    "Published protected copy structural integrity",
+    "Native serialization fidelity and encryption guards",
+    "Native serialization private process and cancellation",
+    "Tool presets",
+    "Native regression audit",
+    "Appearance and reader preferences",
+    "Workspace scene presentation and reopening policy",
+    "Application and window appearance ownership",
+    "Recovery storage and encryption",
+    "Reader sessions and annotation editing",
+    "Semantic retrieval and verifiable citations",
+    "Performance measurement harness",
+    "Adaptive resource limits",
+    "Private engine input and cleanup",
+    "Advanced editing and OCR review contracts",
+    "Accessibility optional tag edit contract",
+    "Command palette shortcuts and workspace profiles",
+    "Opt-in folder automation",
+    "Library revisions synchronization and Portuguese sources",
+    "Library interrupted publications and catalog recovery",
+    "Tool review drafts across navigation and termination",
+    "Real crash and recovery",
+    "Runtime lease across native process termination",
+    "Explicit settings and bookmark exchange",
+    "App Intents input and private temporary files",
+    "Portuguese AI experiment acceptance criteria"
+  ],
+  "comparison": {
+    "baseline": "37f5b65e35a9f70c716cfcd64db7ba69837f5c21",
+    "catalogBlockByteIdentical": true,
+    "activateBlockByteIdentical": true
+  },
+  "files": {
+    "Sources/PDF/PDFApp.swift": "3c666f575d7287b26b41c5a94b7aac59b0cb2512ff3cedb40be4c196b1fa55b1",
+    "Sources/PDF/ToolViews.swift": "1e7cda9c0e24ac5f2cf18e4cb9f5933a60c7f62367ca2dffe387e6da644c8a6c",
+    "Sources/PDF/MacSmokeTests.swift": "271797d6756f3230d900960c3e83714a54be09121f965cc8f7c69dc6a6967e09",
+    "Sources/PDF/ToolDraftRegistry.swift": "37a0fad9f3022737a8582846e0ed4bb25ae118ce70314d946ce0954ace9f16f9",
+    "Sources/PDF/AdvancedCustomization.swift": "56d5b1919f93979501eb8e050ab53a00e3e1b2b7a17cbce2b135548bdd3ea600",
+    "Sources/PDF/CustomizationView.swift": "c0615b364b44339f008d57355f93b96bc4c92d81000a458875e3f4af44c333d7",
+    "Sources/PDF/RecoveryStore.swift": "10a4530bfd0d2000f1f5913116d29e0eba34a69987ed3ff7b9e6ea7fad82509f",
+    "Sources/PDF/SessionAnnotationAuditChecks.swift": "90de7d50b292fb74ee22426e18fb6dedce4a8f9ddd267c56e2d308d3459cf3f5",
+    "engine/pdf_engine.py": "320b01c7d37610f8b1fd5c6808fbae7badda3bc75448823df321329ac9a426cb",
+    "engine/print_inspection.py": "c5ca1e647acafc72a237bd79262d54a40ad3b05350e84cba691a98afd48adb99",
+    "engine/pdf_content.py": "6b014e091b0f25926fb89d5c0336f224fdb3be178b4a8691fce34cfc104393f1",
+    "docs/MATRIZ-0.7.md": "7cf1e382d4424571e3d0b6008458dfc4123117ce8fc1468d83d6f255482788a8",
+    "docs/AUDITORIA-0.7.md": "50b0297895187125ecf4fb525184f016e0c1bcc82862ab652449629bcf2642d7"
+  },
+  "fullNativeRun": {
+    "runID": 40254721424,
+    "retainedResultFound": false,
+    "hits": [],
+    "terminalState": "unknown in retained local evidence",
+    "note": "No result is inferred from elapsed time. Root investigates live API access."
+  },
+  "appearanceFocal": {
+    "runID": 40254721260,
+    "cache": "/workspace/.cache/pdf-appearance-2d70897-40254721260",
+    "note": "Originals retained. Independent visual review delegated to another agent; not full product approval."
+  },
+  "limitations": [
+    "Generic editing and layout reconstruction remain partial.",
+    "OCR difficult documents and semantic accessibility reconstruction remain partial; human VoiceOver untested.",
+    "Editor/OCR/accessibility drafts remain memory-only, reader recovery does not cover them.",
+    "Customization exists in eight sections but is not unrestricted across OS menus/reserved keys.",
+    "Portuguese generation and hardware energy/NPU/M4 physical measurements remain unproven.",
+    "Production signatures/services, two-Mac synchronization, Shortcuts UI and scanner interaction remain unproven.",
+    "PDF/X report explicitly has conformant:null and independently_certified:false.",
+    "Full-source install/cross-platform/private delivery approval for 2d cannot be inferred from focal evidence."
+  ]
+}

@@ -1,5 +1,10 @@
 # Matriz de ferramentas e orientações — 0.7
 
+
+## Estado do candidato `bc3021a`
+
+O catálogo mantém 71 ferramentas e o leitor; a [retenção da retomada](evidencias/retomada-2d70897/README.md) vincula a fonte anterior `2d708974d91c96dde422adf1d8a480a7c6b9d808` aos resultados retidos. O candidato `bc3021a` acrescenta contraste sem retirar personalização. O focal de aparência `40254721260` passou apenas seu diagnóstico mínimo. A matriz completa `40254721424` pertence à fonte anterior e falhou no `xcode-27` durante a captura nativa do preview, com a mensagem genérica de legibilidade dos controles no escuro; sem o artefato autenticado não se afirma qual subcheck falhou. Portanto, esta matriz descreve caminhos e testes associados, mas não declara aprovação nativa, instalador ou entrega.
+
 **Checkpoint atual `9d78ab9e38c8d4b0d63c98f18241d1735be7b3cb`: focal de aparência [40252786964](https://github.com/vibracall-beep/PDF-/actions/runs/40252786964) e revisão dos 14 originais aprovados, sem aprovação do aplicativo completo ou da entrega.** Os [originais e revisão factual](evidencias/appearance-9d78ab9/README.md) registram 12 checks por sistema e 36 medidas centrais dos três controles reais em seis estados de cada sistema. Menores razões: 4,136178:1 no 26 e 6,877762:1 no 27, com limiar 3:1. A [revisão visual por agente](evidencias/appearance-9d78ab9/reviews/pdf-appearance-9d-independent-review.md) não encontrou bloqueador no viewport; barra e Equilibrado/Restaurar estão legíveis nos dois sistemas.
 
 **Pendências atuais:** o focal usa bundle mínimo e não executa motor, documentos ou novos controles de recuperação, embora o código tenha compilado com SDK 26. O pacote-fonte de `9d78ab9` falhou por exceder o teto antigo de 120 MiB; a correção de limites passou 52 controles locais e extração real, mas a árvore modificada foi corretamente recusada pelo gate de entrega. Empacotamento da fonte limpa, matriz completa e entrega precisam de resultados próprios. A [auditoria](AUDITORIA-0.7.md) delimita as sete áreas e os ensaios externos ainda necessários.

@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "suite": "delivery",
+  "sourceCommit": "2d708974d91c96dde422adf1d8a480a7c6b9d808",
+  "workingTreeBefore": "",
+  "workingTreeAfter": "",
+  "command": [
+    "/workspace/PDF-/.venv/bin/python",
+    "-m",
+    "unittest",
+    "discover",
+    "-s",
+    "diagnostics",
+    "-p",
+    "test_deliver*.py",
+    "-v"
+  ],
+  "startedAtUTC": "2026-11-03T01:04:30.456263+00:00",
+  "completedAtUTC": "2026-11-03T01:04:33.169508+00:00",
+  "durationSeconds": 2.7024790039868094,
+  "exitCode": 0,
+  "unittestSummaries": [
+    [
+      "55",
+      "2.503"
+    ]
+  ],
+  "unittestResults": [
+    "OK"
+  ],
+  "logBytes": 12665,
+  "logSHA256": "9b50c2c61e9d47f00bff99d3b26fc72ae74a98f87c2d602218bf01c889352fe0"
+}

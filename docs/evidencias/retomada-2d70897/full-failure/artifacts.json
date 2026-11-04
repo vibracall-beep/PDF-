@@ -1,0 +1,86 @@
+[
+  {
+    "id": "12622925730",
+    "name": "PDF-Apple-Vision-capability-macos-26",
+    "size": "884 Bytes",
+    "digest": "sha256:7adef29c08c8d445361886be6311304d02acdc7f80d8a66342f678e60e700eb1"
+  },
+  {
+    "id": "12621969934",
+    "name": "PDF-Apple-Vision-capability-xcode-27",
+    "size": "2.02 KB",
+    "digest": "sha256:b91aa2d409f1efee6b670471583f5ade3d5e415581f3aff125895ed935cf5867"
+  },
+  {
+    "id": "12622159415",
+    "name": "PDF-local-AI-macos-26",
+    "size": "2.13 KB",
+    "digest": "sha256:8ee784b070918c97d09fed4a943964285c1dfbdf72a3da0f07b5c5af29b1b4b9"
+  },
+  {
+    "id": "12622469420",
+    "name": "PDF-local-AI-xcode-27",
+    "size": "2.13 KB",
+    "digest": "sha256:3d95104a5f512e39865194b1c0ea7243a724ad0c071555a6351441f1478e4b27"
+  },
+  {
+    "id": "12622880723",
+    "name": "PDF-macOS-benchmark-macos-26",
+    "size": "1.86 KB",
+    "digest": "sha256:ee5f8774410fb7ce1187926dd9cca973465f998476735b35c77f9b939083847a"
+  },
+  {
+    "id": "12623045298",
+    "name": "PDF-macOS-benchmark-xcode-27",
+    "size": "2.18 KB",
+    "digest": "sha256:1c818c75d6778a8577e78d6ac16f49313bdeeac5039a3f855acd5f527d150ac9"
+  },
+  {
+    "id": "12623080375",
+    "name": "PDF-macOS-preview-macos-26",
+    "size": "3.22 MB",
+    "digest": "sha256:9b964cc5cc78e7208f478a9bc9986e43ca4ac2d566b1092be4ffe51f8e90b004"
+  },
+  {
+    "id": "12622870672",
+    "name": "PDF-macOS-preview-xcode-27",
+    "size": "1.81 MB",
+    "digest": "sha256:ac957700b61a99b8a83b1e31f89bed5ca0939d47de82a1452be40c3f8340a15d"
+  },
+  {
+    "id": "12622322448",
+    "name": "PDF-native-checks-macos-26",
+    "size": "8.57 KB",
+    "digest": "sha256:efd04dcde2f5be8fe73806793ccb2a5c0068c568bdceaa2b3b672ed15bac11cc"
+  },
+  {
+    "id": "12622845706",
+    "name": "PDF-native-checks-xcode-27",
+    "size": "16.6 KB",
+    "digest": "sha256:f0c0b11b70045355b1c8b1e6bf7d4b3d59f4a67a687286aa64b03e59e2d06c3f"
+  },
+  {
+    "id": "12623338242",
+    "name": "PDF-source-macos-26",
+    "size": "82.7 MB",
+    "digest": "sha256:54c97d224d1b431e7bb615ff48c6431e6e8e47d40fd6a9c85e3f824f2d1e2ef0"
+  },
+  {
+    "id": "12623570458",
+    "name": "PDF-source-unvalidated-xcode-27",
+    "size": "82.7 MB",
+    "digest": "sha256:5ac56946d0d1320c2ca0a7d4e8753b37ed3fb022226565eb8e81ec8069624a31"
+  },
+  {
+    "id": "12622770856",
+    "name": "PDF-window-lifecycle-macos-26",
+    "size": "9.24 KB",
+    "digest": "sha256:9d7d6d58da7c7905484a287f05e28dae3132f806a5c003794440ede0b9ce1a67"
+  },
+  {
+    "id": "12622198798",
+    "name": "PDF-window-lifecycle-xcode-27",
+    "size": "10.5 KB",
+    "digest": "sha256:2252f156798680be13aec2ab1aadd4dc9a4a8467d00b39f35e541ce013200b14"
+  }
+]

@@ -1,0 +1,24 @@
+HTTP/1.1 200 OK
+date: Tue, 03 Nov 2026 01:04:36 GMT
+server: envoy
+
+HTTP/2 404 
+date: Tue, 03 Nov 2026 01:04:36 GMT
+content-type: text/plain; charset=utf-8
+vary: X-PJAX, X-PJAX-Container, Turbo-Visit, Turbo-Frame, X-Requested-With, X-GitHub-Client-Version, Sec-Fetch-Site,Accept-Encoding, Accept, X-Requested-With
+cache-control: no-cache
+strict-transport-security: max-age=31536000; includeSubdomains; preload
+x-frame-options: deny
+x-content-type-options: nosniff
+x-xss-protection: 0
+referrer-policy: no-referrer-when-downgrade
+content-security-policy: default-src 'none'; base-uri 'self'; connect-src 'self'; form-action 'self'; img-src 'self' data:; script-src 'self'; style-src 'unsafe-inline'
+server: envoy
+set-cookie: _gh_sess=ZigON5sJgg7U%2BXzPkEnI%2FzB5hjRnrpcGxMV%2B3TJ7WoDd19jEu%2FawrFl8s%2By9K8AsxziJsz%2BgbTJAsA34uR8j8eSG5vNQ8JkuoXwzGGhLibqq08NA64ZyodtT0DYcHa3fefb7cZMCKYMBeMSQH4Ym%2BgNaXSPoin6Bn4HlgO9EWkboI6SVGL9gMlzTSMjeD7RzrLjbDNEeRhOEOOOM0nV3HY2D6VwYtu2oLhlkvqfyqOnhV2qegoqbY1uoio3yUoZZg96vt40k0V7R9p2XgmqYiA%3D%3D--k6LG3%2BrICdM7kaIO--qmtS7RwLmq1K6POwtdJ7PQ%3D%3D; path=/; HttpOnly; secure; SameSite=Lax
+set-cookie: _octo=GH1.1.2064203112.1793667876; expires=Wed, 03 Nov 2027 00:04:36 GMT; domain=.github.com; path=/; secure; SameSite=Lax
+set-cookie: logged_in=no; expires=Wed, 03 Nov 2027 00:04:36 GMT; domain=.github.com; path=/; HttpOnly; secure; SameSite=Lax
+content-length: 9
+x-github-request-id: 52CB:22BA60:1F5263F:28BFAD8:6AE93324
+x-github-edge-region: iad
+x-envoy-upstream-service-time: 173
+

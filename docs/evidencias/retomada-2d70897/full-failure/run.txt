@@ -1,0 +1,606 @@
+macOS application validation · vibracall-beep/PDF-@2d70897 · GitHub
+Skip to content
+Navigation Menu
+Sign in
+Products
+Platform
+GitHub
+Repository hosting, code review, and collaboration
+Copilot
+AI coding agent for tasks, projects and automated work
+Build & Ship
+Actions
+CI/CD and automation
+Code Quality
+Quality analysis, fixes, and enforcement
+Codespaces
+Cloud development environments
+Secure
+Code Security
+Vulnerability detection and remediation
+Secret Protection
+Secret scanning and leak prevention
+All Features
+Developers
+Learn
+Documentation
+Training
+Certifications
+Build
+Build with Copilot
+Customize Copilot
+Integrations
+Explore
+Trending repos
+GitHub Sponsors
+Events
+Changelog
+Changelog
+Your source for the latest features, improvements, and fixes across GitHub products, all in one place.
+Businesses
+By Stage
+Enterprises
+Team
+Startups
+Nonprofits
+By Industry
+Healthcare
+Financial services
+Manufacturing
+Government
+See all industries
+Evaluate GitHub
+Why GitHub
+Customer Stories
+Business insights
+Trust Center
+Add-ons
+GitHub Advanced Security
+Enterprise-grade code security
+Copilot for business
+Enterprise-grade AI features
+Premium Support
+Enterprise-grade 24/7 support
+Resources
+Learn & Connect
+Documentation
+Resource center
+Blog
+Events & webinars
+Community Forum
+Customer Stories
+Integrations
+Support
+Customer support
+Training
+GitHub Status
+Company
+About
+Partners
+Changelog
+GitHub Universe
+GitHub Universe
+The event for developers, by developers — talks, workshops, and what’s next for GitHub.
+Pricing
+Search
+/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window.
+Reload
+to refresh your session.
+You signed out in another tab or window.
+Reload
+to refresh your session.
+You switched accounts on another tab or window.
+Reload
+to refresh your session.
+Dismiss alert
+{{ message }}
+vibracall-beep
+PDF-
+Repository navigation
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+More
+items
+macOS application validation
+macOS application validation
+#56
+Sign in to view logs
+Sign in to view logs
+Summary
+macOS application validation
+macOS application validation
+#56
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Manually triggered
+October 26, 2026 01:32
+vibracall-beep
+⁠
+2d70897
+main
+Status
+Failure
+Total duration
+46m 11s
+Artifacts
+14
+macos.yml
+on: workflow_dispatch
+Matrix: native-application
+2
+              jobs completed
+Show all jobs
+Oh hello! Nice to see you.
+Made with ❤️ by
+humans.txt
+Fit to window
+Zoom out
+Zoom in
+Annotations
+2 errors, 5 warnings, and 93 notices
+native-application (xcode-27)
+Process completed with exit code 1.
+Show more
+Show less
+PDF preview
+A legibilidade dos controles reais da barra superior falhou em escuro. O PNG original e as medições foram preservados.
+Show more
+Show less
+native-application (macos-26):
+Sources/PDF/VisionFailureDiagnostics.swift#L122
+'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+Show more
+Show less
+native-application (macos-26)
+openjdk@21 was installed but not linked because openjdk is already installed.
+To link this version, run:
+  brew link openjdk@21
+Show more
+Show less
+native-application (macos-26):
+Sources/PDF/VisionFailureDiagnostics.swift#L122
+'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+Show more
+Show less
+native-application (xcode-27):
+Sources/PDF/VisionFailureDiagnostics.swift#L122
+'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+Show more
+Show less
+native-application (xcode-27)
+openjdk@21 was installed but not linked because openjdk is already installed.
+To link this version, run:
+  brew link openjdk@21
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF native validation
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+PDF native validation
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+PDF native validation
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF preview
+Accessibility starting: lado-a-lado
+Show more
+Show less
+PDF preview
+Capture starting: lado-a-lado
+Show more
+Show less
+PDF preview
+Capture completed: abas
+Show more
+Show less
+PDF preview
+Capture starting: abas
+Show more
+Show less
+PDF preview
+Capture completed: leitor
+Show more
+Show less
+PDF preview
+Accessibility starting: leitor
+Show more
+Show less
+PDF preview
+Capture starting: leitor
+Show more
+Show less
+PDF preview
+Capture completed: home
+Show more
+Show less
+PDF preview
+Accessibility starting: home
+Show more
+Show less
+PDF preview
+Capture starting: home
+Show more
+Show less
+PDF native validation
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+PDF native validation
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+PDF native validation
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF native validation
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+PDF native validation
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+PDF native validation
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF native validation
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+PDF native validation
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+PDF native validation
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF preview
+Accessibility starting: lado-a-lado
+Show more
+Show less
+PDF preview
+Capture starting: lado-a-lado
+Show more
+Show less
+PDF preview
+Capture completed: abas
+Show more
+Show less
+PDF preview
+Capture starting: abas
+Show more
+Show less
+PDF preview
+Capture completed: leitor
+Show more
+Show less
+PDF preview
+Accessibility starting: leitor
+Show more
+Show less
+PDF preview
+Capture starting: leitor
+Show more
+Show less
+PDF preview
+Capture completed: home
+Show more
+Show less
+PDF preview
+Accessibility starting: home
+Show more
+Show less
+PDF preview
+Capture starting: home
+Show more
+Show less
+PDF native validation
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+PDF native validation
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+PDF native validation
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+PDF native validation
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+PDF native validation
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+PDF native validation
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+PDF native validation
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+PDF native validation
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+PDF native validation
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+PDF native validation
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+PDF native validation
+Starting: Capture import and orientation
+Show more
+Show less
+PDF native validation
+Starting: Pages isolated copy
+Show more
+Show less
+PDF native validation
+Starting: Workflow presets and credentials
+Show more
+Show less
+Artifacts
+Produced during runtime
+Name
+Size
+Digest
+PDF-Apple-Vision-capability-macos-26
+884 Bytes
+sha256:7adef29c08c8d445361886be6311304d02acdc7f80d8a66342f678e60e700eb1
+PDF-Apple-Vision-capability-xcode-27
+2.02 KB
+sha256:b91aa2d409f1efee6b670471583f5ade3d5e415581f3aff125895ed935cf5867
+PDF-local-AI-macos-26
+2.13 KB
+sha256:8ee784b070918c97d09fed4a943964285c1dfbdf72a3da0f07b5c5af29b1b4b9
+PDF-local-AI-xcode-27
+2.13 KB
+sha256:3d95104a5f512e39865194b1c0ea7243a724ad0c071555a6351441f1478e4b27
+PDF-macOS-benchmark-macos-26
+1.86 KB
+sha256:ee5f8774410fb7ce1187926dd9cca973465f998476735b35c77f9b939083847a
+PDF-macOS-benchmark-xcode-27
+2.18 KB
+sha256:1c818c75d6778a8577e78d6ac16f49313bdeeac5039a3f855acd5f527d150ac9
+PDF-macOS-preview-macos-26
+3.22 MB
+sha256:9b964cc5cc78e7208f478a9bc9986e43ca4ac2d566b1092be4ffe51f8e90b004
+PDF-macOS-preview-xcode-27
+1.81 MB
+sha256:ac957700b61a99b8a83b1e31f89bed5ca0939d47de82a1452be40c3f8340a15d
+PDF-native-checks-macos-26
+8.57 KB
+sha256:efd04dcde2f5be8fe73806793ccb2a5c0068c568bdceaa2b3b672ed15bac11cc
+PDF-native-checks-xcode-27
+16.6 KB
+sha256:f0c0b11b70045355b1c8b1e6bf7d4b3d59f4a67a687286aa64b03e59e2d06c3f
+PDF-source-macos-26
+82.7 MB
+sha256:54c97d224d1b431e7bb615ff48c6431e6e8e47d40fd6a9c85e3f824f2d1e2ef0
+PDF-source-unvalidated-xcode-27
+82.7 MB
+sha256:5ac56946d0d1320c2ca0a7d4e8753b37ed3fb022226565eb8e81ec8069624a31
+PDF-window-lifecycle-macos-26
+9.24 KB
+sha256:9d7d6d58da7c7905484a287f05e28dae3132f806a5c003794440ede0b9ce1a67
+PDF-window-lifecycle-xcode-27
+10.5 KB
+sha256:2252f156798680be13aec2ab1aadd4dc9a4a8467d00b39f35e541ce013200b14
+You can’t perform that action at this time.

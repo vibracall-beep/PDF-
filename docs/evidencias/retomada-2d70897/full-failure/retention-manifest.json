@@ -1,0 +1,67 @@
+{
+  "run": 40254721424,
+  "sourceCommit": "2d708974d91c96dde422adf1d8a480a7c6b9d808",
+  "jobs": {
+    "macos-26": 121354003365,
+    "xcode-27": 121354003506
+  },
+  "status": "failure",
+  "scope": "public GitHub HTML pages only; no authenticated artifacts/logs downloaded",
+  "files": [
+    {
+      "path": "job26.html",
+      "bytes": 266360,
+      "sha256": "01bbdbfa71cdd29d93af18d880917002bfd7aa07a47d832b4596be368221f436"
+    },
+    {
+      "path": "job26.links.json",
+      "bytes": 4480,
+      "sha256": "b2b9a2ab07875b20342106cbb97a3afa3377fff93839c7812565f03098100549"
+    },
+    {
+      "path": "job26.txt",
+      "bytes": 8235,
+      "sha256": "1d5ee01396ad3a59552f71fceede1506e3300d45223507c6fc48062ed07ee99e"
+    },
+    {
+      "path": "job27.html",
+      "bytes": 266395,
+      "sha256": "f0ef0543afc92fdc37f6090b020904fdc3c4f0c21c4b299f44d1e1912c292659"
+    },
+    {
+      "path": "job27.links.json",
+      "bytes": 4414,
+      "sha256": "22c74cd15b43c51a98d513921daf463aab9d8a8b0f7ebd27a46c0311fb753cb9"
+    },
+    {
+      "path": "job27.txt",
+      "bytes": 8216,
+      "sha256": "a7251d9716e48da3f5704b2954d6fbd35b41f59baaa626cd0c61c96bb2d02188"
+    },
+    {
+      "path": "run.html",
+      "bytes": 390923,
+      "sha256": "02c88e2de07149fcb6972d337393d05cd654115442d2d91a5ad87aa155eed8c7"
+    },
+    {
+      "path": "run.links.json",
+      "bytes": 11386,
+      "sha256": "68a2c1588a3a8f73b3d6b581fd5203e38f3eaddcd129ea664e6fc029ea171cf5"
+    },
+    {
+      "path": "run.txt",
+      "bytes": 13224,
+      "sha256": "d1166ce8e433bbbef8f7f5553bb2c52cd3b58acd160407f820f839760ea75ed0"
+    },
+    {
+      "path": "step13.headers",
+      "bytes": 1541,
+      "sha256": "3869c371eb3da3fab2ce2f3147f8627668cc51a0e60d1d37c6bb6bcd0210a027"
+    },
+    {
+      "path": "step13.response",
+      "bytes": 9,
+      "sha256": "0019dfc4b32d63c1392aa264aed2253c1e0c2fb09216f8e2cc269bbfb8bb49b5"
+    }
+  ]
+}

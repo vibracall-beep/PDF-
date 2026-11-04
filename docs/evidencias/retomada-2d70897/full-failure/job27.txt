@@ -1,0 +1,343 @@
+macOS application validation · vibracall-beep/PDF-@2d70897 · GitHub
+Skip to content
+Navigation Menu
+Sign in
+Products
+Platform
+GitHub
+Repository hosting, code review, and collaboration
+Copilot
+AI coding agent for tasks, projects and automated work
+Build & Ship
+Actions
+CI/CD and automation
+Code Quality
+Quality analysis, fixes, and enforcement
+Codespaces
+Cloud development environments
+Secure
+Code Security
+Vulnerability detection and remediation
+Secret Protection
+Secret scanning and leak prevention
+All Features
+Developers
+Learn
+Documentation
+Training
+Certifications
+Build
+Build with Copilot
+Customize Copilot
+Integrations
+Explore
+Trending repos
+GitHub Sponsors
+Events
+Changelog
+Changelog
+Your source for the latest features, improvements, and fixes across GitHub products, all in one place.
+Businesses
+By Stage
+Enterprises
+Team
+Startups
+Nonprofits
+By Industry
+Healthcare
+Financial services
+Manufacturing
+Government
+See all industries
+Evaluate GitHub
+Why GitHub
+Customer Stories
+Business insights
+Trust Center
+Add-ons
+GitHub Advanced Security
+Enterprise-grade code security
+Copilot for business
+Enterprise-grade AI features
+Premium Support
+Enterprise-grade 24/7 support
+Resources
+Learn & Connect
+Documentation
+Resource center
+Blog
+Events & webinars
+Community Forum
+Customer Stories
+Integrations
+Support
+Customer support
+Training
+GitHub Status
+Company
+About
+Partners
+Changelog
+GitHub Universe
+GitHub Universe
+The event for developers, by developers — talks, workshops, and what’s next for GitHub.
+Pricing
+Search
+/
+Sign in
+Sign up
+Appearance settings
+You signed in with another tab or window.
+Reload
+to refresh your session.
+You signed out in another tab or window.
+Reload
+to refresh your session.
+You switched accounts on another tab or window.
+Reload
+to refresh your session.
+Dismiss alert
+{{ message }}
+vibracall-beep
+PDF-
+Repository navigation
+Code
+Issues
+Pull requests
+Actions
+Projects
+Security and quality
+Insights
+More
+items
+macOS application validation
+macOS application validation
+#56
+Sign in to view logs
+Sign in to view logs
+native-application (xcode-27)
+macOS application validation
+macOS application validation
+#56
+Uh oh!
+There was an error while loading.
+Please reload this page
+.
+Annotations
+2 errors, 2 warnings, and 46 notices
+Capture native window preview
+Process completed with exit code 1.
+Show more
+Show less
+Capture native window preview
+A legibilidade dos controles reais da barra superior falhou em escuro. O PNG original e as medições foram preservados.
+Show more
+Show less
+Build, install and validate complete application:
+Sources/PDF/VisionFailureDiagnostics.swift#L122
+'usesCPUOnly' was deprecated in macOS 14.0 [#DeprecatedDeclaration]
+Show more
+Show less
+Build, install and validate complete application
+openjdk@21 was installed but not linked because openjdk is already installed.
+To link this version, run:
+  brew link openjdk@21
+Show more
+Show less
+Package and verify binary install and update
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+Package and verify binary install and update
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+Package and verify binary install and update
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+Package and verify binary install and update
+Starting: Capture import and orientation
+Show more
+Show less
+Package and verify binary install and update
+Starting: Pages isolated copy
+Show more
+Show less
+Package and verify binary install and update
+Starting: Workflow presets and credentials
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Capture import and orientation
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Pages isolated copy
+Show more
+Show less
+Validate portable app without host dependencies or network
+Starting: Workflow presets and credentials
+Show more
+Show less
+Capture native window preview
+Accessibility starting: lado-a-lado
+Show more
+Show less
+Capture native window preview
+Capture starting: lado-a-lado
+Show more
+Show less
+Capture native window preview
+Capture completed: abas
+Show more
+Show less
+Capture native window preview
+Capture starting: abas
+Show more
+Show less
+Capture native window preview
+Capture completed: leitor
+Show more
+Show less
+Capture native window preview
+Accessibility starting: leitor
+Show more
+Show less
+Capture native window preview
+Capture starting: leitor
+Show more
+Show less
+Capture native window preview
+Capture completed: home
+Show more
+Show less
+Capture native window preview
+Accessibility starting: home
+Show more
+Show less
+Capture native window preview
+Capture starting: home
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Capture import and orientation
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Pages isolated copy
+Show more
+Show less
+Validate installed application and local OCR
+Starting: Workflow presets and credentials
+Show more
+Show less
+Build, install and validate complete application
+Starting: Unsupported ink curve loss is refused
+Show more
+Show less
+Build, install and validate complete application
+Starting: Unicode field identity and byte-exact fidelity
+Show more
+Show less
+Build, install and validate complete application
+Starting: Native serialization editable annotation and form roundtrips
+Show more
+Show less
+Build, install and validate complete application
+Starting: Typed-string repair graph and Unicode parser
+Show more
+Show less
+Build, install and validate complete application
+Starting: Application task cancellation and cleanup ownership
+Show more
+Show less
+Build, install and validate complete application
+Starting: Owned child processes and termination recovery
+Show more
+Show less
+Build, install and validate complete application
+Starting: Preview WindowServer geometry consistency
+Show more
+Show less
+Build, install and validate complete application
+Starting: Capture import and orientation
+Show more
+Show less
+Build, install and validate complete application
+Starting: Pages isolated copy
+Show more
+Show less
+Build, install and validate complete application
+Starting: Workflow presets and credentials
+Show more
+Show less
+native-application (xcode-27)
+native-application (xcode-27)
+failed
+Oct 26, 2026
+in 46m 6s
+background
+wait
+wait-all
+cancel
+parallel
+Loading
+Re-running jobs...
+You can’t perform that action at this time.

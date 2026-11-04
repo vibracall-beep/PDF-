@@ -349,9 +349,18 @@ struct ContentView: View {
         .onAppear { model.refreshRecovery() }
         .toolbar {
             ToolbarItemGroup(placement:.primaryAction) {
-                Button { paletteReaderActions = readerActions; showPalette = true } label: { Label("Comandos", systemImage: "command") }
+                Button { paletteReaderActions = readerActions; showPalette = true } label: {
+                    // Keep the real AppKit toolbar symbols readable in both
+                    // themes even when the user selects a low-luminance accent.
+                    // The accent continues to style the workspace; toolbar
+                    // glyphs follow the semantic primary color supplied by
+                    // macOS so their contrast does not depend on that choice.
+                    Label("Comandos", systemImage: "command").foregroundStyle(.primary)
+                }
                     .help("Buscar ferramentas e comandos").accessibilityIdentifier("pdf.commands.toolbar")
-                Button { showCustomization = true } label:{ Label("Personalizar",systemImage:"slider.horizontal.3") }
+                Button { showCustomization = true } label: {
+                    Label("Personalizar",systemImage:"slider.horizontal.3").foregroundStyle(.primary)
+                }
                     .help("Personalizar aparência, menus e leitura").accessibilityIdentifier("pdf.customize.toolbar")
             }
         }
